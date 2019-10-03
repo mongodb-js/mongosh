@@ -3,7 +3,7 @@ trigger:
 jobs:
   - job: Ubuntu
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - script: |
           set -e
@@ -27,7 +27,7 @@ jobs:
         displayName: '(Lerna) Run Checks'
   - job: OSX
     pool:
-      vmImage: 'macOS-10.14'
+      vmImage: 'macOD-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -46,10 +46,9 @@ jobs:
       - script: |
           lerna run check
         displayName: '(Lerna) Run Checks'
-  - job: RHEL
+  - job: Windows
     pool:
-      vmImage: 'Ubuntu-16.04'
-    container: dotnetcore_centos6
+      vmImage: 'windows-latest'
     steps:
       - script: |
           set -e
