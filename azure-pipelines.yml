@@ -50,9 +50,6 @@ jobs:
     pool:
       vmImage: 'windows-latest'
     steps:
-      - script: |
-          set -e
-        displayName: 'Install Services'
       - task: NodeTool@0
         inputs:
           versionSpec: '10.2.1'
