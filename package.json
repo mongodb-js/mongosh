@@ -14,5 +14,8 @@
     "Compass",
     "Stitch"
   ],
-  "license": "SSPL"
+  "license": "SSPL",
+  "devDependencies": {
+    "lerna": "^3.10.7"
+  }
 }
