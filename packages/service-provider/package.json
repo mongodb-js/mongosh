@@ -1,0 +1,12 @@
+{
+  "name": "mongodbsh-service-provider",
+  "version": "0.0.0",
+  "description": "MongoDB Shell Service Provider Package",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.1"
+  }
+}
