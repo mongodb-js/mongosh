@@ -1,1 +1,10 @@
+.DS_Store
+npm-debug.log
+node_modules/
+lib-cov
+coverage
+.lock-wscript
+.idea/
+*.iml
 *.swp
+lerna-debug.log

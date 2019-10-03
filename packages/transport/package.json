@@ -4,6 +4,9 @@
   "description": "MongoDB Shell Transport Package",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "mocha --recursive"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.1"
   }
 }
