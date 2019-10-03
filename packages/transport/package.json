@@ -4,9 +4,7 @@
   "description": "MongoDB Shell Transport Package",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive"
-  },
-  "devDependencies": {
-    "mocha": "^6.2.1"
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   }
 }

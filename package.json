@@ -4,7 +4,8 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive"
+    "test": "mocha --recursive",
+    "check": "lerna run check"
   },
   "keywords": [
     "MongoDB",
@@ -16,7 +17,14 @@
   ],
   "license": "SSPL",
   "devDependencies": {
+    "chai": "^4.2.0",
     "lerna": "^3.10.7",
-    "mocha": "^6.2.1"
+    "mocha": "^6.2.1",
+    "mongodb-js-precommit": "^2.0.0",
+    "sinon": "^7.5.0"
+  },
+  "dependencies": {
+    "mongodbsh-service-provider": "file:packages/service-provider",
+    "mongodbsh-transport": "file:packages/transport"
   }
 }
