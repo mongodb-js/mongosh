@@ -7,8 +7,6 @@ jobs:
     steps:
       - script: |
           set -e
-          sudo apt-get update
-          sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0 libgconf-2-4 libasound2 libxtst6 libnss3
         displayName: 'Install Services'
       - task: NodeTool@0
         inputs:
@@ -48,3 +46,28 @@ jobs:
       - script: |
           lerna run check
         displayName: '(Lerna) Run Checks'
+  - job: RHEL
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    container: dotnetcore_centos6
+      steps:
+        - script: |
+            set -e
+          displayName: 'Install Services'
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '10.2.1'
+          displayName: 'Install Node.js'
+        - script: |
+            npm install --global lerna
+            npm install
+          displayName: 'NPM Install'
+        - script: |
+            lerna bootstrap
+          displayName: 'Lerna Bootstrap'
+        - script: |
+            lerna run test
+          displayName: '(Lerna) Run Tests'
+        - script: |
+            lerna run check
+          displayName: '(Lerna) Run Checks'
