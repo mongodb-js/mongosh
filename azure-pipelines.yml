@@ -50,24 +50,24 @@ jobs:
     pool:
       vmImage: 'Ubuntu-16.04'
     container: dotnetcore_centos6
-      steps:
-        - script: |
-            set -e
-          displayName: 'Install Services'
-        - task: NodeTool@0
-          inputs:
-            versionSpec: '10.2.1'
-          displayName: 'Install Node.js'
-        - script: |
-            npm install --global lerna
-            npm install
-          displayName: 'NPM Install'
-        - script: |
-            lerna bootstrap
-          displayName: 'Lerna Bootstrap'
-        - script: |
-            lerna run test
-          displayName: '(Lerna) Run Tests'
-        - script: |
-            lerna run check
-          displayName: '(Lerna) Run Checks'
+    steps:
+      - script: |
+          set -e
+        displayName: 'Install Services'
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.2.1'
+        displayName: 'Install Node.js'
+      - script: |
+          npm install --global lerna
+          npm install
+        displayName: 'NPM Install'
+      - script: |
+          lerna bootstrap
+        displayName: 'Lerna Bootstrap'
+      - script: |
+          lerna run test
+        displayName: '(Lerna) Run Tests'
+      - script: |
+          lerna run check
+        displayName: '(Lerna) Run Checks'
