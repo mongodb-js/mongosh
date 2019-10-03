@@ -25,7 +25,7 @@ jobs:
       - script: |
           lerna run check
         displayName: '(Lerna) Run Checks'
-  - job: OSX
+  - job: MacOS
     pool:
       vmImage: 'macOS-latest'
     steps:
