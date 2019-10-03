@@ -18,7 +18,7 @@ jobs:
         displayName: 'NPM Install'
       - script: |
           lerna bootstrap
-        displayName: 'Lerna Bootstrap'
+        displayName: '(Lerna) Bootstrap'
       - script: |
           lerna run test
         displayName: '(Lerna) Run Tests'
@@ -27,7 +27,7 @@ jobs:
         displayName: '(Lerna) Run Checks'
   - job: OSX
     pool:
-      vmImage: 'macOD-latest'
+      vmImage: 'macOS-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -39,7 +39,7 @@ jobs:
         displayName: 'NPM Install'
       - script: |
           lerna bootstrap
-        displayName: 'Lerna Bootstrap'
+        displayName: '(Lerna) Bootstrap'
       - script: |
           lerna run test
         displayName: '(Lerna) Run Tests'
@@ -60,7 +60,7 @@ jobs:
         displayName: 'NPM Install'
       - script: |
           lerna bootstrap
-        displayName: 'Lerna Bootstrap'
+        displayName: '(Lerna) Bootstrap'
       - script: |
           lerna run test
         displayName: '(Lerna) Run Tests'
