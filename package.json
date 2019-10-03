@@ -1,0 +1,18 @@
+{
+  "name": "mongosh",
+  "version": "0.0.0",
+  "description": "The MongoDB Shell",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "MongoDB",
+    "Shell",
+    "Node",
+    "JS",
+    "Compass",
+    "Stitch"
+  ],
+  "license": "SSPL"
+}
