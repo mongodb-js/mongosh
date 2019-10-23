@@ -18,12 +18,15 @@
   "license": "SSPL",
   "devDependencies": {
     "chai": "^4.2.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.15.1",
     "lerna": "^3.10.7",
     "mocha": "^6.2.1",
     "mongodb-js-precommit": "^2.0.0",
     "sinon": "^7.5.0"
   },
   "dependencies": {
+    "mongodbsh-browser-repl": "file:packages/browser-repl",
     "mongodbsh-service-provider": "file:packages/service-provider",
     "mongodbsh-transport": "file:packages/transport"
   }
