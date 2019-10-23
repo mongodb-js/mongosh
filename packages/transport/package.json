@@ -6,5 +6,8 @@
   "scripts": {
     "test": "mocha --recursive --color",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+  },
+  "devDependencies": {
+    "mongodb": "^3.3.3"
   }
 }
