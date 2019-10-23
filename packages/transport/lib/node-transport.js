@@ -4,6 +4,19 @@
  */
 class NodeTransport {
   /**
+   * Create a NodeTransport from a URI.
+   *
+   * @param {String} uri - The URI.
+   *
+   * @returns {NodeTransport} The Node transport.
+   */
+  static async fromURI(uri) {
+    const mongoClient = new MongoClient(uri);
+    await mongoClient.connect();
+    return new NodeTransport(mongoClient);
+  };
+
+  /**
    * Instantiate a new Node transport with the Node driver's connected
    * MongoClient instance.
    *
@@ -34,19 +47,6 @@ class NodeTransport {
   _db(name) {
     return this.mongoClient.db(name);
   }
-};
-
-/**
- * Create a NodeTransport from a URI.
- *
- * @param {String} uri - The URI.
- *
- * @returns {NodeTransport} The Node transport.
- */
-const fromURI = async (uri) => {
-  const mongoClient = new MongoClient(uri);
-  await mongoClient.connect();
-  return new NodeTransport(mongoClient);
 };
 
 module.exports = NodeTransport;
