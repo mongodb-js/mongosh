@@ -1,7 +1,7 @@
 const NodeTransport = require('./lib/node-transport');
-const StitchTransport = require('./lib/stitch-transport');
+const StitchBrowserTransport = require('./lib/stitch-browser-transport');
 
 module.exports = {
   NodeTransport,
-  StitchTransport
+  StitchBrowserTransport
 };
