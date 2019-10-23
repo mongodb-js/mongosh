@@ -4,7 +4,7 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive",
+    "test": "lerna run test",
     "check": "lerna run check"
   },
   "keywords": [

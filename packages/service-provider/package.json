@@ -4,6 +4,6 @@
   "description": "MongoDB Shell Service Provider Package",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive"
+    "test": "mocha --recursive --color"
   }
 }
