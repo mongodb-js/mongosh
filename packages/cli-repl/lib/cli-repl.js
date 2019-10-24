@@ -56,6 +56,8 @@ class CliRepl {
       switch(cmd) {
         case 'use':
           return callback(null, this.shellApi.use(argv[0]));
+        case 'help()':
+          return callback(null, this.shellApi.help); // TODO: get help() and help working for sub fields
         default:
           originalEval(input, context, filename, (err, res) => { this.finish(err, res, callback) });
       }
