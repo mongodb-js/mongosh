@@ -4,6 +4,10 @@
   "description": "MongoDB Shell Mapper Package",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive --color"
+    "test": "mocha --recursive --color",
+    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+  },
+  "dependencies": {
+    "mongodbsh-shell-api": "^0.0.0"
   }
 }
