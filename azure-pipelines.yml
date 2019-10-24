@@ -10,7 +10,7 @@ jobs:
         displayName: 'Install Services'
       - task: NodeTool@0
         inputs:
-          versionSpec: '10.2.1'
+          versionSpec: '12.4.0'
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna
@@ -31,7 +31,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '10.2.1'
+          versionSpec: '12.4.0'
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna
@@ -52,7 +52,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '10.2.1'
+          versionSpec: '12.4.0'
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna

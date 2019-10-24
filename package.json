@@ -18,6 +18,8 @@
   "license": "SSPL",
   "devDependencies": {
     "chai": "^4.2.0",
+    "electron": "^7.0.0",
+    "electron-mocha": "^8.1.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
     "lerna": "^3.10.7",
