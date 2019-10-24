@@ -1,9 +1,10 @@
 {
-  "name": "mongodbsh-service-provider",
+  "name": "mongodbsh-cli-repl",
   "version": "0.0.0",
-  "description": "MongoDB Shell Service Provider Package",
+  "description": "MongoDB Shell CLI REPL Package",
   "main": "index.js",
   "scripts": {
+    "run": "node lib/run.js",
     "test": "mocha --recursive --color",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   }

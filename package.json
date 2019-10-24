@@ -27,6 +27,9 @@
   },
   "dependencies": {
     "mongodbsh-browser-repl": "file:packages/browser-repl",
+    "mongodbsh-cli-repl": "file:packages/cli-repl",
+    "mongodbsh-shell-api": "file:packages/shell-api",
+    "mongodbsh-mapper": "file:packages/mapper",
     "mongodbsh-service-provider": "file:packages/service-provider",
     "mongodbsh-transport": "file:packages/transport"
   }

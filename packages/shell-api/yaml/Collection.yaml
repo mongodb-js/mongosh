@@ -1,0 +1,8 @@
+__constructorArgs:
+    - database
+    - collection
+help:
+    <<: *__defaultAttr
+    __value: 'The collection class.'
+find: *__defaultMethod
+    

@@ -1,0 +1,3 @@
+help:
+    <<: *__defaultAttr
+    __value: 'The Replica Set class.'

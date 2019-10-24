@@ -1,0 +1,4 @@
+help:
+    <<: *__defaultAttr
+    __value: 'The cursor class.'
+next: *__defaultMethod
