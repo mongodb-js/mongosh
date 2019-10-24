@@ -1,0 +1,10 @@
+{
+  "name": "mongodbsh-cli-repl",
+  "version": "0.0.0",
+  "description": "MongoDB Shell CLI REPL Package",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js start",
+    "test": "mocha --recursive --color"
+  }
+}

@@ -1,0 +1,19 @@
+__defaultAttr: &__defaultAttr
+    __type: 'attribute'
+    __value: null
+
+__defaultMethod: &__defaultMethod
+    __type: 'function'
+    __serviceProviders:
+        - 'Node'
+        - 'Stitch'
+        - 'Atlas'
+    __deprecated: false
+    help: 'default help'
+    serverVersions:
+        - 0
+        - -1
+    topologies:
+        - 'ReplSet'
+        - 'Standalone'
+        

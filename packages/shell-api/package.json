@@ -1,0 +1,19 @@
+{
+  "name": "mongodbsh-shell-api",
+  "version": "0.0.0",
+  "description": "MongoDB Shell API Package",
+  "main": "index.js",
+  "scripts": {
+    "build": "node compile-shell-api.js",
+    "test": "mocha --recursive --color",
+    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+  },
+  "precommit": [
+    "build"
+  ],
+  "devDependencies": {
+    "fs": "0.0.1-security",
+    "js-yaml": "^3.13.1",
+    "path": "^0.12.7"
+  }
+}

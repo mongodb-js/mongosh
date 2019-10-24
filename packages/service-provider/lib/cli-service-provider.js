@@ -9,8 +9,11 @@ class CliServiceProvider {
    *
    * @param {String} uri - The URI.
    */
-  constructor(uri) {
+  async connect(uri) {
     this.nodeTransport = await NodeTransport.fromURI(uri);
+  }
+  constructor(uri) {
+    this.connect(uri);
   }
 
   /**

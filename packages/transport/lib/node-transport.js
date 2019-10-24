@@ -1,3 +1,5 @@
+const { MongoClient } = require('mongodb');
+
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
@@ -11,7 +13,7 @@ class NodeTransport {
    * @returns {NodeTransport} The Node transport.
    */
   static async fromURI(uri) {
-    const mongoClient = new MongoClient(uri);
+    const mongoClient = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
   };

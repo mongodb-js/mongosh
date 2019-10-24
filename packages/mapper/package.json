@@ -1,0 +1,9 @@
+{
+  "name": "mongodbsh-mapper",
+  "version": "0.0.0",
+  "description": "MongoDB Shell Mapper Package",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive --color"
+  }
+}

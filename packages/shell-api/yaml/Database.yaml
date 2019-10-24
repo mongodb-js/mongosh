@@ -1,0 +1,9 @@
+__constructorArgs:
+    - database
+help:
+    <<: *__defaultAttr
+    __value: The database class.
+runCommand:
+    <<: *__defaultMethod
+    help: |-
+        Runs an arbitrary command on the database.
