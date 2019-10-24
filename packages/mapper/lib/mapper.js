@@ -1,10 +1,13 @@
 const { Database } = require('mongodbsh-shell-api');
 
 class Mapper {
-  constructor(ctx, serviceProvider) {
-    this._ctx = ctx;
-    this._ctx.db = new Database(this, 'test');
+  constructor(serviceProvider) {
     this._serviceProvider = serviceProvider;
+
+    this.setCtx = (ctx) => {
+      this._ctx = ctx;
+      this._ctx.db = new Database(this, 'test');
+    };
 
     this.runCommand = (cmd) => {
       return this._serviceProvider.runCommand(this._ctx.db.database, cmd);
