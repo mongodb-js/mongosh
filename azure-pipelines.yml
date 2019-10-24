@@ -14,17 +14,16 @@ jobs:
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna
-          npm install
-        displayName: 'NPM Install'
+        displayName: 'Install Lerna'
       - script: |
           lerna bootstrap
-        displayName: '(Lerna) Bootstrap'
+        displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test
-        displayName: '(Lerna) Run Tests'
+        displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
-        displayName: '(Lerna) Run Checks'
+        displayName: 'Lerna Run Checks'
   - job: MacOS
     pool:
       vmImage: 'macOS-latest'
@@ -35,17 +34,16 @@ jobs:
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna
-          npm install
-        displayName: 'NPM Install'
+        displayName: 'Install Lerna'
       - script: |
           lerna bootstrap
-        displayName: '(Lerna) Bootstrap'
+        displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test
-        displayName: '(Lerna) Run Tests'
+        displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
-        displayName: '(Lerna) Run Checks'
+        displayName: 'Lerna Run Checks'
   - job: Windows
     pool:
       vmImage: 'windows-latest'
@@ -56,14 +54,13 @@ jobs:
         displayName: 'Install Node.js'
       - script: |
           npm install --global lerna
-          npm install
-        displayName: 'NPM Install'
+        displayName: 'Install Lerna'
       - script: |
           lerna bootstrap
-        displayName: '(Lerna) Bootstrap'
+        displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test
-        displayName: '(Lerna) Run Tests'
+        displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
-        displayName: '(Lerna) Run Checks'
+        displayName: 'Lerna Run Checks'
