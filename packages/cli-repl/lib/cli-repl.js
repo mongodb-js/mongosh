@@ -1,4 +1,5 @@
 const repl = require('repl');
+const util = require('util');
 const { CliServiceProvider } = require('mongodbsh-service-provider');
 const Mapper = require('mongodbsh-mapper');
 const ShellApi = require('mongodbsh-shell-api');
@@ -43,10 +44,26 @@ class CliRepl {
     });
   }
 
+  writer(output) {
+    if (output && output.toReplString) {
+      return output.toReplString();
+    }
+    if (typeof output === 'string') {
+      return output;
+    }
+    return util.inspect(output, {
+      showProxy: false,
+      colors: true
+    });
+  }
+
   start() {
     this.greet();
 
-    this.repl = repl.start({ prompt: `$${this.options.user} > `});
+    this.repl = repl.start({
+      prompt: `$${this.options.user} > `,
+      writer: this.writer
+    });
     const originalEval = this.repl.eval;
 
     const customEval = (input, context, filename, callback) => {

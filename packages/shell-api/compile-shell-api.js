@@ -32,6 +32,8 @@ const attrTemplate = (base, name, value, parent) => {
     const publicAttr = Object.keys(parent).filter((a) => (!a.startsWith('__') && a !== 'help'));
     value = `${value}
 Attributes: ${publicAttr.join(', ')}`;
+    return `${base}.${name} = () => (${JSON.stringify(value)});
+${base}.${name}.toReplString = () => (${JSON.stringify(value)});`
   }
   return `${base}.${name} = ${JSON.stringify(value)};`;
 };
@@ -69,6 +71,12 @@ const classTemplate = (filename, lib) => {
     }
     return s;
   }, argsStr);
+
+  if (lib.__stringRep) {
+    contents = `${contents}
+    this.toReplString = () => (this.${lib.__stringRep});
+`
+  }
 
   if (filename === 'Database') {
     contents = proxyTemplate(contents);

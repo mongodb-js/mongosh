@@ -1,5 +1,7 @@
 __constructorArgs:
     - database
+__stringRep:
+    - database
 help:
     <<: *__defaultAttr
     __value: The database class.
