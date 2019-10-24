@@ -4,7 +4,6 @@
   "description": "MongoDB Shell Service Provider Package",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive --color",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+    "test": "mocha --recursive --color"
   }
 }
