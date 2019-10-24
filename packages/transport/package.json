@@ -7,10 +7,6 @@
     "test": "mocha --recursive --color",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
-  "devDependencies": {
-    "mongodb-stitch-browser-sdk": "^4.5.0",
-    "mongodb-stitch-server-sdk": "^4.5.0"
-  },
   "dependencies": {
     "mongodb": "^3.3.3"
   }
