@@ -21,8 +21,3 @@ npm install
 ```shell
 lerna run test
 ```
-
-## Interdependencies Between Packages in Repo
-
-Add the name of the dependency in the package.json of the individual package
-and version number and `lerna bootstrap` will handle it.
