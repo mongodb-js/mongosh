@@ -7,5 +7,10 @@
     "start": "node index.js start",
     "test": "mocha --recursive --color",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+  },
+  "dependencies": {
+    "mongodbsh-mapper": "file:../mapper",
+    "mongodbsh-service-provider": "file:../service-provider",
+    "mongodbsh-shell-api": "file:../shell-api"
   }
 }

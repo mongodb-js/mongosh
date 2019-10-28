@@ -16,8 +16,7 @@ jobs:
           npm install --global lerna
         displayName: 'Install Lerna'
       - script: |
-          lerna link
-          lerna bootstrap --hoist
+          npm install
         displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test
@@ -37,8 +36,7 @@ jobs:
           npm install --global lerna
         displayName: 'Install Lerna'
       - script: |
-          lerna link
-          lerna bootstrap --hoist
+          npm install
         displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test
@@ -58,8 +56,7 @@ jobs:
           npm install --global lerna
         displayName: 'Install Lerna'
       - script: |
-          lerna link
-          lerna bootstrap --hoist
+          npm install
         displayName: 'Lerna Bootstrap'
       - script: |
           lerna run test

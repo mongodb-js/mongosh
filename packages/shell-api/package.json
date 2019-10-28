@@ -10,10 +10,5 @@
   },
   "precommit": [
     "build"
-  ],
-  "devDependencies": {
-    "fs": "0.0.1-security",
-    "js-yaml": "^3.13.1",
-    "path": "^0.12.7"
-  }
+  ]
 }

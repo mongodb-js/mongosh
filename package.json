@@ -22,16 +22,19 @@
     "electron-mocha": "^8.1.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
+    "fs": "0.0.1-security",
+    "js-yaml": "^3.13.1",
     "lerna": "^3.10.7",
     "mocha": "^6.2.1",
     "mongodb-js-precommit": "^2.0.0",
+    "path": "^0.12.7",
     "sinon": "^7.5.0"
   },
   "dependencies": {
     "mongodbsh-cli-repl": "file:packages/cli-repl",
-    "mongodbsh-shell-api": "file:packages/shell-api",
     "mongodbsh-mapper": "file:packages/mapper",
     "mongodbsh-service-provider": "file:packages/service-provider",
+    "mongodbsh-shell-api": "file:packages/shell-api",
     "mongodbsh-transport": "file:packages/transport"
   }
 }
