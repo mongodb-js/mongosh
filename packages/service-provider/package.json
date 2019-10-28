@@ -6,8 +6,5 @@
   "scripts": {
     "test": "mocha --recursive --color",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
-  },
-  "dependencies": {
-    "mongodbsh-transport": "^0.0.0"
   }
 }
