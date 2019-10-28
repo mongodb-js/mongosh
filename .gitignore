@@ -8,4 +8,3 @@ coverage
 *.iml
 *.swp
 lerna-debug.log
-package-lock.json
