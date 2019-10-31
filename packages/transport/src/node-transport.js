@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 /**
  * Encapsulates logic for communicating with a MongoDB instance via

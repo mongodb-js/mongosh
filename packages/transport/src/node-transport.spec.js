@@ -1,4 +1,4 @@
-const { NodeTransport } = require('../');
+const NodeTransport = require('./node-transport');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
