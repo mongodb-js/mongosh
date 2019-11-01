@@ -6,5 +6,17 @@ __stringRep:
 help:
     <<: *__defaultAttr
     __value: 'The collection class.'
-find: *__defaultMethod
+find:
+    <<: *__defaultMethod
+    serverVersions:
+        - 3.2
+        - *LATEST_VERSION
+    help: |-
+        db.collection.find(query, projection)
+
+        query <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).
+        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter. For details, see Projection.
+
+        Returns: A cursor to the documents that match the query criteria. When the find() method “returns documents,” the method is actually returning a cursor to the documents.
+
     
