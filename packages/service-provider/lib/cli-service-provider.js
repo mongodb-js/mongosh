@@ -28,6 +28,13 @@ class CliServiceProvider {
   runCommand(database, spec, options = {}) {
     return this.nodeTransport.runCommand(database, spec, options);
   }
+
+  find(database, collection, query, options = {}) {
+    return this.nodeTransport.find(database, collection, query, options);
+  }
+
+
+
 }
 
 module.exports = CliServiceProvider;

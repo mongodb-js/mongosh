@@ -1,3 +1,9 @@
+__LATEST: &LATEST_VERSION 4.4
+__ALL_TOPOLOGIES: &ALL_TOPOLOGIES
+    - 'ReplSet'
+    - 'Standalone'
+    - 'Shard'
+
 __defaultAttr: &__defaultAttr
     __type: 'attribute'
     __value: null
@@ -11,9 +17,6 @@ __defaultMethod: &__defaultMethod
     __deprecated: false
     help: 'default help'
     serverVersions:
-        - 0
         - -1
-    topologies:
-        - 'ReplSet'
-        - 'Standalone'
-        
+        - *LATEST_VERSION
+    topologies: *ALL_TOPOLOGIES
