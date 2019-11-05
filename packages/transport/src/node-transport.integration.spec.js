@@ -65,6 +65,37 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#bulkWrite', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+      const requests = [{
+        insertOne: { name: 'Aphex Twin' }
+      }];
+
+      beforeEach(async () => {
+        result = await nodeTransport.bulkWrite('music', 'bands', requests);
+      });
+
+      afterEach(() => {
+        return nodeTransport.deleteMany('music', 'bands', {});
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.nInserted).to.equal(1);
+      });
+    });
+  });
+
   describe('#countDocuments', () => {
     let nodeTransport;
 

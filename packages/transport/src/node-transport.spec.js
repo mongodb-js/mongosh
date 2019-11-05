@@ -61,6 +61,30 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#bulkWrite', () => {
+    let nodeTransport;
+    const requests = [{ insertOne: { name: 'Aphex Twin' }}];
+    const commandResult = { result: { nInserted: 1, ok: 1 }};
+    const bulkMock = sinon.mock().once().withArgs(requests).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        bulkWrite: bulkMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.bulkWrite('music', 'bands', requests);
+      expect(result).to.deep.equal(commandResult);
+      bulkMock.verify();
+    });
+  });
+
   describe('#countDocuments', () => {
     let nodeTransport;
     const countResult = 10;

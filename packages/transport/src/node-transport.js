@@ -48,6 +48,21 @@ class NodeTransport {
   }
 
   /**
+   * Execute a mix of write operations.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} requests - The bulk write requests.
+   * @param {Object} options - The bulk write options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  bulkWrite(database, collection, requests = {}, options = {}) {
+    return this._db(database).collection(collection).
+      bulkWrite(requests, options);
+  }
+
+  /**
    * Get an exact document count from the collection.
    *
    * @param {String} database - The database name.
