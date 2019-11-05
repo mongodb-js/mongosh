@@ -9,10 +9,8 @@ describe('NodeTransport [ integration ]', () => {
   describe('.fromURI', () => {
     let nodeTransport;
 
-    before(() => {
-      return NodeTransport.fromURI('mongodb://localhost:27018').then((transport) => {
-        nodeTransport = transport;
-      });
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
     after(() => {
@@ -29,7 +27,26 @@ describe('NodeTransport [ integration ]', () => {
   });
 
   describe('#runCommand', () => {
-    it.skip('calls #command on the driver database', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the command is valid', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.runCommand('admin', { ismaster: true });
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result.ismaster).to.equal(true);
+      });
     });
   });
 }).timeout(30000);

@@ -17,10 +17,13 @@ describe('NodeTransport', () => {
     let clientStub;
     let dbStub;
     let nodeTransport;
+    const commandResult = { ismaster: true };
 
     beforeEach(() => {
       dbStub = sinon.createStubInstance(Db, {
-        command: sinon.stub().withArgs({ ismaster: 1 }).resolves({ primary: true })
+        command: sinon.stub().
+          withArgs('admin', { ismaster: 1 }).
+          resolves(commandResult)
       });
       clientStub = sinon.createStubInstance(MongoClient, {
         db: sinon.stub().returns(dbStub)
@@ -35,8 +38,8 @@ describe('NodeTransport', () => {
     });
 
     it('executes the command against the database', () => {
-      return nodeTransport.runCommand({ ismaster: 1 }).then((result) => {
-        expect(result).to.deep.equal({ primary: true });
+      return nodeTransport.runCommand('admin', { ismaster: 1 }).then((result) => {
+        expect(result).to.deep.equal(commandResult);
       });
     });
   });
