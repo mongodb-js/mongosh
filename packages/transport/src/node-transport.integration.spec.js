@@ -53,7 +53,7 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
-  describe('#count', () => {
+  describe('#countDocuments', () => {
     let nodeTransport;
 
     before(async () => {
