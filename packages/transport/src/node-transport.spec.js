@@ -20,12 +20,13 @@ describe('NodeTransport', () => {
     let nodeTransport;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
+    const aggMock = sinon.mock().
+                      withArgs(pipeline).
+                      resolves({ toArray: () => Promise.resolve(aggResult) })
 
     beforeEach(() => {
       collectionStub = sinon.createStubInstance(Collection, {
-        aggregate: sinon.stub().
-          withArgs(pipeline).
-          resolves({ toArray: () => Promise.resolve(aggResult) })
+        aggregate: aggMock
       });
       dbStub = sinon.createStubInstance(Db, {
         collection: sinon.stub().returns(collectionStub)
@@ -47,6 +48,7 @@ describe('NodeTransport', () => {
       const cursor = await nodeTransport.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
+      aggMock.verify();
     });
   });
 
@@ -56,12 +58,11 @@ describe('NodeTransport', () => {
     let dbStub;
     let nodeTransport;
     const countResult = 10;
+    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
     beforeEach(() => {
       collectionStub = sinon.createStubInstance(Collection, {
-        countDocuments: sinon.stub().
-          withArgs({}).
-          resolves(countResult)
+        countDocuments: countMock
       });
       dbStub = sinon.createStubInstance(Db, {
         collection: sinon.stub().returns(collectionStub)
@@ -82,6 +83,43 @@ describe('NodeTransport', () => {
     it('executes the command against the database', async () => {
       const result = await nodeTransport.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
+      countMock.verify();
+    });
+  });
+
+  describe('#distinct', () => {
+    let collectionStub;
+    let clientStub;
+    let dbStub;
+    let nodeTransport;
+    const distinctResult = [ 'Aphex Twin' ];
+    const distinctMock = sinon.mock().once().
+                          withArgs('name', {}, {}).resolves(distinctResult);
+
+    beforeEach(() => {
+      collectionStub = sinon.createStubInstance(Collection, {
+        distinct: distinctMock
+      });
+      dbStub = sinon.createStubInstance(Db, {
+        collection: sinon.stub().returns(collectionStub)
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      nodeTransport = new NodeTransport(clientStub);
+    });
+
+    afterEach(() => {
+      collectionStub = null;
+      dbStub = null;
+      clientStub = null;
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.distinct('music', 'bands', 'name');
+      expect(result).to.deep.equal(distinctResult);
+      distinctMock.verify();
     });
   });
 
@@ -91,12 +129,11 @@ describe('NodeTransport', () => {
     let dbStub;
     let nodeTransport;
     const countResult = 10;
+    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
     beforeEach(() => {
       collectionStub = sinon.createStubInstance(Collection, {
-        estimatedDocumentCount: sinon.stub().
-          withArgs({}).
-          resolves(countResult)
+        estimatedDocumentCount: countMock
       });
       dbStub = sinon.createStubInstance(Db, {
         collection: sinon.stub().returns(collectionStub)
@@ -117,6 +154,7 @@ describe('NodeTransport', () => {
     it('executes the command against the database', async () => {
       const result = await nodeTransport.estimatedDocumentCount('music', 'bands');
       expect(result).to.deep.equal(countResult);
+      countMock.verify();
     });
   });
 
@@ -125,12 +163,12 @@ describe('NodeTransport', () => {
     let dbStub;
     let nodeTransport;
     const commandResult = { ismaster: true };
+    const commandMock = sinon.mock().
+                          withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
       dbStub = sinon.createStubInstance(Db, {
-        command: sinon.stub().
-          withArgs('admin', { ismaster: 1 }).
-          resolves(commandResult)
+        command: commandMock
       });
       clientStub = sinon.createStubInstance(MongoClient, {
         db: sinon.stub().returns(dbStub)
@@ -144,10 +182,10 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', () => {
-      return nodeTransport.runCommand('admin', { ismaster: 1 }).then((result) => {
-        expect(result).to.deep.equal(commandResult);
-      });
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.runCommand('admin', { ismaster: 1 });
+      expect(result).to.deep.equal(commandResult);
+      commandMock.verify();
     });
   });
 })

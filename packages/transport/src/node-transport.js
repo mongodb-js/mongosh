@@ -67,6 +67,22 @@ class NodeTransport {
   }
 
   /**
+   * Get distinct values for the field.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {String} fieldName - The field name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The distinct options.
+   *
+   * @returns {Promise} The promise of the cursor.
+   */
+  distinct(database, collection, fieldName, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      distinct(fieldName, filter, options);
+  }
+
+  /**
    * Get an estimated document count from the collection.
    *
    * @param {String} database - The database name.

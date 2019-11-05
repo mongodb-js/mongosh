@@ -53,6 +53,30 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#distinct', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the distinct is valid', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.distinct('music', 'bands', 'name');
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result).to.deep.equal([]);
+      });
+    });
+  });
+
   describe('#countDocuments', () => {
     let nodeTransport;
 
