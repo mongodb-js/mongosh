@@ -11,14 +11,4 @@ describe('NodeTransport', () => {
       expect(nodeTransport.mongoClient).to.equal(mongoClient);
     });
   });
-
-  describe('#runCommand', () => {
-    it.skip('calls #command on the driver database', () => {
-    });
-  });
-
-  describe('.fromURI', () => {
-    it.skip('returns a NodeTransport with connected client', () => {
-    });
-  });
-});
+})

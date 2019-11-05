@@ -1,6 +1,14 @@
 const { MongoClient } = require('mongodb');
 
 /**
+ * Default driver options we always use.
+ */
+const DEFAULT_OPTIONS = Object.freeze({
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+/**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
  */
@@ -13,7 +21,7 @@ class NodeTransport {
    * @returns {NodeTransport} The Node transport.
    */
   static async fromURI(uri) {
-    const mongoClient = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+    const mongoClient = new MongoClient(uri, DEFAULT_OPTIONS);
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
   };
