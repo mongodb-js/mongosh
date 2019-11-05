@@ -15,9 +15,6 @@
     "Compass",
     "Stitch"
   ],
-  "dependency-check": {
-    "entries": [ "src/**/*.js" ],
-  },
   "license": "SSPL",
   "devDependencies": {
     "@babel/core": "^7.6.4",
