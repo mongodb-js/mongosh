@@ -27,6 +27,21 @@ class NodeTransport {
   };
 
   /**
+   * Run an aggregation pipeline.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Array} pipeline - The aggregation pipeline.
+   * @param {Object} options - The pipeline options.
+   *
+   * @returns {Promise} The promise of the results.
+   */
+  aggregate(database, collection, pipeline, options = {}) {
+    return this._db(database).collection(collection).
+      aggregate(pipeline, options);
+  }
+
+  /**
    * Instantiate a new Node transport with the Node driver's connected
    * MongoClient instance.
    *
@@ -53,6 +68,8 @@ class NodeTransport {
    * Get the DB object from the client.
    *
    * @param {String} name - The database name.
+   *
+   * @returns {Db} The database.
    */
   _db(name) {
     return this.mongoClient.db(name);

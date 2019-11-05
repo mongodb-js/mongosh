@@ -26,6 +26,33 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#aggregate', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the aggregation is valid', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.
+          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
+      });
+
+      it('executes the command and resolves the result', () => {
+        return result.toArray().then((docs) => {
+          expect(docs).to.deep.equal([]);
+        });
+      });
+    });
+  });
+
   describe('#runCommand', () => {
     let nodeTransport;
 
