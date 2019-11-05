@@ -51,4 +51,4 @@ class NodeTransport {
   }
 };
 
-module.exports = NodeTransport;
+export default NodeTransport;

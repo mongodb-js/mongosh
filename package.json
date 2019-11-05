@@ -15,6 +15,9 @@
     "Compass",
     "Stitch"
   ],
+  "dependency-check": {
+    "entries": [ "src/**/*.js" ],
+  }
   "license": "SSPL",
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -30,6 +33,7 @@
     "lerna": "^3.10.7",
     "mocha": "^6.2.1",
     "mocha-webpack": "^1.1.0",
+    "mongodb": "^3.3.3",
     "mongodb-js-precommit": "^2.0.0",
     "path": "^0.12.7",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
