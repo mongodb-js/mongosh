@@ -45,10 +45,9 @@ describe('NodeTransport [ integration ]', () => {
           aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
       });
 
-      it('executes the command and resolves the result', () => {
-        return result.toArray().then((docs) => {
-          expect(docs).to.deep.equal([]);
-        });
+      it('executes the command and resolves the result', async () => {
+        const docs = await result.toArray();
+        expect(docs).to.deep.equal([]);
       });
     });
   });
@@ -121,6 +120,31 @@ describe('NodeTransport [ integration ]', () => {
 
       it('executes the count and resolves the result', () => {
         expect(result).to.equal(0);
+      });
+    });
+  });
+
+  describe('#find', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the find is valid', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.find('music', 'bands', { name: 'Aphex Twin' });
+      });
+
+      it('executes the command and resolves the result', async () => {
+        const docs = await result.toArray();
+        expect(docs).to.deep.equal([]);
       });
     });
   });

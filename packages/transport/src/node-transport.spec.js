@@ -158,6 +158,45 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#find', () => {
+    let collectionStub;
+    let clientStub;
+    let dbStub;
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const findResult = [{ name: 'Aphex Twin' }];
+    const findMock = sinon.mock().
+                      withArgs(filter).
+                      resolves({ toArray: () => Promise.resolve(findResult) })
+
+    beforeEach(() => {
+      collectionStub = sinon.createStubInstance(Collection, {
+        find: findMock
+      });
+      dbStub = sinon.createStubInstance(Db, {
+        collection: sinon.stub().returns(collectionStub)
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      nodeTransport = new NodeTransport(clientStub);
+    });
+
+    afterEach(() => {
+      collectionStub = null;
+      dbStub = null;
+      clientStub = null;
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const cursor = await nodeTransport.find('music', 'bands', filter);
+      const result = await cursor.toArray();
+      expect(result).to.deep.equal(findResult);
+      findMock.verify();
+    });
+  });
+
   describe('#runCommand', () => {
     let clientStub;
     let dbStub;

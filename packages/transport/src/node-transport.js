@@ -97,6 +97,20 @@ class NodeTransport {
   }
 
   /**
+   * Find documents in the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the cursor.
+   */
+  find(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).find(filter, options);
+  }
+
+  /**
    * Run a command against the database.
    *
    * @param {String} database - The database name.
