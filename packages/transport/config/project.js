@@ -5,6 +5,6 @@ module.exports = {
     // The src path to our application
     src: path.join(__dirname, '/../src'),
     // The build path to where our bundle will be output
-    output: path.join(__dirname, '/../lib')
+    output: path.join(__dirname, '/../dist')
   }
 };

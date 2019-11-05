@@ -2,7 +2,7 @@
   "name": "mongodbsh-transport",
   "version": "0.0.0",
   "description": "MongoDB Shell Transport Package",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "compile": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js --progress",
     "pretest": "cross-env NODE_ENV=test webpack --config ./config/webpack.test.config.js --progress",
@@ -10,7 +10,7 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'",
     "prepublish": "npm run compile"
   },
-  "dependencies": {
+  "peerDependencies": {
     "mongodb": "^3.3.3"
   }
 }
