@@ -297,6 +297,33 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#replaceOne', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const replacement = { name: 'Richard James' };
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.
+          replaceOne('music', 'bands', filter, replacement);
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+
   describe('#runCommand', () => {
     let nodeTransport;
 
@@ -317,6 +344,60 @@ describe('NodeTransport [ integration ]', () => {
 
       it('executes the command and resolves the result', () => {
         expect(result.ismaster).to.equal(true);
+      });
+    });
+  });
+
+  describe('#updateOne', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.
+          updateOne('music', 'bands', filter, update);
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+
+  describe('#updateMany', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.
+          updateMany('music', 'bands', filter, update);
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(0);
       });
     });
   });

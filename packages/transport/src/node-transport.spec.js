@@ -276,6 +276,32 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#replaceOne', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const replacement = { name: 'Richard James' };
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const replaceMock = sinon.mock().once().withArgs(filter, replacement).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        replaceOne: replaceMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.replaceOne('music', 'bands', filter, replacement);
+      expect(result).to.deep.equal(commandResult);
+      replaceMock.verify();
+    });
+  });
+
   describe('#runCommand', () => {
     let clientStub;
     let dbStub;
@@ -304,6 +330,58 @@ describe('NodeTransport', () => {
       const result = await nodeTransport.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
       commandMock.verify();
+    });
+  });
+
+  describe('#updateOne', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const updateMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        updateOne: updateMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.updateOne('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      updateMock.verify();
+    });
+  });
+
+  describe('#updateMany', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const updateMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        updateMany: updateMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.updateMany('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      updateMock.verify();
     });
   });
 })

@@ -193,6 +193,22 @@ class NodeTransport {
   }
 
   /**
+   * Replace a document with another.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement document for matches.
+   * @param {Object} options - The replace options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  replaceOne(database, collection, filter = {}, replacement = {}, options = {}) {
+    return this._db(database).collection(collection).
+      replaceOne(filter, replacement, options);
+  }
+
+  /**
    * Run a command against the database.
    *
    * @param {String} database - The database name.
@@ -203,6 +219,38 @@ class NodeTransport {
    */
   runCommand(database, spec, options = {}) {
     return this._db(database).command(spec, options);
+  }
+
+  /**
+   * Update many document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  updateMany(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      updateMany(filter, update, options);
+  }
+
+  /**
+   * Update a document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  updateOne(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      updateOne(filter, update, options);
   }
 
   /**
