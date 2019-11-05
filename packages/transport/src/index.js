@@ -1,5 +1,5 @@
-import NodeTransport from './node-transport';
-import StitchServerTransport from './stitch-server-transport';
+const NodeTransport = require('./node-transport');
+const StitchServerTransport = require('./stitch-server-transport');
 
-export default NodeTransport;
-export { NodeTransport, StitchServerTransport };
+module.exports = NodeTransport;
+module.exports.StitchServerTransport = StitchServerTransport;
