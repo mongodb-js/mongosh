@@ -37,7 +37,7 @@ const serverConfig = merge.smart(config, {
     index: path.resolve(project.path.src, 'index.js')
   },
   output: {
-    filename: '[name].node.js'
+    filename: 'node.js'
   }
 });
 

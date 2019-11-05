@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
@@ -51,4 +51,4 @@ class NodeTransport {
   }
 };
 
-export default NodeTransport;
+module.exports = NodeTransport;
