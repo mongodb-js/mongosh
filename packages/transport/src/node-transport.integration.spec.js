@@ -1,7 +1,8 @@
 const NodeTransport = require('./node-transport');
 const { expect } = require('chai');
 
-describe('NodeTransport [ integration ]', () => {
+describe('NodeTransport [ integration ]', function() {
+  this.timeout(120000);
   before(require('mongodb-runner/mocha/before')({ port: 27018 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
@@ -479,4 +480,4 @@ describe('NodeTransport [ integration ]', () => {
       });
     });
   });
-}).timeout(120000);
+});
