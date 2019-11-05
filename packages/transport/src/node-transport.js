@@ -34,11 +34,26 @@ class NodeTransport {
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Object} options - The pipeline options.
    *
-   * @returns {Promise} The promise of the results.
+   * @returns {Promise} The promise of the aggregation cursor.
    */
   aggregate(database, collection, pipeline, options = {}) {
     return this._db(database).collection(collection).
       aggregate(pipeline, options);
+  }
+
+  /**
+   * Get an exact document count from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The count options.
+   *
+   * @returns {Promise} The promise of the count.
+   */
+  countDocuments(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      countDocuments(filter, options);
   }
 
   /**
