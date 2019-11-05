@@ -204,6 +204,54 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#insertMany', () => {
+    let nodeTransport;
+    const doc = { name: 'Aphex Twin' };
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const insertMock = sinon.mock().once().withArgs([ doc ]).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        insertMany: insertMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.insertMany('music', 'bands', [ doc ]);
+      expect(result).to.deep.equal(commandResult);
+      insertMock.verify();
+    });
+  });
+
+  describe('#insertOne', () => {
+    let nodeTransport;
+    const doc = { name: 'Aphex Twin' };
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const insertMock = sinon.mock().once().withArgs(doc).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        insertOne: insertMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.insertOne('music', 'bands', doc);
+      expect(result).to.deep.equal(commandResult);
+      insertMock.verify();
+    });
+  });
+
   describe('#runCommand', () => {
     let clientStub;
     let dbStub;

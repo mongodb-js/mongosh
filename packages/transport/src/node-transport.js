@@ -143,7 +143,38 @@ class NodeTransport {
    * @returns {Promise} The promise of the cursor.
    */
   find(database, collection, filter = {}, options = {}) {
-    return this._db(database).collection(collection).find(filter, options);
+    return this._db(database).collection(collection).
+      find(filter, options);
+  }
+
+  /**
+   * Insert many documents into the colleciton.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Array} docs - The documents.
+   * @param {Object} options - The insert many options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  insertMany(database, collection, docs = [], options = {}) {
+    return this._db(database).collection(collection).
+      insertMany(docs, options);
+  }
+
+  /**
+   * Insert one document into the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} doc - The document.
+   * @param {Object} options - The insert one options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  insertOne(database, collection, doc = {}, options = {}) {
+    return this._db(database).collection(collection).
+      insertOne(doc, options);
   }
 
   /**

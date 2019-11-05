@@ -210,6 +210,62 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#insertMany', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.insertMany('music', 'bands', [{ name: 'Aphex Twin' }]);
+      });
+
+      afterEach(() => {
+        return nodeTransport.deleteMany('music', 'bands', {});
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(1);
+      });
+    });
+  });
+
+  describe('#insertOne', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.insertOne('music', 'bands', { name: 'Aphex Twin' });
+      });
+
+      afterEach(() => {
+        return nodeTransport.deleteMany('music', 'bands', {});
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(1);
+      });
+    });
+  });
+
   describe('#runCommand', () => {
     let nodeTransport;
 
