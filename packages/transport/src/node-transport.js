@@ -24,7 +24,7 @@ class NodeTransport {
     const mongoClient = new MongoClient(uri, DEFAULT_OPTIONS);
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
-  };
+  }
 
   /**
    * Run an aggregation pipeline.
@@ -263,6 +263,6 @@ class NodeTransport {
   _db(name) {
     return this.mongoClient.db(name);
   }
-};
+}
 
 module.exports = NodeTransport;

@@ -38,9 +38,8 @@ describe('NodeTransport', () => {
     let nodeTransport;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
-    const aggMock = sinon.mock().
-                      withArgs(pipeline).
-                      resolves({ toArray: () => Promise.resolve(aggResult) })
+    const aggMock = sinon.mock().withArgs(pipeline).
+      resolves({ toArray: () => Promise.resolve(aggResult) });
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -53,7 +52,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const cursor = await nodeTransport.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
@@ -78,7 +77,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.bulkWrite('music', 'bands', requests);
       expect(result).to.deep.equal(commandResult);
       bulkMock.verify();
@@ -101,7 +100,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
       countMock.verify();
@@ -124,7 +123,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.deleteMany('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
       deleteMock.verify();
@@ -147,7 +146,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.deleteOne('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
       deleteMock.verify();
@@ -158,7 +157,7 @@ describe('NodeTransport', () => {
     let nodeTransport;
     const distinctResult = [ 'Aphex Twin' ];
     const distinctMock = sinon.mock().once().
-                          withArgs('name', {}, {}).resolves(distinctResult);
+      withArgs('name', {}, {}).resolves(distinctResult);
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -171,7 +170,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.distinct('music', 'bands', 'name');
       expect(result).to.deep.equal(distinctResult);
       distinctMock.verify();
@@ -194,7 +193,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.estimatedDocumentCount('music', 'bands');
       expect(result).to.deep.equal(countResult);
       countMock.verify();
@@ -205,9 +204,8 @@ describe('NodeTransport', () => {
     let nodeTransport;
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
-    const findMock = sinon.mock().
-                      withArgs(filter).
-                      resolves({ toArray: () => Promise.resolve(findResult) })
+    const findMock = sinon.mock().withArgs(filter).
+      resolves({ toArray: () => Promise.resolve(findResult) });
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -220,7 +218,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const cursor = await nodeTransport.find('music', 'bands', filter);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
@@ -245,7 +243,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.insertMany('music', 'bands', [ doc ]);
       expect(result).to.deep.equal(commandResult);
       insertMock.verify();
@@ -269,7 +267,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.insertOne('music', 'bands', doc);
       expect(result).to.deep.equal(commandResult);
       insertMock.verify();
@@ -295,7 +293,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.replaceOne('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
       replaceMock.verify();
@@ -308,7 +306,7 @@ describe('NodeTransport', () => {
     let nodeTransport;
     const commandResult = { ismaster: true };
     const commandMock = sinon.mock().
-                          withArgs({ ismaster: 1 }).resolves(commandResult);
+      withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
       dbStub = sinon.createStubInstance(Db, {
@@ -326,7 +324,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
       commandMock.verify();
@@ -352,7 +350,7 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.updateOne('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
       updateMock.verify();
@@ -378,10 +376,10 @@ describe('NodeTransport', () => {
       nodeTransport = null;
     });
 
-    it('executes the command against the database', async () => {
+    it('executes the command against the database', async() => {
       const result = await nodeTransport.updateMany('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
       updateMock.verify();
     });
   });
-})
+});

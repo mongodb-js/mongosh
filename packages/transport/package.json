@@ -17,7 +17,7 @@
     "ignore": [
       "sinon",
       "chai",
-      "mongodb"
+      "mongodb-runner"
     ]
   },
   "peerDependencies": {

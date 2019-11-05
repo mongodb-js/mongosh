@@ -27,6 +27,6 @@ class StitchBrowserTransport {
   runCommand(database, spec, options = {}) {
     return Promise.reject(`StitchBrowserTransport#runCommand ${NOT_IMPLEMENTED}`);
   }
-};
+}
 
 module.exports = StitchBrowserTransport;

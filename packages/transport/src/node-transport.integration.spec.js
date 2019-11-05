@@ -1,6 +1,5 @@
 const NodeTransport = require('./node-transport');
 const { expect } = require('chai');
-const sinon = require('sinon');
 
 describe('NodeTransport [ integration ]', () => {
   before(require('mongodb-runner/mocha/before')({ port: 27018 }));
@@ -9,7 +8,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('.fromURI', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -29,7 +28,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#aggregate', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -40,12 +39,12 @@ describe('NodeTransport [ integration ]', () => {
     context('when running against a collection', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.
           aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
       });
 
-      it('executes the command and resolves the result', async () => {
+      it('executes the command and resolves the result', async() => {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
       });
@@ -54,11 +53,11 @@ describe('NodeTransport [ integration ]', () => {
     context('when running against a database', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.aggregate('admin', null, [{ $currentOp: {}}]);
       });
 
-      it('executes the command and resolves the result', async () => {
+      it('executes the command and resolves the result', async() => {
         const docs = await result.toArray();
         expect(docs[0].active).to.equal(true);
       });
@@ -68,7 +67,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#bulkWrite', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -82,7 +81,7 @@ describe('NodeTransport [ integration ]', () => {
         insertOne: { name: 'Aphex Twin' }
       }];
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.bulkWrite('music', 'bands', requests);
       });
 
@@ -99,7 +98,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#countDocuments', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -110,7 +109,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.countDocuments('music', 'bands');
       });
 
@@ -123,7 +122,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#distinct', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -134,7 +133,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the distinct is valid', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.distinct('music', 'bands', 'name');
       });
 
@@ -147,7 +146,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#deleteMany', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -158,7 +157,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.deleteMany('music', 'bands', {});
       });
 
@@ -171,7 +170,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#deleteOne', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -182,7 +181,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.deleteOne('music', 'bands', {});
       });
 
@@ -195,7 +194,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#estimatedDocumentCount', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -206,7 +205,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when no options are provided', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.estimatedDocumentCount('music', 'bands');
       });
 
@@ -219,7 +218,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#find', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -230,11 +229,11 @@ describe('NodeTransport [ integration ]', () => {
     context('when the find is valid', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.find('music', 'bands', { name: 'Aphex Twin' });
       });
 
-      it('executes the command and resolves the result', async () => {
+      it('executes the command and resolves the result', async() => {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
       });
@@ -244,7 +243,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#insertMany', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -255,7 +254,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.insertMany('music', 'bands', [{ name: 'Aphex Twin' }]);
       });
 
@@ -272,7 +271,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#insertOne', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -283,7 +282,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.insertOne('music', 'bands', { name: 'Aphex Twin' });
       });
 
@@ -302,7 +301,7 @@ describe('NodeTransport [ integration ]', () => {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -313,7 +312,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.
           replaceOne('music', 'bands', filter, replacement);
       });
@@ -327,7 +326,7 @@ describe('NodeTransport [ integration ]', () => {
   describe('#runCommand', () => {
     let nodeTransport;
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -338,7 +337,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the command is valid', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.runCommand('admin', { ismaster: true });
       });
 
@@ -353,7 +352,7 @@ describe('NodeTransport [ integration ]', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -364,7 +363,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.
           updateOne('music', 'bands', filter, update);
       });
@@ -380,7 +379,7 @@ describe('NodeTransport [ integration ]', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
 
-    before(async () => {
+    before(async() => {
       nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
     });
 
@@ -391,7 +390,7 @@ describe('NodeTransport [ integration ]', () => {
     context('when the filter is empty', () => {
       let result;
 
-      beforeEach(async () => {
+      beforeEach(async() => {
         result = await nodeTransport.
           updateMany('music', 'bands', filter, update);
       });

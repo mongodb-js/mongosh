@@ -27,6 +27,6 @@ class StitchServerTransport {
   runCommand(database, spec, options = {}) {
     return Promise.reject(`StitchServerTransport#runCommand ${NOT_IMPLEMENTED}`);
   }
-};
+}
 
 module.exports = StitchServerTransport;
