@@ -163,6 +163,21 @@ class NodeTransport {
   }
 
   /**
+   * Find one document and delete it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndDelete(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndDelete(filter, options);
+  }
+
+  /**
    * Insert many documents into the colleciton.
    *
    * @param {String} database - The database name.

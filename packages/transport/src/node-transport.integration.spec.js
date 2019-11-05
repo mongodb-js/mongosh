@@ -240,6 +240,31 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#findOneAndDelete', () => {
+    let nodeTransport;
+
+    before(async() => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the find is valid', () => {
+      let result;
+      const filter = { name: 'Aphex Twin' };
+
+      beforeEach(async() => {
+        result = await nodeTransport.findOneAndDelete('music', 'bands', filter);
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result.ok).to.equal(1);
+      });
+    });
+  });
+
   describe('#insertMany', () => {
     let nodeTransport;
 

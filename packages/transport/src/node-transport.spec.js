@@ -226,6 +226,29 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#findOneAndDelete', () => {
+    let nodeTransport;
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndDelete: findMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await nodeTransport.findOneAndDelete('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
   describe('#insertMany', () => {
     let nodeTransport;
     const doc = { name: 'Aphex Twin' };
