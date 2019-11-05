@@ -20,7 +20,7 @@ class StitchServerTransport {
    *
    * @returns {Promise} The promise of command results.
    */
-  runCommand(database, spec, options = {}) {
+  runCommand() {
     return Promise.reject(`StitchServerTransport#runCommand ${NOT_IMPLEMENTED}`);
   }
 }
