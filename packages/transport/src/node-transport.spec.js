@@ -74,9 +74,6 @@ describe('NodeTransport', () => {
     });
 
     afterEach(() => {
-      collectionStub = null;
-      dbStub = null;
-      clientStub = null;
       nodeTransport = null;
     });
 
@@ -84,6 +81,29 @@ describe('NodeTransport', () => {
       const result = await nodeTransport.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
       countMock.verify();
+    });
+  });
+
+  describe('#deleteMany', () => {
+    let nodeTransport;
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        deleteMany: deleteMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.deleteMany('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      deleteMock.verify();
     });
   });
 

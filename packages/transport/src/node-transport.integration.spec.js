@@ -65,6 +65,30 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#countDocuments', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.countDocuments('music', 'bands');
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result).to.equal(0);
+      });
+    });
+  });
+
   describe('#distinct', () => {
     let nodeTransport;
 
@@ -89,7 +113,7 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
-  describe('#countDocuments', () => {
+  describe('#deleteMany', () => {
     let nodeTransport;
 
     before(async () => {
@@ -104,11 +128,11 @@ describe('NodeTransport [ integration ]', () => {
       let result;
 
       beforeEach(async () => {
-        result = await nodeTransport.countDocuments('music', 'bands');
+        result = await nodeTransport.deleteMany('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result).to.equal(0);
+        expect(result.result.n).to.equal(0);
       });
     });
   });
