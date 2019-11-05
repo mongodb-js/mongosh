@@ -15,7 +15,9 @@
       "src/**/*.js"
     ],
     "ignore": [
-      "sinon", "chai"
+      "sinon",
+      "chai",
+      "mongodb"
     ]
   },
   "peerDependencies": {
