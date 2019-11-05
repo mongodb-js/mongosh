@@ -37,7 +37,7 @@ describe('NodeTransport [ integration ]', () => {
       return nodeTransport.mongoClient.close(true);
     });
 
-    context('when the aggregation is valid', () => {
+    context('when running against a collection', () => {
       let result;
 
       beforeEach(async () => {
@@ -48,6 +48,19 @@ describe('NodeTransport [ integration ]', () => {
       it('executes the command and resolves the result', async () => {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
+      });
+    });
+
+    context('when running against a database', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.aggregate('admin', null, [{ $currentOp: {}}]);
+      });
+
+      it('executes the command and resolves the result', async () => {
+        const docs = await result.toArray();
+        expect(docs[0].active).to.equal(true);
       });
     });
   });

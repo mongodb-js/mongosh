@@ -29,6 +29,9 @@ class NodeTransport {
   /**
    * Run an aggregation pipeline.
    *
+   * @note: Passing a null collection will cause the
+   *   aggregation to run on the DB.
+   *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Array} pipeline - The aggregation pipeline.
@@ -36,7 +39,10 @@ class NodeTransport {
    *
    * @returns {Promise} The promise of the aggregation cursor.
    */
-  aggregate(database, collection, pipeline, options = {}) {
+  aggregate(database, collection, pipeline = [], options = {}) {
+    if (collection === null) {
+      return this._db(database).aggregate(pipeline, options);
+    }
     return this._db(database).collection(collection).
       aggregate(pipeline, options);
   }
