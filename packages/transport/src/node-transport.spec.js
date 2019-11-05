@@ -249,6 +249,60 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#findOneAndReplace', () => {
+    let nodeTransport;
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const filter = { name: 'Aphex Twin' };
+    const replacement = { name: 'Richard James' };
+    const findMock = sinon.mock().once().withArgs(filter, replacement).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndReplace: findMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await nodeTransport.
+        findOneAndReplace('music', 'bands', filter, replacement);
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
+  describe('#findOneAndUpdate', () => {
+    let nodeTransport;
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+    const findMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndUpdate: findMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await nodeTransport.
+        findOneAndUpdate('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
   describe('#insertMany', () => {
     let nodeTransport;
     const doc = { name: 'Aphex Twin' };

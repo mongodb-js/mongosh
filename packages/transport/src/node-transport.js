@@ -178,6 +178,38 @@ class NodeTransport {
   }
 
   /**
+   * Find one document and replace it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndReplace(database, collection, filter = {}, replacement = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndReplace(filter, replacement, options);
+  }
+
+  /**
+   * Find one document and update it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The update.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndUpdate(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndUpdate(filter, update, options);
+  }
+
+  /**
    * Insert many documents into the colleciton.
    *
    * @param {String} database - The database name.

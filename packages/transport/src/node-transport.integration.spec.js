@@ -265,6 +265,60 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#findOneAndReplace', () => {
+    let nodeTransport;
+
+    before(async() => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the find is valid', () => {
+      let result;
+      const filter = { name: 'Aphex Twin' };
+      const replacement = { name: 'Richard James' };
+
+      beforeEach(async() => {
+        result = await nodeTransport.
+          findOneAndReplace('music', 'bands', filter, replacement);
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result.ok).to.equal(1);
+      });
+    });
+  });
+
+  describe('#findOneAndUpdate', () => {
+    let nodeTransport;
+
+    before(async() => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the find is valid', () => {
+      let result;
+      const filter = { name: 'Aphex Twin' };
+      const update = { $set: { name: 'Richard James' }};
+
+      beforeEach(async() => {
+        result = await nodeTransport.
+          findOneAndUpdate('music', 'bands', filter, update);
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result.ok).to.equal(1);
+      });
+    });
+  });
+
   describe('#insertMany', () => {
     let nodeTransport;
 
