@@ -18,13 +18,9 @@ class StitchBrowserTransport {
   /**
    * Run a command against the database.
    *
-   * @param {String} database - The database name.
-   * @param {Object} spec - The command specification.
-   * @param {Object} options - The database options.
-   *
    * @returns {Promise} The promise of command results.
    */
-  runCommand(database, spec, options = {}) {
+  runCommand() {
     return Promise.reject(`StitchBrowserTransport#runCommand ${NOT_IMPLEMENTED}`);
   }
 }
