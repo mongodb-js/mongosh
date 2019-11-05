@@ -17,9 +17,9 @@ jobs:
         displayName: 'Install Lerna'
       - script: |
           npm install
-        displayName: 'Lerna Bootstrap'
+        displayName: 'NPM Install'
       - script: |
-          lerna run test --stream
+          lerna run test
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
@@ -37,9 +37,9 @@ jobs:
         displayName: 'Install Lerna'
       - script: |
           npm install
-        displayName: 'Lerna Bootstrap'
+        displayName: 'NPM Install'
       - script: |
-          lerna run test --stream
+          lerna run test
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
@@ -57,9 +57,9 @@ jobs:
         displayName: 'Install Lerna'
       - script: |
           npm install
-        displayName: 'Lerna Bootstrap'
+        displayName: 'NPM Install'
       - script: |
-          lerna run test --stream
+          lerna run test
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
