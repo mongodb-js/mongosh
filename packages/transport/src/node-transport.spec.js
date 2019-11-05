@@ -3,6 +3,27 @@ const { MongoClient, Db, Collection } = require('mongodb');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
+/**
+ * Create a client stub from the provided collection stub.
+ *
+ * @note: We basically only care about the method under test
+ *   which is always mocked on a new collection stub each
+ *   test run. We we can use the boilerplate creation of the
+ *   db and client here.
+ *
+ * @param {Stub} collectionStub - The collection stub.
+ *
+ * @returns {Stub} The client stub to pass to the transport.
+ */
+const createClientStub = (collectionStub) => {
+  const dbStub = sinon.createStubInstance(Db, {
+    collection: sinon.stub().returns(collectionStub)
+  });
+  return sinon.createStubInstance(MongoClient, {
+    db: sinon.stub().returns(dbStub)
+  });
+};
+
 describe('NodeTransport', () => {
   describe('#constructor', () => {
     const mongoClient = sinon.spy();
@@ -14,9 +35,6 @@ describe('NodeTransport', () => {
   });
 
   describe('#aggregate', () => {
-    let collectionStub;
-    let clientStub;
-    let dbStub;
     let nodeTransport;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
@@ -25,22 +43,13 @@ describe('NodeTransport', () => {
                       resolves({ toArray: () => Promise.resolve(aggResult) })
 
     beforeEach(() => {
-      collectionStub = sinon.createStubInstance(Collection, {
+      const collectionStub = sinon.createStubInstance(Collection, {
         aggregate: aggMock
       });
-      dbStub = sinon.createStubInstance(Db, {
-        collection: sinon.stub().returns(collectionStub)
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
-      nodeTransport = new NodeTransport(clientStub);
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
     });
 
     afterEach(() => {
-      collectionStub = null;
-      dbStub = null;
-      clientStub = null;
       nodeTransport = null;
     });
 
@@ -53,24 +62,15 @@ describe('NodeTransport', () => {
   });
 
   describe('#countDocuments', () => {
-    let collectionStub;
-    let clientStub;
-    let dbStub;
     let nodeTransport;
     const countResult = 10;
     const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
     beforeEach(() => {
-      collectionStub = sinon.createStubInstance(Collection, {
+      const collectionStub = sinon.createStubInstance(Collection, {
         countDocuments: countMock
       });
-      dbStub = sinon.createStubInstance(Db, {
-        collection: sinon.stub().returns(collectionStub)
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
-      nodeTransport = new NodeTransport(clientStub);
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
     });
 
     afterEach(() => {
@@ -88,31 +88,19 @@ describe('NodeTransport', () => {
   });
 
   describe('#distinct', () => {
-    let collectionStub;
-    let clientStub;
-    let dbStub;
     let nodeTransport;
     const distinctResult = [ 'Aphex Twin' ];
     const distinctMock = sinon.mock().once().
                           withArgs('name', {}, {}).resolves(distinctResult);
 
     beforeEach(() => {
-      collectionStub = sinon.createStubInstance(Collection, {
+      const collectionStub = sinon.createStubInstance(Collection, {
         distinct: distinctMock
       });
-      dbStub = sinon.createStubInstance(Db, {
-        collection: sinon.stub().returns(collectionStub)
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
-      nodeTransport = new NodeTransport(clientStub);
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
     });
 
     afterEach(() => {
-      collectionStub = null;
-      dbStub = null;
-      clientStub = null;
       nodeTransport = null;
     });
 
@@ -124,30 +112,18 @@ describe('NodeTransport', () => {
   });
 
   describe('#estimatedDocumentCount', () => {
-    let collectionStub;
-    let clientStub;
-    let dbStub;
     let nodeTransport;
     const countResult = 10;
     const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
     beforeEach(() => {
-      collectionStub = sinon.createStubInstance(Collection, {
+      const collectionStub = sinon.createStubInstance(Collection, {
         estimatedDocumentCount: countMock
       });
-      dbStub = sinon.createStubInstance(Db, {
-        collection: sinon.stub().returns(collectionStub)
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
-      nodeTransport = new NodeTransport(clientStub);
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
     });
 
     afterEach(() => {
-      collectionStub = null;
-      dbStub = null;
-      clientStub = null;
       nodeTransport = null;
     });
 
@@ -159,9 +135,6 @@ describe('NodeTransport', () => {
   });
 
   describe('#find', () => {
-    let collectionStub;
-    let clientStub;
-    let dbStub;
     let nodeTransport;
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
@@ -170,22 +143,13 @@ describe('NodeTransport', () => {
                       resolves({ toArray: () => Promise.resolve(findResult) })
 
     beforeEach(() => {
-      collectionStub = sinon.createStubInstance(Collection, {
+      const collectionStub = sinon.createStubInstance(Collection, {
         find: findMock
       });
-      dbStub = sinon.createStubInstance(Db, {
-        collection: sinon.stub().returns(collectionStub)
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
-      nodeTransport = new NodeTransport(clientStub);
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
     });
 
     afterEach(() => {
-      collectionStub = null;
-      dbStub = null;
-      clientStub = null;
       nodeTransport = null;
     });
 
