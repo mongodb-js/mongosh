@@ -107,6 +107,29 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#deleteOne', () => {
+    let nodeTransport;
+    const commandResult = { result: { n: 1, ok: 1 }};
+    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        deleteOne: deleteMock
+      });
+      nodeTransport = new NodeTransport(createClientStub(collectionStub));
+    });
+
+    afterEach(() => {
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.deleteOne('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      deleteMock.verify();
+    });
+  });
+
   describe('#distinct', () => {
     let nodeTransport;
     const distinctResult = [ 'Aphex Twin' ];

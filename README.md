@@ -18,6 +18,20 @@ npm install
 
 ## Running Tests
 
+Run all tests:
+
 ```shell
 lerna run test
+```
+
+Run tests from a specific package:
+
+```shell
+lerna run test --scope mongodbsh-transport
+```
+
+Run tests with all output from packages:
+
+```shell
+lerna run test --stream
 ```
