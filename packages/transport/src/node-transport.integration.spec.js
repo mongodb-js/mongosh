@@ -479,4 +479,4 @@ describe('NodeTransport [ integration ]', () => {
       });
     });
   });
-}).timeout(30000);
+}).timeout(120000);

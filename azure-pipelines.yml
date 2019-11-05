@@ -19,7 +19,7 @@ jobs:
           npm install
         displayName: 'Lerna Bootstrap'
       - script: |
-          lerna run test
+          lerna run test --stream
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
@@ -39,7 +39,7 @@ jobs:
           npm install
         displayName: 'Lerna Bootstrap'
       - script: |
-          lerna run test
+          lerna run test --stream
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
@@ -59,7 +59,7 @@ jobs:
           npm install
         displayName: 'Lerna Bootstrap'
       - script: |
-          lerna run test
+          lerna run test --stream
         displayName: 'Lerna Run Tests'
       - script: |
           lerna run check
