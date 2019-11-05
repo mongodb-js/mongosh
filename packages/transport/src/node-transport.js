@@ -67,6 +67,20 @@ class NodeTransport {
   }
 
   /**
+   * Get an estimated document count from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} options - The count options.
+   *
+   * @returns {Promise} The promise of the count.
+   */
+  estimatedDocumentCount(database, collection, options = {}) {
+    return this._db(database).collection(collection).
+      estimatedDocumentCount(options);
+  }
+
+  /**
    * Run a command against the database.
    *
    * @param {String} database - The database name.

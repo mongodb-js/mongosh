@@ -85,6 +85,41 @@ describe('NodeTransport', () => {
     });
   });
 
+  describe('#estimatedDocumentCount', () => {
+    let collectionStub;
+    let clientStub;
+    let dbStub;
+    let nodeTransport;
+    const countResult = 10;
+
+    beforeEach(() => {
+      collectionStub = sinon.createStubInstance(Collection, {
+        estimatedDocumentCount: sinon.stub().
+          withArgs({}).
+          resolves(countResult)
+      });
+      dbStub = sinon.createStubInstance(Db, {
+        collection: sinon.stub().returns(collectionStub)
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      nodeTransport = new NodeTransport(clientStub);
+    });
+
+    afterEach(() => {
+      collectionStub = null;
+      dbStub = null;
+      clientStub = null;
+      nodeTransport = null;
+    });
+
+    it('executes the command against the database', async () => {
+      const result = await nodeTransport.estimatedDocumentCount('music', 'bands');
+      expect(result).to.deep.equal(countResult);
+    });
+  });
+
   describe('#runCommand', () => {
     let clientStub;
     let dbStub;

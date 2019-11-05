@@ -77,6 +77,30 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
+  describe('#estimatedDocumentCount', () => {
+    let nodeTransport;
+
+    before(async () => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when no options are provided', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await nodeTransport.estimatedDocumentCount('music', 'bands');
+      });
+
+      it('executes the count and resolves the result', () => {
+        expect(result).to.equal(0);
+      });
+    });
+  });
+
   describe('#runCommand', () => {
     let nodeTransport;
 
