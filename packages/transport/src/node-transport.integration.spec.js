@@ -1,7 +1,8 @@
 const NodeTransport = require('./node-transport');
 const { expect } = require('chai');
 
-describe('NodeTransport [ integration ]', () => {
+describe('NodeTransport [ integration ]', function() {
+  this.timeout(30000);
   before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
@@ -119,30 +120,6 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
-  describe('#distinct', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.mongoClient.close(true);
-    });
-
-    context('when the distinct is valid', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await nodeTransport.distinct('music', 'bands', 'name');
-      });
-
-      it('executes the command and resolves the result', () => {
-        expect(result).to.deep.equal([]);
-      });
-    });
-  });
-
   describe('#deleteMany', () => {
     let nodeTransport;
 
@@ -187,6 +164,30 @@ describe('NodeTransport [ integration ]', () => {
 
       it('executes the count with an empty filter and resolves the result', () => {
         expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+
+  describe('#distinct', () => {
+    let nodeTransport;
+
+    before(async() => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the distinct is valid', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await nodeTransport.distinct('music', 'bands', 'name');
+      });
+
+      it('executes the command and resolves the result', () => {
+        expect(result).to.deep.equal([]);
       });
     });
   });
@@ -330,7 +331,7 @@ describe('NodeTransport [ integration ]', () => {
       return nodeTransport.mongoClient.close(true);
     });
 
-    context('when the filter is empty', () => {
+    context('when the insert is valid', () => {
       let result;
 
       beforeEach(async() => {
@@ -358,7 +359,7 @@ describe('NodeTransport [ integration ]', () => {
       return nodeTransport.mongoClient.close(true);
     });
 
-    context('when the filter is empty', () => {
+    context('when the insert is valid', () => {
       let result;
 
       beforeEach(async() => {
@@ -426,33 +427,6 @@ describe('NodeTransport [ integration ]', () => {
     });
   });
 
-  describe('#updateOne', () => {
-    let nodeTransport;
-    const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.mongoClient.close(true);
-    });
-
-    context('when the filter is empty', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await nodeTransport.
-          updateOne('music', 'bands', filter, update);
-      });
-
-      it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
-      });
-    });
-  });
-
   describe('#updateMany', () => {
     let nodeTransport;
     const filter = { name: 'Aphex Twin' };
@@ -479,4 +453,31 @@ describe('NodeTransport [ integration ]', () => {
       });
     });
   });
-}).timeout(120000);
+
+  describe('#updateOne', () => {
+    let nodeTransport;
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' }};
+
+    before(async() => {
+      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return nodeTransport.mongoClient.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await nodeTransport.
+          updateOne('music', 'bands', filter, update);
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+});

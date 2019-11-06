@@ -21,6 +21,7 @@
     ]
   },
   "peerDependencies": {
-    "mongodb": "^3.3.3"
+    "mongodb": "^3.3.3",
+    "mongodb-stitch-server-sdk": "^4.6.0"
   }
 }

@@ -1,4 +1,24 @@
+const { AnonymousCredential, RemoteMongoClient, Stitch } = require('mongodb-stitch-server-sdk');
+
+/**
+ * Constant for not implemented rejections.
+ */
 const NOT_IMPLEMENTED = 'is not implemented in the Stitch server SDK';
+
+/**
+ * Init error.
+ */
+const INIT_ERROR = 'Error authenticating with Stitch.';
+
+/**
+ * Rejecting for running an agg pipeline on a database.
+ */
+const AGG_ON_DB = 'Aggregations run on the database is not allowed via Stitch';
+
+/**
+ * Atlas id.
+ */
+const ATLAS = 'mongodb-atlas';
 
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
@@ -6,22 +26,290 @@ const NOT_IMPLEMENTED = 'is not implemented in the Stitch server SDK';
  */
 class StitchServerTransport {
   /**
+   * Create a StitchServerTransport from a Stitch app id.
+   *
+   * @param {String} stitchAppId - The Stitch app id.
+   * @param {String} serviceName - The Stitch service name.
+   *
+   * @returns {StitchServerTransport} The Stitch server transport.
+   */
+  static async fromAppId(stitchAppId, serviceName) {
+    const client = Stitch.initializeDefaultAppClient(stitchAppId);
+    try {
+      await client.auth.loginWithCredential(new AnonymousCredential());
+    } catch (err) {
+      /* eslint no-console:0 */
+      console.log(INIT_ERROR, err);
+      client.close();
+    }
+    return new StitchServerTransport(client, serviceName);
+  }
+
+  /**
+   * Run an aggregation pipeline.
+   *
+   * @note: Passing a null collection will cause the
+   *   aggregation to run on the DB.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Array} pipeline - The aggregation pipeline.
+   * @param {Object} options - The pipeline options.
+   *
+   * @returns {Promise} The promise of the aggregation cursor.
+   */
+  aggregate(database, collection, pipeline = [], options = {}) {
+    if (collection === null) {
+      return Promise.reject(AGG_ON_DB);
+    }
+    return this._db(database).collection(collection).
+      aggregate(pipeline, options);
+  }
+
+  /**
+   * Not implemented in Stitch.
+   *
+   * @returns {Promise} The rejected promise.
+   */
+  bulkWrite() {
+    return Promise.reject(`Bulk write ${NOT_IMPLEMENTED}`);
+  }
+
+  /**
+   * Get an exact document count from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The count options.
+   *
+   * @returns {Promise} The promise of the count.
+   */
+  countDocuments(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).count(filter, options);
+  }
+
+  /**
    * Instantiate a new Stitch server transport with a connected stitch
    * client instance.
    *
    * @param {Client} stitchClient - The Stitch client instance.
+   * @param {String} serviceName - The Mongo service name.
    */
-  constructor(stitchClient) {
-    this.stichClient = stitchClient;
+  constructor(stitchClient, serviceName = ATLAS) {
+    this.stitchClient = stitchClient;
+    this.mongoClient = stitchClient.
+      getServiceClient(RemoteMongoClient.factory, serviceName);
   }
 
   /**
-   * Run a command against the database.
+   * Delete multiple documents from the collection.
    *
-   * @returns {Promise} The promise of command results.
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The delete many options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  deleteMany(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      deleteMany(filter, options);
+  }
+
+  /**
+   * Delete one document from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The delete one options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  deleteOne(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      deleteOne(filter, options);
+  }
+
+  /**
+   * Not implemented in Stitch.
+   *
+   * @returns {Promise} The rejected promise.
+   */
+  distinct() {
+    return Promise.reject(`Distinct ${NOT_IMPLEMENTED}`);
+  }
+
+  /**
+   * Not implemented in Stitch.
+   *
+   * @returns {Promise} The rejected promise.
+   */
+  estimatedDocumentCount() {
+    return Promise.reject(`Estimated document count ${NOT_IMPLEMENTED}`);
+  }
+
+  /**
+   * Find documents in the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the cursor.
+   */
+  find(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      find(filter, options);
+  }
+
+  /**
+   * Find one document and delete it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndDelete(database, collection, filter = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndDelete(filter, options);
+  }
+
+  /**
+   * Find one document and replace it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndReplace(database, collection, filter = {}, replacement = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndReplace(filter, replacement, options);
+  }
+
+  /**
+   * Find one document and update it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The update.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  findOneAndUpdate(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      findOneAndUpdate(filter, update, options);
+  }
+
+  /**
+   * Insert many documents into the colleciton.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Array} docs - The documents.
+   * @param {Object} options - The insert many options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  insertMany(database, collection, docs = [], options = {}) {
+    return this._db(database).collection(collection).
+      insertMany(docs, options);
+  }
+
+  /**
+   * Insert one document into the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} doc - The document.
+   * @param {Object} options - The insert one options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  insertOne(database, collection, doc = {}, options = {}) {
+    return this._db(database).collection(collection).
+      insertOne(doc, options);
+  }
+
+  /**
+   * Not implemented in Stitch.
+   *
+   * @returns {Promise} The rejected promise.
+   */
+  replaceOne() {
+    return Promise.reject(`Replace one ${NOT_IMPLEMENTED}`);
+  }
+
+  /**
+   * Not implemented in Stitch.
+   *
+   * @returns {Promise} The rejected promise.
    */
   runCommand() {
-    return Promise.reject(`StitchServerTransport#runCommand ${NOT_IMPLEMENTED}`);
+    return Promise.reject(`Running a direct command ${NOT_IMPLEMENTED}`);
+  }
+
+  /**
+   * Update many document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  updateMany(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      updateMany(filter, update, options);
+  }
+
+  /**
+   * Update a document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  updateOne(database, collection, filter = {}, update = {}, options = {}) {
+    return this._db(database).collection(collection).
+      updateOne(filter, update, options);
+  }
+
+  /**
+   * Get the current user id.
+   *
+   * @returns {String} The user id.
+   */
+  get userId() {
+    return this.stitchClient.auth.user.id;
+  }
+
+  /**
+   * Get the DB object from the client.
+   *
+   * @param {String} name - The database name.
+   *
+   * @returns {Db} The database.
+   */
+  _db(name) {
+    return this.mongoClient.db(name);
   }
 }
 
