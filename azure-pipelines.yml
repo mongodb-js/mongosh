@@ -4,9 +4,6 @@ jobs:
   - job: Ubuntu
     pool:
       vmImage: 'ubuntu-latest'
-    env:
-      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - script: |
           set -e
@@ -24,15 +21,15 @@ jobs:
       - script: |
           lerna run test
         displayName: 'Lerna Run Tests'
+        env:
+          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
       - script: |
           lerna run check
         displayName: 'Lerna Run Checks'
   - job: MacOS
     pool:
       vmImage: 'macOS-latest'
-    env:
-      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - task: NodeTool@0
         inputs:
@@ -47,15 +44,15 @@ jobs:
       - script: |
           lerna run test
         displayName: 'Lerna Run Tests'
+        env:
+          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
       - script: |
           lerna run check
         displayName: 'Lerna Run Checks'
   - job: Windows
     pool:
       vmImage: 'windows-latest'
-    env:
-      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - task: NodeTool@0
         inputs:
@@ -70,6 +67,9 @@ jobs:
       - script: |
           lerna run test
         displayName: 'Lerna Run Tests'
+        env:
+          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
       - script: |
           lerna run check
         displayName: 'Lerna Run Checks'
