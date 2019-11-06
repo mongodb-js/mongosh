@@ -4,6 +4,9 @@ jobs:
   - job: Ubuntu
     pool:
       vmImage: 'ubuntu-latest'
+    env:
+      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - script: |
           set -e
@@ -27,6 +30,9 @@ jobs:
   - job: MacOS
     pool:
       vmImage: 'macOS-latest'
+    env:
+      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - task: NodeTool@0
         inputs:
@@ -47,6 +53,9 @@ jobs:
   - job: Windows
     pool:
       vmImage: 'windows-latest'
+    env:
+      MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+      MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
     steps:
       - task: NodeTool@0
         inputs:
