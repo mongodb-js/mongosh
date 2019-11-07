@@ -1,5 +1,5 @@
 {
-  "name": "mongodbsh-transport",
+  "name": "mongosh-transport",
   "version": "0.0.0",
   "description": "MongoDB Shell Transport Package",
   "main": "dist/index.js",

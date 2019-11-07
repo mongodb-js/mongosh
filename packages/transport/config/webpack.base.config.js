@@ -5,9 +5,7 @@ module.exports = {
   output: {
     path: project.path.output,
     publicPath: './',
-    filename: 'index.js',
-    library: 'mongodbsh-transport',
-    libraryTarget: 'umd'
+    filename: 'index.js'
   },
   resolve: {
     modules: ['node_modules'],

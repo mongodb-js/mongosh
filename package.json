@@ -44,10 +44,10 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "mongodbsh-cli-repl": "file:packages/cli-repl",
-    "mongodbsh-mapper": "file:packages/mapper",
-    "mongodbsh-service-provider": "file:packages/service-provider",
-    "mongodbsh-shell-api": "file:packages/shell-api",
-    "mongodbsh-transport": "file:packages/transport"
+    "mongosh-cli-repl": "file:packages/cli-repl",
+    "mongosh-mapper": "file:packages/mapper",
+    "mongosh-service-provider": "file:packages/service-provider",
+    "mongosh-shell-api": "file:packages/shell-api",
+    "mongosh-transport": "file:packages/transport"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "mongodbsh-cli-repl",
+  "name": "mongosh-cli-repl",
   "version": "0.0.0",
   "description": "MongoDB Shell CLI REPL Package",
   "main": "index.js",
@@ -9,8 +9,8 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
-    "mongodbsh-mapper": "file:../mapper",
-    "mongodbsh-service-provider": "file:../service-provider",
-    "mongodbsh-shell-api": "file:../shell-api"
+    "mongosh-mapper": "file:../mapper",
+    "mongosh-service-provider": "file:../service-provider",
+    "mongosh-shell-api": "file:../shell-api"
   }
 }

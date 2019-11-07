@@ -1,4 +1,4 @@
-const { NodeTransport } = require('mongodbsh-transport');
+const { NodeTransport } = require('mongosh-transport');
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.

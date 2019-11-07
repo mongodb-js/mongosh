@@ -1,5 +1,5 @@
 {
-  "name": "mongodbsh-mapper",
+  "name": "mongosh-mapper",
   "version": "0.0.0",
   "description": "MongoDB Shell Mapper Package",
   "main": "index.js",
@@ -8,6 +8,6 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
-    "mongodbsh-shell-api": "file:../shell-api"
+    "mongosh-shell-api": "file:../shell-api"
   }
 }

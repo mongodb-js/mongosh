@@ -1,8 +1,8 @@
 const repl = require('repl');
 const util = require('util');
-const { CliServiceProvider } = require('mongodbsh-service-provider');
-const Mapper = require('mongodbsh-mapper');
-const ShellApi = require('mongodbsh-shell-api');
+const { CliServiceProvider } = require('mongosh-service-provider');
+const Mapper = require('mongosh-mapper');
+const ShellApi = require('mongosh-shell-api');
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;

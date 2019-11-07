@@ -1,4 +1,4 @@
-const { Database } = require('mongodbsh-shell-api');
+const { Database } = require('mongosh-shell-api');
 
 class Mapper {
   constructor(serviceProvider) {

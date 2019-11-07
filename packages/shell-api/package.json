@@ -1,5 +1,5 @@
 {
-  "name": "mongodbsh-shell-api",
+  "name": "mongosh-shell-api",
   "version": "0.0.0",
   "description": "MongoDB Shell API Package",
   "main": "index.js",

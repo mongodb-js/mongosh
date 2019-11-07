@@ -13,7 +13,7 @@ to run various commands against a cluster via the driver.
 #### Usage
 
 ```js
-const NodeTransport = require('mongodbsh-transport/dist/node');
+const NodeTransport = require('mongosh-transport/dist/node');
 const transport = await NodeTransport.fromURI('mongodb://localhost:27017');
 
 const result = await transport.runCommand({ ismaster: 2 });
@@ -24,7 +24,7 @@ const result = await transport.runCommand({ ismaster: 2 });
 Allows limited command execution against a Stitch remote connection service.
 
 ```js
-const { StitchServerTransport } = require('mongodbsh-transport/dist/node');
+const { StitchServerTransport } = require('mongosh-transport/dist/node');
 ```
 
 ## Transports Available in a Browser Environment
@@ -34,5 +34,5 @@ const { StitchServerTransport } = require('mongodbsh-transport/dist/node');
 Allows limited command execution against a Stitch remote connection service.
 
 ```js
-const StitchBrowserTransport = require('mongodbsh-transport');
+const StitchBrowserTransport = require('mongosh-transport');
 ```

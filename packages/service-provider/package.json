@@ -1,5 +1,5 @@
 {
-  "name": "mongodbsh-service-provider",
+  "name": "mongosh-service-provider",
   "version": "0.0.0",
   "description": "MongoDB Shell Service Provider Package",
   "main": "index.js",
@@ -8,6 +8,6 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
-    "mongodbsh-transport": "file:../transport"
+    "mongosh-transport": "file:../transport"
   }
 }
