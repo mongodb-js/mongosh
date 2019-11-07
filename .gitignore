@@ -8,4 +8,5 @@ coverage
 *.iml
 *.swp
 lerna-debug.log
-packages/transport/dist
+packages/transport-browser/lib
+packages/transport-server/lib
