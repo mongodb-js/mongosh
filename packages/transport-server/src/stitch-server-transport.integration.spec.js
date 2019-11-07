@@ -1,5 +1,6 @@
 const StitchServerTransport = require('./stitch-server-transport');
 const { expect } = require('chai');
+const uuidv4 = require('uuid/v4');
 
 /**
  * In order for these tests to run, the following environment
@@ -14,9 +15,12 @@ describe('StitchServerTransport [ integration ]', function() {
 
   if (stitchAppId && serviceName) {
     let stitchTransport;
+    let testScope;
+    const testId = uuidv4();
 
     before(async() => {
       stitchTransport = await StitchServerTransport.fromAppId(stitchAppId, serviceName);
+      testScope = { testId: testId, owner_id: stitchTransport.userId };
     });
 
     after(() => {
@@ -39,7 +43,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
         beforeEach(async() => {
           result = await stitchTransport.
-            aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
+            aggregate('music', 'bands', [{ $match: { ...testScope, name: 'Aphex Twin' }}]);
         });
 
         it('executes the command and resolves the result', async() => {
@@ -70,7 +74,11 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          result = await stitchTransport.countDocuments('music', 'bands');
+          result = await stitchTransport.countDocuments(
+            'music',
+            'bands',
+            testScope
+          );
         });
 
         it('executes the count with an empty filter and resolves the result', () => {
@@ -84,7 +92,7 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          result = await stitchTransport.deleteMany('music', 'bands', {});
+          result = await stitchTransport.deleteMany('music', 'bands', testScope);
         });
 
         it('executes the count with an empty filter and resolves the result', () => {
@@ -98,7 +106,7 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          result = await stitchTransport.deleteOne('music', 'bands', {});
+          result = await stitchTransport.deleteOne('music', 'bands', testScope);
         });
 
         it('executes the count with an empty filter and resolves the result', () => {
@@ -128,7 +136,11 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          result = await stitchTransport.find('music', 'bands', { name: 'Aphex Twin' });
+          result = await stitchTransport.find(
+            'music',
+            'bands',
+            { ...testScope, name: 'Aphex Twin' }
+          );
         });
 
         it('executes the command and resolves the result', async() => {
@@ -141,9 +153,9 @@ describe('StitchServerTransport [ integration ]', function() {
     describe('#findOneAndDelete', () => {
       context('when the find is valid', () => {
         let result;
-        const filter = { name: 'Aphex Twin' };
 
         beforeEach(async() => {
+          const filter = { ...testScope, name: 'Aphex Twin' };
           result = await stitchTransport.findOneAndDelete('music', 'bands', filter);
         });
 
@@ -156,10 +168,11 @@ describe('StitchServerTransport [ integration ]', function() {
     describe('#findOneAndReplace', () => {
       context('when the find is valid', () => {
         let result;
-        const filter = { name: 'Aphex Twin' };
-        const replacement = { name: 'Richard James' };
 
         beforeEach(async() => {
+          const filter = { ...testScope, name: 'Aphex Twin' };
+          const replacement = { ...testScope, name: 'Richard James' };
+
           result = await stitchTransport.
             findOneAndReplace('music', 'bands', filter, replacement);
         });
@@ -173,10 +186,11 @@ describe('StitchServerTransport [ integration ]', function() {
     describe('#findOneAndUpdate', () => {
       context('when the find is valid', () => {
         let result;
-        const filter = { name: 'Aphex Twin' };
-        const update = { $set: { name: 'Richard James' }};
 
         beforeEach(async() => {
+          const filter = { ...testScope, name: 'Aphex Twin' };
+          const update = { $set: { name: 'Richard James' }};
+
           result = await stitchTransport.
             findOneAndUpdate('music', 'bands', filter, update);
         });
@@ -192,13 +206,12 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          const docs = [{ owner_id: stitchTransport.userId, name: 'Aphex Twin' }];
+          const docs = [{ ...testScope, name: 'Aphex Twin' }];
           result = await stitchTransport.insertMany('music', 'bands', docs);
         });
 
         afterEach(() => {
-          const doc = { owner_id: stitchTransport.userId };
-          return stitchTransport.deleteMany('music', 'bands', doc);
+          return stitchTransport.deleteMany('music', 'bands', testScope);
         });
 
         it('executes the count with an empty filter and resolves the result', () => {
@@ -212,13 +225,12 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          const doc = { owner_id: stitchTransport.userId, name: 'Aphex Twin' };
+          const doc = { ...testScope, name: 'Aphex Twin' };
           result = await stitchTransport.insertOne('music', 'bands', doc);
         });
 
         afterEach(() => {
-          const doc = { owner_id: stitchTransport.userId };
-          return stitchTransport.deleteMany('music', 'bands', doc);
+          return stitchTransport.deleteMany('music', 'bands', testScope);
         });
 
         it('executes the count with an empty filter and resolves the result', () => {
@@ -248,8 +260,8 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          const filter = { owner_id: stitchTransport.userId, name: 'Aphex Twin' };
-          const update = { owner_id: stitchTransport.userId, $set: { name: 'Richard James' }};
+          const filter = { ...testScope, name: 'Aphex Twin' };
+          const update = { $set: { name: 'Richard James' }};
 
           result = await stitchTransport.
             updateMany('music', 'bands', filter, update);
@@ -266,8 +278,8 @@ describe('StitchServerTransport [ integration ]', function() {
         let result;
 
         beforeEach(async() => {
-          const filter = { owner_id: stitchTransport.userId, name: 'Aphex Twin' };
-          const update = { owner_id: stitchTransport.userId, $set: { name: 'Richard James' }};
+          const filter = { ...testScope, name: 'Aphex Twin' };
+          const update = { $set: { name: 'Richard James' }};
 
           result = await stitchTransport.
             updateOne('music', 'bands', filter, update);
