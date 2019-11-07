@@ -19,14 +19,14 @@ jobs:
           npm install
         displayName: 'NPM Install'
       - script: |
-          lerna run test
-        displayName: 'Lerna Run Tests'
+          npm run check
+        displayName: 'Run Checks'
+      - script: |
+          npm run test-ci
+        displayName: 'Run Tests'
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          lerna run check
-        displayName: 'Lerna Run Checks'
   - job: MacOS
     pool:
       vmImage: 'macOS-latest'
@@ -42,14 +42,14 @@ jobs:
           npm install
         displayName: 'NPM Install'
       - script: |
-          lerna run test
-        displayName: 'Lerna Run Tests'
+          npm run check
+        displayName: 'Run Checks'
+      - script: |
+          npm run test-ci
+        displayName: 'Run Tests'
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          lerna run check
-        displayName: 'Lerna Run Checks'
   - job: Windows
     pool:
       vmImage: 'windows-latest'
@@ -65,11 +65,11 @@ jobs:
           npm install
         displayName: 'NPM Install'
       - script: |
-          lerna run test
-        displayName: 'Lerna Run Tests'
+          npm run check
+        displayName: 'Run Checks'
+      - script: |
+          npm run test-ci
+        displayName: 'Run Tests'
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          lerna run check
-        displayName: 'Lerna Run Checks'

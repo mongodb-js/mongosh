@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node compile-shell-api.js",
     "test": "mocha --recursive --color",
+    "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "precommit": [

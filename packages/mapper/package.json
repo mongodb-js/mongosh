@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive --color",
+    "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
