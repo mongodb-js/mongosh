@@ -12,7 +12,7 @@ class Cursor {
     this.next.serverVersions = [-1,4.4];
     this.next.topologies = ["ReplSet","Standalone","Shard"];
 
-    this.toReplString = () => (this.cursor.toArray((error, documents) => { if (error) { throw error; } return documents; }));
+    this.toReplString = () => (this.cursor.toArray((error, documents) => { if (error) { throw error; } console.log(JSON.stringify(documents)); }));
   }
 }
 class Collection {
@@ -20,8 +20,8 @@ class Collection {
     this.mapper = mapper;
     this.database = database;
     this.collection = collection;
-    this.help = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, replaceOne, updateMany, updateOne");
-    this.help.toReplString = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, replaceOne, updateMany, updateOne");
+    this.help = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, isCapped, remove, save, replaceOne, updateMany, updateOne");
+    this.help.toReplString = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, isCapped, remove, save, replaceOne, updateMany, updateOne");
     this.find = function() {
       return this.mapper.find(this, ...arguments);
     };
@@ -50,6 +50,13 @@ class Collection {
     this.countDocuments.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
     this.countDocuments.serverVersions = ["EARLIEST_VERSION",4.4];
     this.countDocuments.topologies = ["ReplSet","Standalone","Shard"];
+    this.count = function() {
+      return this.mapper.count(this, ...arguments);
+    };
+    this.count.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.count.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.count.serverVersions = ["EARLIEST_VERSION",4.4];
+    this.count.topologies = ["ReplSet","Standalone","Shard"];
     this.deleteMany = function() {
       return this.mapper.deleteMany(this, ...arguments);
     };
@@ -113,6 +120,27 @@ class Collection {
     this.insertOne.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
     this.insertOne.serverVersions = ["EARLIEST_VERSION",4.4];
     this.insertOne.topologies = ["ReplSet","Standalone","Shard"];
+    this.isCapped = function() {
+      return this.mapper.isCapped(this, ...arguments);
+    };
+    this.isCapped.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.isCapped.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.isCapped.serverVersions = ["EARLIEST_VERSION",4.4];
+    this.isCapped.topologies = ["ReplSet","Standalone","Shard"];
+    this.remove = function() {
+      return this.mapper.remove(this, ...arguments);
+    };
+    this.remove.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.remove.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.remove.serverVersions = ["EARLIEST_VERSION",4.4];
+    this.remove.topologies = ["ReplSet","Standalone","Shard"];
+    this.save = function() {
+      return this.mapper.save(this, ...arguments);
+    };
+    this.save.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.save.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.save.serverVersions = ["EARLIEST_VERSION",4.4];
+    this.save.topologies = ["ReplSet","Standalone","Shard"];
     this.replaceOne = function() {
       return this.mapper.replaceOne(this, ...arguments);
     };
@@ -135,7 +163,7 @@ class Collection {
     this.updateOne.serverVersions = ["EARLIEST_VERSION",4.4];
     this.updateOne.topologies = ["ReplSet","Standalone","Shard"];
 
-    this.toReplString = () => (this.collection);
+    this.toReplString = () => (this.this.collection);
   }
 }
 class Database {

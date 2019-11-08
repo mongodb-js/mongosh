@@ -239,6 +239,18 @@ class NodeTransport {
       insertOne(doc, options);
   }
 
+  isCapped(database, collection) {
+    return this._db(database).collection(collection).isCapped();
+  }
+
+  remove(database, collection, selector, options) {
+    return this._db(database).collection(collection).remove(selector, options);
+  }
+
+  save(database, collection, doc, options) {
+    return this._db(database).collection(collection).save(doc, options);
+  }
+
   /**
    * Replace a document with another.
    *

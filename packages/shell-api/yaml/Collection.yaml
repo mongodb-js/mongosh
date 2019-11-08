@@ -2,7 +2,7 @@ __constructorArgs:
     - database
     - collection
 __stringRep:
-    - collection
+    - this.collection
 help:
     <<: *__defaultAttr
     __value: 'The collection class.'
@@ -31,6 +31,12 @@ bulkWrite:
         - *LATEST_VERSION
 
 countDocuments:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+count:
     <<: *__defaultMethod
     serverVersions:
         - EARLIEST_VERSION
@@ -85,6 +91,26 @@ insertMany:
         - *LATEST_VERSION
 
 insertOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+isCapped:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+# TODO: mark as deprecated
+remove:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+# TODO: mark as deprecated
+save:
     <<: *__defaultMethod
     serverVersions:
         - EARLIEST_VERSION
