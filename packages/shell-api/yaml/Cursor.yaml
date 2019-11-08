@@ -5,7 +5,7 @@ __stringRep:
         if (error) {
           throw error;
         }
-        return documents;
+        console.log(JSON.stringify(documents));
       })
 help:
     <<: *__defaultAttr
