@@ -9,7 +9,7 @@ help:
 find:
     <<: *__defaultMethod
     serverVersions:
-        - 3.2
+        - *EARLIEST_VERSION
         - *LATEST_VERSION
     help: |-
         db.collection.find(query, projection)
@@ -18,5 +18,93 @@ find:
         projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter. For details, see Projection.
 
         Returns: A cursor to the documents that match the query criteria. When the find() method “returns documents,” the method is actually returning a cursor to the documents.
+aggregate:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
 
-    
+bulkWrite:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+countDocuments:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+deleteMany:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+deleteOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+distinct:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+estimatedDocumentCount:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+findOneAndDelete:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+findOneAndReplace:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+findOneAndUpdate:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+insertMany:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+insertOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+replaceOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+updateMany:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
+updateOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - EARLIEST_VERSION
+        - *LATEST_VERSION
+
