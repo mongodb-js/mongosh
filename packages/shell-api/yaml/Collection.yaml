@@ -6,22 +6,7 @@ __stringRep:
 help:
     <<: *__defaultAttr
     __value: 'The collection class.'
-find:
-    <<: *__defaultMethod
-    serverVersions:
-        - *EARLIEST_VERSION
-        - *LATEST_VERSION
-    help: |-
-        https://docs.mongodb.com/manual/reference/method/db.collection.find
 
-        Selects documents in a collection or view.
-
-        db.collection.find(query, projection)
-
-        query <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).
-        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.
-
-        Returns: A cursor to the documents that match the query criteria.
 aggregate:
     <<: *__defaultMethod
     serverVersions:
@@ -189,6 +174,67 @@ estimatedDocumentCount:
 
         Returns: count as an integer
 
+find:
+    <<: *__defaultMethod
+    serverVersions:
+        - *EARLIEST_VERSION
+        - *LATEST_VERSION
+    help: |-
+        https://docs.mongodb.com/manual/reference/method/db.collection.find
+
+        Selects documents in a collection or view.
+
+        db.collection.find(query, projection)
+
+        query <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).
+        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.
+
+        Returns: A cursor to the documents that match the query criteria.
+
+findAndModify:
+    <<: *__defaultMethod
+    serverVersions:
+        - *EARLIEST_VERSION
+        - *LATEST_VERSION
+    help: |-
+        https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify
+
+        Modifies and returns a single document.
+
+        db.collection.findAndModify(document)
+
+        document <document>
+            query <document>,
+            sort <document>,
+            remove <boolean>,
+            update <document or aggregation pipeline>, // Changed in MongoDB 4.2
+            new <boolean>,
+            fields <document>,
+            upsert <boolean>,
+            bypassDocumentValidation <boolean>,
+            writeConcern <document>,
+            collation <document>,
+            arrayFilters [ <filterdocument1>, ... ]
+
+        Returns: For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.
+
+findOne:
+    <<: *__defaultMethod
+    serverVersions:
+        - *EARLIEST_VERSION
+        - *LATEST_VERSION
+    help: |-
+        https://docs.mongodb.com/manual/reference/method/db.collection.findOne
+
+        Selects documents in a collection or view.
+
+        db.collection.findOne(query, projection)
+
+        query <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).
+        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.
+
+        Returns: A cursor to the documents that match the query criteria.
+
 findOneAndDelete:
     <<: *__defaultMethod
     serverVersions:
@@ -258,6 +304,23 @@ findOneAndUpdate:
             arrayFilters [ <filterdocument1>, ... ]
 
         Returns: Returns either the original document or, if returnNewDocument: true, the updated document.
+
+insert:
+    <<: *__defaultMethod
+    serverVersions:
+        - *EARLIEST_VERSION
+        - *LATEST_VERSION
+    help: |-
+        https://docs.mongodb.com/manual/reference/method/db.collection.insert
+
+        Inserts a document or documents into a collection.
+
+        db.collection.insert(document, options)
+
+        document <document or array> A document or array of documents to insert into the collection.
+        options <document>
+            writeConcern: <document>
+            ordered: <boolean>
 
 insertMany:
     <<: *__defaultMethod
@@ -381,6 +444,29 @@ replaceOne:
             writeConcern <document>
             collation <document>
             hint <document|string>
+
+update:
+    <<: *__defaultMethod
+    serverVersions:
+        - *EARLIEST_VERSION
+        - *LATEST_VERSION
+    help: |-
+        https://docs.mongodb.com/manual/reference/method/db.collection.update
+
+        Modifies an existing document or documents in a collection.
+
+        db.collection.update(query, update, options)
+
+        filter <document> The selection criteria for the update.
+        update <document> The modifications to apply.
+        options <document>
+        upsert: <boolean>,
+             multi <boolean>
+             writeConcern <document>
+             collation <document>
+             arrayFilters [ <filterdocument1>, ... ]
+             hint  <document|string>        // Available starting in MongoDB 4.2
+
 
 updateMany:
     <<: *__defaultMethod
