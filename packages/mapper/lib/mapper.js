@@ -3,11 +3,6 @@ const { Database, Cursor } = require('mongosh-shell-api');
 class Mapper {
   constructor(serviceProvider) {
     this._serviceProvider = serviceProvider;
-    this._translateOptions = {
-      justOne: 'single',
-      writeConcern: 'w',
-      collation: false // TODO: handle collation
-    };
 
     this.setCtx = (ctx) => {
       this._ctx = ctx;
@@ -30,56 +25,13 @@ class Mapper {
     };
 
     /**
-     * Find command
-     *
-     * @param collection {Collection} - reference to the collection object this method is called from.
-     * @param query {Object} - query spec
-     * @param projection {Object} - projection spec
-     *
-     * @return {ShellApi.Cursor} - newly instantiated cursor object
-     */
-    this.find = (collection, query, projection) => {
-      const options = {};
-      if (projection) {
-        options.projection = projection;
-      }
-      return new Cursor(
-        this,
-        this._serviceProvider.find(
-          collection.database,
-          collection.collection,
-          query ? query : {},
-          options
-        )
-      );
-    };
-
-    /**
      * Aggregate command
+     *
+     * TODO: In the mongo shell, if the cursor returned from the db.collection.aggregate() is not assigned to a variable using the var keyword, then the mongo shell automatically iterates the cursor up to 20 times. See Iterate a Cursor in the mongo Shell for handling cursors in the mongo shell.
      *
      * @param collection {Collection} - reference to the collection object this method is called from.
      * @param pipeline {Array} - pipeline array
      * @param options {Object} - options
-     *    explain {bool}
-     *    allowDiskUse {bool}
-     *    cursor {Object {
-     *        batchSize: n
-     *    }
-     *    maxTimeMS {integer}
-     *    bypassDocumentValidation {bool}
-     *    readConcern {Object {
-     *        level: {local/available/majority/linearizable}
-     *    }}
-     *    collation {Object {
-     *        locale: {str},
-     *        caseLevel: {bool},
-     *        caseFirst: {str},
-     *        strength: {int},
-     *        numericOrdering: {bool},
-     *        alternative: {str},
-     *        maxVariable: {str},
-     *        backwards: {bool}
-     *    }}
      *
      * @return {ShellApi.Cursor} - newly instantiated cursor object
      */
@@ -100,15 +52,13 @@ class Mapper {
      *
      * @param collection {Collection} - reference to the collection object this method is called from.
      * @param operations {Object} - the bulk write operations
-     * @param writeConcern {Object} - write concern object
-     * @param ordered {bool} - if ordered
+     * @param options {Object}
+     *      writeConcern {Object} - write concern object
+     *      ordered {bool} - if ordered
      *
      * @return {boolean} - A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled.
      */
-    this.bulkWrite = (collection, operations, writeConcern, ordered) => {
-      const options = {};
-      if (writeConcern) options.w = writeConcern;
-      if (ordered) options.ordered = ordered;
+    this.bulkWrite = (collection, operations, options) => {
       this._serviceProvider.bulkWrite(
         collection.database,
         collection.collection,
@@ -124,8 +74,8 @@ class Mapper {
      * @param query {Object} - query spec
      * @param options {Object} - options
      */
-    this.countDocuments = (collection, query, options) => {
-      return this._serviceProvider.countDocuments(
+    this.count = (collection, query, options) => {
+      return this._serviceProvider.count(
         collection.database,
         collection.collection,
         query,
@@ -140,7 +90,7 @@ class Mapper {
      * @param query {Object} - query spec
      * @param options {Object} - options
      */
-    this.count = (collection, query, options) => {
+    this.countDocuments = (collection, query, options) => {
       return this._serviceProvider.countDocuments(
         collection.database,
         collection.collection,
@@ -182,6 +132,18 @@ class Mapper {
         collection.database,
         collection.collection,
         options
+      );
+    };
+
+    this.find = (collection, query, projection) => {
+      return new Cursor(
+        this,
+        this._serviceProvider.find(
+          collection.database,
+          collection.collection,
+          query,
+          projection
+        )
       );
     };
 
@@ -239,33 +201,16 @@ class Mapper {
       );
     };
 
-    this.remove = (collection, query, opt) => {
-      let options = {};
-      if (typeof opt === 'boolean') {
-        opt = { justOne: opt };
-      }
-      Object.keys(opt).filter((k) => (
-        this._translateOptions[k]
-      )).forEach((k) => (
-        options[this._translateOptions[k]] = opt[k]
-      ));
+    this.remove = (collection, query, options) => {
       return this._serviceProvider.remove(
         collection.database,
         collection.collection,
+        query,
         options
       );
     };
 
-    /**
-     * TODO: fix this
-     */
-    this.save = (collection, doc, opt) => {
-      let options = {};
-      Object.keys(opt).filter((k) => (
-        this._translateOptions[k]
-      )).forEach((k) => (
-        options[this._translateOptions[k]] = opt[k]
-      ));
+    this.save = (collection, doc, options) => {
       return this._serviceProvider.save(
         collection.database,
         collection.collection,
