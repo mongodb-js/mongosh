@@ -147,6 +147,17 @@ class Mapper {
       );
     };
 
+    this.findAndModify = (collection, document) => {
+      return new Cursor(
+        this,
+        this._serviceProvider.findAndModify(
+          collection.database,
+          collection.collection,
+          document
+        )
+      );
+    };
+
     this.findOneAndDelete = (collection, filter, options) => {
       return this._serviceProvider.findOneAndDelete(
         collection.database,
@@ -156,8 +167,20 @@ class Mapper {
       );
     };
 
+    this.findOne = (collection, query, projection) => {
+      return new Cursor(
+        this,
+        this._serviceProvider.find(
+          collection.database,
+          collection.collection,
+          query,
+          projection
+        )
+      ).limit(1);
+    };
+
     this.findOneAndReplace = (collection, filter, replacement, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.findOneAndReplace(
         collection.database,
         collection.collection,
         filter,
@@ -167,7 +190,7 @@ class Mapper {
     };
 
     this.findOneAndUpdate = (collection, filter, update, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.findOneAndUpdate(
         collection.database,
         collection.collection,
         filter,
@@ -176,8 +199,18 @@ class Mapper {
       );
     };
 
+    this.insert = (collection, docs, options) => {
+      const d = typeof docs === 'Array' ? docs : [docs];
+      return this._serviceProvider.insertMany(
+        collection.database,
+        collection.collection,
+        d,
+        options
+      );
+    };
+
     this.insertMany = (collection, docs, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.insertMany(
         collection.database,
         collection.collection,
         docs,
@@ -186,7 +219,7 @@ class Mapper {
     };
 
     this.insertOne = (collection, doc, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.insertOne(
         collection.database,
         collection.collection,
         doc,
@@ -195,7 +228,7 @@ class Mapper {
     };
 
     this.isCapped = (collection) => {
-      return this._serviceProvider(
+      return this._serviceProvider.isCapped(
         collection.database,
         collection.collection
       );
@@ -220,7 +253,7 @@ class Mapper {
     };
 
     this.replaceOne = (collection, filter, replacement, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.replaceOne(
         collection.collection,
         collection.database,
         filter,
@@ -229,8 +262,28 @@ class Mapper {
       );
     };
 
+    this.update = (collection, filter, update, options) => {
+      if (options.multi) {
+        return this._serviceProvider.updateMany(
+          collection.collection,
+          collection.database,
+          filter,
+          update,
+          options
+        );
+      } else {
+        return this._serviceProvider.updateOne(
+          collection.collection,
+          collection.database,
+          filter,
+          update,
+          options
+        );
+      }
+    };
+
     this.updateMany = (collection, filter, update, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.updateMany(
         collection.collection,
         collection.database,
         filter,
@@ -240,7 +293,7 @@ class Mapper {
     };
 
     this.updateOne = (collection, filter, update, options) => {
-      return this._serviceProvider(
+      return this._serviceProvider.updateOne(
         collection.collection,
         collection.database,
         filter,

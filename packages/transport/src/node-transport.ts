@@ -114,7 +114,7 @@ class NodeTransport {
     if ('readConcern' in options) {
       collOpts.readConcern = options.readConcern;
     }
-    const cursor = this._db(database).collection(collection, collOpts).count(query)
+    const cursor = this._db(database).collection(collection, collOpts).count(query);
     if ('collation' in options) {
       return cursor.collation(options.collation);
     }
@@ -249,6 +249,10 @@ class NodeTransport {
     return this._db(database).collection(collection).
       find(filter, options);
   }
+
+  // TODO
+  findAndModify(database, collection, document) {}
+
 
   /**
    * Find one document and delete it.
@@ -400,7 +404,8 @@ class NodeTransport {
       Object.assign(removeOptions, options.writeConcern);
     }
 
-    const cursor = this._db(database).collection(collection).remove(query, options);
+    const cursor = this._db(database).collection(collection)
+      .remove(query, options);
     if ('collation' in options) {
       return cursor.collation(options.collation);
     }
@@ -424,7 +429,8 @@ class NodeTransport {
     if ('writeConcern' in options) {
       Object.assign(saveOptions, options.writeConcern);
     }
-    return this._db(database).collection(collection).save(doc, saveOptions);
+    return this._db(database).collection(collection)
+      .save(doc, saveOptions);
   }
 
   /**
@@ -489,7 +495,7 @@ class NodeTransport {
       Object.assign(cmdOpts, options.writeConcern);
     }
     const cursor = this._db(database).collection(collection).
-    updateMany(filter, update, cmdOpts);
+      updateMany(filter, update, cmdOpts);
     if ('collation' in options) {
       return cursor.collation(options.collation);
     }
