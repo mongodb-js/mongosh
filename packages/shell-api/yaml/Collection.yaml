@@ -19,9 +19,9 @@ find:
         db.collection.find(query, projection)
 
         query <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).
-        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter. For details, see Projection.
+        projection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.
 
-        Returns: A cursor to the documents that match the query criteria. When the find() method “returns documents,” the method is actually returning a cursor to the documents.
+        Returns: A cursor to the documents that match the query criteria.
 aggregate:
     <<: *__defaultMethod
     serverVersions:
@@ -45,9 +45,9 @@ aggregate:
             collation <document>
             hint <document>
             comment <string>
-            writeConcern<document>
+            writeConcern <document>
 
-        Returns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor. See $out for more information.
+        Returns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.
 
 bulkWrite:
     <<: *__defaultMethod
@@ -98,6 +98,7 @@ count:
         https://docs.mongodb.com/manual/reference/method/db.collection.count
 
         Returns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.
+        Avoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.
 
         db.collection.count(query, options)
 
@@ -311,12 +312,11 @@ isCapped:
 
         Returns true if the collection is a capped collection, otherwise returns false.
 
-# TODO: deprecated?
 remove:
     <<: *__defaultMethod
     serverVersions:
         - *EARLIEST_VERSION
-        - *LATEST_VERSION
+        - *LATEST_VERSION # TODO: deprecated
     help: |-
         https://docs.mongodb.com/manual/reference/method/db.collection.remove
 
@@ -341,15 +341,13 @@ remove:
            }
         )
 
-        Returns: A WriteResult object that contains the status of the operation.
+        Returns: The status of the operation.
 
-
-# TODO: mark as deprecated
 save:
     <<: *__defaultMethod
     serverVersions:
         - *EARLIEST_VERSION
-        - *LATEST_VERSION
+        - *LATEST_VERSION # TODO: deprecated
     help: |-
         https://docs.mongodb.com/manual/reference/method/db.collection.save
 

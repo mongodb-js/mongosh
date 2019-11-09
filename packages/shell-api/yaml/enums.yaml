@@ -1,0 +1,9 @@
+ReadPreference:
+    help:
+        <<: *__defaultAttr
+        __value: The ReadPreference enum
+    PRIMARY: 0
+    PRIMARY_PREFERRED: 1
+    SECONDARY: 2
+    SECONDARY_PREFERRED: 3
+    NEAREST: 4
