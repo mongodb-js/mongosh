@@ -4,9 +4,13 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "scripts": {
+    "prebootstrap": "npm install",
+    "bootstrap": "lerna exec npm install",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
-    "check": "lerna run check"
+    "check": "lerna run check",
+    "prestart": "lerna run compile",
+    "start": "lerna run start --scope mongosh-cli-repl --stream"
   },
   "keywords": [
     "MongoDB",
@@ -32,7 +36,6 @@
     "lerna": "^3.10.7",
     "mocha": "^6.2.1",
     "mocha-webpack": "^1.1.0",
-    "mongodb": "^3.3.3",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
     "mongodb-stitch-browser-sdk": "^4.7.0",

@@ -19,10 +19,11 @@
       "sinon",
       "chai",
       "mongodb-runner",
-      "uuid"
+      "uuid",
+      "encoding"
     ]
   },
-  "peerDependencies": {
+  "dependencies": {
     "mongodb": "^3.3.3",
     "mongodb-stitch-server-sdk": "^4.7.0"
   }

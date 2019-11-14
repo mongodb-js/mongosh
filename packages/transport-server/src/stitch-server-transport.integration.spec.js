@@ -292,6 +292,6 @@ describe('StitchServerTransport [ integration ]', function() {
     });
   } else {
     /* eslint no-console:0 */
-    console.log('process.env: ', process.env);
+    console.log('Could not run Stitch Server integration tests: process.env: ', process.env);
   }
 });

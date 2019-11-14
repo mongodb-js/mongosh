@@ -21,6 +21,6 @@ const config = {
     chunks: false,
     modules: false
   }
-});
+};
 
 module.exports = merge.smart(baseWebpackConfig, config);

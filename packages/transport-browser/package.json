@@ -20,6 +20,5 @@
       "chai"
     ]
   },
-  "peerDependencies": {
-  }
+  "peerDependencies": {}
 }
