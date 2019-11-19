@@ -13,7 +13,7 @@ all environments (REPL, Browser, Compass, etc).
 
 ```shell
 npm install -g lerna
-npm install
+npm run bootstrap
 ```
 
 ## Running Tests
@@ -21,7 +21,7 @@ npm install
 Run all tests:
 
 ```shell
-lerna run test
+npm test
 ```
 
 Run tests from a specific package:
@@ -34,4 +34,10 @@ Run tests with all output from packages:
 
 ```shell
 lerna run test --stream
+```
+
+Start the CLI:
+
+```shell
+npm start
 ```

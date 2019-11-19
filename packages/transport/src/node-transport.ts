@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 /**
  * Default driver options we always use.
@@ -13,6 +13,8 @@ const DEFAULT_OPTIONS = Object.freeze({
  * the Node Driver.
  */
 class NodeTransport {
+  mongoClient: MongoClient;
+
   /**
    * Create a NodeTransport from a URI.
    *
@@ -541,4 +543,4 @@ class NodeTransport {
   }
 }
 
-module.exports = NodeTransport;
+export default NodeTransport;

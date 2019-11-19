@@ -1,4 +1,9 @@
-const { AnonymousCredential, RemoteMongoClient, Stitch } = require('mongodb-stitch-server-sdk');
+import {
+  AnonymousCredential,
+  RemoteMongoClient,
+  Stitch,
+  StitchAppClient
+} from 'mongodb-stitch-server-sdk';
 
 /**
  * Constant for not implemented rejections.
@@ -25,6 +30,9 @@ const ATLAS = 'mongodb-atlas';
  * Stitch in the server.
  */
 class StitchServerTransport {
+  mongoClient: RemoteMongoClient;
+  stitchClient: StitchAppClient;
+
   /**
    * Create a StitchServerTransport from a Stitch app id.
    *
@@ -63,7 +71,7 @@ class StitchServerTransport {
       return Promise.reject(AGG_ON_DB);
     }
     return this._db(database).collection(collection).
-      aggregate(pipeline, options);
+      aggregate(pipeline);
   }
 
   /**
@@ -114,7 +122,7 @@ class StitchServerTransport {
    */
   deleteMany(database, collection, filter = {}, options = {}) {
     return this._db(database).collection(collection).
-      deleteMany(filter, options);
+      deleteMany(filter);
   }
 
   /**
@@ -129,7 +137,7 @@ class StitchServerTransport {
    */
   deleteOne(database, collection, filter = {}, options = {}) {
     return this._db(database).collection(collection).
-      deleteOne(filter, options);
+      deleteOne(filter);
   }
 
   /**
@@ -224,7 +232,7 @@ class StitchServerTransport {
    */
   insertMany(database, collection, docs = [], options = {}) {
     return this._db(database).collection(collection).
-      insertMany(docs, options);
+      insertMany(docs);
   }
 
   /**
@@ -239,7 +247,7 @@ class StitchServerTransport {
    */
   insertOne(database, collection, doc = {}, options = {}) {
     return this._db(database).collection(collection).
-      insertOne(doc, options);
+      insertOne(doc);
   }
 
   /**
@@ -313,4 +321,4 @@ class StitchServerTransport {
   }
 }
 
-module.exports = StitchServerTransport;
+export default StitchServerTransport;

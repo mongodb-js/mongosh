@@ -4,9 +4,13 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "scripts": {
+    "prebootstrap": "npm install",
+    "bootstrap": "lerna exec npm install",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
-    "check": "lerna run check"
+    "check": "lerna run check",
+    "prestart": "lerna run compile",
+    "start": "lerna exec npm start --scope mongosh-cli-repl"
   },
   "keywords": [
     "MongoDB",
@@ -19,6 +23,8 @@
   "license": "SSPL",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@types/chai": "^4.2.5",
+    "@types/mocha": "^5.2.7",
     "babel-loader": "^8.0.6",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
@@ -32,7 +38,6 @@
     "lerna": "^3.10.7",
     "mocha": "^6.2.1",
     "mocha-webpack": "^1.1.0",
-    "mongodb": "^3.3.3",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
     "mongodb-stitch-browser-sdk": "^4.7.0",
@@ -40,6 +45,10 @@
     "path": "^0.12.7",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "sinon": "^7.5.0",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.5.2",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.2",
     "uuid": "^3.3.3",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
@@ -51,7 +60,6 @@
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider": "file:packages/service-provider",
     "mongosh-shell-api": "file:packages/shell-api",
-    "mongosh-transport-browser": "file:packages/transport-browser",
-    "mongosh-transport-server": "file:packages/transport-server"
+    "mongosh-transport": "file:packages/transport"
   }
 }

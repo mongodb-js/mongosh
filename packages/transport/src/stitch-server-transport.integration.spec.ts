@@ -1,6 +1,6 @@
-const StitchServerTransport = require('./stitch-server-transport');
-const { expect } = require('chai');
-const uuidv4 = require('uuid/v4');
+import StitchServerTransport from './stitch-server-transport';
+import { expect } from 'chai';
+import uuidv4 from 'uuid/v4';
 
 /**
  * In order for these tests to run, the following environment
@@ -292,6 +292,6 @@ describe('StitchServerTransport [ integration ]', function() {
     });
   } else {
     /* eslint no-console:0 */
-    console.log('process.env: ', process.env);
+    console.log('Could not run Stitch Server integration tests: process.env: ', process.env);
   }
 });
