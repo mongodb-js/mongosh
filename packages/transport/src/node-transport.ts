@@ -39,377 +39,259 @@ class NodeTransport {
   }
 
   /**
-   * Run an aggregation pipeline.
+   * Run an aggregation pipeline on a collection.
    *
-   * @note: Passing a null collection will cause the
-   *   aggregation to run on the DB.
-   *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API sets readConcern via options in object,
-   * node driver flat.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Object} options - The pipeline options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the aggregation cursor.
    */
-  aggregate(database, collection, pipeline = [], options = {}) {
-    const dbOptions = {};
-    if ('readConcern' in options) {
-      dbOptions.readConcern = options.readConcern;
-    }
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    if (collection === null) {
-      return this._db(database, dbOptions).aggregate(pipeline, options);
-    }
-    return this._db(database, dbOptions).collection(collection).
-      aggregate(pipeline, options);
+  aggregate(db, coll, pipeline = [], options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).aggregate(pipeline, options);
+  }
+
+  /**
+   * Run an aggregation pipeline on a database.
+   *
+   * @param {String} db - The db name.
+   * @param {Array} pipeline - The aggregation pipeline.
+   * @param {Object} options - The pipeline options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
+   *
+   * @returns {Promise} The promise of the aggregation cursor.
+   */
+  aggregateDb(db, pipeline = [], options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).aggregate(pipeline, options);
   }
 
   /**
    * Execute a mix of write operations.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Object} requests - The bulk write requests.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
+   * @param {Array} requests - The bulk write requests.
    * @param {Object} options - The bulk write options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the result.
    */
-  bulkWrite(database, collection, requests = {}, options = {}) {
-    const bulkOptions = {};
-    if ('writeConcern' in options) {
-      Object.assign(bulkOptions, options.writeConcern);
-    }
-    if ('ordered' in options) {
-      bulkOptions.ordered = options.ordered;
-    }
-    return this._db(database).collection(collection).
-      bulkWrite(requests, options);
+  bulkWrite(db, coll, requests = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).bulkWrite(requests, options);
   }
 
   /**
    * Deprecated count command.
    *
-   * @note: Shell API passes readConcern via options, node via collection
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} query - The filter.
    * @param {Object} options - The count options.
+   * @param {Object} collOptions - The collection options
    *
    * @returns {Promise} The promise of the count.
    */
-  count(database, collection, query = {}, options = {}) {
-    const collOpts = {};
-    if ('readConcern' in options) {
-      collOpts.readConcern = options.readConcern;
+  count(db, coll, query = {}, options = {}, collOptions = {}) {
+    if (!collOptions || Object.keys(collOptions).length === 0) {
+      return this._db(db).collection(coll).count(query);
     }
-    const cursor = this._db(database).collection(collection, collOpts).count(query);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+    return this._db(db).collection(coll, collOptions).count(query);
   }
 
   /**
-   * Get an exact document count from the collection.
+   * Get an exact document count from the coll.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} options - The count options.
    *
    * @returns {Promise} The promise of the count.
    */
-  countDocuments(database, collection, filter = {}, options = {}) {
-    return this._db(database).collection(collection).
-      countDocuments(filter, options);
+  countDocuments(db, coll, filter = {}, options = {}) {
+    return this._db(db).collection(coll).countDocuments(filter, options);
   }
 
   /**
-   * Delete multiple documents from the collection.
+   * Delete multiple documents from the coll.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} options - The delete many options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteMany(database, collection, filter = {}, options = {}) {
-    const cmdOpts = {};
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    const cursor = this._db(database).collection(collection).
-      deleteMany(filter, cmdOpts);
-
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  deleteMany(db, coll, filter = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).deleteMany(filter, options);
   }
 
   /**
-   * Delete one document from the collection.
+   * Delete one document from the coll.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} options - The delete one options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteOne(database, collection, filter = {}, options = {}) {
-    const cmdOpts = {};
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    const cursor = this._db(database).collection(collection).
-      deleteOne(filter, cmdOpts);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  deleteOne(db, coll, filter = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).deleteOne(filter, options);
   }
 
   /**
    * Get distinct values for the field.
    *
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {String} fieldName - The field name.
    * @param {Object} filter - The filter.
    * @param {Object} options - The distinct options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the cursor.
    */
-  distinct(database, collection, fieldName, filter = {}, options = {}) {
-    const cursor = this._db(database).collection(collection).
+  distinct(db, coll, fieldName, filter = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).
       distinct(fieldName, filter, options);
-
-    if ('collation' in cursor) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
   }
 
   /**
-   * Get an estimated document count from the collection.
+   * Get an estimated document count from the coll.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} options - The count options.
    *
    * @returns {Promise} The promise of the count.
    */
-  estimatedDocumentCount(database, collection, options = {}) {
-    return this._db(database).collection(collection).
+  estimatedDocumentCount(db, coll, options = {}) {
+    return this._db(db).collection(coll).
       estimatedDocumentCount(options);
   }
 
   /**
    * Find documents in the collection.
    *
-   * @note: Shell API passes filter and projection to find,
-   * node driver uses filter and options.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
-   * @param {Object} projection - The projection.
+   * @param {Object} options - The find options.
    *
    * @returns {Promise} The promise of the cursor.
    */
-  find(database, collection, filter = {}, projection = {}) {
-    const options = {};
-    if (projection) {
-      options.projection = projection;
-    }
-    return this._db(database).collection(collection).
-      find(filter, options);
+  find(db, coll, filter = {}, options = {}) {
+    return this._db(db).collection(coll).find(filter, options);
   }
 
   // TODO
-  findAndModify(database, collection, document) {}
+  // findAndModify(db, collection, document) {}
 
 
   /**
    * Find one document and delete it.
    *
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} options - The find options.
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndDelete(database, collection, filter = {}, options = {}) {
-    const cursor = this._db(database).collection(collection).
-      findOneAndDelete(filter, options);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  findOneAndDelete(db, coll, filter = {}, options = {}) {
+    return this._db(db).collection(coll).findOneAndDelete(filter, options);
   }
 
   /**
    * Find one document and replace it.
    *
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} replacement - The replacement.
    * @param {Object} options - The find options.
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndReplace(database, collection, filter = {}, replacement = {}, options = {}) {
-    const cursor = this._db(database).collection(collection).
+  findOneAndReplace(db, coll, filter = {}, replacement = {}, options = {}) {
+    return this._db(db).collection(coll).
       findOneAndReplace(filter, replacement, options);
-
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
   }
 
   /**
    * Find one document and update it.
    *
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {(Object|Array)} update - The update.
    * @param {Object} options - The find options.
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndUpdate(database, collection, filter = {}, update = {}, options = {}) {
-    const cursor = this._db(database).collection(collection).
+  findOneAndUpdate(db, coll, filter = {}, update = {}, options = {}) {
+    return this._db(db).collection(coll).
       findOneAndUpdate(filter, update, options);
-
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
   }
 
   /**
    * Insert many documents into the collection.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Array} docs - The documents.
    * @param {Object} options - The insert many options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the result.
    */
-  insertMany(database, collection, docs = [], options = {}) {
-    const cmdOpts = {};
-
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    if ('ordered' in options) {
-      cmdOpts.ordered = options.ordered;
-    }
-
-    return this._db(database).collection(collection).
-      insertMany(docs, cmdOpts);
+  insertMany(db, coll, docs = [], options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).insertMany(docs, options);
   }
 
   /**
    * Insert one document into the collection.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} doc - The document.
    * @param {Object} options - The insert one options.
+   * @param {Object} dbOptions - The database options, i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the result.
    */
-  insertOne(database, collection, doc = {}, options = {}) {
-    const cmdOpts = {};
-
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    return this._db(database).collection(collection).
-      insertOne(doc, options);
+  insertOne(db, coll, doc = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).insertOne(doc, options);
   }
 
   /**
    * Is the collection capped?
    *
-   * @param database
-   * @param collection
+   * @param db
+   * @param coll
    * @return {Promise}
    */
-  isCapped(database, collection) {
-    return this._db(database).collection(collection).isCapped();
+  isCapped(db, coll) {
+    return this._db(db).collection(coll).isCapped();
   }
 
   /**
    * Deprecated remove command.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API passes collation as option, node driver via cursor.
-   *
-   * @param database
-   * @param collection
-   * @param query
-   * @param options
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
+   * @param {Object} query - The query.
+   * @param {Object} options - The options.
+   * @param {Object} dbOptions - The db options.
    * @return {Promise}
    */
-  remove(database, collection, query, options) {
-    let removeOptions = {};
-    if (typeof options === 'boolean') {
-      removeOptions = { single: options };
-    }
-    if ('writeConcern' in options) {
-      Object.assign(removeOptions, options.writeConcern);
-    }
-
-    const cursor = this._db(database).collection(collection)
-      .remove(query, options);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  remove(db, coll, query, options, dbOptions) {
+    return this._db(db).collection(coll).remove(query, options);
   }
 
   /**
@@ -418,127 +300,90 @@ class NodeTransport {
    * @note: Shell API sets writeConcern via options in object,
    * node driver flat.
    *
-   * @param database
-   * @param collection
+   * @param db
+   * @param coll
    * @param doc
    * @param options
    * @return {Promise}
    */
-  save(database, collection, doc, options) {
-    const saveOptions = {};
-    if ('writeConcern' in options) {
-      Object.assign(saveOptions, options.writeConcern);
-    }
-    return this._db(database).collection(collection)
-      .save(doc, saveOptions);
+  save(db, coll, doc, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).save(doc, options);
   }
 
   /**
    * Replace a document with another.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API sets collation via options, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {Object} replacement - The replacement document for matches.
    * @param {Object} options - The replace options.
+   * @param {Object} dbOptions - The db options.
    *
    * @returns {Promise} The promise of the result.
    */
-  replaceOne(database, collection, filter = {}, replacement = {}, options = {}) {
-    const cmdOpts = {};
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    const cursor = this._db(database).collection(collection).
-      replaceOne(filter, replacement, cmdOpts);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  replaceOne(db, coll, filter = {}, replacement = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).replaceOne(filter, replacement, options);
   }
 
   /**
-   * Run a command against the database.
+   * Run a command against the db.
    *
-   * @param {String} database - The database name.
+   * @param {String} db - The db name.
    * @param {Object} spec - The command specification.
-   * @param {Object} options - The database options.
+   * @param {Object} options - The db options.
    *
    * @returns {Promise} The promise of command results.
    */
-  runCommand(database, spec, options = {}) {
-    return this._db(database).command(spec, options);
+  runCommand(db, spec, options = {}) {
+    return this._db(db).command(spec, options);
   }
 
   /**
    * Update many documents.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API sets collation via options, node driver via cursor.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {(Object|Array)} update - The updates.
    * @param {Object} options - The update options.
+   * @param {Object} dbOptions - The db options.
    *
    * @returns {Promise} The promise of the result.
    */
-  updateMany(database, collection, filter = {}, update = {}, options = {}) {
-    const cmdOpts = {};
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    const cursor = this._db(database).collection(collection).
-      updateMany(filter, update, cmdOpts);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  updateMany(db, coll, filter = {}, update = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).
+      updateMany(filter, update, options);
   }
 
   /**
    * Update a document.
    *
-   * @note: Shell API sets writeConcern via options in object,
-   * node driver flat.
-   * @note: Shell API sets collation via options, node driver via cursor.
-   * TODO: Shell API provides 'hint' but node driver does not
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
+   * @param {String} db - The db name.
+   * @param {String} coll - The collection name.
    * @param {Object} filter - The filter.
    * @param {(Object|Array)} update - The updates.
    * @param {Object} options - The update options.
+   * @param {Object} dbOptions - The db options.
    *
    * @returns {Promise} The promise of the result.
    */
-  updateOne(database, collection, filter = {}, update = {}, options = {}) {
-    const cmdOpts = {};
-    if ('writeConcern' in options) {
-      Object.assign(cmdOpts, options.writeConcern);
-    }
-    const cursor = this._db(database).collection(collection).
-      updateOne(filter, update, cmdOpts);
-    if ('collation' in options) {
-      return cursor.collation(options.collation);
-    }
-    return cursor;
+  updateOne(db, coll, filter = {}, update = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).
+      updateOne(filter, update, options);
   }
 
   /**
    * Get the DB object from the client.
    *
-   * @param {String} name - The database name.
+   * @param {String} name - The db name.
    *
-   * @returns {Db} The database.
+   * @returns {Db} The db.
    */
-  _db(name) {
+  _db(name, options = {}) {
+    if (Object.keys(options).length !== 0) {
+      return this.mongoClient.db(name, options);
+    }
     return this.mongoClient.db(name);
   }
 }

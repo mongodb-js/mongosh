@@ -16,66 +16,71 @@ class CliServiceProvider {
     this.connect(uri);
   }
 
-  /**
-   * Run a command against the database.
-   *
-   * @param {String} database - The database name.
-   * @param {Object} spec - The command specification.
-   * @param {Object} options - The database options.
-   *
-   * @returns {Promise} The promise of command results.
-   */
-  runCommand(database, spec, options = {}) {
-    return this.nodeTransport.runCommand(database, spec, options);
+  aggregate(db, coll, pipeline, options, dbOptions) {
+    return this.nodeTransport.aggregate(db, coll, pipeline, options, dbOptions);
   }
-
-  find(database, collection, query, options = {}) {
-    return this.nodeTransport.find(database, collection, query, options);
+  aggregateDb(db, pipeline, options, dbOptions) {
+    return this.nodeTransport.aggregateDb(db, pipeline, options, dbOptions);
   }
-  aggregate(database, collection, pipeline, options) {
-    return this.nodeTransport.aggregate(database, collection, pipeline, options);
+  bulkWrite(db, coll, requests = {}, options = {}, dbOptions = {}) {
+    return this.nodeTransport.bulkWrite(db, coll, requests, options, dbOptions);
   }
-  bulkWrite(database, collection, requests = {}, options = {}) {
-    return this.nodeTransport.bulkWrite(database, collection, requests, options);
+  count(db, coll, query, options, collOptions) {
+    return this.nodeTransport.count(db, coll, filter, options, collOptions);
   }
-  countDocuments(database, collection, filter, options) {
-    return this.nodeTransport.countDocuments(database, collection, filter, options);
+  countDocuments(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.countDocuments(db, coll, filter, options, dbOptions);
   }
-  deleteMany(database, collection, filter, options) {
-    return this.nodeTransport.deleteMany(database, collection, filter, options);
+  deleteMany(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.deleteMany(db, coll, filter, options, dbOptions);
   }
-  deleteOne(database, collection, filter, options) {
-    return this.nodeTransport.deleteOne(database, collection, filter, options);
+  deleteOne(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.deleteOne(db, coll, filter, options, dbOptions);
   }
-  distinct(database, collection, filter, options) {
-    return this.nodeTransport.distinct(database, collection, filter, options);
+  distinct(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.distinct(db, coll, filter, options, dbOptions);
   }
-  estimatedDocumentCount(database, collection, filter, options) {
-    return this.nodeTransport.estimatedDocumentCount(database, collection, filter, options);
+  estimatedDocumentCount(db, coll, filter, options) {
+    return this.nodeTransport.estimatedDocumentCount(db, coll, filter, options);
   }
-  findOneAndDelete(database, collection, filter, options) {
-    return this.nodeTransport.findOneAndDelete(database, collection, filter, options);
+  find(db, coll, query, options = {}) {
+    return this.nodeTransport.find(db, coll, query, options);
   }
-  findOneAndReplace(database, collection, filter, options) {
-    return this.nodeTransport.findOneAndReplace(database, collection, filter, options);
+  findOneAndDelete(db, coll, filter, options) {
+    return this.nodeTransport.findOneAndDelete(db, coll, filter, options);
   }
-  findOneAndUpdate(database, collection, filter, options) {
-    return this.nodeTransport.findOneAndUpdate(database, collection, filter, options);
+  findOneAndReplace(db, coll, filter, options) {
+    return this.nodeTransport.findOneAndReplace(db, coll, filter, options);
   }
-  insertMany(database, collection, filter, options) {
-    return this.nodeTransport.insertMany(database, collection, filter, options);
+  findOneAndUpdate(db, coll, filter, options) {
+    return this.nodeTransport.findOneAndUpdate(db, coll, filter, options);
   }
-  insertOne(database, collection, filter, options) {
-    return this.nodeTransport.insertOne(database, collection, filter, options);
+  insertMany(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.insertMany(db, coll, filter, options, dbOptions);
   }
-  replaceOne(database, collection, filter, options) {
-    return this.nodeTransport.replaceOne(database, collection, filter, options);
+  insertOne(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.insertOne(db, coll, filter, options, dbOptions);
   }
-  updateMany(database, collection, filter, options) {
-    return this.nodeTransport.updateMany(database, collection, filter, options);
+  isCapped(db, coll) {
+    return this.nodeTransport.isCapped(db, coll);
   }
-  updateOne(database, collection, filter, options) {
-    return this.nodeTransport.updateOne(database, collection, filter, options);
+  remove(db, coll, query, options, dbOptions) {
+    return this.nodeTransport.remove(db, coll, query, options, dbOptions);
+  }
+  save(db, coll, doc, options, dbOptions) {
+    return this.nodeTransport.save(db, coll, doc, options, dbOptions);
+  }
+  replaceOne(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.replaceOne(db, coll, filter, options, dbOptions);
+  }
+  runCommand(db, spec, options = {}) {
+    return this.nodeTransport.runCommand(db, spec, options);
+  }
+  updateMany(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.updateMany(db, coll, filter, options, dbOptions);
+  }
+  updateOne(db, coll, filter, options, dbOptions) {
+    return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
   }
 }
 

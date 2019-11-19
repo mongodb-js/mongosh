@@ -4,15 +4,6 @@ const fs = require('fs');
 
 const yaml = require('js-yaml');
 
-const FILES = [
-  'Cursor',
-  'Collection',
-  'Database',
-  'ReplicaSet',
-  'Shard',
-  'ShellApi'
-];
-
 const YAML_DIR = 'yaml';
 
 const proxyTemplate = (contents) => (`    const handler = {
@@ -90,23 +81,29 @@ ${contents}  }
 
 const loadLibrary = (dir, file) => {
   const main = fs.readFileSync(path.join(dir, 'main.yaml'));
-  const fileContents = fs.readFileSync(path.join(dir, `${file}.yaml`));
+  const fileContents = fs.readFileSync(path.join(dir, file));
   return yaml.load(`${main}${fileContents}`);
 };
 
 const loadAll = () => {
   const yamlDir = path.join(__dirname, YAML_DIR);
+  const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
+
+  console.log(FILES);
   
-  const result = FILES.reduce((s0, file) => {
-    console.log(`${file}.yaml => lib/shell-api.js`);
-    const lib = loadLibrary(yamlDir, file);
-    
+  const result = FILES.reduce((s0, f) => {
+    console.log(`${f} => lib/shell-api.js`);
+
+    const lib = loadLibrary(yamlDir, f);
+
+    const file = f.slice(0, -5);
     return `${s0}${classTemplate(file, lib)}`;
   }, '');
 
-  const exports = FILES.reduce((s, k) => (
-    `${s}module.exports.${k} = ${k};\n`
-  ), 'module.exports = ShellApi;\n');
+  const exports = FILES.reduce((s, f) => {
+    const name = f.slice(0, -5);
+    return `${s}module.exports.${name} = ${name};\n`
+  }, 'module.exports = ShellApi;\n');
 
   fs.writeFileSync(
     path.join(__dirname, 'lib', 'shell-api.js'),

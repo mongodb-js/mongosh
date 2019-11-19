@@ -1,0 +1,13 @@
+__constructorArgs:
+    - cursor
+__stringRep:
+    - cursor.toArray((error, documents) => {
+        if (error) {
+          throw error;
+        }
+        console.log(JSON.stringify(documents));
+      })
+help:
+    <<: *__defaultAttr
+    __value: 'The cursor class.'
+next: *__defaultMethod

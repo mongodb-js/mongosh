@@ -1,4 +1,4 @@
-class Cursor {
+class AggregationCursor {
   constructor(mapper, cursor) {
     this.mapper = mapper;
     this.cursor = cursor;
@@ -15,25 +15,28 @@ class Cursor {
     this.toReplString = () => (this.cursor.toArray((error, documents) => { if (error) { throw error; } console.log(JSON.stringify(documents)); }));
   }
 }
+class BulkWriteResult {
+  constructor(mapper, temp) {
+    this.mapper = mapper;
+    this.temp = temp;
+    this.help = () => ("A temp class.\nAttributes: ");
+    this.help.toReplString = () => ("A temp class.\nAttributes: ");
+
+    this.toReplString = () => (this.TempClass);
+  }
+}
 class Collection {
   constructor(mapper, database, collection) {
     this.mapper = mapper;
     this.database = database;
     this.collection = collection;
-    this.help = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, isCapped, remove, save, replaceOne, updateMany, updateOne");
-    this.help.toReplString = () => ("The collection class.\nAttributes: find, aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insertMany, insertOne, isCapped, remove, save, replaceOne, updateMany, updateOne");
-    this.find = function() {
-      return this.mapper.find(this, ...arguments);
-    };
-    this.find.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter. For details, see Projection.\n\nReturns: A cursor to the documents that match the query criteria. When the find() method “returns documents,” the method is actually returning a cursor to the documents.\nAttributes: serverVersions, topologies");
-    this.find.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter. For details, see Projection.\n\nReturns: A cursor to the documents that match the query criteria. When the find() method “returns documents,” the method is actually returning a cursor to the documents.\nAttributes: serverVersions, topologies");
-    this.find.serverVersions = [0,4.4];
-    this.find.topologies = ["ReplSet","Standalone","Shard"];
+    this.help = () => ("The collection class.\nAttributes: aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, find, findAndModify, findOne, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insert, insertMany, insertOne, isCapped, remove, save, replaceOne, update, updateMany, updateOne");
+    this.help.toReplString = () => ("The collection class.\nAttributes: aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, find, findAndModify, findOne, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insert, insertMany, insertOne, isCapped, remove, save, replaceOne, update, updateMany, updateOne");
     this.aggregate = function() {
       return this.mapper.aggregate(this, ...arguments);
     };
-    this.aggregate.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern<document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor. See $out for more information.\nAttributes: serverVersions, topologies");
-    this.aggregate.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern<document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor. See $out for more information.\nAttributes: serverVersions, topologies");
+    this.aggregate.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern <document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.\nAttributes: serverVersions, topologies");
+    this.aggregate.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern <document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.\nAttributes: serverVersions, topologies");
     this.aggregate.serverVersions = [0,4.4];
     this.aggregate.topologies = ["ReplSet","Standalone","Shard"];
     this.bulkWrite = function() {
@@ -53,8 +56,8 @@ class Collection {
     this.count = function() {
       return this.mapper.count(this, ...arguments);
     };
-    this.count.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
-    this.count.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
+    this.count.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\nAvoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
+    this.count.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\nAvoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
     this.count.serverVersions = [0,4.4];
     this.count.topologies = ["ReplSet","Standalone","Shard"];
     this.deleteMany = function() {
@@ -85,6 +88,27 @@ class Collection {
     this.estimatedDocumentCount.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount\n\nReturns the count of all documents in a collection or view.\n\ndb.collection.estimatedDocumentCount( <options> )\n\noptions\t<document>\n    maxTimeMS <integer> Optional. The maximum amount of time to allow the count to run.\n\nReturns: count as an integer\nAttributes: serverVersions, topologies");
     this.estimatedDocumentCount.serverVersions = ["4.0.3",4.4];
     this.estimatedDocumentCount.topologies = ["ReplSet","Standalone","Shard"];
+    this.find = function() {
+      return this.mapper.find(this, ...arguments);
+    };
+    this.find.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
+    this.find.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
+    this.find.serverVersions = [0,4.4];
+    this.find.topologies = ["ReplSet","Standalone","Shard"];
+    this.findAndModify = function() {
+      return this.mapper.findAndModify(this, ...arguments);
+    };
+    this.findAndModify.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify\n\nModifies and returns a single document.\n\ndb.collection.findAndModify(document)\n\ndocument <document>\n    query <document>,\n    sort <document>,\n    remove <boolean>,\n    update <document or aggregation pipeline>, // Changed in MongoDB 4.2\n    new <boolean>,\n    fields <document>,\n    upsert <boolean>,\n    bypassDocumentValidation <boolean>,\n    writeConcern <document>,\n    collation <document>,\n    arrayFilters [ <filterdocument1>, ... ]\n\nReturns: For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.\nAttributes: serverVersions, topologies");
+    this.findAndModify.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify\n\nModifies and returns a single document.\n\ndb.collection.findAndModify(document)\n\ndocument <document>\n    query <document>,\n    sort <document>,\n    remove <boolean>,\n    update <document or aggregation pipeline>, // Changed in MongoDB 4.2\n    new <boolean>,\n    fields <document>,\n    upsert <boolean>,\n    bypassDocumentValidation <boolean>,\n    writeConcern <document>,\n    collation <document>,\n    arrayFilters [ <filterdocument1>, ... ]\n\nReturns: For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.\nAttributes: serverVersions, topologies");
+    this.findAndModify.serverVersions = [0,4.4];
+    this.findAndModify.topologies = ["ReplSet","Standalone","Shard"];
+    this.findOne = function() {
+      return this.mapper.findOne(this, ...arguments);
+    };
+    this.findOne.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findOne\n\nSelects documents in a collection or view.\n\ndb.collection.findOne(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
+    this.findOne.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findOne\n\nSelects documents in a collection or view.\n\ndb.collection.findOne(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
+    this.findOne.serverVersions = [0,4.4];
+    this.findOne.topologies = ["ReplSet","Standalone","Shard"];
     this.findOneAndDelete = function() {
       return this.mapper.findOneAndDelete(this, ...arguments);
     };
@@ -106,6 +130,13 @@ class Collection {
     this.findOneAndUpdate.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndUpdate\n\nUpdates a single document based on the filter and sort criteria.\n\ndb.collection.findOneAndUpdate(filter, update, options)\n\nfilter <document> The selection criteria for the update.\nupdate <document or array> The update document or, starting in MongoDB 4.2, an aggregation pipeline.\noptions <document>\n    projection <document>\n    sort <document>\n    maxTimeMS <number>\n    upsert <boolean>\n    returnNewDocument <boolean>\n    collation <document>\n    arrayFilters [ <filterdocument1>, ... ]\n\nReturns: Returns either the original document or, if returnNewDocument: true, the updated document.\nAttributes: serverVersions, topologies");
     this.findOneAndUpdate.serverVersions = [3.2,4.4];
     this.findOneAndUpdate.topologies = ["ReplSet","Standalone","Shard"];
+    this.insert = function() {
+      return this.mapper.insert(this, ...arguments);
+    };
+    this.insert.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.insert\n\nInserts a document or documents into a collection.\n\ndb.collection.insert(document, options)\n\ndocument <document or array> A document or array of documents to insert into the collection.\noptions <document>\n    writeConcern: <document>\n    ordered: <boolean>\nAttributes: serverVersions, topologies");
+    this.insert.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.insert\n\nInserts a document or documents into a collection.\n\ndb.collection.insert(document, options)\n\ndocument <document or array> A document or array of documents to insert into the collection.\noptions <document>\n    writeConcern: <document>\n    ordered: <boolean>\nAttributes: serverVersions, topologies");
+    this.insert.serverVersions = [0,4.4];
+    this.insert.topologies = ["ReplSet","Standalone","Shard"];
     this.insertMany = function() {
       return this.mapper.insertMany(this, ...arguments);
     };
@@ -130,8 +161,8 @@ class Collection {
     this.remove = function() {
       return this.mapper.remove(this, ...arguments);
     };
-    this.remove.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: A WriteResult object that contains the status of the operation.\nAttributes: serverVersions, topologies");
-    this.remove.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: A WriteResult object that contains the status of the operation.\nAttributes: serverVersions, topologies");
+    this.remove.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: The status of the operation.\nAttributes: serverVersions, topologies");
+    this.remove.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: The status of the operation.\nAttributes: serverVersions, topologies");
     this.remove.serverVersions = [0,4.4];
     this.remove.topologies = ["ReplSet","Standalone","Shard"];
     this.save = function() {
@@ -148,6 +179,13 @@ class Collection {
     this.replaceOne.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.replaceOne\n\nReplaces a single document within the collection based on the filter.\n\ndb.collection.replaceOne(filter, replacement, options)\n\nfilter <document> The selection criteria for the update.\nreplacement\t<document> The replacement document.\noptions <document>\n    upsert <boolean>\n    writeConcern <document>\n    collation <document>\n    hint <document|string>\nAttributes: serverVersions, topologies");
     this.replaceOne.serverVersions = [3.2,4.4];
     this.replaceOne.topologies = ["ReplSet","Standalone","Shard"];
+    this.update = function() {
+      return this.mapper.update(this, ...arguments);
+    };
+    this.update.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.update\n\nModifies an existing document or documents in a collection.\n\ndb.collection.update(query, update, options)\n\nfilter <document> The selection criteria for the update.\nupdate <document> The modifications to apply.\noptions <document>\nupsert: <boolean>,\n     multi <boolean>\n     writeConcern <document>\n     collation <document>\n     arrayFilters [ <filterdocument1>, ... ]\n     hint  <document|string>        // Available starting in MongoDB 4.2\nAttributes: serverVersions, topologies");
+    this.update.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.update\n\nModifies an existing document or documents in a collection.\n\ndb.collection.update(query, update, options)\n\nfilter <document> The selection criteria for the update.\nupdate <document> The modifications to apply.\noptions <document>\nupsert: <boolean>,\n     multi <boolean>\n     writeConcern <document>\n     collation <document>\n     arrayFilters [ <filterdocument1>, ... ]\n     hint  <document|string>        // Available starting in MongoDB 4.2\nAttributes: serverVersions, topologies");
+    this.update.serverVersions = [0,4.4];
+    this.update.topologies = ["ReplSet","Standalone","Shard"];
     this.updateMany = function() {
       return this.mapper.updateMany(this, ...arguments);
     };
@@ -164,6 +202,23 @@ class Collection {
     this.updateOne.topologies = ["ReplSet","Standalone","Shard"];
 
     this.toReplString = () => (this.this.collection);
+  }
+}
+class Cursor {
+  constructor(mapper, cursor) {
+    this.mapper = mapper;
+    this.cursor = cursor;
+    this.help = () => ("The cursor class.\nAttributes: next");
+    this.help.toReplString = () => ("The cursor class.\nAttributes: next");
+    this.next = function() {
+      return this.mapper.next(this, ...arguments);
+    };
+    this.next.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.next.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.next.serverVersions = [-1,4.4];
+    this.next.topologies = ["ReplSet","Standalone","Shard"];
+
+    this.toReplString = () => (this.cursor.toArray((error, documents) => { if (error) { throw error; } console.log(JSON.stringify(documents)); }));
   }
 }
 class Database {
@@ -191,6 +246,36 @@ class Database {
     this.toReplString = () => (this.database);
 
     return new Proxy(this, handler);
+  }
+}
+class DeleteResult {
+  constructor(mapper, temp) {
+    this.mapper = mapper;
+    this.temp = temp;
+    this.help = () => ("A temp class.\nAttributes: ");
+    this.help.toReplString = () => ("A temp class.\nAttributes: ");
+
+    this.toReplString = () => (this.TempClass);
+  }
+}
+class InsertManyResult {
+  constructor(mapper, temp) {
+    this.mapper = mapper;
+    this.temp = temp;
+    this.help = () => ("A temp class.\nAttributes: ");
+    this.help.toReplString = () => ("A temp class.\nAttributes: ");
+
+    this.toReplString = () => (this.TempClass);
+  }
+}
+class InsertOneResult {
+  constructor(mapper, temp) {
+    this.mapper = mapper;
+    this.temp = temp;
+    this.help = () => ("A temp class.\nAttributes: ");
+    this.help.toReplString = () => ("A temp class.\nAttributes: ");
+
+    this.toReplString = () => (this.TempClass);
   }
 }
 class ReplicaSet {
@@ -228,11 +313,27 @@ class ShellApi {
     this.use.topologies = ["ReplSet","Standalone","Shard"];
   }
 }
+class UpdateResult {
+  constructor(mapper, temp) {
+    this.mapper = mapper;
+    this.temp = temp;
+    this.help = () => ("A temp class.\nAttributes: ");
+    this.help.toReplString = () => ("A temp class.\nAttributes: ");
+
+    this.toReplString = () => (this.TempClass);
+  }
+}
 
 module.exports = ShellApi;
-module.exports.Cursor = Cursor;
+module.exports.AggregationCursor = AggregationCursor;
+module.exports.BulkWriteResult = BulkWriteResult;
 module.exports.Collection = Collection;
+module.exports.Cursor = Cursor;
 module.exports.Database = Database;
+module.exports.DeleteResult = DeleteResult;
+module.exports.InsertManyResult = InsertManyResult;
+module.exports.InsertOneResult = InsertOneResult;
 module.exports.ReplicaSet = ReplicaSet;
 module.exports.Shard = Shard;
 module.exports.ShellApi = ShellApi;
+module.exports.UpdateResult = UpdateResult;
