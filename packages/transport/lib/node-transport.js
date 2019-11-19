@@ -99,6 +99,8 @@ var NodeTransport = /** @class */ (function () {
      * @returns {Promise} The promise of the aggregation cursor.
      */
     NodeTransport.prototype.aggregate = function (database, collection, pipeline, options) {
+        if (pipeline === void 0) { pipeline = []; }
+        if (options === void 0) { options = {}; }
         var dbOptions = {};
         if ('readConcern' in options) {
             dbOptions.readConcern = options.readConcern;
