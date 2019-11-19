@@ -1,29 +1,56 @@
-const { MongoClient } = require('mongodb');
+import {
+  AnonymousCredential,
+  RemoteMongoClient,
+  Stitch,
+  StitchAppClient
+} from 'mongodb-stitch-server-sdk';
 
 /**
- * Default driver options we always use.
+ * Constant for not implemented rejections.
  */
-const DEFAULT_OPTIONS = Object.freeze({
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const NOT_IMPLEMENTED = 'is not implemented in the Stitch server SDK';
+
+/**
+ * Init error.
+ */
+const INIT_ERROR = 'Error authenticating with Stitch.';
+
+/**
+ * Rejecting for running an agg pipeline on a database.
+ */
+const AGG_ON_DB = 'Aggregations run on the database is not allowed via Stitch';
+
+/**
+ * Atlas id.
+ */
+const ATLAS = 'mongodb-atlas';
 
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
- * the Node Driver.
+ * Stitch in the server.
  */
-class NodeTransport {
+class StitchServerTransport {
+  mongoClient: RemoteMongoClient;
+  stitchClient: StitchAppClient;
+
   /**
-   * Create a NodeTransport from a URI.
+   * Create a StitchServerTransport from a Stitch app id.
    *
-   * @param {String} uri - The URI.
+   * @param {String} stitchAppId - The Stitch app id.
+   * @param {String} serviceName - The Stitch service name.
    *
-   * @returns {NodeTransport} The Node transport.
+   * @returns {StitchServerTransport} The Stitch server transport.
    */
-  static async fromURI(uri) {
-    const mongoClient = new MongoClient(uri, DEFAULT_OPTIONS);
-    await mongoClient.connect();
-    return new NodeTransport(mongoClient);
+  static async fromAppId(stitchAppId, serviceName) {
+    const client = Stitch.initializeDefaultAppClient(stitchAppId);
+    try {
+      await client.auth.loginWithCredential(new AnonymousCredential());
+    } catch (err) {
+      /* eslint no-console:0 */
+      console.log(INIT_ERROR, err);
+      client.close();
+    }
+    return new StitchServerTransport(client, serviceName);
   }
 
   /**
@@ -41,25 +68,19 @@ class NodeTransport {
    */
   aggregate(database, collection, pipeline = [], options = {}) {
     if (collection === null) {
-      return this._db(database).aggregate(pipeline, options);
+      return Promise.reject(AGG_ON_DB);
     }
     return this._db(database).collection(collection).
-      aggregate(pipeline, options);
+      aggregate(pipeline);
   }
 
   /**
-   * Execute a mix of write operations.
+   * Not implemented in Stitch.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Object} requests - The bulk write requests.
-   * @param {Object} options - The bulk write options.
-   *
-   * @returns {Promise} The promise of the result.
+   * @returns {Promise} The rejected promise.
    */
-  bulkWrite(database, collection, requests = {}, options = {}) {
-    return this._db(database).collection(collection).
-      bulkWrite(requests, options);
+  bulkWrite() {
+    return Promise.reject(`Bulk write ${NOT_IMPLEMENTED}`);
   }
 
   /**
@@ -73,18 +94,20 @@ class NodeTransport {
    * @returns {Promise} The promise of the count.
    */
   countDocuments(database, collection, filter = {}, options = {}) {
-    return this._db(database).collection(collection).
-      countDocuments(filter, options);
+    return this._db(database).collection(collection).count(filter, options);
   }
 
   /**
-   * Instantiate a new Node transport with the Node driver's connected
-   * MongoClient instance.
+   * Instantiate a new Stitch server transport with a connected stitch
+   * client instance.
    *
-   * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   * @param {Client} stitchClient - The Stitch client instance.
+   * @param {String} serviceName - The Mongo service name.
    */
-  constructor(mongoClient) {
-    this.mongoClient = mongoClient;
+  constructor(stitchClient, serviceName = ATLAS) {
+    this.stitchClient = stitchClient;
+    this.mongoClient = stitchClient.
+      getServiceClient(RemoteMongoClient.factory, serviceName);
   }
 
   /**
@@ -99,7 +122,7 @@ class NodeTransport {
    */
   deleteMany(database, collection, filter = {}, options = {}) {
     return this._db(database).collection(collection).
-      deleteMany(filter, options);
+      deleteMany(filter);
   }
 
   /**
@@ -114,37 +137,25 @@ class NodeTransport {
    */
   deleteOne(database, collection, filter = {}, options = {}) {
     return this._db(database).collection(collection).
-      deleteOne(filter, options);
+      deleteOne(filter);
   }
 
   /**
-   * Get distinct values for the field.
+   * Not implemented in Stitch.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {String} fieldName - The field name.
-   * @param {Object} filter - The filter.
-   * @param {Object} options - The distinct options.
-   *
-   * @returns {Promise} The promise of the cursor.
+   * @returns {Promise} The rejected promise.
    */
-  distinct(database, collection, fieldName, filter = {}, options = {}) {
-    return this._db(database).collection(collection).
-      distinct(fieldName, filter, options);
+  distinct() {
+    return Promise.reject(`Distinct ${NOT_IMPLEMENTED}`);
   }
 
   /**
-   * Get an estimated document count from the collection.
+   * Not implemented in Stitch.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Object} options - The count options.
-   *
-   * @returns {Promise} The promise of the count.
+   * @returns {Promise} The rejected promise.
    */
-  estimatedDocumentCount(database, collection, options = {}) {
-    return this._db(database).collection(collection).
-      estimatedDocumentCount(options);
+  estimatedDocumentCount() {
+    return Promise.reject(`Estimated document count ${NOT_IMPLEMENTED}`);
   }
 
   /**
@@ -221,7 +232,7 @@ class NodeTransport {
    */
   insertMany(database, collection, docs = [], options = {}) {
     return this._db(database).collection(collection).
-      insertMany(docs, options);
+      insertMany(docs);
   }
 
   /**
@@ -236,36 +247,25 @@ class NodeTransport {
    */
   insertOne(database, collection, doc = {}, options = {}) {
     return this._db(database).collection(collection).
-      insertOne(doc, options);
+      insertOne(doc);
   }
 
   /**
-   * Replace a document with another.
+   * Not implemented in Stitch.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Object} filter - The filter.
-   * @param {Object} replacement - The replacement document for matches.
-   * @param {Object} options - The replace options.
-   *
-   * @returns {Promise} The promise of the result.
+   * @returns {Promise} The rejected promise.
    */
-  replaceOne(database, collection, filter = {}, replacement = {}, options = {}) {
-    return this._db(database).collection(collection).
-      replaceOne(filter, replacement, options);
+  replaceOne() {
+    return Promise.reject(`Replace one ${NOT_IMPLEMENTED}`);
   }
 
   /**
-   * Run a command against the database.
+   * Not implemented in Stitch.
    *
-   * @param {String} database - The database name.
-   * @param {Object} spec - The command specification.
-   * @param {Object} options - The database options.
-   *
-   * @returns {Promise} The promise of command results.
+   * @returns {Promise} The rejected promise.
    */
-  runCommand(database, spec, options = {}) {
-    return this._db(database).command(spec, options);
+  runCommand() {
+    return Promise.reject(`Running a direct command ${NOT_IMPLEMENTED}`);
   }
 
   /**
@@ -301,6 +301,15 @@ class NodeTransport {
   }
 
   /**
+   * Get the current user id.
+   *
+   * @returns {String} The user id.
+   */
+  get userId() {
+    return this.stitchClient.auth.user.id;
+  }
+
+  /**
    * Get the DB object from the client.
    *
    * @param {String} name - The database name.
@@ -312,4 +321,4 @@ class NodeTransport {
   }
 }
 
-module.exports = NodeTransport;
+export default StitchServerTransport;

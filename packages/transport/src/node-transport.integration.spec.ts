@@ -1,5 +1,5 @@
-const NodeTransport = require('./node-transport');
-const { expect } = require('chai');
+import NodeTransport from './node-transport';
+import { expect } from 'chai';
 
 describe('NodeTransport [ integration ]', function() {
   this.timeout(30000);

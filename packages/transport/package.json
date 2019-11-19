@@ -1,0 +1,29 @@
+{
+  "name": "mongosh-transport",
+  "version": "0.0.0",
+  "description": "MongoDB Shell Transport Package",
+  "main": "lib/index.js",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
+    "prepublish": "npm run compile"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ],
+    "ignore": [
+      "sinon",
+      "chai",
+      "mongodb-runner",
+      "uuid",
+      "encoding"
+    ]
+  },
+  "dependencies": {
+    "mongodb": "^3.3.3",
+    "mongodb-stitch-browser-sdk": "^4.7.0",
+    "mongodb-stitch-server-sdk": "^4.7.0"
+  }
+}

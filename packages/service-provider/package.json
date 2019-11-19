@@ -9,6 +9,6 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
-    "mongosh-transport-server": "file:../transport-server"
+    "mongosh-transport": "file:../transport"
   }
 }

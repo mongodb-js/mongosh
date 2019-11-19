@@ -1,7 +1,7 @@
-const NodeTransport = require('./node-transport');
-const { MongoClient, Db, Collection } = require('mongodb');
-const { expect } = require('chai');
-const sinon = require('sinon');
+import NodeTransport from './node-transport';
+import { MongoClient, Db, Collection } from 'mongodb';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 /**
  * Create a client stub from the provided collection stub.
