@@ -10,7 +10,7 @@
     "test-ci": "lerna run test-ci",
     "check": "lerna run check",
     "prestart": "lerna run compile",
-    "start": "lerna run start --scope mongosh-cli-repl --stream"
+    "start": "lerna exec npm start --scope mongosh-cli-repl"
   },
   "keywords": [
     "MongoDB",
@@ -23,6 +23,8 @@
   "license": "SSPL",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@types/chai": "^4.2.5",
+    "@types/mocha": "^5.2.7",
     "babel-loader": "^8.0.6",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
@@ -43,6 +45,10 @@
     "path": "^0.12.7",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "sinon": "^7.5.0",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.5.2",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.2",
     "uuid": "^3.3.3",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
@@ -54,7 +60,6 @@
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider": "file:packages/service-provider",
     "mongosh-shell-api": "file:packages/shell-api",
-    "mongosh-transport-browser": "file:packages/transport-browser",
-    "mongosh-transport-server": "file:packages/transport-server"
+    "mongosh-transport": "file:packages/transport"
   }
 }
