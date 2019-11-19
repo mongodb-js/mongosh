@@ -86,6 +86,11 @@ var NodeTransport = /** @class */ (function () {
      * @note: Passing a null collection will cause the
      *   aggregation to run on the DB.
      *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API sets readConcern via options in object,
+     * node driver flat.
+     *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
      * @param {Array} pipeline - The aggregation pipeline.
@@ -94,16 +99,24 @@ var NodeTransport = /** @class */ (function () {
      * @returns {Promise} The promise of the aggregation cursor.
      */
     NodeTransport.prototype.aggregate = function (database, collection, pipeline, options) {
-        if (pipeline === void 0) { pipeline = []; }
-        if (options === void 0) { options = {}; }
-        if (collection === null) {
-            return this._db(database).aggregate(pipeline, options);
+        var dbOptions = {};
+        if ('readConcern' in options) {
+            dbOptions.readConcern = options.readConcern;
         }
-        return this._db(database).collection(collection).
+        if ('writeConcern' in options) {
+            dbOptions.writeConcern = options.writeConcern;
+        }
+        if (collection === null) {
+            return this._db(database, dbOptions).aggregate(pipeline, options);
+        }
+        return this._db(database, dbOptions).collection(collection).
             aggregate(pipeline, options);
     };
     /**
      * Execute a mix of write operations.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -115,8 +128,41 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.bulkWrite = function (database, collection, requests, options) {
         if (requests === void 0) { requests = {}; }
         if (options === void 0) { options = {}; }
+        var bulkOptions = {};
+        if ('writeConcern' in options) {
+            Object.assign(bulkOptions, options.writeConcern);
+        }
+        if ('ordered' in options) {
+            bulkOptions.ordered = options.ordered;
+        }
         return this._db(database).collection(collection).
             bulkWrite(requests, options);
+    };
+    /**
+     * Deprecated count command.
+     *
+     * @note: Shell API passes readConcern via options, node via collection
+     * @note: Shell API passes collation as option, node driver via cursor.
+     *
+     * @param {String} database - The database name.
+     * @param {String} collection - The collection name.
+     * @param {Object} query - The filter.
+     * @param {Object} options - The count options.
+     *
+     * @returns {Promise} The promise of the count.
+     */
+    NodeTransport.prototype.count = function (database, collection, query, options) {
+        if (query === void 0) { query = {}; }
+        if (options === void 0) { options = {}; }
+        var collOpts = {};
+        if ('readConcern' in options) {
+            collOpts.readConcern = options.readConcern;
+        }
+        var cursor = this._db(database).collection(collection, collOpts).count(query);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Get an exact document count from the collection.
@@ -137,6 +183,10 @@ var NodeTransport = /** @class */ (function () {
     /**
      * Delete multiple documents from the collection.
      *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API passes collation as option, node driver via cursor.
+     *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
      * @param {Object} filter - The filter.
@@ -147,11 +197,23 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.deleteMany = function (database, collection, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            deleteMany(filter, options);
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection).
+            deleteMany(filter, cmdOpts);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Delete one document from the collection.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API passes collation as option, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -163,11 +225,21 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.deleteOne = function (database, collection, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            deleteOne(filter, options);
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection).
+            deleteOne(filter, cmdOpts);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Get distinct values for the field.
+     *
+     * @note: Shell API passes collation as option, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -180,8 +252,12 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.distinct = function (database, collection, fieldName, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
+        var cursor = this._db(database).collection(collection).
             distinct(fieldName, filter, options);
+        if ('collation' in cursor) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Get an estimated document count from the collection.
@@ -200,21 +276,32 @@ var NodeTransport = /** @class */ (function () {
     /**
      * Find documents in the collection.
      *
+     * @note: Shell API passes filter and projection to find,
+     * node driver uses filter and options.
+     *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
      * @param {Object} filter - The filter.
-     * @param {Object} options - The find options.
+     * @param {Object} projection - The projection.
      *
      * @returns {Promise} The promise of the cursor.
      */
-    NodeTransport.prototype.find = function (database, collection, filter, options) {
+    NodeTransport.prototype.find = function (database, collection, filter, projection) {
         if (filter === void 0) { filter = {}; }
-        if (options === void 0) { options = {}; }
+        if (projection === void 0) { projection = {}; }
+        var options = {};
+        if (projection) {
+            options.projection = projection;
+        }
         return this._db(database).collection(collection).
             find(filter, options);
     };
+    // TODO
+    NodeTransport.prototype.findAndModify = function (database, collection, document) { };
     /**
      * Find one document and delete it.
+     *
+     * @note: Shell API passes collation as option, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -226,11 +313,17 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.findOneAndDelete = function (database, collection, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
+        var cursor = this._db(database).collection(collection).
             findOneAndDelete(filter, options);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Find one document and replace it.
+     *
+     * @note: Shell API passes collation as option, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -244,11 +337,17 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
+        var cursor = this._db(database).collection(collection).
             findOneAndReplace(filter, replacement, options);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Find one document and update it.
+     *
+     * @note: Shell API passes collation as option, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -262,11 +361,18 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
+        var cursor = this._db(database).collection(collection).
             findOneAndUpdate(filter, update, options);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
-     * Insert many documents into the colleciton.
+     * Insert many documents into the collection.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -278,11 +384,21 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.insertMany = function (database, collection, docs, options) {
         if (docs === void 0) { docs = []; }
         if (options === void 0) { options = {}; }
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        if ('ordered' in options) {
+            cmdOpts.ordered = options.ordered;
+        }
         return this._db(database).collection(collection).
-            insertMany(docs, options);
+            insertMany(docs, cmdOpts);
     };
     /**
      * Insert one document into the collection.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -294,11 +410,77 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.insertOne = function (database, collection, doc, options) {
         if (doc === void 0) { doc = {}; }
         if (options === void 0) { options = {}; }
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
         return this._db(database).collection(collection).
             insertOne(doc, options);
     };
     /**
+     * Is the collection capped?
+     *
+     * @param database
+     * @param collection
+     * @return {Promise}
+     */
+    NodeTransport.prototype.isCapped = function (database, collection) {
+        return this._db(database).collection(collection).isCapped();
+    };
+    /**
+     * Deprecated remove command.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API passes collation as option, node driver via cursor.
+     *
+     * @param database
+     * @param collection
+     * @param query
+     * @param options
+     * @return {Promise}
+     */
+    NodeTransport.prototype.remove = function (database, collection, query, options) {
+        var removeOptions = {};
+        if (typeof options === 'boolean') {
+            removeOptions = { single: options };
+        }
+        if ('writeConcern' in options) {
+            Object.assign(removeOptions, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection)
+            .remove(query, options);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
+    };
+    /**
+     * Deprecated save command.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     *
+     * @param database
+     * @param collection
+     * @param doc
+     * @param options
+     * @return {Promise}
+     */
+    NodeTransport.prototype.save = function (database, collection, doc, options) {
+        var saveOptions = {};
+        if ('writeConcern' in options) {
+            Object.assign(saveOptions, options.writeConcern);
+        }
+        return this._db(database).collection(collection)
+            .save(doc, saveOptions);
+    };
+    /**
      * Replace a document with another.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API sets collation via options, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -312,8 +494,16 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            replaceOne(filter, replacement, options);
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection).
+            replaceOne(filter, replacement, cmdOpts);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Run a command against the database.
@@ -329,7 +519,11 @@ var NodeTransport = /** @class */ (function () {
         return this._db(database).command(spec, options);
     };
     /**
-     * Update many document.
+     * Update many documents.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API sets collation via options, node driver via cursor.
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -343,11 +537,24 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            updateMany(filter, update, options);
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection).
+            updateMany(filter, update, cmdOpts);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Update a document.
+     *
+     * @note: Shell API sets writeConcern via options in object,
+     * node driver flat.
+     * @note: Shell API sets collation via options, node driver via cursor.
+     * TODO: Shell API provides 'hint' but node driver does not
      *
      * @param {String} database - The database name.
      * @param {String} collection - The collection name.
@@ -361,8 +568,16 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            updateOne(filter, update, options);
+        var cmdOpts = {};
+        if ('writeConcern' in options) {
+            Object.assign(cmdOpts, options.writeConcern);
+        }
+        var cursor = this._db(database).collection(collection).
+            updateOne(filter, update, cmdOpts);
+        if ('collation' in options) {
+            return cursor.collation(options.collation);
+        }
+        return cursor;
     };
     /**
      * Get the DB object from the client.
