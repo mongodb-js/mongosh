@@ -377,6 +377,7 @@ class NodeTransport {
    * Get the DB object from the client.
    *
    * @param {String} name - The db name.
+   * @param {Object} options - Optional DB options.
    *
    * @returns {Db} The db.
    */

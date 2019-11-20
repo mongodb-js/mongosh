@@ -81,381 +81,281 @@ var NodeTransport = /** @class */ (function () {
         });
     };
     /**
-     * Run an aggregation pipeline.
+     * Run an aggregation pipeline on a collection.
      *
-     * @note: Passing a null collection will cause the
-     *   aggregation to run on the DB.
-     *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API sets readConcern via options in object,
-     * node driver flat.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Array} pipeline - The aggregation pipeline.
      * @param {Object} options - The pipeline options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the aggregation cursor.
      */
-    NodeTransport.prototype.aggregate = function (database, collection, pipeline, options) {
+    NodeTransport.prototype.aggregate = function (db, coll, pipeline, options, dbOptions) {
         if (pipeline === void 0) { pipeline = []; }
         if (options === void 0) { options = {}; }
-        var dbOptions = {};
-        if ('readConcern' in options) {
-            dbOptions.readConcern = options.readConcern;
-        }
-        if ('writeConcern' in options) {
-            dbOptions.writeConcern = options.writeConcern;
-        }
-        if (collection === null) {
-            return this._db(database, dbOptions).aggregate(pipeline, options);
-        }
-        return this._db(database, dbOptions).collection(collection).
-            aggregate(pipeline, options);
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).aggregate(pipeline, options);
+    };
+    /**
+     * Run an aggregation pipeline on a database.
+     *
+     * @param {String} db - The db name.
+     * @param {Array} pipeline - The aggregation pipeline.
+     * @param {Object} options - The pipeline options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
+     *
+     * @returns {Promise} The promise of the aggregation cursor.
+     */
+    NodeTransport.prototype.aggregateDb = function (db, pipeline, options, dbOptions) {
+        if (pipeline === void 0) { pipeline = []; }
+        if (options === void 0) { options = {}; }
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).aggregate(pipeline, options);
     };
     /**
      * Execute a mix of write operations.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
-     * @param {Object} requests - The bulk write requests.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
+     * @param {Array} requests - The bulk write requests.
      * @param {Object} options - The bulk write options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.bulkWrite = function (database, collection, requests, options) {
+    NodeTransport.prototype.bulkWrite = function (db, coll, requests, options, dbOptions) {
         if (requests === void 0) { requests = {}; }
         if (options === void 0) { options = {}; }
-        var bulkOptions = {};
-        if ('writeConcern' in options) {
-            Object.assign(bulkOptions, options.writeConcern);
-        }
-        if ('ordered' in options) {
-            bulkOptions.ordered = options.ordered;
-        }
-        return this._db(database).collection(collection).
-            bulkWrite(requests, options);
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).bulkWrite(requests, options);
     };
     /**
      * Deprecated count command.
      *
-     * @note: Shell API passes readConcern via options, node via collection
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} query - The filter.
      * @param {Object} options - The count options.
+     * @param {Object} collOptions - The collection options
      *
      * @returns {Promise} The promise of the count.
      */
-    NodeTransport.prototype.count = function (database, collection, query, options) {
+    NodeTransport.prototype.count = function (db, coll, query, options, collOptions) {
         if (query === void 0) { query = {}; }
         if (options === void 0) { options = {}; }
-        var collOpts = {};
-        if ('readConcern' in options) {
-            collOpts.readConcern = options.readConcern;
+        if (collOptions === void 0) { collOptions = {}; }
+        if (!collOptions || Object.keys(collOptions).length === 0) {
+            return this._db(db).collection(coll).count(query);
         }
-        var cursor = this._db(database).collection(collection, collOpts).count(query);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        return this._db(db).collection(coll, collOptions).count(query);
     };
     /**
-     * Get an exact document count from the collection.
+     * Get an exact document count from the coll.
      *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} options - The count options.
      *
      * @returns {Promise} The promise of the count.
      */
-    NodeTransport.prototype.countDocuments = function (database, collection, filter, options) {
+    NodeTransport.prototype.countDocuments = function (db, coll, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
-            countDocuments(filter, options);
+        return this._db(db).collection(coll).countDocuments(filter, options);
     };
     /**
-     * Delete multiple documents from the collection.
+     * Delete multiple documents from the coll.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} options - The delete many options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.deleteMany = function (database, collection, filter, options) {
+    NodeTransport.prototype.deleteMany = function (db, coll, filter, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection).
-            deleteMany(filter, cmdOpts);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).deleteMany(filter, options);
     };
     /**
-     * Delete one document from the collection.
+     * Delete one document from the coll.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} options - The delete one options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.deleteOne = function (database, collection, filter, options) {
+    NodeTransport.prototype.deleteOne = function (db, coll, filter, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection).
-            deleteOne(filter, cmdOpts);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).deleteOne(filter, options);
     };
     /**
      * Get distinct values for the field.
      *
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {String} fieldName - The field name.
      * @param {Object} filter - The filter.
      * @param {Object} options - The distinct options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the cursor.
      */
-    NodeTransport.prototype.distinct = function (database, collection, fieldName, filter, options) {
+    NodeTransport.prototype.distinct = function (db, coll, fieldName, filter, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        var cursor = this._db(database).collection(collection).
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).
             distinct(fieldName, filter, options);
-        if ('collation' in cursor) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
     };
     /**
-     * Get an estimated document count from the collection.
+     * Get an estimated document count from the coll.
      *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} options - The count options.
      *
      * @returns {Promise} The promise of the count.
      */
-    NodeTransport.prototype.estimatedDocumentCount = function (database, collection, options) {
+    NodeTransport.prototype.estimatedDocumentCount = function (db, coll, options) {
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).
+        return this._db(db).collection(coll).
             estimatedDocumentCount(options);
     };
     /**
      * Find documents in the collection.
      *
-     * @note: Shell API passes filter and projection to find,
-     * node driver uses filter and options.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
-     * @param {Object} projection - The projection.
+     * @param {Object} options - The find options.
      *
      * @returns {Promise} The promise of the cursor.
      */
-    NodeTransport.prototype.find = function (database, collection, filter, projection) {
+    NodeTransport.prototype.find = function (db, coll, filter, options) {
         if (filter === void 0) { filter = {}; }
-        if (projection === void 0) { projection = {}; }
-        var options = {};
-        if (projection) {
-            options.projection = projection;
-        }
-        return this._db(database).collection(collection).
-            find(filter, options);
+        if (options === void 0) { options = {}; }
+        return this._db(db).collection(coll).find(filter, options);
     };
     // TODO
-    NodeTransport.prototype.findAndModify = function (database, collection, document) { };
+    // findAndModify(db, collection, document) {}
     /**
      * Find one document and delete it.
      *
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} options - The find options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.findOneAndDelete = function (database, collection, filter, options) {
+    NodeTransport.prototype.findOneAndDelete = function (db, coll, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        var cursor = this._db(database).collection(collection).
-            findOneAndDelete(filter, options);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        return this._db(db).collection(coll).findOneAndDelete(filter, options);
     };
     /**
      * Find one document and replace it.
      *
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} replacement - The replacement.
      * @param {Object} options - The find options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.findOneAndReplace = function (database, collection, filter, replacement, options) {
+    NodeTransport.prototype.findOneAndReplace = function (db, coll, filter, replacement, options) {
         if (filter === void 0) { filter = {}; }
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
-        var cursor = this._db(database).collection(collection).
+        return this._db(db).collection(coll).
             findOneAndReplace(filter, replacement, options);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
     };
     /**
      * Find one document and update it.
      *
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {(Object|Array)} update - The update.
      * @param {Object} options - The find options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.findOneAndUpdate = function (database, collection, filter, update, options) {
+    NodeTransport.prototype.findOneAndUpdate = function (db, coll, filter, update, options) {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        var cursor = this._db(database).collection(collection).
+        return this._db(db).collection(coll).
             findOneAndUpdate(filter, update, options);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
     };
     /**
      * Insert many documents into the collection.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Array} docs - The documents.
      * @param {Object} options - The insert many options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.insertMany = function (database, collection, docs, options) {
+    NodeTransport.prototype.insertMany = function (db, coll, docs, options, dbOptions) {
         if (docs === void 0) { docs = []; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        if ('ordered' in options) {
-            cmdOpts.ordered = options.ordered;
-        }
-        return this._db(database).collection(collection).
-            insertMany(docs, cmdOpts);
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).insertMany(docs, options);
     };
     /**
      * Insert one document into the collection.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} doc - The document.
      * @param {Object} options - The insert one options.
+     * @param {Object} dbOptions - The database options, i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.insertOne = function (database, collection, doc, options) {
+    NodeTransport.prototype.insertOne = function (db, coll, doc, options, dbOptions) {
         if (doc === void 0) { doc = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        return this._db(database).collection(collection).
-            insertOne(doc, options);
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).insertOne(doc, options);
     };
     /**
      * Is the collection capped?
      *
-     * @param database
-     * @param collection
+     * @param db
+     * @param coll
      * @return {Promise}
      */
-    NodeTransport.prototype.isCapped = function (database, collection) {
-        return this._db(database).collection(collection).isCapped();
+    NodeTransport.prototype.isCapped = function (db, coll) {
+        return this._db(db).collection(coll).isCapped();
     };
     /**
      * Deprecated remove command.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API passes collation as option, node driver via cursor.
-     *
-     * @param database
-     * @param collection
-     * @param query
-     * @param options
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
+     * @param {Object} query - The query.
+     * @param {Object} options - The options.
+     * @param {Object} dbOptions - The db options.
      * @return {Promise}
      */
-    NodeTransport.prototype.remove = function (database, collection, query, options) {
-        var removeOptions = {};
-        if (typeof options === 'boolean') {
-            removeOptions = { single: options };
-        }
-        if ('writeConcern' in options) {
-            Object.assign(removeOptions, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection)
-            .remove(query, options);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+    NodeTransport.prototype.remove = function (db, coll, query, options, dbOptions) {
+        return this._db(db).collection(coll).remove(query, options);
     };
     /**
      * Deprecated save command.
@@ -463,132 +363,102 @@ var NodeTransport = /** @class */ (function () {
      * @note: Shell API sets writeConcern via options in object,
      * node driver flat.
      *
-     * @param database
-     * @param collection
+     * @param db
+     * @param coll
      * @param doc
      * @param options
      * @return {Promise}
      */
-    NodeTransport.prototype.save = function (database, collection, doc, options) {
-        var saveOptions = {};
-        if ('writeConcern' in options) {
-            Object.assign(saveOptions, options.writeConcern);
-        }
-        return this._db(database).collection(collection)
-            .save(doc, saveOptions);
+    NodeTransport.prototype.save = function (db, coll, doc, options, dbOptions) {
+        if (options === void 0) { options = {}; }
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).save(doc, options);
     };
     /**
      * Replace a document with another.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API sets collation via options, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {Object} replacement - The replacement document for matches.
      * @param {Object} options - The replace options.
+     * @param {Object} dbOptions - The db options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.replaceOne = function (database, collection, filter, replacement, options) {
+    NodeTransport.prototype.replaceOne = function (db, coll, filter, replacement, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection).
-            replaceOne(filter, replacement, cmdOpts);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).replaceOne(filter, replacement, options);
     };
     /**
-     * Run a command against the database.
+     * Run a command against the db.
      *
-     * @param {String} database - The database name.
+     * @param {String} db - The db name.
      * @param {Object} spec - The command specification.
-     * @param {Object} options - The database options.
+     * @param {Object} options - The db options.
      *
      * @returns {Promise} The promise of command results.
      */
-    NodeTransport.prototype.runCommand = function (database, spec, options) {
+    NodeTransport.prototype.runCommand = function (db, spec, options) {
         if (options === void 0) { options = {}; }
-        return this._db(database).command(spec, options);
+        return this._db(db).command(spec, options);
     };
     /**
      * Update many documents.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API sets collation via options, node driver via cursor.
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {(Object|Array)} update - The updates.
      * @param {Object} options - The update options.
+     * @param {Object} dbOptions - The db options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.updateMany = function (database, collection, filter, update, options) {
+    NodeTransport.prototype.updateMany = function (db, coll, filter, update, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection).
-            updateMany(filter, update, cmdOpts);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).
+            updateMany(filter, update, options);
     };
     /**
      * Update a document.
      *
-     * @note: Shell API sets writeConcern via options in object,
-     * node driver flat.
-     * @note: Shell API sets collation via options, node driver via cursor.
-     * TODO: Shell API provides 'hint' but node driver does not
-     *
-     * @param {String} database - The database name.
-     * @param {String} collection - The collection name.
+     * @param {String} db - The db name.
+     * @param {String} coll - The collection name.
      * @param {Object} filter - The filter.
      * @param {(Object|Array)} update - The updates.
      * @param {Object} options - The update options.
+     * @param {Object} dbOptions - The db options.
      *
      * @returns {Promise} The promise of the result.
      */
-    NodeTransport.prototype.updateOne = function (database, collection, filter, update, options) {
+    NodeTransport.prototype.updateOne = function (db, coll, filter, update, options, dbOptions) {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
-        var cmdOpts = {};
-        if ('writeConcern' in options) {
-            Object.assign(cmdOpts, options.writeConcern);
-        }
-        var cursor = this._db(database).collection(collection).
-            updateOne(filter, update, cmdOpts);
-        if ('collation' in options) {
-            return cursor.collation(options.collation);
-        }
-        return cursor;
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).
+            updateOne(filter, update, options);
     };
     /**
      * Get the DB object from the client.
      *
-     * @param {String} name - The database name.
+     * @param {String} name - The db name.
+     * @param {Object} options - Optional DB options.
      *
-     * @returns {Db} The database.
+     * @returns {Db} The db.
      */
-    NodeTransport.prototype._db = function (name) {
+    NodeTransport.prototype._db = function (name, options) {
+        if (options === void 0) { options = {}; }
+        if (Object.keys(options).length !== 0) {
+            return this.mongoClient.db(name, options);
+        }
         return this.mongoClient.db(name);
     };
     return NodeTransport;
