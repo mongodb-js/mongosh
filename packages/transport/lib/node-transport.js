@@ -44,6 +44,57 @@ var DEFAULT_OPTIONS = Object.freeze({
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
+var Cursor = /** @class */ (function () {
+    function Cursor(cursor) {
+        console.log(cursor);
+        this.cursor = cursor;
+        var handler = {
+            get: function (obj, prop) {
+                if (!(prop in obj)) {
+                    return cursor[prop];
+                }
+                return obj[prop];
+            }
+        };
+        return new Proxy(this, handler);
+    }
+    Cursor.prototype.addOption = function (option) {
+        var dbOption = {
+            2: "tailable",
+            4: "slaveOk",
+            8: "oplogReplay",
+            16: "noTimeout",
+            32: "awaitData",
+            64: "exhaust",
+            128: "partial"
+        };
+        var opt = dbOption[option];
+        if (opt === 'slaveOk' || !!opt) { } // TODO
+        return this.cursor.addCursorFlag(opt, true);
+    };
+    Cursor.prototype.batchSize = function (size) {
+        return this.cursor.setCursorBatchSize(size);
+    };
+    Cursor.prototype.isExhausted = function () {
+        return this.cursor.isClosed() && !this.cursor.hasNext();
+    };
+    Cursor.prototype.itcount = function () {
+        return this.cursor.toArray(); // TODO
+    };
+    Cursor.prototype.noCursorTimeout = function () {
+        return this.cursor.addCursorFlag('noCursorTimeout', true);
+    };
+    Cursor.prototype.objsLeftInBatch = function () {
+        // TODO
+    };
+    Cursor.prototype.readPref = function (v) {
+        return this.cursor.setReadPreference(v);
+    };
+    Cursor.prototype.tailable = function () {
+        return this.cursor.addCursorFlag('tailable', true);
+    };
+    return Cursor;
+}());
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
@@ -245,7 +296,7 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.find = function (db, coll, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(db).collection(coll).find(filter, options);
+        return new Cursor(this._db(db).collection(coll).find(filter, options));
     };
     // TODO
     // findAndModify(db, collection, document) {}

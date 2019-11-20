@@ -1,5 +1,4 @@
 help:
     <<: *__defaultAttr
     __value: 'Welcome to the new MongoDB Shell!'
-customCmd: *__defaultMethod
 use: *__defaultMethod

@@ -8,6 +8,60 @@ const DEFAULT_OPTIONS = Object.freeze({
   useUnifiedTopology: true
 });
 
+class Cursor {
+  private cursor: any;
+
+  constructor(cursor) {
+    console.log(cursor);
+    this.cursor = cursor;
+    const handler = {
+      get: function (obj, prop) {
+        if (!(prop in obj)) {
+          return cursor[prop];
+        }
+        return obj[prop];
+      }
+    };
+    return new Proxy(this, handler);
+  }
+
+  addOption(option) {
+    const dbOption = {
+      2: "tailable",
+      4: "slaveOk",
+      8: "oplogReplay",
+      16: "noTimeout",
+      32: "awaitData",
+      64: "exhaust",
+      128: "partial"
+    };
+    const opt = dbOption[option];
+    if (opt === 'slaveOk' || !!opt) {} // TODO
+    return this.cursor.addCursorFlag(opt, true);
+  }
+  batchSize(size) {
+    return this.cursor.setCursorBatchSize(size);
+  }
+  isExhausted() {
+    return this.cursor.isClosed() && !this.cursor.hasNext();
+  }
+  itcount() {
+    return this.cursor.toArray(); // TODO
+  }
+  noCursorTimeout() {
+    return this.cursor.addCursorFlag('noCursorTimeout', true);
+  }
+  objsLeftInBatch() {
+    // TODO
+  }
+  readPref(v) {
+    return this.cursor.setReadPreference(v);
+  }
+  tailable() {
+    return this.cursor.addCursorFlag('tailable', true);
+  }
+}
+
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
@@ -186,7 +240,7 @@ class NodeTransport {
    * @returns {Promise} The promise of the cursor.
    */
   find(db, coll, filter = {}, options = {}) {
-    return this._db(db).collection(coll).find(filter, options);
+    return new Cursor(this._db(db).collection(coll).find(filter, options));
   }
 
   // TODO

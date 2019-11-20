@@ -7,3 +7,14 @@ ReadPreference:
     SECONDARY: 2
     SECONDARY_PREFERRED: 3
     NEAREST: 4
+DBQuery
+    help: |-
+        Db query options
+    Option:
+      tailable: 2,
+      slaveOk: 4,
+      oplogReplay: 8,
+      noTimeout: 16,
+      awaitData: 32,
+      exhaust: 64,
+      partial: 128

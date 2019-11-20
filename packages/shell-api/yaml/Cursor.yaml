@@ -1,13 +1,98 @@
 __constructorArgs:
     - cursor
-__stringRep:
-    - cursor.toArray((error, documents) => {
-        if (error) {
-          throw error;
-        }
-        console.log(JSON.stringify(documents));
-      })
 help:
     <<: *__defaultAttr
     __value: 'The cursor class.'
+
+addOption:
+    <<: *__defaultMethod
+    serverVersions:
+        - -1
+        - 3.2
+    help: |-
+        Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.
+allowPartialResults: *__defaultMethod # not documented
+arrayAccess: *__defaultMethod # not documented
+batchSize:
+    <<: *__defaultMethod
+    help: |-
+        Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.
+clone: *__defaultMethod # not documented
+close:
+    <<: *__defaultMethod
+    help: |-
+        Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.
+collation:
+    <<: *__defaultMethod
+    help: |-
+        Specifies the collation for the cursor returned by the db.collection.find(). To use, append to the db.collection.find().
+    serverVersions:
+        - 3.4
+        - *LATEST_VERSION
+comment:
+    <<: *__defaultMethod
+    help: |-
+        Adds a comment field to the query.
+    serverVersions:
+        - 3.2
+        - *LATEST_VERSION
+count:
+    <<: *__defaultMethod
+    help: |-
+        Counts the number of documents referenced by a cursor.
+    serverVersion:
+        - -1
+        - 4.0
+explain:
+    <<: *__defaultMethod
+    help: |-
+        Provides information on the query plan for the db.collection.find() method.
+
+forEach:
+    <<: *__defaultMethod
+    help: |-
+        Iterates the cursor to apply a JavaScript function to each document from the cursor.
+getQueryPlan: *__defaultMethod # not documented
+hasNext:
+    <<: *__defaultMethod
+    help: |-
+        cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.
+hint:
+    <<: *__defaultMethod
+    help: |-
+        Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.
+isClosed: *__defaultMethod # not documented
+isExhausted:
+    <<: *__defaultMethod
+    help: |-
+        cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.
+itcount:
+    <<: *__defaultMethod
+    help: |-
+        Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.
+length: *__defaultMethod
+limit: *__defaultMethod
+map: *__defaultMethod
+max: *__defaultMethod
+maxScan: *__defaultMethod
+maxTimeMS: *__defaultMethod
+min: *__defaultMethod
+modifiers: *__defaultMethod
 next: *__defaultMethod
+noCursorTimeout: *__defaultMethod
+objsLeftInBatch: *__defaultMethod # TODO
+oplogReplay: *__defaultMethod # not documented
+projection: *__defaultMethod
+pretty: *__defaultMethod # TODO
+readConcern: *__defaultMethod # TODO
+readOnly: *__defaultMethod # TODO
+readPref: *__defaultMethod
+returnKey: *__defaultMethod
+showDiskLoc: *__defaultMethod
+showRecordId: *__defaultMethod
+size: *__defaultMethod # TODO
+skip: *__defaultMethod
+snapshot: *__defaultMethod # DEPRECATED
+sort: *__defaultMethod
+tailable: *__defaultMethod
+toArray: *__defaultMethod

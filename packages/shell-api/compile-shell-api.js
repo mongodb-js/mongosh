@@ -29,14 +29,14 @@ ${base}.${name}.toReplString = () => (${JSON.stringify(value)});`
   return `${base}.${name} = ${JSON.stringify(value)};`;
 };
 
-const funcTemplate = (name, parent) => {
+const funcTemplate = (field, name, parent) => {
   const attr = parent[name];
   if (attr.__type === 'attribute') {
     return attrTemplate('    this', name, attr.__value, parent);
   }
   if (attr.__type === 'function') {
     const base = `    this.${name} = function() {
-      return this.mapper.${name}(this, ...arguments);
+      return this.${field}.${name}(this, ...arguments);
     };`;
 
     return Object.keys(attr)
@@ -50,14 +50,14 @@ ${attrTemplate(`    this.${name}`, k, attr[k], attr)}`
 };
 
 const classTemplate = (filename, lib) => {
-  const args = ['mapper'].concat(lib.__constructorArgs ? lib.__constructorArgs : []);
+  const args = lib.__constructorArgs ? lib.__constructorArgs : [];
   const argsStr = args.reduce((s, k) => (
     `${s}    this.${k} = ${k};\n`
   ), '');
   
   let contents = Object.keys(lib).reduce((s, k) => {
     if (!k.startsWith('__')) {
-      const f = funcTemplate(k, lib);
+      const f = funcTemplate(args[0], k, lib);
       return `${s}${f}\n`
     }
     return s;

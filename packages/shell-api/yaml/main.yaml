@@ -15,7 +15,6 @@ __defaultMethod: &__defaultMethod
         - 'Node'
         - 'Stitch'
         - 'Atlas'
-    __deprecated: false
     help: 'default help'
     serverVersions:
         - -1

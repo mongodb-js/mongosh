@@ -1,4 +1,5 @@
 __constructorArgs:
+    - mapper
     - database
     - collection
 __stringRep:
