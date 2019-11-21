@@ -15,11 +15,12 @@ class Cursor {
     console.log(cursor);
     this.cursor = cursor;
     const handler = {
-      get: function (obj, prop) {
-        if (!(prop in obj)) {
-          return cursor[prop];
+      apply: function (target, thisArg, args) {
+        if (!(target in thisArg)) {
+          cursor[target](args);
+          return this;
         }
-        return obj[prop];
+        return target(...args);
       }
     };
     return new Proxy(this, handler);
@@ -37,28 +38,70 @@ class Cursor {
     };
     const opt = dbOption[option];
     if (opt === 'slaveOk' || !!opt) {} // TODO
-    return this.cursor.addCursorFlag(opt, true);
+    this.cursor.addCursorFlag(opt, true);
+    return this;
+  }
+
+  allowPartialResults() {
+    this.cursor.addCursorFlag('partial', true);
+    return this;
   }
   batchSize(size) {
-    return this.cursor.setCursorBatchSize(size);
+    this.cursor.setCursorBatchSize(size);
+    return this;
+  }
+  getQueryPlan() {
+    this.cursor.explain('executionStats');
+    return this;
   }
   isExhausted() {
     return this.cursor.isClosed() && !this.cursor.hasNext();
   }
   itcount() {
-    return this.cursor.toArray(); // TODO
+    return this.cursor.toArray().length;
+  }
+  modifiers() { // TODO
+    return this.cursor.cmd;
   }
   noCursorTimeout() {
-    return this.cursor.addCursorFlag('noCursorTimeout', true);
+    this.cursor.addCursorFlag('noCursorTimeout', true);
+    return this;
   }
   objsLeftInBatch() {
     // TODO
   }
+  oplogReplay() {
+    this.cursor.addCursorFlag('oplogReplay', true);
+    return this;
+  }
+  projection(v) {
+    this.cursor.project(v);
+    return this;
+  }
+  pretty() {
+    // TODO
+  }
+  readConcern(v) {
+    // TODO
+  }
   readPref(v) {
-    return this.cursor.setReadPreference(v);
+    this.cursor.setReadPreference(v);
+    return this;
+  }
+  showDiskLoc() {
+    this.cursor.showRecordId(true);
+    return this;
+  }
+  showRecordId() {
+    this.cursor.showRecordId(true);
+    return this;
+  }
+  size() {
+    return this.cursor.count(); // TODO: size same as count?
   }
   tailable() {
-    return this.cursor.addCursorFlag('tailable', true);
+    this.cursor.addCursorFlag('tailable', true);
+    return this;
   }
 }
 
