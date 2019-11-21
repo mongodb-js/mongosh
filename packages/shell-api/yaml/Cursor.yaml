@@ -53,7 +53,6 @@ explain:
     <<: *__defaultMethod
     help: |-
         Provides information on the query plan for the db.collection.find() method.
-
 forEach:
     <<: *__defaultMethod
     help: |-
@@ -107,7 +106,7 @@ maxScan: # not documented
         - 4.0
 maxTimeMS:
     <<: *__defaultMethod
-     help: |-
+    help: |-
          Specifies a cumulative time limit in milliseconds for processing operations on a cursor.
 min:
     <<: *__defaultMethod
@@ -151,7 +150,7 @@ readConcern:
 readOnly: # not documented
     <<: *__defaultMethod
     help: |-
-         # TODO
+         TODO
 readPref:
     <<: *__defaultMethod
     help: |-

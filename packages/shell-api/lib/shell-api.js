@@ -287,8 +287,8 @@ class Cursor {
     this.allowPartialResults = function() {
       return this.cursor.allowPartialResults(this, ...arguments);
     };
-    this.allowPartialResults.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.allowPartialResults.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.allowPartialResults.help = () => ("Sets the 'partial' option to true.\nAttributes: serverVersions, topologies");
+    this.allowPartialResults.help.toReplString = () => ("Sets the 'partial' option to true.\nAttributes: serverVersions, topologies");
     this.allowPartialResults.serverVersions = [-1,4.4];
     this.allowPartialResults.topologies = ["ReplSet","Standalone","Shard"];
     this.arrayAccess = function() {
@@ -308,8 +308,8 @@ class Cursor {
     this.clone = function() {
       return this.cursor.clone(this, ...arguments);
     };
-    this.clone.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.clone.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.clone.help = () => ("Clone the cursor.\nAttributes: serverVersions, topologies");
+    this.clone.help.toReplString = () => ("Clone the cursor.\nAttributes: serverVersions, topologies");
     this.clone.serverVersions = [-1,4.4];
     this.clone.topologies = ["ReplSet","Standalone","Shard"];
     this.close = function() {
@@ -358,8 +358,8 @@ class Cursor {
     this.getQueryPlan = function() {
       return this.cursor.getQueryPlan(this, ...arguments);
     };
-    this.getQueryPlan.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.getQueryPlan.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.getQueryPlan.help = () => ("Runs cursor.explain()\nAttributes: serverVersions, topologies");
+    this.getQueryPlan.help.toReplString = () => ("Runs cursor.explain()\nAttributes: serverVersions, topologies");
     this.getQueryPlan.serverVersions = [-1,4.4];
     this.getQueryPlan.topologies = ["ReplSet","Standalone","Shard"];
     this.hasNext = function() {
@@ -379,8 +379,8 @@ class Cursor {
     this.isClosed = function() {
       return this.cursor.isClosed(this, ...arguments);
     };
-    this.isClosed.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.isClosed.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.isClosed.help = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
+    this.isClosed.help.toReplString = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
     this.isClosed.serverVersions = [-1,4.4];
     this.isClosed.topologies = ["ReplSet","Standalone","Shard"];
     this.isExhausted = function() {
@@ -400,183 +400,183 @@ class Cursor {
     this.length = function() {
       return this.cursor.length(this, ...arguments);
     };
-    this.length.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.length.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.length.help = () => ("Runs cursor.count()\nAttributes: serverVersions, topologies");
+    this.length.help.toReplString = () => ("Runs cursor.count()\nAttributes: serverVersions, topologies");
     this.length.serverVersions = [-1,4.4];
     this.length.topologies = ["ReplSet","Standalone","Shard"];
     this.limit = function() {
       return this.cursor.limit(this, ...arguments);
     };
-    this.limit.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.limit.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.limit.help = () => ("Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.\nAttributes: serverVersions, topologies");
+    this.limit.help.toReplString = () => ("Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.\nAttributes: serverVersions, topologies");
     this.limit.serverVersions = [-1,4.4];
     this.limit.topologies = ["ReplSet","Standalone","Shard"];
     this.map = function() {
       return this.cursor.map(this, ...arguments);
     };
-    this.map.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.map.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.map.help = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
+    this.map.help.toReplString = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
     this.map.serverVersions = [-1,4.4];
     this.map.topologies = ["ReplSet","Standalone","Shard"];
     this.max = function() {
       return this.cursor.max(this, ...arguments);
     };
-    this.max.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.max.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.max.help = () => ("Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.\nAttributes: serverVersions, topologies");
+    this.max.help.toReplString = () => ("Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.\nAttributes: serverVersions, topologies");
     this.max.serverVersions = [-1,4.4];
     this.max.topologies = ["ReplSet","Standalone","Shard"];
     this.maxScan = function() {
       return this.cursor.maxScan(this, ...arguments);
     };
-    this.maxScan.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.maxScan.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
-    this.maxScan.serverVersions = [-1,4.4];
+    this.maxScan.help = () => ("Constrains the query to only scan the specified number of documents when fulfilling the query.\nAttributes: serverVersions, topologies");
+    this.maxScan.help.toReplString = () => ("Constrains the query to only scan the specified number of documents when fulfilling the query.\nAttributes: serverVersions, topologies");
+    this.maxScan.serverVersions = [-1,4];
     this.maxScan.topologies = ["ReplSet","Standalone","Shard"];
     this.maxTimeMS = function() {
       return this.cursor.maxTimeMS(this, ...arguments);
     };
-    this.maxTimeMS.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.maxTimeMS.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.maxTimeMS.help = () => ("Specifies a cumulative time limit in milliseconds for processing operations on a cursor.\nAttributes: serverVersions, topologies");
+    this.maxTimeMS.help.toReplString = () => ("Specifies a cumulative time limit in milliseconds for processing operations on a cursor.\nAttributes: serverVersions, topologies");
     this.maxTimeMS.serverVersions = [-1,4.4];
     this.maxTimeMS.topologies = ["ReplSet","Standalone","Shard"];
     this.min = function() {
       return this.cursor.min(this, ...arguments);
     };
-    this.min.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.min.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.min.help = () => ("Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.\nAttributes: serverVersions, topologies");
+    this.min.help.toReplString = () => ("Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.\nAttributes: serverVersions, topologies");
     this.min.serverVersions = [-1,4.4];
     this.min.topologies = ["ReplSet","Standalone","Shard"];
     this.modifiers = function() {
       return this.cursor.modifiers(this, ...arguments);
     };
-    this.modifiers.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.modifiers.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.modifiers.help = () => ("Get query modifiers.\nAttributes: serverVersions, topologies");
+    this.modifiers.help.toReplString = () => ("Get query modifiers.\nAttributes: serverVersions, topologies");
     this.modifiers.serverVersions = [-1,4.4];
     this.modifiers.topologies = ["ReplSet","Standalone","Shard"];
     this.next = function() {
-      return this.cursor.next();
+      return this.cursor.next(this, ...arguments);
     };
-    this.next.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.next.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.next.help = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
+    this.next.help.toReplString = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
     this.next.serverVersions = [-1,4.4];
     this.next.topologies = ["ReplSet","Standalone","Shard"];
     this.noCursorTimeout = function() {
       return this.cursor.noCursorTimeout(this, ...arguments);
     };
-    this.noCursorTimeout.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.noCursorTimeout.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.noCursorTimeout.help = () => ("Instructs the server to avoid closing a cursor automatically after a period of inactivity.\nAttributes: serverVersions, topologies");
+    this.noCursorTimeout.help.toReplString = () => ("Instructs the server to avoid closing a cursor automatically after a period of inactivity.\nAttributes: serverVersions, topologies");
     this.noCursorTimeout.serverVersions = [-1,4.4];
     this.noCursorTimeout.topologies = ["ReplSet","Standalone","Shard"];
     this.objsLeftInBatch = function() {
       return this.cursor.objsLeftInBatch(this, ...arguments);
     };
-    this.objsLeftInBatch.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.objsLeftInBatch.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.objsLeftInBatch.help = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
+    this.objsLeftInBatch.help.toReplString = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.serverVersions = [-1,4.4];
     this.objsLeftInBatch.topologies = ["ReplSet","Standalone","Shard"];
     this.oplogReplay = function() {
       return this.cursor.oplogReplay(this, ...arguments);
     };
-    this.oplogReplay.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.oplogReplay.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.oplogReplay.help = () => ("Sets oplogReplay cursor flag to true.\nAttributes: serverVersions, topologies");
+    this.oplogReplay.help.toReplString = () => ("Sets oplogReplay cursor flag to true.\nAttributes: serverVersions, topologies");
     this.oplogReplay.serverVersions = [-1,4.4];
     this.oplogReplay.topologies = ["ReplSet","Standalone","Shard"];
     this.projection = function() {
       return this.cursor.projection(this, ...arguments);
     };
-    this.projection.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.projection.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.projection.help = () => ("Sets a field projection for the query.\nAttributes: serverVersions, topologies");
+    this.projection.help.toReplString = () => ("Sets a field projection for the query.\nAttributes: serverVersions, topologies");
     this.projection.serverVersions = [-1,4.4];
     this.projection.topologies = ["ReplSet","Standalone","Shard"];
     this.pretty = function() {
       return this.cursor.pretty(this, ...arguments);
     };
-    this.pretty.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.pretty.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.pretty.help = () => ("Configures the cursor to display results in an easy-to-read format.\nAttributes: serverVersions, topologies");
+    this.pretty.help.toReplString = () => ("Configures the cursor to display results in an easy-to-read format.\nAttributes: serverVersions, topologies");
     this.pretty.serverVersions = [-1,4.4];
     this.pretty.topologies = ["ReplSet","Standalone","Shard"];
     this.readConcern = function() {
       return this.cursor.readConcern(this, ...arguments);
     };
-    this.readConcern.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.readConcern.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
-    this.readConcern.serverVersions = [-1,4.4];
+    this.readConcern.help = () => ("Specify a read concern for the db.collection.find() method.\nAttributes: serverVersions, topologies");
+    this.readConcern.help.toReplString = () => ("Specify a read concern for the db.collection.find() method.\nAttributes: serverVersions, topologies");
+    this.readConcern.serverVersions = [3.2,4.4];
     this.readConcern.topologies = ["ReplSet","Standalone","Shard"];
     this.readOnly = function() {
       return this.cursor.readOnly(this, ...arguments);
     };
-    this.readOnly.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.readOnly.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.readOnly.help = () => ("TODO\nAttributes: serverVersions, topologies");
+    this.readOnly.help.toReplString = () => ("TODO\nAttributes: serverVersions, topologies");
     this.readOnly.serverVersions = [-1,4.4];
     this.readOnly.topologies = ["ReplSet","Standalone","Shard"];
     this.readPref = function() {
       return this.cursor.readPref(this, ...arguments);
     };
-    this.readPref.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.readPref.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.readPref.help = () => ("Append readPref() to a cursor to control how the client routes the query to members of the replica set.\nAttributes: serverVersions, topologies");
+    this.readPref.help.toReplString = () => ("Append readPref() to a cursor to control how the client routes the query to members of the replica set.\nAttributes: serverVersions, topologies");
     this.readPref.serverVersions = [-1,4.4];
     this.readPref.topologies = ["ReplSet","Standalone","Shard"];
     this.returnKey = function() {
       return this.cursor.returnKey(this, ...arguments);
     };
-    this.returnKey.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.returnKey.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
-    this.returnKey.serverVersions = [-1,4.4];
+    this.returnKey.help = () => ("Modifies the cursor to return index keys rather than the documents.\nAttributes: serverVersions, topologies");
+    this.returnKey.help.toReplString = () => ("Modifies the cursor to return index keys rather than the documents.\nAttributes: serverVersions, topologies");
+    this.returnKey.serverVersions = [3.2,4.4];
     this.returnKey.topologies = ["ReplSet","Standalone","Shard"];
     this.showDiskLoc = function() {
       return this.cursor.showDiskLoc(this, ...arguments);
     };
-    this.showDiskLoc.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.showDiskLoc.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.showDiskLoc.help = () => ("The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.\nAttributes: serverVersions, topologies");
+    this.showDiskLoc.help.toReplString = () => ("The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.\nAttributes: serverVersions, topologies");
     this.showDiskLoc.serverVersions = [-1,4.4];
     this.showDiskLoc.topologies = ["ReplSet","Standalone","Shard"];
     this.showRecordId = function() {
       return this.cursor.showRecordId(this, ...arguments);
     };
-    this.showRecordId.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.showRecordId.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.showRecordId.help = () => ("Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.\nAttributes: serverVersions, topologies");
+    this.showRecordId.help.toReplString = () => ("Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.\nAttributes: serverVersions, topologies");
     this.showRecordId.serverVersions = [-1,4.4];
     this.showRecordId.topologies = ["ReplSet","Standalone","Shard"];
     this.size = function() {
       return this.cursor.size(this, ...arguments);
     };
-    this.size.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.size.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.size.help = () => ("A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.\nAttributes: serverVersions, topologies");
+    this.size.help.toReplString = () => ("A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.\nAttributes: serverVersions, topologies");
     this.size.serverVersions = [-1,4.4];
     this.size.topologies = ["ReplSet","Standalone","Shard"];
     this.skip = function() {
       return this.cursor.skip(this, ...arguments);
     };
-    this.skip.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.skip.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.skip.help = () => ("Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.\nAttributes: serverVersions, topologies");
+    this.skip.help.toReplString = () => ("Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.\nAttributes: serverVersions, topologies");
     this.skip.serverVersions = [-1,4.4];
     this.skip.topologies = ["ReplSet","Standalone","Shard"];
     this.snapshot = function() {
       return this.cursor.snapshot(this, ...arguments);
     };
-    this.snapshot.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.snapshot.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
-    this.snapshot.serverVersions = [-1,4.4];
+    this.snapshot.help = () => ("The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document.\nAttributes: serverVersions, topologies");
+    this.snapshot.help.toReplString = () => ("The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document.\nAttributes: serverVersions, topologies");
+    this.snapshot.serverVersions = [-1,4];
     this.snapshot.topologies = ["ReplSet","Standalone","Shard"];
     this.sort = function() {
       return this.cursor.sort(this, ...arguments);
     };
-    this.sort.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.sort.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.sort.help = () => ("Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.\nAttributes: serverVersions, topologies");
+    this.sort.help.toReplString = () => ("Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.\nAttributes: serverVersions, topologies");
     this.sort.serverVersions = [-1,4.4];
     this.sort.topologies = ["ReplSet","Standalone","Shard"];
     this.tailable = function() {
       return this.cursor.tailable(this, ...arguments);
     };
-    this.tailable.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.tailable.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
-    this.tailable.serverVersions = [-1,4.4];
+    this.tailable.help = () => ("Marks the cursor as tailable.\nAttributes: serverVersions, topologies");
+    this.tailable.help.toReplString = () => ("Marks the cursor as tailable.\nAttributes: serverVersions, topologies");
+    this.tailable.serverVersions = [3.2,4.4];
     this.tailable.topologies = ["ReplSet","Standalone","Shard"];
     this.toArray = function() {
       return this.cursor.toArray(this, ...arguments);
     };
-    this.toArray.help = () => ("default help\nAttributes: serverVersions, topologies");
-    this.toArray.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.toArray.help = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
+    this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
   }
