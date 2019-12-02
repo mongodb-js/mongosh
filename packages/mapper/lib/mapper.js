@@ -48,7 +48,7 @@ class Mapper {
    *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
-  aggregate(collection, pipeline, options) {
+  aggregate(collection, pipeline, options = {}) {
     const db = collection.database;
     const coll = collection.collection;
 
@@ -100,7 +100,7 @@ class Mapper {
    *
    * @returns {BulkWriteResult} The promise of the result.
    */
-  bulkWrite(collection, operations, options) {
+  bulkWrite(collection, operations, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -129,7 +129,7 @@ class Mapper {
    *  <limit, skip, hint, maxTimeMS, readConcern, collation>
    * @returns {Integer} The promise of the count.
    */
-  count(collection, query, options) {
+  count(collection, query, options = {}) {
     const dbOpts = {};
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
@@ -153,7 +153,7 @@ class Mapper {
    *
    * @returns {Integer} The promise of the count.
    */
-  countDocuments(collection, query, options) {
+  countDocuments(collection, query, options = {}) {
     return this._serviceProvider.countDocuments(
       collection.database,
       collection.collection,
@@ -175,7 +175,7 @@ class Mapper {
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteMany(collection, filter, options) {
+  deleteMany(collection, filter, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -205,7 +205,7 @@ class Mapper {
    *
    * @returns {DeleteResult} The promise of the result.
    */
-  deleteOne(collection, filter, options) {
+  deleteOne(collection, filter, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -235,7 +235,7 @@ class Mapper {
    *
    * @returns {Array} The promise of the result. TODO: make sure returned type is the same
    */
-  distinct(collection, field, query, options) {
+  distinct(collection, field, query, options = {}) {
     return this._serviceProvider.distinct(
       collection.database,
       collection.collection,
@@ -254,7 +254,7 @@ class Mapper {
    *
    * @returns {Integer} The promise of the count.
    */
-  estimatedDocumentCount(collection, options) {
+  estimatedDocumentCount(collection, options = {}) {
     return this._serviceProvider.estimatedDocumentCount(
       collection.database,
       collection.collection,
@@ -280,7 +280,6 @@ class Mapper {
       options.projection = projection;
     }
     return new Cursor(
-      this,
       this._serviceProvider.find(
         collection.database,
         collection.collection,
@@ -335,7 +334,7 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndDelete(collection, filter, options) {
+  findOneAndDelete(collection, filter, options = {}) {
     return this._serviceProvider.findOneAndDelete(
       collection.database,
       collection.collection,
@@ -359,7 +358,7 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndReplace(collection, filter, replacement, options) {
+  findOneAndReplace(collection, filter, replacement, options = {}) {
     const findOneAndReplaceOptions = { ...options };
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
@@ -388,7 +387,7 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndUpdate(collection, filter, update, options) {
+  findOneAndUpdate(collection, filter, update, options = {}) {
     const findOneAndUpdateOptions = { ...options };
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
@@ -415,7 +414,7 @@ class Mapper {
    *    <writeConcern, ordered>
    * @return {InsertManyResult}
    */
-  insert(collection, docs, options) {
+  insert(collection, docs, options = {}) {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions = {};
     if ('writeConcern' in options) {
@@ -447,7 +446,7 @@ class Mapper {
    *    <writeConcern, ordered>
    * @return {InsertManyResult}
    */
-  insertMany(collection, docs, options) {
+  insertMany(collection, docs, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -478,7 +477,7 @@ class Mapper {
    *    <writeConcern>
    * @return {InsertOneResult}
    */
-  insertOne(collection, doc, options) {
+  insertOne(collection, doc, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -521,7 +520,7 @@ class Mapper {
    *    <justOne, writeConcern, collation>
    * @return {Promise}
    */
-  remove(collection, query, options) {
+  remove(collection, query, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -542,7 +541,7 @@ class Mapper {
   };
 
   // TODO
-  save(collection, doc, options) {
+  save(collection, doc, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -572,7 +571,7 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  replaceOne(collection, filter, replacement, options) {
+  replaceOne(collection, filter, replacement, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -602,7 +601,7 @@ class Mapper {
     return this._serviceProvider.runCommand(database.database, cmd);
   };
 
-  update(collection, filter, update, options) {
+  update(collection, filter, update, options = {}) {
     if (options.multi) {
       return this._serviceProvider.updateMany(
         collection.collection,
@@ -636,7 +635,7 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  updateMany(collection, filter, update, options) {
+  updateMany(collection, filter, update, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -668,7 +667,7 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  updateOne(collection, filter, update, options) {
+  updateOne(collection, filter, update, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;

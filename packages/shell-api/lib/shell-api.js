@@ -269,7 +269,7 @@ class Collection {
     this.updateOne.serverVersions = [3.2,4.4];
     this.updateOne.topologies = ["ReplSet","Standalone","Shard"];
 
-    this.toReplString = () => (this.this.collection);
+    this.toReplString = () => (this.collection);
   }
 }
 class Cursor {
@@ -579,6 +579,8 @@ class Cursor {
     this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
+
+    this.toReplString = () => (this.cursor.toArray());
   }
 }
 class Database {

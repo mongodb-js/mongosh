@@ -13,16 +13,6 @@ class Cursor {
 
   constructor(cursor) {
     this.cursor = cursor;
-    const handler = {
-      apply: function (target, thisArg, args) {
-        if (!(target in thisArg)) {
-          cursor[target](args);
-          return this;
-        }
-        return target(...args);
-      }
-    };
-    return new Proxy(this, handler);
   }
 
   addOption(option) {
@@ -49,6 +39,39 @@ class Cursor {
     this.cursor.setCursorBatchSize(size);
     return this;
   }
+  close() {
+    this.cursor.close();
+    return this;
+  }
+  isClosed() {
+    return this.cursor.isClosed();
+  }
+  collation(doc) {
+    this.cursor.collation(doc);
+    return this;
+  }
+  comment(cmt) {
+    this.cursor.comment(cmt);
+    return this;
+  }
+  count() {
+    return this.cursor.count();
+  }
+  explain() {
+    this.cursor.explain();
+    return this;
+  }
+  forEach(f) {
+    this.cursor.forEach(f);
+    return this;
+  }
+  hasNext() {
+    return this.cursor.hasNext();
+  }
+  hint(index) {
+    this.cursor.hint(index);
+    return this;
+  }
   getQueryPlan() {
     this.cursor.explain('executionStats');
     return this;
@@ -58,6 +81,29 @@ class Cursor {
   }
   itcount() {
     return this.cursor.toArray().length;
+  }
+  limit(l) {
+    this.cursor.limit(l);
+    return this;
+  }
+  map(f) {
+    this.cursor.map(f);
+    return this;
+  }
+  max(indexBounds) {
+    this.cursor.max(indexBounds);
+    return this;
+  }
+  maxTimeMS(ms) {
+    this.cursor.maxTimeMS(ms);
+    return this;
+  }
+  min(indexBounds) {
+    this.cursor.min(indexBounds);
+    return this;
+  }
+  next() {
+    return this.cursor.next();
   }
   modifiers() { // TODO
     return this.cursor.cmd;
@@ -87,6 +133,10 @@ class Cursor {
     this.cursor.setReadPreference(v);
     return this;
   }
+  returnKey() {
+    this.cursor.returnKey();
+    return this;
+  }
   showDiskLoc() {
     this.cursor.showRecordId(true);
     return this;
@@ -98,9 +148,20 @@ class Cursor {
   size() {
     return this.cursor.count(); // TODO: size same as count?
   }
+  skip(s) {
+    this.cursor.skip(s);
+    return this;
+  }
+  sort(s) {
+    this.cursor.sort(s);
+    return this;
+  }
   tailable() {
     this.cursor.addCursorFlag('tailable', true);
     return this;
+  }
+  toArray() {
+    return this.cursor.toArray();
   }
 }
 

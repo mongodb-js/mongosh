@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -47,16 +58,6 @@ var DEFAULT_OPTIONS = Object.freeze({
 var Cursor = /** @class */ (function () {
     function Cursor(cursor) {
         this.cursor = cursor;
-        var handler = {
-            apply: function (target, thisArg, args) {
-                if (!(target in thisArg)) {
-                    cursor[target](args);
-                    return this;
-                }
-                return target.apply(void 0, args);
-            }
-        };
-        return new Proxy(this, handler);
     }
     Cursor.prototype.addOption = function (option) {
         var dbOption = {
@@ -81,6 +82,39 @@ var Cursor = /** @class */ (function () {
         this.cursor.setCursorBatchSize(size);
         return this;
     };
+    Cursor.prototype.close = function () {
+        this.cursor.close();
+        return this;
+    };
+    Cursor.prototype.isClosed = function () {
+        return this.cursor.isClosed();
+    };
+    Cursor.prototype.collation = function (doc) {
+        this.cursor.collation(doc);
+        return this;
+    };
+    Cursor.prototype.comment = function (cmt) {
+        this.cursor.comment(cmt);
+        return this;
+    };
+    Cursor.prototype.count = function () {
+        return this.cursor.count();
+    };
+    Cursor.prototype.explain = function () {
+        this.cursor.explain();
+        return this;
+    };
+    Cursor.prototype.forEach = function (f) {
+        this.cursor.forEach(f);
+        return this;
+    };
+    Cursor.prototype.hasNext = function () {
+        return this.cursor.hasNext();
+    };
+    Cursor.prototype.hint = function (index) {
+        this.cursor.hint(index);
+        return this;
+    };
     Cursor.prototype.getQueryPlan = function () {
         this.cursor.explain('executionStats');
         return this;
@@ -90,6 +124,29 @@ var Cursor = /** @class */ (function () {
     };
     Cursor.prototype.itcount = function () {
         return this.cursor.toArray().length;
+    };
+    Cursor.prototype.limit = function (l) {
+        this.cursor.limit(l);
+        return this;
+    };
+    Cursor.prototype.map = function (f) {
+        this.cursor.map(f);
+        return this;
+    };
+    Cursor.prototype.max = function (indexBounds) {
+        this.cursor.max(indexBounds);
+        return this;
+    };
+    Cursor.prototype.maxTimeMS = function (ms) {
+        this.cursor.maxTimeMS(ms);
+        return this;
+    };
+    Cursor.prototype.min = function (indexBounds) {
+        this.cursor.min(indexBounds);
+        return this;
+    };
+    Cursor.prototype.next = function () {
+        return this.cursor.next();
     };
     Cursor.prototype.modifiers = function () {
         return this.cursor.cmd;
@@ -119,6 +176,10 @@ var Cursor = /** @class */ (function () {
         this.cursor.setReadPreference(v);
         return this;
     };
+    Cursor.prototype.returnKey = function () {
+        this.cursor.returnKey();
+        return this;
+    };
     Cursor.prototype.showDiskLoc = function () {
         this.cursor.showRecordId(true);
         return this;
@@ -130,9 +191,20 @@ var Cursor = /** @class */ (function () {
     Cursor.prototype.size = function () {
         return this.cursor.count(); // TODO: size same as count?
     };
+    Cursor.prototype.skip = function (s) {
+        this.cursor.skip(s);
+        return this;
+    };
+    Cursor.prototype.sort = function (s) {
+        this.cursor.sort(s);
+        return this;
+    };
     Cursor.prototype.tailable = function () {
         this.cursor.addCursorFlag('tailable', true);
         return this;
+    };
+    Cursor.prototype.toArray = function () {
+        return this.cursor.toArray();
     };
     return Cursor;
 }());
@@ -229,18 +301,15 @@ var NodeTransport = /** @class */ (function () {
      * @param {String} coll - The collection name.
      * @param {Object} query - The filter.
      * @param {Object} options - The count options.
-     * @param {Object} collOptions - The collection options
+     * @param {Object} dbOptions - The database option i.e. read/writeConcern
      *
      * @returns {Promise} The promise of the count.
      */
-    NodeTransport.prototype.count = function (db, coll, query, options, collOptions) {
+    NodeTransport.prototype.count = function (db, coll, query, options, dbOptions) {
         if (query === void 0) { query = {}; }
         if (options === void 0) { options = {}; }
-        if (collOptions === void 0) { collOptions = {}; }
-        if (!collOptions || Object.keys(collOptions).length === 0) {
-            return this._db(db).collection(coll).count(query);
-        }
-        return this._db(db).collection(coll, collOptions).count(query);
+        if (dbOptions === void 0) { dbOptions = {}; }
+        return this._db(db, dbOptions).collection(coll).count(query);
     };
     /**
      * Get an exact document count from the coll.
@@ -337,6 +406,20 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.find = function (db, coll, filter, options) {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
+        var findOptions = __assign({}, options);
+        Object.assign(findOptions, options);
+        if ('allowPartialResults' in findOptions) {
+            // @ts-ignore
+            findOptions.partial = findOptions.allowPartialResults;
+        }
+        if ('noCursorTimeout' in findOptions) {
+            // @ts-ignore
+            findOptions.timeout = findOptions.noCursorTimeout;
+        }
+        if ('tailable' in findOptions) {
+            // @ts-ignore
+            findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
+        }
         return new Cursor(this._db(db).collection(coll).find(filter, options));
     };
     // TODO
@@ -371,8 +454,15 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
+        var findOneAndReplaceOptions = __assign({}, options);
+        if ('returnDocument' in options) {
+            // @ts-ignore
+            findOneAndReplaceOptions.returnOriginal = options.returnDocument;
+            // @ts-ignore
+            delete findOneAndReplaceOptions.returnDocument;
+        }
         return this._db(db).collection(coll).
-            findOneAndReplace(filter, replacement, options);
+            findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
     };
     /**
      * Find one document and update it.
@@ -389,8 +479,15 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
+        var findOneAndUpdateOptions = __assign({}, options);
+        if ('returnDocument' in options) {
+            // @ts-ignore
+            findOneAndReplaceOptions.returnOriginal = options.returnDocument;
+            // @ts-ignore
+            delete findOneAndReplaceOptions.returnDocument;
+        }
         return this._db(db).collection(coll).
-            findOneAndUpdate(filter, update, options);
+            findOneAndUpdate(filter, update, findOneAndUpdateOptions);
     };
     /**
      * Insert many documents into the collection.

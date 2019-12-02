@@ -1,5 +1,7 @@
 __constructorArgs:
     - cursor
+__stringRep:
+    - cursor.toArray()
 help:
     <<: *__defaultAttr
     __value: 'The cursor class.'

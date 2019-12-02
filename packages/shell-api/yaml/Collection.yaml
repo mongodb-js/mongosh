@@ -3,7 +3,7 @@ __constructorArgs:
     - database
     - collection
 __stringRep:
-    - this.collection
+    - collection
 help:
     <<: *__defaultAttr
     __value: 'The collection class.'
