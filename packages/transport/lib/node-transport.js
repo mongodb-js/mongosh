@@ -46,14 +46,14 @@ var DEFAULT_OPTIONS = Object.freeze({
 });
 var Cursor = /** @class */ (function () {
     function Cursor(cursor) {
-        console.log(cursor);
         this.cursor = cursor;
         var handler = {
-            get: function (obj, prop) {
-                if (!(prop in obj)) {
-                    return cursor[prop];
+            apply: function (target, thisArg, args) {
+                if (!(target in thisArg)) {
+                    cursor[target](args);
+                    return this;
                 }
-                return obj[prop];
+                return target.apply(void 0, args);
             }
         };
         return new Proxy(this, handler);
@@ -70,28 +70,69 @@ var Cursor = /** @class */ (function () {
         };
         var opt = dbOption[option];
         if (opt === 'slaveOk' || !!opt) { } // TODO
-        return this.cursor.addCursorFlag(opt, true);
+        this.cursor.addCursorFlag(opt, true);
+        return this;
+    };
+    Cursor.prototype.allowPartialResults = function () {
+        this.cursor.addCursorFlag('partial', true);
+        return this;
     };
     Cursor.prototype.batchSize = function (size) {
-        return this.cursor.setCursorBatchSize(size);
+        this.cursor.setCursorBatchSize(size);
+        return this;
+    };
+    Cursor.prototype.getQueryPlan = function () {
+        this.cursor.explain('executionStats');
+        return this;
     };
     Cursor.prototype.isExhausted = function () {
         return this.cursor.isClosed() && !this.cursor.hasNext();
     };
     Cursor.prototype.itcount = function () {
-        return this.cursor.toArray(); // TODO
+        return this.cursor.toArray().length;
+    };
+    Cursor.prototype.modifiers = function () {
+        return this.cursor.cmd;
     };
     Cursor.prototype.noCursorTimeout = function () {
-        return this.cursor.addCursorFlag('noCursorTimeout', true);
+        this.cursor.addCursorFlag('noCursorTimeout', true);
+        return this;
     };
     Cursor.prototype.objsLeftInBatch = function () {
         // TODO
     };
+    Cursor.prototype.oplogReplay = function () {
+        this.cursor.addCursorFlag('oplogReplay', true);
+        return this;
+    };
+    Cursor.prototype.projection = function (v) {
+        this.cursor.project(v);
+        return this;
+    };
+    Cursor.prototype.pretty = function () {
+        // TODO
+    };
+    Cursor.prototype.readConcern = function (v) {
+        // TODO
+    };
     Cursor.prototype.readPref = function (v) {
-        return this.cursor.setReadPreference(v);
+        this.cursor.setReadPreference(v);
+        return this;
+    };
+    Cursor.prototype.showDiskLoc = function () {
+        this.cursor.showRecordId(true);
+        return this;
+    };
+    Cursor.prototype.showRecordId = function () {
+        this.cursor.showRecordId(true);
+        return this;
+    };
+    Cursor.prototype.size = function () {
+        return this.cursor.count(); // TODO: size same as count?
     };
     Cursor.prototype.tailable = function () {
-        return this.cursor.addCursorFlag('tailable', true);
+        this.cursor.addCursorFlag('tailable', true);
+        return this;
     };
     return Cursor;
 }());

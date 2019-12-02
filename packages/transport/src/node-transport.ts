@@ -12,7 +12,6 @@ class Cursor {
   private cursor: any;
 
   constructor(cursor) {
-    console.log(cursor);
     this.cursor = cursor;
     const handler = {
       apply: function (target, thisArg, args) {
@@ -186,15 +185,12 @@ class NodeTransport {
    * @param {String} coll - The collection name.
    * @param {Object} query - The filter.
    * @param {Object} options - The count options.
-   * @param {Object} collOptions - The collection options
+   * @param {Object} dbOptions - The database option i.e. read/writeConcern
    *
    * @returns {Promise} The promise of the count.
    */
-  count(db, coll, query = {}, options = {}, collOptions = {}) {
-    if (!collOptions || Object.keys(collOptions).length === 0) {
-      return this._db(db).collection(coll).count(query);
-    }
-    return this._db(db).collection(coll, collOptions).count(query);
+  count(db, coll, query = {}, options = {}, dbOptions = {}) {
+    return this._db(db, dbOptions).collection(coll).count(query);
   }
 
   /**
@@ -283,6 +279,20 @@ class NodeTransport {
    * @returns {Promise} The promise of the cursor.
    */
   find(db, coll, filter = {}, options = {}) {
+    const findOptions = { ...options };
+    Object.assign(findOptions, options);
+    if ('allowPartialResults' in findOptions) {
+      // @ts-ignore
+      findOptions.partial = findOptions.allowPartialResults;
+    }
+    if ('noCursorTimeout' in findOptions) {
+      // @ts-ignore
+      findOptions.timeout = findOptions.noCursorTimeout;
+    }
+    if ('tailable' in findOptions) {
+      // @ts-ignore
+      findOptions.cursorType  = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE' // TODO
+    }
     return new Cursor(this._db(db).collection(coll).find(filter, options));
   }
 
@@ -316,8 +326,15 @@ class NodeTransport {
    * @returns {Promise} The promise of the result.
    */
   findOneAndReplace(db, coll, filter = {}, replacement = {}, options = {}) {
+    const findOneAndReplaceOptions = { ...options };
+    if ('returnDocument' in options) {
+      // @ts-ignore
+      findOneAndReplaceOptions.returnOriginal = options.returnDocument;
+      // @ts-ignore
+      delete findOneAndReplaceOptions.returnDocument;
+    }
     return this._db(db).collection(coll).
-      findOneAndReplace(filter, replacement, options);
+      findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
   }
 
   /**
@@ -332,8 +349,15 @@ class NodeTransport {
    * @returns {Promise} The promise of the result.
    */
   findOneAndUpdate(db, coll, filter = {}, update = {}, options = {}) {
+    const findOneAndUpdateOptions = { ...options };
+    if ('returnDocument' in options) {
+      // @ts-ignore
+      findOneAndReplaceOptions.returnOriginal = options.returnDocument;
+      // @ts-ignore
+      delete findOneAndReplaceOptions.returnDocument;
+    }
     return this._db(db).collection(coll).
-      findOneAndUpdate(filter, update, options);
+      findOneAndUpdate(filter, update, findOneAndUpdateOptions);
   }
 
   /**

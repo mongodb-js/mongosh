@@ -35,6 +35,9 @@ class Mapper {
    * expects it as a dbOption object.
    * @note: Shell API sets readConcern via options in object, data provider API
    * expects it as a dbOption object.
+   * @note: Shell API sets explain via options in object, data provider API via
+   * cursor.
+   * @note: CRUD API provides batchSize and maxAwaitTimeMS which the shell does not.
    *
    *
    * @param {Collection} collection - The collection class.
@@ -57,28 +60,31 @@ class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
 
+    let cmd;
     if (coll === null) {
-      return new AggregationCursor(
-        this,
-        this._serviceProvider.aggregateDb(
-          db,
-          pipeline,
-          options,
-          dbOptions
-        ),
+      cmd = this._serviceProvider.aggregateDb(
+        db,
+        pipeline,
+        options,
+        dbOptions
       );
-    }
-
-    return new AggregationCursor(
-      this,
-      this._serviceProvider.aggregate(
+    } else {
+      cmd = this._serviceProvider.aggregate(
         db,
         coll,
         pipeline,
         options,
         dbOptions
-      ),
-    );
+      );
+    }
+
+    const cursor = new AggregationCursor(this, cmd);
+
+    if ('explain' in options) {
+      return cursor.explain(options.explain);
+    }
+
+    return cursor;
   };
 
   /**
@@ -120,20 +126,20 @@ class Mapper {
    * @param {Collection} collection - The collection class.
    * @param {Object} query - The filter.
    * @param {Object} options - The count options.
-   *
+   *  <limit, skip, hint, maxTimeMS, readConcern, collation>
    * @returns {Integer} The promise of the count.
    */
   count(collection, query, options) {
-    const collOpts = {};
+    const dbOpts = {};
     if ('readConcern' in options) {
-      collOpts.readConcern = options.readConcern;
+      dbOpts.readConcern = options.readConcern;
     }
     return this._serviceProvider.count(
       collection.database,
       collection.collection,
       query,
       options,
-      collOpts
+      dbOpts
     );
   };
 
@@ -152,7 +158,7 @@ class Mapper {
       collection.database,
       collection.collection,
       query,
-      options,
+      options
     )
   };
 
@@ -218,6 +224,8 @@ class Mapper {
 
   /**
    * Get distinct values for the field.
+   *
+   * @note Data Provider API also provides maxTimeMS option.
    *
    * @param {Collection} collection - The collection class.
    * @param {String} field - The field name.
@@ -341,6 +349,7 @@ class Mapper {
    *
    * @note: Shell API uses option 'returnNewDocument' while data provider API
    * expects 'returnDocument'.
+   * @note: Data provider API provides bypassDocumentValidation option that shell does not have.
    *
    * @param {Collection} collection - The collection class.
    * @param {Object} filter - The filter.
@@ -351,15 +360,17 @@ class Mapper {
    * @returns {Document} The promise of the result.
    */
   findOneAndReplace(collection, filter, replacement, options) {
-    if ('returnNewDocument' in options) {
-      options.returnDocument = options.returnNewDocument;
+    const findOneAndReplaceOptions = { ...options };
+    if ('returnNewDocument' in findOneAndReplaceOptions) {
+      findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
+      delete findOneAndReplaceOptions.returnNewDocument;
     }
     return this._serviceProvider.findOneAndReplace(
       collection.database,
       collection.collection,
       filter,
       replacement,
-      options,
+      findOneAndReplaceOptions
     );
   };
 
@@ -378,8 +389,10 @@ class Mapper {
    * @returns {Document} The promise of the result.
    */
   findOneAndUpdate(collection, filter, update, options) {
-    if ('returnNewDocument' in options) {
-      options.returnDocument = options.returnNewDocument;
+    const findOneAndUpdateOptions = { ...options };
+    if ('returnNewDocument' in findOneAndUpdateOptions) {
+      findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
+      delete findOneAndUpdateOptions.returnNewDocument;
     }
     return this._serviceProvider.findOneAndUpdate(
       collection.database,
@@ -403,7 +416,7 @@ class Mapper {
    * @return {InsertManyResult}
    */
   insert(collection, docs, options) {
-    const d = typeof docs === 'array' ? docs : [docs];
+    const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -425,6 +438,8 @@ class Mapper {
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
    * expects it as a dbOption object.
+   * @note: Data provider API allows for bypassDocumentValidation as argument,
+   * shell API doesn't.
    *
    * @param {Collection} collection
    * @param {Object|Array} docs
@@ -454,11 +469,13 @@ class Mapper {
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
    * expects it as a dbOption object.
+   * @note: Data provider API allows for bypassDocumentValidation as argument,
+   * shell API doesn't.
    *
    * @param {Collection} collection
    * @param {Object} doc
    * @param {Object} options
-   *    <writeConcern, ordered>
+   *    <writeConcern>
    * @return {InsertOneResult}
    */
   insertOne(collection, doc, options) {
@@ -544,6 +561,8 @@ class Mapper {
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
    * expects it as a dbOption object.
+   * @note: Data provider API allows for bypassDocumentValidation as argument,
+   * shell API doesn't.
    *
    * @param {Collection} collection
    * @param {Object} filter - The filter.
