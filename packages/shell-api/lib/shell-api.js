@@ -582,8 +582,8 @@ class Cursor {
 
     // this.toReplString = () => (this.cursor.toArray());
   }
-  async toReplString() {
-    return await this.cursor.toArray();
+  toReplString() {
+    return this.cursor.toArray();
   }
 }
 class Database {

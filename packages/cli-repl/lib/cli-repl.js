@@ -36,28 +36,34 @@ class CliRepl {
 `);
   }
 
-  finish(err, res, cb) {
-    Promise.resolve(res).then((result) => {
-      cb(null, result);
-    }).catch((error) => {
-      cb(error, null);
-    });
-  }
-
-  async writer(output) {
+  writer(output) {
     if (output && output.toReplString) {
-      const result = await output.toReplString();
-      console.log('result in writer');
-      console.log(result);
-      return JSON.stringify(result);
+      return output.toReplString();
     }
     if (typeof output === 'string') {
       return output;
     }
     return util.inspect(output, {
       showProxy: false,
-      colors: true
+      colors: true,
     });
+  }
+
+  async evaluator(originalEval, input, context, filename) {
+    const argv = input.trim().split(' ');
+    const cmd = argv[0];
+    argv.shift();
+    switch(cmd) {
+      case 'use':
+        return this.shellApi.use(argv[0]);
+      case 'help()':
+        return this.shellApi.help;
+      default:
+        const finalValue = await originalEval(input, context, filename);
+        const stringResult = await this.writer(finalValue);
+        console.log(stringResult);
+        return finalValue;
+    }
   }
 
   start() {
@@ -65,21 +71,16 @@ class CliRepl {
 
     this.repl = repl.start({
       prompt: `$${this.options.user} > `,
-      writer: this.writer
+      ignoreUndefined: true
     });
-    const originalEval = this.repl.eval;
+    const originalEval = util.promisify(this.repl.eval);
 
-    const customEval = (input, context, filename, callback) => {
-      const argv = input.trim().split(' ');
-      const cmd = argv[0];
-      argv.shift();
-      switch(cmd) {
-        case 'use':
-          return callback(null, this.shellApi.use(argv[0]));
-        case 'help()':
-          return callback(null, this.shellApi.help); // TODO: get help() and help working for sub fields
-        default:
-          originalEval(input, context, filename, (err, res) => { this.finish(err, res, callback) });
+    const customEval = async (input, context, filename, callback) => {
+      try {
+        const res = await this.evaluator(originalEval, input, context, filename);
+        callback(null, undefined);
+      } catch (err) {
+        callback(err, null);
       }
     };
 
