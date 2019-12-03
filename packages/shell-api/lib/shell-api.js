@@ -580,7 +580,10 @@ class Cursor {
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
 
-    this.toReplString = () => (this.cursor.toArray());
+    // this.toReplString = () => (this.cursor.toArray());
+  }
+  async toReplString() {
+    return await this.cursor.toArray();
   }
 }
 class Database {

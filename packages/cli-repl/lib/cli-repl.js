@@ -44,9 +44,12 @@ class CliRepl {
     });
   }
 
-  writer(output) {
+  async writer(output) {
     if (output && output.toReplString) {
-      return output.toReplString();
+      const result = await output.toReplString();
+      console.log('result in writer');
+      console.log(result);
+      return JSON.stringify(result);
     }
     if (typeof output === 'string') {
       return output;
