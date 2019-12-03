@@ -56,6 +56,8 @@ class CliRepl {
     switch(cmd) {
       case 'use':
         return this.shellApi.use(argv[0]);
+      case 'it':
+        return this.shellApi.it();
       case 'help()':
         return this.shellApi.help;
       default:

@@ -1,7 +1,8 @@
 __constructorArgs:
     - cursor
+    - mapper
 __stringRep:
-    - cursor.toArray()
+    - mapper.printCursor()
 help:
     <<: *__defaultAttr
     __value: 'The cursor class.'

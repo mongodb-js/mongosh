@@ -4,3 +4,4 @@ help:
     <<: *__defaultAttr
     __value: 'Welcome to the new MongoDB Shell!'
 use: *__defaultMethod
+it: *__defaultMethod

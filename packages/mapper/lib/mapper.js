@@ -25,6 +25,16 @@ class Mapper {
     return `switched to db ${db}`;
   };
 
+  async it() {
+    if (this._ctx._currentCursor) {
+      const hasNext = await this._ctx._currentCursor.hasNext();
+      if (hasNext) {
+        return this._ctx._currentCursor.next();
+      }
+    }
+    return 'no cursor';
+  }
+
   /**
    * Run an aggregation pipeline.
    * TODO: In the mongo shell, if the cursor returned from the db.collection.aggregate() is not assigned to a variable using the var keyword, then the mongo shell automatically iterates the cursor up to 20 times. See Iterate a Cursor in the mongo Shell for handling cursors in the mongo shell.
@@ -279,7 +289,7 @@ class Mapper {
     if (projection) {
       options.projection = projection;
     }
-    return new Cursor(
+    const c = new Cursor(
       this._serviceProvider.find(
         collection.database,
         collection.collection,
@@ -287,6 +297,8 @@ class Mapper {
         options
       ),
     );
+    this._ctx._currentCursor = c;
+    return c;
   };
 
   /**

@@ -9,7 +9,8 @@
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "check": "lerna run check",
-    "start": "lerna exec npm start --scope mongosh-cli-repl"
+    "start": "lerna exec npm start --scope mongosh-cli-repl",
+    "build": "lerna exec npm run build --scope mongosh-shell-api"
   },
   "keywords": [
     "MongoDB",

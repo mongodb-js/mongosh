@@ -579,8 +579,17 @@ class Cursor {
     this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
+  }
 
-    this.toReplString = () => (this.cursor.toArray());
+  async toReplString() {
+    const results = [];
+    for (let i = 0; i < 20; i++) {
+      const hasNext = await this.cursor.hasNext();
+      if (hasNext) {
+        results.push(this.cursor.next());
+      }
+    }
+    return Promise.all(results);
   }
 }
 class Database {
@@ -652,8 +661,8 @@ class Shard {
 class ShellApi {
   constructor(mapper) {
     this.mapper = mapper;
-    this.help = () => ("Welcome to the new MongoDB Shell!\nAttributes: use");
-    this.help.toReplString = () => ("Welcome to the new MongoDB Shell!\nAttributes: use");
+    this.help = () => ("Welcome to the new MongoDB Shell!\nAttributes: use, it");
+    this.help.toReplString = () => ("Welcome to the new MongoDB Shell!\nAttributes: use, it");
     this.use = function() {
       return this.mapper.use(this, ...arguments);
     };
@@ -661,6 +670,13 @@ class ShellApi {
     this.use.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
     this.use.serverVersions = [-1,4.4];
     this.use.topologies = ["ReplSet","Standalone","Shard"];
+    this.it = function() {
+      return this.mapper.it(this, ...arguments);
+    };
+    this.it.help = () => ("default help\nAttributes: serverVersions, topologies");
+    this.it.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");
+    this.it.serverVersions = [-1,4.4];
+    this.it.topologies = ["ReplSet","Standalone","Shard"];
   }
 }
 class UpdateResult {
