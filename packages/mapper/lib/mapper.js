@@ -27,10 +27,17 @@ class Mapper {
 
   async it() {
     if (this._ctx._currentCursor) {
-      const hasNext = await this._ctx._currentCursor.hasNext();
-      if (hasNext) {
-        return this._ctx._currentCursor.next();
+      const results = [];
+      for (let i = 0; i < 20; i++) {
+        const hasNext = await this._ctx._currentCursor.hasNext();
+        if (hasNext) {
+          results.push(this._ctx._currentCursor.next());
+        } else {
+          break;
+        }
       }
+      if (results.length > 0)
+        return Promise.all(results);
     }
     return 'no cursor';
   }
@@ -296,6 +303,7 @@ class Mapper {
         query,
         options
       ),
+      this
     );
     this._ctx._currentCursor = c;
     return c;

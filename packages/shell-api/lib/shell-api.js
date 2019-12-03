@@ -273,8 +273,9 @@ class Collection {
   }
 }
 class Cursor {
-  constructor(cursor) {
+  constructor(cursor, mapper) {
     this.cursor = cursor;
+    this.mapper = mapper;
     this.help = () => ("The cursor class.\nAttributes: addOption, allowPartialResults, arrayAccess, batchSize, clone, close, collation, comment, count, explain, forEach, getQueryPlan, hasNext, hint, isClosed, isExhausted, itcount, length, limit, map, max, maxScan, maxTimeMS, min, modifiers, next, noCursorTimeout, objsLeftInBatch, oplogReplay, projection, pretty, readConcern, readOnly, readPref, returnKey, showDiskLoc, showRecordId, size, skip, snapshot, sort, tailable, toArray");
     this.help.toReplString = () => ("The cursor class.\nAttributes: addOption, allowPartialResults, arrayAccess, batchSize, clone, close, collation, comment, count, explain, forEach, getQueryPlan, hasNext, hint, isClosed, isExhausted, itcount, length, limit, map, max, maxScan, maxTimeMS, min, modifiers, next, noCursorTimeout, objsLeftInBatch, oplogReplay, projection, pretty, readConcern, readOnly, readPref, returnKey, showDiskLoc, showRecordId, size, skip, snapshot, sort, tailable, toArray");
     this.addOption = function() {
@@ -579,17 +580,8 @@ class Cursor {
     this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
-  }
 
-  async toReplString() {
-    const results = [];
-    for (let i = 0; i < 20; i++) {
-      const hasNext = await this.cursor.hasNext();
-      if (hasNext) {
-        results.push(this.cursor.next());
-      }
-    }
-    return Promise.all(results);
+    this.toReplString = () => (this.mapper.it());
   }
 }
 class Database {

@@ -2,7 +2,7 @@ __constructorArgs:
     - cursor
     - mapper
 __stringRep:
-    - mapper.printCursor()
+    - mapper.it()
 help:
     <<: *__defaultAttr
     __value: 'The cursor class.'
