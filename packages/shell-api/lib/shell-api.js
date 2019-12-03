@@ -580,10 +580,7 @@ class Cursor {
     this.toArray.serverVersions = [-1,4.4];
     this.toArray.topologies = ["ReplSet","Standalone","Shard"];
 
-    // this.toReplString = () => (this.cursor.toArray());
-  }
-  toReplString() {
-    return this.cursor.toArray();
+    this.toReplString = () => (this.cursor.toArray());
   }
 }
 class Database {
@@ -653,11 +650,12 @@ class Shard {
   }
 }
 class ShellApi {
-  constructor() {
+  constructor(mapper) {
+    this.mapper = mapper;
     this.help = () => ("Welcome to the new MongoDB Shell!\nAttributes: use");
     this.help.toReplString = () => ("Welcome to the new MongoDB Shell!\nAttributes: use");
     this.use = function() {
-      return this.undefined.use(this, ...arguments);
+      return this.mapper.use(this, ...arguments);
     };
     this.use.help = () => ("default help\nAttributes: serverVersions, topologies");
     this.use.help.toReplString = () => ("default help\nAttributes: serverVersions, topologies");

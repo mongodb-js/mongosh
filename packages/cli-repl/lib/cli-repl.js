@@ -60,9 +60,7 @@ class CliRepl {
         return this.shellApi.help;
       default:
         const finalValue = await originalEval(input, context, filename);
-        const stringResult = await this.writer(finalValue);
-        console.log(stringResult);
-        return finalValue;
+        return await this.writer(finalValue);
     }
   }
 
@@ -71,14 +69,19 @@ class CliRepl {
 
     this.repl = repl.start({
       prompt: `$${this.options.user} > `,
-      ignoreUndefined: true
+      ignoreUndefined: true,
+      writer: this.writer
     });
+
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async (input, context, filename, callback) => {
       try {
-        const res = await this.evaluator(originalEval, input, context, filename);
-        callback(null, undefined);
+        const str = await this.evaluator(originalEval, input, context, filename);
+        // console.log(str);
+        // this.repl.outputStream.write(str);
+        // await this.repl.outputStream.end();
+        callback(null, str);
       } catch (err) {
         callback(err, null);
       }
