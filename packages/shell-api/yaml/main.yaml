@@ -9,12 +9,12 @@ ReadPreference: &ReadPreference
 
 DBQuery: &DBQuery
     Option:
-        tailable: &DBQuery.tailable 2,
-        slaveOk: &DBQuery.slaveOk 4,
-        oplogReplay: &DBQuery.oplogReplay 8,
-        noTimeout: &DBQuery.noTimeout 16,
-        awaitData: &DBQuery.awaitData 32,
-        exhaust: &DBQuery.exhaust 64,
+        tailable: &DBQuery.tailable 2
+        slaveOk: &DBQuery.slaveOk 4
+        oplogReplay: &DBQuery.oplogReplay 8
+        noTimeout: &DBQuery.noTimeout 16
+        awaitData: &DBQuery.awaitData 32
+        exhaust: &DBQuery.exhaust 64
         partial: &DBQuery.partial 128
 
 ServerVersions: &ServerVersions
@@ -27,8 +27,8 @@ Topologies: &Topologies
     Shard: &Topologies.Shard 2
 
 __all_versions: &__all_server_versions
-    - *ServerVersions.latest
     - *ServerVersions.earliest
+    - *ServerVersions.latest
 
 __all_topologies: &__all_topologies
     - *Topologies.ReplSet

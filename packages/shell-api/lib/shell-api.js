@@ -12,77 +12,77 @@ class AggregationCursor {
     };
     this.bsonsize.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.bsonsize.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.bsonsize.serverVersions = [4.4,0];
+    this.bsonsize.serverVersions = [0,4.4];
     this.bsonsize.topologies = [0,1,2];
     this.close = function() {
       return this.cursor.close(...arguments);
     };
     this.close.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.close.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.close.serverVersions = [4.4,0];
+    this.close.serverVersions = [0,4.4];
     this.close.topologies = [0,1,2];
     this.forEach = function() {
       return this.cursor.forEach(...arguments);
     };
     this.forEach.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.forEach.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.forEach.serverVersions = [4.4,0];
+    this.forEach.serverVersions = [0,4.4];
     this.forEach.topologies = [0,1,2];
     this.hasNext = function() {
       return this.cursor.hasNext(...arguments);
     };
     this.hasNext.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.hasNext.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.hasNext.serverVersions = [4.4,0];
+    this.hasNext.serverVersions = [0,4.4];
     this.hasNext.topologies = [0,1,2];
     this.isClosed = function() {
       return this.cursor.isClosed(...arguments);
     };
     this.isClosed.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isClosed.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.isClosed.serverVersions = [4.4,0];
+    this.isClosed.serverVersions = [0,4.4];
     this.isClosed.topologies = [0,1,2];
     this.isExhausted = function() {
       return this.cursor.isExhausted(...arguments);
     };
     this.isExhausted.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isExhausted.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.isExhausted.serverVersions = [4.4,0];
+    this.isExhausted.serverVersions = [0,4.4];
     this.isExhausted.topologies = [0,1,2];
     this.itcount = function() {
       return this.cursor.itcount(...arguments);
     };
     this.itcount.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.itcount.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.itcount.serverVersions = [4.4,0];
+    this.itcount.serverVersions = [0,4.4];
     this.itcount.topologies = [0,1,2];
     this.map = function() {
       return this.cursor.map(...arguments);
     };
     this.map.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.map.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.map.serverVersions = [4.4,0];
+    this.map.serverVersions = [0,4.4];
     this.map.topologies = [0,1,2];
     this.next = function() {
       return this.cursor.next(...arguments);
     };
     this.next.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.next.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.next.serverVersions = [4.4,0];
+    this.next.serverVersions = [0,4.4];
     this.next.topologies = [0,1,2];
     this.objsLeftInBatch = function() {
       return this.cursor.objsLeftInBatch(...arguments);
     };
     this.objsLeftInBatch.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.objsLeftInBatch.serverVersions = [4.4,0];
+    this.objsLeftInBatch.serverVersions = [0,4.4];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.toArray = function() {
       return this.cursor.toArray(...arguments);
     };
     this.toArray.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.toArray.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.toArray.serverVersions = [4.4,0];
+    this.toArray.serverVersions = [0,4.4];
     this.toArray.topologies = [0,1,2];
   }
 }
@@ -107,7 +107,7 @@ class Collection {
     };
     this.aggregate.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern <document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.\nAttributes: serverVersions, topologies");
     this.aggregate.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.aggregate\n\nCalculates aggregate values for the data in a collection or a view.\n\ndb.collection.aggregate(pipeline, options)\n\npipeline <array> A sequence of data aggregation operations or stages.\noptions <document>\n    explain <bool>\n    allowDiskUse <bool>\n    cursor <document>\n    maxTimeMS <int>\n    bypassDocumentValidation <bool>\n    readConcern <document>\n    collation <document>\n    hint <document>\n    comment <string>\n    writeConcern <document>\n\nReturns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.\nAttributes: serverVersions, topologies");
-    this.aggregate.serverVersions = [4.4,0];
+    this.aggregate.serverVersions = [0,4.4];
     this.aggregate.topologies = [0,1,2];
     this.bulkWrite = function() {
       return this.mapper.bulkWrite(this, ...arguments);
@@ -128,28 +128,28 @@ class Collection {
     };
     this.count.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\nAvoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
     this.count.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.count\n\nReturns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query.\nAvoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.\n\ndb.collection.count(query, options)\n\nquery\t<document>\tThe query selection criteria.\noptions\t<document>\n    limit <integer>\tOptional. The maximum number of documents to count.\n    skip <integer>\tOptional. The number of documents to skip before counting.\n    hint <string or document> Optional. An index name hint or specification for the query.\n    maxTimeMS <integer>\tOptional. The maximum amount of time to allow the query to run.\n    readConcern\t<string>\n    collation <document>\nAttributes: serverVersions, topologies");
-    this.count.serverVersions = [4.4,0];
+    this.count.serverVersions = [0,4.4];
     this.count.topologies = [0,1,2];
     this.deleteMany = function() {
       return this.mapper.deleteMany(this, ...arguments);
     };
     this.deleteMany.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany\n\nRemoves all documents that match the filter from a collection.\n\ndb.collection.deleteMany()\n\nfilter\t<document> Specifies deletion criteria using query operators.\noptions <document>\n    writeConcern <document>\n    collation <document>\n\nReturns: A document containing:\n    A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled\n    deletedCount containing the number of deleted documents\nAttributes: serverVersions, topologies");
     this.deleteMany.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany\n\nRemoves all documents that match the filter from a collection.\n\ndb.collection.deleteMany()\n\nfilter\t<document> Specifies deletion criteria using query operators.\noptions <document>\n    writeConcern <document>\n    collation <document>\n\nReturns: A document containing:\n    A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled\n    deletedCount containing the number of deleted documents\nAttributes: serverVersions, topologies");
-    this.deleteMany.serverVersions = [4.4,0];
+    this.deleteMany.serverVersions = [0,4.4];
     this.deleteMany.topologies = [0,1,2];
     this.deleteOne = function() {
       return this.mapper.deleteOne(this, ...arguments);
     };
     this.deleteOne.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne\n\nRemoves a single document from a collection.\n\ndb.collection.deleteOne(filter, options)\n\nfilter <document> Specifies deletion criteria using query operators.\noptions <document>\n    writeConcern <document>\n    collation <document>\n\nReturns:\tA document containing:\n    A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled\n    deletedCount containing the number of deleted documents\nAttributes: serverVersions, topologies");
     this.deleteOne.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne\n\nRemoves a single document from a collection.\n\ndb.collection.deleteOne(filter, options)\n\nfilter <document> Specifies deletion criteria using query operators.\noptions <document>\n    writeConcern <document>\n    collation <document>\n\nReturns:\tA document containing:\n    A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled\n    deletedCount containing the number of deleted documents\nAttributes: serverVersions, topologies");
-    this.deleteOne.serverVersions = [4.4,0];
+    this.deleteOne.serverVersions = [0,4.4];
     this.deleteOne.topologies = [0,1,2];
     this.distinct = function() {
       return this.mapper.distinct(this, ...arguments);
     };
     this.distinct.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.distinct\n\nFinds the distinct values for a specified field across a single collection or view and returns the results in an array.\n\ndb.collection.distinct(field, query, options)\n\nfield <string> The field for which to return distinct values.\nquery <document> A query that specifies the documents from which to retrieve the distinct values.\noptions\t<document>\n    collation <document>\n\nReturns: The results in an array.\nAttributes: serverVersions, topologies");
     this.distinct.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.distinct\n\nFinds the distinct values for a specified field across a single collection or view and returns the results in an array.\n\ndb.collection.distinct(field, query, options)\n\nfield <string> The field for which to return distinct values.\nquery <document> A query that specifies the documents from which to retrieve the distinct values.\noptions\t<document>\n    collation <document>\n\nReturns: The results in an array.\nAttributes: serverVersions, topologies");
-    this.distinct.serverVersions = [4.4,0];
+    this.distinct.serverVersions = [0,4.4];
     this.distinct.topologies = [0,1,2];
     this.estimatedDocumentCount = function() {
       return this.mapper.estimatedDocumentCount(this, ...arguments);
@@ -163,21 +163,21 @@ class Collection {
     };
     this.find.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
     this.find.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.find\n\nSelects documents in a collection or view.\n\ndb.collection.find(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
-    this.find.serverVersions = [4.4,0];
+    this.find.serverVersions = [0,4.4];
     this.find.topologies = [0,1,2];
     this.findAndModify = function() {
       return this.mapper.findAndModify(this, ...arguments);
     };
     this.findAndModify.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify\n\nModifies and returns a single document.\n\ndb.collection.findAndModify(document)\n\ndocument <document>\n    query <document>,\n    sort <document>,\n    remove <boolean>,\n    update <document or aggregation pipeline>, // Changed in MongoDB 4.2\n    new <boolean>,\n    fields <document>,\n    upsert <boolean>,\n    bypassDocumentValidation <boolean>,\n    writeConcern <document>,\n    collation <document>,\n    arrayFilters [ <filterdocument1>, ... ]\n\nReturns: For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.\nAttributes: serverVersions, topologies");
     this.findAndModify.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify\n\nModifies and returns a single document.\n\ndb.collection.findAndModify(document)\n\ndocument <document>\n    query <document>,\n    sort <document>,\n    remove <boolean>,\n    update <document or aggregation pipeline>, // Changed in MongoDB 4.2\n    new <boolean>,\n    fields <document>,\n    upsert <boolean>,\n    bypassDocumentValidation <boolean>,\n    writeConcern <document>,\n    collation <document>,\n    arrayFilters [ <filterdocument1>, ... ]\n\nReturns: For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.\nAttributes: serverVersions, topologies");
-    this.findAndModify.serverVersions = [4.4,0];
+    this.findAndModify.serverVersions = [0,4.4];
     this.findAndModify.topologies = [0,1,2];
     this.findOne = function() {
       return this.mapper.findOne(this, ...arguments);
     };
     this.findOne.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findOne\n\nSelects documents in a collection or view.\n\ndb.collection.findOne(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
     this.findOne.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.findOne\n\nSelects documents in a collection or view.\n\ndb.collection.findOne(query, projection)\n\nquery <document> Optional. Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).\nprojection <document> Optional. Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.\n\nReturns: A cursor to the documents that match the query criteria.\nAttributes: serverVersions, topologies");
-    this.findOne.serverVersions = [4.4,0];
+    this.findOne.serverVersions = [0,4.4];
     this.findOne.topologies = [0,1,2];
     this.findOneAndDelete = function() {
       return this.mapper.findOneAndDelete(this, ...arguments);
@@ -205,7 +205,7 @@ class Collection {
     };
     this.insert.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.insert\n\nInserts a document or documents into a collection.\n\ndb.collection.insert(document, options)\n\ndocument <document or array> A document or array of documents to insert into the collection.\noptions <document>\n    writeConcern: <document>\n    ordered: <boolean>\nAttributes: serverVersions, topologies");
     this.insert.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.insert\n\nInserts a document or documents into a collection.\n\ndb.collection.insert(document, options)\n\ndocument <document or array> A document or array of documents to insert into the collection.\noptions <document>\n    writeConcern: <document>\n    ordered: <boolean>\nAttributes: serverVersions, topologies");
-    this.insert.serverVersions = [4.4,0];
+    this.insert.serverVersions = [0,4.4];
     this.insert.topologies = [0,1,2];
     this.insertMany = function() {
       return this.mapper.insertMany(this, ...arguments);
@@ -226,21 +226,21 @@ class Collection {
     };
     this.isCapped.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.isCapped\n\ndb.collection.isCapped()\n\nReturns true if the collection is a capped collection, otherwise returns false.\nAttributes: serverVersions, topologies");
     this.isCapped.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.isCapped\n\ndb.collection.isCapped()\n\nReturns true if the collection is a capped collection, otherwise returns false.\nAttributes: serverVersions, topologies");
-    this.isCapped.serverVersions = [4.4,0];
+    this.isCapped.serverVersions = [0,4.4];
     this.isCapped.topologies = [0,1,2];
     this.remove = function() {
       return this.mapper.remove(this, ...arguments);
     };
     this.remove.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: The status of the operation.\nAttributes: serverVersions, topologies");
     this.remove.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.remove\n\nRemoves documents from a collection.\n\nThe db.collection.remove() method can have one of two syntaxes. The remove() method can take a query document and an optional justOne boolean:\n\ndb.collection.remove(\n   <query>,\n   <justOne>\n)\nOr the method can take a query document and an optional remove options document:\n\nNew in version 2.6.\n\ndb.collection.remove(\n   <query>,\n   {\n     justOne: <boolean>,\n     writeConcern: <document>,\n     collation: <document>\n   }\n)\n\nReturns: The status of the operation.\nAttributes: serverVersions, topologies");
-    this.remove.serverVersions = [4.4,0];
+    this.remove.serverVersions = [0,4.4];
     this.remove.topologies = [0,1,2];
     this.save = function() {
       return this.mapper.save(this, ...arguments);
     };
     this.save.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.save\n\nUpdates an existing document or inserts a new document, depending on its document parameter.\n\ndb.collection.save(document, options)\n\ndocument <document> A document to save to the collection.\noptions <document>\n    writeConcern <document>\n\nReturns: A WriteResult object that contains the status of the operation.\nChanged in version 2.6: The save() returns an object that contains the status of the operation.\nAttributes: serverVersions, topologies");
     this.save.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.save\n\nUpdates an existing document or inserts a new document, depending on its document parameter.\n\ndb.collection.save(document, options)\n\ndocument <document> A document to save to the collection.\noptions <document>\n    writeConcern <document>\n\nReturns: A WriteResult object that contains the status of the operation.\nChanged in version 2.6: The save() returns an object that contains the status of the operation.\nAttributes: serverVersions, topologies");
-    this.save.serverVersions = [4.4,0];
+    this.save.serverVersions = [0,4.4];
     this.save.topologies = [0,1,2];
     this.replaceOne = function() {
       return this.mapper.replaceOne(this, ...arguments);
@@ -254,7 +254,7 @@ class Collection {
     };
     this.update.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.update\n\nModifies an existing document or documents in a collection.\n\ndb.collection.update(query, update, options)\n\nfilter <document> The selection criteria for the update.\nupdate <document> The modifications to apply.\noptions <document>\nupsert: <boolean>,\n     multi <boolean>\n     writeConcern <document>\n     collation <document>\n     arrayFilters [ <filterdocument1>, ... ]\n     hint  <document|string>        // Available starting in MongoDB 4.2\nAttributes: serverVersions, topologies");
     this.update.help.toReplString = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.update\n\nModifies an existing document or documents in a collection.\n\ndb.collection.update(query, update, options)\n\nfilter <document> The selection criteria for the update.\nupdate <document> The modifications to apply.\noptions <document>\nupsert: <boolean>,\n     multi <boolean>\n     writeConcern <document>\n     collation <document>\n     arrayFilters [ <filterdocument1>, ... ]\n     hint  <document|string>        // Available starting in MongoDB 4.2\nAttributes: serverVersions, topologies");
-    this.update.serverVersions = [4.4,0];
+    this.update.serverVersions = [0,4.4];
     this.update.topologies = [0,1,2];
     this.updateMany = function() {
       return this.mapper.updateMany(this, ...arguments);
@@ -292,35 +292,35 @@ class Cursor {
     };
     this.allowPartialResults.help = () => ("Sets the 'partial' option to true.\nAttributes: serverVersions, topologies");
     this.allowPartialResults.help.toReplString = () => ("Sets the 'partial' option to true.\nAttributes: serverVersions, topologies");
-    this.allowPartialResults.serverVersions = [4.4,0];
+    this.allowPartialResults.serverVersions = [0,4.4];
     this.allowPartialResults.topologies = [0,1,2];
     this.arrayAccess = function() {
       return this.cursor.arrayAccess(...arguments);
     };
     this.arrayAccess.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.arrayAccess.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.arrayAccess.serverVersions = [4.4,0];
+    this.arrayAccess.serverVersions = [0,4.4];
     this.arrayAccess.topologies = [0,1,2];
     this.batchSize = function() {
       return this.cursor.batchSize(...arguments);
     };
     this.batchSize.help = () => ("Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.\nAttributes: serverVersions, topologies");
     this.batchSize.help.toReplString = () => ("Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.\nAttributes: serverVersions, topologies");
-    this.batchSize.serverVersions = [4.4,0];
+    this.batchSize.serverVersions = [0,4.4];
     this.batchSize.topologies = [0,1,2];
     this.clone = function() {
       return this.cursor.clone(...arguments);
     };
     this.clone.help = () => ("Clone the cursor.\nAttributes: serverVersions, topologies");
     this.clone.help.toReplString = () => ("Clone the cursor.\nAttributes: serverVersions, topologies");
-    this.clone.serverVersions = [4.4,0];
+    this.clone.serverVersions = [0,4.4];
     this.clone.topologies = [0,1,2];
     this.close = function() {
       return this.cursor.close(...arguments);
     };
     this.close.help = () => ("Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.\nAttributes: serverVersions, topologies");
     this.close.help.toReplString = () => ("Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.\nAttributes: serverVersions, topologies");
-    this.close.serverVersions = [4.4,0];
+    this.close.serverVersions = [0,4.4];
     this.close.topologies = [0,1,2];
     this.collation = function() {
       return this.cursor.collation(...arguments);
@@ -341,7 +341,7 @@ class Cursor {
     };
     this.count.help = () => ("Counts the number of documents referenced by a cursor.\nAttributes: serverVersions, topologies, serverVersion");
     this.count.help.toReplString = () => ("Counts the number of documents referenced by a cursor.\nAttributes: serverVersions, topologies, serverVersion");
-    this.count.serverVersions = [4.4,0];
+    this.count.serverVersions = [0,4.4];
     this.count.topologies = [0,1,2];
     this.count.serverVersion = [0,4];
     this.explain = function() {
@@ -349,84 +349,84 @@ class Cursor {
     };
     this.explain.help = () => ("Provides information on the query plan for the db.collection.find() method.\nAttributes: serverVersions, topologies");
     this.explain.help.toReplString = () => ("Provides information on the query plan for the db.collection.find() method.\nAttributes: serverVersions, topologies");
-    this.explain.serverVersions = [4.4,0];
+    this.explain.serverVersions = [0,4.4];
     this.explain.topologies = [0,1,2];
     this.forEach = function() {
       return this.cursor.forEach(...arguments);
     };
     this.forEach.help = () => ("Iterates the cursor to apply a JavaScript function to each document from the cursor.\nAttributes: serverVersions, topologies");
     this.forEach.help.toReplString = () => ("Iterates the cursor to apply a JavaScript function to each document from the cursor.\nAttributes: serverVersions, topologies");
-    this.forEach.serverVersions = [4.4,0];
+    this.forEach.serverVersions = [0,4.4];
     this.forEach.topologies = [0,1,2];
     this.getQueryPlan = function() {
       return this.cursor.getQueryPlan(...arguments);
     };
     this.getQueryPlan.help = () => ("Runs cursor.explain()\nAttributes: serverVersions, topologies");
     this.getQueryPlan.help.toReplString = () => ("Runs cursor.explain()\nAttributes: serverVersions, topologies");
-    this.getQueryPlan.serverVersions = [4.4,0];
+    this.getQueryPlan.serverVersions = [0,4.4];
     this.getQueryPlan.topologies = [0,1,2];
     this.hasNext = function() {
       return this.cursor.hasNext(...arguments);
     };
     this.hasNext.help = () => ("cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.\nAttributes: serverVersions, topologies");
     this.hasNext.help.toReplString = () => ("cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.\nAttributes: serverVersions, topologies");
-    this.hasNext.serverVersions = [4.4,0];
+    this.hasNext.serverVersions = [0,4.4];
     this.hasNext.topologies = [0,1,2];
     this.hint = function() {
       return this.cursor.hint(...arguments);
     };
     this.hint.help = () => ("Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.\nAttributes: serverVersions, topologies");
     this.hint.help.toReplString = () => ("Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.\nAttributes: serverVersions, topologies");
-    this.hint.serverVersions = [4.4,0];
+    this.hint.serverVersions = [0,4.4];
     this.hint.topologies = [0,1,2];
     this.isClosed = function() {
       return this.cursor.isClosed(...arguments);
     };
     this.isClosed.help = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
     this.isClosed.help.toReplString = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
-    this.isClosed.serverVersions = [4.4,0];
+    this.isClosed.serverVersions = [0,4.4];
     this.isClosed.topologies = [0,1,2];
     this.isExhausted = function() {
       return this.cursor.isExhausted(...arguments);
     };
     this.isExhausted.help = () => ("cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.\nAttributes: serverVersions, topologies");
     this.isExhausted.help.toReplString = () => ("cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.\nAttributes: serverVersions, topologies");
-    this.isExhausted.serverVersions = [4.4,0];
+    this.isExhausted.serverVersions = [0,4.4];
     this.isExhausted.topologies = [0,1,2];
     this.itcount = function() {
       return this.cursor.itcount(...arguments);
     };
     this.itcount.help = () => ("Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.\nAttributes: serverVersions, topologies");
     this.itcount.help.toReplString = () => ("Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.\nAttributes: serverVersions, topologies");
-    this.itcount.serverVersions = [4.4,0];
+    this.itcount.serverVersions = [0,4.4];
     this.itcount.topologies = [0,1,2];
     this.length = function() {
       return this.cursor.length(...arguments);
     };
     this.length.help = () => ("Runs cursor.count()\nAttributes: serverVersions, topologies");
     this.length.help.toReplString = () => ("Runs cursor.count()\nAttributes: serverVersions, topologies");
-    this.length.serverVersions = [4.4,0];
+    this.length.serverVersions = [0,4.4];
     this.length.topologies = [0,1,2];
     this.limit = function() {
       return this.cursor.limit(...arguments);
     };
     this.limit.help = () => ("Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.\nAttributes: serverVersions, topologies");
     this.limit.help.toReplString = () => ("Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.\nAttributes: serverVersions, topologies");
-    this.limit.serverVersions = [4.4,0];
+    this.limit.serverVersions = [0,4.4];
     this.limit.topologies = [0,1,2];
     this.map = function() {
       return this.cursor.map(...arguments);
     };
     this.map.help = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
     this.map.help.toReplString = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
-    this.map.serverVersions = [4.4,0];
+    this.map.serverVersions = [0,4.4];
     this.map.topologies = [0,1,2];
     this.max = function() {
       return this.cursor.max(...arguments);
     };
     this.max.help = () => ("Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.\nAttributes: serverVersions, topologies");
     this.max.help.toReplString = () => ("Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.\nAttributes: serverVersions, topologies");
-    this.max.serverVersions = [4.4,0];
+    this.max.serverVersions = [0,4.4];
     this.max.topologies = [0,1,2];
     this.maxScan = function() {
       return this.cursor.maxScan(...arguments);
@@ -440,63 +440,63 @@ class Cursor {
     };
     this.maxTimeMS.help = () => ("Specifies a cumulative time limit in milliseconds for processing operations on a cursor.\nAttributes: serverVersions, topologies");
     this.maxTimeMS.help.toReplString = () => ("Specifies a cumulative time limit in milliseconds for processing operations on a cursor.\nAttributes: serverVersions, topologies");
-    this.maxTimeMS.serverVersions = [4.4,0];
+    this.maxTimeMS.serverVersions = [0,4.4];
     this.maxTimeMS.topologies = [0,1,2];
     this.min = function() {
       return this.cursor.min(...arguments);
     };
     this.min.help = () => ("Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.\nAttributes: serverVersions, topologies");
     this.min.help.toReplString = () => ("Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.\nAttributes: serverVersions, topologies");
-    this.min.serverVersions = [4.4,0];
+    this.min.serverVersions = [0,4.4];
     this.min.topologies = [0,1,2];
     this.modifiers = function() {
       return this.cursor.modifiers(...arguments);
     };
     this.modifiers.help = () => ("Get query modifiers.\nAttributes: serverVersions, topologies");
     this.modifiers.help.toReplString = () => ("Get query modifiers.\nAttributes: serverVersions, topologies");
-    this.modifiers.serverVersions = [4.4,0];
+    this.modifiers.serverVersions = [0,4.4];
     this.modifiers.topologies = [0,1,2];
     this.next = function() {
       return this.cursor.next(...arguments);
     };
     this.next.help = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
     this.next.help.toReplString = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
-    this.next.serverVersions = [4.4,0];
+    this.next.serverVersions = [0,4.4];
     this.next.topologies = [0,1,2];
     this.noCursorTimeout = function() {
       return this.cursor.noCursorTimeout(...arguments);
     };
     this.noCursorTimeout.help = () => ("Instructs the server to avoid closing a cursor automatically after a period of inactivity.\nAttributes: serverVersions, topologies");
     this.noCursorTimeout.help.toReplString = () => ("Instructs the server to avoid closing a cursor automatically after a period of inactivity.\nAttributes: serverVersions, topologies");
-    this.noCursorTimeout.serverVersions = [4.4,0];
+    this.noCursorTimeout.serverVersions = [0,4.4];
     this.noCursorTimeout.topologies = [0,1,2];
     this.objsLeftInBatch = function() {
       return this.cursor.objsLeftInBatch(...arguments);
     };
     this.objsLeftInBatch.help = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.help.toReplString = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
-    this.objsLeftInBatch.serverVersions = [4.4,0];
+    this.objsLeftInBatch.serverVersions = [0,4.4];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.oplogReplay = function() {
       return this.cursor.oplogReplay(...arguments);
     };
     this.oplogReplay.help = () => ("Sets oplogReplay cursor flag to true.\nAttributes: serverVersions, topologies");
     this.oplogReplay.help.toReplString = () => ("Sets oplogReplay cursor flag to true.\nAttributes: serverVersions, topologies");
-    this.oplogReplay.serverVersions = [4.4,0];
+    this.oplogReplay.serverVersions = [0,4.4];
     this.oplogReplay.topologies = [0,1,2];
     this.projection = function() {
       return this.cursor.projection(...arguments);
     };
     this.projection.help = () => ("Sets a field projection for the query.\nAttributes: serverVersions, topologies");
     this.projection.help.toReplString = () => ("Sets a field projection for the query.\nAttributes: serverVersions, topologies");
-    this.projection.serverVersions = [4.4,0];
+    this.projection.serverVersions = [0,4.4];
     this.projection.topologies = [0,1,2];
     this.pretty = function() {
       return this.cursor.pretty(...arguments);
     };
     this.pretty.help = () => ("Configures the cursor to display results in an easy-to-read format.\nAttributes: serverVersions, topologies");
     this.pretty.help.toReplString = () => ("Configures the cursor to display results in an easy-to-read format.\nAttributes: serverVersions, topologies");
-    this.pretty.serverVersions = [4.4,0];
+    this.pretty.serverVersions = [0,4.4];
     this.pretty.topologies = [0,1,2];
     this.readConcern = function() {
       return this.cursor.readConcern(...arguments);
@@ -510,14 +510,14 @@ class Cursor {
     };
     this.readOnly.help = () => ("TODO\nAttributes: serverVersions, topologies");
     this.readOnly.help.toReplString = () => ("TODO\nAttributes: serverVersions, topologies");
-    this.readOnly.serverVersions = [4.4,0];
+    this.readOnly.serverVersions = [0,4.4];
     this.readOnly.topologies = [0,1,2];
     this.readPref = function() {
       return this.cursor.readPref(...arguments);
     };
     this.readPref.help = () => ("Append readPref() to a cursor to control how the client routes the query to members of the replica set.\nAttributes: serverVersions, topologies");
     this.readPref.help.toReplString = () => ("Append readPref() to a cursor to control how the client routes the query to members of the replica set.\nAttributes: serverVersions, topologies");
-    this.readPref.serverVersions = [4.4,0];
+    this.readPref.serverVersions = [0,4.4];
     this.readPref.topologies = [0,1,2];
     this.returnKey = function() {
       return this.cursor.returnKey(...arguments);
@@ -531,28 +531,28 @@ class Cursor {
     };
     this.showDiskLoc.help = () => ("The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.\nAttributes: serverVersions, topologies");
     this.showDiskLoc.help.toReplString = () => ("The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.\nAttributes: serverVersions, topologies");
-    this.showDiskLoc.serverVersions = [4.4,0];
+    this.showDiskLoc.serverVersions = [0,4.4];
     this.showDiskLoc.topologies = [0,1,2];
     this.showRecordId = function() {
       return this.cursor.showRecordId(...arguments);
     };
     this.showRecordId.help = () => ("Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.\nAttributes: serverVersions, topologies");
     this.showRecordId.help.toReplString = () => ("Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.\nAttributes: serverVersions, topologies");
-    this.showRecordId.serverVersions = [4.4,0];
+    this.showRecordId.serverVersions = [0,4.4];
     this.showRecordId.topologies = [0,1,2];
     this.size = function() {
       return this.cursor.size(...arguments);
     };
     this.size.help = () => ("A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.\nAttributes: serverVersions, topologies");
     this.size.help.toReplString = () => ("A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.\nAttributes: serverVersions, topologies");
-    this.size.serverVersions = [4.4,0];
+    this.size.serverVersions = [0,4.4];
     this.size.topologies = [0,1,2];
     this.skip = function() {
       return this.cursor.skip(...arguments);
     };
     this.skip.help = () => ("Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.\nAttributes: serverVersions, topologies");
     this.skip.help.toReplString = () => ("Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.\nAttributes: serverVersions, topologies");
-    this.skip.serverVersions = [4.4,0];
+    this.skip.serverVersions = [0,4.4];
     this.skip.topologies = [0,1,2];
     this.snapshot = function() {
       return this.cursor.snapshot(...arguments);
@@ -566,7 +566,7 @@ class Cursor {
     };
     this.sort.help = () => ("Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.\nAttributes: serverVersions, topologies");
     this.sort.help.toReplString = () => ("Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.\nAttributes: serverVersions, topologies");
-    this.sort.serverVersions = [4.4,0];
+    this.sort.serverVersions = [0,4.4];
     this.sort.topologies = [0,1,2];
     this.tailable = function() {
       return this.cursor.tailable(...arguments);
@@ -580,7 +580,7 @@ class Cursor {
     };
     this.toArray.help = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
-    this.toArray.serverVersions = [4.4,0];
+    this.toArray.serverVersions = [0,4.4];
     this.toArray.topologies = [0,1,2];
   }
 }
@@ -605,7 +605,7 @@ class Database {
     };
     this.runCommand.help = () => ("Runs an arbitrary command on the database.\nAttributes: serverVersions, topologies");
     this.runCommand.help.toReplString = () => ("Runs an arbitrary command on the database.\nAttributes: serverVersions, topologies");
-    this.runCommand.serverVersions = [4.4,0];
+    this.runCommand.serverVersions = [0,4.4];
     this.runCommand.topologies = [0,1,2];
 
     return new Proxy(this, handler);
@@ -656,14 +656,14 @@ class ShellApi {
     };
     this.use.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.use.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.use.serverVersions = [4.4,0];
+    this.use.serverVersions = [0,4.4];
     this.use.topologies = [0,1,2];
     this.it = function() {
       return this.mapper.it(this, ...arguments);
     };
     this.it.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.it.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.it.serverVersions = [4.4,0];
+    this.it.serverVersions = [0,4.4];
     this.it.topologies = [0,1,2];
   }
 }
@@ -684,12 +684,12 @@ const ReadPreference = Object.freeze({
 });
 const DBQuery = Object.freeze({
  "Option": {
-  "tailable": "2,",
-  "slaveOk": "4,",
-  "oplogReplay": "8,",
-  "noTimeout": "16,",
-  "awaitData": "32,",
-  "exhaust": "64,",
+  "tailable": 2,
+  "slaveOk": 4,
+  "oplogReplay": 8,
+  "noTimeout": 16,
+  "awaitData": 32,
+  "exhaust": 64,
   "partial": 128
  }
 });
