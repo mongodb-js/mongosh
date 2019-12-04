@@ -39,13 +39,13 @@ __all_topologies: &__all_topologies
 __defaultClass: &__defaultClass
     # List of arguments to the constructor that will get stored as attributes.
     __constructorArgs:
-        - mapper
+        - _mapper
     # The value that will be returned when class is printed.
     __stringRep: null # null will allow default printing
     # How to construct methods
     __methods:
         # What attribute should this class pass method calls to
-        wrappee: 'mapper'
+        wrappee: '_mapper'
         # Any extra args that should be passed to wrappee. If none, set to ''
         firstArg: 'this'
 

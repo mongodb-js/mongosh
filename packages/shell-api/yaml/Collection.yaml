@@ -1,11 +1,11 @@
 class:
     <<: *__defaultClass
     __constructorArgs:
-        - mapper
-        - database
-        - collection
+        - _mapper
+        - _database
+        - _collection
     __stringRep:
-        - collection
+        - _collection
     help: 'The collection class.'
 
     aggregate:

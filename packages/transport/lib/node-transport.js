@@ -208,6 +208,13 @@ var Cursor = /** @class */ (function () {
     };
     return Cursor;
 }());
+var DeleteResult = /** @class */ (function () {
+    function DeleteResult(driverResult) {
+        this.acknowledged = driverResult.acknowledged;
+        this.deletedCount = driverResult.deletedCount;
+    }
+    return DeleteResult;
+}());
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
@@ -259,7 +266,7 @@ var NodeTransport = /** @class */ (function () {
         if (pipeline === void 0) { pipeline = []; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(db, dbOptions).collection(coll).aggregate(pipeline, options);
+        return new Cursor(this._db(db, dbOptions).collection(coll).aggregate(pipeline, options));
     };
     /**
      * Run an aggregation pipeline on a database.
@@ -275,7 +282,7 @@ var NodeTransport = /** @class */ (function () {
         if (pipeline === void 0) { pipeline = []; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(db, dbOptions).aggregate(pipeline, options);
+        return new Cursor(this._db(db, dbOptions).aggregate(pipeline, options));
     };
     /**
      * Execute a mix of write operations.
@@ -341,7 +348,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(db, dbOptions).collection(coll).deleteMany(filter, options);
+        return new DeleteResult(this._db(db, dbOptions).collection(coll).deleteMany(filter, options));
     };
     /**
      * Delete one document from the coll.

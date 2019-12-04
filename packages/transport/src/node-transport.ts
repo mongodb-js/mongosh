@@ -207,7 +207,9 @@ class NodeTransport {
    * @returns {Promise} The promise of the aggregation cursor.
    */
   aggregate(db, coll, pipeline = [], options = {}, dbOptions = {}) {
-    return this._db(db, dbOptions).collection(coll).aggregate(pipeline, options);
+    return new Cursor(
+        this._db(db, dbOptions).collection(coll).aggregate(pipeline, options)
+    );
   }
 
   /**
@@ -221,7 +223,9 @@ class NodeTransport {
    * @returns {Promise} The promise of the aggregation cursor.
    */
   aggregateDb(db, pipeline = [], options = {}, dbOptions = {}) {
-    return this._db(db, dbOptions).aggregate(pipeline, options);
+    return new Cursor(
+        this._db(db, dbOptions).aggregate(pipeline, options)
+    );
   }
 
   /**
@@ -280,7 +284,7 @@ class NodeTransport {
    * @returns {Promise} The promise of the result.
    */
   deleteMany(db, coll, filter = {}, options = {}, dbOptions = {}) {
-    return this._db(db, dbOptions).collection(coll).deleteMany(filter, options);
+    this._db(db, dbOptions).collection(coll).deleteMany(filter, options)
   }
 
   /**

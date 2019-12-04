@@ -9,7 +9,7 @@ const YAML_DIR = 'yaml';
 const proxyTemplate = (contents) => (`    const handler = {
       get: function (obj, prop) {
         if (!(prop in obj)) {
-          obj[prop] = new Collection(mapper, database, prop);
+          obj[prop] = new Collection(_mapper, _database, prop);
         }
         return obj[prop];
       }
@@ -31,9 +31,13 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    const attributesToList = Object.keys(lib).filter(
+    let attributesToList = Object.keys(lib).filter(
       (a) => (!a.startsWith('__') && a !== 'help')
     );
+    if ('__constructorArgs' in lib) {
+      const constructorArgs = lib.__constructorArgs.filter((a) => (!a.startsWith('_')));
+      attributesToList = attributesToList.concat(constructorArgs);
+    }
     const helpValue = `${attr}
 Attributes: ${attributesToList.join(', ')}`;
 

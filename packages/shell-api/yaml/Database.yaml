@@ -1,10 +1,10 @@
 class:
     <<: *__defaultClass
     __constructorArgs:
-        - mapper
-        - database
+        - _mapper
+        - _database
     __stringRep:
-        - database
+        - _database
     help: 'The database class.'
     runCommand:
         <<: *__defaultMethod

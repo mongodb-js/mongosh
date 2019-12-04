@@ -69,8 +69,8 @@ class Mapper {
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
   aggregate(collection, pipeline, options = {}) {
-    const db = collection.database;
-    const coll = collection.collection;
+    const db = collection._database;
+    const coll = collection._collection;
 
     const dbOptions = {};
     if ('readConcern' in options) {
@@ -126,10 +126,9 @@ class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     return new BulkWriteResult(
-      this,
       this._serviceProvider.bulkWrite(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         operations,
         options,
         dbOptions
@@ -155,8 +154,8 @@ class Mapper {
       dbOpts.readConcern = options.readConcern;
     }
     return this._serviceProvider.count(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       query,
       options,
       dbOpts
@@ -175,8 +174,8 @@ class Mapper {
    */
   countDocuments(collection, query, options = {}) {
     return this._serviceProvider.countDocuments(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       query,
       options
     )
@@ -200,15 +199,17 @@ class Mapper {
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
+    const result = this._serviceProvider.deleteMany(
+      collection._database,
+      collection._collection,
+      filter,
+      options,
+      dbOptions
+    );
     return new DeleteResult(
-      this,
-      this._serviceProvider.deleteMany(
-        collection.database,
-        collection.collection,
-        filter,
-        options,
-        dbOptions
-      )
+      result.acknowledged,
+      result.deltedCount
     );
   };
 
@@ -233,8 +234,8 @@ class Mapper {
     return new DeleteResult(
       this,
       this._serviceProvider.deleteOne(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         filter,
         options,
         dbOptions
@@ -257,8 +258,8 @@ class Mapper {
    */
   distinct(collection, field, query, options = {}) {
     return this._serviceProvider.distinct(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       field,
       query,
       options,
@@ -276,8 +277,8 @@ class Mapper {
    */
   estimatedDocumentCount(collection, options = {}) {
     return this._serviceProvider.estimatedDocumentCount(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       options,
     );
   };
@@ -302,8 +303,8 @@ class Mapper {
     return this.currentCursor = new Cursor(
       this,
       this._serviceProvider.find(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         query,
         options
       )
@@ -329,8 +330,8 @@ class Mapper {
     return new Cursor(
       this,
       this._serviceProvider.find(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         query,
         options
       )
@@ -339,8 +340,8 @@ class Mapper {
 
   // findAndModify(collection, document) {
   //   return this._serviceProvider.findAndModify(
-  //     collection.database,
-  //     collection.collection,
+  //     collection._database,
+  //     collection._collection,
   //     document,
   //   );
   // };
@@ -357,8 +358,8 @@ class Mapper {
    */
   findOneAndDelete(collection, filter, options = {}) {
     return this._serviceProvider.findOneAndDelete(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       filter,
       options,
     );
@@ -386,8 +387,8 @@ class Mapper {
       delete findOneAndReplaceOptions.returnNewDocument;
     }
     return this._serviceProvider.findOneAndReplace(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       filter,
       replacement,
       findOneAndReplaceOptions
@@ -415,8 +416,8 @@ class Mapper {
       delete findOneAndUpdateOptions.returnNewDocument;
     }
     return this._serviceProvider.findOneAndUpdate(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       filter,
       update,
       options,
@@ -444,8 +445,8 @@ class Mapper {
     return new InsertManyResult(
       this,
       this._serviceProvider.insertMany(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         d,
         options,
         dbOptions
@@ -475,8 +476,8 @@ class Mapper {
     return new InsertManyResult(
       this,
       this._serviceProvider.insertMany(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         docs,
         options,
         dbOptions
@@ -506,8 +507,8 @@ class Mapper {
     return new InsertOneResult(
       this,
       this._serviceProvider.insertOne(
-        collection.database,
-        collection.collection,
+        collection._database,
+        collection._collection,
         doc,
         options,
         dbOptions
@@ -523,8 +524,8 @@ class Mapper {
    */
   isCapped(collection) {
     return this._serviceProvider.isCapped(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
     );
   };
 
@@ -553,8 +554,8 @@ class Mapper {
       removeOptions = options;
     }
     return this._serviceProvider.remove(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       query,
       removeOptions,
       dbOptions
@@ -568,8 +569,8 @@ class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     return this._serviceProvider.save(
-      collection.database,
-      collection.collection,
+      collection._database,
+      collection._collection,
       doc,
       options,
       dbOptions
@@ -600,8 +601,8 @@ class Mapper {
     return new UpdateResult(
       this,
       this._serviceProvider.replaceOne(
-        collection.collection,
-        collection.database,
+        collection._collection,
+        collection._database,
         filter,
         replacement,
         options,
@@ -619,22 +620,22 @@ class Mapper {
    * @returns {Promise} The promise of command results. TODO: command result object
    */
   runCommand(database, cmd) {
-    return this._serviceProvider.runCommand(database.database, cmd);
+    return this._serviceProvider.runCommand(database._database, cmd);
   };
 
   update(collection, filter, update, options = {}) {
     if (options.multi) {
       return this._serviceProvider.updateMany(
-        collection.collection,
-        collection.database,
+        collection._collection,
+        collection._database,
         filter,
         update,
         options,
       );
     } else {
       return this._serviceProvider.updateOne(
-        collection.collection,
-        collection.database,
+        collection._collection,
+        collection._database,
         filter,
         update,
         options,
@@ -664,8 +665,8 @@ class Mapper {
     return new UpdateResult(
       this,
       this._serviceProvider.updateMany(
-        collection.collection,
-        collection.database,
+        collection._collection,
+        collection._database,
         filter,
         update,
         options,
@@ -696,8 +697,8 @@ class Mapper {
     return new UpdateResult(
       this,
       this._serviceProvider.updateMany(
-        collection.collection,
-        collection.database,
+        collection._collection,
+        collection._database,
         filter,
         update,
         options,

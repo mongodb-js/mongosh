@@ -1,12 +1,12 @@
 class:
     <<: *__defaultClass
     __constructorArgs:
-        - mapper
-        - cursor
+        - _mapper
+        - _cursor
     __stringRep:
-        - mapper.it()
+        - _mapper.it()
     __methods:
-        wrappee: cursor
+        wrappee: _cursor
         firstArg: ''
     help: 'The aggregation cursor class.'
     bsonsize: *__defaultMethod # TODO
