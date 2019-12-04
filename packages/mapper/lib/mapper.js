@@ -12,6 +12,10 @@ const {
 class Mapper {
   constructor(serviceProvider) {
     this._serviceProvider = serviceProvider;
+    /* Internal state gets stored in mapper, state that is visible to the user
+     * is stored in ctx */
+    this.currentCursor = null;
+    this.cursorAssigned = false;
   }
 
   setCtx(ctx) {
@@ -26,12 +30,12 @@ class Mapper {
   };
 
   async it() {
-    if (this._ctx._currentCursor) {
+    if (this.currentCursor && !this.cursorAssigned) {
       const results = [];
       for (let i = 0; i < 20; i++) {
-        const hasNext = await this._ctx._currentCursor.hasNext();
+        const hasNext = await this.currentCursor.hasNext();
         if (hasNext) {
-          results.push(this._ctx._currentCursor.next());
+          results.push(this.currentCursor.next());
         } else {
           break;
         }
@@ -305,7 +309,7 @@ class Mapper {
       ),
       this
     );
-    this._ctx._currentCursor = c;
+    this.currentCursor = c;
     return c;
   };
 

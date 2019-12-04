@@ -60,6 +60,8 @@ class CliRepl {
         return this.shellApi.it();
       case 'help()':
         return this.shellApi.help;
+      case 'var':
+        this.mapper.cursorAssigned = true;
       default:
         const finalValue = await originalEval(input, context, filename);
         return await this.writer(finalValue);
@@ -86,6 +88,8 @@ class CliRepl {
         callback(null, str);
       } catch (err) {
         callback(err, null);
+      } finally {
+        this.mapper.cursorAssigned = false;
       }
     };
 
