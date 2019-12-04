@@ -1,12 +1,12 @@
-__constructorArgs:
-    - mapper
-    - database
-__stringRep:
-    - database
-help:
-    <<: *__defaultAttr
-    __value: The database class.
-runCommand:
-    <<: *__defaultMethod
-    help: |-
-        Runs an arbitrary command on the database.
+class:
+    <<: *__defaultClass
+    __constructorArgs:
+        - mapper
+        - database
+    __stringRep:
+        - database
+    help: 'The database class.'
+    runCommand:
+        <<: *__defaultMethod
+        help: |-
+            Runs an arbitrary command on the database.

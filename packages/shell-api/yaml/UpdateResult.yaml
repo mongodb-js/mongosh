@@ -1,7 +1,3 @@
-__constructorArgs:
-    - temp
-__stringRep:
-    - 'TempClass'
-help:
-    <<: *__defaultAttr
-    __value: 'A temp class.'
+class:
+    <<: *__defaultClass
+    help: 'The UpdateResult class.'

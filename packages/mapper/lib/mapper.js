@@ -300,17 +300,15 @@ class Mapper {
     if (projection) {
       options.projection = projection;
     }
-    const c = new Cursor(
+    return this.currentCursor = new Cursor(
+      this,
       this._serviceProvider.find(
         collection.database,
         collection.collection,
         query,
         options
-      ),
-      this
+      )
     );
-    this.currentCursor = c;
-    return c;
   };
 
   /**
@@ -336,7 +334,7 @@ class Mapper {
         collection.collection,
         query,
         options
-      ),
+      )
     ).limit(1);
   };
 

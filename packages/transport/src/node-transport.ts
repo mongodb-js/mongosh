@@ -103,7 +103,7 @@ class Cursor {
     return this;
   }
   next() {
-    return this.cursor.nextObject();
+    return this.cursor.next();
   }
   modifiers() { // TODO
     return this.cursor.cmd;

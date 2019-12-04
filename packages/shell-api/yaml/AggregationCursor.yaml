@@ -1,23 +1,22 @@
-__constructorArgs:
-    - cursor
-__stringRep:
-    - cursor.toArray((error, documents) => {
-        if (error) {
-          throw error;
-        }
-        console.log(JSON.stringify(documents));
-      })
-help:
-    <<: *__defaultAttr
-    __value: 'The aggregation cursor class.'
-bsonsize: *__defaultMethod
-close: *__defaultMethod
-forEach: *__defaultMethod
-hasNext: *__defaultMethod
-isClosed: *__defaultMethod
-isExhausted: *__defaultMethod
-itcount: *__defaultMethod
-map: *__defaultMethod
-next: *__defaultMethod
-objsLeftInBatch: *__defaultMethod
-toArray: *__defaultMethod
+class:
+    <<: *__defaultClass
+    __constructorArgs:
+        - mapper
+        - cursor
+    __stringRep:
+        - mapper.it()
+    __methods:
+        wrappee: cursor
+        firstArg: null
+    help: 'The aggregation cursor class.'
+    bsonsize: *__defaultMethod
+    close: *__defaultMethod
+    forEach: *__defaultMethod
+    hasNext: *__defaultMethod
+    isClosed: *__defaultMethod
+    isExhausted: *__defaultMethod
+    itcount: *__defaultMethod
+    map: *__defaultMethod
+    next: *__defaultMethod
+    objsLeftInBatch: *__defaultMethod
+    toArray: *__defaultMethod

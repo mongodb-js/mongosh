@@ -1,22 +1,69 @@
-__LATEST: &LATEST_VERSION 4.4
-__EARLIEST: &EARLIEST_VERSION 0
-__ALL_TOPOLOGIES: &ALL_TOPOLOGIES
-    - 'ReplSet'
-    - 'Standalone'
-    - 'Shard'
+# Enums and Defaults
 
-__defaultAttr: &__defaultAttr
-    __type: 'attribute'
-    __value: null
+ServerVersions: &ServerVersions
+    latest: &ServerVersions.latest 4.4
+    earliest: &ServerVersions.earliest 0
 
+Topologies: &Topologies
+    help: 'The topology enum'
+    ReplSet: &Topologies.ReplSet 0
+    Standalone: &Topologies.Standalone 1
+    Shard: &Topologies.Shard 2
+
+__all_versions: &__all_server_versions
+    - *ServerVersions.latest
+    - *ServerVersions.earliest
+
+__all_topologies: &__all_topologies
+    - *Topologies.ReplSet
+    - *Topologies.Standalone
+    - *Topologies.Shard
+
+# All the required metadata for a class definition.
+__defaultClass: &__defaultClass
+    # List of arguments to the constructor that will get stored as attributes.
+    __constructorArgs:
+        - mapper
+    # The value that will be returned when class is printed.
+    __stringRep: null # null will allow default printing
+    # How to construct methods
+    __methods:
+        # What attribute should this class pass method calls to
+        wrappee: 'mapper'
+        # Any extra arguments that should be passed to wrappee
+        firstArg: 'this'
+
+# All the required metadata for a method definition
 __defaultMethod: &__defaultMethod
+    # The type
     __type: 'function'
+    # The help string
+    help: '!! No help defined for this method'
+    # What service providers support this method
     __serviceProviders:
         - 'Node'
         - 'Stitch'
         - 'Atlas'
-    help: 'default help'
-    serverVersions:
-        - -1
-        - *LATEST_VERSION
-    topologies: *ALL_TOPOLOGIES
+    # What server versions support this method
+    serverVersions: *__all_server_versions
+    # What topologies support this method
+    topologies: *__all_topologies
+
+ReadPreference: &ReadPreference
+    help: 'The ReadPreference enum'
+    PRIMARY: 0
+    PRIMARY_PREFERRED: 1
+    SECONDARY: 2
+    SECONDARY_PREFERRED: 3
+    NEAREST: 4
+
+DBQuery: &DBQuery
+    help: 'Db query options'
+    Option:
+        tailable: 2,
+        slaveOk: 4,
+        oplogReplay: 8,
+        noTimeout: 16,
+        awaitData: 32,
+        exhaust: 64,
+        partial: 128

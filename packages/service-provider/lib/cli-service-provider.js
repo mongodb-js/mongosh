@@ -18,8 +18,8 @@ class CliServiceProvider {
 
   /**
    *
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param pipeline
    * @param options
    *    allowDiskUse: Optional<Boolean>;
@@ -44,7 +44,7 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
+   * @param {String} db - the db name
    * @param pipeline
    * @param options
    *    allowDiskUse: Optional<Boolean>;
@@ -69,8 +69,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param requests
    * @param options
    *      ordered: Boolean;
@@ -87,8 +87,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param query
    * @param options
    *    collation: Optional<Document>
@@ -106,8 +106,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    hint: Optional<(String | Document)>;
@@ -121,8 +121,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    collation: Optional<Document>;
@@ -138,8 +138,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    collation: Optional<Document>;
@@ -155,8 +155,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    collation: Optional<Document>;
@@ -169,8 +169,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    maxTimeMS: Optional<Int64>;
@@ -181,8 +181,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param query
    * @param options
    *    allowPartialResults: Optional<Boolean>;
@@ -211,8 +211,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    collation: Optional<Document>;
@@ -226,8 +226,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
@@ -244,8 +244,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    arrayFilters: Optional<Array<Document>>;
@@ -263,8 +263,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
@@ -281,8 +281,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
@@ -298,8 +298,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @return {any}
    */
   isCapped(db, coll) {
@@ -307,8 +307,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param query
    * @param options
    *    collation: Optional<Document>;
@@ -329,8 +329,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
@@ -349,7 +349,7 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
+   * @param {String} db - the db name
    * @param spec
    * @param options
    * @return {any}
@@ -359,8 +359,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    arrayFilters: Optional<Array<Document>>;
@@ -380,8 +380,8 @@ class CliServiceProvider {
   }
 
   /**
-   * @param db
-   * @param coll
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
    * @param filter
    * @param options
    *    arrayFilters: Optional<Array<Document>>;
