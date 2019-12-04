@@ -17,71 +17,71 @@ class AggregationCursor {
     this.close = function() {
       return this.cursor.close(...arguments);
     };
-    this.close.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.close.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.close.help = () => ("Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.\nAttributes: serverVersions, topologies");
+    this.close.help.toReplString = () => ("Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.\nAttributes: serverVersions, topologies");
     this.close.serverVersions = [0,4.4];
     this.close.topologies = [0,1,2];
     this.forEach = function() {
       return this.cursor.forEach(...arguments);
     };
-    this.forEach.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.forEach.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.forEach.help = () => ("Iterates the cursor to apply a JavaScript function to each document from the cursor.\nAttributes: serverVersions, topologies");
+    this.forEach.help.toReplString = () => ("Iterates the cursor to apply a JavaScript function to each document from the cursor.\nAttributes: serverVersions, topologies");
     this.forEach.serverVersions = [0,4.4];
     this.forEach.topologies = [0,1,2];
     this.hasNext = function() {
       return this.cursor.hasNext(...arguments);
     };
-    this.hasNext.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.hasNext.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.hasNext.help = () => ("cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.\nAttributes: serverVersions, topologies");
+    this.hasNext.help.toReplString = () => ("cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.\nAttributes: serverVersions, topologies");
     this.hasNext.serverVersions = [0,4.4];
     this.hasNext.topologies = [0,1,2];
     this.isClosed = function() {
       return this.cursor.isClosed(...arguments);
     };
-    this.isClosed.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.isClosed.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.isClosed.help = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
+    this.isClosed.help.toReplString = () => ("Returns true if the cursor is closed.\nAttributes: serverVersions, topologies");
     this.isClosed.serverVersions = [0,4.4];
     this.isClosed.topologies = [0,1,2];
     this.isExhausted = function() {
       return this.cursor.isExhausted(...arguments);
     };
-    this.isExhausted.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.isExhausted.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.isExhausted.help = () => ("cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.\nAttributes: serverVersions, topologies");
+    this.isExhausted.help.toReplString = () => ("cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.\nAttributes: serverVersions, topologies");
     this.isExhausted.serverVersions = [0,4.4];
     this.isExhausted.topologies = [0,1,2];
     this.itcount = function() {
       return this.cursor.itcount(...arguments);
     };
-    this.itcount.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.itcount.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.itcount.help = () => ("Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.\nAttributes: serverVersions, topologies");
+    this.itcount.help.toReplString = () => ("Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.\nAttributes: serverVersions, topologies");
     this.itcount.serverVersions = [0,4.4];
     this.itcount.topologies = [0,1,2];
     this.map = function() {
       return this.cursor.map(...arguments);
     };
-    this.map.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.map.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.map.help = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
+    this.map.help.toReplString = () => ("Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.\nAttributes: serverVersions, topologies");
     this.map.serverVersions = [0,4.4];
     this.map.topologies = [0,1,2];
     this.next = function() {
       return this.cursor.next(...arguments);
     };
-    this.next.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.next.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.next.help = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
+    this.next.help.toReplString = () => ("The next document in the cursor returned by the db.collection.find() method.\nAttributes: serverVersions, topologies");
     this.next.serverVersions = [0,4.4];
     this.next.topologies = [0,1,2];
     this.objsLeftInBatch = function() {
       return this.cursor.objsLeftInBatch(...arguments);
     };
-    this.objsLeftInBatch.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.objsLeftInBatch.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.objsLeftInBatch.help = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
+    this.objsLeftInBatch.help.toReplString = () => ("cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.serverVersions = [0,4.4];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.toArray = function() {
       return this.cursor.toArray(...arguments);
     };
-    this.toArray.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
-    this.toArray.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
+    this.toArray.help = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
+    this.toArray.help.toReplString = () => ("The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.\nAttributes: serverVersions, topologies");
     this.toArray.serverVersions = [0,4.4];
     this.toArray.topologies = [0,1,2];
   }

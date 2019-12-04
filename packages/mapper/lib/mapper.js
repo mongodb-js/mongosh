@@ -48,7 +48,6 @@ class Mapper {
 
   /**
    * Run an aggregation pipeline.
-   * TODO: In the mongo shell, if the cursor returned from the db.collection.aggregate() is not assigned to a variable using the var keyword, then the mongo shell automatically iterates the cursor up to 20 times. See Iterate a Cursor in the mongo Shell for handling cursors in the mongo shell.
    *
    * @note: Passing a null coll will cause the aggregation to run on the DB.
    *
@@ -105,7 +104,7 @@ class Mapper {
       return cursor.explain(options.explain);
     }
 
-    return cursor;
+    return this.currentCursor = cursor;
   };
 
   /**
