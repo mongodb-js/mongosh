@@ -1,11 +1,27 @@
 # Enums and Defaults
 
+ReadPreference: &ReadPreference
+    PRIMARY: &ReadPreference.primary 0
+    PRIMARY_PREFERRED: &ReadPreference.primary_preferred 1
+    SECONDARY: &ReadPreference.secondary 2
+    SECONDARY_PREFERRED: &ReadPreference.secondary_preferred 3
+    NEAREST: &ReadPreference.nearest 4
+
+DBQuery: &DBQuery
+    Option:
+        tailable: &DBQuery.tailable 2,
+        slaveOk: &DBQuery.slaveOk 4,
+        oplogReplay: &DBQuery.oplogReplay 8,
+        noTimeout: &DBQuery.noTimeout 16,
+        awaitData: &DBQuery.awaitData 32,
+        exhaust: &DBQuery.exhaust 64,
+        partial: &DBQuery.partial 128
+
 ServerVersions: &ServerVersions
     latest: &ServerVersions.latest 4.4
     earliest: &ServerVersions.earliest 0
 
 Topologies: &Topologies
-    help: 'The topology enum'
     ReplSet: &Topologies.ReplSet 0
     Standalone: &Topologies.Standalone 1
     Shard: &Topologies.Shard 2
@@ -30,7 +46,7 @@ __defaultClass: &__defaultClass
     __methods:
         # What attribute should this class pass method calls to
         wrappee: 'mapper'
-        # Any extra arguments that should be passed to wrappee
+        # Any extra args that should be passed to wrappee. If none, set to ''
         firstArg: 'this'
 
 # All the required metadata for a method definition
@@ -49,21 +65,3 @@ __defaultMethod: &__defaultMethod
     # What topologies support this method
     topologies: *__all_topologies
 
-ReadPreference: &ReadPreference
-    help: 'The ReadPreference enum'
-    PRIMARY: 0
-    PRIMARY_PREFERRED: 1
-    SECONDARY: 2
-    SECONDARY_PREFERRED: 3
-    NEAREST: 4
-
-DBQuery: &DBQuery
-    help: 'Db query options'
-    Option:
-        tailable: 2,
-        slaveOk: 4,
-        oplogReplay: 8,
-        noTimeout: 16,
-        awaitData: 32,
-        exhaust: 64,
-        partial: 128

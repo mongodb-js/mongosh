@@ -7,7 +7,7 @@ class:
         - mapper.it()
     __methods:
         wrappee: cursor
-        firstArg: null
+        firstArg: ''
     help: 'The aggregation cursor class.'
     bsonsize: *__defaultMethod
     close: *__defaultMethod

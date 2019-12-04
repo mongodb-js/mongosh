@@ -125,10 +125,11 @@ ${contents}  }
 const loadAll = () => {
   const yamlDir = path.join(__dirname, YAML_DIR);
   const main = fs.readFileSync(path.join(yamlDir, 'main.yaml'));
+  const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
-  let exports = 'module.exports = ShellApi;\n';
+  let exports = '\nmodule.exports = ShellApi;\n';
 
-  const result = FILES.reduce((str, fileName) => {
+  const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);
     console.log(`${fileName} => lib/shell-api.js`);
 
@@ -142,6 +143,13 @@ const loadAll = () => {
     /* generate class */
     return `${str}${classTemplate(className, lib.class)}`;
   }, '/* AUTO-GENERATED SHELL API CLASSES*/\n');
+
+  const result = Object.keys(mainLib)
+    .filter((f) => !f.startsWith('_'))
+    .reduce((str, className) => {
+      exports = `${exports}module.exports.${className} = ${className};\n`;
+      return `${str}\nconst ${className} = Object.freeze(${JSON.stringify(mainLib[className], null, ' ')});`;
+    }, classes);
 
   fs.writeFileSync(
     path.join(__dirname, 'lib', 'shell-api.js'),

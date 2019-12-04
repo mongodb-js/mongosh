@@ -8,77 +8,77 @@ class AggregationCursor {
     this.help = () => ("The aggregation cursor class.\nAttributes: bsonsize, close, forEach, hasNext, isClosed, isExhausted, itcount, map, next, objsLeftInBatch, toArray");
     this.help.toReplString = () => ("The aggregation cursor class.\nAttributes: bsonsize, close, forEach, hasNext, isClosed, isExhausted, itcount, map, next, objsLeftInBatch, toArray");
     this.bsonsize = function() {
-      return this.cursor.bsonsize(null, ...arguments);
+      return this.cursor.bsonsize(...arguments);
     };
     this.bsonsize.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.bsonsize.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.bsonsize.serverVersions = [4.4,0];
     this.bsonsize.topologies = [0,1,2];
     this.close = function() {
-      return this.cursor.close(null, ...arguments);
+      return this.cursor.close(...arguments);
     };
     this.close.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.close.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.close.serverVersions = [4.4,0];
     this.close.topologies = [0,1,2];
     this.forEach = function() {
-      return this.cursor.forEach(null, ...arguments);
+      return this.cursor.forEach(...arguments);
     };
     this.forEach.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.forEach.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.forEach.serverVersions = [4.4,0];
     this.forEach.topologies = [0,1,2];
     this.hasNext = function() {
-      return this.cursor.hasNext(null, ...arguments);
+      return this.cursor.hasNext(...arguments);
     };
     this.hasNext.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.hasNext.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.hasNext.serverVersions = [4.4,0];
     this.hasNext.topologies = [0,1,2];
     this.isClosed = function() {
-      return this.cursor.isClosed(null, ...arguments);
+      return this.cursor.isClosed(...arguments);
     };
     this.isClosed.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isClosed.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isClosed.serverVersions = [4.4,0];
     this.isClosed.topologies = [0,1,2];
     this.isExhausted = function() {
-      return this.cursor.isExhausted(null, ...arguments);
+      return this.cursor.isExhausted(...arguments);
     };
     this.isExhausted.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isExhausted.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.isExhausted.serverVersions = [4.4,0];
     this.isExhausted.topologies = [0,1,2];
     this.itcount = function() {
-      return this.cursor.itcount(null, ...arguments);
+      return this.cursor.itcount(...arguments);
     };
     this.itcount.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.itcount.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.itcount.serverVersions = [4.4,0];
     this.itcount.topologies = [0,1,2];
     this.map = function() {
-      return this.cursor.map(null, ...arguments);
+      return this.cursor.map(...arguments);
     };
     this.map.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.map.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.map.serverVersions = [4.4,0];
     this.map.topologies = [0,1,2];
     this.next = function() {
-      return this.cursor.next(null, ...arguments);
+      return this.cursor.next(...arguments);
     };
     this.next.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.next.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.next.serverVersions = [4.4,0];
     this.next.topologies = [0,1,2];
     this.objsLeftInBatch = function() {
-      return this.cursor.objsLeftInBatch(null, ...arguments);
+      return this.cursor.objsLeftInBatch(...arguments);
     };
     this.objsLeftInBatch.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.objsLeftInBatch.serverVersions = [4.4,0];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.toArray = function() {
-      return this.cursor.toArray(null, ...arguments);
+      return this.cursor.toArray(...arguments);
     };
     this.toArray.help = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
     this.toArray.help.toReplString = () => ("!! No help defined for this method\nAttributes: serverVersions, topologies");
@@ -675,6 +675,34 @@ class UpdateResult {
   }
 }
 
+const ReadPreference = Object.freeze({
+ "PRIMARY": 0,
+ "PRIMARY_PREFERRED": 1,
+ "SECONDARY": 2,
+ "SECONDARY_PREFERRED": 3,
+ "NEAREST": 4
+});
+const DBQuery = Object.freeze({
+ "Option": {
+  "tailable": "2,",
+  "slaveOk": "4,",
+  "oplogReplay": "8,",
+  "noTimeout": "16,",
+  "awaitData": "32,",
+  "exhaust": "64,",
+  "partial": 128
+ }
+});
+const ServerVersions = Object.freeze({
+ "latest": 4.4,
+ "earliest": 0
+});
+const Topologies = Object.freeze({
+ "ReplSet": 0,
+ "Standalone": 1,
+ "Shard": 2
+});
+
 module.exports = ShellApi;
 module.exports.AggregationCursor = AggregationCursor;
 module.exports.BulkWriteResult = BulkWriteResult;
@@ -688,3 +716,7 @@ module.exports.ReplicaSet = ReplicaSet;
 module.exports.Shard = Shard;
 module.exports.ShellApi = ShellApi;
 module.exports.UpdateResult = UpdateResult;
+module.exports.ReadPreference = ReadPreference;
+module.exports.DBQuery = DBQuery;
+module.exports.ServerVersions = ServerVersions;
+module.exports.Topologies = Topologies;
