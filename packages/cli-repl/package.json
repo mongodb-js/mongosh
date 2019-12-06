@@ -4,7 +4,7 @@
   "description": "MongoDB Shell CLI REPL Package",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js start",
+    "start": "node --experimental-repl-await index.js start",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"

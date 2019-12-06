@@ -4,7 +4,7 @@ class:
         - _mapper
         - _database
     __stringRep:
-        - _database
+        - this._database
     help: 'The database class.'
     runCommand:
         <<: *__defaultMethod

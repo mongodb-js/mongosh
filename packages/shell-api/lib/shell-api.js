@@ -4,7 +4,9 @@ class AggregationCursor {
     this._mapper = _mapper;
     this._cursor = _cursor;
 
-    this.toReplString = () => (this._mapper.it());
+    this.toReplString = () => {
+      return this._mapper.it();
+    };
     this.help = () => ("The aggregation cursor class.\nAttributes: bsonsize, close, forEach, hasNext, isClosed, isExhausted, itcount, map, next, objsLeftInBatch, toArray");
     this.help.toReplString = () => ("The aggregation cursor class.\nAttributes: bsonsize, close, forEach, hasNext, isClosed, isExhausted, itcount, map, next, objsLeftInBatch, toArray");
     this.bsonsize = function() {
@@ -96,6 +98,10 @@ class BulkWriteResult {
     this.deletedCount = deletedCount;
     this.upsertedCount = upsertedCount;
     this.upsertedIds = upsertedIds;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The BulkWriteResult class.\nAttributes: ackowledged, insertedCount, insertedIds, matchedCount, modifedCount, deletedCount, upsertedCount, upsertedIds");
     this.help.toReplString = () => ("The BulkWriteResult class.\nAttributes: ackowledged, insertedCount, insertedIds, matchedCount, modifedCount, deletedCount, upsertedCount, upsertedIds");
   }
@@ -106,7 +112,9 @@ class Collection {
     this._database = _database;
     this._collection = _collection;
 
-    this.toReplString = () => (this._collection);
+    this.toReplString = () => {
+      return this._collection;
+    };
     this.help = () => ("The collection class.\nAttributes: aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, find, findAndModify, findOne, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insert, insertMany, insertOne, isCapped, remove, save, replaceOne, update, updateMany, updateOne");
     this.help.toReplString = () => ("The collection class.\nAttributes: aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, find, findAndModify, findOne, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insert, insertMany, insertOne, isCapped, remove, save, replaceOne, update, updateMany, updateOne");
     this.aggregate = function() {
@@ -284,7 +292,9 @@ class Cursor {
     this._mapper = _mapper;
     this._cursor = _cursor;
 
-    this.toReplString = () => (this._mapper.it());
+    this.toReplString = () => {
+      return this._mapper.it();
+    };
     this.help = () => ("The cursor class.\nAttributes: addOption, allowPartialResults, arrayAccess, batchSize, clone, close, collation, comment, count, explain, forEach, getQueryPlan, hasNext, hint, isClosed, isExhausted, itcount, length, limit, map, max, maxScan, maxTimeMS, min, modifiers, next, noCursorTimeout, objsLeftInBatch, oplogReplay, projection, pretty, readConcern, readOnly, readPref, returnKey, showDiskLoc, showRecordId, size, skip, snapshot, sort, tailable, toArray");
     this.help.toReplString = () => ("The cursor class.\nAttributes: addOption, allowPartialResults, arrayAccess, batchSize, clone, close, collation, comment, count, explain, forEach, getQueryPlan, hasNext, hint, isClosed, isExhausted, itcount, length, limit, map, max, maxScan, maxTimeMS, min, modifiers, next, noCursorTimeout, objsLeftInBatch, oplogReplay, projection, pretty, readConcern, readOnly, readPref, returnKey, showDiskLoc, showRecordId, size, skip, snapshot, sort, tailable, toArray");
     this.addOption = function() {
@@ -604,7 +614,9 @@ class Database {
     this._mapper = _mapper;
     this._database = _database;
 
-    this.toReplString = () => (this._database);
+    this.toReplString = () => {
+      return this._database;
+    };
     this.help = () => ("The database class.\nAttributes: runCommand");
     this.help.toReplString = () => ("The database class.\nAttributes: runCommand");
     this.runCommand = function() {
@@ -622,6 +634,10 @@ class DeleteResult {
   constructor(acknowleged, deletedCount) {
     this.acknowleged = acknowleged;
     this.deletedCount = deletedCount;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The DeleteResult class.\nAttributes: acknowleged, deletedCount");
     this.help.toReplString = () => ("The DeleteResult class.\nAttributes: acknowleged, deletedCount");
   }
@@ -629,20 +645,33 @@ class DeleteResult {
 class InsertManyResult {
   constructor(_mapper) {
     this._mapper = _mapper;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The InsertManyResult class.\nAttributes: ");
     this.help.toReplString = () => ("The InsertManyResult class.\nAttributes: ");
   }
 }
 class InsertOneResult {
-  constructor(_mapper) {
-    this._mapper = _mapper;
-    this.help = () => ("The InsertManyResult class.\nAttributes: ");
-    this.help.toReplString = () => ("The InsertManyResult class.\nAttributes: ");
+  constructor(acknowleged, insertedId) {
+    this.acknowleged = acknowleged;
+    this.insertedId = insertedId;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
+    this.help = () => ("The InsertManyResult class.\nAttributes: acknowleged, insertedId");
+    this.help.toReplString = () => ("The InsertManyResult class.\nAttributes: acknowleged, insertedId");
   }
 }
 class ReplicaSet {
   constructor(_mapper) {
     this._mapper = _mapper;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The Replica Set class.\nAttributes: ");
     this.help.toReplString = () => ("The Replica Set class.\nAttributes: ");
   }
@@ -650,6 +679,10 @@ class ReplicaSet {
 class Shard {
   constructor(_mapper) {
     this._mapper = _mapper;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The Shard class.\nAttributes: ");
     this.help.toReplString = () => ("The Shard class.\nAttributes: ");
   }
@@ -657,6 +690,10 @@ class Shard {
 class ShellApi {
   constructor(_mapper) {
     this._mapper = _mapper;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("Welcome to the new MongoDB Shell!\nAttributes: use, it");
     this.help.toReplString = () => ("Welcome to the new MongoDB Shell!\nAttributes: use, it");
     this.use = function() {
@@ -678,6 +715,10 @@ class ShellApi {
 class UpdateResult {
   constructor(_mapper) {
     this._mapper = _mapper;
+
+    this.toReplString = () => {
+      return JSON.stringify(this, null, ' ');
+    };
     this.help = () => ("The UpdateResult class.\nAttributes: ");
     this.help.toReplString = () => ("The UpdateResult class.\nAttributes: ");
   }

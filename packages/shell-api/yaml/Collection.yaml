@@ -5,7 +5,7 @@ class:
         - _database
         - _collection
     __stringRep:
-        - _collection
+        - this._collection
     help: 'The collection class.'
 
     aggregate:

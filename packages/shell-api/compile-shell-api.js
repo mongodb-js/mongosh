@@ -92,7 +92,9 @@ const classTemplate = (className, lib) => {
   /* string representaiton */
   if (lib.__stringRep) {
     attributes = `${attributes}
-    this.toReplString = () => (this.${lib.__stringRep});\n`
+    this.toReplString = () => {
+      return ${lib.__stringRep};
+    };\n`
   }
 
   /* class methods and attributes */

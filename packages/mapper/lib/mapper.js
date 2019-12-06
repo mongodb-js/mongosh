@@ -16,6 +16,12 @@ class Mapper {
      * is stored in ctx */
     this.currentCursor = null;
     this.cursorAssigned = false;
+    // const handler = {
+    //   get: function (obj, prop) {
+    //     return obj[prop];
+    //   }
+    // };
+    // return new Proxy(this, handler);
   }
 
   setCtx(ctx) {
@@ -35,13 +41,13 @@ class Mapper {
       for (let i = 0; i < 20; i++) {
         const hasNext = await this.currentCursor.hasNext();
         if (hasNext) {
-          results.push(this.currentCursor.next());
+          results.push(await this.currentCursor.next());
         } else {
           break;
         }
       }
       if (results.length > 0)
-        return Promise.all(results);
+        return results;
     }
     return 'no cursor';
   }
@@ -194,13 +200,13 @@ class Mapper {
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteMany(collection, filter, options = {}) {
+  async deleteMany(collection, filter, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
-    const result = this._serviceProvider.deleteMany(
+    const result = await this._serviceProvider.deleteMany(
       collection._database,
       collection._collection,
       filter,
@@ -208,8 +214,8 @@ class Mapper {
       dbOptions
     );
     return new DeleteResult(
-      result.acknowledged,
-      result.deltedCount
+      result.result.ok,
+      result.deletedCount
     );
   };
 
@@ -226,20 +232,21 @@ class Mapper {
    *
    * @returns {DeleteResult} The promise of the result.
    */
-  deleteOne(collection, filter, options = {}) {
+  async deleteOne(collection, filter, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+    const result = await this._serviceProvider.deleteOne(
+      collection._database,
+      collection._collection,
+      filter,
+      options,
+      dbOptions
+    );
     return new DeleteResult(
-      this,
-      this._serviceProvider.deleteOne(
-        collection._database,
-        collection._collection,
-        filter,
-        options,
-        dbOptions
-      )
+      result.result.ok,
+      result.deletedCount
     );
   };
 
@@ -335,7 +342,7 @@ class Mapper {
         query,
         options
       )
-    ).limit(1);
+    ).limit(1).next();
   };
 
   // findAndModify(collection, document) {
@@ -499,20 +506,21 @@ class Mapper {
    *    <writeConcern>
    * @return {InsertOneResult}
    */
-  insertOne(collection, doc, options = {}) {
+  async insertOne(collection, doc, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+    const result = await this._serviceProvider.insertOne(
+      collection._database,
+      collection._collection,
+      doc,
+      options,
+      dbOptions
+    );
     return new InsertOneResult(
-      this,
-      this._serviceProvider.insertOne(
-        collection._database,
-        collection._collection,
-        doc,
-        options,
-        dbOptions
-      )
+      result.result.ok,
+      result.insertedId
     );
   };
 

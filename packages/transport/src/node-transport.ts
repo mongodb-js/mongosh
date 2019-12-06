@@ -284,7 +284,7 @@ class NodeTransport {
    * @returns {Promise} The promise of the result.
    */
   deleteMany(db, coll, filter = {}, options = {}, dbOptions = {}) {
-    this._db(db, dbOptions).collection(coll).deleteMany(filter, options)
+    return this._db(db, dbOptions).collection(coll).deleteMany(filter, options);
   }
 
   /**

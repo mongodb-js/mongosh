@@ -4,7 +4,7 @@ class:
         - _mapper
         - _cursor
     __stringRep:
-        - _mapper.it()
+        - this._mapper.it()
     __methods:
         wrappee: _cursor
         firstArg: ''
