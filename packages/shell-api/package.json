@@ -4,10 +4,14 @@
   "description": "MongoDB Shell API Package",
   "main": "index.js",
   "scripts": {
-    "build": "node compile-shell-api.js",
+    "build": "node compile-shell-api.js && npm run antlr4-js",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'",
+    "antlr4-js": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.1-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -visitor -Xexact-output-dir antlr/ECMAScript.g4"
+  },
+  "dependencies": {
+    "antlr4": "^4.7.1"
   },
   "precommit": [
     "build"
