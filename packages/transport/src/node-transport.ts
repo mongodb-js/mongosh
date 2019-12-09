@@ -1,4 +1,7 @@
 import { MongoClient } from 'mongodb';
+import Readable from './readable';
+import Cursor from './cursor';
+import Result from './result';
 
 /**
  * Default driver options we always use.
@@ -12,7 +15,7 @@ const DEFAULT_OPTIONS = Object.freeze({
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
  */
-class NodeTransport {
+class NodeTransport implements Readable {
   mongoClient: MongoClient;
 
   /**
@@ -22,7 +25,7 @@ class NodeTransport {
    *
    * @returns {NodeTransport} The Node transport.
    */
-  static async fromURI(uri) {
+  static async fromURI(uri: string) {
     const mongoClient = new MongoClient(uri, DEFAULT_OPTIONS);
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
@@ -39,9 +42,14 @@ class NodeTransport {
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Object} options - The pipeline options.
    *
-   * @returns {Promise} The promise of the aggregation cursor.
+   * @returns {Cursor} The aggregation cursor.
    */
-  aggregate(database, collection, pipeline = [], options = {}) {
+  aggregate(
+    database: string,
+    collection: string,
+    pipeline: object[] = [],
+    options: object = {}) : Cursor {
+
     if (collection === null) {
       return this._db(database).aggregate(pipeline, options);
     }
@@ -74,7 +82,12 @@ class NodeTransport {
    *
    * @returns {Promise} The promise of the count.
    */
-  countDocuments(database, collection, filter = {}, options = {}) {
+  countDocuments(
+    database: string,
+    collection: string,
+    filter: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       countDocuments(filter, options);
   }
@@ -85,7 +98,7 @@ class NodeTransport {
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
    */
-  constructor(mongoClient) {
+  constructor(mongoClient: MongoClient) {
     this.mongoClient = mongoClient;
   }
 
@@ -128,9 +141,15 @@ class NodeTransport {
    * @param {Object} filter - The filter.
    * @param {Object} options - The distinct options.
    *
-   * @returns {Promise} The promise of the cursor.
+   * @returns {Cursor} The cursor.
    */
-  distinct(database, collection, fieldName, filter = {}, options = {}) {
+  distinct(
+    database: string,
+    collection: string,
+    fieldName: string,
+    filter: object = {},
+    options: object = {}) : Cursor {
+
     return this._db(database).collection(collection).
       distinct(fieldName, filter, options);
   }
@@ -142,9 +161,13 @@ class NodeTransport {
    * @param {String} collection - The collection name.
    * @param {Object} options - The count options.
    *
-   * @returns {Promise} The promise of the count.
+   * @returns {Promise} The promise of the result.
    */
-  estimatedDocumentCount(database, collection, options = {}) {
+  estimatedDocumentCount(
+    database: string,
+    collection: string,
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       estimatedDocumentCount(options);
   }
@@ -157,9 +180,14 @@ class NodeTransport {
    * @param {Object} filter - The filter.
    * @param {Object} options - The find options.
    *
-   * @returns {Promise} The promise of the cursor.
+   * @returns {Cursor} The cursor.
    */
-  find(database, collection, filter = {}, options = {}) {
+  find(
+    database: string,
+    collection: string,
+    filter: object = {},
+    options: object = {}) : Cursor {
+
     return this._db(database).collection(collection).
       find(filter, options);
   }

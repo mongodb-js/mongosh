@@ -4,6 +4,7 @@
   "description": "MongoDB Shell Transport Package",
   "main": "lib/index.js",
   "scripts": {
+    "check": "tslint 'src/**/*.ts'",
     "compile": "tsc -p tsconfig.json",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
