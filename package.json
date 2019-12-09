@@ -4,12 +4,13 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "scripts": {
+    "compile": "lerna run compile",
     "prebootstrap": "npm install",
     "bootstrap": "lerna exec npm install",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "check": "lerna run check",
-    "prestart": "lerna run compile",
+    "prestart": "npm run compile",
     "start": "lerna exec npm start --scope mongosh-cli-repl"
   },
   "keywords": [
