@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import Readable from './readable';
+import Writable from './writable';
 import Cursor from './cursor';
 import Result from './result';
 
@@ -15,7 +16,7 @@ const DEFAULT_OPTIONS = Object.freeze({
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
  */
-class NodeTransport implements Readable {
+class NodeTransport implements Readable, Writable {
   mongoClient: MongoClient;
 
   /**
