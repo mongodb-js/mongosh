@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import Readable from './readable';
 import Writable from './writable';
 import Cursor from './cursor';
@@ -68,7 +68,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  bulkWrite(database, collection, requests = {}, options = {}) {
+  bulkWrite(
+    database: string,
+    collection: string,
+    requests: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       bulkWrite(requests, options);
   }
@@ -113,7 +118,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteMany(database, collection, filter = {}, options = {}) {
+  deleteMany(
+    database: string,
+    collection: string,
+    filter: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       deleteMany(filter, options);
   }
@@ -128,7 +138,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  deleteOne(database, collection, filter = {}, options = {}) {
+  deleteOne(
+    database: string,
+    collection: string,
+    filter: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       deleteOne(filter, options);
   }
@@ -203,7 +218,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndDelete(database, collection, filter = {}, options = {}) {
+  findOneAndDelete(
+    database: string,
+    collection: string,
+    filter: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       findOneAndDelete(filter, options);
   }
@@ -219,7 +239,13 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndReplace(database, collection, filter = {}, replacement = {}, options = {}) {
+  findOneAndReplace(
+    database: string,
+    collection: string,
+    filter: object = {},
+    replacement: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       findOneAndReplace(filter, replacement, options);
   }
@@ -235,7 +261,13 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  findOneAndUpdate(database, collection, filter = {}, update = {}, options = {}) {
+  findOneAndUpdate(
+    database: string,
+    collection: string,
+    filter: object = {},
+    update: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       findOneAndUpdate(filter, update, options);
   }
@@ -250,7 +282,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  insertMany(database, collection, docs = [], options = {}) {
+  insertMany(
+    database: string,
+    collection: string,
+    docs: object[] = [],
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       insertMany(docs, options);
   }
@@ -265,7 +302,12 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  insertOne(database, collection, doc = {}, options = {}) {
+  insertOne(
+    database: string,
+    collection: string,
+    doc: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       insertOne(doc, options);
   }
@@ -281,7 +323,13 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  replaceOne(database, collection, filter = {}, replacement = {}, options = {}) {
+  replaceOne(
+    database: string,
+    collection: string,
+    filter: object = {},
+    replacement: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       replaceOne(filter, replacement, options);
   }
@@ -310,7 +358,13 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  updateMany(database, collection, filter = {}, update = {}, options = {}) {
+  updateMany(
+    database: string,
+    collection: string,
+    filter: object = {},
+    update: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       updateMany(filter, update, options);
   }
@@ -326,7 +380,13 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Promise} The promise of the result.
    */
-  updateOne(database, collection, filter = {}, update = {}, options = {}) {
+  updateOne(
+    database: string,
+    collection: string,
+    filter: object = {},
+    update: object = {},
+    options: object = {}) : Promise<Result> {
+
     return this._db(database).collection(collection).
       updateOne(filter, update, options);
   }
@@ -338,7 +398,7 @@ class NodeTransport implements Readable, Writable {
    *
    * @returns {Db} The database.
    */
-  _db(name) {
+  _db(name: string) : Db {
     return this.mongoClient.db(name);
   }
 }
