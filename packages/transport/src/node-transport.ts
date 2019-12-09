@@ -16,7 +16,7 @@ const DEFAULT_OPTIONS = Object.freeze({
  * the Node Driver.
  */
 class NodeTransport implements Transport {
-  mongoClient: MongoClient;
+  readonly mongoClient: MongoClient;
 
   /**
    * Create a NodeTransport from a URI.

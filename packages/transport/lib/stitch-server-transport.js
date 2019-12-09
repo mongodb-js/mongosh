@@ -77,7 +77,7 @@ var StitchServerTransport = /** @class */ (function () {
      * @param {String} stitchAppId - The Stitch app id.
      * @param {String} serviceName - The Stitch service name.
      *
-     * @returns {StitchServerTransport} The Stitch server transport.
+     * @returns {Promise} The promise of the Stitch server transport.
      */
     StitchServerTransport.fromAppId = function (stitchAppId, serviceName) {
         return __awaiter(this, void 0, void 0, function () {
@@ -115,11 +115,10 @@ var StitchServerTransport = /** @class */ (function () {
      * @param {Array} pipeline - The aggregation pipeline.
      * @param {Object} options - The pipeline options.
      *
-     * @returns {Promise} The promise of the aggregation cursor.
+     * @returns {Cursor} The aggregation cursor.
      */
-    StitchServerTransport.prototype.aggregate = function (database, collection, pipeline, options) {
+    StitchServerTransport.prototype.aggregate = function (database, collection, pipeline) {
         if (pipeline === void 0) { pipeline = []; }
-        if (options === void 0) { options = {}; }
         if (collection === null) {
             return Promise.reject(AGG_ON_DB);
         }
@@ -159,9 +158,8 @@ var StitchServerTransport = /** @class */ (function () {
      *
      * @returns {Promise} The promise of the result.
      */
-    StitchServerTransport.prototype.deleteMany = function (database, collection, filter, options) {
+    StitchServerTransport.prototype.deleteMany = function (database, collection, filter) {
         if (filter === void 0) { filter = {}; }
-        if (options === void 0) { options = {}; }
         return this._db(database).collection(collection).
             deleteMany(filter);
     };
@@ -175,9 +173,8 @@ var StitchServerTransport = /** @class */ (function () {
      *
      * @returns {Promise} The promise of the result.
      */
-    StitchServerTransport.prototype.deleteOne = function (database, collection, filter, options) {
+    StitchServerTransport.prototype.deleteOne = function (database, collection, filter) {
         if (filter === void 0) { filter = {}; }
-        if (options === void 0) { options = {}; }
         return this._db(database).collection(collection).
             deleteOne(filter);
     };
@@ -205,7 +202,7 @@ var StitchServerTransport = /** @class */ (function () {
      * @param {Object} filter - The filter.
      * @param {Object} options - The find options.
      *
-     * @returns {Promise} The promise of the cursor.
+     * @returns {Cursor} The cursor.
      */
     StitchServerTransport.prototype.find = function (database, collection, filter, options) {
         if (filter === void 0) { filter = {}; }
@@ -366,7 +363,7 @@ var StitchServerTransport = /** @class */ (function () {
      *
      * @param {String} name - The database name.
      *
-     * @returns {Db} The database.
+     * @returns {RemoteMongoDaatabase} The database.
      */
     StitchServerTransport.prototype._db = function (name) {
         return this.mongoClient.db(name);
