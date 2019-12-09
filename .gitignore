@@ -10,3 +10,4 @@ coverage
 lerna-debug.log
 packages/transport-browser/lib
 packages/transport-server/lib
+packages/transport/lib
