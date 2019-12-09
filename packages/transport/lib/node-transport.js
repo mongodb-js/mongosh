@@ -91,7 +91,7 @@ var NodeTransport = /** @class */ (function () {
      * @param {Array} pipeline - The aggregation pipeline.
      * @param {Object} options - The pipeline options.
      *
-     * @returns {Promise} The promise of the aggregation cursor.
+     * @returns {Cursor} The aggregation cursor.
      */
     NodeTransport.prototype.aggregate = function (database, collection, pipeline, options) {
         if (pipeline === void 0) { pipeline = []; }
@@ -175,7 +175,7 @@ var NodeTransport = /** @class */ (function () {
      * @param {Object} filter - The filter.
      * @param {Object} options - The distinct options.
      *
-     * @returns {Promise} The promise of the cursor.
+     * @returns {Cursor} The cursor.
      */
     NodeTransport.prototype.distinct = function (database, collection, fieldName, filter, options) {
         if (filter === void 0) { filter = {}; }
@@ -190,7 +190,7 @@ var NodeTransport = /** @class */ (function () {
      * @param {String} collection - The collection name.
      * @param {Object} options - The count options.
      *
-     * @returns {Promise} The promise of the count.
+     * @returns {Promise} The promise of the result.
      */
     NodeTransport.prototype.estimatedDocumentCount = function (database, collection, options) {
         if (options === void 0) { options = {}; }
@@ -205,7 +205,7 @@ var NodeTransport = /** @class */ (function () {
      * @param {Object} filter - The filter.
      * @param {Object} options - The find options.
      *
-     * @returns {Promise} The promise of the cursor.
+     * @returns {Cursor} The cursor.
      */
     NodeTransport.prototype.find = function (database, collection, filter, options) {
         if (filter === void 0) { filter = {}; }

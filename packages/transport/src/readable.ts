@@ -1,3 +1,6 @@
+import Cursor from './cursor';
+import Result from './result';
+
 /**
  * Interface for read operations in the CRUD specification.
  */
