@@ -126,19 +126,22 @@ class Mapper {
    *
    * @returns {BulkWriteResult} The promise of the result.
    */
-  bulkWrite(collection, operations, options = {}) {
+  async bulkWrite(collection, operations, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
+    const result = await this._serviceProvider.bulkWrite(
+      collection._database,
+      collection._collection,
+      operations,
+      options,
+      dbOptions
+    );
+
     return new BulkWriteResult(
-      this._serviceProvider.bulkWrite(
-        collection._database,
-        collection._collection,
-        operations,
-        options,
-        dbOptions
-      )
+        result.result.ok // TODO
     );
   };
 
@@ -154,7 +157,7 @@ class Mapper {
    *  <limit, skip, hint, maxTimeMS, readConcern, collation>
    * @returns {Integer} The promise of the count.
    */
-  count(collection, query, options = {}) {
+  count(collection, query= {}, options = {}) {
     const dbOpts = {};
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
@@ -198,7 +201,7 @@ class Mapper {
    * @param {Object} options - The delete many options.
    *  <collation, writeConcern>
    *
-   * @returns {Promise} The promise of the result.
+   * @returns {DeleteResult} The promise of the result.
    */
   async deleteMany(collection, filter, options = {}) {
     const dbOptions = {};
@@ -363,13 +366,14 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndDelete(collection, filter, options = {}) {
-    return this._serviceProvider.findOneAndDelete(
+  async findOneAndDelete(collection, filter, options = {}) {
+    const result = await this._serviceProvider.findOneAndDelete(
       collection._database,
       collection._collection,
       filter,
       options,
     );
+    return result.value;
   };
 
   /**
@@ -387,19 +391,20 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndReplace(collection, filter, replacement, options = {}) {
+  async findOneAndReplace(collection, filter, replacement, options = {}) {
     const findOneAndReplaceOptions = { ...options };
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
       delete findOneAndReplaceOptions.returnNewDocument;
     }
-    return this._serviceProvider.findOneAndReplace(
+    const result = await this._serviceProvider.findOneAndReplace(
       collection._database,
       collection._collection,
       filter,
       replacement,
       findOneAndReplaceOptions
     );
+    return result.value;
   };
 
   /**
@@ -416,19 +421,20 @@ class Mapper {
    *
    * @returns {Document} The promise of the result.
    */
-  findOneAndUpdate(collection, filter, update, options = {}) {
+  async findOneAndUpdate(collection, filter, update, options = {}) {
     const findOneAndUpdateOptions = { ...options };
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
       delete findOneAndUpdateOptions.returnNewDocument;
     }
-    return this._serviceProvider.findOneAndUpdate(
+    const result = await this._serviceProvider.findOneAndUpdate(
       collection._database,
       collection._collection,
       filter,
       update,
       options,
     );
+    return result.value;
   };
 
   /**
@@ -443,21 +449,22 @@ class Mapper {
    *    <writeConcern, ordered>
    * @return {InsertManyResult}
    */
-  insert(collection, docs, options = {}) {
+  async insert(collection, docs, options = {}) {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+    const result = await this._serviceProvider.insertMany(
+      collection._database,
+      collection._collection,
+      d,
+      options,
+      dbOptions
+    );
     return new InsertManyResult(
-      this,
-      this._serviceProvider.insertMany(
-        collection._database,
-        collection._collection,
-        d,
-        options,
-        dbOptions
-      )
+        result.result.ok,
+        result.insertedIds
     );
   };
 
@@ -475,20 +482,22 @@ class Mapper {
    *    <writeConcern, ordered>
    * @return {InsertManyResult}
    */
-  insertMany(collection, docs, options = {}) {
+  async insertMany(collection, docs, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
+    const result = await this._serviceProvider.insertMany(
+      collection._database,
+      collection._collection,
+      docs,
+      options,
+      dbOptions
+    );
     return new InsertManyResult(
-      this,
-      this._serviceProvider.insertMany(
-        collection._database,
-        collection._collection,
-        docs,
-        options,
-        dbOptions
-      )
+        result.result.ok,
+        result.insertedIds
     );
   };
 
@@ -601,21 +610,25 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  replaceOne(collection, filter, replacement, options = {}) {
+  async replaceOne(collection, filter, replacement, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+    const result = await this._serviceProvider.replaceOne(
+      collection._collection,
+      collection._database,
+      filter,
+      replacement,
+      options,
+      dbOptions
+    );
     return new UpdateResult(
-      this,
-      this._serviceProvider.replaceOne(
-        collection._collection,
-        collection._database,
-        filter,
-        replacement,
-        options,
-        dbOptions
-      )
+        result.result.ok,
+        result.matchedCount,
+        result.modifiedCount,
+        result.upsertedCount,
+        result.upsertedId
     );
   };
 
@@ -631,9 +644,10 @@ class Mapper {
     return this._serviceProvider.runCommand(database._database, cmd);
   };
 
-  update(collection, filter, update, options = {}) {
+  async update(collection, filter, update, options = {}) {
+    let result;
     if (options.multi) {
-      return this._serviceProvider.updateMany(
+      result = await this._serviceProvider.updateMany(
         collection._collection,
         collection._database,
         filter,
@@ -641,7 +655,7 @@ class Mapper {
         options,
       );
     } else {
-      return this._serviceProvider.updateOne(
+      result = await this._serviceProvider.updateOne(
         collection._collection,
         collection._database,
         filter,
@@ -649,6 +663,13 @@ class Mapper {
         options,
       );
     }
+    return new UpdateResult(
+        result.result.ok,
+        result.matchedCount,
+        result.modifiedCount,
+        result.upsertedCount,
+        result.upsertedId
+    )
   };
 
   /**
@@ -665,21 +686,25 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  updateMany(collection, filter, update, options = {}) {
+  async updateMany(collection, filter, update, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+    const result = await this._serviceProvider.updateMany(
+      collection._collection,
+      collection._database,
+      filter,
+      update,
+      options,
+      dbOptions
+    );
     return new UpdateResult(
-      this,
-      this._serviceProvider.updateMany(
-        collection._collection,
-        collection._database,
-        filter,
-        update,
-        options,
-        dbOptions
-      )
+        result.result.ok,
+        result.matchedCount,
+        result.modifiedCount,
+        result.upsertedCount,
+        result.upsertedId
     );
   };
 
@@ -697,22 +722,26 @@ class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  updateOne(collection, filter, update, options = {}) {
+  async updateOne(collection, filter, update, options = {}) {
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
-    return new UpdateResult(
-      this,
-      this._serviceProvider.updateMany(
-        collection._collection,
-        collection._database,
-        filter,
-        update,
-        options,
-        dbOptions
-      )
+   const result = await this._serviceProvider.updateMany(
+      collection._collection,
+      collection._database,
+      filter,
+      update,
+      options,
+      dbOptions
     );
+    return new UpdateResult(
+        result.result.ok,
+        result.matchedCount,
+        result.modifiedCount,
+        result.upsertedCount,
+        result.upsertedId
+    )
   };
 }
 

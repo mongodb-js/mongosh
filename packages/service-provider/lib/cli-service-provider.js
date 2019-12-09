@@ -102,7 +102,7 @@ class CliServiceProvider {
    * @return {any}
    */
   count(db, coll, query, options, dbOptions) {
-    return this.nodeTransport.count(db, coll, filter, options, dbOptions);
+    return this.nodeTransport.count(db, coll, query, options, dbOptions);
   }
 
   /**

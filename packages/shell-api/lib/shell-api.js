@@ -153,8 +153,6 @@ class Collection {
     this.deleteMany.serverVersions = [0,4.4];
     this.deleteMany.topologies = [0,1,2];
     this.deleteOne = function() {
-      const x = console.trace();
-      console.log(console);
       return this._mapper.deleteOne(this, ...arguments);
     };
     this.deleteOne.help = () => ("https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne\n\nRemoves a single document from a collection.\n\ndb.collection.deleteOne(filter, options)\n\nfilter <document> Specifies deletion criteria using query operators.\noptions <document>\n    writeConcern <document>\n    collation <document>\n\nReturns:\tA document containing:\n    A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled\n    deletedCount containing the number of deleted documents\nAttributes: serverVersions, topologies");
@@ -645,14 +643,15 @@ class DeleteResult {
   }
 }
 class InsertManyResult {
-  constructor(_mapper) {
-    this._mapper = _mapper;
+  constructor(acknowleged, insertedIds) {
+    this.acknowleged = acknowleged;
+    this.insertedIds = insertedIds;
 
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => ("The InsertManyResult class.\nAttributes: ");
-    this.help.toReplString = () => ("The InsertManyResult class.\nAttributes: ");
+    this.help = () => ("The InsertManyResult class.\nAttributes: acknowleged, insertedIds");
+    this.help.toReplString = () => ("The InsertManyResult class.\nAttributes: acknowleged, insertedIds");
   }
 }
 class InsertOneResult {
@@ -715,14 +714,18 @@ class ShellApi {
   }
 }
 class UpdateResult {
-  constructor(_mapper) {
-    this._mapper = _mapper;
+  constructor(acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId) {
+    this.acknowleged = acknowleged;
+    this.matchedCount = matchedCount;
+    this.modifiedCount = modifiedCount;
+    this.upsertedCount = upsertedCount;
+    this.insertedId = insertedId;
 
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => ("The UpdateResult class.\nAttributes: ");
-    this.help.toReplString = () => ("The UpdateResult class.\nAttributes: ");
+    this.help = () => ("The UpdateResult class.\nAttributes: acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId");
+    this.help.toReplString = () => ("The UpdateResult class.\nAttributes: acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId");
   }
 }
 
