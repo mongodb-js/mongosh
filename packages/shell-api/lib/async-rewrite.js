@@ -31,12 +31,18 @@ class AsyncWriter extends ECMAScriptVisitor {
     return ctx.getText();
   }
   visitFuncCallExpression(ctx) {
-    const lhs = this.visit(ctx.singleExpression());
-    console.log(`FUNC CALL NAME=${lhs}`);
+    const startIndex = ctx.start.start;
+    const endIndex = ctx.stop.stop;
+    for (let n = 0; n < this.locations.length; n++) {
+      const loc = this.locations[n];
+      if (loc < endIndex && loc > startIndex) {
+        return `(await ${this.visitChildren(ctx)})`;
+      }
+    }
     return this.visitChildren(ctx);
   }
 }
-const compile = function(input) {
+const compile = function(input, locations) {
   const chars = new antlr4.InputStream(input);
   const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   lexer.strictMode = false;
@@ -46,7 +52,8 @@ const compile = function(input) {
   const tree = parser.program();
 
   const writer = new AsyncWriter(chars, tokens);
+  writer.locations = locations;
   return writer.visitProgram(tree);
 };
 
-console.log(compile('var x = db.coll.find()'));
+module.exports = compile;

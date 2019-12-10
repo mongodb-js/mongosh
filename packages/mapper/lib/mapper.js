@@ -15,13 +15,34 @@ class Mapper {
     /* Internal state gets stored in mapper, state that is visible to the user
      * is stored in ctx */
     this.currentCursor = null;
+    this.awaitLoc = []; // track locations where await is needed
+    this.checkAwait = false;
     this.cursorAssigned = false;
-    // const handler = {
-    //   get: function (obj, prop) {
-    //     return obj[prop];
-    //   }
-    // };
-    // return new Proxy(this, handler);
+    /* This will be rewritten so it's less fragile */
+    const parseStack = (s) => {
+      const r = s.match(/repl:1:(\d*)/);
+      return Number(r[1]) - 1;
+    };
+    const requiresAwait = [
+        'deleteOne',
+        'insertOne' // etc etc
+    ];
+    const handler = {
+      get: function (obj, prop) {
+        if (obj.checkAwait && requiresAwait.includes(prop)) {
+          try {
+            throw new Error();
+          } catch(e) {
+            const loc = parseStack(e.stack);
+            if (!isNaN(loc)) {
+              obj.awaitLoc.push(loc);
+            }
+          }
+        }
+        return obj[prop];
+      }
+    };
+    return new Proxy(this, handler);
   }
 
   setCtx(ctx) {
@@ -236,6 +257,7 @@ class Mapper {
    * @returns {DeleteResult} The promise of the result.
    */
   async deleteOne(collection, filter, options = {}) {
+    if (this.checkAwait) return;
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -516,6 +538,7 @@ class Mapper {
    * @return {InsertOneResult}
    */
   async insertOne(collection, doc, options = {}) {
+    if (this.checkAwait) return;
     const dbOptions = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
