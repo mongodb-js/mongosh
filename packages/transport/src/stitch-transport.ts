@@ -3,8 +3,8 @@ import Cursor from './cursor';
 import Result from './result';
 
 import {
-  RemoteMongoClient as SRMC,
-  StitchAppClient as SSAC
+  RemoteMongoClient as ServerMongoClient,
+  StitchAppClient as ServerStitchClient
 } from 'mongodb-stitch-server-sdk';
 
 /**
@@ -20,7 +20,7 @@ const AGG_ON_DB = 'Aggregations run on the database is not allowed via Stitch';
 /**
  * Encapsulates logic for communicating with a MongoDB instance via Stitch.
  */
-class StitchTransport<S extends SSAC, M extends SRMC> implements Transport {
+class StitchTransport<S extends ServerStitchClient, M extends ServerMongoClient> implements Transport {
   readonly stitchClient: S;
   readonly mongoClient: M;
 
