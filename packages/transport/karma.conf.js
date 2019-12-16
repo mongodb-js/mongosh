@@ -1,16 +1,16 @@
 module.exports = (config) => {
   config.set({
     basePath: '',
-    frameworks: [ 'mocha' ],
+    frameworks: [ 'mocha', 'karma-typescript' ],
     reporters: [ 'mocha' ],
-    files: [
-      { pattern: 'spec/**/*.spec.ts', watched: false }
-    ],
+    files: [ 'spec/*.spec.ts' ],
     port: 9876,
     colors: true,
-    logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: [ 'ChromeHeadlessNoSandbox' ],
+    preprocessors: {
+      '**/*.ts': [ 'karma-typescript' ]
+    },
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
