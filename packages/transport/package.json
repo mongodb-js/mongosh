@@ -6,6 +6,8 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "pretest-browser": "karma start",
+    "test-browser": "karma run",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile"
   },
