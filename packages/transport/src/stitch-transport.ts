@@ -1,11 +1,8 @@
 import Transport from './transport';
+import StitchClient from './stitch-client';
+import StitchMongoClient from './stitch-mongo-client';
 import Cursor from './cursor';
 import Result from './result';
-
-import {
-  RemoteMongoClient as ServerMongoClient,
-  StitchAppClient as ServerStitchClient
-} from 'mongodb-stitch-server-sdk';
 
 /**
  * Constant for not implemented rejections.
@@ -20,7 +17,7 @@ const AGG_ON_DB = 'Aggregations run on the database is not allowed via Stitch';
 /**
  * Encapsulates logic for communicating with a MongoDB instance via Stitch.
  */
-class StitchTransport<S extends ServerStitchClient, M extends ServerMongoClient> implements Transport {
+class StitchTransport<S extends StitchClient, M extends StitchMongoClient> implements Transport {
   readonly stitchClient: S;
   readonly mongoClient: M;
 
