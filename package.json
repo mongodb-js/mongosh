@@ -6,6 +6,7 @@
   "scripts": {
     "prebootstrap": "npm install",
     "bootstrap": "lerna exec npm install",
+    "compile": "lerna run compile",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "check": "lerna run check",
