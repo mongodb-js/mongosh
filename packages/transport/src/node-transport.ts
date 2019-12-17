@@ -423,7 +423,6 @@ class NodeTransport implements Transport {
     options: object = {}) : Cursor {
 
     const findOptions = { ...options };
-    Object.assign(findOptions, options);
     if ('allowPartialResults' in findOptions) {
       // @ts-ignore
       findOptions.partial = findOptions.allowPartialResults;
