@@ -96,5 +96,4 @@ const compile = function(input, locations) {
   // return writer.visitNumericLiteral(tree);
 };
 // console.log(compileEcma('1'));
-console.log(compile('1'));
-// module.exports = compile;
+module.exports = compile;
