@@ -76,11 +76,8 @@ class StitchServerTransport implements Transport {
   aggregate(
     database: string,
     collection: string,
-    pipeline: object[] = []) : Cursor {
+    pipeline: object[] = []) : any {
 
-    if (collection === null) {
-      return Promise.reject(AGG_ON_DB);
-    }
     return this._db(database).collection(collection).
       aggregate(pipeline);
   }
@@ -169,7 +166,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Promise} The rejected promise.
    */
-  distinct() : Promise<Result> {
+  distinct() : any {
     return Promise.reject(`Distinct ${NOT_IMPLEMENTED}`);
   }
 
@@ -196,7 +193,7 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : Cursor {
+    options: object = {}) : any {
 
     return this._db(database).collection(collection).
       find(filter, options);
