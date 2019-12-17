@@ -220,7 +220,6 @@ describe('NodeTransport', () => {
 
     it('executes the command against the database', async() => {
       const cursor = await nodeTransport.find('music', 'bands', filter);
-      console.log(cursor);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
       findMock.verify();
