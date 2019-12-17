@@ -1,5 +1,7 @@
-help:
-    <<: *__defaultAttr
-    __value: 'Welcome to the new MongoDB Shell!'
-customCmd: *__defaultMethod
-use: *__defaultMethod
+class:
+    <<: *__defaultClass
+    __constructorArgs:
+        - _mapper
+    help: 'Welcome to the new MongoDB Shell!'
+    use: *__defaultMethod
+    it: *__defaultMethod

@@ -1,19 +1,67 @@
-__defaultAttr: &__defaultAttr
-    __type: 'attribute'
-    __value: null
+# Enums and Defaults
 
+ReadPreference: &ReadPreference
+    PRIMARY: &ReadPreference.primary 0
+    PRIMARY_PREFERRED: &ReadPreference.primary_preferred 1
+    SECONDARY: &ReadPreference.secondary 2
+    SECONDARY_PREFERRED: &ReadPreference.secondary_preferred 3
+    NEAREST: &ReadPreference.nearest 4
+
+DBQuery: &DBQuery
+    Option:
+        tailable: &DBQuery.tailable 2
+        slaveOk: &DBQuery.slaveOk 4
+        oplogReplay: &DBQuery.oplogReplay 8
+        noTimeout: &DBQuery.noTimeout 16
+        awaitData: &DBQuery.awaitData 32
+        exhaust: &DBQuery.exhaust 64
+        partial: &DBQuery.partial 128
+
+ServerVersions: &ServerVersions
+    latest: &ServerVersions.latest 4.4
+    earliest: &ServerVersions.earliest 0
+
+Topologies: &Topologies
+    ReplSet: &Topologies.ReplSet 0
+    Standalone: &Topologies.Standalone 1
+    Shard: &Topologies.Shard 2
+
+__all_versions: &__all_server_versions
+    - *ServerVersions.earliest
+    - *ServerVersions.latest
+
+__all_topologies: &__all_topologies
+    - *Topologies.ReplSet
+    - *Topologies.Standalone
+    - *Topologies.Shard
+
+# All the required metadata for a class definition.
+__defaultClass: &__defaultClass
+    # List of arguments to the constructor that will get stored as attributes.
+    __constructorArgs:
+        - _mapper
+    # The value that will be returned when class is printed.
+    __stringRep: JSON.stringify(this, null, ' ') # Default printing
+    # How to construct methods
+    __methods:
+        # What attribute should this class pass method calls to
+        wrappee: '_mapper'
+        # Any extra args that should be passed to wrappee. If none, set to ''
+        firstArg: 'this'
+
+# All the required metadata for a method definition
 __defaultMethod: &__defaultMethod
+    # The type
     __type: 'function'
+    # The help string
+    help: '!! No help defined for this method'
+    # What service providers support this method
     __serviceProviders:
         - 'Node'
         - 'Stitch'
         - 'Atlas'
-    __deprecated: false
-    help: 'default help'
-    serverVersions:
-        - 0
-        - -1
-    topologies:
-        - 'ReplSet'
-        - 'Standalone'
-        
+    # What server versions support this method
+    serverVersions: *__all_server_versions
+    # What topologies support this method
+    topologies: *__all_topologies
+
