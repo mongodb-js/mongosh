@@ -84,19 +84,19 @@ class CliRepl {
     const customEval = async (input, context, filename, callback) => {
       try {
         // Eval once with execution turned off and a throwaway copy of the context
-        this.mapper.checkAwait = true;
-        this.mapper.awaitLoc = [];
-        const copyCtx = context; // TODO: add lodash to copy_.cloneDeep(context);
-        await this.evaluator(originalEval, input, copyCtx, filename);
+        // this.mapper.checkAwait = true;
+        // this.mapper.awaitLoc = [];
+        // const copyCtx = context; // TODO: add lodash to copy_.cloneDeep(context);
+        // await this.evaluator(originalEval, input, copyCtx, filename);
 
         // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
-        const syncStr = compile(input, this.mapper.awaitLoc);
+        // const syncStr = compile(input, this.mapper.awaitLoc);
 
         // Eval the rewritten string, this time for real
-        this.mapper.checkAwait = false;
-        const str = await this.evaluator(originalEval, syncStr, context, filename);
+        // this.mapper.checkAwait = false;
+        // const str = await this.evaluator(originalEval, syncStr, context, filename);
 
-        // const str = await this.evaluator(originalEval, input, context, filename);
+        const str = await this.evaluator(originalEval, input, context, filename);
         callback(null, str);
       } catch (err) {
         callback(err, null);
