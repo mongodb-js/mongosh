@@ -168,6 +168,7 @@ class NodeCursor implements Cursor {
     return this;
   }
   toArray() {
+    console.log(this.cursor);
     return this.cursor.toArray();
   }
 }

@@ -39,7 +39,7 @@ describe('NodeTransport', () => {
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
     const aggMock = sinon.mock().withArgs(pipeline).
-      resolves({ toArray: () => Promise.resolve(aggResult) });
+      returns({ toArray: () => Promise.resolve(aggResult) });
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -205,7 +205,7 @@ describe('NodeTransport', () => {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
     const findMock = sinon.mock().withArgs(filter).
-      resolves({ toArray: () => Promise.resolve(findResult) });
+      returns({ toArray: () => Promise.resolve(findResult) });
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -220,6 +220,7 @@ describe('NodeTransport', () => {
 
     it('executes the command against the database', async() => {
       const cursor = await nodeTransport.find('music', 'bands', filter);
+      console.log(cursor);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
       findMock.verify();
