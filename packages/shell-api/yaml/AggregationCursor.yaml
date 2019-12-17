@@ -1,0 +1,52 @@
+class:
+    <<: *__defaultClass
+    __constructorArgs:
+        - _mapper
+        - _cursor
+    __stringRep:
+        - this._mapper.it()
+    __methods:
+        wrappee: _cursor
+        firstArg: ''
+    help: 'The aggregation cursor class.'
+    bsonsize: *__defaultMethod # TODO
+    close:
+        <<: *__defaultMethod
+        help: |-
+            Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.
+    forEach:
+        <<: *__defaultMethod
+        help: |-
+            Iterates the cursor to apply a JavaScript function to each document from the cursor.
+    hasNext:
+        <<: *__defaultMethod
+        help: |-
+            cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.
+    isClosed:
+        <<: *__defaultMethod
+        help: |-
+            Returns true if the cursor is closed.
+    isExhausted:
+        <<: *__defaultMethod
+        help: |-
+            cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.
+    itcount:
+        <<: *__defaultMethod
+        help: |-
+            Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.
+    map:
+        <<: *__defaultMethod
+        help: |-
+            Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.
+    next:
+        <<: *__defaultMethod
+        help: |-
+            The next document in the cursor returned by the db.collection.find() method.
+    objsLeftInBatch:
+        <<: *__defaultMethod
+        help: |-
+            cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.
+    toArray:
+        <<: *__defaultMethod
+        help: |-
+            The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.

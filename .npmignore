@@ -3,4 +3,3 @@
 .travis.yml
 .zuul.yml
 test/
-packages/transport/lib/

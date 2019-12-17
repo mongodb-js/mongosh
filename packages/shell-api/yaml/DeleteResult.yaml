@@ -1,0 +1,6 @@
+class:
+    <<: *__defaultClass
+    help: 'The DeleteResult class.'
+    __constructorArgs:
+        - acknowleged
+        - deletedCount

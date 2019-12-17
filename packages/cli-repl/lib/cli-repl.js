@@ -3,6 +3,8 @@ const util = require('util');
 const { CliServiceProvider } = require('mongosh-service-provider');
 const Mapper = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');
+const { compile } = require('mongosh-shell-api');
+// const _ = require('lodash');
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -36,14 +38,6 @@ class CliRepl {
 `);
   }
 
-  finish(err, res, cb) {
-    Promise.resolve(res).then((result) => {
-      cb(null, result);
-    }).catch((error) => {
-      cb(error, null);
-    });
-  }
-
   writer(output) {
     if (output && output.toReplString) {
       return output.toReplString();
@@ -53,8 +47,27 @@ class CliRepl {
     }
     return util.inspect(output, {
       showProxy: false,
-      colors: true
+      colors: true,
     });
+  }
+
+  async evaluator(originalEval, input, context, filename) {
+    const argv = input.trim().split(' ');
+    const cmd = argv[0];
+    argv.shift();
+    switch(cmd) {
+      case 'use':
+        return this.shellApi.use(argv[0]);
+      case 'it':
+        return this.shellApi.it();
+      case 'help()':
+        return this.shellApi.help;
+      case 'var':
+        this.mapper.cursorAssigned = true;
+      default:
+        const finalValue = await originalEval(input, context, filename);
+        return await this.writer(finalValue);
+    }
   }
 
   start() {
@@ -62,21 +75,33 @@ class CliRepl {
 
     this.repl = repl.start({
       prompt: `$${this.options.user} > `,
+      ignoreUndefined: true,
       writer: this.writer
     });
-    const originalEval = this.repl.eval;
 
-    const customEval = (input, context, filename, callback) => {
-      const argv = input.trim().split(' ');
-      const cmd = argv[0];
-      argv.shift();
-      switch(cmd) {
-        case 'use':
-          return callback(null, this.shellApi.use(argv[0]));
-        case 'help()':
-          return callback(null, this.shellApi.help); // TODO: get help() and help working for sub fields
-        default:
-          originalEval(input, context, filename, (err, res) => { this.finish(err, res, callback) });
+    const originalEval = util.promisify(this.repl.eval);
+
+    const customEval = async (input, context, filename, callback) => {
+      try {
+        // Eval once with execution turned off and a throwaway copy of the context
+        this.mapper.checkAwait = true;
+        this.mapper.awaitLoc = [];
+        const copyCtx = context; // TODO: add lodash to copy_.cloneDeep(context);
+        await this.evaluator(originalEval, input, copyCtx, filename);
+
+        // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
+        const syncStr = compile(input, this.mapper.awaitLoc);
+
+        // Eval the rewritten string, this time for real
+        this.mapper.checkAwait = false;
+        const str = await this.evaluator(originalEval, syncStr, context, filename);
+
+        // const str = await this.evaluator(originalEval, input, context, filename);
+        callback(null, str);
+      } catch (err) {
+        callback(err, null);
+      } finally {
+        this.mapper.cursorAssigned = false;
       }
     };
 
