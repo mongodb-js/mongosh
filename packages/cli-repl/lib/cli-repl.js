@@ -3,7 +3,7 @@ const util = require('util');
 const { CliServiceProvider } = require('mongosh-service-provider');
 const Mapper = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');
-const { compile } = require('mongosh-shell-api');
+// const { compile } = require('mongosh-shell-api');
 // const _ = require('lodash');
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
