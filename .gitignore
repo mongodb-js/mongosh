@@ -9,4 +9,4 @@ coverage
 *.swp
 lerna-debug.log
 packages/transport/lib
-packages/transport/lib
+packages/transport-core/lib
