@@ -45,6 +45,7 @@
     "mongosh-service-provider": "file:packages/service-provider",
     "mongosh-shell-api": "file:packages/shell-api",
     "mongosh-transport-core": "file:packages/transport-core",
+    "mongosh-transport-browser": "file:packages/transport-browser",
     "mongosh-transport-server": "file:packages/transport-server"
   }
 }
