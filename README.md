@@ -7,7 +7,7 @@ all environments (REPL, Browser, Compass, etc).
 
 ## Requirements
 
-- NodeJS `~10.2.1`
+- NodeJS `~12.4.0`
 
 ## Install
 
@@ -40,4 +40,10 @@ Start the CLI:
 
 ```shell
 npm start
+```
+
+Compile All Typescript
+
+```shell
+npm run compile
 ```
