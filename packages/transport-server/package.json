@@ -1,7 +1,7 @@
 {
-  "name": "mongosh-transport",
+  "name": "mongosh-transport-server",
   "version": "0.0.0",
-  "description": "MongoDB Shell Transport Package",
+  "description": "MongoDB Shell Transport Server Package",
   "main": "lib/index.js",
   "scripts": {
     "compile": "tsc -p tsconfig.json",

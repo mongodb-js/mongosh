@@ -1,4 +1,4 @@
-const { NodeTransport } = require('mongosh-transport');
+const { NodeTransport } = require('mongosh-transport-server');
 
 /**
  * Encapsulates logic for the service provider for Compass.
