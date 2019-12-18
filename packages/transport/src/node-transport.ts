@@ -1,7 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
-import Transport from './transport';
-import Cursor from './cursor';
-import Result from './result';
+import { Transport, Cursor, Result } from 'mongosh-transport-core';
 
 /**
  * Default driver options we always use.
