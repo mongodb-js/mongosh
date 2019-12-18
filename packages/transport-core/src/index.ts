@@ -4,6 +4,7 @@ import Readable from './readable';
 import Result from './result';
 import StitchTransport from './stitch-transport';
 import Transport from './transport';
+import UnsupportedCursor from './unsupported-cursor';
 import Writable from './writable';
 
 export {
@@ -13,5 +14,6 @@ export {
   Result,
   StitchTransport,
   Transport,
+  UnsupportedCursor,
   Writable,
 };
