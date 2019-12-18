@@ -34,8 +34,6 @@
     "mocha": "^6.2.1",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
-    "mongodb-stitch-browser-sdk": "^4.7.0",
-    "mongodb-stitch-server-sdk": "^4.7.0",
     "sinon": "^7.5.0",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2",
@@ -46,6 +44,7 @@
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider": "file:packages/service-provider",
     "mongosh-shell-api": "file:packages/shell-api",
-    "mongosh-transport": "file:packages/transport"
+    "mongosh-transport": "file:packages/transport",
+    "mongosh-transport": "file:packages/transport-core"
   }
 }

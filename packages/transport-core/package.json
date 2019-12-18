@@ -1,0 +1,15 @@
+{
+  "name": "mongosh-transport-core",
+  "version": "0.0.0",
+  "description": "MongoDB Shell Transport Core APIs",
+  "main": "lib/index.js",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ]
+  }
+}
