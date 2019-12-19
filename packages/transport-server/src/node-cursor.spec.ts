@@ -121,6 +121,25 @@ describe('NodeCursor', () => {
     });
   });
 
+  describe('#count', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().returns(Promise.resolve(5));
+      cursor = sinon.createStubInstance(Cursor, {
+        count: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the comment', async() => {
+      expect(await nodeCursor.count()).to.equal(5);
+      mock.verify();
+    });
+  });
+
   describe('#noTimeout', () => {
     let cursor;
     let nodeCursor;

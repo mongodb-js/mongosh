@@ -123,7 +123,12 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  count() {
+  /**
+   * Get the count from the cursor.
+   *
+   * @returns {Promise<number>} The count.
+   */
+  count(): Promise<number> {
     return this.cursor.count();
   }
 
