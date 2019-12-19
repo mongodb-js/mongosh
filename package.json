@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prebootstrap": "npm install",
-    "bootstrap": "lerna exec npm install",
+    "bootstrap": "lerna run install",
     "compile": "lerna run compile",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",

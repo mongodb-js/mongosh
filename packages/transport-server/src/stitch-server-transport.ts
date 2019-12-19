@@ -111,6 +111,13 @@ class StitchServerTransport implements Transport {
   }
 
   /**
+   * Close the connection.
+   */
+  close(): void {
+    this.stitchTransport.stitchClient.close();
+  }
+
+  /**
    * Delete multiple documents from the collection.
    *
    * @param {String} database - The database name.
@@ -149,9 +156,9 @@ class StitchServerTransport implements Transport {
   /**
    * Not implemented in Stitch.
    *
-   * @returns {Promise} The rejected promise.
+   * @returns {Cursor} The rejected promise.
    */
-  distinct() : Promise<Result> {
+  distinct() : Cursor {
     return this.stitchTransport.distinct();
   }
 

@@ -24,16 +24,12 @@ describe('StitchServerTransport [ integration ]', function() {
     });
 
     after(() => {
-      return stitchTransport.stitchClient.close();
+      stitchTransport.close();
     });
 
     describe('.fromAppId', () => {
-      it('returns a StitchServerTransport with stitch client set', () => {
-        expect(stitchTransport.stitchClient).to.not.equal(undefined);
-      });
-
-      it('contains a connected mongo client', () => {
-        expect(stitchTransport.mongoClient).to.not.equal(undefined);
+      it('returns a StitchServerTransport with stitch transport set', () => {
+        expect(stitchTransport.stitchTransport).to.not.equal(undefined);
       });
     });
 
@@ -117,7 +113,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
     describe('#distinct', () => {
       it('it rejects the action', () => {
-        return stitchTransport.distinct().catch((err) => {
+        return stitchTransport.distinct().toArray().catch((err) => {
           expect(err).to.not.equal(null);
         });
       });
