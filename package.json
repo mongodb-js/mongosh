@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prebootstrap": "npm install",
-    "bootstrap": "lerna exec npm install --concurrency 1",
+    "bootstrap": "lerna exec -- npm install --no-package-lock",
     "compile": "lerna run compile",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
