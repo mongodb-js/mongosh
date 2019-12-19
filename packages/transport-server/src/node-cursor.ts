@@ -81,8 +81,13 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  close() {
-    this.cursor.close();
+  /**
+   * Close the cursor.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  close(options: Document): NodeCursor {
+    this.cursor.close(options);
     return this;
   }
 
