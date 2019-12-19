@@ -80,4 +80,61 @@ describe('NodeCursor', () => {
       mock.verify();
     });
   });
+
+  describe('#noTimeout', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(Flag.NoTimeout, true);
+      cursor = sinon.createStubInstance(Cursor, {
+        addCursorFlag: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly adds the cursor flag', () => {
+      expect(nodeCursor.noTimeout()).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#oplogReplay', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(Flag.OplogReplay, true);
+      cursor = sinon.createStubInstance(Cursor, {
+        addCursorFlag: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly adds the cursor flag', () => {
+      expect(nodeCursor.oplogReplay()).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#tailable', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(Flag.Tailable, true);
+      cursor = sinon.createStubInstance(Cursor, {
+        addCursorFlag: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly adds the cursor flag', () => {
+      expect(nodeCursor.tailable()).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
 });

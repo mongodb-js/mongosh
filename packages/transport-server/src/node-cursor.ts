@@ -65,8 +65,7 @@ class NodeCursor implements Cursor {
    * @returns {NodeCursor} The cursor.
    */
   allowPartialResults(): NodeCursor {
-    this.cursor.addCursorFlag(Flag.Partial, true);
-    return this;
+    return this.addFlag(Flag.Partial);
   }
 
   /**
@@ -91,125 +90,186 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  isClosed() {
+  /**
+   * Determine if the cursor has been closed.
+   *
+   * @returns {boolean} If the cursor is closed.
+   */
+  isClosed(): boolean {
     return this.cursor.isClosed();
   }
+
   collation(doc) {
     this.cursor.collation(doc);
     return this;
   }
+
   comment(cmt) {
     this.cursor.comment(cmt);
     return this;
   }
+
   count() {
     return this.cursor.count();
   }
+
   explain() {
     this.cursor.explain();
     return this;
   }
+
   forEach(f) {
     this.cursor.forEach(f);
     return this;
   }
+
   hasNext() {
     return this.cursor.hasNext();
   }
+
   hint(index) {
     this.cursor.hint(index);
     return this;
   }
+
   getQueryPlan() {
     this.cursor.explain('executionStats');
     return this;
   }
+
   isExhausted() {
     return this.cursor.isClosed() && !this.cursor.hasNext();
   }
+
   itcount() {
     return this.cursor.toArray().length;
   }
+
   limit(l) {
     this.cursor.limit(l);
     return this;
   }
+
   map(f) {
     this.cursor.map(f);
     return this;
   }
+
   max(indexBounds) {
     this.cursor.max(indexBounds);
     return this;
   }
+
   maxTimeMS(ms) {
     this.cursor.maxTimeMS(ms);
     return this;
   }
+
   min(indexBounds) {
     this.cursor.min(indexBounds);
     return this;
   }
+
   next() {
     return this.cursor.next();
   }
+
   modifiers() { // TODO
     return this.cursor.cmd;
   }
-  noCursorTimeout() {
-    this.cursor.addCursorFlag('noCursorTimeout', true);
-    return this;
+
+  /**
+   * Tell the cursor not to timeout.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  noTimeout() {
+    return this.addFlag(Flag.NoTimeout);
   }
+
   objsLeftInBatch() {
     // TODO
   }
-  oplogReplay() {
-    this.cursor.addCursorFlag('oplogReplay', true);
-    return this;
+
+  /**
+   * Flag the cursor as an oplog replay.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  oplogReplay(): NodeCursor {
+    return this.addFlag(Flag.OplogReplay);
   }
+
   projection(v) {
     this.cursor.project(v);
     return this;
   }
+
   pretty() {
     // TODO
   }
+
   readConcern(v) {
     // TODO
   }
+
   readPref(v) {
     this.cursor.setReadPreference(v);
     return this;
   }
+
   returnKey() {
     this.cursor.returnKey();
     return this;
   }
+
   showDiskLoc() {
     this.cursor.showRecordId(true);
     return this;
   }
+
   showRecordId() {
     this.cursor.showRecordId(true);
     return this;
   }
+
   size() {
     return this.cursor.count(); // TODO: size same as count?
   }
+
   skip(s) {
     this.cursor.skip(s);
     return this;
   }
+
   sort(s) {
     this.cursor.sort(s);
     return this;
   }
-  tailable() {
-    this.cursor.addCursorFlag('tailable', true);
-    return this;
+
+  /**
+   * Flag the cursor as tailable.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  tailable(): NodeCursor {
+    return this.addFlag(Flag.Tailable);
   }
+
   toArray() {
     return this.cursor.toArray();
+  }
+
+  /**
+   * Add a flag and return the cursor.
+   *
+   * @param {Flag} flag - The cursor flag.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  private addFlag(flag: Flag): NodeCursor {
+    this.cursor.addCursorFlag(flag, true);
+    return this;
   }
 }
 
