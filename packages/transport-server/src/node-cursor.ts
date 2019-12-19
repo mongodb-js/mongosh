@@ -111,7 +111,14 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  comment(cmt) {
+  /**
+   * Add a comment to the cursor.
+   *
+   * @param {string} cmt - The comment.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  comment(cmt: string) {
     this.cursor.comment(cmt);
     return this;
   }

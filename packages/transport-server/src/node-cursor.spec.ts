@@ -101,6 +101,26 @@ describe('NodeCursor', () => {
     });
   });
 
+  describe('#comment', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const cmt = 'hi';
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(cmt);
+      cursor = sinon.createStubInstance(Cursor, {
+        comment: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the comment', () => {
+      expect(nodeCursor.comment(cmt)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
   describe('#noTimeout', () => {
     let cursor;
     let nodeCursor;
