@@ -139,6 +139,12 @@ var StitchServerTransport = /** @class */ (function () {
         return this.stitchTransport.countDocuments(database, collection, filter, options);
     };
     /**
+     * Close the connection.
+     */
+    StitchServerTransport.prototype.close = function () {
+        this.stitchTransport.stitchClient.close();
+    };
+    /**
      * Delete multiple documents from the collection.
      *
      * @param {String} database - The database name.
@@ -169,7 +175,7 @@ var StitchServerTransport = /** @class */ (function () {
     /**
      * Not implemented in Stitch.
      *
-     * @returns {Promise} The rejected promise.
+     * @returns {Cursor} The rejected promise.
      */
     StitchServerTransport.prototype.distinct = function () {
         return this.stitchTransport.distinct();
