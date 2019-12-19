@@ -132,7 +132,12 @@ class NodeCursor implements Cursor {
     return this.cursor.count();
   }
 
-  explain() {
+  /**
+   * Tell the cursor to execute an explain plan.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  explain(): NodeCursor {
     this.cursor.explain();
     return this;
   }
