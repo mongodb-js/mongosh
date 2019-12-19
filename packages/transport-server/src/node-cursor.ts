@@ -4,7 +4,7 @@ import { Cursor } from 'mongosh-transport-core';
 /**
  * Enum for the available cursor flags.
  */
-enum Flag {
+const enum Flag {
   Tailable = 'tailable',
   SlaveOk = 'slaveOk',
   OplogReplay = 'oplogReplay',
@@ -52,17 +52,23 @@ class NodeCursor implements Cursor {
    */
   addOption(option: number): NodeCursor {
     const opt = FLAGS[option];
-    if (opt === Flag.SlaveOk || !!opt) {
+    if (opt === Flag.SlaveOk || !opt) {
       return this; // TODO
     }
     this.cursor.addCursorFlag(opt, true);
     return this;
   }
 
+  /**
+   * Set cursor to allow partial results.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
   allowPartialResults() {
-    this.cursor.addCursorFlag('partial', true);
+    this.cursor.addCursorFlag(Flag.Partial, true);
     return this;
   }
+
   batchSize(size) {
     this.cursor.setCursorBatchSize(size);
     return this;
