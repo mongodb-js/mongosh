@@ -147,11 +147,23 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  hasNext() {
+  /**
+   * Does the cursor have a next document?
+   *
+   * @returns {boolean} If there is a next document.
+   */
+  hasNext(): boolean {
     return this.cursor.hasNext();
   }
 
-  hint(index) {
+  /**
+   * Set a hint for indexes on the cursor.
+   *
+   * @param {string} index - The index hint.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  hint(index: string): NodeCursor {
     this.cursor.hint(index);
     return this;
   }
@@ -169,8 +181,15 @@ class NodeCursor implements Cursor {
     return this.cursor.toArray().length;
   }
 
-  limit(l) {
-    this.cursor.limit(l);
+  /**
+   * Set the limit of documents to return.
+   *
+   * @param {number} value - The limit value.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  limit(value: number): NodeCursor {
+    this.cursor.limit(value);
     return this;
   }
 
@@ -179,17 +198,38 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  max(indexBounds) {
+  /**
+   * Set the max index bounds.
+   *
+   * @param {Document} indexBounds - The max bounds.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  max(indexBounds: Document): NodeCursor {
     this.cursor.max(indexBounds);
     return this;
   }
 
-  maxTimeMS(ms) {
-    this.cursor.maxTimeMS(ms);
+  /**
+   * Set the maxTimeMS value.
+   *
+   * @param {number} The maxTimeMS value.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  maxTimeMS(value: number): NodeCursor {
+    this.cursor.maxTimeMS(value);
     return this;
   }
 
-  min(indexBounds) {
+  /**
+   * Set the min index bounds.
+   *
+   * @param {Document} indexBounds - The min bounds.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  min(indexBounds: Document): NodeCursor {
     this.cursor.min(indexBounds);
     return this;
   }
@@ -224,8 +264,15 @@ class NodeCursor implements Cursor {
     return this.addFlag(Flag.OplogReplay);
   }
 
-  projection(v) {
-    this.cursor.project(v);
+  /**
+   * Set the projection on the cursor.
+   *
+   * @param {Document} spec - The projection.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  projection(spec: Document): NodeCursor {
+    this.cursor.project(spec);
     return this;
   }
 
@@ -237,23 +284,49 @@ class NodeCursor implements Cursor {
     // TODO
   }
 
-  readPref(v) {
-    this.cursor.setReadPreference(v);
+  /**
+   * Set the read preference.
+   *
+   * @param {string} preference - The read preference.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  readPref(preference: string): NodeCursor {
+    this.cursor.setReadPreference(preference);
     return this;
   }
 
-  returnKey() {
-    this.cursor.returnKey();
+  /**
+   * Set the cursor to return the index field.
+   *
+   * @param {boolean} enabled - Whether to enable return key.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  returnKey(enabled: boolean): NodeCursor {
+    this.cursor.returnKey(enabled);
     return this;
   }
 
-  showDiskLoc() {
+  /**
+   * Enable showing disk location.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  showDiskLoc(): NodeCursor {
     this.cursor.showRecordId(true);
     return this;
   }
 
-  showRecordId() {
-    this.cursor.showRecordId(true);
+  /**
+   * Enable/disable showing the disk location.
+   *
+   * @param {boolean} enabled - The value.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  showRecordId(enabled: boolean): NodeCursor {
+    this.cursor.showRecordId(enabled);
     return this;
   }
 
@@ -261,13 +334,27 @@ class NodeCursor implements Cursor {
     return this.cursor.count(); // TODO: size same as count?
   }
 
-  skip(s) {
-    this.cursor.skip(s);
+  /**
+   * Set the skip value.
+   *
+   * @param {number} value - The number of docs to skip.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  skip(value: number): NodeCursor {
+    this.cursor.skip(value);
     return this;
   }
 
-  sort(s) {
-    this.cursor.sort(s);
+  /**
+   * Set the sort on the cursor.
+   *
+   * @param {Document} spec - The sort.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  sort(spec: Document): NodeCursor {
+    this.cursor.sort(spec);
     return this;
   }
 

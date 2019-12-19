@@ -159,6 +159,125 @@ describe('NodeCursor', () => {
     });
   });
 
+  describe('#hasNext', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().returns(true);
+      cursor = sinon.createStubInstance(Cursor, {
+        hasNext: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('returns the cursor hasNext value', () => {
+      expect(nodeCursor.hasNext()).to.equal(true);
+      mock.verify();
+    });
+  });
+
+  describe('#hint', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const index = 'a_1';
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(index);
+      cursor = sinon.createStubInstance(Cursor, {
+        hint: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets hint', () => {
+      expect(nodeCursor.hint(index)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#limit', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = 6;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        limit: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets limit', () => {
+      expect(nodeCursor.limit(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#max', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = { a: 1 };
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        max: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets max', () => {
+      expect(nodeCursor.max(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#maxTimeMS', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = 5000;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        maxTimeMS: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets maxTimeMS', () => {
+      expect(nodeCursor.maxTimeMS(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#min', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = { a: 1 };
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        min: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets min', () => {
+      expect(nodeCursor.min(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
   describe('#noTimeout', () => {
     let cursor;
     let nodeCursor;
@@ -193,6 +312,145 @@ describe('NodeCursor', () => {
 
     it('fluidly adds the cursor flag', () => {
       expect(nodeCursor.oplogReplay()).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#projection', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = { a: 1 };
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        project: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets projection', () => {
+      expect(nodeCursor.projection(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#readPref', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = 'primary';
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        setReadPreference: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the read preference', () => {
+      expect(nodeCursor.readPref(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#returnKey', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = true;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        returnKey: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the return key value', () => {
+      expect(nodeCursor.returnKey(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#showDiskLoc', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(true);
+      cursor = sinon.createStubInstance(Cursor, {
+        showRecordId: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the show disk location flag', () => {
+      expect(nodeCursor.showDiskLoc()).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#showRecordId', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = true;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        showRecordId: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the show record id value', () => {
+      expect(nodeCursor.showRecordId(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#skip', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = 6;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        skip: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets skip', () => {
+      expect(nodeCursor.skip(value)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
+  describe('#sort', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const value = { a: 1 };
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(value);
+      cursor = sinon.createStubInstance(Cursor, {
+        sort: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets sort', () => {
+      expect(nodeCursor.sort(value)).to.equal(nodeCursor);
       mock.verify();
     });
   });
