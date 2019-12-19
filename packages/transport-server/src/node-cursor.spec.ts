@@ -81,6 +81,26 @@ describe('NodeCursor', () => {
     });
   });
 
+  describe('#collation', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+    const coll = { locale: 'en' };
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(coll);
+      cursor = sinon.createStubInstance(Cursor, {
+        collation: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly sets the collation', () => {
+      expect(nodeCursor.collation(coll)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
+
   describe('#noTimeout', () => {
     let cursor;
     let nodeCursor;

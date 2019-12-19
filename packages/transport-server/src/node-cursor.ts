@@ -99,8 +99,15 @@ class NodeCursor implements Cursor {
     return this.cursor.isClosed();
   }
 
-  collation(doc) {
-    this.cursor.collation(doc);
+  /**
+   * Set the collation on the cursor.
+   *
+   * @param {Document} spec - The collation.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  collation(spec: Document): NodeCursor {
+    this.cursor.collation(spec);
     return this;
   }
 
