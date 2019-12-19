@@ -7,57 +7,46 @@ const JavaScriptLexer = require('../antlr/JavaScriptLexer.js').JavaScriptLexer;
 const JavaScriptParser = require('../antlr/JavaScriptParser.js').JavaScriptParser;
 const JavaScriptVisitor = require('../antlr/JavaScriptParserVisitor.js').JavaScriptParserVisitor;
 
-class AsyncWriter extends JavaScriptVisitor {
-  constructor(chars, tokens, shellApi) {
+class AsyncWriter extends ECMAScriptVisitor {
+  constructor(chars, tokens) {
     super();
     this.inputStream = chars;
     this.commonTokenStream = tokens;
-    this.shellApi = shellApi;
   }
-  // visitChildren(ctx) {
-  //   return ctx.children.reduce((str, node) => {
-  //     return `${str}${this.visit(node)}`;
-  //   }, '').trim();
-  // }
-  // visitEof() {
-  //   return '';
-  // }
-  // visitEos() {
-  //   return '\n';
-  // }
-  // visitTerminal(ctx) {
-  //   if (this.commonTokenStream.tokens.length > ctx.symbol.tokenIndex + 1) { // lookahead
-  //     const lookahead = this.commonTokenStream.tokens[ctx.symbol.tokenIndex + 1];
-  //     if (lookahead.channel === 1) {
-  //       return `${ctx.getText()}${this.inputStream.getText(lookahead.start, lookahead.stop)}`;
-  //     }
-  //   }
-  //   return ctx.getText();
-  // }
-  // visitArgumentsExpression(ctx) {
-  //   const startIndex = ctx.start.start;
-  //   const endIndex = ctx.stop.stop;
-  //   for (let n = 0; n < this.locations.length; n++) {
-  //     const loc = this.locations[n];
-  //     if (loc < endIndex && loc > startIndex) {
-  //       return `(await ${this.visitChildren(ctx)})`;
-  //     }
-  //   }
-  //   return this.visitChildren(ctx);
-  // }
-}
-class JavaScriptWriter extends JavaScriptVisitor {
   visitChildren(ctx) {
     return ctx.children.reduce((str, node) => {
       return `${str}${this.visit(node)}`;
     }, '').trim();
   }
+  visitEof() {
+    return '';
+  }
+  visitEos() {
+    return '\n';
+  }
   visitTerminal(ctx) {
+    if (this.commonTokenStream.tokens.length > ctx.symbol.tokenIndex + 1) { // lookahead
+      const lookahead = this.commonTokenStream.tokens[ctx.symbol.tokenIndex + 1];
+      if (lookahead.channel === 1) {
+        return `${ctx.getText()}${this.inputStream.getText(lookahead.start, lookahead.stop)}`;
+      }
+    }
     return ctx.getText();
+  }
+  visitFuncCallExpression(ctx) {
+    const startIndex = ctx.start.start;
+    const endIndex = ctx.stop.stop;
+    for (let n = 0; n < this.locations.length; n++) {
+      const loc = this.locations[n];
+      if (loc < endIndex && loc > startIndex) {
+        return `(await ${this.visitChildren(ctx)})`;
+      }
+    }
+    return this.visitChildren(ctx);
   }
 }
 
-class ECMAScriptWriter extends ECMAScriptVisitor {
+class JavaScriptWriter extends JavaScriptVisitor {
   visitChildren(ctx) {
     return ctx.children.reduce((str, node) => {
       return `${str}${this.visit(node)}`;
@@ -77,12 +66,13 @@ const compileEcma = function(input, locations) {
   parser.buildParseTrees = true;
   const tree = parser.program();
 
-  const writer = new ECMAScriptWriter();
-  // writer.locations = locations;
-  return writer.visitProgram(tree);
-}
+  const writer = new AsyncWriter(chars, tokens);
+  writer.locations = locations;
+  const x = writer.visitProgram(tree);
+  return x;
+};
 
-const compile = function(input, locations) {
+const compileJS = function(input, locations) {
   const chars = new antlr4.InputStream(input);
   const lexer = new JavaScriptLexer(chars);
   lexer.strictMode = false;
@@ -95,5 +85,12 @@ const compile = function(input, locations) {
   // writer.locations = locations;
   // return writer.visitNumericLiteral(tree);
 };
-// console.log(compileEcma('1'));
-module.exports = compile;
+
+if (require.main === module) {
+  console.log('compiling "1" using ECMAScript grammar');
+  console.log(compileEcma('1'));
+  console.log('compiling "1" using JavaScript grammar');
+  console.log(compileJS('1'));
+}
+
+module.exports = compileEcma;

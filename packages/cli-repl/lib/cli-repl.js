@@ -3,8 +3,8 @@ const util = require('util');
 const { CliServiceProvider } = require('mongosh-service-provider');
 const Mapper = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');
-// const { compile } = require('mongosh-shell-api');
-// const _ = require('lodash');
+const { compile } = require('mongosh-shell-api');
+const _ = require('lodash');
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -21,9 +21,10 @@ class CliRepl {
     this.options.cwd = colorize(COLORS.YELLOW, this.options.cwd);
   }
 
-  constructor(argv) {
-    this.processCmdArgs(argv || {});
+  constructor(useAntlr) {
+    this.processCmdArgs({});
 
+    this.useAntlr = !!useAntlr;
     this.serviceProvider = new CliServiceProvider(this.options.uri);
 
     this.mapper = new Mapper(this.serviceProvider);
@@ -83,20 +84,26 @@ class CliRepl {
 
     const customEval = async (input, context, filename, callback) => {
       try {
-        // Eval once with execution turned off and a throwaway copy of the context
-        // this.mapper.checkAwait = true;
-        // this.mapper.awaitLoc = [];
-        // const copyCtx = context; // TODO: add lodash to copy_.cloneDeep(context);
-        // await this.evaluator(originalEval, input, copyCtx, filename);
+        let str;
+        if (this.useAntlr) {
+          // Eval once with execution turned off and a throwaway copy of the context
+          this.mapper.checkAwait = true;
+          this.mapper.awaitLoc = [];
+          const copyCtx = _.cloneDeep(context);
+          await this.evaluator(originalEval, input, copyCtx, filename);
 
-        // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
-        // const syncStr = compile(input, this.mapper.awaitLoc);
+          // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
+          const syncStr = compile(input, this.mapper.awaitLoc);
+          if (syncStr.trim() !== input.trim()) {
+            console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
+          }
 
-        // Eval the rewritten string, this time for real
-        // this.mapper.checkAwait = false;
-        // const str = await this.evaluator(originalEval, syncStr, context, filename);
-
-        const str = await this.evaluator(originalEval, input, context, filename);
+          // Eval the rewritten string, this time for real
+          this.mapper.checkAwait = false;
+          str = await this.evaluator(originalEval, syncStr, context, filename);
+        } else {
+          str = await this.evaluator(originalEval, input, context, filename);
+        }
         callback(null, str);
       } catch (err) {
         callback(err, null);

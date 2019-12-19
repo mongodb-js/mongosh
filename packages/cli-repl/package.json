@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --experimental-repl-await index.js start",
+    "start-antlr": "node --experimental-repl-await index.js start-antlr",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
