@@ -46,8 +46,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongodb_1 = require("mongodb");
+var node_cursor_1 = __importDefault(require("./node-cursor"));
 /**
  * Default driver options we always use.
  */
@@ -55,163 +59,6 @@ var DEFAULT_OPTIONS = Object.freeze({
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
-/**
- * Common interface for transport functions that need to return an
- * iterable result. This class wraps the node driver cursor.
- */
-var NodeCursor = /** @class */ (function () {
-    function NodeCursor(cursor) {
-        this.cursor = cursor;
-    }
-    NodeCursor.prototype.addOption = function (option) {
-        var dbOption = {
-            2: "tailable",
-            4: "slaveOk",
-            8: "oplogReplay",
-            16: "noTimeout",
-            32: "awaitData",
-            64: "exhaust",
-            128: "partial"
-        };
-        var opt = dbOption[option];
-        if (opt === 'slaveOk' || !!opt) { } // TODO
-        this.cursor.addCursorFlag(opt, true);
-        return this;
-    };
-    NodeCursor.prototype.allowPartialResults = function () {
-        this.cursor.addCursorFlag('partial', true);
-        return this;
-    };
-    NodeCursor.prototype.batchSize = function (size) {
-        this.cursor.setCursorBatchSize(size);
-        return this;
-    };
-    NodeCursor.prototype.close = function () {
-        this.cursor.close();
-        return this;
-    };
-    NodeCursor.prototype.isClosed = function () {
-        return this.cursor.isClosed();
-    };
-    NodeCursor.prototype.collation = function (doc) {
-        this.cursor.collation(doc);
-        return this;
-    };
-    NodeCursor.prototype.comment = function (cmt) {
-        this.cursor.comment(cmt);
-        return this;
-    };
-    NodeCursor.prototype.count = function () {
-        return this.cursor.count();
-    };
-    NodeCursor.prototype.explain = function () {
-        this.cursor.explain();
-        return this;
-    };
-    NodeCursor.prototype.forEach = function (f) {
-        this.cursor.forEach(f);
-        return this;
-    };
-    NodeCursor.prototype.hasNext = function () {
-        return this.cursor.hasNext();
-    };
-    NodeCursor.prototype.hint = function (index) {
-        this.cursor.hint(index);
-        return this;
-    };
-    NodeCursor.prototype.getQueryPlan = function () {
-        this.cursor.explain('executionStats');
-        return this;
-    };
-    NodeCursor.prototype.isExhausted = function () {
-        return this.cursor.isClosed() && !this.cursor.hasNext();
-    };
-    NodeCursor.prototype.itcount = function () {
-        return this.cursor.toArray().length;
-    };
-    NodeCursor.prototype.limit = function (l) {
-        this.cursor.limit(l);
-        return this;
-    };
-    NodeCursor.prototype.map = function (f) {
-        this.cursor.map(f);
-        return this;
-    };
-    NodeCursor.prototype.max = function (indexBounds) {
-        this.cursor.max(indexBounds);
-        return this;
-    };
-    NodeCursor.prototype.maxTimeMS = function (ms) {
-        this.cursor.maxTimeMS(ms);
-        return this;
-    };
-    NodeCursor.prototype.min = function (indexBounds) {
-        this.cursor.min(indexBounds);
-        return this;
-    };
-    NodeCursor.prototype.next = function () {
-        return this.cursor.next();
-    };
-    NodeCursor.prototype.modifiers = function () {
-        return this.cursor.cmd;
-    };
-    NodeCursor.prototype.noCursorTimeout = function () {
-        this.cursor.addCursorFlag('noCursorTimeout', true);
-        return this;
-    };
-    NodeCursor.prototype.objsLeftInBatch = function () {
-        // TODO
-    };
-    NodeCursor.prototype.oplogReplay = function () {
-        this.cursor.addCursorFlag('oplogReplay', true);
-        return this;
-    };
-    NodeCursor.prototype.projection = function (v) {
-        this.cursor.project(v);
-        return this;
-    };
-    NodeCursor.prototype.pretty = function () {
-        // TODO
-    };
-    NodeCursor.prototype.readConcern = function (v) {
-        // TODO
-    };
-    NodeCursor.prototype.readPref = function (v) {
-        this.cursor.setReadPreference(v);
-        return this;
-    };
-    NodeCursor.prototype.returnKey = function () {
-        this.cursor.returnKey();
-        return this;
-    };
-    NodeCursor.prototype.showDiskLoc = function () {
-        this.cursor.showRecordId(true);
-        return this;
-    };
-    NodeCursor.prototype.showRecordId = function () {
-        this.cursor.showRecordId(true);
-        return this;
-    };
-    NodeCursor.prototype.size = function () {
-        return this.cursor.count(); // TODO: size same as count?
-    };
-    NodeCursor.prototype.skip = function (s) {
-        this.cursor.skip(s);
-        return this;
-    };
-    NodeCursor.prototype.sort = function (s) {
-        this.cursor.sort(s);
-        return this;
-    };
-    NodeCursor.prototype.tailable = function () {
-        this.cursor.addCursorFlag('tailable', true);
-        return this;
-    };
-    NodeCursor.prototype.toArray = function () {
-        return this.cursor.toArray();
-    };
-    return NodeCursor;
-}());
 /**
  * Encapsulates logic for communicating with a MongoDB instance via
  * the Node Driver.
@@ -267,9 +114,9 @@ var NodeTransport = /** @class */ (function () {
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
         if (collection === null) {
-            return this._db(database).aggregate(pipeline, options);
+            return this.db(database).aggregate(pipeline, options);
         }
-        return new NodeCursor(this._db(database).collection(collection).aggregate(pipeline, options));
+        return new node_cursor_1.default(this.db(database).collection(collection).aggregate(pipeline, options));
     };
     /**
      * Run an aggregation pipeline only on a DB.
@@ -288,7 +135,7 @@ var NodeTransport = /** @class */ (function () {
         if (pipeline === void 0) { pipeline = []; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return new NodeCursor(this._db(database, dbOptions).aggregate(pipeline, options));
+        return new node_cursor_1.default(this.db(database, dbOptions).aggregate(pipeline, options));
     };
     /**
      * Execute a mix of write operations.
@@ -305,7 +152,7 @@ var NodeTransport = /** @class */ (function () {
         if (requests === void 0) { requests = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             bulkWrite(requests, options);
     };
     /**
@@ -323,7 +170,7 @@ var NodeTransport = /** @class */ (function () {
         if (query === void 0) { query = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).count(query);
+        return this.db(database, dbOptions).collection(collection).count(query);
     };
     /**
      * Get an exact document count from the collection.
@@ -339,7 +186,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             countDocuments(filter, options);
     };
     /**
@@ -357,7 +204,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             deleteMany(filter, options);
     };
     /**
@@ -375,7 +222,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             deleteOne(filter, options);
     };
     /**
@@ -394,7 +241,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             distinct(fieldName, filter, options);
     };
     /**
@@ -410,7 +257,7 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.estimatedDocumentCount = function (database, collection, options, dbOptions) {
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             estimatedDocumentCount(options);
     };
     /**
@@ -439,7 +286,7 @@ var NodeTransport = /** @class */ (function () {
             // @ts-ignore
             findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
         }
-        return new NodeCursor(this._db(database).collection(collection).find(filter, options));
+        return new node_cursor_1.default(this.db(database).collection(collection).find(filter, options));
     };
     /**
      * Find one document and delete it.
@@ -456,7 +303,7 @@ var NodeTransport = /** @class */ (function () {
         if (filter === void 0) { filter = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             findOneAndDelete(filter, options);
     };
     /**
@@ -481,7 +328,7 @@ var NodeTransport = /** @class */ (function () {
             // @ts-ignore
             delete findOneAndReplaceOptions.returnDocument;
         }
-        return this._db(database).collection(collection).
+        return this.db(database).collection(collection).
             findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
     };
     /**
@@ -506,7 +353,7 @@ var NodeTransport = /** @class */ (function () {
             // @ts-ignore
             delete findOneAndReplaceOptions.returnDocument;
         }
-        return this._db(database).collection(collection).
+        return this.db(database).collection(collection).
             findOneAndUpdate(filter, update, findOneAndUpdateOptions);
     };
     /**
@@ -524,7 +371,7 @@ var NodeTransport = /** @class */ (function () {
         if (docs === void 0) { docs = []; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             insertMany(docs, options);
     };
     /**
@@ -542,7 +389,7 @@ var NodeTransport = /** @class */ (function () {
         if (doc === void 0) { doc = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             insertOne(doc, options);
     };
     /**
@@ -553,7 +400,7 @@ var NodeTransport = /** @class */ (function () {
      * @returns {Promise} The promise of the result.
      */
     NodeTransport.prototype.isCapped = function (database, collection) {
-        return this._db(database).collection(collection).isCapped();
+        return this.db(database).collection(collection).isCapped();
     };
     /**
      * Deprecated remove command.
@@ -567,12 +414,12 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.remove = function (database, collection, query, options) {
         if (query === void 0) { query = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).collection(collection).remove(query, options);
+        return this.db(database).collection(collection).remove(query, options);
     };
     /**
      * Deprecated save command.
      *
-     * @note: Shell API sets writeConcern via options in object,
+     * @note: Shell API sets writeConcern via options in Document,
      * node driver flat.
      *
      * @param {String} database - The db name.
@@ -586,7 +433,7 @@ var NodeTransport = /** @class */ (function () {
         if (doc === void 0) { doc = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).save(doc, options);
+        return this.db(database, dbOptions).collection(collection).save(doc, options);
     };
     /**
      * Replace a document with another.
@@ -605,7 +452,7 @@ var NodeTransport = /** @class */ (function () {
         if (replacement === void 0) { replacement = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             replaceOne(filter, replacement, options);
     };
     /**
@@ -620,7 +467,7 @@ var NodeTransport = /** @class */ (function () {
     NodeTransport.prototype.runCommand = function (database, spec, options) {
         if (spec === void 0) { spec = {}; }
         if (options === void 0) { options = {}; }
-        return this._db(database).command(spec, options);
+        return this.db(database).command(spec, options);
     };
     /**
      * Update many document.
@@ -639,7 +486,7 @@ var NodeTransport = /** @class */ (function () {
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             updateMany(filter, update, options);
     };
     /**
@@ -659,18 +506,18 @@ var NodeTransport = /** @class */ (function () {
         if (update === void 0) { update = {}; }
         if (options === void 0) { options = {}; }
         if (dbOptions === void 0) { dbOptions = {}; }
-        return this._db(database, dbOptions).collection(collection).
+        return this.db(database, dbOptions).collection(collection).
             updateOne(filter, update, options);
     };
     /**
-     * Get the DB object from the client.
+     * Get the DB Document from the client.
      *
      * @param {String} name - The database name.
      * @param {Object} options - The DB options.
      *
      * @returns {Db} The database.
      */
-    NodeTransport.prototype._db = function (name, options) {
+    NodeTransport.prototype.db = function (name, options) {
         if (options === void 0) { options = {}; }
         if (Object.keys(options).length !== 0) {
             return this.mongoClient.db(name, options);
