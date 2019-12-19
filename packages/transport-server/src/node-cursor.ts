@@ -64,19 +64,28 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  allowPartialResults() {
+  allowPartialResults(): NodeCursor {
     this.cursor.addCursorFlag(Flag.Partial, true);
     return this;
   }
 
-  batchSize(size) {
-    this.cursor.setCursorBatchSize(size);
+  /**
+   * Set the cursor batch size.
+   *
+   * @param {number} size - The batch size.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  batchSize(size: number): NodeCursor {
+    this.cursor.batchSize(size);
     return this;
   }
+
   close() {
     this.cursor.close();
     return this;
   }
+
   isClosed() {
     return this.cursor.isClosed();
   }

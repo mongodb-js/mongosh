@@ -41,4 +41,23 @@ describe('NodeCursor', () => {
       mock.verify();
     });
   });
+
+  describe('#batchSize', () => {
+    let cursor;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().withArgs(5);
+      cursor = sinon.createStubInstance(Cursor, {
+        batchSize: mock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('fluidly adds the cursor flag', () => {
+      expect(nodeCursor.batchSize(5)).to.equal(nodeCursor);
+      mock.verify();
+    });
+  });
 });
