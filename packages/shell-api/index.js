@@ -10,7 +10,8 @@ const {
     ReplicaSet,
     ShellApi
 } = require('./lib/shell-api.js');
-const compile = require('./lib/async-rewrite');
+
+const types = require('./lib/shell-types');
 
 module.exports = ShellApi;
 module.exports.ShellApi = ShellApi;
@@ -23,4 +24,4 @@ module.exports.DeleteResult = DeleteResult;
 module.exports.InsertManyResult = InsertManyResult;
 module.exports.InsertOneResult = InsertOneResult;
 module.exports.ReplicaSet = ReplicaSet;
-module.exports.compile = compile;
+module.exports.types = types;

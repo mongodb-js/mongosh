@@ -2,9 +2,9 @@ const repl = require('repl');
 const util = require('util');
 const { CliServiceProvider } = require('mongosh-service-provider');
 const Mapper = require('mongosh-mapper');
+const { compile } = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');
-const { compile } = require('mongosh-shell-api');
-const _ = require('lodash');
+// const _ = require('lodash');
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -89,7 +89,7 @@ class CliRepl {
           // Eval once with execution turned off and a throwaway copy of the context
           this.mapper.checkAwait = true;
           this.mapper.awaitLoc = [];
-          const copyCtx = _.cloneDeep(context);
+          const copyCtx = context;// _.cloneDeep(context);
           await this.evaluator(originalEval, input, copyCtx, filename);
 
           // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations

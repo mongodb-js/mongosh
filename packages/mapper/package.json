@@ -4,11 +4,16 @@
   "description": "MongoDB Shell Mapper Package",
   "main": "index.js",
   "scripts": {
+    "build": "npm run antlr-lexer && npm run antlr-parser && npm run antlr-ecmascript",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'",
+    "antlr-ecmascript": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -visitor -Xexact-output-dir antlr/ECMAScript.g4",
+    "antlr-lexer": "     java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptLexer.g4",
+    "antlr-parser": "    java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptParser.g4"
   },
   "dependencies": {
-    "mongosh-shell-api": "file:../shell-api"
+    "mongosh-shell-api": "file:../shell-api",
+    "antlr4": "^4.7.1"
   }
 }

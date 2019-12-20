@@ -54,7 +54,7 @@ npm start
 
 To see the bug with parsing using the JavaScript grammar, run
 ```shell
-node --stack-size=50 packages/shell-api/lib/async-rewrite.js
+node --stack-size=50 packages/shell-api/lib/async-rewrite-double.js
 ```
 
 Compile All Typescript

@@ -125,6 +125,14 @@ ${contents}  }
 }
 `};
 
+const symbolTemplate = (className, lib) => {
+  return Object.keys(lib)
+    .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
+    .map((s) => {
+      return `      ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}' }`
+    }).join(',\n')
+};
+
 /**
  * Load all the YAML specs and generate the Shell API.
  */
@@ -134,6 +142,7 @@ const loadAll = () => {
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
   let exports = '\nmodule.exports = ShellApi;\n';
+  let types = [];
 
   const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);
@@ -145,6 +154,7 @@ const loadAll = () => {
 
     /* append class to exports */
     exports = `${exports}module.exports.${className} = ${className};\n`;
+    types.push(`${className}: {\n    type: '${className}',\n    attributes: {\n${symbolTemplate(className, lib.class)}\n    }\n  }`);
 
     /* generate class */
     return `${str}${classTemplate(className, lib.class)}`;
@@ -160,6 +170,11 @@ const loadAll = () => {
   fs.writeFileSync(
     path.join(__dirname, 'lib', 'shell-api.js'),
     `${result}\n${exports}`
+  );
+
+  fs.writeFileSync(
+    path.join(__dirname, 'lib', 'shell-types.js'),
+    `module.exports = {\n  ${types.join(',\n  ')}\n};`
   );
 };
 

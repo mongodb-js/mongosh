@@ -13,7 +13,7 @@
     "start": "lerna exec npm start --scope mongosh-cli-repl",
     "start-antlr": "lerna exec npm run start-antlr --scope mongosh-cli-repl",
     "prestart": "lerna run compile",
-    "build": "lerna exec npm run build --scope mongosh-shell-api"
+    "build": "lerna exec npm run build --scope=mongosh-shell-api --scope=mongosh-mapper"
   },
   "keywords": [
     "MongoDB",
