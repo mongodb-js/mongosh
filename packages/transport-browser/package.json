@@ -5,6 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "compile": "tsc -p tsconfig.json",
+    "test": "karma start",
+    "test-ci": "karma start",
     "prepublish": "npm run compile"
   },
   "dependency-check": {
