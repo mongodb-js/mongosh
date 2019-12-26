@@ -1,7 +1,7 @@
 trigger:
   - master
 jobs:
-  - job: Ubuntu-18.04
+  - job: Ubuntu_18
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
@@ -28,7 +28,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: Ubuntu-16.04
+  - job: Ubuntu_16
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
@@ -55,7 +55,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: MacOS-Mohave
+  - job: MacOS_Mohave
     pool:
       vmImage: 'macOS-10.14'
     steps:
@@ -79,7 +79,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: Windows-Server-2019
+  - job: Windows_Server_2019
     pool:
       vmImage: 'windows-2019'
     steps:
@@ -103,7 +103,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: Windows-Server-2016
+  - job: Windows_Server_2016
     pool:
       vmImage: 'vs2017-win2016'
     steps:
