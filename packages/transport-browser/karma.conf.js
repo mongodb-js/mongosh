@@ -17,7 +17,7 @@ const configure = (config) => {
       }
     ],
     preprocessors: {
-      'src/**/*.ts': [ 'env', 'karma-typescript' ],
+      'src/**/*.ts': [ 'karma-typescript' ],
     },
     envPreprocessor: [
     ],
