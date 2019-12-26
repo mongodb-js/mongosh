@@ -1,9 +1,9 @@
 trigger:
   - master
 jobs:
-  - job: Ubuntu
+  - job: Ubuntu 18.04
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'ubuntu-18.04'
     steps:
       - script: |
           set -e
@@ -28,9 +28,36 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: MacOS
+  - job: Ubuntu 16.04
     pool:
-      vmImage: 'macOS-latest'
+      vmImage: 'ubuntu-16.04'
+    steps:
+      - script: |
+          set -e
+        displayName: 'Install Services'
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '12.4.0'
+        displayName: 'Install Node.js'
+      - script: |
+          npm install --global npm@latest
+          npm install --global lerna
+        displayName: 'Install Global Packages'
+      - script: |
+          npm run bootstrap
+        displayName: 'Bootstrap'
+      - script: |
+          npm run check
+        displayName: 'Run Checks'
+      - script: |
+          npm run test-ci
+        displayName: 'Run Tests'
+        env:
+          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
+  - job: MacOS (Mohave 10.14)
+    pool:
+      vmImage: 'macOS-10.14'
     steps:
       - task: NodeTool@0
         inputs:
@@ -52,9 +79,33 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-  - job: Windows
+  - job: Windows Server 2019 (Visual Studio 2019)
     pool:
-      vmImage: 'windows-latest'
+      vmImage: 'windows-2019'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '12.4.0'
+        displayName: 'Install Node.js'
+      - script: |
+          npm install --global npm@latest
+          npm install --global lerna
+        displayName: 'Install Global Packages'
+      - script: |
+          npm run bootstrap
+        displayName: 'Bootstrap'
+      - script: |
+          npm run check
+        displayName: 'Run Checks'
+      - script: |
+          npm run test-ci
+        displayName: 'Run Tests'
+        env:
+          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
+          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
+  - job: Windows Server 2016 (Visual Studio 2017)
+    pool:
+      vmImage: 'vs2017-win2016'
     steps:
       - task: NodeTool@0
         inputs:
