@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "./lib",
-    "esModuleInterop": true,
-    "target": "es5"
+    "target": "es2015",
+    "types": [
+      "mocha"
+    ]
   },
   "include": [
     "./src/**/*"
   ],
   "exclude": [
-    "./src/**/*.spec.*"
+    "./src/**/*.spec.*",
+    "node_modules"
   ]
 }
