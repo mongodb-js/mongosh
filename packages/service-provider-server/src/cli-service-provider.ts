@@ -1,10 +1,11 @@
+import { ServiceProvider } from 'mongosh-service-provider-core';
 import { NodeTransport } from 'mongosh-transport-server';
 import { Document, Cursor, Result } from 'mongosh-transport-core';
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
-class CliServiceProvider {
+class CliServiceProvider implements ServiceProvider {
   private readonly nodeTransport: NodeTransport;
 
   /**

@@ -23,6 +23,7 @@
     ]
   },
   "dependencies": {
+    "mongosh-service-provider-core": "file:../service-provider-core",
     "mongosh-transport-server": "file:../transport-server"
   }
 }

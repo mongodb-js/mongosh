@@ -6,8 +6,6 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "compile": "tsc -p tsconfig.json --declaration",
-    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile"
   },
   "dependency-check": {
