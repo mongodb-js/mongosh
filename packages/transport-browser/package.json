@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "description": "MongoDB Shell Transport Browser Package",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
+    "precompile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json --declaration",
     "test": "karma start",
     "test-ci": "karma start",
     "prepublish": "npm run compile"

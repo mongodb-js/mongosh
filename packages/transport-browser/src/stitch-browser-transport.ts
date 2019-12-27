@@ -148,9 +148,9 @@ class StitchBrowserTransport implements Transport {
   /**
    * Not implemented in Stitch.
    *
-   * @returns {Promise} The rejected promise.
+   * @returns {Cursor} The unsupported cursor.
    */
-  distinct() : Promise<Result> {
+  distinct() : Cursor {
     return this.stitchTransport.distinct();
   }
 

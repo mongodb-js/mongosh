@@ -8,13 +8,11 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 const configure = (config) => {
   config.set({
     frameworks: [
-      'karma-typescript',
-      'mocha'
+      'mocha',
+      'karma-typescript'
     ],
     files: [
-      {
-        pattern: 'src/**/*.spec.ts'
-      }
+      { pattern: 'src/**/*.ts' }
     ],
     preprocessors: {
       'src/**/*.ts': [ 'karma-typescript' ],

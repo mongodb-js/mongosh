@@ -1,47 +1,43 @@
-import NodeTransport from './node-transport';
+import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 
-describe('NodeTransport [ integration ]', function() {
+describe('CliServiceProvider [ integration ]', function() {
   this.timeout(30000);
   before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
-  describe('.fromURI', () => {
-    let nodeTransport;
+  describe('.connect', () => {
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
-    it('returns a NodeTransport with mongo client set', () => {
-      expect(nodeTransport.mongoClient).to.not.equal(undefined);
-    });
-
-    it('contains a connected mongo client', () => {
-      expect(nodeTransport.mongoClient.isConnected()).to.equal(true);
+    it('returns a CliServiceProvider', () => {
+      expect(serviceProvider).to.not.equal(null);
     });
   });
 
   describe('#aggregate', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when running against a collection', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
       });
 
@@ -55,7 +51,7 @@ describe('NodeTransport [ integration ]', function() {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.aggregateDb('admin', [{ $currentOp: {}}]);
+        result = await serviceProvider.aggregateDb('admin', [{ $currentOp: {}}]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -66,14 +62,14 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#bulkWrite', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
@@ -83,11 +79,11 @@ describe('NodeTransport [ integration ]', function() {
       }];
 
       beforeEach(async() => {
-        result = await nodeTransport.bulkWrite('music', 'bands', requests);
+        result = await serviceProvider.bulkWrite('music', 'bands', requests);
       });
 
       afterEach(() => {
-        return nodeTransport.deleteMany('music', 'bands', {});
+        return serviceProvider.deleteMany('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -97,21 +93,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#countDocuments', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.countDocuments('music', 'bands');
+        result = await serviceProvider.countDocuments('music', 'bands');
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -121,21 +117,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#deleteMany', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.deleteMany('music', 'bands', {});
+        result = await serviceProvider.deleteMany('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -145,21 +141,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#deleteOne', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.deleteOne('music', 'bands', {});
+        result = await serviceProvider.deleteOne('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -169,21 +165,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#distinct', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the distinct is valid', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.distinct('music', 'bands', 'name');
+        result = await serviceProvider.distinct('music', 'bands', 'name');
       });
 
       it('executes the command and resolves the result', () => {
@@ -193,21 +189,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#estimatedDocumentCount', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when no options are provided', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.estimatedDocumentCount('music', 'bands');
+        result = await serviceProvider.estimatedDocumentCount('music', 'bands');
       });
 
       it('executes the count and resolves the result', () => {
@@ -217,21 +213,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#find', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the find is valid', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.find('music', 'bands', { name: 'Aphex Twin' });
+        result = await serviceProvider.find('music', 'bands', { name: 'Aphex Twin' });
       });
 
       it('executes the command and resolves the result', async() => {
@@ -242,14 +238,14 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndDelete', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the find is valid', () => {
@@ -257,7 +253,7 @@ describe('NodeTransport [ integration ]', function() {
       const filter = { name: 'Aphex Twin' };
 
       beforeEach(async() => {
-        result = await nodeTransport.findOneAndDelete('music', 'bands', filter);
+        result = await serviceProvider.findOneAndDelete('music', 'bands', filter);
       });
 
       it('executes the command and resolves the result', () => {
@@ -267,14 +263,14 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndReplace', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the find is valid', () => {
@@ -283,7 +279,7 @@ describe('NodeTransport [ integration ]', function() {
       const replacement = { name: 'Richard James' };
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           findOneAndReplace('music', 'bands', filter, replacement);
       });
 
@@ -294,14 +290,14 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndUpdate', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the find is valid', () => {
@@ -310,7 +306,7 @@ describe('NodeTransport [ integration ]', function() {
       const update = { $set: { name: 'Richard James' }};
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           findOneAndUpdate('music', 'bands', filter, update);
       });
 
@@ -321,25 +317,25 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#insertMany', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the insert is valid', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.insertMany('music', 'bands', [{ name: 'Aphex Twin' }]);
+        result = await serviceProvider.insertMany('music', 'bands', [{ name: 'Aphex Twin' }]);
       });
 
       afterEach(() => {
-        return nodeTransport.deleteMany('music', 'bands', {});
+        return serviceProvider.deleteMany('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -349,25 +345,25 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#insertOne', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the insert is valid', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.insertOne('music', 'bands', { name: 'Aphex Twin' });
+        result = await serviceProvider.insertOne('music', 'bands', { name: 'Aphex Twin' });
       });
 
       afterEach(() => {
-        return nodeTransport.deleteMany('music', 'bands', {});
+        return serviceProvider.deleteMany('music', 'bands', {});
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
@@ -377,23 +373,23 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#replaceOne', () => {
-    let nodeTransport;
+    let serviceProvider;
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           replaceOne('music', 'bands', filter, replacement);
       });
 
@@ -404,21 +400,21 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#runCommand', () => {
-    let nodeTransport;
+    let serviceProvider;
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the command is valid', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.runCommand('admin', { ismaster: true });
+        result = await serviceProvider.runCommand('admin', { ismaster: true });
       });
 
       it('executes the command and resolves the result', () => {
@@ -428,23 +424,23 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#updateMany', () => {
-    let nodeTransport;
+    let serviceProvider;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           updateMany('music', 'bands', filter, update);
       });
 
@@ -455,23 +451,23 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#updateOne', () => {
-    let nodeTransport;
+    let serviceProvider;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
 
     before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
     });
 
     after(() => {
-      return nodeTransport.close(true);
+      return serviceProvider.close(true);
     });
 
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.
+        result = await serviceProvider.
           updateOne('music', 'bands', filter, update);
       });
 

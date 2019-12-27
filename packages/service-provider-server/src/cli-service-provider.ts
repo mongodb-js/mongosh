@@ -1,20 +1,11 @@
-const { NodeTransport } = require('mongosh-transport-server');
+import { NodeTransport } from 'mongosh-transport-server';
+import { Document, Cursor, Result } from 'mongosh-transport-core';
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
 class CliServiceProvider {
-  /**
-   * Create a new CLI service provider from the provided URI.
-   *
-   * @param {String} uri - The URI.
-   */
-  async connect(uri) {
-    this.nodeTransport = await NodeTransport.fromURI(uri);
-  }
-  constructor(uri) {
-    this.connect(uri);
-  }
+  private readonly nodeTransport: NodeTransport;
 
   /**
    *
@@ -29,7 +20,7 @@ class CliServiceProvider {
    *    maxTimeMS: Optional<Int64>;
    *    maxAwaitTimeMS: Optional<Int64>;
    *    comment: Optional<String>;
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    * @param dbOptions
    *    readConcern:
    *        level: <String local|majority|linearizable|available>
@@ -39,7 +30,13 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  aggregate(db, coll, pipeline, options, dbOptions) {
+  aggregate(
+    db: string,
+    coll: string,
+    pipeline: Document[] = [],
+    options: Document = {},
+    dbOptions: Document = {}): Cursor {
+
     return this.nodeTransport.aggregate(db, coll, pipeline, options, dbOptions);
   }
 
@@ -54,7 +51,7 @@ class CliServiceProvider {
    *    maxTimeMS: Optional<Int64>;
    *    maxAwaitTimeMS: Optional<Int64>;
    *    comment: Optional<String>;
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    * @param dbOptions
    *    readConcern:
    *        level: <String local|majority|linearizable|available>
@@ -64,7 +61,12 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  aggregateDb(db, pipeline, options, dbOptions) {
+  aggregateDb(
+    db: string,
+    pipeline: Document[] = [],
+    options: Document = {},
+    dbOptions: Document = {}): Cursor {
+
     return this.nodeTransport.aggregateDb(db, pipeline, options, dbOptions);
   }
 
@@ -82,17 +84,42 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  bulkWrite(db, coll, requests = {}, options = {}, dbOptions = {}) {
+  bulkWrite(
+    db: string,
+    coll: string,
+    requests: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.bulkWrite(db, coll, requests, options, dbOptions);
   }
 
   /**
    * Close the connection.
    *
-   * @param {boolean} force - Whether to force close the connection.
+   * @param {boolean} force - Whether to force close.
    */
   close(force: boolean): void {
     this.nodeTransport.close(force);
+  }
+
+  /**
+   * Create a new CLI service provider from the provided URI.
+   *
+   * @param {String} uri - The URI.
+   */
+  static async connect(uri: string): Promise<CliServiceProvider> {
+    const nodeTransport = await NodeTransport.fromURI(uri);
+    return new CliServiceProvider(nodeTransport);
+  }
+
+  /**
+   * Instantiate the new service provider.
+   *
+   * @param {NodeTransport} nodeTransport - The node transport.
+   */
+  constructor(nodeTransport: NodeTransport) {
+    this.nodeTransport = nodeTransport;
   }
 
   /**
@@ -101,7 +128,7 @@ class CliServiceProvider {
    * @param query
    * @param options
    *    collation: Optional<Document>
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    limit: Optional<Int64>;
    *    maxTimeMS: Optional<Int64>;
    *    skip: Optional<Int64>;
@@ -110,7 +137,13 @@ class CliServiceProvider {
    *        level: <String local|majority|linearizable|available>
    * @return {any}
    */
-  count(db, coll, query, options, dbOptions) {
+  count(
+    db: string,
+    coll: string,
+    query: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.count(db, coll, query, options, dbOptions);
   }
 
@@ -119,13 +152,18 @@ class CliServiceProvider {
    * @param {String} coll - the collection name
    * @param filter
    * @param options
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    limit: Optional<Int64>;
    *    maxTimeMS: Optional<Int64>;
    *    skip: Optional<Int64>;
    * @return {any}
    */
-  countDocuments(db, coll, filter, options) {
+  countDocuments(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.countDocuments(db, coll, filter, options);
   }
 
@@ -142,7 +180,13 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  deleteMany(db, coll, filter, options, dbOptions) {
+  deleteMany(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.deleteMany(db, coll, filter, options, dbOptions);
   }
 
@@ -159,22 +203,34 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  deleteOne(db, coll, filter, options, dbOptions) {
+  deleteOne(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.deleteOne(db, coll, filter, options, dbOptions);
   }
 
   /**
    * @param {String} db - the db name
    * @param {String} coll - the collection name
-   * @param filter
+   * @param {string} field - The field name.
    * @param options
    *    collation: Optional<Document>;
    *    maxTimeMS: Optional<Int64>;
    * @param dbOptions
    * @return {any}
    */
-  distinct(db, coll, filter, options, dbOptions) {
-    return this.nodeTransport.distinct(db, coll, filter, options, dbOptions);
+  distinct(
+    db: string,
+    coll: string,
+    field: string,
+    options: Document = {},
+    dbOptions: Document = {}): Cursor {
+
+    return this.nodeTransport.distinct(db, coll, field, options, dbOptions);
   }
 
   /**
@@ -185,7 +241,12 @@ class CliServiceProvider {
    *    maxTimeMS: Optional<Int64>;
    * @return {any}
    */
-  estimatedDocumentCount(db, coll, filter, options) {
+  estimatedDocumentCount(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.estimatedDocumentCount(db, coll, filter, options);
   }
 
@@ -194,12 +255,12 @@ class CliServiceProvider {
    * @param {String} coll - the collection name
    * @param query
    * @param options
-   *    allowPartialResults: Optional<Boolean>;
+   *    allowPartialPromise<Result>s: Optional<Boolean>;
    *    batchSize: Optional<Int32>;
    *    collation: Optional<Document>;
    *    comment: Optional<String>;
    *    cursorType: Optional<CursorType>; TODO
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    limit: Optional<Int64>;
    *    max: Optional<Document>;
    *    maxAwaitTimeMS: Optional<Int64>; TODO
@@ -215,7 +276,12 @@ class CliServiceProvider {
    *    sort: Optional<Document>;
    * @return {Cursor}
    */
-  find(db, coll, query, options = {}) {
+  find(
+    db: string,
+    coll: string,
+    query: Document = {},
+    options: Document = {}): Cursor {
+
     return this.nodeTransport.find(db, coll, query, options);
   }
 
@@ -230,7 +296,12 @@ class CliServiceProvider {
    *    sort: Optional<Document>;
    * @return {any}
    */
-  findOneAndDelete(db, coll, filter, options) {
+  findOneAndDelete(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.findOneAndDelete(db, coll, filter, options);
   }
 
@@ -248,7 +319,12 @@ class CliServiceProvider {
    *    upsert: Optional<Boolean>;
    * @return {any}
    */
-  findOneAndReplace(db, coll, filter, options) {
+  findOneAndReplace(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.findOneAndReplace(db, coll, filter, options);
   }
 
@@ -267,14 +343,19 @@ class CliServiceProvider {
    *    upsert: Optional<Boolean>;
    * @return {any}
    */
-  findOneAndUpdate(db, coll, filter, options) {
+  findOneAndUpdate(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.findOneAndUpdate(db, coll, filter, options);
   }
 
   /**
    * @param {String} db - the db name
    * @param {String} coll - the collection name
-   * @param filter
+   * @param {document[]} docs - The documents.
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
    *    ordered: Boolean;
@@ -285,8 +366,14 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  insertMany(db, coll, filter, options, dbOptions) {
-    return this.nodeTransport.insertMany(db, coll, filter, options, dbOptions);
+  insertMany(
+    db: string,
+    coll: string,
+    docs: Document[] = [],
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
+    return this.nodeTransport.insertMany(db, coll, docs, options, dbOptions);
   }
 
   /**
@@ -302,7 +389,13 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  insertOne(db, coll, filter, options, dbOptions) {
+  insertOne(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.insertOne(db, coll, filter, options, dbOptions);
   }
 
@@ -311,7 +404,7 @@ class CliServiceProvider {
    * @param {String} coll - the collection name
    * @return {any}
    */
-  isCapped(db, coll) {
+  isCapped(db: string, coll: string): Promise<Result> {
     return this.nodeTransport.isCapped(db, coll);
   }
 
@@ -329,11 +422,23 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  remove(db, coll, query, options, dbOptions) {
+  remove(
+    db: string,
+    coll: string,
+    query: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.remove(db, coll, query, options, dbOptions);
   }
 
-  save(db, coll, doc, options, dbOptions) {
+  save(
+    db: string,
+    coll: string,
+    doc: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.save(db, coll, doc, options, dbOptions);
   }
 
@@ -344,7 +449,7 @@ class CliServiceProvider {
    * @param options
    *    bypassDocumentValidation: Optional<Boolean>;
    *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    upsert: Optional<Boolean>;
    * @param dbOptions
    *    writeConcern:
@@ -353,7 +458,13 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  replaceOne(db, coll, filter, options, dbOptions) {
+  replaceOne(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.replaceOne(db, coll, filter, options, dbOptions);
   }
 
@@ -363,7 +474,11 @@ class CliServiceProvider {
    * @param options
    * @return {any}
    */
-  runCommand(db, spec, options = {}) {
+  runCommand(
+    db: string,
+    spec: Document = {},
+    options: Document = {}): Promise<Result> {
+
     return this.nodeTransport.runCommand(db, spec, options);
   }
 
@@ -375,7 +490,7 @@ class CliServiceProvider {
    *    arrayFilters: Optional<Array<Document>>;
    *    bypassDocumentValidation: Optional<Boolean>;
    *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    upsert: Optional<Boolean>;
    * @param dbOptions
    *    writeConcern:
@@ -384,7 +499,13 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  updateMany(db, coll, filter, options, dbOptions) {
+  updateMany(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.updateMany(db, coll, filter, options, dbOptions);
   }
 
@@ -396,7 +517,7 @@ class CliServiceProvider {
    *    arrayFilters: Optional<Array<Document>>;
    *    bypassDocumentValidation: Optional<Boolean>;
    *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document)>;
+   *    hint: Optional<(String | Document = {})>;
    *    upsert: Optional<Boolean>;
    * @param dbOptions
    *    writeConcern:
@@ -405,9 +526,15 @@ class CliServiceProvider {
    *        wtimeoutMS: Optional<Int64>
    * @return {any}
    */
-  updateOne(db, coll, filter, options, dbOptions) {
+  updateOne(
+    db: string,
+    coll: string,
+    filter: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+
     return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
   }
 }
 
-module.exports = CliServiceProvider;
+export default CliServiceProvider;

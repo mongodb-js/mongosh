@@ -51,11 +51,8 @@ class NodeTransport implements Transport {
     options: Document = {},
     dbOptions: Document = {}) : Cursor {
 
-    if (collection === null) {
-      return this.db(database).aggregate(pipeline, options);
-    }
     return new NodeCursor(
-        this.db(database).collection(collection).aggregate(pipeline, options)
+      this.db(database).collection(collection).aggregate(pipeline, options)
     );
   }
 
@@ -79,7 +76,7 @@ class NodeTransport implements Transport {
       dbOptions: Document = {}) : Cursor {
 
       return new NodeCursor(
-          this.db(database, dbOptions).aggregate(pipeline, options)
+        this.db(database, dbOptions).aggregate(pipeline, options)
       );
   }
 
@@ -103,6 +100,15 @@ class NodeTransport implements Transport {
 
     return this.db(database, dbOptions).collection(collection).
       bulkWrite(requests, options);
+  }
+
+  /**
+   * Close the connection.
+   *
+   * @param {boolean} force - Whether to force close the connection.
+   */
+  close(force: boolean): void {
+    this.mongoClient.close(force);
   }
 
   /**
@@ -274,7 +280,7 @@ class NodeTransport implements Transport {
       findOptions.cursorType  = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE' // TODO
     }
     return new NodeCursor(
-        this.db(database).collection(collection).find(filter, options)
+      this.db(database).collection(collection).find(filter, options)
     );
   }
 
@@ -428,8 +434,11 @@ class NodeTransport implements Transport {
     database: string,
     collection: string,
     query: Document = {},
-    options: Document = {}) : Promise<Result> {
-    return this.db(database).collection(collection).remove(query, options);
+    options: Document = {},
+    dbOptions: Document = {}) : Promise<Result> {
+
+    return this.db(database, dbOptions).collection(collection).
+      remove(query, options);
   }
 
   /**
@@ -452,7 +461,8 @@ class NodeTransport implements Transport {
     options: Document = {},
     dbOptions: Document = {}) : Promise<Result> {
 
-    return this.db(database, dbOptions).collection(collection).save(doc, options);
+    return this.db(database, dbOptions).collection(collection).
+      save(doc, options);
   }
 
   /**

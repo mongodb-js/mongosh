@@ -51,6 +51,7 @@
     "mongosh-cli-repl": "file:packages/cli-repl",
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider": "file:packages/service-provider",
+    "mongosh-service-provider-server": "file:packages/service-provider-server",
     "mongosh-shell-api": "file:packages/shell-api",
     "mongosh-transport-core": "file:packages/transport-core",
     "mongosh-transport-browser": "file:packages/transport-browser",

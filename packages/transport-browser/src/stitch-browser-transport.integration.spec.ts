@@ -1,4 +1,4 @@
-import { StitchBrowserTransport } from '../';
+import StitchBrowserTransport from './stitch-browser-transport';
 import { expect } from 'chai';
 import uuidv4 from 'uuid/v4';
 
