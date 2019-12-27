@@ -1,3 +1,10 @@
 import { Cursor, Document, Result } from 'mongosh-transport-core';
 import CliServiceProvider from './cli-service-provider';
-export { CliServiceProvider, Cursor, Document, Result };
+import CompassServiceProvider from './compass-service-provider';
+export {
+  CliServiceProvider,
+  CompassServiceProvider,
+  Cursor,
+  Document,
+  Result
+};
