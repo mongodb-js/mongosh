@@ -18,7 +18,7 @@ declare class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      *    maxAwaitTimeMS: Optional<Int64>;
      *    comment: Optional<String>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      * @param dbOptions
      *    readConcern:
      *        level: <String local|majority|linearizable|available>
@@ -28,7 +28,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    aggregate(db: string, coll: string, pipeline: Document[], options: Document, dbOptions: Document): Cursor;
+    aggregate(db: string, coll: string, pipeline?: Document[], options?: Document, dbOptions?: Document): Cursor;
     /**
      * @param {String} db - the db name
      * @param pipeline
@@ -40,7 +40,7 @@ declare class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      *    maxAwaitTimeMS: Optional<Int64>;
      *    comment: Optional<String>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      * @param dbOptions
      *    readConcern:
      *        level: <String local|majority|linearizable|available>
@@ -50,7 +50,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    aggregateDb(db: string, pipeline: Document[], options: Document, dbOptions: Document): Cursor;
+    aggregateDb(db: string, pipeline?: Document[], options?: Document, dbOptions?: Document): Cursor;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -65,7 +65,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    bulkWrite(db: string, coll: string, requests: Document, options: Document, dbOptions: Document): Promise<Result>;
+    bulkWrite(db: string, coll: string, requests?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * Close the connection.
      *
@@ -77,7 +77,7 @@ declare class CliServiceProvider {
      *
      * @param {String} uri - The URI.
      */
-    connect(uri: string): Promise<CliServiceProvider>;
+    static connect(uri: string): Promise<CliServiceProvider>;
     /**
      * Instantiate the new service provider.
      *
@@ -90,7 +90,7 @@ declare class CliServiceProvider {
      * @param query
      * @param options
      *    collation: Optional<Document>
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    maxTimeMS: Optional<Int64>;
      *    skip: Optional<Int64>;
@@ -99,19 +99,19 @@ declare class CliServiceProvider {
      *        level: <String local|majority|linearizable|available>
      * @return {any}
      */
-    count(db: string, coll: string, query: Document, options: Document, dbOptions: Document): Promise<Result>;
+    count(db: string, coll: string, query?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
      * @param filter
      * @param options
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    maxTimeMS: Optional<Int64>;
      *    skip: Optional<Int64>;
      * @return {any}
      */
-    countDocuments(db: string, coll: string, filter: Document, options: Document): Promise<Result>;
+    countDocuments(db: string, coll: string, filter?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -125,7 +125,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    deleteMany(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    deleteMany(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -139,7 +139,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    deleteOne(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    deleteOne(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -150,7 +150,7 @@ declare class CliServiceProvider {
      * @param dbOptions
      * @return {any}
      */
-    distinct(db: string, coll: string, field: string, options: Document, dbOptions: Document): Cursor;
+    distinct(db: string, coll: string, field: string, options?: Document, dbOptions?: Document): Cursor;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -159,7 +159,7 @@ declare class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      * @return {any}
      */
-    estimatedDocumentCount(db: string, coll: string, filter: Document, options: Document): Promise<Result>;
+    estimatedDocumentCount(db: string, coll: string, filter?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -170,7 +170,7 @@ declare class CliServiceProvider {
      *    collation: Optional<Document>;
      *    comment: Optional<String>;
      *    cursorType: Optional<CursorType>; TODO
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    max: Optional<Document>;
      *    maxAwaitTimeMS: Optional<Int64>; TODO
@@ -186,7 +186,7 @@ declare class CliServiceProvider {
      *    sort: Optional<Document>;
      * @return {Cursor}
      */
-    find(db: string, coll: string, query: Document, options?: Document): Cursor;
+    find(db: string, coll: string, query?: Document, options?: Document): Cursor;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -198,7 +198,7 @@ declare class CliServiceProvider {
      *    sort: Optional<Document>;
      * @return {any}
      */
-    findOneAndDelete(db: string, coll: string, filter: Document, options: Document): Promise<Result>;
+    findOneAndDelete(db: string, coll: string, filter?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -213,7 +213,7 @@ declare class CliServiceProvider {
      *    upsert: Optional<Boolean>;
      * @return {any}
      */
-    findOneAndReplace(db: string, coll: string, filter: Document, options: Document): Promise<Result>;
+    findOneAndReplace(db: string, coll: string, filter?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -229,7 +229,7 @@ declare class CliServiceProvider {
      *    upsert: Optional<Boolean>;
      * @return {any}
      */
-    findOneAndUpdate(db: string, coll: string, filter: Document, options: Document): Promise<Result>;
+    findOneAndUpdate(db: string, coll: string, filter?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -244,7 +244,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    insertMany(db: string, coll: string, docs: Document[], options: Document, dbOptions: Document): Promise<Result>;
+    insertMany(db: string, coll: string, docs?: Document[], options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -258,7 +258,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    insertOne(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    insertOne(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -279,8 +279,8 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    remove(db: string, coll: string, query: Document, options: Document, dbOptions: Document): Promise<Result>;
-    save(db: string, coll: string, doc: Document, options: Document, dbOptions: Document): Promise<Result>;
+    remove(db: string, coll: string, query?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    save(db: string, coll: string, doc?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -288,7 +288,7 @@ declare class CliServiceProvider {
      * @param options
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -297,14 +297,14 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    replaceOne(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    replaceOne(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param spec
      * @param options
      * @return {any}
      */
-    runCommand(db: string, spec: Document, options?: Document): Promise<Result>;
+    runCommand(db: string, spec?: Document, options?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -313,7 +313,7 @@ declare class CliServiceProvider {
      *    arrayFilters: Optional<Array<Document>>;
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -322,7 +322,7 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    updateMany(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    updateMany(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
     /**
      * @param {String} db - the db name
      * @param {String} coll - the collection name
@@ -331,7 +331,7 @@ declare class CliServiceProvider {
      *    arrayFilters: Optional<Array<Document>>;
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -340,6 +340,6 @@ declare class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    updateOne(db: string, coll: string, filter: Document, options: Document, dbOptions: Document): Promise<Result>;
+    updateOne(db: string, coll: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
 }
 export default CliServiceProvider;

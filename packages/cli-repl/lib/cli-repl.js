@@ -1,6 +1,6 @@
 const repl = require('repl');
 const util = require('util');
-const { CliServiceProvider } = require('mongosh-service-provider');
+const { CliServiceProvider } = require('mongosh-service-provider-server');
 const Mapper = require('mongosh-mapper');
 const { compile } = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');

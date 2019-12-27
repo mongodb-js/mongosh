@@ -35,7 +35,7 @@ class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      *    maxAwaitTimeMS: Optional<Int64>;
      *    comment: Optional<String>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      * @param dbOptions
      *    readConcern:
      *        level: <String local|majority|linearizable|available>
@@ -45,7 +45,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    aggregate(db, coll, pipeline, options, dbOptions) {
+    aggregate(db, coll, pipeline = [], options = {}, dbOptions = {}) {
         return this.nodeTransport.aggregate(db, coll, pipeline, options, dbOptions);
     }
     /**
@@ -59,7 +59,7 @@ class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      *    maxAwaitTimeMS: Optional<Int64>;
      *    comment: Optional<String>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      * @param dbOptions
      *    readConcern:
      *        level: <String local|majority|linearizable|available>
@@ -69,7 +69,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    aggregateDb(db, pipeline, options, dbOptions) {
+    aggregateDb(db, pipeline = [], options = {}, dbOptions = {}) {
         return this.nodeTransport.aggregateDb(db, pipeline, options, dbOptions);
     }
     /**
@@ -86,7 +86,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    bulkWrite(db, coll, requests, options, dbOptions) {
+    bulkWrite(db, coll, requests = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.bulkWrite(db, coll, requests, options, dbOptions);
     }
     /**
@@ -102,7 +102,7 @@ class CliServiceProvider {
      *
      * @param {String} uri - The URI.
      */
-    connect(uri) {
+    static connect(uri) {
         return __awaiter(this, void 0, void 0, function* () {
             const nodeTransport = yield mongosh_transport_server_1.NodeTransport.fromURI(uri);
             return new CliServiceProvider(nodeTransport);
@@ -114,7 +114,7 @@ class CliServiceProvider {
      * @param query
      * @param options
      *    collation: Optional<Document>
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    maxTimeMS: Optional<Int64>;
      *    skip: Optional<Int64>;
@@ -123,7 +123,7 @@ class CliServiceProvider {
      *        level: <String local|majority|linearizable|available>
      * @return {any}
      */
-    count(db, coll, query, options, dbOptions) {
+    count(db, coll, query = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.count(db, coll, query, options, dbOptions);
     }
     /**
@@ -131,13 +131,13 @@ class CliServiceProvider {
      * @param {String} coll - the collection name
      * @param filter
      * @param options
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    maxTimeMS: Optional<Int64>;
      *    skip: Optional<Int64>;
      * @return {any}
      */
-    countDocuments(db, coll, filter, options) {
+    countDocuments(db, coll, filter = {}, options = {}) {
         return this.nodeTransport.countDocuments(db, coll, filter, options);
     }
     /**
@@ -153,7 +153,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    deleteMany(db, coll, filter, options, dbOptions) {
+    deleteMany(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.deleteMany(db, coll, filter, options, dbOptions);
     }
     /**
@@ -169,7 +169,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    deleteOne(db, coll, filter, options, dbOptions) {
+    deleteOne(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.deleteOne(db, coll, filter, options, dbOptions);
     }
     /**
@@ -182,7 +182,7 @@ class CliServiceProvider {
      * @param dbOptions
      * @return {any}
      */
-    distinct(db, coll, field, options, dbOptions) {
+    distinct(db, coll, field, options = {}, dbOptions = {}) {
         return this.nodeTransport.distinct(db, coll, field, options, dbOptions);
     }
     /**
@@ -193,7 +193,7 @@ class CliServiceProvider {
      *    maxTimeMS: Optional<Int64>;
      * @return {any}
      */
-    estimatedDocumentCount(db, coll, filter, options) {
+    estimatedDocumentCount(db, coll, filter = {}, options = {}) {
         return this.nodeTransport.estimatedDocumentCount(db, coll, filter, options);
     }
     /**
@@ -206,7 +206,7 @@ class CliServiceProvider {
      *    collation: Optional<Document>;
      *    comment: Optional<String>;
      *    cursorType: Optional<CursorType>; TODO
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    limit: Optional<Int64>;
      *    max: Optional<Document>;
      *    maxAwaitTimeMS: Optional<Int64>; TODO
@@ -222,7 +222,7 @@ class CliServiceProvider {
      *    sort: Optional<Document>;
      * @return {Cursor}
      */
-    find(db, coll, query, options = {}) {
+    find(db, coll, query = {}, options = {}) {
         return this.nodeTransport.find(db, coll, query, options);
     }
     /**
@@ -236,7 +236,7 @@ class CliServiceProvider {
      *    sort: Optional<Document>;
      * @return {any}
      */
-    findOneAndDelete(db, coll, filter, options) {
+    findOneAndDelete(db, coll, filter = {}, options = {}) {
         return this.nodeTransport.findOneAndDelete(db, coll, filter, options);
     }
     /**
@@ -253,7 +253,7 @@ class CliServiceProvider {
      *    upsert: Optional<Boolean>;
      * @return {any}
      */
-    findOneAndReplace(db, coll, filter, options) {
+    findOneAndReplace(db, coll, filter = {}, options = {}) {
         return this.nodeTransport.findOneAndReplace(db, coll, filter, options);
     }
     /**
@@ -271,7 +271,7 @@ class CliServiceProvider {
      *    upsert: Optional<Boolean>;
      * @return {any}
      */
-    findOneAndUpdate(db, coll, filter, options) {
+    findOneAndUpdate(db, coll, filter = {}, options = {}) {
         return this.nodeTransport.findOneAndUpdate(db, coll, filter, options);
     }
     /**
@@ -288,7 +288,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    insertMany(db, coll, docs, options, dbOptions) {
+    insertMany(db, coll, docs = [], options = {}, dbOptions = {}) {
         return this.nodeTransport.insertMany(db, coll, docs, options, dbOptions);
     }
     /**
@@ -304,7 +304,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    insertOne(db, coll, filter, options, dbOptions) {
+    insertOne(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.insertOne(db, coll, filter, options, dbOptions);
     }
     /**
@@ -329,10 +329,10 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    remove(db, coll, query, options, dbOptions) {
+    remove(db, coll, query = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.remove(db, coll, query, options, dbOptions);
     }
-    save(db, coll, doc, options, dbOptions) {
+    save(db, coll, doc = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.save(db, coll, doc, options, dbOptions);
     }
     /**
@@ -342,7 +342,7 @@ class CliServiceProvider {
      * @param options
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -351,7 +351,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    replaceOne(db, coll, filter, options, dbOptions) {
+    replaceOne(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.replaceOne(db, coll, filter, options, dbOptions);
     }
     /**
@@ -360,7 +360,7 @@ class CliServiceProvider {
      * @param options
      * @return {any}
      */
-    runCommand(db, spec, options = {}) {
+    runCommand(db, spec = {}, options = {}) {
         return this.nodeTransport.runCommand(db, spec, options);
     }
     /**
@@ -371,7 +371,7 @@ class CliServiceProvider {
      *    arrayFilters: Optional<Array<Document>>;
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -380,7 +380,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    updateMany(db, coll, filter, options, dbOptions) {
+    updateMany(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.updateMany(db, coll, filter, options, dbOptions);
     }
     /**
@@ -391,7 +391,7 @@ class CliServiceProvider {
      *    arrayFilters: Optional<Array<Document>>;
      *    bypassDocumentValidation: Optional<Boolean>;
      *    collation: Optional<Document>;
-     *    hint: Optional<(String | Document)>;
+     *    hint: Optional<(String | Document = {})>;
      *    upsert: Optional<Boolean>;
      * @param dbOptions
      *    writeConcern:
@@ -400,7 +400,7 @@ class CliServiceProvider {
      *        wtimeoutMS: Optional<Int64>
      * @return {any}
      */
-    updateOne(db, coll, filter, options, dbOptions) {
+    updateOne(db, coll, filter = {}, options = {}, dbOptions = {}) {
         return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
     }
 }
