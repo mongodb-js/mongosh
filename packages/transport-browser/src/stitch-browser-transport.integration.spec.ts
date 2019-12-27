@@ -283,7 +283,8 @@ describe('StitchBrowserTransport [ integration ]', function() {
       });
     });
   } else {
-    /* eslint no-console:0 */
-    console.log('Could not run Stitch Browser integration tests: process.env: ', process.env);
+    it('please set the MONGOSH_STITCH_TEST_APP_ID and MONGOSH_STITCH_TEST_SERVICE_NAME env variables', () => {
+      expect(true).to.equal(true);
+    });
   }
 });
