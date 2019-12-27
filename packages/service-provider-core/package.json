@@ -1,0 +1,28 @@
+{
+  "name": "mongosh-service-provider-core",
+  "version": "0.0.0",
+  "description": "MongoDB Shell Core Service Provider Package",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json --declaration",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
+    "prepublish": "npm run compile"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ],
+    "ignore": [
+      "sinon",
+      "chai",
+      "mongodb-runner",
+      "uuid",
+      "encoding"
+    ]
+  },
+  "dependencies": {
+    "mongosh-transport-core": "file:../transport-core"
+  }
+}
