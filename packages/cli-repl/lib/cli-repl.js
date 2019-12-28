@@ -25,12 +25,12 @@ class CliRepl {
     this.processCmdArgs({});
 
     this.useAntlr = !!useAntlr;
-    this.serviceProvider = new CliServiceProvider(this.options.uri);
-
-    this.mapper = new Mapper(this.serviceProvider);
-    this.shellApi = new ShellApi(this.mapper);
-
-    this.start();
+    CliServiceProvider.connect(this.options.uri).then((serviceProvider) => {
+      this.serviceProvider = serviceProvider;
+      this.mapper = new Mapper(this.serviceProvider);
+      this.shellApi = new ShellApi(this.mapper);
+      this.start();
+    });
   }
 
   greet() {
