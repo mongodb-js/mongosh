@@ -13,3 +13,4 @@ tsconfig.json
 notices/
 src/
 test/
+config/
