@@ -7,8 +7,8 @@
   "scripts": {
     "precompile": "tsc -p tsconfig.json",
     "compile": "tsc -p tsconfig.json --declaration",
-    "test": "karma start",
-    "test-ci": "karma start",
+    "test": "karma start --colors",
+    "test-ci": "karma start --colors",
     "prepublish": "npm run compile"
   },
   "dependency-check": {
