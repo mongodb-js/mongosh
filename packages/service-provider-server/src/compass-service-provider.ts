@@ -1,3 +1,3 @@
 import CliServiceProvider from './cli-service-provider';
-type CompassServiceProvider = CliServiceProvider;
+class CompassServiceProvider extends CliServiceProvider {};
 export default CompassServiceProvider;
