@@ -1,17 +1,12 @@
 {
+  "extends": "../../config/tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "./lib",
-    "target": "es2015",
-    "types": [
-      "mocha"
-    ]
+    "outDir": "./lib"
   },
   "include": [
     "./src/**/*"
   ],
   "exclude": [
-    "./src/**/*.spec.*",
-    "node_modules"
+    "./src/**/*.spec.*"
   ]
 }

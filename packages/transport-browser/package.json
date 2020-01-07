@@ -5,8 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "precompile": "tsc -p tsconfig.json",
-    "compile": "tsc -p tsconfig.json --declaration",
+    "compile": "tsc -p tsconfig.json",
     "test": "karma start --colors",
     "test-ci": "karma start --colors",
     "prepublish": "npm run compile"

@@ -5,8 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "precompile": "tsc -p tsconfig.json",
-    "compile": "tsc -p tsconfig.json --declaration",
+    "compile": "tsc -p tsconfig.json",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile"
