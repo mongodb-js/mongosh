@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig.json --declaration",
+    "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile"
   },
   "dependency-check": {
