@@ -5,10 +5,10 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
+    "compile-ts": "tsc -p tsconfig.json",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile-ts"
   },
   "dependency-check": {
     "entries": [

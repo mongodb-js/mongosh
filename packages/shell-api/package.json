@@ -4,7 +4,7 @@
   "description": "MongoDB Shell API Package",
   "main": "index.js",
   "scripts": {
-    "build": "node compile-shell-api.js",
+    "compile-api": "node compile-shell-api.js",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
