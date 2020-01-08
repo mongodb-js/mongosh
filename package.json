@@ -8,7 +8,7 @@
     "bootstrap": "lerna exec -- npm install --no-package-lock",
     "compile-api": "lerna run compile-api",
     "precompile-exec": "npm run compile-ts",
-    "compile-exec": "node ./build/compile-exec.js",
+    "compile-exec": "node bin/compile-exec.js",
     "compile-ts": "lerna run compile-ts",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
@@ -51,6 +51,7 @@
     "uuid": "^3.3.3"
   },
   "dependencies": {
+    "mongosh-build": "file:packages/build",
     "mongosh-cli-repl": "file:packages/cli-repl",
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider-core": "file:packages/service-provider-core",
