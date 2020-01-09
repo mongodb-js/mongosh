@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-process.title = 'mongosh'
+process.title = 'mongosh';
 
-require('v8-compile-cache') //speed up initial cli load time
+require('v8-compile-cache'); //speed up initial cli load time
 
-const ansi = require('ansi-escape-sequences')
-const minimist = require('minimist')
-const path = require('path')
+const ansi = require('ansi-escape-sequences');
+const minimist = require('minimist');
+const path = require('path');
 
 const USAGE = `
   $ ${clr('mongosh', 'bold')} ${clr('[options]', 'green')} [db address] [file names]
@@ -77,7 +77,7 @@ const USAGE = `
     Start mongosh using IPV6, running a local file:
     ${clr('$ mongosh --ipv6 --shell index.js', 'green')}
 
-`.replace(/\n$/, '').replace(/^\n/, '')
+`.replace(/\n$/, '').replace(/^\n/, '');
 
 const optionString =
 [
@@ -88,7 +88,7 @@ const optionString =
   'tlsCAFile', 'tlsCRLFile', 'tlsAllowInvalidHostnames', 'tlsAllowInvalidCertificates',
   'tlsFIPSMode', 'tlsCertificateSelector', 'tlsDisabledProtocols', 'awsAccessKeyID',
   'awsSecretAccessKey', 'keyVaultNamespace', 'kmsURL'
-]
+];
 
 
 const argv = minimist(process.argv.slice(2), {
@@ -108,29 +108,29 @@ const argv = minimist(process.argv.slice(2), {
     'quiet',
     'version'
   ]
-})
+});
 
 ;(function main (argv) {
-  const cmd = argv._[0] //lrlna: not sure if we will have any commands in the future? might not even need this
+  const cmd = argv._[0]; //lrlna: not sure if we will have any commands in the future? might not even need this
   // TODO: lrlna: extract db address and .js file name
 
 
   const CliRepl = require('./lib/cli-repl.js');
 
   if (argv.help) {
-    console.log(USAGE)
+    console.log(USAGE);
   } else if (argv.version) {
-    console.log(require('./package.json').version)
+    console.log(require('./package.json').version);
   } else if (cmd === 'start-antlr') {
-    new CliRepl(true)
+    new CliRepl(true);
   } else if (argv.ipv6) {
     // TODO: lrlna handle various options ideally in a separate module.exports
     // file that could also be used by the browser 'repl'
   } else {
     new CliRepl();
   }
-})(argv)
+})(argv);
 
 function clr (text, color) {
-  return process.stdout.isTTY ? ansi.format(text, color) : text
+  return process.stdout.isTTY ? ansi.format(text, color) : text;
 }
