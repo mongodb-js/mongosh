@@ -21,7 +21,8 @@ class CliRepl {
     this.options.cwd = colorize(COLORS.YELLOW, this.options.cwd);
   }
 
-  constructor(useAntlr) {
+  constructor(useAntlr, argv) {
+    argv = argv || {};
     this.processCmdArgs({});
 
     this.useAntlr = !!useAntlr;
@@ -75,7 +76,7 @@ class CliRepl {
     this.greet();
 
     this.repl = repl.start({
-      prompt: `$${this.options.user} > `,
+      prompt: `$ ${this.options.user} > `,
       ignoreUndefined: true,
       writer: this.writer
     });

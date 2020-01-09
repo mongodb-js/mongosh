@@ -1,18 +1,24 @@
 {
-  "name": "mongosh-cli-repl",
+  "name": "mongosh",
   "version": "0.0.0",
   "description": "MongoDB Shell CLI REPL Package",
   "main": "index.js",
   "scripts": {
-    "start": "node --experimental-repl-await index.js start",
-    "start-antlr": "node --experimental-repl-await index.js start-antlr",
+    "start": "node --experimental-repl-await bin.js start",
+    "start-antlr": "node --experimental-repl-await bin.js start-antlr",
     "test": "mocha --recursive --color",
     "test-ci": "mocha --recursive",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
+  "bin": {
+    "mongosh": "bin.js"
+  },
   "dependencies": {
-    "mongosh-mapper": "file:../mapper",
-    "mongosh-service-provider-server": "file:../service-provider-server",
-    "mongosh-shell-api": "file:../shell-api"
+    "ansi-escape-sequences": "^5.1.2",
+    "minimist": "^1.2.0",
+    "mongosh-mapper": "../mapper",
+    "mongosh-service-provider-server": "../service-provider-server",
+    "mongosh-shell-api": "../shell-api",
+    "v8-compile-cache": "^2.1.0"
   }
 }
