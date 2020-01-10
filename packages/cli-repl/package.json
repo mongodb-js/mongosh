@@ -2,13 +2,13 @@
   "name": "mongosh-cli-repl",
   "version": "0.0.0",
   "description": "MongoDB Shell CLI REPL Package",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "start": "node --experimental-repl-await index.js start",
-    "start-antlr": "node --experimental-repl-await index.js start-antlr",
-    "test": "mocha --recursive --color",
-    "test-ci": "mocha --recursive",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+    "compile-ts": "tsc -p tsconfig.json",
+    "start": "node --experimental-repl-await lib/index.js start",
+    "start-antlr": "node --experimental-repl-await lib/index.js start-antlr",
+    "prepublish": "npm run compile-ts"
   },
   "dependencies": {
     "mongosh-mapper": "file:../mapper",
