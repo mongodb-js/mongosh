@@ -1,0 +1,36 @@
+{
+  "name": "mongosh-browser-repl",
+  "version": "0.0.1",
+  "description": "Browser presentation component for Mongo Shell",
+  "engines": {
+    "node": ">= 10"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "prepublish": "rm -rf ./lib && npm run build",
+    "start": "npm run storybook",
+    "storybook": "start-storybook -p 6006"
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/preset-react": "^7.7.4",
+    "@babel/preset-typescript": "^7.8.0",
+    "@storybook/react": "^5.3.1",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.4.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "style-loader": "^1.1.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "peerDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  }
+}
