@@ -3,6 +3,7 @@ const webpackConfigBase = require('./webpack.config.base');
 
 module.exports = {
   ...webpackConfigBase,
+  devtool: 'source-map',
   resolve: {
     ...webpackConfigBase.resolve,
     alias: {
