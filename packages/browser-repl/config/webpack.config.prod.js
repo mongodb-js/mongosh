@@ -1,34 +1,14 @@
 const path = require('path');
+const webpackConfigBase = require('./webpack.config.base');
 
 module.exports = {
-  target: 'node',
-  entry: [
-    './src/index.tsx'
-  ],
+  ...webpackConfigBase,
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+    ...webpackConfigBase.resolve,
     alias: {
       'react': path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom')
     }
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(ts|tsx|js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
-        }
-      },
-      {
-        test: /\.css$/i,
-        use: [
-          'style-loader',
-          'css-loader'
-        ]
-      }
-    ]
   },
   output: {
     filename: 'mongosh-browser-repl.js',
