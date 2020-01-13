@@ -31,6 +31,7 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
+    let helpObj = { attr };
     let attributesToList = Object.keys(lib).filter(
       (a) => (!a.startsWith('__') && a !== 'help')
     );
@@ -38,11 +39,10 @@ const attrTemplate = (attrName, lib, base = '') => {
       const constructorArgs = lib.__constructorArgs.filter((a) => (!a.startsWith('_')));
       attributesToList = attributesToList.concat(constructorArgs);
     }
-    const helpValue = `${attr}
-Attributes: ${attributesToList.join(', ')}`;
+    helpObj.attributesList = attributesToList;
 
-    return `${lhs} = () => (${JSON.stringify(helpValue)});
-${lhs}.toReplString = () => (${JSON.stringify(helpValue)});`
+    return `${lhs} = () => (${JSON.stringify(helpObj)});
+${lhs}.toReplString = () => (${JSON.stringify(helpObj)});`
   }
 
   return `${lhs} = ${JSON.stringify(attr)};`;

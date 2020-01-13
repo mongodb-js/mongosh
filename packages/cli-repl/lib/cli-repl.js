@@ -4,10 +4,8 @@ const { CliServiceProvider } = require('mongosh-service-provider-server');
 const Mapper = require('mongosh-mapper');
 const { compile } = require('mongosh-mapper');
 const ShellApi = require('mongosh-shell-api');
+const ansi = require('ansi-escape-sequences');
 // const _ = require('lodash');
-
-const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
-const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
 
 class CliRepl {
   // TODO: parse command line args
@@ -17,8 +15,8 @@ class CliRepl {
       user: argv.user ? argv.user : process.env.USER,
       cwd: argv.cwd ? argv.cwd : process.cwd()
     };
-    this.options.user = colorize(COLORS.MAGENTA, this.options.user);
-    this.options.cwd = colorize(COLORS.YELLOW, this.options.cwd);
+    this.options.user = clr(this.options.user, ['green', 'bold']);
+    this.options.cwd = clr(this.options.cwd, 'bold');
   }
 
   constructor(useAntlr) {
@@ -52,6 +50,42 @@ class CliRepl {
     });
   }
 
+  formatHelp() {
+    const output = `
+    ${clr('Help Commands:', ['bold', 'yellow'])}
+
+      db.help()                    Help on db methods
+      db.mycoll.help()             Help on collection methods
+      sh.help()                    Sharding helpers
+      rs.help()                    Replica set helpers
+      help admin                   Administrative help
+      help connect                 Connecting to a db help
+      help keys                    Key shortcuts
+      help misc                    Misc things to know
+      help mr                      Mapreduce
+
+    For more information on help commands: ${clr('https://docs.mongodb.com/manual/reference/mongo-shell/#command-helpers', ['bold', 'green'])} 
+
+    ${clr('Top Level Commands:', ['bold', 'yellow'])}
+ 
+      show dbs                     Show database names
+      show collections             Show collections in current database
+      show users                   Show users in current database
+      show profile                 Show most recent system.profile entries with time >= 1ms
+      show logs                    Show the accessible logger names
+      show log <name>              Prints out the last segment of log in memory, 'global' is default
+      use <db_name>                Set current database
+      db.foo.find()                List objects in collection foo
+      db.foo.find(<query>)         List objects given a query, where query is an object
+      it                           Result of the last line evaluated; use to further iterate
+      DBQuery.shellBatchSize = x   Set default number of items to display on shell
+      .exit                        Quit the mongo shell
+
+    For more information on top level commands: ${clr('https://docs.mongodb.com', ['bold', 'green'])}
+    `.replace(/\n$/, '').replace(/^\n/, '')
+    return output;
+  }
+
   async evaluator(originalEval, input, context, filename) {
     const argv = input.trim().split(' ');
     const cmd = argv[0];
@@ -62,7 +96,8 @@ class CliRepl {
       case 'it':
         return this.shellApi.it();
       case 'help()':
-        return this.shellApi.help;
+        return this.formatHelp();
+        // return this.shellApi.help;
       case 'var':
         this.mapper.cursorAssigned = true;
       default:
@@ -75,7 +110,7 @@ class CliRepl {
     this.greet();
 
     this.repl = repl.start({
-      prompt: `$${this.options.user} > `,
+      prompt: `${clr('>', ['bold', 'green'])} `,
       ignoreUndefined: true,
       writer: this.writer
     });
@@ -119,6 +154,10 @@ class CliRepl {
       .forEach(k => (this.repl.context[k] = this.shellApi[k]));
     this.mapper.setCtx(this.repl.context);
   }
+}
+
+function clr (text, color) {
+  return process.stdout.isTTY ? ansi.format(text, color) : text
 }
 
 module.exports = CliRepl;

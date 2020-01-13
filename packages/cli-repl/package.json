@@ -11,6 +11,7 @@
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
   },
   "dependencies": {
+    "ansi-escape-sequences": "^5.1.2",
     "mongosh-mapper": "file:../mapper",
     "mongosh-service-provider-server": "file:../service-provider-server",
     "mongosh-shell-api": "file:../shell-api"
