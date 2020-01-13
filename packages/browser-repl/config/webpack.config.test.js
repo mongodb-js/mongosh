@@ -5,7 +5,7 @@ process.env.NODE_ENV = 'test';
 module.exports = {
   ...webpackConfigBase,
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: 'eval-source-map',
   node: {
     global: true,
     crypto: 'empty',
