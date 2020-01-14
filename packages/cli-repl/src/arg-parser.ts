@@ -17,13 +17,19 @@ const OPTIONS = {
     'gssapiHostName',
     'gssapiServiceName',
     'password',
+    'tlsCAFile',
+    'tlsCertificateKeyFile',
+    'tlsCertificateKeyFilePassword',
+    'tlsCertificateSelector',
+    'tlsCRLFile',
+    'tlsDisabledProtocols',
     'username'
   ],
   number: [
 
   ],
   array: [
-
+    'tlsDisabledProtocols'
   ],
   boolean: [
     'disableImplicitSessions',
@@ -34,6 +40,10 @@ const OPTIONS = {
     'quiet',
     'retryWrites',
     'shell',
+    'tls',
+    'tlsAllowInvalidCertificates',
+    'tlsAllowInvalidHostnames',
+    'tlsFIPSMode',
     'verbose',
     'version'
   ],
