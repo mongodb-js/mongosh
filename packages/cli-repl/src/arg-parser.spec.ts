@@ -272,6 +272,128 @@ describe('arg-parser.parse', () => {
           });
         });
       });
+
+      context('when providing TLS options', () => {
+        context('when providing --tls', () => {
+          const argv = [ ...baseArgv, uri, '--tls' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tls in the object', () => {
+            expect(parse(argv).tls).to.equal(true);
+          });
+        });
+
+        context('when providing --tlsCertificateKeyFile', () => {
+          const argv = [ ...baseArgv, uri, '--tlsCertificateKeyFile', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsCertificateKeyFile in the object', () => {
+            expect(parse(argv).tlsCertificateKeyFile).to.equal('test');
+          });
+        });
+
+        context('when providing --tlsCertificateKeyFilePassword', () => {
+          const argv = [ ...baseArgv, uri, '--tlsCertificateKeyFilePassword', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsCertificateKeyFilePassword in the object', () => {
+            expect(parse(argv).tlsCertificateKeyFilePassword).to.equal('test');
+          });
+        });
+
+        context('when providing --tlsCAFile', () => {
+          const argv = [ ...baseArgv, uri, '--tlsCAFile', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsCAFile in the object', () => {
+            expect(parse(argv).tlsCAFile).to.equal('test');
+          });
+        });
+
+        context('when providing --tlsCRLFile', () => {
+          const argv = [ ...baseArgv, uri, '--tlsCRLFile', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsCRLFile in the object', () => {
+            expect(parse(argv).tlsCRLFile).to.equal('test');
+          });
+        });
+
+        context('when providing --tlsAllowInvalidHostnames', () => {
+          const argv = [ ...baseArgv, uri, '--tlsAllowInvalidHostnames' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsAllowInvalidHostnames in the object', () => {
+            expect(parse(argv).tlsAllowInvalidHostnames).to.equal(true);
+          });
+        });
+
+        context('when providing --tlsAllowInvalidCertificates', () => {
+          const argv = [ ...baseArgv, uri, '--tlsAllowInvalidCertificates' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsAllowInvalidCertificates in the object', () => {
+            expect(parse(argv).tlsAllowInvalidCertificates).to.equal(true);
+          });
+        });
+
+        context('when providing --tlsFIPSMode', () => {
+          const argv = [ ...baseArgv, uri, '--tlsFIPSMode' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsFIPSMode in the object', () => {
+            expect(parse(argv).tlsFIPSMode).to.equal(true);
+          });
+        });
+
+        context('when providing --tlsCertificateSelector', () => {
+          const argv = [ ...baseArgv, uri, '--tlsCertificateSelector', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsCertificateSelector in the object', () => {
+            expect(parse(argv).tlsCertificateSelector).to.equal('test');
+          });
+        });
+
+        context('when providing --tlsDisabledProtocols', () => {
+          const argv = [ ...baseArgv, uri, '--tlsDisabledProtocols', 'TLS1_0,TLS2_0' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the tlsDisabledProtocols in the object', () => {
+            expect(parse(argv).tlsDisabledProtocols).to.equal('TLS1_0,TLS2_0');
+          });
+        });
+      });
     });
 
     context('when providing no URI', () => {
