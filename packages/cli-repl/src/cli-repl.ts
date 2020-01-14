@@ -125,11 +125,12 @@ class CliRepl {
     this.greet();
 
     const autoComplete = (line) => {
+      const toMatchTo = line.split('.').pop();
       const completerAttributes = Object.keys(shellTypes).map((key) => {
         return Object.keys(shellTypes[key].attributes);
       })
       const completions = [].concat.apply([], completerAttributes);
-      const hits = completions.filter((c) => c.startsWith(line));
+      const hits = completions.filter((c) => c.startsWith(toMatchTo));
 
       return [hits.length ? hits : completions, line];
     }
