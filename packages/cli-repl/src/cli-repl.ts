@@ -26,7 +26,6 @@ class CliRepl {
    */
   constructor(useAntlr?: boolean) {
     this.useAntlr = !!useAntlr;
-    console.log('ARGS!!!!!!!!!!!!!!', process.argv);
     CliServiceProvider.connect('mongodb://localhost:27017').then((serviceProvider) => {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);
