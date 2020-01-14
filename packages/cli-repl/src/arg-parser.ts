@@ -30,12 +30,6 @@ const OPTIONS = {
     'tlsDisabledProtocols',
     'username'
   ],
-  number: [
-
-  ],
-  array: [
-    'tlsDisabledProtocols'
-  ],
   boolean: [
     'disableImplicitSessions',
     'help',
