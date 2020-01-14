@@ -394,6 +394,68 @@ describe('arg-parser.parse', () => {
           });
         });
       });
+
+      context('when providing FLE options', () => {
+        context('when providing --awsAccessKeyId', () => {
+          const argv = [ ...baseArgv, uri, '--awsAccessKeyId', 'foo' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the awsAccessKeyId in the object', () => {
+            expect(parse(argv).awsAccessKeyId).to.equal('foo');
+          });
+        });
+
+        context('when providing --awsSecretAccessKey', () => {
+          const argv = [ ...baseArgv, uri, '--awsSecretAccessKey', 'foo' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the awsSecretAccessKey in the object', () => {
+            expect(parse(argv).awsSecretAccessKey).to.equal('foo');
+          });
+        });
+
+        context('when providing --awsSessionToken', () => {
+          const argv = [ ...baseArgv, uri, '--awsSessionToken', 'foo' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the awsSessionToken in the object', () => {
+            expect(parse(argv).awsSessionToken).to.equal('foo');
+          });
+        });
+
+        context('when providing --keyVaultNamespace', () => {
+          const argv = [ ...baseArgv, uri, '--keyVaultNamespace', 'foo.bar' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the keyVaultNamespace in the object', () => {
+            expect(parse(argv).keyVaultNamespace).to.equal('foo.bar');
+          });
+        });
+
+        context('when providing --kmsURL', () => {
+          const argv = [ ...baseArgv, uri, '--kmsURL', 'example.com' ];
+
+          it('returns the URI in the object', () => {
+            expect(parse(argv)._[0]).to.equal(uri);
+          });
+
+          it('sets the kmsURL in the object', () => {
+            expect(parse(argv).kmsURL).to.equal('example.com');
+          });
+        });
+      });
     });
 
     context('when providing no URI', () => {
