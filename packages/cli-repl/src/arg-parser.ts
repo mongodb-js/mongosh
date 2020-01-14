@@ -8,6 +8,7 @@ const OPTIONS = {
     '_',
     'authenticationDatabase',
     'authenticationMechanism',
+    'eval',
     'gssapiHostName',
     'gssapiServiceName',
     'password',
@@ -20,9 +21,19 @@ const OPTIONS = {
 
   ],
   boolean: [
-
+    'disableImplicitSessions',
+    'help',
+    'ipv6',
+    'nodb',
+    'norc',
+    'quiet',
+    'retryWrites',
+    'shell',
+    'verbose',
+    'version'
   ],
   alias: {
+    h: 'help',
     p: 'password',
     u: 'username'
   },
