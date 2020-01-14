@@ -13,6 +13,7 @@ all environments (REPL, Browser, Compass, etc).
 
 ```shell
 npm install -g lerna
+npm install -g typescript
 npm run bootstrap
 ```
 
