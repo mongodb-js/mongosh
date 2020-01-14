@@ -164,6 +164,15 @@ describe('arg-parser.parse', () => {
             expect(parse(argv).disableImplicitSessions).to.equal(true);
           });
         });
+
+        context('when providing an unknown parameter', () => {
+          const argv = [ ...baseArgv, uri, '--what' ];
+
+          it('raises an error', () => {
+            expect(parse.bind(null, argv)).to.
+              throw('Error parsing command line: unrecognized option: --what');
+          });
+        });
       });
 
       context('when providing authentication options', () => {

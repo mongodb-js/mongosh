@@ -1,6 +1,11 @@
 import minimist from 'minimist';
 
 /**
+ * Unknown option message.
+ */
+const UNKNOWN = 'Error parsing command line: unrecognized option:';
+
+/**
  * The minimist options.
  */
 const OPTIONS = {
@@ -39,6 +44,10 @@ const OPTIONS = {
   },
   default: {
 
+  },
+  unknown: (parameter) => {
+    if (!parameter.startsWith('-')) return true;
+    throw new Error(`${UNKNOWN} ${parameter}`);
   }
 };
 
