@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "The MongoDB Shell",
   "main": "index.js",
+  "bin": "packages/cli-repl/bin/mongosh.js",
   "scripts": {
     "prebootstrap": "npm install",
     "bootstrap": "lerna exec -- npm install --no-package-lock",
