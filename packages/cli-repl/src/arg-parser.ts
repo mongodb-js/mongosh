@@ -6,6 +6,11 @@ import minimist from 'minimist';
 const UNKNOWN = 'Error parsing command line: unrecognized option:';
 
 /**
+ * npm start constant.
+ */
+const START = 'start';
+
+/**
  * The minimist options.
  */
 const OPTIONS = {
@@ -31,6 +36,7 @@ const OPTIONS = {
     'username'
   ],
   boolean: [
+    'antlr',
     'disableImplicitSessions',
     'help',
     'ipv6',
@@ -55,6 +61,7 @@ const OPTIONS = {
 
   },
   unknown: (parameter) => {
+    if (parameter === START) return false;
     if (!parameter.startsWith('-')) return true;
     throw new Error(`${UNKNOWN} ${parameter}`);
   }
@@ -68,9 +75,7 @@ const OPTIONS = {
  * @returns {object} The arguments as an object.
  */
 const parse = (args: string[]) => {
-  // via npm linked mongosh [ node, mongosh ]
   // via npm start [ node, mongosh.js, start ]
-  // via built mongosh [ node, mongosh.js ]
   return minimist(args.slice(2), OPTIONS);
 }
 
