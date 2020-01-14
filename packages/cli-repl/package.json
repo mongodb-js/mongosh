@@ -11,9 +11,13 @@
     "compile-ts": "tsc -p tsconfig.json",
     "start": "node --experimental-repl-await bin/mongosh.js start",
     "start-antlr": "node --experimental-repl-await bin/mongosh.js start-antlr",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
   "dependencies": {
+    "minimist": "^1.2.0",
+    "minimist-options": "^4.0.2",
     "mongosh-mapper": "file:../mapper",
     "mongosh-service-provider-server": "file:../service-provider-server",
     "mongosh-shell-api": "file:../shell-api"

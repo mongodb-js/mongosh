@@ -51,6 +51,7 @@ var CliRepl = (function () {
     function CliRepl(useAntlr) {
         var _this = this;
         this.useAntlr = !!useAntlr;
+        console.log('ARGS!!!!!!!!!!!!!!', process.argv);
         mongosh_service_provider_server_1.CliServiceProvider.connect('mongodb://localhost:27017').then(function (serviceProvider) {
             _this.serviceProvider = serviceProvider;
             _this.mapper = new mongosh_mapper_2.default(_this.serviceProvider);
