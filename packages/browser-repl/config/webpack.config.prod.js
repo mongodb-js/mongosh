@@ -1,5 +1,14 @@
 const path = require('path');
+const WebpackVisualizerPlugin = require('webpack-visualizer-plugin');
 const webpackConfigBase = require('./webpack.config.base');
+
+const libraryName = 'mongosh-browser-repl';
+
+const excludeFromBundle = [
+  'react',
+  'react-dom',
+  'prop-types'
+];
 
 module.exports = {
   ...webpackConfigBase,
@@ -7,32 +16,21 @@ module.exports = {
   devtool: 'source-map',
   resolve: {
     ...webpackConfigBase.resolve,
-    alias: {
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom')
-    }
+    alias: excludeFromBundle.reduce((aliases, package) => ({
+      ...aliases,
+      [package]: path.resolve(__dirname, 'node_modules', package)
+    }), {})
   },
   entry: path.resolve(__dirname, '..', 'src', 'index.tsx'),
   output: {
-    filename: 'mongosh-browser-repl.js',
-    library: 'mongosh-browser-repl',
+    filename: `${libraryName}.js`,
+    library: libraryName,
     libraryTarget: 'umd',
     path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
-  externals: {
-    // Don't bundle react or react-dom
-    react: {
-      commonjs: 'react',
-      commonjs2: 'react',
-      amd: 'React',
-      root: 'React'
-    },
-    'react-dom': {
-      commonjs: 'react-dom',
-      commonjs2: 'react-dom',
-      amd: 'ReactDOM',
-      root: 'ReactDOM'
-    }
-  }
+  externals: excludeFromBundle,
+  plugins: [
+    new WebpackVisualizerPlugin()
+  ]
 };
