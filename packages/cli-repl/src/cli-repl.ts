@@ -5,8 +5,9 @@ import { Transform } from 'stream';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
+import readline from 'readline';
 import Mapper from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
+import ShellApi, { types as shellTypes } from 'mongosh-shell-api';
 import CliOptions from './cli-options';
 import write from './writer';
 
@@ -123,10 +124,21 @@ class CliRepl {
   start(): void {
     this.greet();
 
+    const autoComplete = (line) => {
+      const completerAttributes = Object.keys(shellTypes).map((key) => {
+        return Object.keys(shellTypes[key].attributes);
+      })
+      const completions = [].concat.apply([], completerAttributes);
+      const hits = completions.filter((c) => c.startsWith(line));
+
+      return [hits.length ? hits : completions, line];
+    }
+
     this.repl = repl.start({
       prompt: `$ mongosh > `,
       ignoreUndefined: true,
       writer: write
+      completer: autoComplete,
     });
 
     const originalEval = util.promisify(this.repl.eval);
