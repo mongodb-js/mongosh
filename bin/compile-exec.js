@@ -6,7 +6,7 @@ const { compile } = require('mongosh-build');
  * Compile the mongosh executable.
  */
 compile({
-  input: path.join(__dirname, '..', 'packages', 'cli-repl', 'index.js'),
+  input: path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),
   name: config.name,
   output: path.join(__dirname, '..', 'dist', config.name)
 }).then(() => {

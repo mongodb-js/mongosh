@@ -4,10 +4,13 @@
   "description": "MongoDB Shell CLI REPL Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "bin": {
+    "mongosh": "./bin/mongosh.js"
+  },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "start": "node --experimental-repl-await lib/index.js start",
-    "start-antlr": "node --experimental-repl-await lib/index.js start-antlr",
+    "start": "node --experimental-repl-await bin/mongosh.js start",
+    "start-antlr": "node --experimental-repl-await bin/mongosh.js start-antlr",
     "prepublish": "npm run compile-ts"
   },
   "dependencies": {

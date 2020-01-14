@@ -45,7 +45,9 @@ variables to be set:
 These can be gotten from the mongosh-test cluster in the Compass Atlas
 clusters.
 
-Start the CLI:
+## Starting the CLI
+
+Via NPM:
 
 ```shell
 npm start
@@ -66,8 +68,23 @@ To see the bug with parsing using the JavaScript grammar, run
 node --stack-size=50 packages/shell-api/lib/async-rewrite-double.js
 ```
 
-Compile All Typescript
+Via bin:
 
 ```shell
-npm run compile
+npm link
+mongosh
+```
+
+## Compiling
+
+Compile all Typescript:
+
+```shell
+npm run compile-ts
+```
+
+Compile the standalone executable:
+
+```shel
+npm run compile-exec
 ```
