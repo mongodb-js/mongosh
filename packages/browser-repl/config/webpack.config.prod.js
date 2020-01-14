@@ -3,6 +3,7 @@ const webpackConfigBase = require('./webpack.config.base');
 
 module.exports = {
   ...webpackConfigBase,
+  mode: 'production',
   devtool: 'source-map',
   resolve: {
     ...webpackConfigBase.resolve,
@@ -11,11 +12,12 @@ module.exports = {
       'react-dom': path.resolve(__dirname, './node_modules/react-dom')
     }
   },
+  entry: path.resolve(__dirname, '..', 'src', 'index.tsx'),
   output: {
     filename: 'mongosh-browser-repl.js',
     library: 'mongosh-browser-repl',
     libraryTarget: 'umd',
-    path: path.resolve(__dirname, 'lib'),
+    path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
   externals: {

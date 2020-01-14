@@ -6,7 +6,7 @@
     "node": ">= 10"
   },
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack --config ./config/webpack.config.prod.js",
     "prepublish": "rm -rf ./lib && npm run build",
     "start": "npm run storybook",
     "storybook": "start-storybook -p 6006",
@@ -14,11 +14,13 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
+    "@babel/runtime": "^7.8.3",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.7.7",
     "@babel/preset-react": "^7.7.4",
     "@babel/preset-typescript": "^7.8.0",
