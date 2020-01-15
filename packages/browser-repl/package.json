@@ -11,7 +11,9 @@
     "start": "npm run storybook",
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
-    "test-ci": "npm run test"
+    "test-ci": "npm run lint && npm run test",
+    "lint": "eslint '**/*.{js,ts,tsx}'",
+    "check": "npm run lint"
   },
   "dependencies": {
     "@babel/runtime": "^7.8.3"
@@ -25,6 +27,8 @@
     "@babel/preset-typescript": "^7.8.0",
     "@storybook/react": "^5.3.1",
     "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.4.1",
     "enzyme": "^3.11.0",
