@@ -1,4 +1,5 @@
 import minimist from 'minimist';
+import CliOptions from './cli-options';
 
 /**
  * Unknown option message.
@@ -15,7 +16,6 @@ const START = 'start';
  */
 const OPTIONS = {
   string: [
-    '_',
     'authenticationDatabase',
     'authenticationMechanism',
     'awsAccessKeyId',
@@ -78,8 +78,7 @@ const OPTIONS = {
  *
  * @returns {object} The arguments as an object.
  */
-const parse = (args: string[]) => {
-  // via npm start [ node, mongosh.js, start ]
+function parse(args: string[]): CliOptions {
   return minimist(args.slice(2), OPTIONS);
 }
 
