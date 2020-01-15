@@ -16,9 +16,9 @@ module.exports = {
   devtool: 'source-map',
   resolve: {
     ...webpackConfigBase.resolve,
-    alias: excludeFromBundle.reduce((aliases, package) => ({
+    alias: excludeFromBundle.reduce((aliases, dependency) => ({
       ...aliases,
-      [package]: path.resolve(__dirname, 'node_modules', package)
+      [dependency]: path.resolve(__dirname, 'node_modules', dependency)
     }), {})
   },
   entry: path.resolve(__dirname, '..', 'src', 'index.tsx'),

@@ -30,8 +30,11 @@
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
+    "eslint": "^6.8.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "js-yaml": "^3.13.1",
     "karma": "^4.4.1",

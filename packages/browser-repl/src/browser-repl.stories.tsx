@@ -6,4 +6,4 @@ export default {
   component: BrowserRepl,
 };
 
-export const Example1 = () => (<BrowserRepl name='Browser Repl' />);
+export const Example1 = (): JSX.Element => (<BrowserRepl name="Browser Repl" />);
