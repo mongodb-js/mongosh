@@ -76,7 +76,7 @@ const OPTIONS = {
  *
  * @param {string[]} args - The args.
  *
- * @returns {object} The arguments as an object.
+ * @returns {CliOptions} The arguments as cli options.
  */
 function parse(args: string[]): CliOptions {
   return minimist(args.slice(2), OPTIONS);
