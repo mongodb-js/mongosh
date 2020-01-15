@@ -21,12 +21,15 @@ const OPTIONS = {
     'awsAccessKeyId',
     'awsSecretAccessKey',
     'awsSessionToken',
+    'db',
     'eval',
     'gssapiHostName',
     'gssapiServiceName',
+    'host',
     'keyVaultNamespace',
     'kmsURL',
     'password',
+    'port',
     'tlsCAFile',
     'tlsCertificateKeyFile',
     'tlsCertificateKeyFilePassword',
@@ -57,12 +60,13 @@ const OPTIONS = {
     p: 'password',
     u: 'username'
   },
-  default: {
-
-  },
   unknown: (parameter) => {
-    if (parameter === START) return false;
-    if (!parameter.startsWith('-')) return true;
+    if (parameter === START) {
+      return false;
+    }
+    if (!parameter.startsWith('-')) {
+      return true;
+    }
     throw new Error(`${UNKNOWN} ${parameter}`);
   }
 };

@@ -6,7 +6,7 @@ const MONGOSH = 'mongosh';
 const START = 'start';
 
 describe('arg-parser.parse', () => {
-  context('when running from a linked bin script', () => {
+  context('when running from a linked bin script or executable', () => {
     const baseArgv = [ NODE, MONGOSH ];
 
     context('when providing only a URI', () => {
@@ -461,31 +461,43 @@ describe('arg-parser.parse', () => {
 
     context('when providing no URI', () => {
       context('when providing a DB address', () => {
+        context('when only a db name is provided', () => {
+          const db = 'foo';
+          const argv = [ ...baseArgv, db ];
 
+          it('sets the db in the object', () => {
+            expect(parse(argv)._[0]).to.equal(db);
+          });
+        });
+
+        context('when a db address is provided without a scheme', () => {
+          const db = '192.168.0.5:9999/foo';
+          const argv = [ ...baseArgv, db ];
+
+          it('sets the db in the object', () => {
+            expect(parse(argv)._[0]).to.equal(db);
+          });
+        });
       });
 
       context('when providing no DB address', () => {
         context('when providing a host', () => {
+          const argv = [ ...baseArgv, '--host', 'example.com' ];
 
+          it('sets the host value in the object', () => {
+            expect(parse(argv).host).to.equal('example.com');
+          });
         });
 
         context('when providing a port', () => {
+          const argv = [ ...baseArgv, '--port', '20000' ];
 
-        });
-
-        context('when proving a host + port', () => {
-
-        });
-
-        context('when providing no host or port', () => {
-
+          it('sets the port value in the object', () => {
+            expect(parse(argv).port).to.equal('20000');
+          });
         });
       });
     });
-  });
-
-  context('when running via a built executable', () => {
-
   });
 
   context('when running via npm start', () => {
@@ -936,6 +948,46 @@ describe('arg-parser.parse', () => {
 
           it('sets the kmsURL in the object', () => {
             expect(parse(argv).kmsURL).to.equal('example.com');
+          });
+        });
+      });
+    });
+
+    context('when providing no URI', () => {
+      context('when providing a DB address', () => {
+        context('when only a db name is provided', () => {
+          const db = 'foo';
+          const argv = [ ...baseArgv, db ];
+
+          it('sets the db in the object', () => {
+            expect(parse(argv)._[0]).to.equal(db);
+          });
+        });
+
+        context('when a db address is provided without a scheme', () => {
+          const db = '192.168.0.5:9999/foo';
+          const argv = [ ...baseArgv, db ];
+
+          it('sets the db in the object', () => {
+            expect(parse(argv)._[0]).to.equal(db);
+          });
+        });
+      });
+
+      context('when providing no DB address', () => {
+        context('when providing a host', () => {
+          const argv = [ ...baseArgv, '--host', 'example.com' ];
+
+          it('sets the host value in the object', () => {
+            expect(parse(argv).host).to.equal('example.com');
+          });
+        });
+
+        context('when providing a port', () => {
+          const argv = [ ...baseArgv, '--port', '20000' ];
+
+          it('sets the port value in the object', () => {
+            expect(parse(argv).port).to.equal('20000');
           });
         });
       });
