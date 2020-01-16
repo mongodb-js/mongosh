@@ -1,7 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from '../../testing/chai';
-import { shallow } from '../../testing/enzyme';
+import { shallow, mount } from '../../testing/enzyme';
 
 import Shell from './shell';
 import { ShellInput } from './shell-input';
@@ -14,13 +14,20 @@ const wait: (ms?: number) => Promise<void> = (ms = 10) => {
 describe('<Shell />', () => {
   let fakeInterpreter;
   let wrapper;
+  let scrollIntoView;
 
   beforeEach(() => {
+    scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
+
     fakeInterpreter = {
       evaluate: sinon.fake.returns('some result')
     };
 
     wrapper = shallow(<Shell interpreter={fakeInterpreter} />);
+  });
+
+  afterEach(() => {
+    scrollIntoView.restore();
   });
 
   it('renders a ShellOutput component', () => {
@@ -39,7 +46,7 @@ describe('<Shell />', () => {
     it('evaluates the input with an interpreter', () => {
       const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
       onInput('some code');
-      expect(fakeInterpreter.evaluate.calledWith('some code')).to.be.true;
+      expect(fakeInterpreter.evaluate).to.have.been.calledWith('some code');
     });
 
     it('adds the evaluated input and output as lines to the output', async() => {
@@ -71,5 +78,18 @@ describe('<Shell />', () => {
         { type: 'error', value: error }
       ]);
     });
+  });
+
+  it('scrolls the container to the bottom each time the output is updated', () => {
+    wrapper = mount(<Shell interpreter={fakeInterpreter} />);
+
+    wrapper.setState({output: [
+      { type: 'input', value: 'some code' },
+      { type: 'output', value: 'some result' }
+    ]});
+
+    wrapper.update();
+
+    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
   });
 });
