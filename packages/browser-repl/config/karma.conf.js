@@ -24,8 +24,6 @@ module.exports = (config) => {
         'webpack'
       ]
     },
-    envPreprocessor: [
-    ],
     reporters: [
       'mocha'
     ],

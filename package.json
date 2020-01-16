@@ -30,6 +30,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
+    "@types/sinon-chai": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
     "chai": "^4.2.0",
@@ -50,6 +51,7 @@
     "nexe": "^3.3.2",
     "puppeteer": "^2.0.0",
     "sinon": "^7.5.0",
+    "sinon-chai": "^3.4.0",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2",
     "uuid": "^3.3.3"

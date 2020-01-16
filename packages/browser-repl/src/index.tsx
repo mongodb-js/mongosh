@@ -1,1 +1,2 @@
-export * from './browser-repl';
+import Shell from './components/shell';
+export default Shell;
