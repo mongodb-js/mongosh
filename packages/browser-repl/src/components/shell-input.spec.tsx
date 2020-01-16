@@ -16,7 +16,24 @@ describe('<ShellInput />', () => {
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
     wrapper.find('textarea').simulate('change', { target: { value: 'value' } });
-    wrapper.find('textarea').simulate('keyup', {key: 'Enter'});
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter' });
     expect(onInput).to.have.been.calledWith('value');
+  });
+
+  it('does not call onInput with the current value when enter is pressed with shift', () => {
+    const onInput = sinon.spy();
+    const wrapper = shallow(<ShellInput onInput={onInput}/>);
+
+    wrapper.find('textarea').simulate('change', { target: { value: 'value' } });
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter', shiftKey: true });
+    expect(onInput).to.not.have.been.called;
+  });
+
+  it('does not add new line to the output when enter is pressed', () => {
+    // TODO: hard/impossible to test with enzyme
+  });
+
+  it('allows newline when shift+enter is pressed', () => {
+    // TODO: hard/impossible to test with enzyme
   });
 });
