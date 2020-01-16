@@ -8,7 +8,6 @@ interface ShellInputProps {
 interface ShellInputState {
   currentValue: string;
 }
-
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   static propTypes = {
     onInput: PropTypes.func
@@ -18,21 +17,33 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     currentValue: ''
   };
 
-  onChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
+  private onChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
     this.setState({currentValue: event.target.value});
   }
 
-  onKeyUp = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (event.key === 'Enter') {
+  private onKeyUp = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (this.isEnterWithoutShift(event)) {
       this.props.onInput(this.state.currentValue);
       this.setState({currentValue: ''});
     }
+  }
+
+  private preventDefaultEnterBehaviour = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (this.isEnterWithoutShift(event)) {
+      event.preventDefault();
+    }
+  }
+
+  private isEnterWithoutShift = (event: KeyboardEvent<HTMLTextAreaElement>): boolean => {
+    return event.key === 'Enter' && !event.shiftKey;
   }
 
   render(): JSX.Element {
     return (<textarea
       value={this.state.currentValue}
       onChange={this.onChange}
-      onKeyUp={this.onKeyUp} />);
+      onKeyUp={this.onKeyUp}
+      onKeyDown={this.preventDefaultEnterBehaviour}
+      onKeyPress={this.preventDefaultEnterBehaviour} />);
   }
 }
