@@ -5,8 +5,6 @@ import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Interpreter } from '../lib/interpreter';
 
-import './shell.css';
-
 interface ShellProps {
   interpreter: Interpreter;
 }
@@ -25,6 +23,14 @@ export default class Shell extends Component<ShellProps, ShellState> {
   readonly state: ShellState = {
     output: []
   };
+
+  componentDidMount(): void {
+    this.scrollToBottom();
+  }
+
+  componentDidUpdate(): void {
+    this.scrollToBottom();
+  }
 
   private onInput: (string) => Promise<void> = async(code) => {
     let outputLine;
@@ -56,10 +62,24 @@ export default class Shell extends Component<ShellProps, ShellState> {
     });
   }
 
+  private shellInputElement?: HTMLElement;
+
+  scrollToBottom(): void {
+    if (!this.shellInputElement) {
+      return;
+    }
+
+    this.shellInputElement.scrollIntoView({ behavior: 'smooth' });
+  }
+
   render(): JSX.Element {
     return (<div>
-      <ShellOutput output={this.state.output} />
-      <ShellInput onInput={this.onInput} />
+      <div>
+        <ShellOutput output={this.state.output} />
+      </div>
+      <div ref={(el): void => { this.shellInputElement = el; }}>
+        <ShellInput onInput={this.onInput} />
+      </div>
     </div>);
   }
 }
