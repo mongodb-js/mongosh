@@ -26,5 +26,10 @@ describe('<ShellOutputLine />', () => {
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: err}} />);
     expect(wrapper.text()).to.contain(err.stack);
   });
+
+  it('does not stringify input', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{type: 'input', value: 'some text'}} />);
+    expect(wrapper.text()).not.to.contain('"');
+  });
 });
 

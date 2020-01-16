@@ -19,16 +19,20 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     entry: PropTypes.object.isRequired
   };
 
-  private formatValue(value: ShellOutputEntryValue): string {
-    if (value instanceof Error) {
-      return value.stack;
+  private formatValue(entry: ShellOutputEntry): string {
+    if (entry.type === 'input') {
+      return entry.value;
     }
 
-    return safeJsonStringify(value, null, 2);
+    if (entry.value instanceof Error) {
+      return entry.value.stack;
+    }
+
+    return safeJsonStringify(entry.value, null, 2);
   }
 
   render(): JSX.Element {
-    const formattedValue = this.formatValue(this.props.entry.value);
+    const formattedValue = this.formatValue(this.props.entry);
     const className = `shell-output-line shell-output-line-${this.props.entry.type}`;
     return <pre className={className}>{formattedValue}</pre>;
   }
