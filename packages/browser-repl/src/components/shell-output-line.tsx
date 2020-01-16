@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import safeJsonStringify from 'safe-json-stringify';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ShellOutputEntryValue = any;
 
 export interface ShellOutputEntry {
   type: string;
-  value: object | string;
+  value: ShellOutputEntryValue;
 }
 
 interface ShellOutputLineProps {
@@ -15,7 +19,18 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     entry: PropTypes.object.isRequired
   };
 
+  private formatValue(value: ShellOutputEntryValue): string {
+    if (value instanceof Error) {
+      return value.stack;
+    }
+
+    return safeJsonStringify(value, null, 2);
+  }
+
   render(): JSX.Element {
-    return <div>{this.props.entry.value}</div>;
+    const formattedValue = this.formatValue(this.props.entry.value);
+    const className = `shell-output-line shell-output-line-${this.props.entry.type}`;
+    return <pre className={className}>{formattedValue}</pre>;
   }
 }
+
