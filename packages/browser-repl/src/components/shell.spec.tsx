@@ -1,12 +1,7 @@
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-chai.use(sinonChai);
-
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import * as Adapter from 'enzyme-adapter-react-16';
-configure({adapter: new Adapter()});
+import sinon from 'sinon';
+import { expect } from '../../testing/chai';
+import { shallow } from '../../testing/enzyme';
 
 import Shell from './shell';
 import { ShellInput } from './shell-input';

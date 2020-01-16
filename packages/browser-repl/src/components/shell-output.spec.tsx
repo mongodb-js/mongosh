@@ -1,11 +1,8 @@
-import { expect } from 'chai';
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import * as Adapter from 'enzyme-adapter-react-16';
+import { expect } from '../../testing/chai';
+import { shallow } from '../../testing/enzyme';
+
 import { ShellOutputLine } from './shell-output-line';
-
-configure({adapter: new Adapter()});
-
 import { ShellOutput } from './shell-output';
 
 describe('<ShellOutput />', () => {
