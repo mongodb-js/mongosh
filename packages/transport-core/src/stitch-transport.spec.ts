@@ -1,6 +1,8 @@
 import StitchTransport from './stitch-transport';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import StitchClient from '../lib/stitch-client';
+import StitchMongoClient from '../lib/stitch-mongo-client';
 
 /**
  * Create a client stub from the provided collection stub.
@@ -23,11 +25,14 @@ const createClientStub = (collectionStub) => {
   };
 };
 
+const createStitchClientStub = (): StitchClient => ({auth: null});
+const createMongoClientStub = (): StitchMongoClient => ({db: () => {}});
+
 describe('StitchTransport', () => {
-  const stitchClient = sinon.spy();
+  const stitchClient = createStitchClientStub();
 
   describe('#constructor', () => {
-    const mongoClient = sinon.spy();
+    const mongoClient = createMongoClientStub();
     const stitchTransport = new StitchTransport(stitchClient, mongoClient);
 
     it('sets the mongo client on the instance', () => {
@@ -43,6 +48,7 @@ describe('StitchTransport', () => {
     let stitchTransport;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
+
     const aggMock = sinon.mock().withArgs(pipeline).
       returns({ toArray: () => Promise.resolve(aggResult) });
 
