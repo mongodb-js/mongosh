@@ -2,22 +2,22 @@ import CliOptions from './cli-options';
 import { NodeOptions } from 'mongosh-transport-server';
 
 // auth: NodeAuthOptions; //username -> user, password -> password
-// explicitlyIgnoreSession: boolean; //disableImplicitSessions: boolean;
 // loggerLevel: string // --quiet -> error, --verbose -> debug
-// retryWrites: boolean;
-// tls: boolean;
-// tlsAllowInvalidCertificates: boolean;
-// tlsAllowInvalidHostnames: boolean;
-// tlsCAFile: string;
-// tlsCertificateKeyFile: string;
-// tlsCertificateKeyFilePassword: string;
 
 /**
  * Mapping fields from the CLI args to Node options.
  */
 const MAPPINGS = {
   authenticationDatabase: 'authSource',
-  authenticationMechanism: 'authMechanism'
+  authenticationMechanism: 'authMechanism',
+  disableImplicitSessions: 'explicitlyIgnoreSession',
+  retryWrites: 'retryWrites',
+  tls: 'tls',
+  tlsAllowInvalidCertificates: 'tlsAllowInvalidCertificates',
+  tlsAllowInvalidHostnames: 'tlsAllowInvalidHostnames',
+  tlsCAFile: 'tlsCAFile',
+  tlsCertificateKeyFile: 'tlsCertificateKeyFile',
+  tlsCertificateKeyFilePassword: 'tlsCertificateKeyFilePassword'
 };
 
 /**
