@@ -26,6 +26,11 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args has disableImplicitSessions', () => {
     const cliOptions: CliOptions = { disableImplicitSessions: true };
 
+    it('maps to explicitlyIgnoreSession', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        explicitlyIgnoreSession: true
+      });
+    });
   });
 
   context('when cli args has quiet', () => {
@@ -51,35 +56,70 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args has retryWrites', () => {
     const cliOptions: CliOptions = { retryWrites: true };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        retryWrites: true
+      });
+    });
   });
 
   context('when cli args has tls', () => {
     const cliOptions: CliOptions = { tls: true };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tls: true
+      });
+    });
   });
 
   context('when cli args has tlsAllowInvalidCertificates', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidCertificates: true };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tlsAllowInvalidCertificates: true
+      });
+    });
   });
 
   context('when cli args has tlsAllowInvalidHostnames', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidHostnames: true };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tlsAllowInvalidHostnames: true
+      });
+    });
   });
 
   context('when cli args has tlsCAFile', () => {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tlsCAFile: 'ca'
+      });
+    });
   });
 
   context('when cli args has tlsCertificateKeyFile', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFile: 'key' };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tlsCertificateKeyFile: 'key'
+      });
+    });
   });
 
   context('when cli args has tlsCertificateKeyFilePassword', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFilePassword: 'pw' };
 
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        tlsCertificateKeyFilePassword: 'pw'
+      });
+    });
   });
 });
