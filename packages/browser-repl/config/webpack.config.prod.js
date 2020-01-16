@@ -1,5 +1,4 @@
 const path = require('path');
-const WebpackVisualizerPlugin = require('webpack-visualizer-plugin');
 const webpackConfigBase = require('./webpack.config.base');
 
 const libraryName = 'mongosh-browser-repl';
@@ -29,8 +28,5 @@ module.exports = {
     path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
-  externals: excludeFromBundle,
-  plugins: [
-    new WebpackVisualizerPlugin()
-  ]
+  externals: excludeFromBundle
 };
