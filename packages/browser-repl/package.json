@@ -13,7 +13,7 @@
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "npm run lint && npm run test",
-    "lint": "eslint '**/*.{js,ts,tsx}'",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint"
   },
   "dependencies": {
