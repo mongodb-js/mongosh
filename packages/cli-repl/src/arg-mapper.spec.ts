@@ -3,7 +3,7 @@ import CliOptions from './cli-options';
 import { expect } from 'chai';
 
 describe('arg-mapper.mapCliToDriver', () => {
-  context('when cli args has authenticationDatabase', () => {
+  context('when cli args have authenticationDatabase', () => {
     const cliOptions: CliOptions = { authenticationDatabase: 'authDb' };
 
     it('maps to authSource', () => {
@@ -13,7 +13,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has authenticationMechanism', () => {
+  context('when cli args have authenticationMechanism', () => {
     const cliOptions: CliOptions = { authenticationMechanism: 'SCRAM-SHA-1' };
 
     it('maps to authMechanism', () => {
@@ -23,7 +23,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has disableImplicitSessions', () => {
+  context('when cli args have disableImplicitSessions', () => {
     const cliOptions: CliOptions = { disableImplicitSessions: true };
 
     it('maps to explicitlyIgnoreSession', () => {
@@ -33,7 +33,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has quiet', () => {
+  context('when cli args have quiet', () => {
     const cliOptions: CliOptions = { quiet: true };
 
     it('maps to loggerLevel', () => {
@@ -43,7 +43,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has verbose', () => {
+  context('when cli args have verbose', () => {
     const cliOptions: CliOptions = { verbose: true };
 
     it('maps to loggerLevel', () => {
@@ -53,7 +53,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has username', () => {
+  context('when cli args have username', () => {
     const cliOptions: CliOptions = { username: 'richard' };
 
     it('maps to auth object', () => {
@@ -65,7 +65,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has password', () => {
+  context('when cli args have password', () => {
     const cliOptions: CliOptions = { password: 'aphextwin' };
 
     it('maps to auth object', () => {
@@ -77,7 +77,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has username and password', () => {
+  context('when cli args have username and password', () => {
     const cliOptions: CliOptions = { username: 'richard', password: 'aphextwin' };
 
     it('maps to auth object', () => {
@@ -90,7 +90,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has retryWrites', () => {
+  context('when cli args have retryWrites', () => {
     const cliOptions: CliOptions = { retryWrites: true };
 
     it('maps the same argument', () => {
@@ -100,7 +100,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tls', () => {
+  context('when cli args have tls', () => {
     const cliOptions: CliOptions = { tls: true };
 
     it('maps the same argument', () => {
@@ -110,7 +110,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tlsAllowInvalidCertificates', () => {
+  context('when cli args have tlsAllowInvalidCertificates', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidCertificates: true };
 
     it('maps the same argument', () => {
@@ -120,7 +120,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tlsAllowInvalidHostnames', () => {
+  context('when cli args have tlsAllowInvalidHostnames', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidHostnames: true };
 
     it('maps the same argument', () => {
@@ -130,7 +130,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tlsCAFile', () => {
+  context('when cli args have tlsCAFile', () => {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
     it('maps the same argument', () => {
@@ -140,7 +140,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tlsCertificateKeyFile', () => {
+  context('when cli args have tlsCertificateKeyFile', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFile: 'key' };
 
     it('maps the same argument', () => {
@@ -150,12 +150,78 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args has tlsCertificateKeyFilePassword', () => {
+  context('when cli args have tlsCertificateKeyFilePassword', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFilePassword: 'pw' };
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsCertificateKeyFilePassword: 'pw'
+      });
+    });
+  });
+
+  context('when the cli args have awsAccessKeyId', () => {
+    const cliOptions: CliOptions = { awsAccessKeyId: 'awskey' };
+
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        autoEncryption: {
+          kmsProviders: {
+            aws: {
+              accessKeyId: 'awskey'
+            }
+          }
+        }
+      });
+    });
+  });
+
+  context('when the cli args have awsSecretAccessKey', () => {
+    const cliOptions: CliOptions = { awsSecretAccessKey: 'secretkey' };
+
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        autoEncryption: {
+          kmsProviders: {
+            aws: {
+              secretAccessKey: 'secretkey'
+            }
+          }
+        }
+      });
+    });
+  });
+
+  context('when the cli args have keyVaultNamespace', () => {
+    const cliOptions: CliOptions = { keyVaultNamespace: 'db.datakeys' };
+
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        autoEncryption: {
+          keyVaultNamespace: 'db.datakeys'
+        }
+      });
+    });
+  });
+
+  context('when the cli args have all FLE options', () => {
+    const cliOptions: CliOptions = {
+      keyVaultNamespace: 'db.datakeys',
+      awsSecretAccessKey: 'secretkey',
+      awsAccessKeyId: 'awskey'
+    };
+
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        autoEncryption: {
+          keyVaultNamespace: 'db.datakeys',
+          kmsProviders: {
+            aws: {
+              accessKeyId: 'awskey',
+              secretAccessKey: 'secretkey'
+            }
+          }
+        }
       });
     });
   });
