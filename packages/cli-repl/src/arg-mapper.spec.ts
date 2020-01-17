@@ -36,21 +36,58 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args has quiet', () => {
     const cliOptions: CliOptions = { quiet: true };
 
+    it('maps to loggerLevel', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        loggerLevel: 'error'
+      });
+    });
   });
 
   context('when cli args has verbose', () => {
     const cliOptions: CliOptions = { verbose: true };
 
+    it('maps to loggerLevel', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        loggerLevel: 'debug'
+      });
+    });
   });
 
   context('when cli args has username', () => {
     const cliOptions: CliOptions = { username: 'richard' };
 
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        auth: {
+          user: 'richard'
+        }
+      });
+    });
   });
 
   context('when cli args has password', () => {
     const cliOptions: CliOptions = { password: 'aphextwin' };
 
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        auth: {
+          password: 'aphextwin'
+        }
+      });
+    });
+  });
+
+  context('when cli args has username and password', () => {
+    const cliOptions: CliOptions = { username: 'richard', password: 'aphextwin' };
+
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
+        auth: {
+          user: 'richard',
+          password: 'aphextwin'
+        }
+      });
+    });
   });
 
   context('when cli args has retryWrites', () => {
