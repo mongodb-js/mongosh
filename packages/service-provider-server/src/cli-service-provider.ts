@@ -1,5 +1,5 @@
 import { ServiceProvider } from 'mongosh-service-provider-core';
-import { NodeTransport } from 'mongosh-transport-server';
+import { NodeTransport, NodeOptions } from 'mongosh-transport-server';
 import { Document, Cursor, Result } from 'mongosh-transport-core';
 
 /**
@@ -108,9 +108,12 @@ class CliServiceProvider implements ServiceProvider {
    * Create a new CLI service provider from the provided URI.
    *
    * @param {String} uri - The URI.
+   * @param {NodeOptions} options - The options.
+   *
+   * @returns {Promise} The promise with cli service provider.
    */
-  static async connect(uri: string): Promise<CliServiceProvider> {
-    const nodeTransport = await NodeTransport.fromURI(uri);
+  static async connect(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
+    const nodeTransport = await NodeTransport.fromURI(uri, options);
     return new CliServiceProvider(nodeTransport);
   }
 

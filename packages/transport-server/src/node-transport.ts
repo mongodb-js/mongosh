@@ -1,6 +1,7 @@
 import { MongoClient, Db } from 'mongodb';
 import { Transport, Cursor, Result, Document } from 'mongosh-transport-core';
 import NodeCursor from './node-cursor';
+import NodeOptions from './node-options';
 
 /**
  * Default driver options we always use.
@@ -21,11 +22,12 @@ class NodeTransport implements Transport {
    * Create a NodeTransport from a URI.
    *
    * @param {String} uri - The URI.
+   * @param {NodeOptions} options - The options.
    *
    * @returns {NodeTransport} The Node transport.
    */
-  static async fromURI(uri: string) : Promise<NodeTransport> {
-    const mongoClient = new MongoClient(uri, DEFAULT_OPTIONS);
+  static async fromURI(uri: string, options: NodeOptions = {}) : Promise<NodeTransport> {
+    const mongoClient = new MongoClient(uri, { ...DEFAULT_OPTIONS, ...options });
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
   }

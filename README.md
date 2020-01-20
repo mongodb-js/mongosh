@@ -59,10 +59,6 @@ it's working by running "x = db.coll.insertOne()" then trying to access
 a field of the returned object. If it undefined, then you've saved a
 promise as 'x', but if it's not undefined, then rewrite has worked.
 
-```shell
-npm start
-```
-
 To see the bug with parsing using the JavaScript grammar, run
 ```shell
 node --stack-size=50 packages/shell-api/lib/async-rewrite-double.js
@@ -73,6 +69,13 @@ Via bin:
 ```shell
 npm link
 mongosh
+```
+
+Via built executable:
+
+```shell
+npm run compile-exec
+./dist/mongosh
 ```
 
 ## Compiling

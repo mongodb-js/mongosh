@@ -5,6 +5,9 @@ import { ServiceProvider } from 'mongosh-service-provider-core';
 import { compile } from 'mongosh-mapper';
 import Mapper from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
+import parseArgs from './arg-parser';
+import mapCliToDriver from './arg-mapper';
+import generateUri from './uri-generator';
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -21,12 +24,13 @@ class CliRepl {
 
   /**
    * Instantiate the new CLI Repl.
-   *
-   * @param {boolean} useAntlr = Whether to use antlr.
    */
-  constructor(useAntlr?: boolean) {
-    this.useAntlr = !!useAntlr;
-    CliServiceProvider.connect('mongodb://localhost:27017').then((serviceProvider) => {
+  constructor() {
+    const options = parseArgs(process.argv);
+    const driverOptions = mapCliToDriver(options);
+    const driverUri = generateUri(options);
+    this.useAntlr = !!options.antlr;
+    CliServiceProvider.connect(driverUri, driverOptions).then((serviceProvider) => {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);
       this.shellApi = new ShellApi(this.mapper);
