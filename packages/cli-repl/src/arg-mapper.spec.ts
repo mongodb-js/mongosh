@@ -26,7 +26,7 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have disableImplicitSessions', () => {
     const cliOptions: CliOptions = { disableImplicitSessions: true };
 
-    it('maps to explicitlyIgnoreSession', () => {
+    it.skip('maps to explicitlyIgnoreSession', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         explicitlyIgnoreSession: true
       });
