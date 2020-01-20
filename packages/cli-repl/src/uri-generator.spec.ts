@@ -1,9 +1,6 @@
 import generateUri from './uri-generator';
 import { expect } from 'chai';
 
-// Current shell assumes any additional parameter in the _
-// array is a file.
-
 describe('uri-generator.generate-uri', () => {
   context('when a full URI is provided', () => {
     context('when no additional options are provided', () => {
@@ -12,6 +9,26 @@ describe('uri-generator.generate-uri', () => {
 
       it('returns the uri', () => {
         expect(generateUri(options)).to.equal(uri);
+      });
+    });
+
+    context('when additional options are provided', () => {
+      context('when providing host with URI', () => {
+        const uri = 'mongodb://192.0.0.1:27018/foo';
+        const options = { _: [ uri ], host: '127.0.0.1' };
+
+        it('throws an exception', () => {
+          expect(generateUri.bind(null, options)).to.throw();
+        });
+      });
+
+      context('when providing port with URI', () => {
+        const uri = 'mongodb://192.0.0.1:27018/foo';
+        const options = { _: [ uri ], port: '27018' };
+
+        it('throws an exception', () => {
+          expect(generateUri.bind(null, options)).to.throw();
+        });
       });
     });
   });
@@ -28,96 +45,51 @@ describe('uri-generator.generate-uri', () => {
       });
 
       context('when additional options are provided', () => {
-        context('when providing host', () => {
+        context('when providing host with URI', () => {
           const uri = '192.0.0.1:27018/foo';
           const options = { _: [ uri ], host: '127.0.0.1' };
 
           it('throws an exception', () => {
-            expect(generateUri.bind(options)).to.throw();
+            expect(generateUri.bind(null, options)).to.throw();
           });
         });
 
-        context('when providing port', () => {
+        context('when providing host with db', () => {
+          const uri = 'foo';
+          const options = { _: [ uri ], host: '127.0.0.2' };
+
+          it('uses the provided host with default port', () => {
+            expect(generateUri(options)).to.equal('mongodb://127.0.0.2:27017/foo');
+          });
+        });
+
+        context('when providing port with URI', () => {
           const uri = '192.0.0.1:27018/foo';
           const options = { _: [ uri ], port: '27018' };
 
           it('throws an exception', () => {
-            expect(generateUri.bind(options)).to.throw();
+            expect(generateUri.bind(null, options)).to.throw();
+          });
+        });
+
+        context('when providing port with db', () => {
+          const uri = 'foo';
+          const options = { _: [ uri ], port: '27018' };
+
+          it('uses the provided host with default port', () => {
+            expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo');
+          });
+        });
+
+        context('when providing port with only a host URI', () => {
+          const uri = '127.0.0.2/foo';
+          const options = { _: [ uri ], port: '27018' };
+
+          it('throws an exception', () => {
+            expect(generateUri.bind(null, options)).to.throw();
           });
         });
       });
     });
-
-    context('when providing host:port', () => {
-      context('when no additional options are provided', () => {
-        const uri = '192.0.0.1:27018';
-        const options = { _: [ uri ]};
-      });
-
-      context('when additional options are provided', () => {
-        context('when providing host', () => {
-          const uri = '192.0.0.1:27018';
-          const options = { _: [ uri ], host: '127.0.0.1' };
-        });
-
-        context('when providing port', () => {
-          const uri = '192.0.0.1:27018';
-          const options = { _: [ uri ], port: '27018' };
-        });
-      });
-    });
-
-    context('when providing only a host', () => {
-      context('when no additional options are provided', () => {
-        const uri = '192.0.0.1';
-        const options = { _: [ uri ]};
-      });
-
-      context('when additional options are provided', () => {
-        context('when providing host', () => {
-          const uri = '192.0.0.1';
-          const options = { _: [ uri ], host: '127.0.0.1' };
-        });
-
-        context('when providing port', () => {
-          const uri = '192.0.0.1';
-          const options = { _: [ uri ], port: '27018' };
-        });
-      });
-    });
-
-    context('when providing only a port', () => {
-      context('when no additional options are provided', () => {
-        const uri = '27018';
-        const options = { _: [ uri ]};
-      });
-
-      context('when additional options are provided', () => {
-        context('when providing host', () => {
-          const uri = '27018';
-          const options = { _: [ uri ], host: '127.0.0.1' };
-        });
-
-        context('when providing port', () => {
-          const uri = '27018';
-          const options = { _: [ uri ], port: '27018' };
-        });
-      });
-    });
-  });
-
-  context('when a db name is provided', () => {
-    context('when no additional options are provided', () => {
-      const db = 'foo';
-      const options = { _: [ db ]};
-
-      it('returns the uri with mongodb://127.0.0.1:27017', () => {
-        expect(generateUri(options)).to.equal(`mongodb://127.0.0.1:27017/${db}`);
-      });
-    });
-  });
-
-  context('when no URI is provided', () => {
-
   });
 });
