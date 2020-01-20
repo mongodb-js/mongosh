@@ -24,7 +24,16 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return entry.value;
     }
 
+    if (entry.value === undefined) {
+      return 'undefined';
+    }
+
     if (entry.value instanceof Error) {
+      return entry.value.stack;
+    }
+
+    // NOTE: due to the iframe bridge entry.value instanceof Error can be false for errors
+    if (entry.type === 'error' && entry.value && entry.value.stack) {
       return entry.value.stack;
     }
 

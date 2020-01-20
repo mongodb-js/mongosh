@@ -20,7 +20,7 @@ describe('<Shell />', () => {
     scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
 
     fakeInterpreter = {
-      evaluate: sinon.fake.returns('some result')
+      evaluate: sinon.fake.returns({value: 'some result'})
     };
 
     wrapper = shallow(<Shell interpreter={fakeInterpreter} />);

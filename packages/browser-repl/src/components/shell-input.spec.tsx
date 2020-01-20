@@ -29,6 +29,13 @@ describe('<ShellInput />', () => {
     expect(onInput).to.not.have.been.called;
   });
 
+  it('does not call onInput if the input is empty', () => {
+    const onInput = sinon.spy();
+    const wrapper = shallow(<ShellInput onInput={onInput}/>);
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter' });
+    expect(onInput).to.not.have.been.called;
+  });
+
   it('does not add new line to the output when enter is pressed', () => {
     // TODO: hard/impossible to test with enzyme
   });

@@ -16,10 +16,16 @@ module.exports = (config) => {
     ],
     files: [
       {
+        pattern: '../src/**/*.spec.ts'
+      },
+      {
         pattern: '../src/**/*.spec.tsx'
       }
     ],
     preprocessors: {
+      '../src/**/*.spec.ts': [
+        'webpack'
+      ],
       '../src/**/*.spec.tsx': [
         'webpack'
       ]

@@ -21,6 +21,11 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain(JSON.stringify(object, null, 2));
   });
 
+  it('renders undefined', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: undefined}} />);
+    expect(wrapper.text()).to.contain('undefined');
+  });
+
   it('renders an error as stack trace', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: err}} />);

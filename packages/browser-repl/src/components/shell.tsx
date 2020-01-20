@@ -39,7 +39,7 @@ export default class Shell extends Component<ShellProps, ShellState> {
       const result = await this.props.interpreter.evaluate(code);
       outputLine = {
         type: 'output',
-        value: result
+        value: result.value
       };
     } catch (error) {
       outputLine = {
