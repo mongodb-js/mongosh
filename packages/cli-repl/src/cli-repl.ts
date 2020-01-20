@@ -1,7 +1,6 @@
 import repl, { REPLServer } from 'repl';
 import util from 'util';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
-import { ServiceProvider } from 'mongosh-service-provider-core';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
 import Mapper from 'mongosh-mapper';
@@ -16,7 +15,7 @@ const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
  */
 class CliRepl {
   private useAntlr?: boolean;
-  private serviceProvider: ServiceProvider;
+  private serviceProvider: CliServiceProvider;
   private mapper: Mapper;
   private shellApi: ShellApi;
   private repl: REPLServer;
@@ -134,6 +133,11 @@ class CliRepl {
 
     // @ts-ignore
     this.repl.eval = customEval;
+
+    this.repl.on('exit', () => {
+      this.serviceProvider.close(true);
+      process.exit();
+    });
 
     Object.keys(this.shellApi)
       .filter(k => (!k.startsWith('_')))
