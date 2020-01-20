@@ -22,6 +22,10 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private onKeyUp = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (this.state.currentValue === '') {
+      return;
+    }
+
     if (this.isEnterWithoutShift(event)) {
       this.props.onInput(this.state.currentValue);
       this.setState({currentValue: ''});
