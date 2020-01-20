@@ -2,12 +2,11 @@ import repl, { REPLServer } from 'repl';
 import util from 'util';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { ServiceProvider } from 'mongosh-service-provider-core';
+import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
 import Mapper from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
-import parseArgs from './arg-parser';
-import mapCliToDriver from './arg-mapper';
-import generateUri from './uri-generator';
+import CliOptions from './cli-options';
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -25,10 +24,7 @@ class CliRepl {
   /**
    * Instantiate the new CLI Repl.
    */
-  constructor() {
-    const options = parseArgs(process.argv);
-    const driverOptions = mapCliToDriver(options);
-    const driverUri = generateUri(options);
+  constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
     this.useAntlr = !!options.antlr;
     CliServiceProvider.connect(driverUri, driverOptions).then((serviceProvider) => {
       this.serviceProvider = serviceProvider;
