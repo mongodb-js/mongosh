@@ -27,6 +27,9 @@
     "Stitch"
   ],
   "license": "SSPL",
+  "engines": {
+    "node": "^12.4.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
