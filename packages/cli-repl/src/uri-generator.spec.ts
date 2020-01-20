@@ -2,6 +2,14 @@ import generateUri from './uri-generator';
 import { expect } from 'chai';
 
 describe('uri-generator.generate-uri', () => {
+  context('when no arguments are provided', () => {
+    const options = { _: []};
+
+    it('returns the default uri', () => {
+      expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017');
+    });
+  });
+
   context('when a full URI is provided', () => {
     context('when no additional options are provided', () => {
       const uri = 'mongodb://192.0.0.1:27018/foo';

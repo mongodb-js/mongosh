@@ -53,7 +53,7 @@ function validateConflicts(options: CliOptions) {
  *
  * @returns {string} The host.
  */
-function generateHost(options: CliOptions): string {
+function generateHost(options: CliOptions = {}): string {
   return options.host ? options.host : DEFAULT_HOST;
 }
 
@@ -64,7 +64,7 @@ function generateHost(options: CliOptions): string {
  *
  * @returns {string} The port.
  */
-function generatePort(options: CliOptions): string {
+function generatePort(options: CliOptions = {}): string {
   return options.port ? options.port : DEFAULT_PORT;
 }
 
@@ -86,6 +86,9 @@ function generatePort(options: CliOptions): string {
  */
 function generateUri(options: CliOptions): string {
   const uri = options._[0];
+  if (!uri) {
+    return `${Scheme.Mongo}${generateHost()}:${generatePort()}`;
+  }
   if (uri.startsWith(Scheme.Mongo) || uri.startsWith(Scheme.MongoSrv)) {
     validateConflicts(options);
     return uri;
