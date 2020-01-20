@@ -13,7 +13,8 @@ import CliOptions from './cli-options';
  * _?: string[];
  */
 function generateUri(options: CliOptions) {
-
+  const args = options._;
+  const uri = args[0];
 }
 
 export default generateUri;
