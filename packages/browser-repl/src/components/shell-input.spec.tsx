@@ -36,11 +36,11 @@ describe('<ShellInput />', () => {
     expect(onInput).to.not.have.been.called;
   });
 
-  it('does not add new line to the output when enter is pressed', () => {
+  it.skip('does not add new line to the output when enter is pressed', () => {
     // TODO: hard/impossible to test with enzyme
   });
 
-  it('allows newline when shift+enter is pressed', () => {
+  it.skip('allows newline when shift+enter is pressed', () => {
     // TODO: hard/impossible to test with enzyme
   });
 });
