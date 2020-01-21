@@ -36,6 +36,11 @@ const GSSAPI_SERVICE_NAME = 'gssapiServiceName';
 const CONFLICT = 'If a full URI is provided, you cannot also specify --host or --port';
 
 /**
+ * The default db name.
+ */
+const TEST = 'test';
+
+/**
  * Validate conflicts in the options.
  *
  * @param {CliOptions} options - The options.
@@ -86,21 +91,38 @@ function generatePort(options: CliOptions = {}): string {
  */
 function generateUri(options: CliOptions): string {
   const uri = options._[0];
+
+  // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
     return `${Scheme.Mongo}${generateHost()}:${generatePort()}`;
   }
+
+  // A mongodb:// or mongodb+srv:// URI is provided, treat as correct.
   if (uri.startsWith(Scheme.Mongo) || uri.startsWith(Scheme.MongoSrv)) {
     validateConflicts(options);
     return uri;
   }
-  const splitIndex = uri.indexOf('/');
-  const address = uri.substring(0, splitIndex);
-  const database = uri.substring(splitIndex + 1);
-  if (address.length > 0) {
-    validateConflicts(options);
-    return `${Scheme.Mongo}${address}/${database}`;
+
+  // Capture host, port and db from the string and generate a URI from
+  // the parts.
+  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?[\/]?(\S+)?$/gi;
+  const parts = uriMatch.exec(uri);
+  let host = parts[1], port = parts[2], db = parts[3];
+
+  // If there is no port and db, host becomes db if there is no
+  // '.' in the string. (legacy shell behaviour)
+  if (!port && !db && host.indexOf('.') < 0) {
+    db = host;
+    host = undefined;
   }
-  return `${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}/${database}`;
+
+  // If we have a host or port, validate that the options don't also
+  // have a host or port in them.
+  if (host || port) {
+    validateConflicts(options);
+  }
+
+  return `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${db || TEST}`;
 }
 
 export default generateUri;
