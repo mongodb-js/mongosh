@@ -13,7 +13,6 @@ try {
   } else {
     const driverOptions = mapCliToDriver(options);
     const driverUri = generateUri(options);
-    console.log('Connecting to:', driverUri);
     new CliRepl(driverUri, driverOptions, options);
   }
 } catch (e) {

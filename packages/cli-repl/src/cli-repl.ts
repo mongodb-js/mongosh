@@ -1,5 +1,7 @@
 import repl, { REPLServer } from 'repl';
 import util from 'util';
+import read from 'read';
+import { Transform } from 'stream';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
@@ -21,10 +23,13 @@ class CliRepl {
   private repl: REPLServer;
 
   /**
-   * Instantiate the new CLI Repl.
+   * Connect to the cluster.
+   *
+   * @param {string} driverUrl - The driver URI.
+   * @param {NodeOptions} driverOptions - The driver options.
    */
-  constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
-    this.useAntlr = !!options.antlr;
+  connect(driverUri: string, driverOptions: NodeOptions): void {
+    console.log('Connecting to:', driverUri);
     CliServiceProvider.connect(driverUri, driverOptions).then((serviceProvider) => {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);
@@ -34,30 +39,16 @@ class CliRepl {
   }
 
   /**
-   * The greeting for the shell.
+   * Instantiate the new CLI Repl.
    */
-  greet(): void {
-    console.log('mongosh 2.0');
-  }
+  constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
+    this.useAntlr = !!options.antlr;
 
-  /**
-   * Return the pretty string for the output.
-   *
-   * @param {any} output - The output.
-   *
-   * @returns {string} The output.
-   */
-  writer(output: any): string {
-    if (output && output.toReplString) {
-      return output.toReplString();
+    if (this.isPasswordMissing(driverOptions)) {
+      this.requirePassword(driverUri, driverOptions);
+    } else {
+      this.connect(driverUri, driverOptions);
     }
-    if (typeof output === 'string') {
-      return output;
-    }
-    return util.inspect(output, {
-      showProxy: false,
-      colors: true,
-    });
   }
 
   /**
@@ -85,6 +76,44 @@ class CliRepl {
         const finalValue = await originalEval(input, context, filename);
         return await this.writer(finalValue);
     }
+  }
+
+  /**
+   * The greeting for the shell.
+   */
+  greet(): void {
+    console.log('mongosh 2.0');
+  }
+
+  /**
+   * Is the password missing from the options?
+   *
+   * @param {NodeOptions} driverOptions - The driver options.
+   *
+   * @returns {boolean} If the password is missing.
+   */
+  isPasswordMissing(driverOptions: NodeOptions): boolean {
+    return driverOptions.auth &&
+      driverOptions.auth.user &&
+      !driverOptions.auth.password
+  }
+
+  /**
+   * Require the user to enter a password.
+   *
+   * @param {string} driverUrl - The driver URI.
+   * @param {NodeOptions} driverOptions - The driver options.
+   */
+  requirePassword(driverUri: string, driverOptions: NodeOptions): void {
+    const readOptions = {
+      prompt: 'Enter password: ',
+      silent: true,
+      replace: '*'
+    };
+    read(readOptions, (error, password) => {
+      driverOptions.auth.password = password;
+      this.connect(driverUri, driverOptions);
+    });
   }
 
   /**
@@ -143,6 +172,26 @@ class CliRepl {
       .filter(k => (!k.startsWith('_')))
       .forEach(k => (this.repl.context[k] = this.shellApi[k]));
     this.mapper.setCtx(this.repl.context);
+  }
+
+  /**
+   * Return the pretty string for the output.
+   *
+   * @param {any} output - The output.
+   *
+   * @returns {string} The output.
+   */
+  writer(output: any): string {
+    if (output && output.toReplString) {
+      return output.toReplString();
+    }
+    if (typeof output === 'string') {
+      return output;
+    }
+    return util.inspect(output, {
+      showProxy: false,
+      colors: true,
+    });
   }
 }
 
