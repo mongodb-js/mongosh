@@ -16,6 +16,7 @@ import {
 interface PreprocessOptions {
   lexicalContext: LexicalContext;
   lastExpressionCallbackFunctionName: string;
+  lexicalContextStoreVariableName: string;
 }
 
 interface PreprocessRetval {
@@ -26,13 +27,14 @@ interface PreprocessRetval {
 export function preprocess(code: string, options: PreprocessOptions): PreprocessRetval {
   const {
     lexicalContext = {},
-    lastExpressionCallbackFunctionName
+    lastExpressionCallbackFunctionName,
+    lexicalContextStoreVariableName,
   } = options;
 
   let preamble = '';
 
   for (const [name, kind] of Object.entries(lexicalContext)) {
-    preamble += `${kind} ${name} = window['${name}'];`;
+    preamble += `${kind} ${name} = ${lexicalContextStoreVariableName}['${name}'];`;
   }
 
   const ast = parse(wrapObjectLiteral(code));
@@ -43,7 +45,7 @@ export function preprocess(code: string, options: PreprocessOptions): Preprocess
   let postamble = '';
 
   for (const [name] of Object.entries(newLexicalContext)) {
-    postamble += `window['${name}'] = ${name};`;
+    postamble += `${lexicalContextStoreVariableName}['${name}'] = ${name};`;
   }
 
   return {

@@ -1,5 +1,5 @@
 import { IframeInterpreter } from './iframe-interpreter';
-import { expect } from '../../testing/chai';
+import { expect } from '../../../testing/chai';
 
 describe('IframeInterpreter', () => {
   let iframeInterpreter;
@@ -10,14 +10,15 @@ describe('IframeInterpreter', () => {
   });
 
   describe('#initialize', () => {
-    it('adds an hidden iframe to the document', async() => {
+    it('adds an hidden sandboxed iframe to the document', async() => {
       expect(document.querySelector('iframe')).not.to.exist;
 
       await iframeInterpreter.initialize();
 
       const iframe = document.querySelector('iframe');
       expect(iframe).to.exist;
-      expect(iframe.style.display).to.be.equal('none');
+      expect(iframe.style.display).to.equal('none');
+      expect(iframe.sandbox.value).to.equal('allow-same-origin');
     });
   });
 
@@ -80,19 +81,50 @@ describe('IframeInterpreter', () => {
 
     it('can declare a top level variable with let', async() => {
       await iframeInterpreter.evaluate('let x = 2');
-      expect(await iframeInterpreter.evaluate('x').catch((err) => err)).to.deep.equal({value: 2});
+      expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
+    });
+
+    it('can declare a top level variable with const', async() => {
+      await iframeInterpreter.evaluate('const x = 2');
+      expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
+    });
+
+    it('top level declarations with "let" do not overwrite "this"', async() => {
+      await iframeInterpreter.evaluate('this.x = 3');
+      await iframeInterpreter.evaluate('let x = 2');
+      expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
+      expect(await iframeInterpreter.evaluate('this.x')).to.deep.equal({value: 3});
+    });
+
+    it('top level declarations with "const" do not overwrite "this"', async() => {
+      await iframeInterpreter.evaluate('this.x = 3');
+      await iframeInterpreter.evaluate('const x = 2');
+      expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
+      expect(await iframeInterpreter.evaluate('this.x')).to.deep.equal({value: 3});
     });
   });
 
   describe('#setContextVariable', () => {
+    const sum = (a: number, b: number): number => a + b;
+
     it('sets a variable that can be evaluated', async() => {
       await iframeInterpreter.setContextVariable('z', 1);
       expect(await iframeInterpreter.evaluate('z')).to.deep.equal({value: 1});
     });
 
     it('sets a function that can be evaluated', async() => {
-      await iframeInterpreter.setContextVariable('sum', (a: number, b: number): number => a + b);
+      await iframeInterpreter.setContextVariable('sum', sum);
       expect(await iframeInterpreter.evaluate('sum(2, 3)')).to.deep.equal({value: 5});
+    });
+
+    it('sets an object with a method that can be called', async() => {
+      await iframeInterpreter.setContextVariable('obj', {sum: sum});
+      expect(await iframeInterpreter.evaluate('obj.sum(2, 3)')).to.deep.equal({value: 5});
+    });
+
+    it('sets an object with a method that can be called with references to surrounding scope', async() => {
+      await iframeInterpreter.setContextVariable('obj', {wrappedSum: (a: number, b: number): number => sum(a, b) });
+      expect(await iframeInterpreter.evaluate('obj.wrappedSum(2, 3)')).to.deep.equal({value: 5});
     });
   });
 });
