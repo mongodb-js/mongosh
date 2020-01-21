@@ -8,6 +8,7 @@ import { compile } from 'mongosh-mapper';
 import Mapper from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import CliOptions from './cli-options';
+import write from './writer';
 
 const COLORS = { RED: "31", GREEN: "32", YELLOW: "33", BLUE: "34", MAGENTA: "35" };
 const colorize = (color, s) => `\x1b[${color}m${s}\x1b[0m`;
@@ -74,7 +75,7 @@ class CliRepl {
         this.mapper.cursorAssigned = true;
       default:
         const finalValue = await originalEval(input, context, filename);
-        return await this.writer(finalValue);
+        return await write(finalValue);
     }
   }
 
@@ -125,7 +126,7 @@ class CliRepl {
     this.repl = repl.start({
       prompt: `$ mongosh > `,
       ignoreUndefined: true,
-      writer: this.writer
+      writer: write
     });
 
     const originalEval = util.promisify(this.repl.eval);
@@ -172,26 +173,6 @@ class CliRepl {
       .filter(k => (!k.startsWith('_')))
       .forEach(k => (this.repl.context[k] = this.shellApi[k]));
     this.mapper.setCtx(this.repl.context);
-  }
-
-  /**
-   * Return the pretty string for the output.
-   *
-   * @param {any} output - The output.
-   *
-   * @returns {string} The output.
-   */
-  writer(output: any): string {
-    if (output && output.toReplString) {
-      return output.toReplString();
-    }
-    if (typeof output === 'string') {
-      return output;
-    }
-    return util.inspect(output, {
-      showProxy: false,
-      colors: true,
-    });
   }
 }
 
