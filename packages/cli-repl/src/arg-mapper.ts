@@ -39,8 +39,10 @@ function mapCliToDriver(options: CliOptions): NodeOptions {
   Object.keys(MAPPINGS).forEach((cliOption) => {
     if (options.hasOwnProperty(cliOption)) {
       const mapping = MAPPINGS[cliOption];
-      if (Array.isArray(mapping) && options[cliOption]) {
-        setValue(nodeOptions, mapping[0], mapping[1]);
+      if (Array.isArray(mapping)) {
+        if (options[cliOption]) {
+          setValue(nodeOptions, mapping[0], mapping[1]);
+        }
       } else {
         setValue(nodeOptions, mapping, options[cliOption]);
       }

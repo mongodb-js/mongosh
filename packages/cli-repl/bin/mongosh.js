@@ -14,7 +14,6 @@ try {
     const driverOptions = mapCliToDriver(options);
     const driverUri = generateUri(options);
     console.log('Connecting to:', driverUri);
-    console.log('Options:', options);
     new CliRepl(driverUri, driverOptions, options);
   }
 } catch (e) {
