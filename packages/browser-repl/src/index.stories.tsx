@@ -11,7 +11,16 @@ const interpreter = new IframeInterpreter();
 
 export const Example1: React.FunctionComponent = () => {
   useEffect(() => {
-    interpreter.initialize();
+    interpreter.initialize()
+      .then(() => {
+        const db = {
+          coll1: {
+            find: (): Promise<Array<object>> => Promise.resolve([{_id: 1}, {_id: 2}, {_id: 3}])
+          }
+        };
+
+        interpreter.setContextVariable('db', db);
+      });
     return (): void => {
       interpreter.destroy();
     };
