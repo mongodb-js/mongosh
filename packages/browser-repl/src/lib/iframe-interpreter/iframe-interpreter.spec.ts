@@ -89,18 +89,23 @@ describe('IframeInterpreter', () => {
       expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
     });
 
-    it('top level declarations with "let" do not overwrite "this"', async() => {
+    it('does not override "this" with top level "let" declarations', async() => {
       await iframeInterpreter.evaluate('this.x = 3');
       await iframeInterpreter.evaluate('let x = 2');
       expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
       expect(await iframeInterpreter.evaluate('this.x')).to.deep.equal({value: 3});
     });
 
-    it('top level declarations with "const" do not overwrite "this"', async() => {
+    it('does not override "this" with top level "const" declarations', async() => {
       await iframeInterpreter.evaluate('this.x = 3');
       await iframeInterpreter.evaluate('const x = 2');
       expect(await iframeInterpreter.evaluate('x')).to.deep.equal({value: 2});
       expect(await iframeInterpreter.evaluate('this.x')).to.deep.equal({value: 3});
+    });
+
+    it('can declare a top level class', async() => {
+      await iframeInterpreter.evaluate('class A { doSomething() { return 2; } }');
+      expect(await iframeInterpreter.evaluate('new A().doSomething()')).to.deep.equal({value: 2});
     });
   });
 

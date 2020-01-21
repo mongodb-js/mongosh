@@ -1,4 +1,4 @@
-import { expect } from '../../../testing/chai';
+import { expect } from '../../../../testing/chai';
 
 import { parse } from '@babel/parser';
 import generate from '@babel/generator';
