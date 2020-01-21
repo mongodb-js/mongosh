@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
-import { Interpreter } from '../lib/interpreter';
+import { Interpreter } from './interpreter';
 
 interface ShellProps {
   interpreter: Interpreter;

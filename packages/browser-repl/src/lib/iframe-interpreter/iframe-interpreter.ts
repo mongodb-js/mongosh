@@ -1,10 +1,13 @@
-import { Interpreter, EvaluationResult, ContextValue } from './interpreter';
+import { Interpreter, EvaluationResult, ContextValue } from '../../components/interpreter';
 import { preprocess } from './preprocess';
 
 const CAPTURE_RESULT_FUNCTION_NAME = '___MONGOSH_EVAL_CAPTURE_RESULT';
+const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
 
 export class IframeInterpreter implements Interpreter {
   private iframe: HTMLIFrameElement;
+  private container: HTMLDivElement;
+
   private lexicalContext = {};
 
   async evaluate(code: string): Promise<EvaluationResult> {
@@ -22,12 +25,15 @@ export class IframeInterpreter implements Interpreter {
       result = lastExpressionValue;
     };
 
+    contentWindow[LEXICAL_CONTEXT_VARIABLE_NAME] = contentWindow[LEXICAL_CONTEXT_VARIABLE_NAME] || {};
+
     const {
       code: preprocessedCode,
       lexicalContext
     } = preprocess(code, {
       lexicalContext: this.lexicalContext,
-      lastExpressionCallbackFunctionName: CAPTURE_RESULT_FUNCTION_NAME
+      lastExpressionCallbackFunctionName: CAPTURE_RESULT_FUNCTION_NAME,
+      lexicalContextStoreVariableName: LEXICAL_CONTEXT_VARIABLE_NAME
     });
 
     this.lexicalContext = lexicalContext;
@@ -41,15 +47,19 @@ export class IframeInterpreter implements Interpreter {
       return;
     }
 
-    const iframe = document.createElement('iframe');
-    this.iframe = document.body.appendChild(iframe);
+    this.container = document.createElement('div');
+    this.container.style.display = 'none';
+
+    // NOTE: inserting the iframe directly as dom element does not work with sandboxing.
+    this.container.insertAdjacentHTML('beforeend', '<iframe src="about:blank" style="display: none" sandbox="allow-same-origin" />');
+
+    this.iframe = this.container.firstElementChild as HTMLIFrameElement;
 
     const ready: Promise<void> = new Promise((resolve) => {
       this.iframe.onload = (): void => resolve();
     });
 
-    this.iframe.style.display = 'none';
-    this.iframe.src = 'about:blank';
+    document.body.appendChild(this.container);
 
     return ready;
   }
