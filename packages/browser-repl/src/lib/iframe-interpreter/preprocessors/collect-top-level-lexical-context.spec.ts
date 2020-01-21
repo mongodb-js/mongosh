@@ -8,6 +8,16 @@ describe('collectTopLevelLexicalContext', () => {
   const testCollectTopLevelLexicalContext =
     (code): object => collectTopLevelLexicalContext(parse(code));
 
+  it('collects top level class declarations', () => {
+    expect(testCollectTopLevelLexicalContext('class A {}'))
+      .to.deep.equal({ A: 'class' });
+  });
+
+  it('does not collect internal class declarations', () => {
+    expect(testCollectTopLevelLexicalContext('() => { class A {} }'))
+      .to.deep.equal({});
+  });
+
   it('collects top level "let" declarations without assignment', () => {
     expect(testCollectTopLevelLexicalContext('let x'))
       .to.deep.equal({ x: 'let' });

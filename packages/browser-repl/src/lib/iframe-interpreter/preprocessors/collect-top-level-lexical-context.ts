@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-type VariableDeclarationKind = 'let' | 'const';
+type VariableDeclarationKind = 'let' | 'const' | 'class';
 
 export interface LexicalContext {
   [variableName: string]: VariableDeclarationKind;
@@ -9,24 +9,36 @@ export interface LexicalContext {
 export function collectTopLevelLexicalContext(ast): LexicalContext {
   const context = {};
 
-  ast.program.body
-    .filter((node) => node.type === 'VariableDeclaration')
-    .forEach((node) => {
-      const kind = node.kind;
+  for (const node of ast.program.body) {
+    if (node.type === 'ClassDeclaration') {
+      collectClassDeclaration(node, context);
+    }
 
-      if (kind !== 'let' && kind !== 'const') {
-        return;
-      }
-
-      for (const variableDeclaration of node.declarations) {
-        collectVariableDeclaration(variableDeclaration, context, kind);
-      }
-    });
+    if (node.type === 'VariableDeclaration') {
+      collectVariableDeclaration(node, context);
+    }
+  }
 
   return context;
 }
 
-function collectVariableDeclaration(variableDeclaration, context, kind): void {
+function collectClassDeclaration(classDeclarationNode, context): void {
+  collectIdentifier(classDeclarationNode.id, context, 'class');
+}
+
+function collectVariableDeclaration(variableDeclarationNode, context): void {
+  const kind = variableDeclarationNode.kind;
+
+  if (kind !== 'let' && kind !== 'const') {
+    return;
+  }
+
+  for (const declarator of variableDeclarationNode.declarations) {
+    collectVariableDeclarator(declarator, context, kind);
+  }
+}
+
+function collectVariableDeclarator(variableDeclaration, context, kind): void {
   const child = variableDeclaration.id;
 
   if (child.type === 'Identifier') {

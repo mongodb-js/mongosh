@@ -34,7 +34,8 @@ export function preprocess(code: string, options: PreprocessOptions): Preprocess
   let preamble = '';
 
   for (const [name, kind] of Object.entries(lexicalContext)) {
-    preamble += `${kind} ${name} = ${lexicalContextStoreVariableName}['${name}'];`;
+    preamble += `${kind === 'class' ? 'const' : kind} ${name} = ` +
+      `${lexicalContextStoreVariableName}['${name}'];`;
   }
 
   const ast = parse(wrapObjectLiteral(code));
