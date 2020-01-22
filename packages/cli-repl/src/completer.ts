@@ -2,11 +2,11 @@ import { types as shellTypes } from 'mongosh-shell-api';
 /**
  * Return complete suggestions given currently typed line
  *
- * @param {any} output - The output.
+ * @param {string} Line - Current user input.
  *
- * @returns {string} The output.
+ * @returns {array} Matching Completions, Current User Input.
  */
-function completer(line: string): any {
+function completer(line: string): [string[], string] {
   // keep initial line param intact to always return in return statement
   // check for contents of line with:
   const splitLine = line.split('.');
