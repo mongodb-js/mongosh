@@ -7,7 +7,7 @@ import { ShellOutputLine } from './shell-output-line';
 describe('<ShellOutputLine />', () => {
   it('renders a string value', () => {
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: 'some text'}} />);
-    expect(wrapper.text()).to.contain('"some text"');
+    expect(wrapper.text()).to.contain('\'some text\'');
   });
 
   it('renders an integer value', () => {
@@ -18,7 +18,7 @@ describe('<ShellOutputLine />', () => {
   it('renders an object', () => {
     const object = {x: 1};
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: object}} />);
-    expect(wrapper.text()).to.contain(JSON.stringify(object, null, 2));
+    expect(wrapper.text()).to.contain('{ x: 1 }');
   });
 
   it('renders undefined', () => {

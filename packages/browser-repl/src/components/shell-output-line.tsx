@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import safeJsonStringify from 'safe-json-stringify';
+import browserUtilInspect from 'browser-util-inspect';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ShellOutputEntryValue = any;
@@ -37,7 +37,14 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return entry.value.stack;
     }
 
-    return safeJsonStringify(entry.value, null, 2);
+    const inspected = browserUtilInspect(entry.value, {});
+
+    if (typeof entry.value === 'object') {
+      const displayName = entry.value.constructor ? entry.value.constructor.name : 'Object';
+      return `${displayName} ${inspected}`;
+    }
+
+    return inspected;
   }
 
   render(): JSX.Element {
