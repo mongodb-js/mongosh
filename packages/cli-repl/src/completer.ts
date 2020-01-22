@@ -25,12 +25,12 @@ function completer(line: string): any {
     // TODO: this should also explicitly suggest 'sh', 'rs', and 'db' strings
     const hits = filterComplete(shellComplete, elToComplete);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl === 'db' && splitLine.length === 2) {
+  } else if (firstLineEl.includes('db') && splitLine.length === 2) {
     // TODO: @lrlna suggest DATABASE commands (currently not available in
     // shellTypes)
     // TODO: @lrlna is there a way to suggest currently available collections?
     return [[], line];
-  } else if (firstLineEl === 'db' && splitLine.length > 2) {
+  } else if (firstLineEl.includes('db') && splitLine.length > 2) {
     if (splitLine.length > 3) {
       if (splitLine[2].includes('aggregate')) {
         const hits = filterComplete(aggCursorComplete, elToComplete, splitLine);
@@ -48,10 +48,10 @@ function completer(line: string): any {
     // else:
     const hits = filterComplete(collComplete, elToComplete, splitLine);
     return [hits.length ? hits: [], line];
-  } else if (firstLineEl === 'sh') {
+  } else if (firstLineEl.includes('sh')) {
     const hits = filterComplete(shardComplete, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl === 'rs') {
+  } else if (firstLineEl.includes('rs')) {
     const hits = filterComplete(rsComplete, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
   }
