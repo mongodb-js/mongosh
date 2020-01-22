@@ -29,7 +29,6 @@ function completer(line: string): any {
     // TODO: @lrlna suggest DATABASE commands (currently not available in
     // shellTypes)
     // TODO: @lrlna is there a way to suggest currently available collections?
-    //@ts-ignore
     return [[], line];
   } else if (firstLineEl === 'db' && splitLine.length > 2) {
     if (splitLine.length > 3) {
@@ -57,7 +56,6 @@ function completer(line: string): any {
     return [hits.length ? hits : [], line];
   }
 
-  //@ts-ignore
   return [[line], line];
 }
 
