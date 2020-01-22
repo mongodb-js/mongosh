@@ -22,9 +22,9 @@ describe('completer.completer', () => {
   });
 
   context('when context is top level db', () => {
-    // this should eventually encompass tests for DATABSE commands and
+    // this should eventually encompass tests for DATABASE commands and
     // COLLECTION names.
-    // for now, this will only return the current inpput.
+    // for now, this will only return the current input.
 
     it('returns current input and no suggestions', () => {
       const i = 'db.shipw';
@@ -36,6 +36,11 @@ describe('completer.completer', () => {
     it('matches a collection command', () => {
       const i = 'db.shipwrecks.findAnd';
       expect(completer(i)).to.deep.equal([['db.shipwrecks.findAndModify'], i]);
+    });
+
+    it('matches a collection command if part of an expression', () => {
+      const i = 'var result = db.shipwrecks.findAnd';
+      expect(completer(i)).to.deep.equal([['var result = db.shipwrecks.findAndModify'], i]);
     });
 
     it('returns all suggestions', () => {
