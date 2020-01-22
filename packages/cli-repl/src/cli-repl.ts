@@ -7,8 +7,9 @@ import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
 import readline from 'readline';
 import Mapper from 'mongosh-mapper';
-import ShellApi, { types as shellTypes } from 'mongosh-shell-api';
+import ShellApi from 'mongosh-shell-api';
 import CliOptions from './cli-options';
+import completer from './completer';
 import write from './writer';
 
 /**
@@ -77,61 +78,6 @@ class CliRepl {
     }
   }
 
-  completer(line: string): any {
-    // keep initial line param intact to always return in return statement
-    // check for contents of line with:
-    const splitLine = line.split('.');
-    const firstLineEl = splitLine[0];
-    const elToComplete = splitLine[splitLine.length-1];
-
-    const shellComplete = Object.keys(shellTypes.ShellApi.attributes);
-    const collComplete = Object.keys(shellTypes.Collection.attributes);
-    const aggCursorComplete = Object.keys(shellTypes.AggregationCursor.attributes);
-    const collCursorComplete = Object.keys(shellTypes.Cursor.attributes);
-    const rsComplete = Object.keys(shellTypes.ReplicaSet.attributes);
-    const shardComplete = Object.keys(shellTypes.Shard.attributes);
-
-    // suggest SHELLAPI commands
-    if (splitLine.length <= 1) {
-      // TODO: this should also explicitly suggest 'sh', 'rs', and 'db' strings
-      const hits = filterComplete(shellComplete, elToComplete);
-      return [hits.length ? hits : shellComplete, line];
-    } else if (firstLineEl === 'db' && splitLine.length === 2) {
-      // TODO: @lrlna suggest DATABASE commands (currently not available in
-      // shellTypes)
-      // TODO: @lrlna is there a way to suggest currently available collections?
-      //@ts-ignore
-      return [[line], line];
-    } else if (firstLineEl === 'db' && splitLine.length > 2) {
-      if (splitLine.length > 3) {
-        if (splitLine[2].includes('aggregate')) {
-          const hits = filterComplete(aggCursorComplete, elToComplete, splitLine);
-          return [hits.length ? hits: aggCursorComplete, line];
-        }
-        const hits = filterComplete(collCursorComplete, elToComplete, splitLine);
-        return [hits.length ? hits : collCursorComplete, line];
-      }
-      // if splitLine[2] === 'aggregate' && splitLine[2].contains('({'), suggest
-      // aggregation operators from 'ace-autocompleter'
-
-      // if splitLine[2].contains(any of the collComplete), and
-      // .contains('({'), suggest query operators from 'ace-autocompleter'
-
-      // else:
-      const hits = filterComplete(collComplete, elToComplete, splitLine);
-      return [hits.length ? hits: collComplete, line];
-    } else if (firstLineEl === 'sh') {
-      const hits = filterComplete(shardComplete, elToComplete, splitLine);
-      return [hits.length ? hits : shardComplete, line];
-    } else if (firstLineEl === 'rs') {
-      const hits = filterComplete(rsComplete, elToComplete, splitLine);
-      return [hits.length ? hits : rsComplete, line];
-    }
-
-    //@ts-ignore
-    return [[line], line];
-  }
-
   /**
    * The greeting for the shell.
    */
@@ -179,8 +125,8 @@ class CliRepl {
     this.repl = repl.start({
       prompt: `$ mongosh > `,
       ignoreUndefined: true,
-      writer: write
-      completer: this.completer,
+      writer: write,
+      completer: completer,
     });
 
     const originalEval = util.promisify(this.repl.eval);
@@ -228,20 +174,6 @@ class CliRepl {
       .forEach(k => (this.repl.context[k] = this.shellApi[k]));
     this.mapper.setCtx(this.repl.context);
   }
-}
-
-// TODO: @lrlna this should also take this.shellApi.version of sorts and also
-// match on version:
-// semver.gte(version, .version)
-function filterComplete(completions: string[], toMatchTo: string, split?:
-                        string[]) {
-  const hits = completions.filter((c) => c.startsWith(toMatchTo));
-  if (split) {
-    const adjusted = hits.map(h => `${split.slice(0, -1).join('.')}.${h}`);
-    return adjusted;
-  }
-
-  return hits;
 }
 
 export default CliRepl;
