@@ -13,6 +13,8 @@ dist/
 node_modules/
 packages/build/lib
 packages/cli-repl/lib
+packages/i18n/lib
+packages/service-provider-browser/lib
 packages/service-provider-core/lib
 packages/service-provider-server/lib
 packages/transport-browser/lib

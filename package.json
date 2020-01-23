@@ -40,6 +40,7 @@
     "cross-env": "^6.0.3",
     "eslint": "^6.8.0",
     "eslint-config-mongodb-js": "^5.0.3",
+    "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
@@ -62,6 +63,7 @@
   "dependencies": {
     "mongosh-build": "file:packages/build",
     "mongosh-cli-repl": "file:packages/cli-repl",
+    "mongosh-i18n": "file:packages/i18n",
     "mongosh-mapper": "file:packages/mapper",
     "mongosh-service-provider-core": "file:packages/service-provider-core",
     "mongosh-service-provider-server": "file:packages/service-provider-server",
