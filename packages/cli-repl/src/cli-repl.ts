@@ -1,3 +1,6 @@
+import util from 'util';
+import read from 'read';
+import i18n from 'mongosh-i18n';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
@@ -10,11 +13,14 @@ import completer from './completer';
 import { Transform } from 'stream';
 import readline from 'readline';
 import write from './writer';
-import util from 'util';
 import path from 'path';
-import read from 'read';
 import os from 'os';
 import fs from 'fs';
+
+/**
+ * Connecting text key.
+ */
+const CONNECTING = 'cli-repl.cli-repl.connecting';
 
 /**
  * The REPL used from the terminal.
@@ -34,7 +40,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   connect(driverUri: string, driverOptions: NodeOptions): void {
-    console.log('Connecting to:', driverUri);
+    console.log(i18n.__(CONNECTING), driverUri);
     CliServiceProvider.connect(driverUri, driverOptions).then((serviceProvider) => {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);

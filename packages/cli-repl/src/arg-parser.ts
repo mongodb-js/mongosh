@@ -1,10 +1,11 @@
 import minimist from 'minimist';
+import i18n from 'mongosh-i18n';
 import CliOptions from './cli-options';
 
 /**
- * Unknown option message.
+ * Unknown translation key.
  */
-const UNKNOWN = 'Error parsing command line: unrecognized option:';
+const UNKNOWN = 'cli-repl.arg-parser.unknown-option';
 
 /**
  * npm start constant.
@@ -68,7 +69,7 @@ const OPTIONS = {
     if (!parameter.startsWith('-')) {
       return true;
     }
-    throw new Error(`${UNKNOWN} ${parameter}`);
+    throw new Error(`${i18n.__(UNKNOWN)} ${parameter}`);
   }
 };
 

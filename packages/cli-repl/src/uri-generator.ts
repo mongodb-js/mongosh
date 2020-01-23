@@ -1,3 +1,4 @@
+import i18n from 'mongosh-i18n';
 import CliOptions from './cli-options';
 
 /**
@@ -33,7 +34,7 @@ const GSSAPI_SERVICE_NAME = 'gssapiServiceName';
 /**
  * Conflicting host/port message.
  */
-const CONFLICT = 'If a full URI is provided, you cannot also specify --host or --port';
+const CONFLICT = 'cli-repl.uri-generator.no-host-port';
 
 /**
  * The default db name.
@@ -47,7 +48,7 @@ const TEST = 'test';
  */
 function validateConflicts(options: CliOptions) {
   if (options.host || options.port) {
-    throw new Error(CONFLICT);
+    throw new Error(i18n.__(CONFLICT));
   }
 }
 

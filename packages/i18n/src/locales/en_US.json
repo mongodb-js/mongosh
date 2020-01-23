@@ -1,0 +1,43 @@
+{
+  "browser-repl": {
+
+  },
+  "build": {
+
+  },
+  "cli-repl": {
+    "arg-parser": {
+      "unknown-option": "Error parsing command line: unrecognized option:"
+    },
+    "cli-repl": {
+      "connecting": "Connecting to:"
+    },
+    "uri-generator": {
+      "no-host-port": "If a full URI is provided, you cannot also specify --host or --port"
+    }
+  },
+  "mapper": {
+
+  },
+  "service-provider-browser": {
+
+  },
+  "service-provider-core": {
+
+  },
+  "service-provider-server": {
+
+  },
+  "shell-api": {
+
+  },
+  "transport-browser": {
+
+  },
+  "transport-core": {
+
+  },
+  "transport-server": {
+
+  }
+}

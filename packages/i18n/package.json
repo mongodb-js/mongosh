@@ -1,0 +1,20 @@
+{
+  "name": "mongosh-i18n",
+  "version": "0.0.0",
+  "description": "MongoDB Shell i18n Project",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "precompile-ts": "node scripts/copy.js",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "i18n": "^0.8.4"
+  }
+}
