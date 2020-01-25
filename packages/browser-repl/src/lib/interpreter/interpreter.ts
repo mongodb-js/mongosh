@@ -1,4 +1,4 @@
-import { preprocess } from './preprocess';
+import { Preprocessor } from './preprocessor';
 
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
@@ -16,24 +16,6 @@ export interface InterpreterEnvironment {
   getGlobal(name: string): ContextValue;
 }
 
-class Preprocessor {
-  private lexicalContext = {};
-
-  preprocess(code: string): string {
-    const {
-      code: preprocessedCode,
-      lexicalContext
-    } = preprocess(code, {
-      lexicalContext: this.lexicalContext,
-      lastExpressionCallbackFunctionName: LAST_EXPRESSION_CALLBACK_FUNCTION_NAME,
-      lexicalContextStoreVariableName: LEXICAL_CONTEXT_VARIABLE_NAME
-    });
-
-    this.lexicalContext = lexicalContext;
-    return preprocessedCode;
-  }
-}
-
 export class Interpreter {
   private environment: InterpreterEnvironment;
   private preprocessor: Preprocessor;
@@ -41,7 +23,10 @@ export class Interpreter {
   constructor(environment: InterpreterEnvironment) {
     this.environment = environment;
     this.environment.setGlobal(LEXICAL_CONTEXT_VARIABLE_NAME, {});
-    this.preprocessor = new Preprocessor();
+    this.preprocessor = new Preprocessor({
+      lastExpressionCallbackFunctionName: LAST_EXPRESSION_CALLBACK_FUNCTION_NAME,
+      lexicalContextStoreVariableName: LEXICAL_CONTEXT_VARIABLE_NAME
+    });
   }
 
   async evaluate(code: string): Promise<EvaluationResult> {
@@ -53,6 +38,8 @@ export class Interpreter {
     const preprocessedCode = this.preprocessor.preprocess(code);
     await this.environment.sloppyEval(preprocessedCode);
 
-    return { value: await result };
+    return {
+      value: await result
+    };
   }
 }
