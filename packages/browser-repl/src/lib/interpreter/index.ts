@@ -1,1 +1,1 @@
-export * from '../interpreter/iframe-interpreter';
+export * from './interpreter';

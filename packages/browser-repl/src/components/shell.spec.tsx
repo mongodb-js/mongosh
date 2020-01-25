@@ -12,18 +12,18 @@ const wait: (ms?: number) => Promise<void> = (ms = 10) => {
 };
 
 describe('<Shell />', () => {
-  let fakeInterpreter;
+  let fakeRuntime;
   let wrapper;
   let scrollIntoView;
 
   beforeEach(() => {
     scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
 
-    fakeInterpreter = {
+    fakeRuntime = {
       evaluate: sinon.fake.returns({value: 'some result'})
     };
 
-    wrapper = shallow(<Shell interpreter={fakeInterpreter} />);
+    wrapper = shallow(<Shell runtime={fakeRuntime} />);
   });
 
   afterEach(() => {
@@ -43,10 +43,10 @@ describe('<Shell />', () => {
   });
 
   context('when an input is entered', () => {
-    it('evaluates the input with an interpreter', () => {
+    it('evaluates the input with runtime', () => {
       const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
       onInput('some code');
-      expect(fakeInterpreter.evaluate).to.have.been.calledWith('some code');
+      expect(fakeRuntime.evaluate).to.have.been.calledWith('some code');
     });
 
     it('adds the evaluated input and output as lines to the output', async() => {
@@ -63,7 +63,7 @@ describe('<Shell />', () => {
 
     it('adds the evaluated input and an error to the output if the evaluation fails', async() => {
       const error = new Error('some error');
-      fakeInterpreter.evaluate = sinon.fake.returns(Promise.reject(error));
+      fakeRuntime.evaluate = sinon.fake.returns(Promise.reject(error));
 
       const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
       onInput('some code');
@@ -81,7 +81,7 @@ describe('<Shell />', () => {
   });
 
   it('scrolls the container to the bottom each time the output is updated', () => {
-    wrapper = mount(<Shell interpreter={fakeInterpreter} />);
+    wrapper = mount(<Shell runtime={fakeRuntime} />);
 
     wrapper.setState({output: [
       { type: 'input', value: 'some code' },

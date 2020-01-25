@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
-import { Interpreter } from './interpreter';
+import { Runtime } from './runtime';
 
 interface ShellProps {
-  interpreter: Interpreter;
+  runtime: Runtime;
 }
 
 interface ShellState {
@@ -15,7 +15,7 @@ interface ShellState {
 
 export default class Shell extends Component<ShellProps, ShellState> {
   static propTypes = {
-    interpreter: PropTypes.shape({
+    runtime: PropTypes.shape({
       evaluate: PropTypes.func.isRequired
     }).isRequired
   };
@@ -36,7 +36,7 @@ export default class Shell extends Component<ShellProps, ShellState> {
     let outputLine;
 
     try {
-      const result = await this.props.interpreter.evaluate(code);
+      const result = await this.props.runtime.evaluate(code);
       outputLine = {
         type: 'output',
         value: result.value
