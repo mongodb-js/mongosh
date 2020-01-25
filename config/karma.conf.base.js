@@ -7,6 +7,9 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
  */
 const configure = (config) => {
   config.set({
+    externals: {
+      fs: 'none'
+    },
     frameworks: [
       'mocha',
       'karma-typescript'
