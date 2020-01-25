@@ -6,7 +6,7 @@ export type EvaluationResult = {
   value: any;
 };
 
-export interface Interpreter {
+export interface Runtime {
 
   /**
    * Evaluates code
@@ -17,9 +17,9 @@ export interface Interpreter {
   evaluate(code: string): Promise<EvaluationResult>;
 
   /**
-   * Setup for the interpreter.
+   * Setup for the runtime.
    *
-   * @return {Promise} a promise resolving once the interpreter is initialized.
+   * @return {Promise} a promise resolving once the runtime is initialized.
    */
   initialize(): Promise<void>;
 
@@ -27,7 +27,7 @@ export interface Interpreter {
    * Clean up resources that would otherwise
    * leak (ie. listeners, elements attached to the dom).
    *
-   * @return {Promise} a promise resolving once the interpreter is destroyed.
+   * @return {Promise} a promise resolving once the runtime is destroyed.
    */
   destroy(): Promise<void>;
 }

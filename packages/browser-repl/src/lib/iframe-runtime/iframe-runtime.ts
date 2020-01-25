@@ -1,39 +1,24 @@
-import { Interpreter } from '../interpreter';
+import Mapper from 'mongosh-mapper';
+import ShellApi from 'mongosh-shell-api';
 
-type EvaluationResult = any;
+import {
+  Interpreter,
+  EvaluationResult,
+} from '../interpreter';
 
-interface InterpreterEnvironment {
-  sloppyEval(code: string): EvaluationResult;
-  setGlobal(name, val): EvaluationResult;
-  getGlobal(name: string): EvaluationResult;
-}
-
-
-
-class IframeInterpreterEnvironment {
-  private iframe: HTMLIFrameElement;
-
-  constructor(iframe: HTMLIFrameElement) {
-    this.iframe = iframe;
-  }
-
-  sloppyEval(code: string): EvaluationResult {
-    return (this.iframe.contentWindow as EvaluationResult).eval(code);
-  }
-
-  setGlobal(name, val): EvaluationResult {
-    this.iframe.contentWindow[name] = val;
-  }
-
-  getGlobal(name: string): EvaluationResult {
-    return this.iframe.contentWindow[name];
-  }
-}
+import {
+  IframeInterpreterEnvironment
+} from './iframe-interpreter-environment';
 
 export class IframeRuntime {
   private iframe: HTMLIFrameElement;
   private container: HTMLDivElement;
   private interpreter: Interpreter;
+  private serviceProvider: object;
+
+  constructor(serviceProvider: object) {
+    this.serviceProvider = serviceProvider;
+  }
 
   async evaluate(code: string): Promise<EvaluationResult> {
     if (!this.iframe) {
@@ -64,7 +49,16 @@ export class IframeRuntime {
 
     document.body.appendChild(this.container);
 
-    this.interpreter = new Interpreter(new IframeInterpreterEnvironment(this.iframe));
+    const mapper = new Mapper(this.serviceProvider);
+    const shellApi = new ShellApi(mapper);
+
+    Object.keys(shellApi)
+      .filter(k => (!k.startsWith('_')))
+      .forEach(k => (this.iframe.contentWindow[k] = shellApi[k]));
+    mapper.setCtx(this.iframe.contentWindow);
+
+    const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
+    this.interpreter = new Interpreter(environment);
 
     return await ready;
   }

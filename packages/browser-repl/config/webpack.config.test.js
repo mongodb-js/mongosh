@@ -14,6 +14,7 @@ module.exports = {
     setImmediate: false
   },
   externals: {
+    'fs': 'none',
     'jsdom': 'window',
     'cheerio': 'window',
     'react/lib/ExecutionEnvironment': 'true',
