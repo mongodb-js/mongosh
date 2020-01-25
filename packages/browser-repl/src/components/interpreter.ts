@@ -17,15 +17,6 @@ export interface Interpreter {
   evaluate(code: string): Promise<EvaluationResult>;
 
   /**
-   * Set a variable in the evaluation context
-   *
-   * @param {string} name - The name of the variable to set
-   * @param {ContextValue} value - The value to set
-   * @return {Promise} a promise resolving when the context is set
-   */
-  setContextVariable(name: string, value: ContextValue): Promise<void>;
-
-  /**
    * Setup for the interpreter.
    *
    * @return {Promise} a promise resolving once the interpreter is initialized.

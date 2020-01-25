@@ -3,11 +3,11 @@ const webpackConfigBase = require('./webpack.config.base');
 
 const libraryName = 'mongosh-browser-repl';
 
-const excludeFromBundle = [
-  'react',
-  'react-dom',
-  'prop-types'
-];
+const excludeFromBundle = {
+  'react': 'react',
+  'react-dom': 'react-dom',
+  'prop-types': 'prop-types'
+};
 
 module.exports = {
   ...webpackConfigBase,
@@ -15,7 +15,7 @@ module.exports = {
   devtool: 'source-map',
   resolve: {
     ...webpackConfigBase.resolve,
-    alias: excludeFromBundle.reduce((aliases, dependency) => ({
+    alias: Object.keys(excludeFromBundle).reduce((aliases, dependency) => ({
       ...aliases,
       [dependency]: path.resolve(__dirname, 'node_modules', dependency)
     }), {})
@@ -28,5 +28,5 @@ module.exports = {
     path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
-  externals: excludeFromBundle
+  externals: {...excludeFromBundle, fs: 'none'}
 };
