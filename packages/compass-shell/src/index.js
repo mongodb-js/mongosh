@@ -1,12 +1,16 @@
-import CompassShellPlugin from './plugin';
-import CompassShellStore from 'stores';
+import createPlugin from './plugin';
+
+const {
+  store,
+  Plugin
+} = createPlugin();
 
 /**
  * A sample role for the component.
  */
 const ROLE = {
   name: 'Shell',
-  component: CompassShellPlugin
+  component: Plugin
 };
 
 /**
@@ -24,7 +28,7 @@ function activate(appRegistry) {
   //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
 
   appRegistry.registerRole('Instance.Tab', ROLE);
-  appRegistry.registerStore('CompassShell.Store', CompassShellStore);
+  appRegistry.registerStore('CompassShell.Store', store);
 }
 
 /**
@@ -36,5 +40,5 @@ function deactivate(appRegistry) {
   appRegistry.deregisterStore('CompassShell.Store');
 }
 
-export default CompassShellPlugin;
+export default Plugin;
 export { activate, deactivate };

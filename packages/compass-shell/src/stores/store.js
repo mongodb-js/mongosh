@@ -1,55 +1,39 @@
 import { createStore } from 'redux';
 import reducer from 'modules';
+import { setDataService } from 'modules/data-service';
 
-const store = createStore(reducer);
+const debug = require('debug')('mongodb-compass-shell:store');
 
-/*
-store.onActivated = (appRegistry) => {
-  // Events emitted from the app registry:
+export default class CompassShellStore {
+  constructor() {
+    this.reduxStore = createStore(reducer);
+  }
 
-  appRegistry.on('application-intialized', (version) => {
-    // Version is string in semver format, ex: "1.10.0"
-  });
+  onActivated(appRegistry) {
+    debug('activated');
 
-  appRegistry.on('data-service-intialized', (dataService) => {
-    // dataService is not yet connected. Can subscribe to events.
-    // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  });
+    appRegistry.on(
+      'data-service-connected',
+      this.onDataServiceConnected
+    );
 
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    // dataService is connected or errored.
-    // DataService API: https://github.com/mongodb-js/data-service/blob/master/lib/data-service.js
-  });
+    appRegistry.on(
+      'data-service-disconnected',
+      this.onDataServiceDisconnected
+    );
+  }
 
-  appRegistry.on('collection-changed', (namespace) => {
-    // The collection has changed - provides the current namespace.
-    // Namespace format: 'database.collection';
-    // Collection selected: 'database.collection';
-    // Database selected: 'database';
-    // Instance selected: '';
-  });
+  onDataServiceConnected = (error, dataService) => {
+    this.reduxStore.dispatch(setDataService(
+      error,
+      dataService
+    ));
+  }
 
-  appRegistry.on('database-changed', (namespace) => {
-    // The database has changed.
-    // Namespace format: 'database.collection';
-    // Collection selected: 'database.collection';
-    // Database selected: 'database';
-    // Instance selected: '';
-  });
-
-  appRegistry.on('query-applied', (queryState) => {
-    // The query has changed and the user has clicked "filter" or "reset".
-    // queryState format example:
-    //   {
-    //     filter: { name: 'testing' },
-    //     project: { name: 1 },
-    //     sort: { name: -1 },
-    //     skip: 0,
-    //     limit: 20,
-    //     ns: 'database.collection'
-    //   }
-  });
-};
-*/
-
-export default store;
+  onDataServiceDisconnected = () => {
+    this.reduxStore.dispatch(setDataService(
+      null,
+      null
+    ));
+  }
+}

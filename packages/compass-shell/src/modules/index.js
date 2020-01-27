@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
-import status from './status';
+import dataService from './data-service';
 
 /**
  * The reducer.
  */
 const reducer = combineReducers({
-  status
+  dataService
 });
 
 export default reducer;
