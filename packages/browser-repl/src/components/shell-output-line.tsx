@@ -37,6 +37,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return entry.value.stack;
     }
 
+    if (typeof entry.value.toReplString === 'function') {
+      return entry.value.toReplString();
+    }
+
     const inspected = browserUtilInspect(entry.value, {});
 
     if (typeof entry.value === 'object') {
