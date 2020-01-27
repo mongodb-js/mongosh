@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import Shell from './index';
+import { Shell } from './index';
 import { IframeRuntime } from './lib/iframe-runtime';
 
 export default {

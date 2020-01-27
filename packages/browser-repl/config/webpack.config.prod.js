@@ -13,6 +13,7 @@ module.exports = {
   ...webpackConfigBase,
   mode: 'production',
   devtool: 'source-map',
+  target: 'web',
   resolve: {
     ...webpackConfigBase.resolve,
     alias: Object.keys(excludeFromBundle).reduce((aliases, dependency) => ({
@@ -28,5 +29,9 @@ module.exports = {
     path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
-  externals: {...excludeFromBundle, fs: 'none'}
+  externals: {
+    ...excludeFromBundle,
+    vm: 'vm',
+    fs: 'fs'
+  }
 };
