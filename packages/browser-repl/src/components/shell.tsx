@@ -13,7 +13,7 @@ interface ShellState {
   output: ShellOutputEntry[];
 }
 
-export default class Shell extends Component<ShellProps, ShellState> {
+export class Shell extends Component<ShellProps, ShellState> {
   static propTypes = {
     runtime: PropTypes.shape({
       evaluate: PropTypes.func.isRequired

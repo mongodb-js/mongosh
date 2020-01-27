@@ -1,2 +1,3 @@
-import Shell from './components/shell';
-export default Shell;
+export { Shell } from './components/shell';
+export { IframeRuntime } from './lib/iframe-runtime';
+export { ElectronRuntime } from './lib/electron-runtime';

@@ -44,6 +44,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
 
   render(): JSX.Element {
     return (<textarea
+      style={{width: '100%'}}
       value={this.state.currentValue}
       onChange={this.onChange}
       onKeyUp={this.onKeyUp}

@@ -2,8 +2,7 @@ import React from 'react';
 import sinon from 'sinon';
 import { expect } from '../../testing/chai';
 import { shallow, mount } from '../../testing/enzyme';
-
-import Shell from './shell';
+import { Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
 

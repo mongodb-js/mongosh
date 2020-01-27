@@ -1,5 +1,6 @@
-import Mapper from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
+import {
+  setupEvaluationContext
+} from '../runtime-helpers/setup-evaluation-context';
 
 import {
   Interpreter,
@@ -49,13 +50,10 @@ export class IframeRuntime {
 
     document.body.appendChild(this.container);
 
-    const mapper = new Mapper(this.serviceProvider);
-    const shellApi = new ShellApi(mapper);
-
-    Object.keys(shellApi)
-      .filter(k => (!k.startsWith('_')))
-      .forEach(k => (this.iframe.contentWindow[k] = shellApi[k]));
-    mapper.setCtx(this.iframe.contentWindow);
+    setupEvaluationContext(
+      this.iframe.contentWindow,
+      this.serviceProvider
+    );
 
     const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
     this.interpreter = new Interpreter(environment);
