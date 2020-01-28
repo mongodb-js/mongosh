@@ -32,12 +32,4 @@ export class ElectronRuntime {
   async evaluate(code: string): Promise<EvaluationResult> {
     return await this.interpreter.evaluate(code);
   }
-
-  async initialize(): Promise<void> {
-    return;
-  }
-
-  async destroy(): Promise<void> {
-    return;
-  }
 }
