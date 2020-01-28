@@ -1,4 +1,4 @@
-module.exports = {
+export {
   AggregationCursor: {
     type: 'AggregationCursor',
     attributes: {

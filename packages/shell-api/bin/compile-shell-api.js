@@ -31,18 +31,18 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    let attributesToList = Object.keys(lib).filter(
-      (a) => (!a.startsWith('__') && a !== 'help')
-    );
-    if ('__constructorArgs' in lib) {
-      const constructorArgs = lib.__constructorArgs.filter((a) => (!a.startsWith('_')));
-      attributesToList = attributesToList.concat(constructorArgs);
-    }
-    const helpValue = `${attr}
-Attributes: ${attributesToList.join(', ')}`;
+    // let attributesToList = Object.keys(lib).filter(
+      // (a) => (!a.startsWith('__') && a !== 'help')
+    // );
+    // if ('__constructorArgs' in lib) {
+      // const constructorArgs = lib.__constructorArgs.filter((a) => (!a.startsWith('_')));
+      // attributesToList = attributesToList.concat(constructorArgs);
+    // }
+    // const helpValue = `${attr}
+// Attributes: ${attributesToList.join(', ')}`;
 
-    return `${lhs} = () => (${JSON.stringify(helpValue)});
-${lhs}.toReplString = () => (${JSON.stringify(helpValue)});`
+    return `${lhs} = () => (i18n.__('${attr}'));
+${lhs}.toReplString = () => (i18n.__('${attr}'));`
   }
 
   return `${lhs} = ${JSON.stringify(attr)};`;
@@ -141,7 +141,7 @@ const loadAll = () => {
   const main = fs.readFileSync(path.join(yamlDir, 'main.yaml'));
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
-  let exports = '\nmodule.exports = ShellApi;\n';
+  let exports = '\nexport default ShellApi;\n';
   let types = [];
 
   const classes = FILES.reduce((str, fileName) => {
@@ -153,28 +153,28 @@ const loadAll = () => {
     const lib = yaml.load(`${main}${fileContents}`);
 
     /* append class to exports */
-    exports = `${exports}module.exports.${className} = ${className};\n`;
+    exports = `${exports}export { ${className} };\n`;
     types.push(`${className}: {\n    type: '${className}',\n    attributes: {\n${symbolTemplate(className, lib.class)}\n    }\n  }`);
 
     /* generate class */
     return `${str}${classTemplate(className, lib.class)}`;
-  }, '/* AUTO-GENERATED SHELL API CLASSES*/\n');
+  }, '/* AUTO-GENERATED SHELL API CLASSES*/\nimport i18n from \'mongosh-i18n\';\n\n');
 
   const result = Object.keys(mainLib)
     .filter((f) => !f.startsWith('_'))
     .reduce((str, className) => {
-      exports = `${exports}module.exports.${className} = ${className};\n`;
+      exports = `${exports}export { ${className} };\n`;
       return `${str}\nconst ${className} = Object.freeze(${JSON.stringify(mainLib[className], null, ' ')});`;
     }, classes);
 
   fs.writeFileSync(
-    path.join(__dirname, 'lib', 'shell-api.js'),
+    path.join(__dirname, 'src', 'shell-api.ts'),
     `${result}\n${exports}`
   );
 
   fs.writeFileSync(
-    path.join(__dirname, 'lib', 'shell-types.js'),
-    `module.exports = {\n  ${types.join(',\n  ')}\n};`
+    path.join(__dirname, 'src', 'shell-types.ts'),
+    `export {\n  ${types.join(',\n  ')}\n};`
   );
 };
 

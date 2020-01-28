@@ -4,10 +4,12 @@
   "description": "MongoDB Shell API Package",
   "main": "index.js",
   "scripts": {
-    "compile-api": "node compile-shell-api.js",
-    "test": "mocha --recursive --color",
-    "test-ci": "mocha --recursive",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'"
+    "compile-api": "node bin/compile-shell-api.js",
+    "precompile-ts": "npm run compile-api",
+    "compile-ts": "tsc -p tsconfig.json",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
+    "prepublish": "npm run compile-ts"
   },
   "precommit": [
     "build"
