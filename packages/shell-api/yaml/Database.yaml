@@ -5,8 +5,7 @@ class:
         - _database
     __stringRep:
         - this._database
-    help: 'The database class.'
+    help: 'shell-api.database.description'
     runCommand:
         <<: *__defaultMethod
-        help: |-
-            Runs an arbitrary command on the database.
+        help: 'shell-api.database.help.run-command'

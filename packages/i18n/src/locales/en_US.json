@@ -434,14 +434,18 @@
       }
     },
     "database": {
-
+      "description": "The database class.",
+      "help": {
+        "run-command": "Runs an arbitrary command on the database."
+      }
     },
     "replica-set": {
-
+      "description": "The Replica Set class."
     },
     "shard": {
-
-    }
+      "description": "The Shard class."
+    },
+    "help": "Welcome to the new MongoDB Shell!"
   },
   "transport-browser": {
 
