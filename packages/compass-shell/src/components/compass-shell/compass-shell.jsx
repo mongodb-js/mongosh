@@ -43,7 +43,7 @@ export class CompassShell extends Component {
     }
 
     this.runtime = new ElectronRuntime(
-      new CompassServiceProvider(dataService)
+      CompassServiceProvider.fromDataService(dataService)
     );
   }
 
