@@ -1,6 +1,6 @@
 class:
     <<: *__defaultClass
-    help: 'The BulkWriteResult class.'
+    help: 'shell-api.bulk-write-result.description'
     __constructorArgs:
         - ackowledged
         - insertedCount

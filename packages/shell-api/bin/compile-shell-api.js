@@ -1,9 +1,6 @@
 const path = require('path');
-
 const fs = require('fs');
-
 const yaml = require('js-yaml');
-
 const YAML_DIR = 'yaml';
 
 const proxyTemplate = (contents) => (`    const handler = {
@@ -137,7 +134,7 @@ const symbolTemplate = (className, lib) => {
  * Load all the YAML specs and generate the Shell API.
  */
 const loadAll = () => {
-  const yamlDir = path.join(__dirname, YAML_DIR);
+  const yamlDir = path.join(__dirname, '..', YAML_DIR);
   const main = fs.readFileSync(path.join(yamlDir, 'main.yaml'));
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
@@ -168,12 +165,12 @@ const loadAll = () => {
     }, classes);
 
   fs.writeFileSync(
-    path.join(__dirname, 'src', 'shell-api.ts'),
+    path.join(__dirname, '..', 'src', 'shell-api.ts'),
     `${result}\n${exports}`
   );
 
   fs.writeFileSync(
-    path.join(__dirname, 'src', 'shell-types.ts'),
+    path.join(__dirname, '..', 'src', 'shell-types.ts'),
     `export {\n  ${types.join(',\n  ')}\n};`
   );
 };
