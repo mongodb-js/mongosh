@@ -19,15 +19,17 @@ describe('Interpreter', () => {
   let interpreter;
   let testEvaluate;
   let iframe;
+  let testEnvironment;
 
   beforeEach(async() => {
     document.body.innerHTML = '';
     iframe = await createTestIframe();
+    const contentWindow = iframe.contentWindow as any;
 
-    const testEnvironment = {
-      sloppyEval: (iframe.contentWindow as any).eval,
-      getGlobal: (name): any => iframe.contentWindow[name],
-      setGlobal: (name, value): void => { iframe.contentWindow[name] = value; }
+    testEnvironment = {
+      sloppyEval: contentWindow.eval,
+      getGlobal: (name): any => contentWindow[name],
+      setGlobal: (name, value): void => { contentWindow[name] = value; }
     };
 
     interpreter = new Interpreter(testEnvironment);
@@ -231,6 +233,46 @@ describe('Interpreter', () => {
 
       expect(error.message)
         .to.contain('\'return\' outside of function');
+    });
+
+    it('allows to invoke the help command', async() => {
+      testEnvironment.setGlobal('help', () => 'help invoked');
+
+      expect(
+        await testEvaluate(
+          'help'
+        )
+      ).to.equal('help invoked');
+    });
+
+    it('allows to invoke the it command', async() => {
+      testEnvironment.setGlobal('it', () => 'it invoked');
+
+      expect(
+        await testEvaluate(
+          'it'
+        )
+      ).to.equal('it invoked');
+    });
+
+    it('allows to invoke the show command', async() => {
+      testEnvironment.setGlobal('show', () => 'show invoked');
+
+      expect(
+        await testEvaluate(
+          'show'
+        )
+      ).to.equal('show invoked');
+    });
+
+    it('allows to invoke the use command', async() => {
+      testEnvironment.setGlobal('use', () => 'use invoked');
+
+      expect(
+        await testEvaluate(
+          'use'
+        )
+      ).to.equal('use invoked');
     });
   });
 });
