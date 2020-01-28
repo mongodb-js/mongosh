@@ -7,6 +7,15 @@ export function setupEvaluationContext(context: object, serviceProvider: object)
 
   Object.keys(shellApi)
     .filter(k => (!k.startsWith('_')))
-    .forEach(k => (context[k] = shellApi[k]));
+    .forEach(k => {
+      const value = shellApi[k];
+
+      if (typeof(value) === 'function') {
+        context[k] = value.bind(shellApi);
+      } else {
+        context[k] = value;
+      }
+    });
+
   mapper.setCtx(context);
 }
