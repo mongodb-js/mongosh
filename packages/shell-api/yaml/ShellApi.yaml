@@ -2,6 +2,6 @@ class:
     <<: *__defaultClass
     __constructorArgs:
         - _mapper
-    help: 'Welcome to the new MongoDB Shell!'
+    help: 'shell-api.help'
     use: *__defaultMethod
     it: *__defaultMethod
