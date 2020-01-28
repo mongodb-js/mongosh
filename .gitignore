@@ -17,6 +17,7 @@ packages/i18n/lib
 packages/service-provider-browser/lib
 packages/service-provider-core/lib
 packages/service-provider-server/lib
+packages/shell-api/lib
 packages/transport-browser/lib
 packages/transport-server/lib
 packages/transport-core/lib

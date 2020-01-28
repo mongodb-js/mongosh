@@ -8,201 +8,158 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
-    help: 'The cursor class.'
-
+    help: ''
     addOption:
         <<: *__defaultMethod
         serverVersions:
             - *ServerVersions.earliest
             - 3.2
-        help: |-
-            Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.
+        help: 'shell-api.cursor.help.add-option'
     allowPartialResults: # not documented
         <<: *__defaultMethod
-        help: |-
-          Sets the 'partial' option to true.
+        help: 'shell-api.cursor.help.allow-partial-results'
     arrayAccess: *__defaultMethod # TODO: not documented
     batchSize:
         <<: *__defaultMethod
-        help: |-
-            Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.
+        help: 'shell-api.cursor.help.batch-size'
     clone:  # not documented
         <<: *__defaultMethod
-        help: |-
-            Clone the cursor.
+        help: 'shell-api.cursor.help.clone'
     close:
         <<: *__defaultMethod
-        help: |-
-            Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.
+        help: 'shell-api.cursor.help.close'
     collation:
         <<: *__defaultMethod
-        help: |-
-            Specifies the collation for the cursor returned by the db.collection.find(). To use, append to the db.collection.find().
+        help: 'shell-api.cursor.help.collation'
         serverVersions:
             - 3.4
             - *ServerVersions.latest
     comment:
         <<: *__defaultMethod
-        help: |-
-            Adds a comment field to the query.
+        help: 'shell-api.cursor.help.comment'
         serverVersions:
             - 3.2
             - *ServerVersions.latest
     count:
         <<: *__defaultMethod
-        help: |-
-            Counts the number of documents referenced by a cursor.
+        help: 'shell-api.cursor.help.count'
         serverVersion:
             - *ServerVersions.earliest
             - 4.0
     explain:
         <<: *__defaultMethod
-        help: |-
-            Provides information on the query plan for the db.collection.find() method.
+        help: 'shell-api.cursor.help.explain'
     forEach:
         <<: *__defaultMethod
-        help: |-
-            Iterates the cursor to apply a JavaScript function to each document from the cursor.
+        help: 'shell-api.cursor.help.for-each'
     getQueryPlan:  # TODO: not documented
         <<: *__defaultMethod
-        help: |-
-            Runs cursor.explain()
+        help: 'shell-api.cursor.help.get-query-plan'
     hasNext:
         <<: *__defaultMethod
-        help: |-
-            cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.
+        help: 'shell-api.cursor.help.has-next'
     hint:
         <<: *__defaultMethod
-        help: |-
-            Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.
+        help: 'shell-api.cursor.help.hint'
     isClosed: # not documented
         <<: *__defaultMethod
-        help: |-
-            Returns true if the cursor is closed.
+        help: 'shell-api.cursor.help.is-closed'
     isExhausted:
         <<: *__defaultMethod
-        help: |-
-            cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.
+        help: 'shell-api.cursor.help.is-exhausted'
     itcount:
         <<: *__defaultMethod
-        help: |-
-            Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.
+        help: 'shell-api.cursor.help.itcount'
     length: # not documented
         <<: *__defaultMethod
-        help: |-
-            Runs cursor.count()
+        help: 'shell-api.cursor.help.length'
     limit:
         <<: *__defaultMethod
-        help: |-
-            Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.
+        help: 'shell-api.cursor.help.limit'
     map:
         <<: *__defaultMethod
-        help: |-
-            Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.
+        help: 'shell-api.cursor.help.map'
     max:
         <<: *__defaultMethod
-        help: |-
-            Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.
+        help: 'shell-api.cursor.help.max'
     maxScan: # not documented
         <<: *__defaultMethod
-        help: |-
-            Constrains the query to only scan the specified number of documents when fulfilling the query.
+        help: 'shell-api.cursor.help.max-scan'
         serverVersions:
             - *ServerVersions.earliest
             - 4.0
     maxTimeMS:
         <<: *__defaultMethod
-        help: |-
-             Specifies a cumulative time limit in milliseconds for processing operations on a cursor.
+        help: 'shell-api.cursor.help.max-time-ms'
     min:
         <<: *__defaultMethod
-        help: |-
-            Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.
+        help: 'shell-api.cursor.help.min'
     modifiers: # not documented
         <<: *__defaultMethod
-        help: |-
-            Get query modifiers.
+        help: 'shell-api.cursor.help.modifiers'
     next:
         <<: *__defaultMethod
-        help: |-
-            The next document in the cursor returned by the db.collection.find() method.
+        help: 'shell-api.cursor.help.next'
     noCursorTimeout:
         <<: *__defaultMethod
-        help: |-
-            Instructs the server to avoid closing a cursor automatically after a period of inactivity.
+        help: 'shell-api.cursor.help.no-cursor-timeout'
     objsLeftInBatch:
         <<: *__defaultMethod
-        help: |-
-            cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.
+        help: 'shell-api.cursor.help.objs-left-in-batch'
     oplogReplay: # not documented
         <<: *__defaultMethod
-        help: |-
-            Sets oplogReplay cursor flag to true.
+        help: 'shell-api.cursor.help.oplog-replay'
     projection:
         <<: *__defaultMethod
-        help: |-
-            Sets a field projection for the query.
+        help: 'shell-api.cursor.help.projection'
     pretty:
         <<: *__defaultMethod
-        help: |-
-            Configures the cursor to display results in an easy-to-read format.
+        help: 'shell-api.cursor.help.pretty'
     readConcern:
         <<: *__defaultMethod
-        help: |-
-            Specify a read concern for the db.collection.find() method.
+        help: 'shell-api.cursor.help.read-concern'
         serverVersions:
             - 3.2
             - *ServerVersions.latest
     readOnly: # not documented
         <<: *__defaultMethod
-        help: |-
-             TODO
+        help: 'shell-api.cursor.help.readonly'
     readPref:
         <<: *__defaultMethod
-        help: |-
-            Append readPref() to a cursor to control how the client routes the query to members of the replica set.
+        help: 'shell-api.cursor.help.read-pref'
     returnKey:
         <<: *__defaultMethod
-        help: |-
-            Modifies the cursor to return index keys rather than the documents.
+        help: 'shell-api.cursor.help.return-key'
         serverVersions:
             - 3.2
             - *ServerVersions.latest
     showDiskLoc: # not documented
         <<: *__defaultMethod
-        help: |-
-            The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.
+        help: 'shell-api.cursor.help.show-disk-loc'
     showRecordId:
         <<: *__defaultMethod
-        help: |-
-            Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.
+        help: 'shell-api.cursor.help.show-record-id'
     size:
         <<: *__defaultMethod
-        help: |-
-            A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.
+        help: 'shell-api.cursor.help.size'
     skip:
         <<: *__defaultMethod
-        help: |-
-            Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.
+        help: 'shell-api.cursor.help.skip'
     snapshot: # not documented
         <<: *__defaultMethod
-        help: |-
-            The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document.
+        help: 'shell-api.cursor.help.snapshot'
         serverVersions:
             - *ServerVersions.earliest
             - 4.0
     sort:
         <<: *__defaultMethod
-        help: |-
-            Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.
+        help: 'shell-api.cursor.help.sort'
     tailable:
         <<: *__defaultMethod
-        help: |-
-            Marks the cursor as tailable.
+        help: 'shell-api.cursor.help.tailable'
         serverVersions:
             - 3.2
             - *ServerVersions.latest
     toArray:
         <<: *__defaultMethod
-        help: |-
-            The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.
+        help: 'shell-api.cursor.help.to-array'
