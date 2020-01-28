@@ -1,16 +1,19 @@
-import repl, { REPLServer } from 'repl';
-import util from 'util';
-import read from 'read';
-import { Transform } from 'stream';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
-import readline from 'readline';
-import Mapper from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
+import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
+import Mapper from 'mongosh-mapper';
 import completer from './completer';
+import { Transform } from 'stream';
+import readline from 'readline';
 import write from './writer';
+import util from 'util';
+import path from 'path';
+import read from 'read';
+import os from 'os';
+import fs from 'fs';
 
 /**
  * The REPL used from the terminal.
@@ -163,6 +166,12 @@ class CliRepl {
 
     // @ts-ignore
     this.repl.eval = customEval;
+    
+    const historyFile = path.join(os.homedir(), '.mongosh_repl_history');
+    this.repl.setupHistory(historyFile, function(err, repl) {
+      // TODO: @lrlna format this error
+      if (err) console.log(err);
+    })
 
     this.repl.on('exit', () => {
       this.serviceProvider.close(true);
