@@ -4,6 +4,19 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 describe('CompassServiceProvider', () => {
+
+  describe('fromDataService', () => {
+    it('creates a new CompassServiceProvider', () => {
+      const instance = CompassServiceProvider.fromDataService({
+        client: {
+          client: {}
+        }
+      });
+
+      expect(instance).to.be.instanceOf(CompassServiceProvider);
+    });
+  });
+
   describe('#aggregate', () => {
     let serviceProvider;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
