@@ -14,5 +14,8 @@
   },
   "precommit": [
     "build"
-  ]
+  ],
+  "dependencies": {
+    "mongosh-i18n": "file:../i18n"
+  }
 }
