@@ -2,7 +2,8 @@
   "name": "mongosh-shell-api",
   "version": "0.0.0",
   "description": "MongoDB Shell API Package",
-  "main": "index.js",
+  "main": "lib/shell-api.js",
+  "types": "lib/shell-api.d.ts",
   "scripts": {
     "compile-api": "node bin/compile-shell-api.js",
     "precompile-ts": "npm run compile-api",
