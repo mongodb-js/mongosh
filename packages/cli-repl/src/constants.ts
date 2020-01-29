@@ -1,15 +1,9 @@
-# mongosh [![Build Status](https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.mongosh?branchName=master)](https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=2&branchName=master)
+const ansi = require('ansi-escape-sequences');
 
-## The MongoDB Shell
+export const USAGE = `
+  $ ${clr('mongosh', 'bold')} ${clr('[options]', 'green')} [db address]
 
-This repository is a monorepo for all the various components in the MongoDB Shell across
-all environments (REPL, Browser, Compass, etc).
-
-## CLI Usage
-```shell
-$ mongosh [options] [db address]
-
-  Options:
+  ${clr('Options:', ['bold', 'yellow'])}
     -h, --help                                 Show this usage information
         --ipv6                                 Enable IPv6 support (disabled by default)
         --host [arg]                           Server to connect to
@@ -22,7 +16,7 @@ $ mongosh [options] [db address]
         --retryWrites                          Automatically retry write operations upon transient network errors
         --disableImplicitSessions              Do not automatically create and use implicit sessions
 
-  Authentication Options:
+  ${clr('Authentication Options:', ['bold', 'yellow'])}
 
     -u, --username [arg]                       Username for authentication
     -p, --password [arg]                       Password for authentication
@@ -31,7 +25,7 @@ $ mongosh [options] [db address]
         --gssapiServiceName [arg] (=mongodb)   Service name to use when authenticating using GSSAPI/Kerberos
         --gssapiHostName [arg]                 Remote host name to use for purpose of GSSAPI/Kerberos authentication
 
-  TLS Options:
+  ${clr('TLS Options:', ['bold', 'yellow'])}
 
         --tls                                  Use TLS for all connections
         --tlsCertificateKeyFile [arg]          PEM certificate/key file for TLS
@@ -43,7 +37,7 @@ $ mongosh [options] [db address]
         --tlsCertificateSelector [arg]         TLS Certificate in system store
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
-  FLE AWS Options:
+  ${clr('FLE AWS Options:', ['bold', 'yellow'])}
 
         --awsAccessKeyId [arg]                 AWS Access Key for FLE Amazon KMS
         --awsSecretAccessKey [arg]             AWS Secret Key for FLE Amazon KMS
@@ -51,109 +45,25 @@ $ mongosh [options] [db address]
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL for KMS
 
-  DB Address:
+  ${clr('DB Address:', ['bold', 'yellow'])}
 
         foo                                    Foo database on local machine
         192.168.0.5/foo                        Foo database on 192.168.0.5 machine
         192.168.0.5:9999/foo                   Foo database on 192.168.0.5 machine on port 9999
         mongodb://192.168.0.5:9999/foo         Connection string URI can also be used
 
-  File Names:
+  ${clr('File Names:', ['bold', 'yellow'])}
 
-        A list of files to run. Files must end in .js and will exit after unless --shell is specified.
+        A list of files to run. Files must end in ${clr('.js', 'bold')} and will exit after unless ${clr('--shell', 'bold')} is specified.
 
-  Examples:
+  ${clr('Examples:', ['bold', 'yellow'])}
 
         Start mongosh using 'ships' database on specified connection string:
-        $ mongosh mongodb://192.168.0.5:9999/ships
+        ${clr('$ mongosh mongodb://192.168.0.5:9999/ships', 'green')}
 
-  For more information on mongosh usage: https://docs.mongodb.com/manual/mongo/.
-```
+  For more information on mongosh usage: ${clr('https://docs.mongodb.com/manual/mongo/', 'green')}.
+`.replace(/\n$/, '').replace(/^\n/, '');
 
-## Requirements
-
-- NodeJS `~12.4.0`
-
-## Install
-
-```shell
-npm install -g lerna
-npm install -g typescript
-npm run bootstrap
-```
-
-## Running Tests
-
-Run all tests:
-
-```shell
-npm test
-```
-
-Run tests from a specific package:
-
-```shell
-lerna run test --scope mongosh-transport
-```
-
-Run tests with all output from packages:
-
-```shell
-lerna run test --stream
-```
-
-Getting the Stitch integration tests running requires the 2 following env
-variables to be set:
-
-- `MONGOSH_STITCH_TEST_APP_ID`
-- `MONGOSH_STITCH_TEST_SERVICE_NAME`
-
-These can be gotten from the mongosh-test cluster in the Compass Atlas
-clusters.
-
-## Starting the CLI
-
-Via NPM:
-
-```shell
-npm start
-```
-
-Start the CLI using ANTLR-based rewrite using double evaluation:
-NOTE: This is only turned on for insertOne and deleteOne. You can tell
-it's working by running "x = db.coll.insertOne()" then trying to access
-a field of the returned object. If it undefined, then you've saved a
-promise as 'x', but if it's not undefined, then rewrite has worked.
-
-To see the bug with parsing using the JavaScript grammar, run
-```shell
-node --stack-size=50 packages/shell-api/lib/async-rewrite-double.js
-```
-
-Via bin:
-
-```shell
-npm link
-mongosh
-```
-
-Via built executable:
-
-```shell
-npm run compile-exec
-./dist/mongosh
-```
-
-## Compiling
-
-Compile all Typescript:
-
-```shell
-npm run compile-ts
-```
-
-Compile the standalone executable:
-
-```shel
-npm run compile-exec
-```
+function clr(text, style) {
+  return process.stdout.isTTY ? ansi.format(text, style) : text;
+}
