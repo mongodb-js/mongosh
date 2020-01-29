@@ -1,0 +1,2 @@
+// command
+"string literal"
