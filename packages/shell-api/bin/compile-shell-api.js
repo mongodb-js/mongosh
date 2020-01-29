@@ -28,16 +28,6 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    // let attributesToList = Object.keys(lib).filter(
-      // (a) => (!a.startsWith('__') && a !== 'help')
-    // );
-    // if ('__constructorArgs' in lib) {
-      // const constructorArgs = lib.__constructorArgs.filter((a) => (!a.startsWith('_')));
-      // attributesToList = attributesToList.concat(constructorArgs);
-    // }
-    // const helpValue = `${attr}
-// Attributes: ${attributesToList.join(', ')}`;
-
     return `${lhs} = () => (i18n.__('${attr}'));
 ${lhs}.toReplString = () => (i18n.__('${attr}'));`
   }
@@ -126,7 +116,7 @@ const symbolTemplate = (className, lib) => {
   return Object.keys(lib)
     .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
     .map((s) => {
-      return `      ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}' }`
+      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}' }`
     }).join(',\n')
 };
 
@@ -140,10 +130,11 @@ const loadAll = () => {
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
   let exports = '\nexport default ShellApi;\n';
   let types = [];
+  let typeConsts = [];
 
   const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);
-    console.log(`${fileName} => lib/shell-api.js`);
+    console.log(`${fileName} => src/shell-api.js`);
 
     /* load YAML into memory */
     const fileContents = fs.readFileSync(path.join(yamlDir, fileName));
@@ -151,7 +142,8 @@ const loadAll = () => {
 
     /* append class to exports */
     exports = `${exports}export { ${className} };\n`;
-    types.push(`${className}: {\n    type: '${className}',\n    attributes: {\n${symbolTemplate(className, lib.class)}\n    }\n  }`);
+    types.push(`const ${className} = {\n  type: '${className}',\n  attributes: {\n${symbolTemplate(className, lib.class)}\n  }\n}`);
+    typeConsts.push(className);
 
     /* generate class */
     return `${str}${classTemplate(className, lib.class)}`;
@@ -165,13 +157,13 @@ const loadAll = () => {
     }, classes);
 
   fs.writeFileSync(
-    path.join(__dirname, '..', 'src', 'shell-api.ts'),
+    path.join(__dirname, '..', 'src', 'shell-api.js'),
     `${result}\n${exports}`
   );
 
   fs.writeFileSync(
-    path.join(__dirname, '..', 'src', 'shell-types.ts'),
-    `export {\n  ${types.join(',\n  ')}\n};`
+    path.join(__dirname, '..', 'src', 'shell-types.js'),
+    `${types.join(';\n')};\nexport {\n  ${typeConsts.join(',\n  ')}\n};`
   );
 };
 
