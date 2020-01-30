@@ -46,6 +46,7 @@ const OPTIONS = {
     'nodb',
     'norc',
     'quiet',
+    'redactInfo',
     'retryWrites',
     'shell',
     'tls',

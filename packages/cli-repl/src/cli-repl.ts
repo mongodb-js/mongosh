@@ -25,6 +25,7 @@ class CliRepl {
   private mapper: Mapper;
   private shellApi: ShellApi;
   private repl: REPLServer;
+  private options: CliOptions;
 
   /**
    * Connect to the cluster.
@@ -47,6 +48,7 @@ class CliRepl {
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
     this.useAntlr = !!options.antlr;
+    this.options = options;
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
@@ -169,6 +171,7 @@ class CliRepl {
     this.repl.eval = customEval;
     
     const historyFile = path.join(os.homedir(), '.mongosh_repl_history');
+    const redactInfo = this.options.redactInfo;
     this.repl.setupHistory(historyFile, function(err, repl) {
       // TODO: @lrlna format this error
       if (err) console.log(err);
@@ -178,7 +181,7 @@ class CliRepl {
       // sensitive.
       repl.on('flushHistory', function() {
         // @ts-ignore
-        changeHistory(repl.history, false);
+        changeHistory(repl.history, redactInfo);
       })
     })
 

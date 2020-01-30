@@ -18,6 +18,7 @@
   "dependencies": {
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.0",
+    "mongodb-redact": "^0.2.0",
     "mongosh-mapper": "file:../mapper",
     "mongosh-service-provider-server": "file:../service-provider-server",
     "mongosh-shell-api": "file:../shell-api",

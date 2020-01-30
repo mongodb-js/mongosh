@@ -26,6 +26,7 @@ interface CliOptions {
   password?: string;
   port?: string;
   quiet?: boolean;
+  redactInfo?: boolean;
   retryWrites?: boolean;
   shell?: boolean;
   tls?: boolean;
