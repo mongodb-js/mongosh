@@ -1,3 +1,5 @@
+import redactInfo from 'mongodb-redact';
+
 /**
  * Modifies command history array based on sensitive information.
  * If redact option is passed, also redacts sensitive info.
@@ -11,9 +13,8 @@ function changeHistory(history: string[], redact: boolean = false) {
   const hiddenCommands =
     RegExp('createUser|auth|updateUser|changeUserPassword', 'ig');
 
-  if (hiddenCommands.test(history[0])) {
-    history.shift();
-  }
+  if (hiddenCommands.test(history[0])) history.shift();
+  if (redact) history[0] = redactInfo(history[0]);
 }
 
 export default changeHistory;
