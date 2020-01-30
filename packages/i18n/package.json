@@ -7,7 +7,9 @@
   "scripts": {
     "precompile-ts": "node scripts/copy.js",
     "compile-ts": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile-ts"
+    "prepublish": "npm run compile-ts",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\""
   },
   "dependency-check": {
     "entries": [
