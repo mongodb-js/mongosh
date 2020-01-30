@@ -35,7 +35,7 @@ function arrowDown(wrapper, event: any = {}): void {
   simulateTextareaKeyEvent(wrapper, 'keydown', 'ArrowDown', event);
 }
 
-describe.only('<ShellInput />', () => {
+describe('<ShellInput />', () => {
   it('renders an input', () => {
     const wrapper = shallow(<ShellInput />);
     expect(wrapper.find('textarea')).to.have.lengthOf(1);
