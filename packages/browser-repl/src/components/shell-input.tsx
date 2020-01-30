@@ -89,7 +89,10 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     }
 
     this.commitValueToHistory(currentValue);
-    this.props.onInput(currentValue);
+
+    if (this.props.onInput) {
+      this.props.onInput(currentValue);
+    }
 
     this.setState({
       currentValue: ''
