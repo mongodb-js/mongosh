@@ -28,8 +28,8 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    return `${lhs} = () => (i18n.__('${attr}'));
-${lhs}.toReplString = () => (i18n.__('${attr}'));`
+    return `${lhs} = () => (i18n.__apiHelp('${attr}'));
+${lhs}.toReplString = () => (i18n.__apiHelp('${attr}'));`
   }
 
   return `${lhs} = ${JSON.stringify(attr)};`;

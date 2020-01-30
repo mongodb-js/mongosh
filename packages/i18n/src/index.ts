@@ -1,10 +1,19 @@
-import path from 'path';
-import i18n from 'i18n';
+class Translator {
+  private locale: string;
 
-i18n.configure({
-  defaultLocale: 'en_US',
-  objectNotation: true,
-  directory: path.join(__dirname, 'locales')
-});
+  setLocale(locale: string) {
 
-export default i18n;
+  }
+
+  translate(key: string) {
+
+  }
+
+  translateApiHelp(key: string) {
+
+  }
+}
+
+const translator = new Translator();
+
+export default translator;
