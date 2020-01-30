@@ -5,8 +5,21 @@ import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Runtime } from './runtime';
 
+interface InputLine {
+  type: 'input';
+  value: string;
+}
+
+interface OutputLine {
+  type: 'output' | 'error';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+}
+
 interface ShellProps {
   runtime: Runtime;
+  onInput?: (input: InputLine) => void;
+  onOutput?: (output: OutputLine) => void;
 }
 
 interface ShellState {
@@ -17,7 +30,8 @@ export class Shell extends Component<ShellProps, ShellState> {
   static propTypes = {
     runtime: PropTypes.shape({
       evaluate: PropTypes.func.isRequired
-    }).isRequired
+    }).isRequired,
+    onInput: PropTypes.func,
   };
 
   readonly state: ShellState = {
@@ -32,7 +46,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.scrollToBottom();
   }
 
-  private onInput: (string) => Promise<void> = async(code) => {
+  private onInput: (string) => Promise<void> = async(code: string) => {
     let outputLine;
 
     try {
@@ -48,7 +62,7 @@ export class Shell extends Component<ShellProps, ShellState> {
       };
     }
 
-    const inputLine = {
+    const inputLine: InputLine = {
       type: 'input',
       value: code
     };
@@ -60,6 +74,14 @@ export class Shell extends Component<ShellProps, ShellState> {
         outputLine
       ]
     });
+
+    if (this.props.onInput) {
+      this.props.onInput({...inputLine});
+    }
+
+    if (this.props.onOutput) {
+      this.props.onOutput({...outputLine});
+    }
   }
 
   private shellInputElement?: HTMLElement;

@@ -11,6 +11,8 @@ const wait: (ms?: number) => Promise<void> = (ms = 10) => {
 };
 
 describe('<Shell />', () => {
+  let onInputProp;
+  let onOutputProp;
   let fakeRuntime;
   let wrapper;
   let scrollIntoView;
@@ -22,7 +24,9 @@ describe('<Shell />', () => {
       evaluate: sinon.fake.returns({value: 'some result'})
     };
 
-    wrapper = shallow(<Shell runtime={fakeRuntime} />);
+    onInputProp = sinon.spy();
+    onOutputProp = sinon.spy();
+    wrapper = shallow(<Shell runtime={fakeRuntime} onInput={onInputProp} onOutput={onOutputProp} />);
   });
 
   afterEach(() => {
@@ -42,40 +46,63 @@ describe('<Shell />', () => {
   });
 
   context('when an input is entered', () => {
-    it('evaluates the input with runtime', () => {
+    beforeEach('Name of the group', async() => {
       const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
       onInput('some code');
+      await wait();
+      wrapper.update();
+    });
+
+    it('evaluates the input with runtime', () => {
       expect(fakeRuntime.evaluate).to.have.been.calledWith('some code');
     });
 
     it('adds the evaluated input and output as lines to the output', async() => {
-      const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
-      onInput('some code');
-      wrapper.update();
-      await wait();
-
       expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
         { type: 'input', value: 'some code' },
         { type: 'output', value: 'some result' }
       ]);
     });
 
-    it('adds the evaluated input and an error to the output if the evaluation fails', async() => {
-      const error = new Error('some error');
+    it('calls onInput and onOutput properties', async() => {
+      const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
+      onInput('some code');
+      await wait();
+
+      expect(onInputProp).to.have.been.calledWith({type: 'input', value: 'some code'});
+      expect(onOutputProp).to.have.been.calledWith({type: 'output', value: 'some result'});
+    });
+  });
+
+  context('when an input is entered and it causes an error', () => {
+    let error;
+    beforeEach('Name of the group', async() => {
+      error = new Error('some error');
       fakeRuntime.evaluate = sinon.fake.returns(Promise.reject(error));
 
       const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
       onInput('some code');
 
-      wrapper.update();
       await wait();
+      wrapper.update();
+    });
 
+    it('adds the evaluated input and an error to the output if the evaluation fails', async() => {
       const output = wrapper.find(ShellOutput).prop('output');
 
       expect(output).to.deep.equal([
         { type: 'input', value: 'some code' },
         { type: 'error', value: error }
       ]);
+    });
+
+    it('calls onInput and onOutput properties', async() => {
+      const onInput = wrapper.find(ShellInput).prop('onInput') as Function;
+      onInput('some code');
+      await wait();
+
+      expect(onInputProp).to.have.been.calledWith({type: 'input', value: 'some code'});
+      expect(onOutputProp).to.have.been.calledWith({type: 'error', value: error});
     });
   });
 
