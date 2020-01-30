@@ -11,9 +11,9 @@ import redactInfo from 'mongodb-redact';
  */
 function changeHistory(history: string[], redact: boolean = false) {
   const hiddenCommands =
-    RegExp('createUser|auth|updateUser|changeUserPassword', 'ig');
+    RegExp('createUser|auth|updateUser|changeUserPassword', 'g');
 
-  if (hiddenCommands.test(history[0])) history.shift();
+  if (hiddenCommands.test(history[0])) return history.shift();
   if (redact) history[0] = redactInfo(history[0]);
 }
 
