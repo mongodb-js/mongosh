@@ -6,7 +6,7 @@ import { shallow } from '../../testing/enzyme';
 
 import { ShellInput } from './shell-input';
 
-function simulateChange(wrapper, value): void {
+function changeValue(wrapper, value): void {
   wrapper.find('textarea').simulate('change', { target: { value } });
 }
 
@@ -23,15 +23,15 @@ function simulateTextareaKeyEvent(wrapper, eventType, key, event: any = {}): voi
   });
 }
 
-function simulateEnter(wrapper, event: any = {}): void {
+function enter(wrapper, event: any = {}): void {
   simulateTextareaKeyEvent(wrapper, 'keyup', 'Enter', event);
 }
 
-function simulateArrowUp(wrapper, event: any = {}): void {
+function arrowUp(wrapper, event: any = {}): void {
   simulateTextareaKeyEvent(wrapper, 'keydown', 'ArrowUp', event);
 }
 
-function simulateArrowDown(wrapper, event: any = {}): void {
+function arrowDown(wrapper, event: any = {}): void {
   simulateTextareaKeyEvent(wrapper, 'keydown', 'ArrowDown', event);
 }
 
@@ -45,8 +45,8 @@ describe.only('<ShellInput />', () => {
     const onInput = sinon.spy();
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
-    simulateChange(wrapper, 'value');
-    simulateEnter(wrapper);
+    changeValue(wrapper, 'value');
+    enter(wrapper);
 
     expect(onInput).to.have.been.calledWith('value');
   });
@@ -55,8 +55,8 @@ describe.only('<ShellInput />', () => {
     const onInput = sinon.spy();
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
-    simulateChange(wrapper, 'value');
-    simulateEnter(wrapper, {shiftKey: true});
+    changeValue(wrapper, 'value');
+    enter(wrapper, {shiftKey: true});
 
     expect(onInput).to.not.have.been.called;
   });
@@ -64,7 +64,7 @@ describe.only('<ShellInput />', () => {
   it('does not call onInput if the input is empty', () => {
     const onInput = sinon.spy();
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
-    simulateEnter(wrapper);
+    enter(wrapper);
     expect(onInput).to.not.have.been.called;
   });
 
@@ -80,49 +80,49 @@ describe.only('<ShellInput />', () => {
     it('navigates history backward on ArrowUp', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
     it('navigates history backward up to first element', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1']} />);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
     it('navigates history forward', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowUp(wrapper);
-      simulateArrowUp(wrapper);
-      simulateArrowDown(wrapper);
+      arrowUp(wrapper);
+      arrowUp(wrapper);
+      arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
     it('does not move the history index past the last element', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowDown(wrapper);
+      arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('');
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
     it('navigates forward back to currentValue', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      simulateArrowDown(wrapper);
+      arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('');
     });
 
@@ -132,27 +132,27 @@ describe.only('<ShellInput />', () => {
 
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowUp(wrapper);
-      simulateChange(wrapper, 'value3');
-      simulateEnter(wrapper);
+      arrowUp(wrapper);
+      changeValue(wrapper, 'value3');
+      enter(wrapper);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value3');
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
     it('does commit last value if navigated back', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateChange(wrapper, 'value3');
-      simulateArrowUp(wrapper);
-      simulateArrowDown(wrapper);
-      simulateArrowDown(wrapper);
-      simulateArrowUp(wrapper);
-      simulateArrowDown(wrapper);
-      simulateArrowDown(wrapper);
+      changeValue(wrapper, 'value3');
+      arrowUp(wrapper);
+      arrowDown(wrapper);
+      arrowDown(wrapper);
+      arrowUp(wrapper);
+      arrowDown(wrapper);
+      arrowDown(wrapper);
 
       expect(wrapper.state('currentValue')).to.equal('value3');
     });
@@ -160,38 +160,38 @@ describe.only('<ShellInput />', () => {
     it('does not navigate back unless cursor is on first line', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateChange(wrapper, '1\n2\n3');
+      changeValue(wrapper, '1\n2\n3');
 
-      simulateArrowUp(wrapper, { target: { selectionStart: 4, selectionEnd: 4 } });
+      arrowUp(wrapper, { target: { selectionStart: 4, selectionEnd: 4 } });
       expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
 
-      simulateArrowUp(wrapper, { target: { selectionStart: 0, selectionEnd: 0 } });
+      arrowUp(wrapper, { target: { selectionStart: 0, selectionEnd: 0 } });
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
     it('does not navigate forward unless cursor is on last line', () => {
       const wrapper = shallow(<ShellInput initialHistory={['1\n2\n3']} />);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
 
-      simulateArrowDown(wrapper);
+      arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
 
-      simulateArrowDown(wrapper, { target: { selectionStart: 6, selectionEnd: 6 } });
+      arrowDown(wrapper, { target: { selectionStart: 6, selectionEnd: 6 } });
       expect(wrapper.state('currentValue')).to.equal('');
     });
 
     it('does not navigate back or forward if text is selected', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      simulateArrowUp(wrapper);
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      simulateArrowDown(wrapper, { target: { selectionStart: 1, selectionEnd: 3 } });
+      arrowDown(wrapper, { target: { selectionStart: 1, selectionEnd: 3 } });
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      simulateArrowUp(wrapper, {target: { selectionStart: 1, selectionEnd: 3 }});
+      arrowUp(wrapper, {target: { selectionStart: 1, selectionEnd: 3 }});
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
   });
