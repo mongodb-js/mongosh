@@ -16,7 +16,7 @@ describe.only('<ShellInput />', () => {
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
     wrapper.find('textarea').simulate('change', { target: { value: 'value' } });
-    wrapper.find('textarea').simulate('keyup', { key: 'Enter' });
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter', target: {} });
     expect(onInput).to.have.been.calledWith('value');
   });
 
@@ -25,14 +25,14 @@ describe.only('<ShellInput />', () => {
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
     wrapper.find('textarea').simulate('change', { target: { value: 'value' } });
-    wrapper.find('textarea').simulate('keyup', { key: 'Enter', shiftKey: true });
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter', target: {}, shiftKey: true });
     expect(onInput).to.not.have.been.called;
   });
 
   it('does not call onInput if the input is empty', () => {
     const onInput = sinon.spy();
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
-    wrapper.find('textarea').simulate('keyup', { key: 'Enter' });
+    wrapper.find('textarea').simulate('keyup', { key: 'Enter', target: {} });
     expect(onInput).to.not.have.been.called;
   });
 
@@ -51,10 +51,10 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
@@ -64,8 +64,8 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       wrapper.update();
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
@@ -76,9 +76,9 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
-      textarea.simulate('keydown', { key: 'ArrowUp' });
-      textarea.simulate('keydown', { key: 'ArrowDown' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
@@ -88,13 +88,13 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowDown' });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
       expect(wrapper.state('currentValue')).to.equal('');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
@@ -104,10 +104,10 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value2');
 
-      textarea.simulate('keydown', { key: 'ArrowDown' });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
       expect(wrapper.state('currentValue')).to.equal('');
     });
 
@@ -120,14 +120,14 @@ describe.only('<ShellInput />', () => {
 
       const textarea = wrapper.find('textarea');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       textarea.simulate('change', { target: { value: 'value3' } });
-      textarea.simulate('keyup', { key: 'Enter' });
+      textarea.simulate('keyup', { key: 'Enter', target: {} });
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value3');
 
-      textarea.simulate('keydown', { key: 'ArrowUp' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
@@ -138,13 +138,63 @@ describe.only('<ShellInput />', () => {
       const textarea = wrapper.find('textarea');
 
       textarea.simulate('change', { target: { value: 'value3' } });
-      textarea.simulate('keydown', { key: 'ArrowUp' });
-      textarea.simulate('keydown', { key: 'ArrowDown' });
-      textarea.simulate('keydown', { key: 'ArrowDown' });
-      textarea.simulate('keydown', { key: 'ArrowUp' });
-      textarea.simulate('keydown', { key: 'ArrowDown' });
-      textarea.simulate('keydown', { key: 'ArrowDown' });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {} });
       expect(wrapper.state('currentValue')).to.equal('value3');
+    });
+
+    it('does not navigate back unless cursor is on first line', () => {
+      const onInput = sinon.spy();
+      const wrapper = shallow(<ShellInput onInput={onInput} initialHistory={['value1', 'value2']} />);
+
+      const textarea = wrapper.find('textarea');
+
+      textarea.simulate('change', { target: { value: '1\n2\n3' } });
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {
+        value: wrapper.state('currentValue'), selectionStart: 4, selectionEnd: 4 } });
+      expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {
+        value: wrapper.state('currentValue'), selectionStart: 0, selectionEnd: 0 } });
+      expect(wrapper.state('currentValue')).to.equal('value2');
+    });
+
+    it('does not navigate forward unless cursor is on last line', () => {
+      const onInput = sinon.spy();
+      const wrapper = shallow(<ShellInput onInput={onInput} initialHistory={['1\n2\n3']} />);
+
+      const textarea = wrapper.find('textarea');
+
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
+
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {
+        selectionStart: 0, selectionEnd: 0, value: wrapper.state('currentValue') } });
+      expect(wrapper.state('currentValue')).to.equal('1\n2\n3');
+
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {
+        selectionStart: 6, selectionEnd: 6, value: wrapper.state('currentValue') } });
+      expect(wrapper.state('currentValue')).to.equal('');
+    });
+
+    it('does not navigate back or forward if text is selected', () => {
+      const onInput = sinon.spy();
+      const wrapper = shallow(<ShellInput onInput={onInput} initialHistory={['value1', 'value2']} />);
+
+      const textarea = wrapper.find('textarea');
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {} });
+      expect(wrapper.state('currentValue')).to.equal('value2');
+
+      textarea.simulate('keydown', { key: 'ArrowDown', target: {
+        selectionStart: 1, selectionEnd: 3, value: wrapper.state('currentValue') } });
+      expect(wrapper.state('currentValue')).to.equal('value2');
+
+      textarea.simulate('keydown', { key: 'ArrowUp', target: {
+        selectionStart: 1, selectionEnd: 3, value: wrapper.state('currentValue') } });
+      expect(wrapper.state('currentValue')).to.equal('value2');
     });
   });
 });

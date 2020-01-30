@@ -50,7 +50,13 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       return;
     }
 
-    if (this.historyIndex === this.history.length && !this.historyDirtyLastValue) {
+    if (this.historyIndex === this.history.length) {
+      // if already went up once and back down we have
+      // replace the last entry
+      if (this.historyDirtyLastValue) {
+        this.history.pop();
+      }
+
       this.historyDirtyLastValue = true;
       this.history.push(this.state.currentValue);
     }
@@ -99,11 +105,11 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   private onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
     this.preventDefaultEnterBehaviour(event);
 
-    if (event.key === 'ArrowUp') {
+    if (event.key === 'ArrowUp' && this.isCursorPositionFirstLine(event)) {
       return this.historyBack();
     }
 
-    if (event.key === 'ArrowDown') {
+    if (event.key === 'ArrowDown' && this.isCursorPositionLastLine(event)) {
       return this.historyNext();
     }
   }
@@ -118,12 +124,47 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     }
   }
 
+  private hasSelection = (event): boolean => {
+    const textarea = event.target;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    return selectionStart !== selectionEnd;
+  }
+
+  private isCursorPositionFirstLine = (event): boolean => {
+    if (this.hasSelection(event)) {
+      return false;
+    }
+
+    const textarea = event.target;
+    const selectionStart = textarea.selectionStart;
+    const value = textarea.value || '';
+    const currentLine = value.substr(0, selectionStart).split('\n').length - 1;
+    return currentLine === 0;
+  }
+
+  private isCursorPositionLastLine = (event): boolean => {
+    if (this.hasSelection(event)) {
+      return false;
+    }
+
+    const textarea = event.target;
+    const selectionStart = textarea.selectionStart;
+    const value = textarea.value || '';
+    const currentLine = value.substr(0, selectionStart).split('\n').length - 1;
+    const totalLines = value.split('\n').length - 1;
+
+    return currentLine === totalLines;
+  }
+
   render(): JSX.Element {
     return (<textarea
       style={{
         width: '100%',
         resize: 'none'
       }}
+      rows={5}
       value={this.state.currentValue}
       onChange={this.onChange}
       onKeyUp={this.onKeyUp}
