@@ -87,9 +87,10 @@ describe.only('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
-    it('navigates history backward up to first element', () => {
+    it('navigates history backward and stops on first element', () => {
       const wrapper = shallow(<ShellInput initialHistory={['value1']} />);
 
+      arrowUp(wrapper);
       arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
@@ -126,18 +127,31 @@ describe.only('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('');
     });
 
-    it('does not commit "dirty" last value', () => {
+    it('navigates forward back to current value after change', () => {
+      const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
+
+      arrowUp(wrapper);
+      expect(wrapper.state('currentValue')).to.equal('value2');
+
+      arrowDown(wrapper);
+      changeValue(wrapper, 'value3');
+
+      arrowUp(wrapper);
+      expect(wrapper.state('currentValue')).to.equal('value2');
+
+      arrowDown(wrapper);
+      expect(wrapper.state('currentValue')).to.equal('value3');
+    });
+
+    it('does not commit changed last value', () => {
       // This may happen if i change the input, navigate up and then submit that entry.
       // We do not want to submit the initially changed input.
 
       const wrapper = shallow(<ShellInput initialHistory={['value1', 'value2']} />);
 
-      arrowUp(wrapper);
       changeValue(wrapper, 'value3');
-      enter(wrapper);
-
       arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value3');
+      enter(wrapper);
 
       arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value2');
@@ -149,11 +163,9 @@ describe.only('<ShellInput />', () => {
       changeValue(wrapper, 'value3');
       arrowUp(wrapper);
       arrowDown(wrapper);
-      arrowDown(wrapper);
-      arrowUp(wrapper);
-      arrowDown(wrapper);
-      arrowDown(wrapper);
+      enter(wrapper);
 
+      arrowUp(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value3');
     });
 

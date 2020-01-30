@@ -50,12 +50,15 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       return;
     }
 
-    if (this.historyIndex === this.history.length) {
-      // if already went up once and back down we have
+    if (this.historyDirtyLastValue && this.historyIndex === this.history.length - 1) {
+      // if already went up once and back down we will
       // replace the last entry
-      if (this.historyDirtyLastValue) {
-        this.history.pop();
-      }
+      this.history.pop();
+    }
+
+    if (this.historyIndex === this.history.length) {
+      // if we are in the new line
+      // we save the entry in the history temporarily
 
       this.historyDirtyLastValue = true;
       this.history.push(this.state.currentValue);
@@ -140,10 +143,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       return false;
     }
 
-    const textarea = event.target;
-    const selectionStart = textarea.selectionStart;
-    const value = textarea.value || '';
-    const currentLine = value.substr(0, selectionStart).split('\n').length - 1;
+    const { currentLine } = this.getCursorLine(event);
     return currentLine === 0;
   }
 
@@ -152,13 +152,20 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       return false;
     }
 
-    const textarea = event.target;
+    const { currentLine, totalLines } = this.getCursorLine(event);
+    return currentLine === totalLines;
+  }
+
+  private getCursorLine(event: KeyboardEvent<HTMLTextAreaElement>): {
+    currentLine: number;
+    totalLines: number;
+  } {
+    const textarea = event.target as HTMLTextAreaElement;
     const selectionStart = textarea.selectionStart;
     const value = textarea.value || '';
     const currentLine = value.substr(0, selectionStart).split('\n').length - 1;
     const totalLines = value.split('\n').length - 1;
-
-    return currentLine === totalLines;
+    return { currentLine, totalLines };
   }
 
   render(): JSX.Element {
