@@ -4,6 +4,7 @@ import { compile } from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
+import changeHistory from './history';
 import Mapper from 'mongosh-mapper';
 import completer from './completer';
 import { Transform } from 'stream';
@@ -171,6 +172,14 @@ class CliRepl {
     this.repl.setupHistory(historyFile, function(err, repl) {
       // TODO: @lrlna format this error
       if (err) console.log(err);
+
+      // repl.history is an array of previous commands. We need to hijack the
+      // value we just typed, and shift it off the history array if the info is
+      // sensitive.
+      repl.on('flushHistory', function() {
+        // @ts-ignore
+        changeHistory(repl.history, false);
+      })
     })
 
     this.repl.on('exit', () => {
