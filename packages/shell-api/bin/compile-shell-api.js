@@ -28,8 +28,8 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    return `${lhs} = () => (i18n.__apiHelp('${attr}'));
-${lhs}.toReplString = () => (i18n.__apiHelp('${attr}'));`
+    return `${lhs} = () => (i18n.translateApiHelp('${attr}'));
+${lhs}.toReplString = () => (i18n.translateApiHelp('${attr}'));`
   }
 
   return `${lhs} = ${JSON.stringify(attr)};`;
@@ -163,7 +163,7 @@ const loadAll = () => {
 
   fs.writeFileSync(
     path.join(__dirname, '..', 'src', 'shell-types.js'),
-    `${types.join(';\n')};\nexport {\n  ${typeConsts.join(',\n  ')}\n};`
+    `${types.join(';\n')};\nexport default {\n  ${typeConsts.join(',\n  ')}\n};`
   );
 };
 
