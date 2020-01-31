@@ -22,9 +22,12 @@
     "@babel/parser": "^7.8.3",
     "@babel/runtime": "^7.8.3",
     "@babel/template": "^7.8.3",
+    "ace-builds": "^1.4.8",
     "browser-util-inspect": "^0.2.0",
+    "mongodb-ace-theme": "^0.0.1",
+    "mongosh-mapper": "file:../mapper",
     "mongosh-shell-api": "file:../shell-api",
-    "mongosh-mapper": "file:../mapper"
+    "react-ace": "^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
