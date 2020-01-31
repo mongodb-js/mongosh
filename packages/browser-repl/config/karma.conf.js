@@ -11,6 +11,9 @@ module.exports = (config) => {
       require('karma-webpack')
     ],
     webpack: webpackConfigTest,
+    webpackMiddleware: {
+      logLevel: 'silent'
+    },
     frameworks: [
       'mocha'
     ],
