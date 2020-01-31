@@ -2,14 +2,14 @@
   "name": "mongosh-shell-api",
   "version": "0.0.0",
   "description": "MongoDB Shell API Package",
-  "main": "lib/shell-api.js",
-  "types": "lib/shell-api.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "compile-api": "node bin/compile-shell-api.js",
     "precompile-ts": "npm run compile-api",
     "compile-ts": "tsc -p tsconfig.json",
-    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.js\"",
+    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.js\"",
     "prepublish": "npm run compile-ts"
   },
   "precommit": [

@@ -1,4 +1,7 @@
-{
+/**
+ * US english translations.
+ */
+const translations = {
   "browser-repl": {
 
   },
@@ -96,7 +99,7 @@
               }
             }
           },
-          "returns": "Returns: A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor."
+          "returns": "A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor."
         },
         "bulk-write": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.bulkWrite",
@@ -395,7 +398,7 @@
             },
             "options": {
               "type": "document",
-              "description": ""
+              "description": "",
               "values": {
                 "projection": {
                   "type": "document",
@@ -433,7 +436,7 @@
             },
             "options": {
               "type": "document",
-              "description": ""
+              "description": "",
               "values": {
                 "projection": {
                   "type": "document",
@@ -479,7 +482,7 @@
             },
             "options": {
               "type": "document",
-              "description": ""
+              "description": "",
               "values": {
                 "projection": {
                   "type": "document",
@@ -595,7 +598,7 @@
           "parameters": {},
           "returns": "Returns true if the collection is a capped collection, otherwise returns false."
         },
-        "remove":
+        "remove": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.remove",
           "description": "Removes documents from a collection.",
           "example": "db.collection.remove(query, options)",
@@ -662,7 +665,7 @@
             },
             "options": {
               "type": "document",
-              "description": ""
+              "description": "",
               "values": {
                 "upsert": {
                   "type": "boolean",
@@ -887,4 +890,6 @@
   "transport-server": {
 
   }
-}
+};
+
+export default translations;

@@ -9,13 +9,13 @@ class AggregationCursor {
     this.toReplString = () => {
       return this._mapper.it();
     };
-    this.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.description'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.description'));
+    this.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.description'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.description'));
     this.bsonsize = function() {
       return this._cursor.bsonsize(...arguments);
     };
-    this.bsonsize.help = () => (i18n.__apiHelp('!! No help defined for this method'));
-    this.bsonsize.help.toReplString = () => (i18n.__apiHelp('!! No help defined for this method'));
+    this.bsonsize.help = () => (i18n.translateApiHelp('!! No help defined for this method'));
+    this.bsonsize.help.toReplString = () => (i18n.translateApiHelp('!! No help defined for this method'));
     this.bsonsize.serverVersions = [0,4.4];
     this.bsonsize.topologies = [0,1,2];
     this.bsonsize.returnsPromise = false;
@@ -23,8 +23,8 @@ class AggregationCursor {
     this.close = function() {
       return this._cursor.close(...arguments);
     };
-    this.close.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.close'));
-    this.close.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.close'));
+    this.close.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.close'));
+    this.close.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.close'));
     this.close.serverVersions = [0,4.4];
     this.close.topologies = [0,1,2];
     this.close.returnsPromise = false;
@@ -32,8 +32,8 @@ class AggregationCursor {
     this.forEach = function() {
       return this._cursor.forEach(...arguments);
     };
-    this.forEach.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.for-each'));
-    this.forEach.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.for-each'));
+    this.forEach.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.for-each'));
+    this.forEach.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.for-each'));
     this.forEach.serverVersions = [0,4.4];
     this.forEach.topologies = [0,1,2];
     this.forEach.returnsPromise = false;
@@ -41,8 +41,8 @@ class AggregationCursor {
     this.hasNext = function() {
       return this._cursor.hasNext(...arguments);
     };
-    this.hasNext.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.has-next'));
-    this.hasNext.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.has-next'));
+    this.hasNext.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.has-next'));
+    this.hasNext.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.has-next'));
     this.hasNext.serverVersions = [0,4.4];
     this.hasNext.topologies = [0,1,2];
     this.hasNext.returnsPromise = false;
@@ -50,8 +50,8 @@ class AggregationCursor {
     this.isClosed = function() {
       return this._cursor.isClosed(...arguments);
     };
-    this.isClosed.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.is-closed'));
-    this.isClosed.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.is-closed'));
+    this.isClosed.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.is-closed'));
+    this.isClosed.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.is-closed'));
     this.isClosed.serverVersions = [0,4.4];
     this.isClosed.topologies = [0,1,2];
     this.isClosed.returnsPromise = false;
@@ -59,8 +59,8 @@ class AggregationCursor {
     this.isExhausted = function() {
       return this._cursor.isExhausted(...arguments);
     };
-    this.isExhausted.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.is-exhausted'));
-    this.isExhausted.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.is-exhausted'));
+    this.isExhausted.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.is-exhausted'));
+    this.isExhausted.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.is-exhausted'));
     this.isExhausted.serverVersions = [0,4.4];
     this.isExhausted.topologies = [0,1,2];
     this.isExhausted.returnsPromise = false;
@@ -68,8 +68,8 @@ class AggregationCursor {
     this.itcount = function() {
       return this._cursor.itcount(...arguments);
     };
-    this.itcount.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.itcount'));
-    this.itcount.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.itcount'));
+    this.itcount.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.itcount'));
+    this.itcount.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.itcount'));
     this.itcount.serverVersions = [0,4.4];
     this.itcount.topologies = [0,1,2];
     this.itcount.returnsPromise = false;
@@ -77,8 +77,8 @@ class AggregationCursor {
     this.map = function() {
       return this._cursor.map(...arguments);
     };
-    this.map.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.map'));
-    this.map.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.map'));
+    this.map.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.map'));
+    this.map.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.map'));
     this.map.serverVersions = [0,4.4];
     this.map.topologies = [0,1,2];
     this.map.returnsPromise = false;
@@ -86,8 +86,8 @@ class AggregationCursor {
     this.next = function() {
       return this._cursor.next(...arguments);
     };
-    this.next.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.next'));
-    this.next.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.next'));
+    this.next.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.next'));
+    this.next.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.next'));
     this.next.serverVersions = [0,4.4];
     this.next.topologies = [0,1,2];
     this.next.returnsPromise = false;
@@ -95,8 +95,8 @@ class AggregationCursor {
     this.objsLeftInBatch = function() {
       return this._cursor.objsLeftInBatch(...arguments);
     };
-    this.objsLeftInBatch.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.objs-left-in-batch'));
-    this.objsLeftInBatch.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.objs-left-in-batch'));
+    this.objsLeftInBatch.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.objs-left-in-batch'));
+    this.objsLeftInBatch.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.objs-left-in-batch'));
     this.objsLeftInBatch.serverVersions = [0,4.4];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.objsLeftInBatch.returnsPromise = false;
@@ -104,8 +104,8 @@ class AggregationCursor {
     this.toArray = function() {
       return this._cursor.toArray(...arguments);
     };
-    this.toArray.help = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.to-array'));
-    this.toArray.help.toReplString = () => (i18n.__apiHelp('shell-api.aggregation-cursor.help.to-array'));
+    this.toArray.help = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.to-array'));
+    this.toArray.help.toReplString = () => (i18n.translateApiHelp('shell-api.aggregation-cursor.help.to-array'));
     this.toArray.serverVersions = [0,4.4];
     this.toArray.topologies = [0,1,2];
     this.toArray.returnsPromise = false;
@@ -126,8 +126,8 @@ class BulkWriteResult {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('shell-api.bulk-write-result.description'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.bulk-write-result.description'));
+    this.help = () => (i18n.translateApiHelp('shell-api.bulk-write-result.description'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.bulk-write-result.description'));
   }
 }
 class Collection {
@@ -139,13 +139,13 @@ class Collection {
     this.toReplString = () => {
       return this._collection;
     };
-    this.help = () => (i18n.__apiHelp('The collection class.'));
-    this.help.toReplString = () => (i18n.__apiHelp('The collection class.'));
+    this.help = () => (i18n.translateApiHelp('The collection class.'));
+    this.help.toReplString = () => (i18n.translateApiHelp('The collection class.'));
     this.aggregate = function() {
       return this._mapper.aggregate(this, ...arguments);
     };
-    this.aggregate.help = () => (i18n.__apiHelp('shell-api.collection.help.aggregate'));
-    this.aggregate.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.aggregate'));
+    this.aggregate.help = () => (i18n.translateApiHelp('shell-api.collection.help.aggregate'));
+    this.aggregate.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.aggregate'));
     this.aggregate.serverVersions = [0,4.4];
     this.aggregate.topologies = [0,1,2];
     this.aggregate.returnsPromise = false;
@@ -153,8 +153,8 @@ class Collection {
     this.bulkWrite = function() {
       return this._mapper.bulkWrite(this, ...arguments);
     };
-    this.bulkWrite.help = () => (i18n.__apiHelp('shell-api.collection.help.bulk-write'));
-    this.bulkWrite.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.bulk-write'));
+    this.bulkWrite.help = () => (i18n.translateApiHelp('shell-api.collection.help.bulk-write'));
+    this.bulkWrite.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.bulk-write'));
     this.bulkWrite.serverVersions = [3.2,4.4];
     this.bulkWrite.topologies = [0,1,2];
     this.bulkWrite.returnsPromise = true;
@@ -162,8 +162,8 @@ class Collection {
     this.countDocuments = function() {
       return this._mapper.countDocuments(this, ...arguments);
     };
-    this.countDocuments.help = () => (i18n.__apiHelp('shell-api.collection.help.count-documents'));
-    this.countDocuments.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.count-documents'));
+    this.countDocuments.help = () => (i18n.translateApiHelp('shell-api.collection.help.count-documents'));
+    this.countDocuments.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.count-documents'));
     this.countDocuments.serverVersions = ["4.0.3",4.4];
     this.countDocuments.topologies = [0,1,2];
     this.countDocuments.returnsPromise = true;
@@ -171,8 +171,8 @@ class Collection {
     this.count = function() {
       return this._mapper.count(this, ...arguments);
     };
-    this.count.help = () => (i18n.__apiHelp('shell-api.collection.help.count'));
-    this.count.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.count'));
+    this.count.help = () => (i18n.translateApiHelp('shell-api.collection.help.count'));
+    this.count.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.count'));
     this.count.serverVersions = [0,4.4];
     this.count.topologies = [0,1,2];
     this.count.returnsPromise = true;
@@ -180,8 +180,8 @@ class Collection {
     this.deleteMany = function() {
       return this._mapper.deleteMany(this, ...arguments);
     };
-    this.deleteMany.help = () => (i18n.__apiHelp('shell-api.collection.help.delete-many'));
-    this.deleteMany.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.delete-many'));
+    this.deleteMany.help = () => (i18n.translateApiHelp('shell-api.collection.help.delete-many'));
+    this.deleteMany.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.delete-many'));
     this.deleteMany.serverVersions = [0,4.4];
     this.deleteMany.topologies = [0,1,2];
     this.deleteMany.returnsPromise = true;
@@ -189,8 +189,8 @@ class Collection {
     this.deleteOne = function() {
       return this._mapper.deleteOne(this, ...arguments);
     };
-    this.deleteOne.help = () => (i18n.__apiHelp('shell-api.collection.help.delete-one'));
-    this.deleteOne.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.delete-one'));
+    this.deleteOne.help = () => (i18n.translateApiHelp('shell-api.collection.help.delete-one'));
+    this.deleteOne.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.delete-one'));
     this.deleteOne.serverVersions = [0,4.4];
     this.deleteOne.topologies = [0,1,2];
     this.deleteOne.returnsPromise = true;
@@ -198,8 +198,8 @@ class Collection {
     this.distinct = function() {
       return this._mapper.distinct(this, ...arguments);
     };
-    this.distinct.help = () => (i18n.__apiHelp('shell-api.collection.help.distinct'));
-    this.distinct.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.distinct'));
+    this.distinct.help = () => (i18n.translateApiHelp('shell-api.collection.help.distinct'));
+    this.distinct.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.distinct'));
     this.distinct.serverVersions = [0,4.4];
     this.distinct.topologies = [0,1,2];
     this.distinct.returnsPromise = false;
@@ -207,8 +207,8 @@ class Collection {
     this.estimatedDocumentCount = function() {
       return this._mapper.estimatedDocumentCount(this, ...arguments);
     };
-    this.estimatedDocumentCount.help = () => (i18n.__apiHelp('shell-api.collection.help.estimated-document-count'));
-    this.estimatedDocumentCount.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.estimated-document-count'));
+    this.estimatedDocumentCount.help = () => (i18n.translateApiHelp('shell-api.collection.help.estimated-document-count'));
+    this.estimatedDocumentCount.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.estimated-document-count'));
     this.estimatedDocumentCount.serverVersions = ["4.0.3",4.4];
     this.estimatedDocumentCount.topologies = [0,1,2];
     this.estimatedDocumentCount.returnsPromise = true;
@@ -216,8 +216,8 @@ class Collection {
     this.find = function() {
       return this._mapper.find(this, ...arguments);
     };
-    this.find.help = () => (i18n.__apiHelp('shell-api.collection.help.find'));
-    this.find.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.find'));
+    this.find.help = () => (i18n.translateApiHelp('shell-api.collection.help.find'));
+    this.find.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.find'));
     this.find.serverVersions = [0,4.4];
     this.find.topologies = [0,1,2];
     this.find.returnsPromise = false;
@@ -225,8 +225,8 @@ class Collection {
     this.findAndModify = function() {
       return this._mapper.findAndModify(this, ...arguments);
     };
-    this.findAndModify.help = () => (i18n.__apiHelp('shell-api.collection.help.find-and-modify'));
-    this.findAndModify.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.find-and-modify'));
+    this.findAndModify.help = () => (i18n.translateApiHelp('shell-api.collection.help.find-and-modify'));
+    this.findAndModify.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.find-and-modify'));
     this.findAndModify.serverVersions = [0,4.4];
     this.findAndModify.topologies = [0,1,2];
     this.findAndModify.returnsPromise = false;
@@ -234,8 +234,8 @@ class Collection {
     this.findOne = function() {
       return this._mapper.findOne(this, ...arguments);
     };
-    this.findOne.help = () => (i18n.__apiHelp('shell-api.collection.help.find-one'));
-    this.findOne.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.find-one'));
+    this.findOne.help = () => (i18n.translateApiHelp('shell-api.collection.help.find-one'));
+    this.findOne.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.find-one'));
     this.findOne.serverVersions = [0,4.4];
     this.findOne.topologies = [0,1,2];
     this.findOne.returnsPromise = false;
@@ -243,8 +243,8 @@ class Collection {
     this.findOneAndDelete = function() {
       return this._mapper.findOneAndDelete(this, ...arguments);
     };
-    this.findOneAndDelete.help = () => (i18n.__apiHelp('shell-api.collection.help.find-one-and-delete'));
-    this.findOneAndDelete.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.find-one-and-delete'));
+    this.findOneAndDelete.help = () => (i18n.translateApiHelp('shell-api.collection.help.find-one-and-delete'));
+    this.findOneAndDelete.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.find-one-and-delete'));
     this.findOneAndDelete.serverVersions = [3.2,4.4];
     this.findOneAndDelete.topologies = [0,1,2];
     this.findOneAndDelete.returnsPromise = true;
@@ -252,8 +252,8 @@ class Collection {
     this.findOneAndReplace = function() {
       return this._mapper.findOneAndReplace(this, ...arguments);
     };
-    this.findOneAndReplace.help = () => (i18n.__apiHelp('shell-api.collection.help.find-one-and-replace'));
-    this.findOneAndReplace.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.find-one-and-replace'));
+    this.findOneAndReplace.help = () => (i18n.translateApiHelp('shell-api.collection.help.find-one-and-replace'));
+    this.findOneAndReplace.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.find-one-and-replace'));
     this.findOneAndReplace.serverVersions = [3.2,4.4];
     this.findOneAndReplace.topologies = [0,1,2];
     this.findOneAndReplace.returnsPromise = true;
@@ -261,8 +261,8 @@ class Collection {
     this.findOneAndUpdate = function() {
       return this._mapper.findOneAndUpdate(this, ...arguments);
     };
-    this.findOneAndUpdate.help = () => (i18n.__apiHelp('shell-api-collection.help.find-one-and-update'));
-    this.findOneAndUpdate.help.toReplString = () => (i18n.__apiHelp('shell-api-collection.help.find-one-and-update'));
+    this.findOneAndUpdate.help = () => (i18n.translateApiHelp('shell-api-collection.help.find-one-and-update'));
+    this.findOneAndUpdate.help.toReplString = () => (i18n.translateApiHelp('shell-api-collection.help.find-one-and-update'));
     this.findOneAndUpdate.serverVersions = [3.2,4.4];
     this.findOneAndUpdate.topologies = [0,1,2];
     this.findOneAndUpdate.returnsPromise = true;
@@ -270,8 +270,8 @@ class Collection {
     this.insert = function() {
       return this._mapper.insert(this, ...arguments);
     };
-    this.insert.help = () => (i18n.__apiHelp('shell-api.collection.help.insert'));
-    this.insert.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.insert'));
+    this.insert.help = () => (i18n.translateApiHelp('shell-api.collection.help.insert'));
+    this.insert.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.insert'));
     this.insert.serverVersions = [0,4.4];
     this.insert.topologies = [0,1,2];
     this.insert.returnsPromise = true;
@@ -279,8 +279,8 @@ class Collection {
     this.insertMany = function() {
       return this._mapper.insertMany(this, ...arguments);
     };
-    this.insertMany.help = () => (i18n.__apiHelp('shell-api.collection.help.insert-many'));
-    this.insertMany.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.insert-many'));
+    this.insertMany.help = () => (i18n.translateApiHelp('shell-api.collection.help.insert-many'));
+    this.insertMany.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.insert-many'));
     this.insertMany.serverVersions = [3.2,4.4];
     this.insertMany.topologies = [0,1,2];
     this.insertMany.returnsPromise = true;
@@ -288,8 +288,8 @@ class Collection {
     this.insertOne = function() {
       return this._mapper.insertOne(this, ...arguments);
     };
-    this.insertOne.help = () => (i18n.__apiHelp('shell-api.collection.help.insert-one'));
-    this.insertOne.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.insert-one'));
+    this.insertOne.help = () => (i18n.translateApiHelp('shell-api.collection.help.insert-one'));
+    this.insertOne.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.insert-one'));
     this.insertOne.serverVersions = [3.2,4.4];
     this.insertOne.topologies = [0,1,2];
     this.insertOne.returnsPromise = true;
@@ -297,8 +297,8 @@ class Collection {
     this.isCapped = function() {
       return this._mapper.isCapped(this, ...arguments);
     };
-    this.isCapped.help = () => (i18n.__apiHelp('shell-api.collection.help.is-capped'));
-    this.isCapped.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.is-capped'));
+    this.isCapped.help = () => (i18n.translateApiHelp('shell-api.collection.help.is-capped'));
+    this.isCapped.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.is-capped'));
     this.isCapped.serverVersions = [0,4.4];
     this.isCapped.topologies = [0,1,2];
     this.isCapped.returnsPromise = true;
@@ -306,8 +306,8 @@ class Collection {
     this.remove = function() {
       return this._mapper.remove(this, ...arguments);
     };
-    this.remove.help = () => (i18n.__apiHelp('shell-api.collection.help.remove'));
-    this.remove.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.remove'));
+    this.remove.help = () => (i18n.translateApiHelp('shell-api.collection.help.remove'));
+    this.remove.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.remove'));
     this.remove.serverVersions = [0,4.4];
     this.remove.topologies = [0,1,2];
     this.remove.returnsPromise = true;
@@ -315,8 +315,8 @@ class Collection {
     this.save = function() {
       return this._mapper.save(this, ...arguments);
     };
-    this.save.help = () => (i18n.__apiHelp('shell-api.collection.help.save'));
-    this.save.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.save'));
+    this.save.help = () => (i18n.translateApiHelp('shell-api.collection.help.save'));
+    this.save.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.save'));
     this.save.serverVersions = [0,4.4];
     this.save.topologies = [0,1,2];
     this.save.returnsPromise = true;
@@ -324,8 +324,8 @@ class Collection {
     this.replaceOne = function() {
       return this._mapper.replaceOne(this, ...arguments);
     };
-    this.replaceOne.help = () => (i18n.__apiHelp('shell-api.collection.help.replace-one'));
-    this.replaceOne.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.replace-one'));
+    this.replaceOne.help = () => (i18n.translateApiHelp('shell-api.collection.help.replace-one'));
+    this.replaceOne.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.replace-one'));
     this.replaceOne.serverVersions = [3.2,4.4];
     this.replaceOne.topologies = [0,1,2];
     this.replaceOne.returnsPromise = true;
@@ -333,8 +333,8 @@ class Collection {
     this.update = function() {
       return this._mapper.update(this, ...arguments);
     };
-    this.update.help = () => (i18n.__apiHelp('shell-api.collection.help.update'));
-    this.update.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.update'));
+    this.update.help = () => (i18n.translateApiHelp('shell-api.collection.help.update'));
+    this.update.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.update'));
     this.update.serverVersions = [0,4.4];
     this.update.topologies = [0,1,2];
     this.update.returnsPromise = true;
@@ -342,8 +342,8 @@ class Collection {
     this.updateMany = function() {
       return this._mapper.updateMany(this, ...arguments);
     };
-    this.updateMany.help = () => (i18n.__apiHelp('shell-api.collection.help.update-many'));
-    this.updateMany.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.update-many'));
+    this.updateMany.help = () => (i18n.translateApiHelp('shell-api.collection.help.update-many'));
+    this.updateMany.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.update-many'));
     this.updateMany.serverVersions = [3.2,4.4];
     this.updateMany.topologies = [0,1,2];
     this.updateMany.returnsPromise = true;
@@ -351,8 +351,8 @@ class Collection {
     this.updateOne = function() {
       return this._mapper.updateOne(this, ...arguments);
     };
-    this.updateOne.help = () => (i18n.__apiHelp('shell-api.collection.help.update-one'));
-    this.updateOne.help.toReplString = () => (i18n.__apiHelp('shell-api.collection.help.update-one'));
+    this.updateOne.help = () => (i18n.translateApiHelp('shell-api.collection.help.update-one'));
+    this.updateOne.help.toReplString = () => (i18n.translateApiHelp('shell-api.collection.help.update-one'));
     this.updateOne.serverVersions = [3.2,4.4];
     this.updateOne.topologies = [0,1,2];
     this.updateOne.returnsPromise = true;
@@ -367,13 +367,13 @@ class Cursor {
     this.toReplString = () => {
       return this._mapper.it();
     };
-    this.help = () => (i18n.__apiHelp(''));
-    this.help.toReplString = () => (i18n.__apiHelp(''));
+    this.help = () => (i18n.translateApiHelp(''));
+    this.help.toReplString = () => (i18n.translateApiHelp(''));
     this.addOption = function() {
       return this._cursor.addOption(...arguments);
     };
-    this.addOption.help = () => (i18n.__apiHelp('shell-api.cursor.help.add-option'));
-    this.addOption.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.add-option'));
+    this.addOption.help = () => (i18n.translateApiHelp('shell-api.cursor.help.add-option'));
+    this.addOption.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.add-option'));
     this.addOption.serverVersions = [0,3.2];
     this.addOption.topologies = [0,1,2];
     this.addOption.returnsPromise = false;
@@ -381,8 +381,8 @@ class Cursor {
     this.allowPartialResults = function() {
       return this._cursor.allowPartialResults(...arguments);
     };
-    this.allowPartialResults.help = () => (i18n.__apiHelp('shell-api.cursor.help.allow-partial-results'));
-    this.allowPartialResults.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.allow-partial-results'));
+    this.allowPartialResults.help = () => (i18n.translateApiHelp('shell-api.cursor.help.allow-partial-results'));
+    this.allowPartialResults.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.allow-partial-results'));
     this.allowPartialResults.serverVersions = [0,4.4];
     this.allowPartialResults.topologies = [0,1,2];
     this.allowPartialResults.returnsPromise = false;
@@ -390,8 +390,8 @@ class Cursor {
     this.arrayAccess = function() {
       return this._cursor.arrayAccess(...arguments);
     };
-    this.arrayAccess.help = () => (i18n.__apiHelp('!! No help defined for this method'));
-    this.arrayAccess.help.toReplString = () => (i18n.__apiHelp('!! No help defined for this method'));
+    this.arrayAccess.help = () => (i18n.translateApiHelp('!! No help defined for this method'));
+    this.arrayAccess.help.toReplString = () => (i18n.translateApiHelp('!! No help defined for this method'));
     this.arrayAccess.serverVersions = [0,4.4];
     this.arrayAccess.topologies = [0,1,2];
     this.arrayAccess.returnsPromise = false;
@@ -399,8 +399,8 @@ class Cursor {
     this.batchSize = function() {
       return this._cursor.batchSize(...arguments);
     };
-    this.batchSize.help = () => (i18n.__apiHelp('shell-api.cursor.help.batch-size'));
-    this.batchSize.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.batch-size'));
+    this.batchSize.help = () => (i18n.translateApiHelp('shell-api.cursor.help.batch-size'));
+    this.batchSize.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.batch-size'));
     this.batchSize.serverVersions = [0,4.4];
     this.batchSize.topologies = [0,1,2];
     this.batchSize.returnsPromise = false;
@@ -408,8 +408,8 @@ class Cursor {
     this.clone = function() {
       return this._cursor.clone(...arguments);
     };
-    this.clone.help = () => (i18n.__apiHelp('shell-api.cursor.help.clone'));
-    this.clone.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.clone'));
+    this.clone.help = () => (i18n.translateApiHelp('shell-api.cursor.help.clone'));
+    this.clone.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.clone'));
     this.clone.serverVersions = [0,4.4];
     this.clone.topologies = [0,1,2];
     this.clone.returnsPromise = false;
@@ -417,8 +417,8 @@ class Cursor {
     this.close = function() {
       return this._cursor.close(...arguments);
     };
-    this.close.help = () => (i18n.__apiHelp('shell-api.cursor.help.close'));
-    this.close.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.close'));
+    this.close.help = () => (i18n.translateApiHelp('shell-api.cursor.help.close'));
+    this.close.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.close'));
     this.close.serverVersions = [0,4.4];
     this.close.topologies = [0,1,2];
     this.close.returnsPromise = false;
@@ -426,8 +426,8 @@ class Cursor {
     this.collation = function() {
       return this._cursor.collation(...arguments);
     };
-    this.collation.help = () => (i18n.__apiHelp('shell-api.cursor.help.collation'));
-    this.collation.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.collation'));
+    this.collation.help = () => (i18n.translateApiHelp('shell-api.cursor.help.collation'));
+    this.collation.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.collation'));
     this.collation.serverVersions = [3.4,4.4];
     this.collation.topologies = [0,1,2];
     this.collation.returnsPromise = false;
@@ -435,8 +435,8 @@ class Cursor {
     this.comment = function() {
       return this._cursor.comment(...arguments);
     };
-    this.comment.help = () => (i18n.__apiHelp('shell-api.cursor.help.comment'));
-    this.comment.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.comment'));
+    this.comment.help = () => (i18n.translateApiHelp('shell-api.cursor.help.comment'));
+    this.comment.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.comment'));
     this.comment.serverVersions = [3.2,4.4];
     this.comment.topologies = [0,1,2];
     this.comment.returnsPromise = false;
@@ -444,8 +444,8 @@ class Cursor {
     this.count = function() {
       return this._cursor.count(...arguments);
     };
-    this.count.help = () => (i18n.__apiHelp('shell-api.cursor.help.count'));
-    this.count.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.count'));
+    this.count.help = () => (i18n.translateApiHelp('shell-api.cursor.help.count'));
+    this.count.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.count'));
     this.count.serverVersions = [0,4.4];
     this.count.topologies = [0,1,2];
     this.count.returnsPromise = false;
@@ -454,8 +454,8 @@ class Cursor {
     this.explain = function() {
       return this._cursor.explain(...arguments);
     };
-    this.explain.help = () => (i18n.__apiHelp('shell-api.cursor.help.explain'));
-    this.explain.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.explain'));
+    this.explain.help = () => (i18n.translateApiHelp('shell-api.cursor.help.explain'));
+    this.explain.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.explain'));
     this.explain.serverVersions = [0,4.4];
     this.explain.topologies = [0,1,2];
     this.explain.returnsPromise = false;
@@ -463,8 +463,8 @@ class Cursor {
     this.forEach = function() {
       return this._cursor.forEach(...arguments);
     };
-    this.forEach.help = () => (i18n.__apiHelp('shell-api.cursor.help.for-each'));
-    this.forEach.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.for-each'));
+    this.forEach.help = () => (i18n.translateApiHelp('shell-api.cursor.help.for-each'));
+    this.forEach.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.for-each'));
     this.forEach.serverVersions = [0,4.4];
     this.forEach.topologies = [0,1,2];
     this.forEach.returnsPromise = false;
@@ -472,8 +472,8 @@ class Cursor {
     this.getQueryPlan = function() {
       return this._cursor.getQueryPlan(...arguments);
     };
-    this.getQueryPlan.help = () => (i18n.__apiHelp('shell-api.cursor.help.get-query-plan'));
-    this.getQueryPlan.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.get-query-plan'));
+    this.getQueryPlan.help = () => (i18n.translateApiHelp('shell-api.cursor.help.get-query-plan'));
+    this.getQueryPlan.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.get-query-plan'));
     this.getQueryPlan.serverVersions = [0,4.4];
     this.getQueryPlan.topologies = [0,1,2];
     this.getQueryPlan.returnsPromise = false;
@@ -481,8 +481,8 @@ class Cursor {
     this.hasNext = function() {
       return this._cursor.hasNext(...arguments);
     };
-    this.hasNext.help = () => (i18n.__apiHelp('shell-api.cursor.help.has-next'));
-    this.hasNext.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.has-next'));
+    this.hasNext.help = () => (i18n.translateApiHelp('shell-api.cursor.help.has-next'));
+    this.hasNext.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.has-next'));
     this.hasNext.serverVersions = [0,4.4];
     this.hasNext.topologies = [0,1,2];
     this.hasNext.returnsPromise = false;
@@ -490,8 +490,8 @@ class Cursor {
     this.hint = function() {
       return this._cursor.hint(...arguments);
     };
-    this.hint.help = () => (i18n.__apiHelp('shell-api.cursor.help.hint'));
-    this.hint.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.hint'));
+    this.hint.help = () => (i18n.translateApiHelp('shell-api.cursor.help.hint'));
+    this.hint.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.hint'));
     this.hint.serverVersions = [0,4.4];
     this.hint.topologies = [0,1,2];
     this.hint.returnsPromise = false;
@@ -499,8 +499,8 @@ class Cursor {
     this.isClosed = function() {
       return this._cursor.isClosed(...arguments);
     };
-    this.isClosed.help = () => (i18n.__apiHelp('shell-api.cursor.help.is-closed'));
-    this.isClosed.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.is-closed'));
+    this.isClosed.help = () => (i18n.translateApiHelp('shell-api.cursor.help.is-closed'));
+    this.isClosed.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.is-closed'));
     this.isClosed.serverVersions = [0,4.4];
     this.isClosed.topologies = [0,1,2];
     this.isClosed.returnsPromise = false;
@@ -508,8 +508,8 @@ class Cursor {
     this.isExhausted = function() {
       return this._cursor.isExhausted(...arguments);
     };
-    this.isExhausted.help = () => (i18n.__apiHelp('shell-api.cursor.help.is-exhausted'));
-    this.isExhausted.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.is-exhausted'));
+    this.isExhausted.help = () => (i18n.translateApiHelp('shell-api.cursor.help.is-exhausted'));
+    this.isExhausted.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.is-exhausted'));
     this.isExhausted.serverVersions = [0,4.4];
     this.isExhausted.topologies = [0,1,2];
     this.isExhausted.returnsPromise = false;
@@ -517,8 +517,8 @@ class Cursor {
     this.itcount = function() {
       return this._cursor.itcount(...arguments);
     };
-    this.itcount.help = () => (i18n.__apiHelp('shell-api.cursor.help.itcount'));
-    this.itcount.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.itcount'));
+    this.itcount.help = () => (i18n.translateApiHelp('shell-api.cursor.help.itcount'));
+    this.itcount.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.itcount'));
     this.itcount.serverVersions = [0,4.4];
     this.itcount.topologies = [0,1,2];
     this.itcount.returnsPromise = false;
@@ -526,8 +526,8 @@ class Cursor {
     this.length = function() {
       return this._cursor.length(...arguments);
     };
-    this.length.help = () => (i18n.__apiHelp('shell-api.cursor.help.length'));
-    this.length.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.length'));
+    this.length.help = () => (i18n.translateApiHelp('shell-api.cursor.help.length'));
+    this.length.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.length'));
     this.length.serverVersions = [0,4.4];
     this.length.topologies = [0,1,2];
     this.length.returnsPromise = false;
@@ -535,8 +535,8 @@ class Cursor {
     this.limit = function() {
       return this._cursor.limit(...arguments);
     };
-    this.limit.help = () => (i18n.__apiHelp('shell-api.cursor.help.limit'));
-    this.limit.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.limit'));
+    this.limit.help = () => (i18n.translateApiHelp('shell-api.cursor.help.limit'));
+    this.limit.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.limit'));
     this.limit.serverVersions = [0,4.4];
     this.limit.topologies = [0,1,2];
     this.limit.returnsPromise = false;
@@ -544,8 +544,8 @@ class Cursor {
     this.map = function() {
       return this._cursor.map(...arguments);
     };
-    this.map.help = () => (i18n.__apiHelp('shell-api.cursor.help.map'));
-    this.map.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.map'));
+    this.map.help = () => (i18n.translateApiHelp('shell-api.cursor.help.map'));
+    this.map.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.map'));
     this.map.serverVersions = [0,4.4];
     this.map.topologies = [0,1,2];
     this.map.returnsPromise = false;
@@ -553,8 +553,8 @@ class Cursor {
     this.max = function() {
       return this._cursor.max(...arguments);
     };
-    this.max.help = () => (i18n.__apiHelp('shell-api.cursor.help.max'));
-    this.max.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.max'));
+    this.max.help = () => (i18n.translateApiHelp('shell-api.cursor.help.max'));
+    this.max.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.max'));
     this.max.serverVersions = [0,4.4];
     this.max.topologies = [0,1,2];
     this.max.returnsPromise = false;
@@ -562,8 +562,8 @@ class Cursor {
     this.maxScan = function() {
       return this._cursor.maxScan(...arguments);
     };
-    this.maxScan.help = () => (i18n.__apiHelp('shell-api.cursor.help.max-scan'));
-    this.maxScan.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.max-scan'));
+    this.maxScan.help = () => (i18n.translateApiHelp('shell-api.cursor.help.max-scan'));
+    this.maxScan.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.max-scan'));
     this.maxScan.serverVersions = [0,4];
     this.maxScan.topologies = [0,1,2];
     this.maxScan.returnsPromise = false;
@@ -571,8 +571,8 @@ class Cursor {
     this.maxTimeMS = function() {
       return this._cursor.maxTimeMS(...arguments);
     };
-    this.maxTimeMS.help = () => (i18n.__apiHelp('shell-api.cursor.help.max-time-ms'));
-    this.maxTimeMS.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.max-time-ms'));
+    this.maxTimeMS.help = () => (i18n.translateApiHelp('shell-api.cursor.help.max-time-ms'));
+    this.maxTimeMS.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.max-time-ms'));
     this.maxTimeMS.serverVersions = [0,4.4];
     this.maxTimeMS.topologies = [0,1,2];
     this.maxTimeMS.returnsPromise = false;
@@ -580,8 +580,8 @@ class Cursor {
     this.min = function() {
       return this._cursor.min(...arguments);
     };
-    this.min.help = () => (i18n.__apiHelp('shell-api.cursor.help.min'));
-    this.min.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.min'));
+    this.min.help = () => (i18n.translateApiHelp('shell-api.cursor.help.min'));
+    this.min.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.min'));
     this.min.serverVersions = [0,4.4];
     this.min.topologies = [0,1,2];
     this.min.returnsPromise = false;
@@ -589,8 +589,8 @@ class Cursor {
     this.modifiers = function() {
       return this._cursor.modifiers(...arguments);
     };
-    this.modifiers.help = () => (i18n.__apiHelp('shell-api.cursor.help.modifiers'));
-    this.modifiers.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.modifiers'));
+    this.modifiers.help = () => (i18n.translateApiHelp('shell-api.cursor.help.modifiers'));
+    this.modifiers.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.modifiers'));
     this.modifiers.serverVersions = [0,4.4];
     this.modifiers.topologies = [0,1,2];
     this.modifiers.returnsPromise = false;
@@ -598,8 +598,8 @@ class Cursor {
     this.next = function() {
       return this._cursor.next(...arguments);
     };
-    this.next.help = () => (i18n.__apiHelp('shell-api.cursor.help.next'));
-    this.next.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.next'));
+    this.next.help = () => (i18n.translateApiHelp('shell-api.cursor.help.next'));
+    this.next.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.next'));
     this.next.serverVersions = [0,4.4];
     this.next.topologies = [0,1,2];
     this.next.returnsPromise = false;
@@ -607,8 +607,8 @@ class Cursor {
     this.noCursorTimeout = function() {
       return this._cursor.noCursorTimeout(...arguments);
     };
-    this.noCursorTimeout.help = () => (i18n.__apiHelp('shell-api.cursor.help.no-cursor-timeout'));
-    this.noCursorTimeout.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.no-cursor-timeout'));
+    this.noCursorTimeout.help = () => (i18n.translateApiHelp('shell-api.cursor.help.no-cursor-timeout'));
+    this.noCursorTimeout.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.no-cursor-timeout'));
     this.noCursorTimeout.serverVersions = [0,4.4];
     this.noCursorTimeout.topologies = [0,1,2];
     this.noCursorTimeout.returnsPromise = false;
@@ -616,8 +616,8 @@ class Cursor {
     this.objsLeftInBatch = function() {
       return this._cursor.objsLeftInBatch(...arguments);
     };
-    this.objsLeftInBatch.help = () => (i18n.__apiHelp('shell-api.cursor.help.objs-left-in-batch'));
-    this.objsLeftInBatch.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.objs-left-in-batch'));
+    this.objsLeftInBatch.help = () => (i18n.translateApiHelp('shell-api.cursor.help.objs-left-in-batch'));
+    this.objsLeftInBatch.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.objs-left-in-batch'));
     this.objsLeftInBatch.serverVersions = [0,4.4];
     this.objsLeftInBatch.topologies = [0,1,2];
     this.objsLeftInBatch.returnsPromise = false;
@@ -625,8 +625,8 @@ class Cursor {
     this.oplogReplay = function() {
       return this._cursor.oplogReplay(...arguments);
     };
-    this.oplogReplay.help = () => (i18n.__apiHelp('shell-api.cursor.help.oplog-replay'));
-    this.oplogReplay.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.oplog-replay'));
+    this.oplogReplay.help = () => (i18n.translateApiHelp('shell-api.cursor.help.oplog-replay'));
+    this.oplogReplay.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.oplog-replay'));
     this.oplogReplay.serverVersions = [0,4.4];
     this.oplogReplay.topologies = [0,1,2];
     this.oplogReplay.returnsPromise = false;
@@ -634,8 +634,8 @@ class Cursor {
     this.projection = function() {
       return this._cursor.projection(...arguments);
     };
-    this.projection.help = () => (i18n.__apiHelp('shell-api.cursor.help.projection'));
-    this.projection.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.projection'));
+    this.projection.help = () => (i18n.translateApiHelp('shell-api.cursor.help.projection'));
+    this.projection.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.projection'));
     this.projection.serverVersions = [0,4.4];
     this.projection.topologies = [0,1,2];
     this.projection.returnsPromise = false;
@@ -643,8 +643,8 @@ class Cursor {
     this.pretty = function() {
       return this._cursor.pretty(...arguments);
     };
-    this.pretty.help = () => (i18n.__apiHelp('shell-api.cursor.help.pretty'));
-    this.pretty.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.pretty'));
+    this.pretty.help = () => (i18n.translateApiHelp('shell-api.cursor.help.pretty'));
+    this.pretty.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.pretty'));
     this.pretty.serverVersions = [0,4.4];
     this.pretty.topologies = [0,1,2];
     this.pretty.returnsPromise = false;
@@ -652,8 +652,8 @@ class Cursor {
     this.readConcern = function() {
       return this._cursor.readConcern(...arguments);
     };
-    this.readConcern.help = () => (i18n.__apiHelp('shell-api.cursor.help.read-concern'));
-    this.readConcern.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.read-concern'));
+    this.readConcern.help = () => (i18n.translateApiHelp('shell-api.cursor.help.read-concern'));
+    this.readConcern.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.read-concern'));
     this.readConcern.serverVersions = [3.2,4.4];
     this.readConcern.topologies = [0,1,2];
     this.readConcern.returnsPromise = false;
@@ -661,8 +661,8 @@ class Cursor {
     this.readOnly = function() {
       return this._cursor.readOnly(...arguments);
     };
-    this.readOnly.help = () => (i18n.__apiHelp('shell-api.cursor.help.readonly'));
-    this.readOnly.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.readonly'));
+    this.readOnly.help = () => (i18n.translateApiHelp('shell-api.cursor.help.readonly'));
+    this.readOnly.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.readonly'));
     this.readOnly.serverVersions = [0,4.4];
     this.readOnly.topologies = [0,1,2];
     this.readOnly.returnsPromise = false;
@@ -670,8 +670,8 @@ class Cursor {
     this.readPref = function() {
       return this._cursor.readPref(...arguments);
     };
-    this.readPref.help = () => (i18n.__apiHelp('shell-api.cursor.help.read-pref'));
-    this.readPref.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.read-pref'));
+    this.readPref.help = () => (i18n.translateApiHelp('shell-api.cursor.help.read-pref'));
+    this.readPref.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.read-pref'));
     this.readPref.serverVersions = [0,4.4];
     this.readPref.topologies = [0,1,2];
     this.readPref.returnsPromise = false;
@@ -679,8 +679,8 @@ class Cursor {
     this.returnKey = function() {
       return this._cursor.returnKey(...arguments);
     };
-    this.returnKey.help = () => (i18n.__apiHelp('shell-api.cursor.help.return-key'));
-    this.returnKey.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.return-key'));
+    this.returnKey.help = () => (i18n.translateApiHelp('shell-api.cursor.help.return-key'));
+    this.returnKey.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.return-key'));
     this.returnKey.serverVersions = [3.2,4.4];
     this.returnKey.topologies = [0,1,2];
     this.returnKey.returnsPromise = false;
@@ -688,8 +688,8 @@ class Cursor {
     this.showDiskLoc = function() {
       return this._cursor.showDiskLoc(...arguments);
     };
-    this.showDiskLoc.help = () => (i18n.__apiHelp('shell-api.cursor.help.show-disk-loc'));
-    this.showDiskLoc.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.show-disk-loc'));
+    this.showDiskLoc.help = () => (i18n.translateApiHelp('shell-api.cursor.help.show-disk-loc'));
+    this.showDiskLoc.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.show-disk-loc'));
     this.showDiskLoc.serverVersions = [0,4.4];
     this.showDiskLoc.topologies = [0,1,2];
     this.showDiskLoc.returnsPromise = false;
@@ -697,8 +697,8 @@ class Cursor {
     this.showRecordId = function() {
       return this._cursor.showRecordId(...arguments);
     };
-    this.showRecordId.help = () => (i18n.__apiHelp('shell-api.cursor.help.show-record-id'));
-    this.showRecordId.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.show-record-id'));
+    this.showRecordId.help = () => (i18n.translateApiHelp('shell-api.cursor.help.show-record-id'));
+    this.showRecordId.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.show-record-id'));
     this.showRecordId.serverVersions = [0,4.4];
     this.showRecordId.topologies = [0,1,2];
     this.showRecordId.returnsPromise = false;
@@ -706,8 +706,8 @@ class Cursor {
     this.size = function() {
       return this._cursor.size(...arguments);
     };
-    this.size.help = () => (i18n.__apiHelp('shell-api.cursor.help.size'));
-    this.size.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.size'));
+    this.size.help = () => (i18n.translateApiHelp('shell-api.cursor.help.size'));
+    this.size.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.size'));
     this.size.serverVersions = [0,4.4];
     this.size.topologies = [0,1,2];
     this.size.returnsPromise = false;
@@ -715,8 +715,8 @@ class Cursor {
     this.skip = function() {
       return this._cursor.skip(...arguments);
     };
-    this.skip.help = () => (i18n.__apiHelp('shell-api.cursor.help.skip'));
-    this.skip.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.skip'));
+    this.skip.help = () => (i18n.translateApiHelp('shell-api.cursor.help.skip'));
+    this.skip.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.skip'));
     this.skip.serverVersions = [0,4.4];
     this.skip.topologies = [0,1,2];
     this.skip.returnsPromise = false;
@@ -724,8 +724,8 @@ class Cursor {
     this.snapshot = function() {
       return this._cursor.snapshot(...arguments);
     };
-    this.snapshot.help = () => (i18n.__apiHelp('shell-api.cursor.help.snapshot'));
-    this.snapshot.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.snapshot'));
+    this.snapshot.help = () => (i18n.translateApiHelp('shell-api.cursor.help.snapshot'));
+    this.snapshot.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.snapshot'));
     this.snapshot.serverVersions = [0,4];
     this.snapshot.topologies = [0,1,2];
     this.snapshot.returnsPromise = false;
@@ -733,8 +733,8 @@ class Cursor {
     this.sort = function() {
       return this._cursor.sort(...arguments);
     };
-    this.sort.help = () => (i18n.__apiHelp('shell-api.cursor.help.sort'));
-    this.sort.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.sort'));
+    this.sort.help = () => (i18n.translateApiHelp('shell-api.cursor.help.sort'));
+    this.sort.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.sort'));
     this.sort.serverVersions = [0,4.4];
     this.sort.topologies = [0,1,2];
     this.sort.returnsPromise = false;
@@ -742,8 +742,8 @@ class Cursor {
     this.tailable = function() {
       return this._cursor.tailable(...arguments);
     };
-    this.tailable.help = () => (i18n.__apiHelp('shell-api.cursor.help.tailable'));
-    this.tailable.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.tailable'));
+    this.tailable.help = () => (i18n.translateApiHelp('shell-api.cursor.help.tailable'));
+    this.tailable.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.tailable'));
     this.tailable.serverVersions = [3.2,4.4];
     this.tailable.topologies = [0,1,2];
     this.tailable.returnsPromise = false;
@@ -751,8 +751,8 @@ class Cursor {
     this.toArray = function() {
       return this._cursor.toArray(...arguments);
     };
-    this.toArray.help = () => (i18n.__apiHelp('shell-api.cursor.help.to-array'));
-    this.toArray.help.toReplString = () => (i18n.__apiHelp('shell-api.cursor.help.to-array'));
+    this.toArray.help = () => (i18n.translateApiHelp('shell-api.cursor.help.to-array'));
+    this.toArray.help.toReplString = () => (i18n.translateApiHelp('shell-api.cursor.help.to-array'));
     this.toArray.serverVersions = [0,4.4];
     this.toArray.topologies = [0,1,2];
     this.toArray.returnsPromise = false;
@@ -775,13 +775,13 @@ class Database {
     this.toReplString = () => {
       return this._database;
     };
-    this.help = () => (i18n.__apiHelp('shell-api.database.description'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.database.description'));
+    this.help = () => (i18n.translateApiHelp('shell-api.database.description'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.database.description'));
     this.runCommand = function() {
       return this._mapper.runCommand(this, ...arguments);
     };
-    this.runCommand.help = () => (i18n.__apiHelp('shell-api.database.help.run-command'));
-    this.runCommand.help.toReplString = () => (i18n.__apiHelp('shell-api.database.help.run-command'));
+    this.runCommand.help = () => (i18n.translateApiHelp('shell-api.database.help.run-command'));
+    this.runCommand.help.toReplString = () => (i18n.translateApiHelp('shell-api.database.help.run-command'));
     this.runCommand.serverVersions = [0,4.4];
     this.runCommand.topologies = [0,1,2];
     this.runCommand.returnsPromise = false;
@@ -798,8 +798,8 @@ class DeleteResult {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('The DeleteResult class.'));
-    this.help.toReplString = () => (i18n.__apiHelp('The DeleteResult class.'));
+    this.help = () => (i18n.translateApiHelp('The DeleteResult class.'));
+    this.help.toReplString = () => (i18n.translateApiHelp('The DeleteResult class.'));
   }
 }
 class InsertManyResult {
@@ -810,8 +810,8 @@ class InsertManyResult {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('The InsertManyResult class.'));
-    this.help.toReplString = () => (i18n.__apiHelp('The InsertManyResult class.'));
+    this.help = () => (i18n.translateApiHelp('The InsertManyResult class.'));
+    this.help.toReplString = () => (i18n.translateApiHelp('The InsertManyResult class.'));
   }
 }
 class InsertOneResult {
@@ -822,8 +822,8 @@ class InsertOneResult {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('The InsertManyResult class.'));
-    this.help.toReplString = () => (i18n.__apiHelp('The InsertManyResult class.'));
+    this.help = () => (i18n.translateApiHelp('The InsertManyResult class.'));
+    this.help.toReplString = () => (i18n.translateApiHelp('The InsertManyResult class.'));
   }
 }
 class ReplicaSet {
@@ -833,8 +833,8 @@ class ReplicaSet {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('shell-api.replica-set.description'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.replica-set.description'));
+    this.help = () => (i18n.translateApiHelp('shell-api.replica-set.description'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.replica-set.description'));
   }
 }
 class Shard {
@@ -844,8 +844,8 @@ class Shard {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('shell-api.shard.description'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.shard.description'));
+    this.help = () => (i18n.translateApiHelp('shell-api.shard.description'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.shard.description'));
   }
 }
 class ShellApi {
@@ -855,13 +855,13 @@ class ShellApi {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('shell-api.help'));
-    this.help.toReplString = () => (i18n.__apiHelp('shell-api.help'));
+    this.help = () => (i18n.translateApiHelp('shell-api.help'));
+    this.help.toReplString = () => (i18n.translateApiHelp('shell-api.help'));
     this.use = function() {
       return this._mapper.use(this, ...arguments);
     };
-    this.use.help = () => (i18n.__apiHelp('!! No help defined for this method'));
-    this.use.help.toReplString = () => (i18n.__apiHelp('!! No help defined for this method'));
+    this.use.help = () => (i18n.translateApiHelp('!! No help defined for this method'));
+    this.use.help.toReplString = () => (i18n.translateApiHelp('!! No help defined for this method'));
     this.use.serverVersions = [0,4.4];
     this.use.topologies = [0,1,2];
     this.use.returnsPromise = false;
@@ -869,8 +869,8 @@ class ShellApi {
     this.it = function() {
       return this._mapper.it(this, ...arguments);
     };
-    this.it.help = () => (i18n.__apiHelp('!! No help defined for this method'));
-    this.it.help.toReplString = () => (i18n.__apiHelp('!! No help defined for this method'));
+    this.it.help = () => (i18n.translateApiHelp('!! No help defined for this method'));
+    this.it.help.toReplString = () => (i18n.translateApiHelp('!! No help defined for this method'));
     this.it.serverVersions = [0,4.4];
     this.it.topologies = [0,1,2];
     this.it.returnsPromise = false;
@@ -888,8 +888,8 @@ class UpdateResult {
     this.toReplString = () => {
       return JSON.stringify(this, null, ' ');
     };
-    this.help = () => (i18n.__apiHelp('The UpdateResult class.'));
-    this.help.toReplString = () => (i18n.__apiHelp('The UpdateResult class.'));
+    this.help = () => (i18n.translateApiHelp('The UpdateResult class.'));
+    this.help.toReplString = () => (i18n.translateApiHelp('The UpdateResult class.'));
   }
 }
 
