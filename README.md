@@ -28,7 +28,7 @@ npm test
 Run tests from a specific package:
 
 ```shell
-lerna run test --scope mongodbsh-transport
+lerna run test --scope mongosh-transport
 ```
 
 Run tests with all output from packages:
