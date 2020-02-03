@@ -11,6 +11,7 @@
     "build:stats": "webpack --config ./config/webpack.config.stats.js",
     "prepublish": "rm -rf ./lib && npm run build",
     "start": "npm run storybook",
+    "prestart": "electron-rebuild --force --only keytar",
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "npm run lint && npm run test",
