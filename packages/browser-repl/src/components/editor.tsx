@@ -1,4 +1,3 @@
-/* eslint-disable react/sort-comp */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
@@ -63,12 +62,8 @@ export class Editor extends Component<EditorProps> {
           bindKey: {win: 'Up', mac: 'Up'},
           exec: (): void => {
             const selectionRange = this.editor.getSelectionRange();
-            if (!selectionRange.isEmpty()) {
-              return;
-            }
-
-            if (selectionRange.start.row !== 0) {
-              return;
+            if (!selectionRange.isEmpty() || selectionRange.start.row !== 0) {
+              return this.editor.selection.moveCursorUp();
             }
 
             this.props.onArrowUpOnFirstLine();
@@ -79,16 +74,10 @@ export class Editor extends Component<EditorProps> {
           bindKey: {win: 'Down', mac: 'Down'},
           exec: (): void => {
             const selectionRange = this.editor.getSelectionRange();
-
-            if (!selectionRange.isEmpty()) {
-              return;
-            }
-
             const lastRowIndex = this.editor.session.getLength() - 1;
 
-
-            if (selectionRange.start.row !== lastRowIndex) {
-              return;
+            if (!selectionRange.isEmpty() || selectionRange.start.row !== lastRowIndex) {
+              return this.editor.selection.moveCursorDown();
             }
 
             this.props.onArrowDownOnLastLine();

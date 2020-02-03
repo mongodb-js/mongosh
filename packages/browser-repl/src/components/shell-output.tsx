@@ -5,7 +5,7 @@ import { ShellOutputLine, ShellOutputEntry } from './shell-output-line';
 export { ShellOutputEntry } from './shell-output-line';
 
 interface ShellOutputProps {
-  output: ShellOutputEntry[];
+  output: readonly ShellOutputEntry[];
 }
 
 export class ShellOutput extends Component<ShellOutputProps> {

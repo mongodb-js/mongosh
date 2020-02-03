@@ -3,7 +3,6 @@ import { Preprocessor } from './preprocessor';
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ContextValue = any;
 
 export type EvaluationResult = {

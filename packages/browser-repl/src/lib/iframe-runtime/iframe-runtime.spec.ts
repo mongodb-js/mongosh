@@ -41,8 +41,6 @@ describe('IframeRuntime', () => {
   describe('#evaluate', () => {
     it('does not interfere with the parent window', async() => {
       await runtime.evaluate('x = 1');
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((window as any).x).not.to.equal(1);
     });
 

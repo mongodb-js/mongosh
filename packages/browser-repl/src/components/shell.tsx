@@ -5,37 +5,102 @@ import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Runtime } from './runtime';
 
-interface InputLine {
-  type: 'input';
-  value: string;
-}
-
-interface OutputLine {
-  type: 'output' | 'error';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-}
+import changeHistory from 'mongosh-cli-repl/lib/history';
 
 interface ShellProps {
+  /* The runtime used to evaluate code.
+  */
   runtime: Runtime;
-  onInput?: (input: InputLine) => void;
-  onOutput?: (output: OutputLine) => void;
+
+  /* A function called each time the output changes with an array of
+   * ShellOutputEntryes.
+   */
+  onOutputChanged?: (output: readonly ShellOutputEntry[]) => void;
+
+  /* A function called each time the history change
+   * with an array of history entries ordered from the most recent to
+   * the oldest entry.
+   */
+  onHistoryChanged?: (history: readonly string[]) => void;
+
+  /* If set the shell will omit or redact entries containing
+   * sensitive info from the history. Default to `false`.
+   */
+  redactInfo?: boolean;
+
+  /* The maxiumum number of lines to keep in the output.
+   * Default to `1000`.
+   */
+  maxOutputLength?: number;
+
+  /* The maxiumum number of lines to keep in the history.
+   * Default to `1000`.
+   */
+  maxHistoryLength?: number;
+
+  /* An array of entries to be displayed in the output area.
+   *
+   * Can be used to restore the output between sessions, or to setup
+   * a greeting message.
+   *
+   * Note: new entries will not be appended to the array.
+   */
+  initialOutput?: readonly ShellOutputEntry[];
+
+  /* An array of history entries to prepopulate the history.
+   *
+   * Can be used to restore the history between sessions.
+   *
+   * Entries must be ordered from the most recent to the oldest.
+   *
+   * Note: new entries will not be appended to the array.
+   */
+  initialHistory?: readonly string[];
 }
 
 interface ShellState {
-  output: ShellOutputEntry[];
+  output: readonly ShellOutputEntry[];
+  history: readonly string[];
 }
 
+const noop = (): void => {
+  //
+};
+
+/**
+ * The browser-repl Shell component
+ */
 export class Shell extends Component<ShellProps, ShellState> {
   static propTypes = {
     runtime: PropTypes.shape({
       evaluate: PropTypes.func.isRequired
     }).isRequired,
-    onInput: PropTypes.func,
+    onOutputChanged: PropTypes.func,
+    onHistoryChanged: PropTypes.func,
+    redactInfo: PropTypes.bool,
+    maxOutputLength: PropTypes.number,
+    maxHistoryLength: PropTypes.number,
+    initialOutput: PropTypes.arrayOf(PropTypes.shape({
+      type: PropTypes.string.isRequired,
+      value: PropTypes.any.isRequired
+    })),
+    initialHistory: PropTypes.arrayOf(PropTypes.string)
   };
 
+  static defaultProps = {
+    onHistoryChanged: noop,
+    onOutputChanged: noop,
+    maxOutputLength: 1000,
+    maxHistoryLength: 1000,
+    initialOutput: [],
+    initialHistory: []
+  };
+
+  private shellInputElement?: HTMLElement;
+
   readonly state: ShellState = {
-    output: []
+    output: this.props.initialOutput.slice(-this.props.maxOutputLength),
+    history: this.props.initialHistory.slice(0, this.props.maxHistoryLength)
   };
 
   componentDidMount(): void {
@@ -46,7 +111,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.scrollToBottom();
   }
 
-  private onInput: (string) => Promise<void> = async(code: string) => {
+  private evaluate = async(code: string): Promise<ShellOutputEntry> => {
     let outputLine;
 
     try {
@@ -62,45 +127,75 @@ export class Shell extends Component<ShellProps, ShellState> {
       };
     }
 
-    const inputLine: InputLine = {
+    return outputLine;
+  }
+
+  private addEntryToHistory(code: string): readonly string[] {
+    const history = [
+      code,
+      ...this.state.history
+    ];
+
+    changeHistory(history, this.props.redactInfo);
+    history.splice(this.props.maxHistoryLength);
+
+    Object.freeze(history);
+
+    return history;
+  }
+
+  private addEntriesToOutput(entries: readonly ShellOutputEntry[]): readonly ShellOutputEntry[] {
+    const output = [
+      ...this.state.output,
+      ...entries
+    ];
+
+    output.splice(0, output.length - this.props.maxOutputLength);
+
+    Object.freeze(output);
+
+    return output;
+  }
+
+  private onInput = async(code: string): Promise<void> => {
+    const inputLine: ShellOutputEntry = {
       type: 'input',
       value: code
     };
 
-    this.setState({
-      output: [
-        ...this.state.output,
-        inputLine,
-        outputLine
-      ]
-    });
+    const outputLine = await this.evaluate(code);
 
-    if (this.props.onInput) {
-      this.props.onInput({...inputLine});
-    }
+    const output = this.addEntriesToOutput([
+      inputLine,
+      outputLine
+    ]);
 
-    if (this.props.onOutput) {
-      this.props.onOutput({...outputLine});
-    }
+    const history = this.addEntryToHistory(code);
+
+    this.setState({ output, history });
+
+    this.props.onOutputChanged(output);
+    this.props.onHistoryChanged(history);
   }
 
-  private shellInputElement?: HTMLElement;
-
-  scrollToBottom(): void {
+  private scrollToBottom(): void {
     if (!this.shellInputElement) {
       return;
     }
 
-    this.shellInputElement.scrollIntoView({ behavior: 'smooth' });
+    this.shellInputElement.scrollIntoView();
   }
 
   render(): JSX.Element {
     return (<div>
       <div>
-        <ShellOutput output={this.state.output} />
+        <ShellOutput
+          output={this.state.output} />
       </div>
       <div ref={(el): void => { this.shellInputElement = el; }}>
-        <ShellInput onInput={this.onInput} />
+        <ShellInput
+          onInput={this.onInput}
+          history={this.state.history} />
       </div>
     </div>);
   }

@@ -1,12 +1,10 @@
-/* eslint-disable react/sort-comp */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Editor } from './editor';
-import { History } from './history';
 
 interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
-  initialHistory?: string[];
+  history?: readonly string[];
 }
 
 interface ShellInputState {
@@ -23,19 +21,39 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     currentValue: ''
   };
 
-  private history: History;
+  private historyNavigationEntries: string[];
+  private historyNavigationIndex: number;
 
   constructor(props) {
     super(props);
-    this.history = new History(props.initialHistory || []);
+    this.initializeHistoryNavigation();
+  }
+
+  componentDidUpdate(prevProps: ShellInputProps): void {
+    if (prevProps.history !== this.props.history) {
+      this.initializeHistoryNavigation();
+    }
+
+    if (this.historyNavigationIndex === 0) {
+      this.historyNavigationEntries[0] = this.state.currentValue;
+    }
+  }
+
+  private initializeHistoryNavigation(): void {
+    this.historyNavigationEntries = [
+      this.state.currentValue,
+      ...(this.props.history || [])
+    ];
+
+    this.historyNavigationIndex = 0;
   }
 
   private onChange = (value: string): void => {
     this.setState({currentValue: value});
   }
 
-  private historyBack = (): void => {
-    const value = this.history.back(this.state.currentValue);
+  private syncCurrentValueWithHistoryNavigation(): void {
+    const value = this.historyNavigationEntries[this.historyNavigationIndex];
 
     if (value === undefined) {
       return;
@@ -46,16 +64,24 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     });
   }
 
-  private historyNext = (): void => {
-    const value = this.history.next();
-
-    if (value === undefined) {
+  private historyBack = (): void => {
+    if (this.historyNavigationIndex >= this.historyNavigationEntries.length - 1) {
       return;
     }
 
-    this.setState({
-      currentValue: value
-    });
+    this.historyNavigationIndex++;
+
+    this.syncCurrentValueWithHistoryNavigation();
+  }
+
+  private historyNext = (): void => {
+    if (this.historyNavigationIndex <= 0) {
+      return;
+    }
+
+    this.historyNavigationIndex--;
+
+    this.syncCurrentValueWithHistoryNavigation();
   }
 
   private onEnter = (): void => {
@@ -63,8 +89,6 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     if (!currentValue || currentValue.trim() === '') {
       return;
     }
-
-    this.history.commit(currentValue);
 
     if (this.props.onInput) {
       this.props.onInput(currentValue);

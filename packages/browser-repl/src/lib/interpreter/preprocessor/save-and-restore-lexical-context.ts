@@ -17,7 +17,6 @@ type SaveAndRestoreLexicalContextOptions = {
 
 type SaveAndRestoreLexicalContextResult = {
   lexicalContext: LexicalContext;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ast: any;
 };
 
