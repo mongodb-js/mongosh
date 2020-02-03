@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Interpreter } from './interpreter';
 import { expect } from '../../../testing/chai';
 
-async function createTestIframe() {
+async function createTestIframe(): Promise<HTMLIFrameElement> {
   const iframe = document.createElement('iframe');
   iframe.src = 'about:blank';
 
-  const ready = new Promise((resolve) => {
-    iframe.onload = () => resolve(iframe);
+  const ready = new Promise<HTMLIFrameElement>((resolve) => {
+    iframe.onload = (): void => resolve(iframe);
   });
 
   document.body.appendChild(iframe);

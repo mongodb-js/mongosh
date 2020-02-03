@@ -11,7 +11,6 @@ export class IframeInterpreterEnvironment implements InterpreterEnvironment {
   }
 
   sloppyEval(code: string): ContextValue {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.window as any).eval(code);
   }
 

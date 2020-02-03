@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import browserUtilInspect from 'browser-util-inspect';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ShellOutputEntryValue = any;
 
 export interface ShellOutputEntry {
-  type: string;
+  type: 'input' | 'output' | 'error';
   value: ShellOutputEntryValue;
 }
 

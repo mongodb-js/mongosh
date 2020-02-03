@@ -1,8 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ContextValue = any;
 
 export type EvaluationResult = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 };
 
