@@ -4,8 +4,7 @@ import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Shell, ElectronRuntime } from 'mongosh-browser-repl';
-import { CompassServiceProvider } from 'mongosh-service-provider-server';
+import { Shell } from 'mongosh-browser-repl';
 
 export class CompassShell extends Component {
   static displayName = 'CompassShellComponent';
@@ -15,37 +14,8 @@ export class CompassShell extends Component {
   };
 
   static defaultProps = {
-    dataService: {
-      dataService: null,
-      error: null
-    }
+    runtime: null
   };
-
-  constructor(props) {
-    super();
-    this.setRuntimeFromProps(props, {});
-  }
-
-  componentDidUpdate(oldProps) {
-    this.setRuntimeFromProps(this.props, oldProps);
-  }
-
-  setRuntimeFromProps(props, oldProps) {
-    if (props.dataService === oldProps.dataService) {
-      return;
-    }
-
-    const dataService = props.dataService.dataService;
-
-    if (!dataService) {
-      this.runtime = null;
-      return;
-    }
-
-    this.runtime = new ElectronRuntime(
-      CompassServiceProvider.fromDataService(dataService)
-    );
-  }
 
   /**
    * Render CompassShell component.
@@ -67,7 +37,7 @@ export class CompassShell extends Component {
 
 export default connect(
   (state) => ({
-    dataService: state.dataService
+    runtime: state.dataService ? state.dataService.runtime : null
   }),
   {}
 )(CompassShell);

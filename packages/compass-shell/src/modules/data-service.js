@@ -1,3 +1,7 @@
+import { ElectronRuntime } from 'mongosh-browser-repl';
+import { CompassServiceProvider } from 'mongosh-service-provider-server';
+
+
 /**
  * The prefix.
  */
@@ -26,12 +30,30 @@ export const INITIAL_STATE = {
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SET_DATA_SERVICE) {
-    return {
-      error: action.error,
-      dataService: action.dataService
-    };
+    return reduceSetRuntimeFromDataService(state, action);
   }
+
   return state;
+}
+
+function reduceSetRuntimeFromDataService(state, action) {
+  if (action.error || !action.dataService) {
+    return {error: action.error, dataService: null, runtime: null};
+  }
+
+  if (state.dataService === action.dataService) {
+    return state;
+  }
+
+  const runtime = new ElectronRuntime(
+    CompassServiceProvider.fromDataService(action.dataService)
+  );
+
+  return {
+    error: action.error,
+    dataService: action.dataService,
+    runtime: runtime
+  };
 }
 
 /**
