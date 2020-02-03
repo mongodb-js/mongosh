@@ -882,10 +882,15 @@ const translations = {
     "help": "Willkommen im neuem MongoDB-Shell!"
   },
   "transport-browser": {
-
+    "stitch-browser-transport": {
+      "auth-error": "Fehler beim Authentifizieren mit Stitch."
+    }
   },
   "transport-core": {
-
+    "stitch-transport": {
+      "not-implemented": "ist im Stitch SDK nicht implementiert.",
+      "agg-on-db": "Aggregations auf dem Database sind in Stitch nicht gestattet"
+    }
   },
   "transport-server": {
 

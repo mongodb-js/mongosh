@@ -1,3 +1,4 @@
+import i18n from 'mongosh-i18n';
 import Transport from './transport';
 import Cursor from './cursor';
 import Document from './document';
@@ -9,12 +10,12 @@ import UnsupportedCursor from './unsupported-cursor';
 /**
  * Constant for not implemented rejections.
  */
-const NOT_IMPLEMENTED = 'is not implemented in the Stitch SDK';
+const NOT_IMPLEMENTED = 'transport-core.stitch-transport.not-implemented';
 
 /**
  * Rejecting for running an agg pipeline on a database.
  */
-const AGG_ON_DB = 'Aggregations run on the database is not allowed via Stitch';
+const AGG_ON_DB = 'transport-core.stitch-transport.agg-on-db';
 
 /**
  * Encapsulates logic for communicating with a MongoDB instance via Stitch.
@@ -42,7 +43,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
     pipeline: Document[] = []) : Cursor {
 
     if (collection === null) {
-      return new UnsupportedCursor(AGG_ON_DB);
+      return new UnsupportedCursor(i18n.__(AGG_ON_DB));
     }
     return this.db(database).collection(collection).
       aggregate(pipeline);
@@ -54,7 +55,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    * @returns {Promise} The rejected promise.
    */
   bulkWrite() : Promise<Result> {
-    return Promise.reject(`Bulk write ${NOT_IMPLEMENTED}`);
+    return Promise.reject(`Bulk write ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
   /**
@@ -132,7 +133,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    * @returns {Cursor} The rejected promise when toArray is called.
    */
   distinct() : Cursor {
-    return new UnsupportedCursor(`Distinct ${NOT_IMPLEMENTED}`);
+    return new UnsupportedCursor(`Distinct ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
   /**
@@ -141,7 +142,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    * @returns {Promise} The rejected promise.
    */
   estimatedDocumentCount() : Promise<Result> {
-    return Promise.reject(`Estimated document count ${NOT_IMPLEMENTED}`);
+    return Promise.reject(`Estimated document count ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
   /**
@@ -274,7 +275,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    * @returns {Promise} The rejected promise.
    */
   replaceOne() : Promise<Result> {
-    return Promise.reject(`Replace one ${NOT_IMPLEMENTED}`);
+    return Promise.reject(`Replace one ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
   /**
@@ -283,7 +284,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    * @returns {Promise} The rejected promise.
    */
   runCommand() : Promise<Result> {
-    return Promise.reject(`Running a direct command ${NOT_IMPLEMENTED}`);
+    return Promise.reject(`Running a direct command ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
   /**

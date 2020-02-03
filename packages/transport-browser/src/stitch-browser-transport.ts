@@ -1,4 +1,5 @@
 import { Transport, Cursor, Result, StitchTransport } from 'mongosh-transport-core';
+import i18n from 'mongosh-i18n';
 import {
   AnonymousCredential,
   RemoteMongoClient,
@@ -10,7 +11,7 @@ import {
 /**
  * Init error.
  */
-const INIT_ERROR = 'Error authenticating with Stitch.';
+const INIT_ERROR = 'transport-browser.stitch-browser-transport.auth-error';
 
 /**
  * Atlas id.
@@ -41,7 +42,7 @@ class StitchBrowserTransport implements Transport {
       await client.auth.loginWithCredential(new AnonymousCredential());
     } catch (err) {
       /* eslint no-console:0 */
-      console.log(INIT_ERROR, err);
+      console.log(i18n.__(INIT_ERROR), err);
     }
     return new StitchBrowserTransport(client, serviceName);
   }
