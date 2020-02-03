@@ -7,7 +7,7 @@ describe('Collection', () => {
     const collection = new Collection();
 
     it('returns the translated text', () => {
-      expect(collection.findOne.help()).to.include('Description:');
+      expect(collection.findOne.help()).to.include('Selects');
     });
   });
 });

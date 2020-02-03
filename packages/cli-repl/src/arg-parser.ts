@@ -1,3 +1,4 @@
+import os from 'os';
 import minimist from 'minimist';
 import i18n from 'mongosh-i18n';
 import CliOptions from './cli-options';
@@ -29,6 +30,7 @@ const OPTIONS = {
     'host',
     'keyVaultNamespace',
     'kmsURL',
+    'locale',
     'password',
     'port',
     'tlsCAFile',
@@ -74,6 +76,22 @@ const OPTIONS = {
 };
 
 /**
+ * Determine the locale of the shell.
+ *
+ * @param {string[]} args - The arguments.
+ *
+ * @returns {string} The locale.
+ */
+function getLocale(args: string[], env: any): string {
+  const localeIndex = args.indexOf('--locale');
+  if (localeIndex > -1) {
+    return args[localeIndex + 1];
+  }
+  const lang = env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
+  return lang ? lang.split('.')[0] : lang;
+}
+
+/**
  * Parses arguments into a JS object.
  *
  * @param {string[]} args - The args.
@@ -81,7 +99,10 @@ const OPTIONS = {
  * @returns {CliOptions} The arguments as cli options.
  */
 function parse(args: string[]): CliOptions {
-  return minimist(args.slice(2), OPTIONS);
+  const programArgs = args.slice(2);
+  i18n.setLocale(getLocale(programArgs, process.env));
+  return minimist(programArgs, OPTIONS);
 }
 
 export default parse;
+export { getLocale };

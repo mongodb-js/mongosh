@@ -1,6 +1,7 @@
 import Mustache from 'mustache';
 import Catalog from './catalog';
 import en_US from './locales/en_US';
+import de_DE from './locales/de_DE';
 
 /**
  * The default locale.
@@ -11,16 +12,17 @@ const DEFAULT_LOCALE = 'en_US';
  * Locale mappings.
  */
 const MAPPINGS = {
-  'en_US': en_US
+  'en_US': en_US,
+  'de_DE': de_DE
 };
 
 /**
  * The help template.
  */
-const TEMPLATE = 'Description: {{description}}\n\n' +
-  'Link: {{link}}\n\n' +
-  'Example: {{example}}\n\n' +
-  'Returns: {{returns}}';
+const TEMPLATE = '{{description}}\n\n' +
+  '{{link}}\n\n' +
+  '{{example}}\n\n' +
+  '{{returns}}';
 
 /**
  * The translator class.
