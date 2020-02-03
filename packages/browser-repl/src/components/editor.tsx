@@ -85,7 +85,7 @@ export class Editor extends Component<EditorProps> {
         }
       ]}
       width="100%"
-      height="40px"
+      maxLines={Infinity}
       value={this.props.value}
     />);
   }
