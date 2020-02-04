@@ -5,9 +5,6 @@ const {
   Plugin
 } = createPlugin();
 
-/**
- * A sample role for the component.
- */
 const ROLE = {
   name: 'Shell',
   component: Plugin
