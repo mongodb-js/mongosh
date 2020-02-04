@@ -1,8 +1,6 @@
-import util from 'util';
-import read from 'read';
-import i18n from 'mongosh-i18n';
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
+import { execSync } from 'child_process';
 import { compile } from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
@@ -11,9 +9,11 @@ import changeHistory from './history';
 import Mapper from 'mongosh-mapper';
 import completer from './completer';
 import { Transform } from 'stream';
-import readline from 'readline';
+import i18n from 'mongosh-i18n';
 import write from './writer';
 import path from 'path';
+import util from 'util';
+import read from 'read';
 import os from 'os';
 import fs from 'fs';
 
@@ -30,6 +30,7 @@ class CliRepl {
   private serviceProvider: CliServiceProvider;
   private mapper: Mapper;
   private shellApi: ShellApi;
+  private mdbVersion: any;
   private repl: REPLServer;
   private options: CliOptions;
 
@@ -45,6 +46,12 @@ class CliRepl {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);
       this.shellApi = new ShellApi(this.mapper);
+      // .toString() output since child_process execution returns a Buffer
+      // grab version info from the first line from output
+      this.mdbVersion = execSync('mongod --version')
+        .toString()
+        .split('\n')[0]
+        .replace('db version ', '');
       this.start();
     });
   }
@@ -94,7 +101,7 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log('mongosh 2.0');
+    console.log(`Using MongoDB: ${this.mdbVersion}`);
   }
 
   /**
@@ -134,11 +141,13 @@ class CliRepl {
   start(): void {
     this.greet();
 
+    const version = this.mdbVersion;
+
     this.repl = repl.start({
       prompt: `$ mongosh > `,
       ignoreUndefined: true,
       writer: write,
-      completer: completer,
+      completer: completer.bind(null, version),
     });
 
     const originalEval = util.promisify(this.repl.eval);
