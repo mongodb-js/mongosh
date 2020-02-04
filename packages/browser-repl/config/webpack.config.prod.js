@@ -14,6 +14,9 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   target: 'web',
+  optimization: {
+    minimize: false
+  },
   resolve: {
     ...webpackConfigBase.resolve,
     alias: Object.keys(excludeFromBundle).reduce((aliases, dependency) => ({

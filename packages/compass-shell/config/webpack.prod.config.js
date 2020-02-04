@@ -10,8 +10,12 @@ const project = require('./project');
 
 const config = {
   mode: 'production',
+  optimization: {
+    // We no not want to minimize our code.
+    minimize: false
+  },
   target: 'electron-renderer',
-  devtool: false,
+  devtool: 'eval',
   entry: {
     // Export the entry to our plugin. Referenced in package.json main.
     index: path.resolve(project.path.src, 'index.js')
