@@ -43,8 +43,8 @@ export class Editor extends Component<EditorProps> {
   render(): JSX.Element {
     return (<AceEditor
       name={`mongosh-ace-${Date.now()}`}
-      // mode="javascript"
-      // theme="mongodb"
+      mode="javascript"
+      theme="mongodb"
       onChange={this.props.onChange}
       onLoad={this.onEditorLoad}
       commands={[
@@ -84,6 +84,9 @@ export class Editor extends Component<EditorProps> {
       ]}
       width="100%"
       maxLines={Infinity}
+      editorProps={{
+        $blockScrolling: Infinity
+      }}
       value={this.props.value}
     />);
   }

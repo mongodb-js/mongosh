@@ -10,7 +10,7 @@ export class CompassShell extends Component {
   static displayName = 'CompassShellComponent';
 
   static propTypes = {
-    dataService: PropTypes.object.isRequired
+    runtime: PropTypes.object
   };
 
   static defaultProps = {
@@ -23,13 +23,13 @@ export class CompassShell extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    if (!this.runtime) {
+    if (!this.props.runtime) {
       return (<div />);
     }
 
     return (
       <div className={classnames(styles.container)}>
-        <Shell runtime={this.runtime} />
+        <Shell runtime={this.props.runtime} />
       </div>
     );
   }
