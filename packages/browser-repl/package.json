@@ -11,7 +11,6 @@
     "build:stats": "webpack --config ./config/webpack.config.stats.js",
     "prepublish": "rm -rf ./lib && npm run build",
     "start": "npm run storybook",
-    "prestart": "electron-rebuild --force --only keytar",
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "npm run lint && npm run test",
@@ -23,13 +22,10 @@
     "@babel/parser": "^7.8.3",
     "@babel/runtime": "^7.8.3",
     "@babel/template": "^7.8.3",
-    "ace-builds": "^1.4.8",
     "browser-util-inspect": "^0.2.0",
-    "mongodb-ace-theme": "^0.0.1",
     "mongosh-cli-repl": "file:../cli-repl",
     "mongosh-mapper": "file:../mapper",
-    "mongosh-shell-api": "file:../shell-api",
-    "react-ace": "^8.0.0"
+    "mongosh-shell-api": "file:../shell-api"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
@@ -56,11 +52,15 @@
     "style-loader": "^1.1.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
-    "webpack-visualizer-plugin": "^0.1.11"
+    "webpack-visualizer-plugin": "^0.1.11",
+    "mongodb-ace-theme": "^0.0.1",
+    "react-ace": "^6.6.0"
   },
   "peerDependencies": {
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "mongodb-ace-theme": "^0.0.1",
+    "react-ace": "^6.6.0"
   }
 }

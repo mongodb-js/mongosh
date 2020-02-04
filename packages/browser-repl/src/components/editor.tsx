@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
 import AceEditor from 'react-ace';
-import 'ace-builds/webpack-resolver';
 
+import 'brace/mode/javascript';
 import 'mongodb-ace-theme';
-import { Ace } from 'ace-builds';
 
 const noop = (): void => {
   //
@@ -36,17 +34,17 @@ export class Editor extends Component<EditorProps> {
     value: ''
   }
 
-  private editor: Ace.Editor;
+  private editor: any;
 
-  private onEditorLoad = (editor: Ace.Editor): void => {
+  private onEditorLoad = (editor: any): void => {
     this.editor = editor;
   }
 
   render(): JSX.Element {
     return (<AceEditor
       name={`mongosh-ace-${Date.now()}`}
-      mode="javascript"
-      theme="mongodb"
+      // mode="javascript"
+      // theme="mongodb"
       onChange={this.props.onChange}
       onLoad={this.onEditorLoad}
       commands={[
