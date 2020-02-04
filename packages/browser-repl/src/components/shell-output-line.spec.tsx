@@ -26,6 +26,11 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('undefined');
   });
 
+  it('renders null', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: null}} />);
+    expect(wrapper.text()).to.contain('null');
+  });
+
   it('renders an error as stack trace', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: err}} />);
