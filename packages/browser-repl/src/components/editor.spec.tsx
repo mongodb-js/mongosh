@@ -4,17 +4,16 @@ import { expect } from '../../testing/chai';
 import { mount } from '../../testing/enzyme';
 import { Editor } from './editor';
 import AceEditor from 'react-ace';
-import { Ace } from 'ace-builds';
 
 describe('<Editor />', () => {
-  const getAceEditorInstance = (wrapper): Ace.Editor => {
+  const getAceEditorInstance = (wrapper): any => {
     const aceEditor = wrapper.find(AceEditor);
-    return (aceEditor.instance() as AceEditor).editor as Ace.Editor;
+    return aceEditor.instance().editor as any;
   };
 
-  const execCommandBoundTo = (aceEditor: Ace.Editor, key: string): void => {
+  const execCommandBoundTo = (aceEditor: any, key: string): void => {
     const commands = Object.values(aceEditor.commands.commands);
-    const command = commands.find(({ bindKey }) => {
+    const command: any = commands.find(({ bindKey }) => {
       if (!bindKey) {
         return false;
       }
@@ -136,4 +135,3 @@ describe('<Editor />', () => {
     expect(spy).not.to.have.been.called;
   });
 });
-
