@@ -116,7 +116,7 @@ const symbolTemplate = (className, lib) => {
   return Object.keys(lib)
     .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
     .map((s) => {
-      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: [${lib[s].serverVersions}] }`;
+      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: ${JSON.stringify(lib[s].serverVersions, null, ' ')} }`;
     }).join(',\n')
 };
 

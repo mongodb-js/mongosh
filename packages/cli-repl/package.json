@@ -23,7 +23,8 @@
     "mongosh-mapper": "file:../mapper",
     "mongosh-service-provider-server": "file:../service-provider-server",
     "mongosh-shell-api": "file:../shell-api",
-    "read": "^1.0.7"
+    "read": "^1.0.7",
+    "semver": "^7.1.2"
   },
   "devDependencies": {
     "mocha": "^7.0.0"
