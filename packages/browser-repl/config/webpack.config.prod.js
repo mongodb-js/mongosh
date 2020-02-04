@@ -1,13 +1,8 @@
 const path = require('path');
 const webpackConfigBase = require('./webpack.config.base');
+const package = require('../package.json');
 
 const libraryName = 'mongosh-browser-repl';
-
-const excludeFromBundle = {
-  'react': 'react',
-  'react-dom': 'react-dom',
-  'prop-types': 'prop-types'
-};
 
 module.exports = {
   ...webpackConfigBase,
@@ -17,24 +12,13 @@ module.exports = {
   optimization: {
     minimize: false
   },
-  resolve: {
-    ...webpackConfigBase.resolve,
-    alias: Object.keys(excludeFromBundle).reduce((aliases, dependency) => ({
-      ...aliases,
-      [dependency]: path.resolve(__dirname, 'node_modules', dependency)
-    }), {})
-  },
   entry: path.resolve(__dirname, '..', 'src', 'index.tsx'),
   output: {
     filename: `${libraryName}.js`,
     library: libraryName,
-    libraryTarget: 'umd',
+    libraryTarget: 'commonjs2',
     path: path.resolve(__dirname, '..', 'lib'),
     umdNamedDefine: true
   },
-  externals: {
-    ...excludeFromBundle,
-    vm: 'vm',
-    fs: 'fs'
-  }
+  externals: [...Object.keys(package.peerDependencies), 'vm', 'fs']
 };
