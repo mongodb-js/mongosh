@@ -27,6 +27,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return 'undefined';
     }
 
+    if (entry.value === null) {
+      return 'null';
+    }
+
     if (entry.value instanceof Error) {
       return entry.value.stack;
     }
