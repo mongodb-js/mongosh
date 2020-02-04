@@ -9,9 +9,6 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   target: 'web',
-  optimization: {
-    minimize: false
-  },
   entry: path.resolve(__dirname, '..', 'src', 'index.tsx'),
   output: {
     filename: `${libraryName}.js`,
