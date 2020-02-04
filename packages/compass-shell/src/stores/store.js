@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
 import reducer from 'modules';
-import { setDataService } from 'modules/data-service';
+import { setupRuntime } from 'modules/runtime';
 
 const debug = require('debug')('mongodb-compass-shell:store');
 
@@ -24,14 +24,14 @@ export default class CompassShellStore {
   }
 
   onDataServiceConnected = (error, dataService) => {
-    this.reduxStore.dispatch(setDataService(
+    this.reduxStore.dispatch(setupRuntime(
       error,
       dataService
     ));
   }
 
   onDataServiceDisconnected = () => {
-    this.reduxStore.dispatch(setDataService(
+    this.reduxStore.dispatch(setupRuntime(
       null,
       null
     ));

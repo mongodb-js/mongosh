@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
-import dataService from './data-service';
+import runtime from './runtime';
 
 /**
  * The reducer.
  */
 const reducer = combineReducers({
-  dataService
+  runtime
 });
 
 export default reducer;

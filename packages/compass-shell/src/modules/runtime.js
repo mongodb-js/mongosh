@@ -5,19 +5,20 @@ import { CompassServiceProvider } from 'mongosh-service-provider-server';
 /**
  * The prefix.
  */
-const PREFIX = 'collection/data-service';
+const PREFIX = 'shell/runtime';
 
 /**
  * Data service connected.
  */
-export const SET_DATA_SERVICE = `${PREFIX}/SET_DATA_SERVICE`;
+export const SETUP_RUNTIME = `${PREFIX}/SETUP_RUNTIME`;
 
 /**
  * The initial state.
  */
 export const INITIAL_STATE = {
   error: null,
-  dataService: null
+  dataService: null,
+  runtime: null
 };
 
 /**
@@ -29,14 +30,14 @@ export const INITIAL_STATE = {
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SET_DATA_SERVICE) {
-    return reduceSetRuntimeFromDataService(state, action);
+  if (action.type === SETUP_RUNTIME) {
+    return reduceSetupRuntime(state, action);
   }
 
   return state;
 }
 
-function reduceSetRuntimeFromDataService(state, action) {
+function reduceSetupRuntime(state, action) {
   if (action.error || !action.dataService) {
     return {error: action.error, dataService: null, runtime: null};
   }
@@ -57,15 +58,15 @@ function reduceSetRuntimeFromDataService(state, action) {
 }
 
 /**
- * Action creator for data service connected events.
+ * Setup the shell runtime with the supplied dataService instance.
  *
  * @param {Error} error - The connection error.
  * @param {DataService} dataService - The data service.
  *
  * @returns {Object} The data service connected action.
  */
-export const setDataService = (error, dataService) => ({
-  type: SET_DATA_SERVICE,
+export const setupRuntime = (error, dataService) => ({
+  type: SETUP_RUNTIME,
   error: error,
   dataService: dataService
 });
