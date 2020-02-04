@@ -116,7 +116,7 @@ const symbolTemplate = (className, lib) => {
   return Object.keys(lib)
     .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
     .map((s) => {
-      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}' }`
+      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: [${lib[s].serverVersions}] }`;
     }).join(',\n')
 };
 
@@ -134,14 +134,12 @@ const loadAll = () => {
 
   const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);
-    console.log(`${fileName} => src/shell-api.js`);
 
     /* load YAML into memory */
     const fileContents = fs.readFileSync(path.join(yamlDir, fileName));
     const lib = yaml.load(`${main}${fileContents}`);
 
     /* append class to exports */
-    exports = `${exports}export { ${className} };\n`;
     types.push(`const ${className} = {\n  type: '${className}',\n  attributes: {\n${symbolTemplate(className, lib.class)}\n  }\n}`);
     typeConsts.push(className);
 

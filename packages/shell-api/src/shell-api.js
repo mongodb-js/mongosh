@@ -922,18 +922,6 @@ const Topologies = Object.freeze({
 });
 
 export default ShellApi;
-export { AggregationCursor };
-export { BulkWriteResult };
-export { Collection };
-export { Cursor };
-export { Database };
-export { DeleteResult };
-export { InsertManyResult };
-export { InsertOneResult };
-export { ReplicaSet };
-export { Shard };
-export { ShellApi };
-export { UpdateResult };
 export { ReadPreference };
 export { DBQuery };
 export { ServerVersions };
