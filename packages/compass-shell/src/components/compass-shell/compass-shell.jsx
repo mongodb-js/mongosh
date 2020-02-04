@@ -37,7 +37,7 @@ export class CompassShell extends Component {
 
 export default connect(
   (state) => ({
-    runtime: state.dataService ? state.dataService.runtime : null
+    runtime: state.runtime ? state.runtime.runtime : null
   }),
   {}
 )(CompassShell);
