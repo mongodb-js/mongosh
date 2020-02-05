@@ -6,7 +6,7 @@ var path = require('path')
 var fs = require('fs')
 var os = require('os')
 
-var saveFilePath = path.join(os.homedir(), '.mongoshrc')
+var saveFilePath = path.join(os.homedir(), '.mongosh_log')
 var log = new Logger(saveFilePath)
 
 var infoObject = {
@@ -35,7 +35,7 @@ var CliServiceProvider = require('mongosh-service-provider-server').CliServicePr
 var ShellApi = require('mongosh-shell-api')
 var Mapper = require('mongosh-mapper')
 
-var loggerPath = path.join(os.homedir(), '.mongoshrc')
+var loggerPath = path.join(os.homedir(), '.mongosh_log')
 
 CliServiceProvider.connect(driverUri, driverOptions)
   .then(function (serviceProvider) {
