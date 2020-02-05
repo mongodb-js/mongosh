@@ -31,9 +31,14 @@ function linkPlugin() {
   const pluginPackageJsonPath = path.resolve(pluginPath, 'package.json');
   const pluginPackageJson = JSON.parse(fs.readFileSync(pluginPackageJsonPath, 'utf-8'));
 
-
   compassPackageJson.dependencies[pluginPackageJson.name] = `file:${pluginPath}`;
-  compassPackageJson.config.hadron.distributions.compass.plugins.push(`node_modules/${pluginPackageJson.name}`);
+
+  const pluginLoadPath = `node_modules/${pluginPackageJson.name}`;
+  const plugins = compassPackageJson.config.hadron.distributions.compass.plugins;
+
+  if (!plugins.includes(pluginLoadPath)) {
+    plugins.push(pluginLoadPath);
+  }
 
   fs.writeFileSync(compassPackageJsonPath, JSON.stringify(compassPackageJson));
 }
