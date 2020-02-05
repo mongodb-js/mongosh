@@ -1,4 +1,4 @@
-# compass-shell [![][travis_img]][travis_url]
+# compass-shell
 
 > Compass Shell Plugin
 
@@ -18,6 +18,8 @@ COMPASS_HOME=/path/to/my/compass npm run link-plugin
 ```shell
 COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 ```
+
+`start:compass`: Runs the plugin in compass master.
 
 ## License
 
