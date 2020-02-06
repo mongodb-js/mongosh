@@ -8,158 +8,201 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
-    help: ''
+    help:
+        help: ''
     addOption:
         <<: *__defaultMethod
         serverVersions:
             - *ServerVersions.earliest
             - '3.2.0'
-        help: 'shell-api.cursor.help.add-option'
+        help:
+            help: 'shell-api.cursor.help.add-option'
     allowPartialResults: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.allow-partial-results'
+        help:
+            help: 'shell-api.cursor.help.allow-partial-results'
     arrayAccess: *__defaultMethod # TODO: not documented
     batchSize:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.batch-size'
+        help:
+            help: 'shell-api.cursor.help.batch-size'
     clone:  # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.clone'
+        help:
+            help: 'shell-api.cursor.help.clone'
     close:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.close'
+        help:
+            help: 'shell-api.cursor.help.close'
     collation:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.collation'
+        help:
+            help: 'shell-api.cursor.help.collation'
         serverVersions:
             - '3.4.0'
             - *ServerVersions.latest
     comment:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.comment'
+        help:
+            help: 'shell-api.cursor.help.comment'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     count:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.count'
+        help:
+            help: 'shell-api.cursor.help.count'
         serverVersion:
             - *ServerVersions.earliest
             - '4.0.0'
     explain:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.explain'
+        help:
+            help: 'shell-api.cursor.help.explain'
     forEach:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.for-each'
+        help:
+            help: 'shell-api.cursor.help.for-each'
     getQueryPlan:  # TODO: not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.get-query-plan'
+        help:
+            help: 'shell-api.cursor.help.get-query-plan'
     hasNext:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.has-next'
+        help:
+            help: 'shell-api.cursor.help.has-next'
     hint:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.hint'
+        help:
+            help: 'shell-api.cursor.help.hint'
     isClosed: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.is-closed'
+        help:
+            help: 'shell-api.cursor.help.is-closed'
     isExhausted:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.is-exhausted'
+        help:
+            help: 'shell-api.cursor.help.is-exhausted'
     itcount:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.itcount'
+        help:
+            help: 'shell-api.cursor.help.itcount'
     length: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.length'
+        help:
+            help: 'shell-api.cursor.help.length'
     limit:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.limit'
+        help:
+            help: 'shell-api.cursor.help.limit'
     map:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.map'
+        help:
+            help: 'shell-api.cursor.help.map'
     max:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.max'
+        help:
+            help: 'shell-api.cursor.help.max'
     maxScan: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.max-scan'
+        help:
+            help: 'shell-api.cursor.help.max-scan'
         serverVersions:
             - *ServerVersions.earliest
             - '4.0.0'
     maxTimeMS:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.max-time-ms'
+        help:
+            help: 'shell-api.cursor.help.max-time-ms'
     min:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.min'
+        help:
+            help: 'shell-api.cursor.help.min'
     modifiers: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.modifiers'
+        help:
+            help: 'shell-api.cursor.help.modifiers'
     next:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.next'
+        help:
+            help: 'shell-api.cursor.help.next'
     noCursorTimeout:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.no-cursor-timeout'
+        help:
+            help: 'shell-api.cursor.help.no-cursor-timeout'
     objsLeftInBatch:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.objs-left-in-batch'
+        help:
+            help: 'shell-api.cursor.help.objs-left-in-batch'
     oplogReplay: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.oplog-replay'
+        help:
+            help: 'shell-api.cursor.help.oplog-replay'
     projection:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.projection'
+        help:
+            help: 'shell-api.cursor.help.projection'
     pretty:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.pretty'
+        help:
+            help: 'shell-api.cursor.help.pretty'
     readConcern:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.read-concern'
+        help:
+            help: 'shell-api.cursor.help.read-concern'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     readOnly: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.readonly'
+        help:
+            help: 'shell-api.cursor.help.readonly'
     readPref:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.read-pref'
+        help:
+            help: 'shell-api.cursor.help.read-pref'
     returnKey:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.return-key'
+        help:
+            help: 'shell-api.cursor.help.return-key'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     showDiskLoc: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.show-disk-loc'
+        help:
+            help: 'shell-api.cursor.help.show-disk-loc'
     showRecordId:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.show-record-id'
+        help:
+            help: 'shell-api.cursor.help.show-record-id'
     size:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.size'
+        help:
+            help: 'shell-api.cursor.help.size'
     skip:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.skip'
+        help:
+            help: 'shell-api.cursor.help.skip'
     snapshot: # not documented
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.snapshot'
+        help:
+            help: 'shell-api.cursor.help.snapshot'
         serverVersions:
             - *ServerVersions.earliest
             - '4.0.0'
     sort:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.sort'
+        help:
+            help: 'shell-api.cursor.help.sort'
     tailable:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.tailable'
+        help:
+            help: 'shell-api.cursor.help.tailable'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     toArray:
         <<: *__defaultMethod
-        help: 'shell-api.cursor.help.to-array'
+        help:
+            help: 'shell-api.cursor.help.to-array'

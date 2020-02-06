@@ -1,3 +1,4 @@
 class:
     <<: *__defaultClass
-    help: 'shell-api.shard.description'
+    help:
+        help: 'shell-api.shard.description'

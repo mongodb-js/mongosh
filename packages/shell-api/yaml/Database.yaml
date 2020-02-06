@@ -5,7 +5,9 @@ class:
         - _database
     __stringRep:
         - this._database
-    help: 'shell-api.database.description'
+    help:
+        help: 'shell-api.database.description'
     runCommand:
         <<: *__defaultMethod
-        help: 'shell-api.database.help.run-command'
+        help:
+            help: 'shell-api.database.help.run-command'

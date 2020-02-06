@@ -54,7 +54,8 @@ __defaultMethod: &__defaultMethod
     # The type
     __type: 'function'
     # The help string
-    help: '!! No help defined for this method'
+    help:
+        help: '!! No help defined for this method'
     # What service providers support this method
     __serviceProviders:
         - 'Node'

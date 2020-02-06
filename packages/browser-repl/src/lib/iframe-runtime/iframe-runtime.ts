@@ -1,17 +1,23 @@
-import {
-  setupEvaluationContext
-} from '../runtime-helpers/setup-evaluation-context';
 
 import {
   Interpreter,
-  EvaluationResult,
 } from '../interpreter';
 
 import {
   IframeInterpreterEnvironment
 } from './iframe-interpreter-environment';
 
-export class IframeRuntime {
+import { Runtime, EvaluationResult } from '../../components/runtime';
+
+import {
+  addShellTypeToResult
+} from '../runtime-helpers/add-shell-type-to-result';
+
+import {
+  setupEvaluationContext
+} from '../runtime-helpers/setup-evaluation-context';
+
+export class IframeRuntime implements Runtime {
   private iframe: HTMLIFrameElement;
   private container: HTMLDivElement;
   private interpreter: Interpreter;
@@ -26,7 +32,7 @@ export class IframeRuntime {
       await this.initialize();
     }
 
-    return await this.interpreter.evaluate(code);
+    return addShellTypeToResult(await this.interpreter.evaluate(code));
   }
 
   async initialize(): Promise<void> {

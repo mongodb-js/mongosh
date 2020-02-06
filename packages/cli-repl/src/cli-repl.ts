@@ -87,8 +87,8 @@ class CliRepl {
         return this.shellApi.use(argv[0]);
       case 'it':
         return this.shellApi.it();
-      case 'help()':
-        return this.shellApi.help;
+      case 'help':
+        return this.shellApi.help();
       case 'var':
         this.mapper.cursorAssigned = true;
       default:
@@ -184,7 +184,7 @@ class CliRepl {
 
     // @ts-ignore
     this.repl.eval = customEval;
-    
+
     const historyFile = path.join(os.homedir(), '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     this.repl.setupHistory(historyFile, function(err, repl) {

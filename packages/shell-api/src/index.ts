@@ -13,6 +13,8 @@ import {
 
 import types from './shell-types';
 
+import { Help } from './help';
+
 export default ShellApi;
 export {
   ShellApi,
@@ -25,5 +27,6 @@ export {
   InsertManyResult,
   InsertOneResult,
   ReplicaSet,
-  types
+  types,
+  Help
 };

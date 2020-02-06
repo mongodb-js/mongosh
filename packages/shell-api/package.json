@@ -5,9 +5,10 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "compile-api": "node bin/compile-shell-api.js",
+    "compile-api": "node bin/compile-shell-api.js && eslint --fix src/shell-api.js && eslint --fix src/shell-types.js",
     "precompile-ts": "npm run compile-api",
     "compile-ts": "tsc -p tsconfig.json",
+    "pretest": "npm run compile-api",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.js\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.js\"",
     "prepublish": "npm run compile-ts"
