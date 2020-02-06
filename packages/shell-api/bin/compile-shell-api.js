@@ -1,3 +1,4 @@
+/* eslint-disable no-sync */
 const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
@@ -28,8 +29,7 @@ const attrTemplate = (attrName, lib, base = '') => {
   const lhs = `    this${base}.${attrName}`;
 
   if (attrName === 'help') {
-    return `${lhs} = () => (i18n.translateApiHelp('${attr}'));
-${lhs}.toReplString = () => (i18n.translateApiHelp('${attr}'));`
+    return `${lhs} = () => new Help(${JSON.stringify(attr)});`;
   }
 
   return `${lhs} = ${JSON.stringify(attr)};`;
@@ -56,7 +56,7 @@ const methodTemplate = (methodName, lib) => {
     .reduce(
       (str, methodAttrName) => {
         const attrStr = attrTemplate(methodAttrName, method, base);
-        return `${str}\n${attrStr}`
+        return `${str}\n${attrStr}`;
       },
       methodStr
     );
@@ -81,8 +81,14 @@ const classTemplate = (className, lib) => {
     attributes = `${attributes}
     this.toReplString = () => {
       return ${lib.__stringRep};
-    };\n`
+    };\n`;
   }
+
+  /* string the shell api type of the object */
+  attributes = `${attributes}
+  this.shellApiType = () => {
+    return '${className}';
+  };\n`;
 
   /* class methods and attributes */
   let contents = Object.keys(lib).reduce((str, name) => {
@@ -110,7 +116,8 @@ const classTemplate = (className, lib) => {
   constructor(${args.join(', ')}) {
 ${contents}  }
 }
-`};
+`;
+};
 
 const symbolTemplate = (className, lib) => {
   return Object.keys(lib)
@@ -129,8 +136,8 @@ const loadAll = () => {
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
   let exports = '\nexport default ShellApi;\n';
-  let types = [];
-  let typeConsts = [];
+  const types = [];
+  const typeConsts = [];
 
   const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);
@@ -146,7 +153,7 @@ const loadAll = () => {
 
     /* generate class */
     return `${str}${classTemplate(className, lib.class)}`;
-  }, '/* AUTO-GENERATED SHELL API CLASSES*/\nimport i18n from \'mongosh-i18n\';\n\n');
+  }, '/* AUTO-GENERATED SHELL API CLASSES*/\nimport {Help} from \'./help\';\n\n');
 
   const result = Object.keys(mainLib)
     .filter((f) => !f.startsWith('_'))

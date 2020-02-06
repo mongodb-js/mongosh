@@ -1,14 +1,14 @@
 const {
-    AggregationCursor,
-    BulkWriteResult,
-    Collection,
-    Cursor,
-    Database,
-    DeleteResult,
-    InsertManyResult,
-    InsertOneResult,
-    ReplicaSet,
-    ShellApi
+  AggregationCursor,
+  BulkWriteResult,
+  Collection,
+  Cursor,
+  Database,
+  DeleteResult,
+  InsertManyResult,
+  InsertOneResult,
+  ReplicaSet,
+  ShellApi
 } = require('./lib/shell-api.js');
 
 const types = require('./lib/shell-types');

@@ -1,3 +1,4 @@
 class:
     <<: *__defaultClass
-    help: 'shell-api.replica-set.description'
+    help:
+        help: 'shell-api.replica-set.description'

@@ -1,6 +1,7 @@
 class:
     <<: *__defaultClass
-    help: 'The UpdateResult class.'
+    help:
+        help: 'The UpdateResult class.'
     __constructorArgs:
         - acknowleged
         - matchedCount

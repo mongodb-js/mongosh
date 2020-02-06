@@ -6,6 +6,7 @@ type ShellOutputEntryValue = any;
 
 export interface ShellOutputEntry {
   type: 'input' | 'output' | 'error';
+  apiType?: string;
   value: ShellOutputEntryValue;
 }
 
@@ -31,12 +32,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return 'null';
     }
 
-    if (entry.value instanceof Error) {
-      return entry.value.stack;
-    }
-
-    // NOTE: due to the iframe bridge entry.value instanceof Error can be false for errors
-    if (entry.type === 'error' && entry.value && entry.value.stack) {
+    if (this.isError(entry)) {
       return entry.value.stack;
     }
 
@@ -54,9 +50,53 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     return inspected;
   }
 
+  private isError(entry: ShellOutputEntry): boolean {
+    return entry.value instanceof Error ||
+      entry.type === 'error' && entry.value && entry.value.stack;
+  }
+
+  renderHelpAttrRow = (attr: {[propName: string]: string}, i: number): JSX.Element => {
+    const [k, v] = Object.entries(attr)[0];
+    return <tr key={`row-${i}`}><td>{k}</td>{v}</tr>;
+  }
+
+  renderHelpDocsLink(docs: string): JSX.Element {
+    return (<div>
+      <i><a href={docs} target="_blank">Open docs ...</a></i>
+    </div>);
+  }
+
+  renderHelp(): JSX.Element {
+    const help: {
+      help: string;
+      docs: string;
+      attr: Array<{[propName: string]: string}>;
+    } = this.props.entry.value;
+
+    return (
+      <div className="alert alert-info">
+        <h5><b>{help.help}</b></h5>
+        <table className="table">
+          {help.attr.map(this.renderHelpAttrRow)}
+        </table>
+        {help.docs ? this.renderHelpDocsLink(help.docs) : ''}
+      </div>
+    );
+  }
+
   render(): JSX.Element {
+    if (this.props.entry.apiType === 'Help') {
+      return this.renderHelp();
+    }
+
     const formattedValue = this.formatValue(this.props.entry);
-    const className = `shell-output-line shell-output-line-${this.props.entry.type}`;
+
+    let className = `shell-output-line shell-output-line-${this.props.entry.type}`;
+
+    if (this.props.entry.type === 'error') {
+      className += ' alert alert-danger';
+    }
+
     return <pre className={className}>{formattedValue}</pre>;
   }
 }

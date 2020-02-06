@@ -8,35 +8,46 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
-    help: 'shell-api.aggregation-cursor.description'
+    help:
+        help: 'shell-api.aggregation-cursor.description'
     bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.close'
+        help:
+            help: 'shell-api.aggregation-cursor.help.close'
     forEach:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.for-each'
+        help:
+            help: 'shell-api.aggregation-cursor.help.for-each'
     hasNext:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.has-next'
+        help:
+            help: 'shell-api.aggregation-cursor.help.has-next'
     isClosed:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.is-closed'
+        help:
+            help: 'shell-api.aggregation-cursor.help.is-closed'
     isExhausted:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.is-exhausted'
+        help:
+            help: 'shell-api.aggregation-cursor.help.is-exhausted'
     itcount:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.itcount'
+        help:
+            help: 'shell-api.aggregation-cursor.help.itcount'
     map:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.map'
+        help:
+            help: 'shell-api.aggregation-cursor.help.map'
     next:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.next'
+        help:
+            help: 'shell-api.aggregation-cursor.help.next'
     objsLeftInBatch:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
+        help:
+            help: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
     toArray:
         <<: *__defaultMethod
-        help: 'shell-api.aggregation-cursor.help.to-array'
+        help:
+            help: 'shell-api.aggregation-cursor.help.to-array'

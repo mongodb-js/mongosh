@@ -118,6 +118,7 @@ export class Shell extends Component<ShellProps, ShellState> {
       const result = await this.props.runtime.evaluate(code);
       outputLine = {
         type: 'output',
+        apiType: result.apiType,
         value: result.value
       };
     } catch (error) {

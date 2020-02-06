@@ -1,6 +1,7 @@
 export type ContextValue = any;
 
 export type EvaluationResult = {
+  apiType?: string;
   value: any;
 };
 
