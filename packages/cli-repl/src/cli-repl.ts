@@ -46,8 +46,8 @@ class CliRepl {
       this.serviceProvider = serviceProvider;
       this.mapper = new Mapper(this.serviceProvider);
       this.shellApi = new ShellApi(this.mapper);
-      // .toString() output since child_process execution returns a Buffer
-      // grab version info from the first line from output
+      // TODO: @lrlna once shell-api has db.version() implemented, use server
+      // version coming from shell-api instead
       this.mdbVersion = execSync('mongod --version')
         .toString()
         .split('\n')[0]
