@@ -67,15 +67,10 @@ function completer(mdbVersion: string, line: string): [string[], string] {
 function filterComplete(mdbVersion: string, completions: object, toMatchTo: string, split?:
                         string[]) {
   const hits = Object.keys(completions).filter((c) => {
-    console.log('c\n', c)
-    console.log('completions[c]\n', completions[c])
-    console.log('serverVersions[c]\n', completions[c].serverVersions)
     return c.startsWith(toMatchTo)
-      // && semver.gte(mdbVersion, completions[c].serverVersions[0])
-      // && semver.lte(mdbVersion, completions[c].serverVersions[1]);
+      && semver.gte(mdbVersion, completions[c].serverVersions[0])
+      && semver.lte(mdbVersion, completions[c].serverVersions[1])
   });
-
-  console.log('\n', hits)
 
   if (split) {
     const adjusted = hits.map(h => `${split.slice(0, -1).join('.')}.${h}`);

@@ -18,8 +18,8 @@ DBQuery: &DBQuery
         partial: &DBQuery.partial 128
 
 ServerVersions: &ServerVersions
-    latest: &ServerVersions.latest 4.4
-    earliest: &ServerVersions.earliest 0
+    latest: &ServerVersions.latest '4.4.0'
+    earliest: &ServerVersions.earliest '0.0.0'
 
 Topologies: &Topologies
     ReplSet: &Topologies.ReplSet 0

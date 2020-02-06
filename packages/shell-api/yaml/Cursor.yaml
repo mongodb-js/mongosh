@@ -13,7 +13,7 @@ class:
         <<: *__defaultMethod
         serverVersions:
             - *ServerVersions.earliest
-            - 3.2
+            - '3.2.0'
         help: 'shell-api.cursor.help.add-option'
     allowPartialResults: # not documented
         <<: *__defaultMethod
@@ -32,20 +32,20 @@ class:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.collation'
         serverVersions:
-            - 3.4
+            - '3.4.0'
             - *ServerVersions.latest
     comment:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.comment'
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
     count:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.count'
         serverVersion:
             - *ServerVersions.earliest
-            - 4.0
+            - '4.0.0'
     explain:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.explain'
@@ -87,7 +87,7 @@ class:
         help: 'shell-api.cursor.help.max-scan'
         serverVersions:
             - *ServerVersions.earliest
-            - 4.0
+            - '4.0.0'
     maxTimeMS:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.max-time-ms'
@@ -119,7 +119,7 @@ class:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.read-concern'
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
     readOnly: # not documented
         <<: *__defaultMethod
@@ -131,7 +131,7 @@ class:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.return-key'
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
     showDiskLoc: # not documented
         <<: *__defaultMethod
@@ -150,7 +150,7 @@ class:
         help: 'shell-api.cursor.help.snapshot'
         serverVersions:
             - *ServerVersions.earliest
-            - 4.0
+            - '4.0.0'
     sort:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.sort'
@@ -158,7 +158,7 @@ class:
         <<: *__defaultMethod
         help: 'shell-api.cursor.help.tailable'
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
     toArray:
         <<: *__defaultMethod
