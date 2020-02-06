@@ -57,12 +57,12 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
 
   renderHelpAttrRow = (attr: {[propName: string]: string}, i: number): JSX.Element => {
     const [k, v] = Object.entries(attr)[0];
-    return <tr key={`row-${i}`}><td>{k}</td>{v}</tr>;
+    return <tr key={`row-${i}`}><td>{k}</td><td>{v}</td></tr>;
   }
 
   renderHelpDocsLink(docs: string): JSX.Element {
     return (<div>
-      <i><a href={docs} target="_blank">Open docs ...</a></i>
+      <i><a href={docs} target="_blank">{docs}</a></i>
     </div>);
   }
 
