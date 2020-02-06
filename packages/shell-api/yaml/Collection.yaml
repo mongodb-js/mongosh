@@ -17,14 +17,14 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.bulk-write'
     countDocuments:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 4.0.3
+            - '4.0.3'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.count-documents'
     count:
@@ -51,7 +51,7 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 4.0.3
+            - '4.0.3'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.estimated-document-count'
     find:
@@ -71,21 +71,21 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.find-one-and-delete'
     findOneAndReplace:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.find-one-and-replace'
     findOneAndUpdate:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api-collection.help.find-one-and-update'
     insert:
@@ -97,14 +97,14 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.insert-many'
     insertOne:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.insert-one'
     isCapped:
@@ -126,7 +126,7 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.replace-one'
     update:
@@ -138,13 +138,13 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.update-many'
     updateOne:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - 3.2
+            - '3.2.0'
             - *ServerVersions.latest
         help: 'shell-api.collection.help.update-one'

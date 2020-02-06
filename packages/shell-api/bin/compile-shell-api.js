@@ -116,7 +116,7 @@ const symbolTemplate = (className, lib) => {
   return Object.keys(lib)
     .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
     .map((s) => {
-      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: ${JSON.stringify(lib[s].serverVersions, null, ' ')} }`;
+      return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: ${JSON.stringify(lib[s].serverVersions, null, '')} }`;
     }).join(',\n')
 };
 
@@ -140,6 +140,7 @@ const loadAll = () => {
     const lib = yaml.load(`${main}${fileContents}`);
 
     /* append class to exports */
+    exports = `${exports}export { ${className}  };\n`;
     types.push(`const ${className} = {\n  type: '${className}',\n  attributes: {\n${symbolTemplate(className, lib.class)}\n  }\n}`);
     typeConsts.push(className);
 
