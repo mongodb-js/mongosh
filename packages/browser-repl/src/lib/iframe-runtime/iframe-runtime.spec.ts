@@ -50,8 +50,8 @@ describe('IframeRuntime', () => {
       await other.evaluate('x = 2');
 
       expect(
-        await runtime.evaluate('x')
-      ).to.deep.equal({value: 1});
+        (await runtime.evaluate('x')).value
+      ).to.equal(1);
     });
   });
 });

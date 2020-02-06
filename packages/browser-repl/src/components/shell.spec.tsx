@@ -137,14 +137,14 @@ describe('<Shell />', () => {
     it('adds the evaluated input and output as lines to the output', () => {
       expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
         { type: 'input', value: 'some code' },
-        { type: 'output', value: 'some result' }
+        { type: 'output', value: 'some result', apiType: undefined }
       ]);
     });
 
     it('calls onOutputChanged with output', () => {
       expect(onOutputChangedSpy).to.have.been.calledWith([
         { type: 'input', value: 'some code' },
-        { type: 'output', value: 'some result' }
+        { type: 'output', value: 'some result', apiType: undefined }
       ]);
     });
 
@@ -153,9 +153,9 @@ describe('<Shell />', () => {
       await onInput('line 1');
       await onInput('line 2');
       expect(wrapper.state('output')).to.deep.equal([
-        { type: 'output', value: 'some result' },
+        { type: 'output', value: 'some result', apiType: undefined },
         { type: 'input', value: 'line 2' },
-        { type: 'output', value: 'some result' }
+        { type: 'output', value: 'some result', apiType: undefined }
       ]);
     });
 
