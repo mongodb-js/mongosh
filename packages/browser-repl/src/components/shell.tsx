@@ -193,6 +193,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         <ShellOutput
           output={this.state.output} />
       </div>
+      <hr/>
       <div ref={(el): void => { this.shellInputElement = el; }}>
         <ShellInput
           onInput={this.onInput}
