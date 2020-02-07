@@ -61,7 +61,7 @@ describe('<ShellOutputLine />', () => {
   it('renders CursorIterationResult', () => {
     const wrapper = shallow(<ShellOutputLine entry={{
       type: 'output',
-      shellApiType: 'Cursor',
+      shellApiType: 'CursorIterationResult',
       value: []
     }} />);
 
