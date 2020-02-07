@@ -90,6 +90,10 @@ class Translator {
    */
   translateApiHelp(key: string): string {
     const value = this.find(key);
+    if (!value) {
+      return;
+    }
+
     if (typeof value === 'string') {
       return value;
     }

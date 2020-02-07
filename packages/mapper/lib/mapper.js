@@ -6,7 +6,8 @@ const {
   DeleteResult,
   InsertManyResult,
   InsertOneResult,
-  UpdateResult
+  UpdateResult,
+  CursorIterationResult
 } = require('mongosh-shell-api');
 
 class Mapper {
@@ -24,15 +25,15 @@ class Mapper {
       return Number(r[1]) - 1;
     };
     const requiresAwait = [
-        'deleteOne',
-        'insertOne' // etc etc
+      'deleteOne',
+      'insertOne' // etc etc
     ];
     const handler = {
-      get: function (obj, prop) {
+      get: function(obj, prop) {
         if (obj.checkAwait && requiresAwait.includes(prop)) {
           try {
             throw new Error();
-          } catch(e) {
+          } catch (e) {
             const loc = parseStack(e.stack);
             if (!isNaN(loc)) {
               obj.awaitLoc.push(loc);
@@ -48,17 +49,18 @@ class Mapper {
   setCtx(ctx) {
     this._ctx = ctx;
     this._ctx.db = new Database(this, 'test');
-  };
+  }
 
 
   use(_, db) {
     this._ctx.db = new Database(this, db);
     return `switched to db ${db}`;
-  };
+  }
 
   async it() {
+    const results = new CursorIterationResult();
+
     if (this.currentCursor && !this.cursorAssigned) {
-      const results = [];
       for (let i = 0; i < 20; i++) {
         const hasNext = await this.currentCursor.hasNext();
         if (hasNext) {
@@ -67,10 +69,11 @@ class Mapper {
           break;
         }
       }
-      if (results.length > 0)
-        return results;
+
+      if (results.length > 0) {return results;}
     }
-    return 'no cursor';
+
+    return results;
   }
 
   /**
@@ -132,7 +135,7 @@ class Mapper {
     }
 
     return this.currentCursor = cursor;
-  };
+  }
 
   /**
    * Execute a mix of write operations.
@@ -162,9 +165,9 @@ class Mapper {
     );
 
     return new BulkWriteResult(
-        result.result.ok // TODO
+      result.result.ok // TODO
     );
-  };
+  }
 
   /**
    * Deprecated count command.
@@ -178,7 +181,7 @@ class Mapper {
    *  <limit, skip, hint, maxTimeMS, readConcern, collation>
    * @returns {Integer} The promise of the count.
    */
-  count(collection, query= {}, options = {}) {
+  count(collection, query = {}, options = {}) {
     const dbOpts = {};
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
@@ -190,7 +193,7 @@ class Mapper {
       options,
       dbOpts
     );
-  };
+  }
 
   /**
    * Get an exact document count from the coll.
@@ -208,8 +211,8 @@ class Mapper {
       collection._collection,
       query,
       options
-    )
-  };
+    );
+  }
 
   /**
    * Delete multiple documents from the coll.
@@ -241,7 +244,7 @@ class Mapper {
       result.result.ok,
       result.deletedCount
     );
-  };
+  }
 
   /**
    * Delete one document from the coll.
@@ -273,7 +276,7 @@ class Mapper {
       result.result.ok,
       result.deletedCount
     );
-  };
+  }
 
   /**
    * Get distinct values for the field.
@@ -296,7 +299,7 @@ class Mapper {
       query,
       options,
     );
-  };
+  }
 
   /**
    * Get an estimated document count from the coll.
@@ -313,7 +316,7 @@ class Mapper {
       collection._collection,
       options,
     );
-  };
+  }
 
   /**
    * Find documents in the collection.
@@ -341,7 +344,7 @@ class Mapper {
         options
       )
     );
-  };
+  }
 
   /**
    * Find one document in the collection.
@@ -368,7 +371,7 @@ class Mapper {
         options
       )
     ).limit(1).next();
-  };
+  }
 
   // findAndModify(collection, document) {
   //   return this._serviceProvider.findAndModify(
@@ -396,7 +399,7 @@ class Mapper {
       options,
     );
     return result.value;
-  };
+  }
 
   /**
    * Find one document and replace it.
@@ -427,7 +430,7 @@ class Mapper {
       findOneAndReplaceOptions
     );
     return result.value;
-  };
+  }
 
   /**
    * Find one document and update it.
@@ -457,7 +460,7 @@ class Mapper {
       options,
     );
     return result.value;
-  };
+  }
 
   /**
    * Alias for insertMany.
@@ -485,10 +488,10 @@ class Mapper {
       dbOptions
     );
     return new InsertManyResult(
-        result.result.ok,
-        result.insertedIds
+      result.result.ok,
+      result.insertedIds
     );
-  };
+  }
 
   /**
    * Insert multiple documents.
@@ -518,10 +521,10 @@ class Mapper {
       dbOptions
     );
     return new InsertManyResult(
-        result.result.ok,
-        result.insertedIds
+      result.result.ok,
+      result.insertedIds
     );
-  };
+  }
 
   /**
    * Insert one document.
@@ -554,7 +557,7 @@ class Mapper {
       result.result.ok,
       result.insertedId
     );
-  };
+  }
 
   /**
    * Is collection capped?
@@ -567,7 +570,7 @@ class Mapper {
       collection._database,
       collection._collection,
     );
-  };
+  }
 
   /**
    * Deprecated remove command.
@@ -589,7 +592,7 @@ class Mapper {
     }
     let removeOptions = {};
     if (typeof options === 'boolean') {
-      removeOptions.justOne =  options;
+      removeOptions.justOne = options;
     } else {
       removeOptions = options;
     }
@@ -600,7 +603,7 @@ class Mapper {
       removeOptions,
       dbOptions
     );
-  };
+  }
 
   // TODO
   save(collection, doc, options = {}) {
@@ -615,7 +618,7 @@ class Mapper {
       options,
       dbOptions
     );
-  };
+  }
 
   /**
    * Replace a document with another.
@@ -647,13 +650,13 @@ class Mapper {
       dbOptions
     );
     return new UpdateResult(
-        result.result.ok,
-        result.matchedCount,
-        result.modifiedCount,
-        result.upsertedCount,
-        result.upsertedId
+      result.result.ok,
+      result.matchedCount,
+      result.modifiedCount,
+      result.upsertedCount,
+      result.upsertedId
     );
-  };
+  }
 
   /**
    * Run a command against the db.
@@ -665,7 +668,7 @@ class Mapper {
    */
   runCommand(database, cmd) {
     return this._serviceProvider.runCommand(database._database, cmd);
-  };
+  }
 
   async update(collection, filter, update, options = {}) {
     let result;
@@ -687,13 +690,13 @@ class Mapper {
       );
     }
     return new UpdateResult(
-        result.result.ok,
-        result.matchedCount,
-        result.modifiedCount,
-        result.upsertedCount,
-        result.upsertedId
-    )
-  };
+      result.result.ok,
+      result.matchedCount,
+      result.modifiedCount,
+      result.upsertedCount,
+      result.upsertedId
+    );
+  }
 
   /**
    * Update many documents.
@@ -723,13 +726,13 @@ class Mapper {
       dbOptions
     );
     return new UpdateResult(
-        result.result.ok,
-        result.matchedCount,
-        result.modifiedCount,
-        result.upsertedCount,
-        result.upsertedId
+      result.result.ok,
+      result.matchedCount,
+      result.modifiedCount,
+      result.upsertedCount,
+      result.upsertedId
     );
-  };
+  }
 
   /**
    * Update one document.
@@ -750,7 +753,7 @@ class Mapper {
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
-   const result = await this._serviceProvider.updateMany(
+    const result = await this._serviceProvider.updateMany(
       collection._collection,
       collection._database,
       filter,
@@ -759,13 +762,13 @@ class Mapper {
       dbOptions
     );
     return new UpdateResult(
-        result.result.ok,
-        result.matchedCount,
-        result.modifiedCount,
-        result.upsertedCount,
-        result.upsertedId
-    )
-  };
+      result.result.ok,
+      result.matchedCount,
+      result.modifiedCount,
+      result.upsertedCount,
+      result.upsertedId
+    );
+  }
 }
 
 module.exports = Mapper;

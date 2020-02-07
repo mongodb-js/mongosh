@@ -6,6 +6,7 @@ const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
 export type ContextValue = any;
 
 export type EvaluationResult = {
+  shellApiType: string;
   value: ContextValue;
 };
 
@@ -37,8 +38,25 @@ export class Interpreter {
     const preprocessedCode = this.preprocessor.preprocess(code);
     await this.environment.sloppyEval(preprocessedCode);
 
+    return await this.adaptResult(result);
+  }
+
+  async adaptResult(result: any): Promise<EvaluationResult> {
+    let value = await result;
+    let shellApiType;
+
+    if (value) {
+      if (typeof value.shellApiType === 'function') {
+        shellApiType = value.shellApiType();
+      }
+      if (typeof value.toReplString === 'function') {
+        value = await value.toReplString();
+      }
+    }
+
     return {
-      value: await result
+      shellApiType,
+      value
     };
   }
 }

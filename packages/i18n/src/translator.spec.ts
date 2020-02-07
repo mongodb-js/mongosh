@@ -46,6 +46,13 @@ describe('Translator', () => {
           to.include('Calculates');
       });
     });
+
+    context('when the key is not found', () => {
+      it('returns undefined', () => {
+        expect(translator.translateApiHelp('testing.testing.testing')).
+          to.equal(undefined);
+      });
+    });
   });
 
   describe('#translate', () => {

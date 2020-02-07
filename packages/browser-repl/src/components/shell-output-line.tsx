@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import browserUtilInspect from 'browser-util-inspect';
+import classnames from 'classnames';
+import { HelpOutput } from './types/help-output';
+import { CursorOutput } from './types/cursor-output';
+import { CursorIterationResultOutput } from './types/cursor-interation-result-output';
 
 type ShellOutputEntryValue = any;
 
 export interface ShellOutputEntry {
   type: 'input' | 'output' | 'error';
-  apiType?: string;
+  shellApiType?: string;
   value: ShellOutputEntryValue;
 }
 
@@ -36,18 +40,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return entry.value.stack;
     }
 
-    if (typeof entry.value.toReplString === 'function') {
-      return entry.value.toReplString();
-    }
-
-    const inspected = browserUtilInspect(entry.value, {});
-
-    if (typeof entry.value === 'object') {
-      const displayName = entry.value.constructor ? entry.value.constructor.name : 'Object';
-      return `${displayName} ${inspected}`;
-    }
-
-    return inspected;
+    return this.inspect(entry.value);
   }
 
   private isError(entry: ShellOutputEntry): boolean {
@@ -55,49 +48,43 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       entry.type === 'error' && entry.value && entry.value.stack;
   }
 
-  renderHelpAttrRow = (attr: {[propName: string]: string}, i: number): JSX.Element => {
-    const [k, v] = Object.entries(attr)[0];
-    return <tr key={`row-${i}`}><td>{k}</td><td>{v}</td></tr>;
+  inspect(value): string {
+    const inspected = browserUtilInspect(value, {});
+
+    if (value && typeof value === 'object') {
+      const displayName = value.constructor ? value.constructor.name : 'Object';
+      return `${displayName} ${inspected}`;
+    }
+
+    return inspected;
   }
 
-  renderHelpDocsLink(docs: string): JSX.Element {
-    return (<div>
-      <i><a href={docs} target="_blank">{docs}</a></i>
-    </div>);
-  }
+  renderValue(): JSX.Element {
+    const {shellApiType} = this.props.entry;
 
-  renderHelp(): JSX.Element {
-    const help: {
-      help: string;
-      docs: string;
-      attr: Array<{[propName: string]: string}>;
-    } = this.props.entry.value;
+    if (shellApiType === 'Help') {
+      return <HelpOutput value={this.props.entry.value} />;
+    }
 
-    return (
-      <div className="alert alert-info">
-        <h5><b>{help.help}</b></h5>
-        <table className="table">
-          {help.attr.map(this.renderHelpAttrRow)}
-        </table>
-        {help.docs ? this.renderHelpDocsLink(help.docs) : ''}
-      </div>
-    );
-  }
+    if (shellApiType === 'Cursor') {
+      return <CursorOutput value={this.props.entry.value} />;
+    }
 
-  render(): JSX.Element {
-    if (this.props.entry.apiType === 'Help') {
-      return this.renderHelp();
+    if (shellApiType === 'CursorIterationResult') {
+      return <CursorIterationResultOutput value={this.props.entry.value} />;
     }
 
     const formattedValue = this.formatValue(this.props.entry);
+    return <pre>{formattedValue}</pre>;
+  }
 
-    let className = `shell-output-line shell-output-line-${this.props.entry.type}`;
+  render(): JSX.Element {
+    const className = classnames({
+      'shell-output-line': true,
+      [`shell-output-line-${this.props.entry.type}`]: true
+    });
 
-    if (this.props.entry.type === 'error') {
-      className += ' alert alert-danger';
-    }
-
-    return <pre className={className}>{formattedValue}</pre>;
+    return <div className={className}>{this.renderValue()}</div>;
   }
 }
 

@@ -10,7 +10,8 @@ import Mapper from 'mongosh-mapper';
 import completer from './completer';
 import { Transform } from 'stream';
 import i18n from 'mongosh-i18n';
-import write from './writer';
+import readline from 'readline';
+import formatOutput from './format-output';
 import path from 'path';
 import util from 'util';
 import read from 'read';
@@ -69,16 +70,43 @@ class CliRepl {
       this.connect(driverUri, driverOptions);
     }
   }
+  /**
+   * Returns true if a value is a shell api type
+   *
+   * @param {any} evaluationResult - The result of evaluation
+   */
+  private isShellApiType(evaluationResult: any): boolean {
+    return evaluationResult &&
+      typeof evaluationResult.shellApiType === 'function' &&
+      typeof evaluationResult.toReplString === 'function'
+  }
 
   /**
-   * The custom evaluation function.
+   * The custom evaluation function. Evaluates the provided input and format it
+   * for the output.
    *
    * @param {} originalEval - The original eval function.
    * @param {} input - The input.
    * @param {} context - The context.
    * @param {} filename - The filename.
    */
-  async evaluator(originalEval: any, input: string, context: any, filename: string) {
+  async evaluateAndFormat(originalEval: any, input: string, context: any, filename: string) {
+    const evaluationResult = await this.evaluate(originalEval, input, context, filename);
+
+    if (this.isShellApiType(evaluationResult)) {
+      return formatOutput(
+        await evaluationResult.toReplString(),
+        evaluationResult.shellApiType()
+      );
+    }
+
+    return formatOutput(evaluationResult);
+  }
+
+  /**
+   * Evaluates the provided input
+   */
+  async evaluate(originalEval: any, input: string, context: any, filename: string) {
     const argv = input.trim().split(' ');
     const cmd = argv[0];
     argv.shift();
@@ -92,11 +120,9 @@ class CliRepl {
       case 'var':
         this.mapper.cursorAssigned = true;
       default:
-        const finalValue = await originalEval(input, context, filename);
-        return await write(finalValue);
+        return originalEval(input, context, filename);
     }
   }
-
   /**
    * The greeting for the shell.
    */
@@ -146,7 +172,7 @@ class CliRepl {
     this.repl = repl.start({
       prompt: `$ mongosh > `,
       ignoreUndefined: true,
-      writer: write,
+      writer: (x) => x,
       completer: completer.bind(null, version),
     });
 
@@ -160,7 +186,7 @@ class CliRepl {
           this.mapper.checkAwait = true;
           this.mapper.awaitLoc = [];
           const copyCtx = context;// _.cloneDeep(context);
-          await this.evaluator(originalEval, input, copyCtx, filename);
+          await this.evaluateAndFormat(originalEval, input, copyCtx, filename);
 
           // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
           const syncStr = compile(input, this.mapper.awaitLoc);
@@ -170,9 +196,9 @@ class CliRepl {
 
           // Eval the rewritten string, this time for real
           this.mapper.checkAwait = false;
-          str = await this.evaluator(originalEval, syncStr, context, filename);
+          str = await this.evaluateAndFormat(originalEval, syncStr, context, filename);
         } else {
-          str = await this.evaluator(originalEval, input, context, filename);
+          str = await this.evaluateAndFormat(originalEval, input, context, filename);
         }
         callback(null, str);
       } catch (err) {

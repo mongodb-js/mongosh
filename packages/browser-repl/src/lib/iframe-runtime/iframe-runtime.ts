@@ -10,10 +10,6 @@ import {
 import { Runtime, EvaluationResult } from '../../components/runtime';
 
 import {
-  addShellTypeToResult
-} from '../runtime-helpers/add-shell-type-to-result';
-
-import {
   setupEvaluationContext
 } from '../runtime-helpers/setup-evaluation-context';
 
@@ -32,7 +28,7 @@ export class IframeRuntime implements Runtime {
       await this.initialize();
     }
 
-    return addShellTypeToResult(await this.interpreter.evaluate(code));
+    return await this.interpreter.evaluate(code);
   }
 
   async initialize(): Promise<void> {

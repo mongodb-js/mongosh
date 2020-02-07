@@ -14,6 +14,7 @@ import {
 import types from './shell-types';
 
 import { Help } from './help';
+import { CursorIterationResult } from './cursor-iteration-result';
 
 export default ShellApi;
 export {
@@ -28,5 +29,6 @@ export {
   InsertOneResult,
   ReplicaSet,
   types,
-  Help
+  Help,
+  CursorIterationResult
 };
