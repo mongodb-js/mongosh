@@ -3,6 +3,9 @@ import { expect } from '../../testing/chai';
 import { shallow } from '../../testing/enzyme';
 
 import { ShellOutputLine } from './shell-output-line';
+import { HelpOutput } from './types/help-output';
+import { CursorOutput } from './types/cursor-output';
+import { CursorIterationResultOutput } from './types/cursor-interation-result-output';
 
 describe('<ShellOutputLine />', () => {
   it('renders a string value', () => {
@@ -29,6 +32,40 @@ describe('<ShellOutputLine />', () => {
   it('renders null', () => {
     const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: null}} />);
     expect(wrapper.text()).to.contain('null');
+  });
+
+  it('renders Help', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'Help',
+      value: {
+        help: 'Help',
+        docs: '#',
+        attr: []
+      }}
+    } />);
+
+    expect(wrapper.find(HelpOutput)).to.have.lengthOf(1);
+  });
+
+  it('renders Cursor', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'Cursor',
+      value: []
+    }} />);
+
+    expect(wrapper.find(CursorOutput)).to.have.lengthOf(1);
+  });
+
+  it('renders CursorIterationResult', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'Cursor',
+      value: []
+    }} />);
+
+    expect(wrapper.find(CursorIterationResultOutput)).to.have.lengthOf(1);
   });
 
   it('renders an error as stack trace', () => {

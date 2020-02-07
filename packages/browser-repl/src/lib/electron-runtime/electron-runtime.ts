@@ -11,10 +11,6 @@ import {
 } from './electron-interpreter-environment';
 
 import {
-  addShellTypeToResult
-} from '../runtime-helpers/add-shell-type-to-result';
-
-import {
   Runtime,
   EvaluationResult
 } from '../../components/runtime';
@@ -38,6 +34,6 @@ export class ElectronRuntime implements Runtime {
   }
 
   async evaluate(code: string): Promise<EvaluationResult> {
-    return addShellTypeToResult(await this.interpreter.evaluate(code));
+    return await this.interpreter.evaluate(code);
   }
 }

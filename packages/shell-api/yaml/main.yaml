@@ -41,7 +41,7 @@ __defaultClass: &__defaultClass
     __constructorArgs:
         - _mapper
     # The value that will be returned when class is printed.
-    __stringRep: JSON.stringify(this, null, ' ') # Default printing
+    __stringRep: JSON.parse(JSON.stringify(this)) # Default printing
     # How to construct methods
     __methods:
         # What attribute should this class pass method calls to
