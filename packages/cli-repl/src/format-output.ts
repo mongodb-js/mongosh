@@ -1,27 +1,37 @@
 import util from 'util';
 
+type EvaluationResult = {
+  value: any,
+  type?: string
+};
+
 /**
  * Return the pretty string for the output.
  *
- * @param {any} value - The output value.
+ * @param {any} output - The evaluation result object, it holds the evaluated
+ *  `value` and an optional `type` property, indicating the shell api type of
+ *  the value.
+ *
  * @param {string} type - The shell api type if known or undefined.
  *
  * @returns {string} The output.
  */
-export default function formatOutput(output: any, type?: string): string {
+export default function formatOutput(evaluationResult: EvaluationResult): string {
+  const {value, type} = evaluationResult;
+
   if (type === 'Cursor') {
-    return formatCursor(output);
+    return formatCursor(value);
   }
 
   if (type === 'CursorIterationResult') {
-    return formatCursorIterationResult(output);
+    return formatCursorIterationResult(value);
   }
 
   if (type === 'Help') {
-    return formatHelp(output);
+    return formatHelp(value);
   }
 
-  return formatSimpleType(output);
+  return formatSimpleType(value);
 }
 
 function formatSimpleType(output) {
