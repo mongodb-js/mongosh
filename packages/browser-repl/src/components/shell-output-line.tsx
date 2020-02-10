@@ -4,7 +4,7 @@ import browserUtilInspect from 'browser-util-inspect';
 import classnames from 'classnames';
 import { HelpOutput } from './types/help-output';
 import { CursorOutput } from './types/cursor-output';
-import { CursorIterationResultOutput } from './types/cursor-interation-result-output';
+import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 
 type ShellOutputEntryValue = any;
 
