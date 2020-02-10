@@ -12,6 +12,9 @@
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.js\"",
     "prepublish": "npm run compile-ts"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "precommit": [
     "build"
   ],

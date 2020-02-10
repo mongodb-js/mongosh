@@ -10,6 +10,9 @@
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "dependency-check": {
     "entries": [
       "src/**/*.js"

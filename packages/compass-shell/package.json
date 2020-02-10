@@ -26,6 +26,9 @@
     "prepublish": "npm run compile",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "precommit": [
     "check"
   ],

@@ -15,6 +15,9 @@
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "dependencies": {
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.0",

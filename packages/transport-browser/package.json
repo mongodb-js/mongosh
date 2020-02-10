@@ -10,6 +10,9 @@
     "test-ci": "karma start --colors",
     "prepublish": "npm run compile-ts"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "dependency-check": {
     "entries": [
       "src/**/*.js"

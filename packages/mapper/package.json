@@ -12,6 +12,9 @@
     "antlr-lexer": "     java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptLexer.g4",
     "antlr-parser": "    java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptParser.g4"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "dependencies": {
     "mongosh-shell-api": "file:../shell-api",
     "antlr4": "^4.7.1"

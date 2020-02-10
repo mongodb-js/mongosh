@@ -8,6 +8,9 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "engines": {
+    "node": "^12.4.0"
+  },
   "dependency-check": {
     "entries": [
       "src/**/*.js"
