@@ -5,7 +5,7 @@ import { shallow } from '../../testing/enzyme';
 import { ShellOutputLine } from './shell-output-line';
 import { HelpOutput } from './types/help-output';
 import { CursorOutput } from './types/cursor-output';
-import { CursorIterationResultOutput } from './types/cursor-interation-result-output';
+import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 
 describe('<ShellOutputLine />', () => {
   it('renders a string value', () => {
