@@ -14,9 +14,6 @@ repositories {
 }
 
 node {
-    version = '13.2.0'
-    npmVersion = '6.13.1'
-    download = true
     nodeModulesDir = file('.')
 }
 

@@ -2,43 +2,72 @@ package com.mongodb.mongosh.service
 
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCursor
+import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
+import org.graalvm.polyglot.Value
+import org.graalvm.polyglot.proxy.ProxyExecutable
 
-internal class Cursor(private val findIterable: FindIterable<Document>) : Iterable<Document> {
+internal class Cursor(private val findIterable: FindIterable<Document>, private val context: MongoShellContext) {
     private val iterator: MongoCursor<Document> = findIterable.iterator()
+    private var closed = false
+    /** Java functions don't have js methods such as apply, bind, call etc.
+     * So we need to create a real js function that wraps Java code */
+    private val functionProducer = context.eval("(fun) => function inner() { return fun(this, ...arguments); }")
 
+    @JvmField
     @HostAccess.Export
-    fun limit(v: Int): Cursor {
-        return Cursor(findIterable.limit(v))
+    val limit = jsFun<Cursor> { args ->
+        if (args.isEmpty() || !args[0].fitsInInt()) {
+            throw IllegalArgumentException("Expected one argument of type int. Got: $args")
+        }
+        Cursor(this.findIterable.limit(args[0].asInt()), context)
     }
 
+    @JvmField
     @HostAccess.Export
-    fun hasNext(): Boolean {
-        return iterator.hasNext()
+    val hasNext = jsFun<Cursor> {
+        this.iterator.hasNext()
     }
 
+    @JvmField
     @HostAccess.Export
-    fun next(): Document {
-        return iterator.next()
+    val next = jsFun<Cursor> {
+        this.iterator.next()
     }
 
+    @JvmField
     @HostAccess.Export
-    fun close() {
-        iterator.close()
+    val isClosed = jsFun<Cursor> {
+        closed
     }
 
+    @JvmField
     @HostAccess.Export
-    fun readPref(mode: String): Cursor {
+    val close = jsFun<Cursor> {
+        closed = true
+        this.iterator.close()
+    }
+
+    @JvmField
+    @HostAccess.Export
+    val readPref = jsFun<Cursor> {
         throw UnsupportedOperationException()
     }
 
+    @JvmField
     @HostAccess.Export
-    fun batchSize(size: Int): Cursor {
-        return Cursor(findIterable.batchSize(size))
+    val batchSize = jsFun<Cursor> { args ->
+        if (args.isEmpty() || !args[0].fitsInInt()) {
+            throw IllegalArgumentException("Expected one argument of type int. Got: $args")
+        }
+        Cursor(this.findIterable.batchSize(args[0].asInt()), context)
     }
 
-    override fun iterator(): MongoCursor<Document> {
-        return findIterable.iterator()
+    private fun <T> jsFun(block: T.(List<Value>) -> Any?): Any {
+        return functionProducer.execute(ProxyExecutable { args ->
+            val that = args[0].asHostObject<T>()
+            that.block(args.drop(1))
+        })
     }
 }

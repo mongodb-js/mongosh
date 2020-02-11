@@ -9,16 +9,17 @@ import java.io.File
 import java.io.IOException
 import java.util.regex.Pattern
 
-private const val URI = ""
+private const val pathToUri = "src/test/resources/URI.txt"
 internal const val DB = "admin"
 
 fun createMongoRepl(): MongoShell {
-    if (URI.isBlank()) {
-        fail("Specify MongoDB connection URI in com/mongodb/mongosh/util.kt")
+    val uri = File(pathToUri).readText()
+    if (uri.isBlank()) {
+        fail("Specify MongoDB connection URI in $pathToUri")
     }
 
     val settings = MongoClientSettings.builder()
-            .applyConnectionString(ConnectionString(URI))
+            .applyConnectionString(ConnectionString(uri))
             .build()
 
     return MongoShell(MongoClients.create(settings))
@@ -54,6 +55,8 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResult
                     if (testResultClass) sb.append(result.javaClass.simpleName).append(": ")
                     sb.append(result.toReplString())
                 } catch (e: Exception) {
+                    System.err.println("IGNORED:")
+                    e.printStackTrace()
                     sb.append(e.javaClass.name).append(": ").append(e.message)
                 }
             }
