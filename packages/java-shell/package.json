@@ -12,6 +12,9 @@
   "scripts": {
     "browserify-mapper": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv"
   },
+  "devDependencies": {
+    "browserify": "latest"
+  },
   "license": "SSPL",
   "publishConfig": {
     "access": "public"

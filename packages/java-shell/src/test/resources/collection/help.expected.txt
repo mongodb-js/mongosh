@@ -1,2 +1,0 @@
-The collection class.
-Attributes: aggregate, bulkWrite, countDocuments, count, deleteMany, deleteOne, distinct, estimatedDocumentCount, find, findAndModify, findOne, findOneAndDelete, findOneAndReplace, findOneAndUpdate, insert, insertMany, insertOne, isCapped, remove, save, replaceOne, update, updateMany, updateOne

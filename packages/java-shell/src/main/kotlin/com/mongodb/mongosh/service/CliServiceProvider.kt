@@ -1,13 +1,14 @@
 package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoClient
+import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import java.io.Closeable
 
-internal class CliServiceProvider(private val client: MongoClient) : Closeable {
+internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable {
 
     @HostAccess.Export
     fun runCommand(database: String, spec: String): Any {
@@ -47,7 +48,7 @@ internal class CliServiceProvider(private val client: MongoClient) : Closeable {
     fun find(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?): Cursor {
         val collection = client.getDatabase(db).getCollection(coll)
         val iterable = if (query == null) collection.find() else collection.find(toBson(query))
-        return Cursor(iterable)
+        return Cursor(iterable, context)
     }
 
     @HostAccess.Export

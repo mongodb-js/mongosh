@@ -14,9 +14,8 @@ import java.io.Closeable
 import java.util.concurrent.CompletableFuture
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
-    internal val shellApi: Value
     private val ctx: Context = Context.create()
-    private val cliServiceProvider = CliServiceProvider(client)
+    private val cliServiceProvider = CliServiceProvider(client, this)
     private val mapperContext = HashMap<String, Any?>()
     private val databaseClass: Value
     private val collectionClass: Value
@@ -29,13 +28,16 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         val global = ctx.getBindings("js").getMember("_global")
         val mapper = global.getMember("Mapper").newInstance(cliServiceProvider)
         mapper.getMember("setCtx").execute(ProxyObject.fromMap(mapperContext))
-        shellApi = global.getMember("ShellApi").newInstance(mapper)
         databaseClass = global.getMember("Database")
         collectionClass = global.getMember("Collection")
         cursorClass = global.getMember("Cursor")
         insertOneResultClass = global.getMember("InsertOneResult")
         deleteResultClass = global.getMember("DeleteResult")
         ctx.getBindings("js").removeMember("_global")
+    }
+
+    internal operator fun get(value: String): Value? {
+        return ctx.getBindings("js").getMember(value)
     }
 
     internal fun toCompletableFuture(v: Value): CompletableFuture<out MongoShellResult> {
