@@ -31,6 +31,10 @@ jobs:
       - script: |
           npm run compile-exec
         displayName: 'Build REPL'
+      - publish: $(System.DefaultWorkingDirectory)/dist
+        artifact: binaries
+        displayName: 'Publish Binaries'
+
   - job: Ubuntu_16
     pool:
       vmImage: 'ubuntu-16.04'
@@ -58,9 +62,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          npm run compile-exec
-        displayName: 'Build REPL'
+
   - job: MacOS_Mohave
     pool:
       vmImage: 'macOS-10.14'
@@ -85,9 +87,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          npm run compile-exec
-        displayName: 'Build REPL'
+
   - job: Windows_Server_2019
     pool:
       vmImage: 'windows-2019'
@@ -112,9 +112,7 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          npm run compile-exec
-        displayName: 'Build REPL'
+
   - job: Windows_Server_2016
     pool:
       vmImage: 'vs2017-win2016'
@@ -139,6 +137,4 @@ jobs:
         env:
           MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
           MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-      - script: |
-          npm run compile-exec
-        displayName: 'Build REPL'
+

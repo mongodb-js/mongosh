@@ -9,7 +9,7 @@
     "bootstrap": "lerna exec -- npm install --no-package-lock",
     "compile-api": "lerna run compile-api",
     "precompile-exec": "npm run compile-ts",
-    "compile-exec": "node bin/compile-exec.js",
+    "compile-exec": "pkg packages/cli-repl/bin/mongosh.js --out-path dist",
     "compile-ts": "lerna run compile-ts",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
@@ -53,6 +53,7 @@
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
     "nexe": "^3.3.2",
+    "pkg": "^4.4.3",
     "puppeteer": "^2.0.0",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.4.0",
@@ -61,7 +62,6 @@
     "uuid": "^3.3.3"
   },
   "dependencies": {
-    "mongosh-build": "file:packages/build",
     "mongosh-cli-repl": "file:packages/cli-repl",
     "mongosh-i18n": "file:packages/i18n",
     "mongosh-mapper": "file:packages/mapper",
