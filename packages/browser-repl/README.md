@@ -50,7 +50,7 @@ const runtime = new IframeRuntime(serviceProvider);
 
 ## API
 
-### Shell
+### `<Shell />`
 
 Shell is a React component with the following properties:
 
@@ -65,7 +65,7 @@ Shell is a React component with the following properties:
 - `initialHistory?: readonly string[]`: An array of history entries to prepopulate the history.
   Can be used to restore the history between sessions. Entries must be ordered from the most recent to the oldest. Note: new entries will not be appended to the array.
 
-### ShellOutputEntry
+### `ShellOutputEntry`
 
 An object representing an entry in the shell output, having the follwing properties:
 
@@ -73,7 +73,7 @@ An object representing an entry in the shell output, having the follwing propert
 - `shellApiType?: string`: the shell api type if the entry value is a shell api object.
 - `value: any`: the value that has to be rendered in the output.
 
-### Runtime
+### `Runtime`
 
 Encapsulates the details of evaluation logic exposing an inplementation neutral
 interface.
@@ -82,7 +82,7 @@ Any runtime implements the following interface:
 
 - `evaluate(code: string): Promise<EvaluationResult>`: Evaluates a string of code.
 
-### EvaluationResult
+### `EvaluationResult`
 
 An object holding the result of an evaluation. Has the following properties:
 
