@@ -1,0 +1,34 @@
+import { MongoClient } from 'mongodb';
+import { Transport, Cursor, Result, Document } from 'mongosh-transport-core';
+import NodeOptions from './node-options';
+declare class NodeTransport implements Transport {
+    readonly mongoClient: MongoClient;
+    static fromURI(uri: string, options?: NodeOptions): Promise<NodeTransport>;
+    aggregate(database: string, collection: string, pipeline?: Document[], options?: Document, dbOptions?: Document): Cursor;
+    aggregateDb(database: string, pipeline?: Document[], options?: Document, dbOptions?: Document): Cursor;
+    bulkWrite(database: string, collection: string, requests?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    close(force: boolean): void;
+    count(database: string, collection: string, query?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    countDocuments(database: string, collection: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    constructor(mongoClient: MongoClient);
+    deleteMany(database: string, collection: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    deleteOne(database: string, collection: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    distinct(database: string, collection: string, fieldName: string, filter?: Document, options?: Document, dbOptions?: Document): Cursor;
+    estimatedDocumentCount(database: string, collection: string, options?: Document, dbOptions?: Document): Promise<Result>;
+    find(database: string, collection: string, filter?: Document, options?: Document): Cursor;
+    findOneAndDelete(database: string, collection: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    findOneAndReplace(database: string, collection: string, filter?: Document, replacement?: Document, options?: Document): Promise<Result>;
+    findOneAndUpdate(database: string, collection: string, filter?: Document, update?: Document, options?: Document): Promise<Result>;
+    insertMany(database: string, collection: string, docs?: Document[], options?: Document, dbOptions?: Document): Promise<Result>;
+    insertOne(database: string, collection: string, doc?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    isCapped(database: string, collection: string): Promise<Result>;
+    remove(database: string, collection: string, query?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    save(database: string, collection: string, doc?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    replaceOne(database: string, collection: string, filter?: Document, replacement?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    runCommand(database: string, spec?: Document, options?: Document): Promise<Result>;
+    listDatabases(database: string): Promise<Result>;
+    updateMany(database: string, collection: string, filter?: Document, update?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    updateOne(database: string, collection: string, filter?: Document, update?: Document, options?: Document, dbOptions?: Document): Promise<Result>;
+    private db;
+}
+export default NodeTransport;

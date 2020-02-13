@@ -4,6 +4,9 @@ import {
 } from './format-utils';
 
 import {
+const EventEmitter = require('events');
+
+const {
   AggregationCursor,
   BulkWriteResult,
   Cursor,
@@ -42,6 +45,7 @@ export default class Mapper {
     this.currentCursor = null;
     this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
+    this.messageBus = messageBus || new EventEmitter();
     this.asyncWriter = new AsyncWriter({ db: types.Database }, types); // TODO: this will go in context object
   }
 
@@ -184,6 +188,8 @@ export default class Mapper {
       );
     }
 
+    this.messageBus.emit('aggregate:start', cmd)
+
     const cursor = new AggregationCursor(this, cmd);
 
     this.currentCursor = cursor;
@@ -210,6 +216,8 @@ export default class Mapper {
     options: Document = {}
   ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
+    this.messageBus.emit('bulkWrite');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -248,6 +256,8 @@ export default class Mapper {
    */
   count(collection, query = {}, options: any = {}): any {
     const dbOpts: any = {};
+    this.messageBus.emit('count');
+
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
     }
@@ -270,7 +280,10 @@ export default class Mapper {
    *
    * @returns {Integer} The promise of the count.
    */
+
   countDocuments(collection, query, options: any = {}): any {
+    this.messageBus.emit('countDocuments');
+
     return this.serviceProvider.countDocuments(
       collection._database,
       collection._collection,
@@ -294,6 +307,8 @@ export default class Mapper {
    */
   async deleteMany(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('deleteMany');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -326,6 +341,8 @@ export default class Mapper {
    */
   async deleteOne(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('deleteOne');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -356,6 +373,7 @@ export default class Mapper {
    * @returns {Array} The promise of the result. TODO: make sure returned type is the same
    */
   distinct(collection, field, query, options: any = {}): any {
+    this.messageBus.emit('distinct');
     return this.serviceProvider.distinct(
       collection._database,
       collection._collection,
@@ -375,6 +393,7 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   estimatedDocumentCount(collection, options = {}): Promise<any> {
+    this.messageBus.emit('estimatedDocumentCount');
     return this.serviceProvider.estimatedDocumentCount(
       collection._database,
       collection._collection,
@@ -396,6 +415,7 @@ export default class Mapper {
    */
   find(collection, query, projection): any {
     const options: any = {};
+    this.messageBus.emit('find');
 
     if (projection) {
       options.projection = projection;
@@ -427,6 +447,8 @@ export default class Mapper {
    */
   findOne(collection, query, projection): Promise<any> {
     const options: any = {};
+    this.messageBus.emit('findOne');
+
     if (projection) {
       options.projection = projection;
     }
@@ -460,6 +482,7 @@ export default class Mapper {
    * @returns {Document} The promise of the result.
    */
   async findOneAndDelete(collection, filter, options = {}): Promise<any> {
+    this.messageBus.emit('findOneAndDelete');
     const result = await this.serviceProvider.findOneAndDelete(
       collection._database,
       collection._collection,
@@ -486,6 +509,8 @@ export default class Mapper {
    */
   async findOneAndReplace(collection, filter, replacement, options = {}): Promise<any> {
     const findOneAndReplaceOptions: any = { ...options };
+    this.messageBus.emit('findOneAndReplace');
+
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
       delete findOneAndReplaceOptions.returnNewDocument;
@@ -516,6 +541,8 @@ export default class Mapper {
    */
   async findOneAndUpdate(collection, filter, update, options = {}): Promise<any> {
     const findOneAndUpdateOptions: any = { ...options };
+    this.messageBus.emit('findOneAndUpdate');
+
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
       delete findOneAndUpdateOptions.returnNewDocument;
@@ -545,6 +572,8 @@ export default class Mapper {
   async insert(collection, docs, options: any = {}): Promise<any> {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions: any = {};
+    this.messageBus.emit('insert');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -577,6 +606,8 @@ export default class Mapper {
    */
   async insertMany(collection, docs, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('insertMany');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -610,6 +641,8 @@ export default class Mapper {
    */
   async insertOne(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('insertOne');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -633,6 +666,7 @@ export default class Mapper {
    * @return {Boolean}
    */
   isCapped(collection): Promise<any> {
+    this.messageBus.emit('isCapped');
     return this.serviceProvider.isCapped(
       collection._database,
       collection._collection,
@@ -654,6 +688,8 @@ export default class Mapper {
    */
   remove(collection, query, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('remove');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -675,6 +711,8 @@ export default class Mapper {
   // TODO
   save(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('save');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -705,6 +743,8 @@ export default class Mapper {
    */
   async replaceOne(collection, filter, replacement, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('replaceOne');
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -734,11 +774,13 @@ export default class Mapper {
    * @returns {Promise} The promise of command results. TODO: command result object
    */
   runCommand(database, cmd): Promise<any> {
+    this.messageBus.emit('runCommand');
     return this.serviceProvider.runCommand(database._database, cmd);
   }
 
   async update(collection, filter, update, options: any = {}): Promise<any> {
     let result;
+    this.messageBus.emit('update');
     if (options.multi) {
       result = await this.serviceProvider.updateMany(
         collection._collection,
@@ -781,6 +823,8 @@ export default class Mapper {
    */
   async updateMany(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('updateMany')
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
@@ -817,6 +861,8 @@ export default class Mapper {
    */
   async updateOne(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
+    this.messageBus.emit('updateOne')
+
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }

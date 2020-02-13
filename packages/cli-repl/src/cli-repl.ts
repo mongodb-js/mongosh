@@ -6,6 +6,8 @@ import Mapper from '@mongosh/mapper';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import formatOutput from './format-output';
+import nanobus from 'nanobus';
+import logger from './logger';
 import path from 'path';
 import util from 'util';
 import read from 'read';
@@ -35,9 +37,12 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
+    const bus = nanobus('monogsh');
+    const log = logger(bus)
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.mapper = new Mapper(this.serviceProvider);
+    this.mapper = new Mapper(this.serviceProvider, bus);
+    this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
   }
