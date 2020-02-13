@@ -2,6 +2,8 @@ import { ServiceProvider } from 'mongosh-service-provider-core';
 import { NodeTransport, NodeOptions } from 'mongosh-transport-server';
 import { Document, Cursor, Result } from 'mongosh-transport-core';
 
+type BuildInfoResult = { version: string };
+
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
@@ -538,6 +540,27 @@ class CliServiceProvider implements ServiceProvider {
     dbOptions: Document = {}): Promise<Result> {
 
     return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
+  }
+
+  /**
+   * Returns the server version.
+   *
+   * @returns {Promise} The server version.
+   */
+  async getServerVersion(): Promise<string> {
+    const result: BuildInfoResult = await this.nodeTransport.runCommand(
+      'admin',
+      {
+        buildInfo: 1
+      },
+      {}
+    ) as BuildInfoResult;
+
+    if (!result) {
+      return;
+    }
+
+    return result.version;
   }
 }
 
