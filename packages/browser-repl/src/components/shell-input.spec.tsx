@@ -5,6 +5,7 @@ import { shallow } from '../../testing/enzyme';
 
 import { ShellInput } from './shell-input';
 import { Editor } from './editor';
+import { Completion } from '../lib/autocompleter/autocompleter';
 
 function changeValue(wrapper, value): void {
   wrapper.find(Editor).prop('onChange')(value);
@@ -110,6 +111,14 @@ describe('<ShellInput />', () => {
 
       arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value3');
+    });
+  });
+
+  describe('autocompletion', () => {
+    it('forwards an autocompleter to the editor', () => {
+      const autocompleter = { getCompletions: (): Promise<Completion[]> => Promise.resolve([]) };
+      const wrapper = shallow(<ShellInput autocompleter={autocompleter} />);
+      expect(wrapper.find('Editor').prop('autocompleter')).to.equal(autocompleter);
     });
   });
 });

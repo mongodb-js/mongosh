@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
+import { Autocompleter } from '../lib/autocompleter/autocompleter';
+import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 
+import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
 import 'mongodb-ace-theme';
+
+import ace from 'brace';
+const tools = ace.acequire('ace/ext/language_tools');
 
 const noop = (): void => {
   //
@@ -14,6 +20,7 @@ interface EditorProps {
   onArrowUpOnFirstLine?(): void | Promise<void>;
   onArrowDownOnLastLine?(): void | Promise<void>;
   onChange?(value: string): void | Promise<void>;
+  autocompleter?: Autocompleter;
   value?: string;
 }
 
@@ -38,10 +45,30 @@ export class Editor extends Component<EditorProps> {
 
   private onEditorLoad = (editor: any): void => {
     this.editor = editor;
+
+    if (this.props.autocompleter) {
+      editor.commands.on('afterExec', function(e) {
+        if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
+          editor.execCommand('startAutocomplete');
+        }
+      });
+
+      tools.setCompleters([new AceAutocompleterAdapter(this.props.autocompleter)]);
+    }
   }
 
   render(): JSX.Element {
     return (<AceEditor
+      showPrintMargin={false}
+      showGutter={false}
+      highlightActiveLine
+      setOptions={{
+        enableBasicAutocompletion: !!this.props.autocompleter,
+        enableLiveAutocompletion: !!this.props.autocompleter,
+        enableSnippets: false,
+        showLineNumbers: false,
+        tabSize: 2
+      }}
       name={`mongosh-ace-${Date.now()}`}
       mode="javascript"
       theme="mongodb"

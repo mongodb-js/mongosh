@@ -1,3 +1,5 @@
+import { Completion } from '../lib/autocompleter/autocompleter';
+
 export type ContextValue = any;
 
 export type EvaluationResult = {
@@ -14,4 +16,11 @@ export interface Runtime {
    * @return {Promise<EvaluationResult>} the result of the evaluation
    */
   evaluate(code: string): Promise<EvaluationResult>;
+
+  /**
+   * Get shell api completions give a code prefix
+   *
+   * @param {string} code - The code to be completed
+   */
+  getCompletions(code: string): Promise<Completion[]>;
 }

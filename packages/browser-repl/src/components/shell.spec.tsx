@@ -49,12 +49,16 @@ describe('<Shell />', () => {
     expect(wrapper.find(ShellOutput)).to.have.lengthOf(1);
   });
 
-  it('passes ShellOutput the initial output', () => {
+  it('passes the initial output to ShellOutput', () => {
     expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([]);
   });
 
   it('renders a ShellInput component', () => {
     expect(wrapper.find(ShellInput)).to.have.lengthOf(1);
+  });
+
+  it('passes runtime as autocompleter to ShellInput', () => {
+    expect(wrapper.find(ShellInput).prop('autocompleter')).to.equal(fakeRuntime);
   });
 
   context('when initialOutput is set', () => {

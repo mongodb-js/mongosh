@@ -1,34 +1,36 @@
-
-import {
-  Interpreter,
-} from '../interpreter';
-
 import {
   IframeInterpreterEnvironment
 } from './iframe-interpreter-environment';
 
 import { Runtime, EvaluationResult } from '../../components/runtime';
-
-import {
-  setupEvaluationContext
-} from '../runtime-helpers/setup-evaluation-context';
+import { Completion } from '../autocompleter/autocompleter';
+import { OpenContextRuntime } from '../runtime-helpers/open-context-runtime';
+import { ServiceProvider } from 'mongosh-service-provider-core';
 
 export class IframeRuntime implements Runtime {
+  private openContextRuntime: OpenContextRuntime;
   private iframe: HTMLIFrameElement;
   private container: HTMLDivElement;
-  private interpreter: Interpreter;
-  private serviceProvider: object;
+  private serviceProvider: ServiceProvider;
 
-  constructor(serviceProvider: object) {
+  constructor(serviceProvider: ServiceProvider) {
     this.serviceProvider = serviceProvider;
   }
 
   async evaluate(code: string): Promise<EvaluationResult> {
-    if (!this.iframe) {
+    if (!this.openContextRuntime) {
       await this.initialize();
     }
 
-    return await this.interpreter.evaluate(code);
+    return await this.openContextRuntime.evaluate(code);
+  }
+
+  async getCompletions(code: string): Promise<Completion[]> {
+    if (!this.openContextRuntime) {
+      await this.initialize();
+    }
+
+    return await this.openContextRuntime.getCompletions(code);
   }
 
   async initialize(): Promise<void> {
@@ -52,13 +54,8 @@ export class IframeRuntime implements Runtime {
 
     document.body.appendChild(this.container);
 
-    setupEvaluationContext(
-      this.iframe.contentWindow,
-      this.serviceProvider
-    );
-
     const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
-    this.interpreter = new Interpreter(environment);
+    this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment);
 
     return await ready;
   }

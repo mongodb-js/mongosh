@@ -14,11 +14,7 @@ export class IframeInterpreterEnvironment implements InterpreterEnvironment {
     return (this.window as any).eval(code);
   }
 
-  setGlobal(name, val): ContextValue {
-    this.window[name] = val;
-  }
-
-  getGlobal(name: string): void {
-    return this.window[name];
+  getContextObject(): ContextValue {
+    return this.window;
   }
 }
