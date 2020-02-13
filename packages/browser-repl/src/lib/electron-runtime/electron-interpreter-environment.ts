@@ -17,11 +17,7 @@ export class ElectronInterpreterEnvironment implements InterpreterEnvironment {
     return vm.runInContext(code, this.context);
   }
 
-  setGlobal(name, val): ContextValue {
-    this.context[name] = val;
-  }
-
-  getGlobal(name: string): void {
-    return this.context[name];
+  getContextObject(): ContextValue {
+    return this.context;
   }
 }

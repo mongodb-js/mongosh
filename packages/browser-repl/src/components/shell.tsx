@@ -197,7 +197,8 @@ export class Shell extends Component<ShellProps, ShellState> {
       <div ref={(el): void => { this.shellInputElement = el; }}>
         <ShellInput
           onInput={this.onInput}
-          history={this.state.history} />
+          history={this.state.history}
+          autocompleter={this.props.runtime} />
       </div>
     </div>);
   }

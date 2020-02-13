@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Editor } from './editor';
+import { Autocompleter } from '../lib/autocompleter/autocompleter';
 
 interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   history?: readonly string[];
+  autocompleter?: Autocompleter;
 }
 
 interface ShellInputState {
@@ -14,7 +16,8 @@ interface ShellInputState {
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   static propTypes = {
     onInput: PropTypes.func,
-    history: PropTypes.arrayOf(PropTypes.string)
+    history: PropTypes.arrayOf(PropTypes.string),
+    autocompleter: PropTypes.object
   };
 
   readonly state: ShellInputState = {
@@ -106,6 +109,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onEnter={this.onEnter}
       onArrowUpOnFirstLine={this.historyBack}
       onArrowDownOnLastLine={this.historyNext}
+      autocompleter={this.props.autocompleter}
     />);
   }
 }

@@ -12,8 +12,7 @@ export type EvaluationResult = {
 
 export interface InterpreterEnvironment {
   sloppyEval(code: string): EvaluationResult;
-  setGlobal(name, val: ContextValue): void;
-  getGlobal(name: string): ContextValue;
+  getContextObject(): ContextValue;
 }
 
 export class Interpreter {
@@ -22,7 +21,8 @@ export class Interpreter {
 
   constructor(environment: InterpreterEnvironment) {
     this.environment = environment;
-    this.environment.setGlobal(LEXICAL_CONTEXT_VARIABLE_NAME, {});
+    const contextObjext = this.environment.getContextObject();
+    contextObjext[LEXICAL_CONTEXT_VARIABLE_NAME] = {};
     this.preprocessor = new Preprocessor({
       lastExpressionCallbackFunctionName: LAST_EXPRESSION_CALLBACK_FUNCTION_NAME,
       lexicalContextStoreVariableName: LEXICAL_CONTEXT_VARIABLE_NAME
@@ -31,9 +31,11 @@ export class Interpreter {
 
   async evaluate(code: string): Promise<EvaluationResult> {
     let result;
-    this.environment.setGlobal(LAST_EXPRESSION_CALLBACK_FUNCTION_NAME, (val): void => {
+    const contextObjext = this.environment.getContextObject();
+
+    contextObjext[LAST_EXPRESSION_CALLBACK_FUNCTION_NAME] = (val): void => {
       result = val;
-    });
+    };
 
     const preprocessedCode = this.preprocessor.preprocess(code);
     await this.environment.sloppyEval(preprocessedCode);
