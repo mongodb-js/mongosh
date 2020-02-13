@@ -1,6 +1,5 @@
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
-import { execSync } from 'child_process';
 import { compile } from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
@@ -38,20 +37,14 @@ class CliRepl {
    * @param {string} driverUrl - The driver URI.
    * @param {NodeOptions} driverOptions - The driver options.
    */
-  connect(driverUri: string, driverOptions: NodeOptions): void {
+  async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
-    CliServiceProvider.connect(driverUri, driverOptions).then((serviceProvider) => {
-      this.serviceProvider = serviceProvider;
-      this.mapper = new Mapper(this.serviceProvider);
-      this.shellApi = new ShellApi(this.mapper);
-      // TODO: @lrlna once shell-api has db.version() implemented, use server
-      // version coming from shell-api instead
-      this.mdbVersion = execSync('mongod --version')
-        .toString()
-        .split('\n')[0]
-        .replace('db version ', '');
-      this.start();
-    });
+
+    this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+    this.mapper = new Mapper(this.serviceProvider);
+    this.shellApi = new ShellApi(this.mapper);
+    this.mdbVersion = await this.serviceProvider.getServerVersion();
+    this.start();
   }
 
   /**
