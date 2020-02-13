@@ -88,6 +88,13 @@ interface Readable {
     collection: string,
     filter: Document,
     options: Document) : Cursor;
+
+  /**
+   * Returns the server version.
+   *
+   * @returns {Promise} The server version.
+   */
+  getServerVersion(): Promise<string>;
 }
 
 export default Readable;

@@ -442,4 +442,27 @@ describe('CompassServiceProvider', () => {
       updateMock.verify();
     });
   });
+
+  describe('#getServerVersion', () => {
+    let serviceProvider;
+    const commandMock = sinon.mock().
+      withArgs('admin', { buildInfo: 1 }, {}).resolves({ version: '4.0.0' });
+
+    beforeEach(() => {
+      const transportStub = sinon.createStubInstance(NodeTransport, {
+        runCommand: commandMock
+      });
+      serviceProvider = new CompassServiceProvider(transportStub);
+    });
+
+    afterEach(() => {
+      serviceProvider = null;
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.getServerVersion();
+      expect(result).to.deep.equal('4.0.0');
+      commandMock.verify();
+    });
+  });
 });

@@ -476,4 +476,28 @@ describe('CliServiceProvider [ integration ]', function() {
       });
     });
   });
+
+  describe('#getServerVersion', () => {
+    let serviceProvider;
+
+    before(async() => {
+      serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
+    });
+
+    after(() => {
+      return serviceProvider.close(true);
+    });
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await serviceProvider.getServerVersion();
+      });
+
+      it('returns a semver', () => {
+        expect(result).to.match(/^\d+.\d+/);
+      });
+    });
+  });
 });
