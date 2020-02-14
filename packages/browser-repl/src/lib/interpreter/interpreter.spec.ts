@@ -26,8 +26,7 @@ describe('Interpreter', () => {
 
     testEnvironment = {
       sloppyEval: contentWindow.eval,
-      getGlobal: (name): any => contentWindow[name],
-      setGlobal: (name, value): void => { contentWindow[name] = value; }
+      getContextObject: (): any => contentWindow
     };
 
     interpreter = new Interpreter(testEnvironment);
@@ -234,7 +233,7 @@ describe('Interpreter', () => {
     });
 
     it('allows to invoke the help command', async() => {
-      testEnvironment.setGlobal('help', () => 'help invoked');
+      testEnvironment.getContextObject().help = (): string => 'help invoked';
 
       expect(
         await testEvaluate(
@@ -244,7 +243,7 @@ describe('Interpreter', () => {
     });
 
     it('allows to invoke the it command', async() => {
-      testEnvironment.setGlobal('it', () => 'it invoked');
+      testEnvironment.getContextObject().it = (): string => 'it invoked';
 
       expect(
         await testEvaluate(
@@ -254,7 +253,7 @@ describe('Interpreter', () => {
     });
 
     it('allows to invoke the show command', async() => {
-      testEnvironment.setGlobal('show', () => 'show invoked');
+      testEnvironment.getContextObject().show = (): string => 'show invoked';
 
       expect(
         await testEvaluate(
@@ -264,7 +263,7 @@ describe('Interpreter', () => {
     });
 
     it('allows to invoke the use command', async() => {
-      testEnvironment.setGlobal('use', () => 'use invoked');
+      testEnvironment.getContextObject().use = (): string => 'use invoked';
 
       expect(
         await testEvaluate(
