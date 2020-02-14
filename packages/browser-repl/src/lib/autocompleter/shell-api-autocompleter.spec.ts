@@ -13,8 +13,7 @@ describe('Autocompleter', () => {
       const completions = await autocompleter.getCompletions('db.coll1.');
 
       expect(completions).to.deep.contain({
-        caption: 'db.coll1.find',
-        value: 'find'
+        completion: 'db.coll1.find'
       });
     });
 
@@ -22,8 +21,7 @@ describe('Autocompleter', () => {
       const completions = await autocompleter.getCompletions('db.coll1.f');
 
       expect(completions).to.deep.contain({
-        caption: 'db.coll1.find',
-        value: 'find'
+        completion: 'db.coll1.find'
       });
     });
   });

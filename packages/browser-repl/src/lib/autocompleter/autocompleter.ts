@@ -1,28 +1,24 @@
 /**
  * A completion item
- *
- * @example
- *
- * ``` js
- * {
- *   caption: 'db.coll1.find',
- *   value: 'find'
- * }
- * ```
  */
 export interface Completion {
 
   /**
-   * The string to be displayed for presentation
+   * The completed text (ie. db.coll1.f -> db.coll1.find).
    */
-  caption: string;
-
-  /**
-   * The string to be inserted in the text
-   */
-  value: string;
+  completion: string;
 }
 
+/**
+ * Interface for an Autocompleter
+ */
 export interface Autocompleter {
+
+  /**
+   * Returns completions for the code passed as argument.
+   *
+   * @param {string} code - the code to complete.
+   * @returns {Completion[]} an array of completions.
+   */
   getCompletions(code: string): Promise<Completion[]>;
 }

@@ -21,8 +21,7 @@ export class ShellApiAutocompleter implements Autocompleter {
 
     const entries = completions[0].map((completion) => {
       return {
-        caption: completion,
-        value: completion.split('.').pop()
+        completion
       };
     });
 
