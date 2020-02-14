@@ -15,7 +15,8 @@
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "npm run lint && npm run test",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "check": "npm run lint"
+    "check": "npm run lint",
+    "compile-ts": "npm run build"
   },
   "dependencies": {
     "@babel/generator": "^7.8.3",
