@@ -25,8 +25,8 @@
     "browser-util-inspect": "^0.2.0",
     "mongosh-cli-repl": "file:../cli-repl",
     "mongosh-mapper": "file:../mapper",
-    "mongosh-shell-api": "file:../shell-api",
-    "mongosh-service-provider-core": "file:../service-provider-core"
+    "mongosh-service-provider-core": "file:../service-provider-core",
+    "mongosh-shell-api": "file:../shell-api"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
