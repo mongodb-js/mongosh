@@ -27,7 +27,7 @@ describe('AceAutocompleterAdapter', () => {
   describe('getCompletions', () => {
     it('calls adaptee.getCompletions with code', async() => {
       const adaptee = {
-        getCompletions: sinon.spy(() => Promise.resolve())
+        getCompletions: sinon.spy(() => Promise.resolve([]))
       };
 
       await testGetCompletions(adaptee, 'text');
@@ -37,7 +37,7 @@ describe('AceAutocompleterAdapter', () => {
 
     it('ignores spaces', async() => {
       const adaptee = {
-        getCompletions: sinon.spy(() => Promise.resolve())
+        getCompletions: sinon.spy(() => Promise.resolve([]))
       };
 
       await testGetCompletions(adaptee, 'some text');
@@ -45,14 +45,41 @@ describe('AceAutocompleterAdapter', () => {
       expect(adaptee.getCompletions).to.have.been.calledWith('text');
     });
 
+    it('passes dots', async() => {
+      const adaptee = {
+        getCompletions: sinon.spy(() => Promise.resolve([]))
+      };
+
+      await testGetCompletions(adaptee, 'some.text');
+
+      expect(adaptee.getCompletions).to.have.been.calledWith('some.text');
+    });
+
     it('only gets cursor line', async() => {
       const adaptee = {
-        getCompletions: sinon.spy(() => Promise.resolve())
+        getCompletions: sinon.spy(() => Promise.resolve([]))
       };
 
       await testGetCompletions(adaptee, 'this is\nsome text');
 
       expect(adaptee.getCompletions).to.have.been.calledWith('text');
+    });
+
+    it('converts the completions to the ace format', async() => {
+      const adaptee = {
+        getCompletions: sinon.spy(() => Promise.resolve([
+          {
+            completion: 'a.completion'
+          }
+        ]))
+      };
+
+      const completions = await testGetCompletions(adaptee, '');
+
+      expect(completions).to.deep.equal([{
+        value: 'completion',
+        caption: 'completion'
+      }]);
     });
   });
 });
