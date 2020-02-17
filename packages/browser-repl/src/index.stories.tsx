@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import { Shell } from './index';
-import { IframeRuntime } from './lib/iframe-runtime';
+import { IframeRuntime } from './iframe-runtime';
 
 import { withKnobs, boolean, number } from '@storybook/addon-knobs';
 import { ServiceProvider } from 'mongosh-service-provider-core';
