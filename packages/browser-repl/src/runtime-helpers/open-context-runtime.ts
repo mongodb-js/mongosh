@@ -2,7 +2,7 @@ import { Completion } from '../autocompleter/autocompleter';
 import { ServiceProvider } from 'mongosh-service-provider-core';
 import { ShellApiAutocompleter } from '../autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment, EvaluationResult } from '../interpreter';
-import { Runtime } from '../../components/runtime';
+import { Runtime } from '../components/runtime';
 
 import Mapper from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';

@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import util from 'util';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 import { expect } from '../../testing/chai';
-import { Completion } from '../lib/autocompleter/autocompleter';
+import { Completion } from '../autocompleter/autocompleter';
 
 async function testGetCompletions(adaptee, textBeforeCursor): Promise<Completion[]> {
   const completer = new AceAutocompleterAdapter(adaptee as any);

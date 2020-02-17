@@ -1,4 +1,4 @@
-import { Completion } from '../lib/autocompleter/autocompleter';
+import { Completion } from '../autocompleter/autocompleter';
 
 export type ContextValue = any;
 

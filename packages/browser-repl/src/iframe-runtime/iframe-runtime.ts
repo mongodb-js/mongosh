@@ -2,7 +2,7 @@ import {
   IframeInterpreterEnvironment
 } from './iframe-interpreter-environment';
 
-import { Runtime, EvaluationResult } from '../../components/runtime';
+import { Runtime, EvaluationResult } from '../components/runtime';
 import { Completion } from '../autocompleter/autocompleter';
 import { OpenContextRuntime } from '../runtime-helpers/open-context-runtime';
 import { ServiceProvider } from 'mongosh-service-provider-core';
