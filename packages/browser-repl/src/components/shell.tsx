@@ -29,12 +29,12 @@ interface ShellProps {
   redactInfo?: boolean;
 
   /* The maxiumum number of lines to keep in the output.
-   * Default to `1000`.
+   * Defaults to `1000`.
    */
   maxOutputLength?: number;
 
   /* The maxiumum number of lines to keep in the history.
-   * Default to `1000`.
+   * Defaults to `1000`.
    */
   maxHistoryLength?: number;
 
