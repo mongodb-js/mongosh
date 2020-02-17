@@ -71,7 +71,7 @@ An object representing an entry in the shell output, with the following properti
 
 - `type: 'input' | 'output' | 'error'`: the type of the entry
 - `shellApiType?: string`: the shell api type if the entry value is a shell api object.
-- `value: any`: the value that has to be rendered in the output.
+- `value: any`: the value that has to be rendered in output.
 
 ### `Runtime`
 
