@@ -1,7 +1,9 @@
-import os from 'os';
-import minimist from 'minimist';
-import i18n from 'mongosh-i18n';
 import CliOptions from './cli-options';
+import { USAGE } from './constants';
+import i18n from 'mongosh-i18n';
+import minimist from 'minimist';
+import clr from './clr';
+import os from 'os';
 
 /**
  * Unknown translation key.
@@ -71,7 +73,10 @@ const OPTIONS = {
     if (!parameter.startsWith('-')) {
       return true;
     }
-    throw new Error(`${i18n.__(UNKNOWN)} ${parameter}`);
+    throw new Error(
+      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(parameter, 'bold')}
+      ${USAGE}`
+    );
   }
 };
 
