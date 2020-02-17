@@ -7,7 +7,7 @@ all environments (REPL, Browser, Compass, etc).
 
 ## CLI Usage
 ```shell
-$ mongosh [options] [db address]
+  $ mongosh [options] [db address]
 
   Options:
     -h, --help                                 Show this usage information
@@ -17,7 +17,7 @@ $ mongosh [options] [db address]
         --version                              Show version information
         --shell                                Run the shell after executing files
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
-        --norc                                 Will not run the ".mongorc.js" file on start up
+        --norc                                 Will not run the '.mongorc.js' file on start up
         --eval [arg]                           Evaluate javascript
         --retryWrites                          Automatically retry write operations upon transient network errors
         --disableImplicitSessions              Do not automatically create and use implicit sessions
@@ -28,41 +28,41 @@ $ mongosh [options] [db address]
     -p, --password [arg]                       Password for authentication
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
-        --gssapiServiceName [arg] (=mongodb)   Service name to use when authenticating using GSSAPI/Kerberos
-        --gssapiHostName [arg]                 Remote host name to use for purpose of GSSAPI/Kerberos authentication
+        --gssapiServiceName [arg] (=mongodb)   undefined
+        --gssapiHostName [arg]                 Automatically retry write operations upon transient network errors
 
   TLS Options:
 
         --tls                                  Use TLS for all connections
         --tlsCertificateKeyFile [arg]          PEM certificate/key file for TLS
-        --tlsCertificateKeyFilePassword [arg]  Password for key in PEM file for TLS
+        --tlsCertificateKeyFilePassword [arg]  undefined
         --tlsCAFile [arg]                      Certificate Authority file for TLS
         --tlsCRLFile [arg]                     Certificate Revocation List file for TLS
-        --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
-        --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
+        --tlsAllowInvalidHostnames             undefined
+        --tlsAllowInvalidCertificates          undefined
         --tlsCertificateSelector [arg]         TLS Certificate in system store
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
-  FLE AWS Options:
+  FLE AWS Options
 
         --awsAccessKeyId [arg]                 AWS Access Key for FLE Amazon KMS
         --awsSecretAccessKey [arg]             AWS Secret Key for FLE Amazon KMS
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
-        --kmsURL [arg]                         Test parameter to override the URL for KMS
+        --kmsURL [arg]                         Test parameter to override the URL for
 
-  DB Address:
+  DB Address Examples
 
         foo                                    Foo database on local machine
         192.168.0.5/foo                        Foo database on 192.168.0.5 machine
         192.168.0.5:9999/foo                   Foo database on 192.168.0.5 machine on port 9999
         mongodb://192.168.0.5:9999/foo         Connection string URI can also be used
 
-  File Names:
+  File Names
 
         A list of files to run. Files must end in .js and will exit after unless --shell is specified.
 
-  Examples:
+  Examples
 
         Start mongosh using 'ships' database on specified connection string:
         $ mongosh mongodb://192.168.0.5:9999/ships

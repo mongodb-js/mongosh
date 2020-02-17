@@ -4,8 +4,16 @@ import mapCliToDriver from './arg-mapper';
 import generateUri from './uri-generator';
 import changeHistory from './history';
 import completer from './completer'
+import clr from './clr'
 import { USAGE } from './constants';
 
 export default CliRepl;
-export { CliRepl, parseCliArgs, mapCliToDriver, generateUri, USAGE, completer,
-  changeHistory };
+
+export {
+  clr,
+  USAGE,
+  CliRepl,
+  completer,
+  generateUri,
+  parseCliArgs,
+  mapCliToDriver };
