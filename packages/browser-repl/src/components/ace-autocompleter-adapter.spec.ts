@@ -9,6 +9,7 @@ async function testGetCompletions(adaptee, textBeforeCursor): Promise<Completion
   const getCompletions = util.promisify(completer.getCompletions.bind(completer));
 
   const rows = textBeforeCursor.split('\n');
+  const prefix = textBeforeCursor.split(/[\. ]/g).pop();
 
   return await getCompletions(
     null,
@@ -19,7 +20,7 @@ async function testGetCompletions(adaptee, textBeforeCursor): Promise<Completion
       row: rows.length - 1,
       column: rows[rows.length - 1].length
     },
-    null
+    prefix
   );
 }
 
@@ -35,14 +36,14 @@ describe('AceAutocompleterAdapter', () => {
       expect(adaptee.getCompletions).to.have.been.calledWith('text');
     });
 
-    it('ignores spaces', async() => {
+    it('calls adaptee.getCompletions with code till cursor', async() => {
       const adaptee = {
         getCompletions: sinon.spy(() => Promise.resolve([]))
       };
 
       await testGetCompletions(adaptee, 'some text');
 
-      expect(adaptee.getCompletions).to.have.been.calledWith('text');
+      expect(adaptee.getCompletions).to.have.been.calledWith('some text');
     });
 
     it('passes dots', async() => {
@@ -62,24 +63,24 @@ describe('AceAutocompleterAdapter', () => {
 
       await testGetCompletions(adaptee, 'this is\nsome text');
 
-      expect(adaptee.getCompletions).to.have.been.calledWith('text');
+      expect(adaptee.getCompletions).to.have.been.calledWith('some text');
     });
 
     it('converts the completions to the ace format', async() => {
       const adaptee = {
         getCompletions: sinon.spy(() => Promise.resolve([
           {
-            completion: 'a.completion'
+            completion: 'something to.complete'
           }
         ]))
       };
 
-      const completions = await testGetCompletions(adaptee, '');
+      const completions = await testGetCompletions(adaptee, 'something to.compl');
 
-      expect(completions).to.deep.equal([{
-        value: 'completion',
-        caption: 'completion'
-      }]);
+      expect(completions[0]).to.deep.equal({
+        value: 'complete',
+        caption: 'complete'
+      });
     });
   });
 });
