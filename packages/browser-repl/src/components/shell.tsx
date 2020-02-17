@@ -17,14 +17,14 @@ interface ShellProps {
    */
   onOutputChanged?: (output: readonly ShellOutputEntry[]) => void;
 
-  /* A function called each time the history change
+  /* A function called each time the history changes
    * with an array of history entries ordered from the most recent to
    * the oldest entry.
    */
   onHistoryChanged?: (history: readonly string[]) => void;
 
-  /* If set the shell will omit or redact entries containing
-   * sensitive info from the history. Default to `false`.
+  /* If set, the shell will omit or redact entries containing sensitive
+   * info from history. Defaults to `false`.
    */
   redactInfo?: boolean;
 
