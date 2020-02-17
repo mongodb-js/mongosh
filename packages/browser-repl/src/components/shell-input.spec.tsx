@@ -5,7 +5,7 @@ import { shallow } from '../../testing/enzyme';
 
 import { ShellInput } from './shell-input';
 import { Editor } from './editor';
-import { Completion } from '../lib/autocompleter/autocompleter';
+import { Completion } from '../autocompleter/autocompleter';
 
 function changeValue(wrapper, value): void {
   wrapper.find(Editor).prop('onChange')(value);

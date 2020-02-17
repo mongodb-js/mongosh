@@ -1,4 +1,4 @@
-import { Autocompleter, Completion } from '../lib/autocompleter/autocompleter';
+import { Autocompleter, Completion } from '../autocompleter/autocompleter';
 
 interface AceCompletion {
   caption: string;

@@ -5,7 +5,7 @@ import {
 import {
   Runtime,
   EvaluationResult
-} from '../../components/runtime';
+} from '../components/runtime';
 import { OpenContextRuntime } from '../runtime-helpers/open-context-runtime';
 import { ServiceProvider } from 'mongosh-service-provider-core';
 import { Completion } from '../autocompleter/autocompleter';

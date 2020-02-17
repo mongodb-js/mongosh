@@ -1,5 +1,6 @@
 import { IframeRuntime } from './iframe-runtime';
-import { expect } from '../../../testing/chai';
+import { expect } from '../../testing/chai';
+import { ServiceProvider } from 'mongosh-service-provider-core';
 
 describe('IframeRuntime', () => {
   let runtime;
@@ -45,7 +46,7 @@ describe('IframeRuntime', () => {
     });
 
     it('does not interfere with other instances', async() => {
-      const other = new IframeRuntime({});
+      const other = new IframeRuntime({} as ServiceProvider);
       await runtime.evaluate('x = 1');
       await other.evaluate('x = 2');
 

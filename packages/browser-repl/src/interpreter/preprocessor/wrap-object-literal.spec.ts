@@ -1,4 +1,4 @@
-import { expect } from '../../../../testing/chai';
+import { expect } from '../../../testing/chai';
 import { wrapObjectLiteral } from './wrap-object-literal';
 
 describe('wrapObjectLiteral', () => {

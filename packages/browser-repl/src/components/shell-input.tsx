@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Editor } from './editor';
-import { Autocompleter } from '../lib/autocompleter/autocompleter';
+import { Autocompleter } from '../autocompleter/autocompleter';
 
 interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;

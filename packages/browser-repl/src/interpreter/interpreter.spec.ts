@@ -1,5 +1,5 @@
 import { Interpreter } from './interpreter';
-import { expect } from '../../../testing/chai';
+import { expect } from '../../testing/chai';
 
 async function createTestIframe(): Promise<HTMLIFrameElement> {
   const iframe = document.createElement('iframe');
