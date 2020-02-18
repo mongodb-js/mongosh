@@ -26,7 +26,7 @@ describe('CompassShell', () => {
   });
 
   context('when historyStorage is not present', () => {
-    it('passes initialHistory={[]} to Shell', () => {
+    it('passes an empty history to the Shell', () => {
       const fakeRuntime = {};
       const wrapper = shallow(<CompassShell runtime={fakeRuntime} />);
 
@@ -47,7 +47,7 @@ describe('CompassShell', () => {
       fakeRuntime = {};
     });
 
-    it('passes loadedHistory as initialHistory to Shell', async() => {
+    it('passes the loaded history as initialHistory to Shell', async() => {
       fakeStorage.load = sinon.spy(() => Promise.resolve(['line1']));
 
       const wrapper = shallow(<CompassShell
@@ -59,7 +59,7 @@ describe('CompassShell', () => {
       expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal(['line1']);
     });
 
-    it('calls historyStorage.save when history changes', async() => {
+    it('saves the history when history changes', async() => {
       const wrapper = shallow(<CompassShell
         runtime={fakeRuntime}
         historyStorage={fakeStorage} />);
