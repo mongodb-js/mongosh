@@ -508,6 +508,17 @@ class NodeTransport implements Transport {
   }
 
   /**
+   * list databases.
+   *
+   * @param {String} database - The database name.
+   *
+   * @returns {Promise} The promise of command results.
+   */
+  listDatabases(database: string) : Promise<Result> {
+    return this.db(database).admin().listDatabases();
+  }
+
+  /**
    * Update many document.
    *
    * @param {String} database - The database name.
