@@ -11,7 +11,7 @@ function updateAndWaitAsync(wrapper) {
 
 describe('CompassShell', () => {
   context('when runtime property is not present', () => {
-    it('does not renders a shell if runtime is null', () => {
+    it('does not render a shell if runtime is null', () => {
       const wrapper = shallow(<CompassShell runtime={null} />);
       expect(wrapper.find(Shell)).to.have.lengthOf(0);
     });
