@@ -827,6 +827,14 @@ class ShellApi {
     this.it.topologies = [0, 1, 2];
     this.it.returnsPromise = false;
     this.it.returnType = 'Unknown';
+    this.show = function() {
+      return this._mapper.show(this, ...arguments);
+    };
+    this.show.help = () => new Help({'help': '!! No help defined for this method'});
+    this.show.serverVersions = ['0.0.0', '4.4.0'];
+    this.show.topologies = [0, 1, 2];
+    this.show.returnsPromise = false;
+    this.show.returnType = 'Unknown';
   }
 }
 class UpdateResult {

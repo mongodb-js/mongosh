@@ -16,3 +16,4 @@ class:
               description: 'shell-api.help.help.show-dbs'
     use: *__defaultMethod
     it: *__defaultMethod
+    show: *__defaultMethod

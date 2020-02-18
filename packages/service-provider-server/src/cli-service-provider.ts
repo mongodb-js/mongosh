@@ -490,6 +490,15 @@ class CliServiceProvider implements ServiceProvider {
 
   /**
    * @param {String} db - the db name
+   * @return {any}
+   */
+  listDatabases(db: string): Promise<Result> {
+    return this.nodeTransport.listDatabases(db);
+  }
+
+
+  /**
+   * @param {String} db - the db name
    * @param {String} coll - the collection name
    * @param filter
    * @param options

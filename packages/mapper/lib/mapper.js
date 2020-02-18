@@ -19,6 +19,7 @@ class Mapper {
     this.awaitLoc = []; // track locations where await is needed
     this.checkAwait = false;
     this.cursorAssigned = false;
+    this.databases = { test: new Database(this, 'test') };
     /* This will be rewritten so it's less fragile */
     const parseStack = (s) => {
       const r = s.match(/repl:1:(\d*)/);
@@ -48,13 +49,31 @@ class Mapper {
 
   setCtx(ctx) {
     this._ctx = ctx;
-    this._ctx.db = new Database(this, 'test');
+    this._ctx.db = this.databases.test;
   }
 
-
   use(_, db) {
-    this._ctx.db = new Database(this, db);
+    if (!(db in this.databases)) {
+      this.databases[db] = new Database(this, db);
+    }
+    this._ctx.db = this.databases[db];
     return `switched to db ${db}`;
+  }
+
+  async show(_, arg) {
+    switch (arg) {
+      case 'databases':
+      case 'dbs':
+        const result = await this._serviceProvider.listDatabases('admin');
+        if (!('databases' in result)) {
+          throw new Error('Error: invalid result from listDatabases');
+        }
+        return result.databases.reduce((str, db) => {
+          return `${str}\n${db.name}\t${db.sizeOnDisk}B`;
+        }, '');
+      default:
+        throw new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
+    }
   }
 
   async it() {

@@ -137,7 +137,8 @@ const ShellApi = {
   type: 'ShellApi',
   attributes: {
     use: { type: 'function', returnsPromise: false, returnType: 'Unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    it: { type: 'function', returnsPromise: false, returnType: 'Unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    it: { type: 'function', returnsPromise: false, returnType: 'Unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    show: { type: 'function', returnsPromise: false, returnType: 'Unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const UpdateResult = {
