@@ -86,7 +86,7 @@ class CliRepl {
       input,
       context,
       filename
-    ).catch((err) => err);
+    )
 
     if (this.isShellApiType(evaluationResult)) {
       return {
@@ -108,7 +108,7 @@ class CliRepl {
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
-      return formatOutput({value: result});
+      return formatOutput({type: 'Error', value: result});
     }
 
     return formatOutput(result);
@@ -138,7 +138,7 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.mdbVersion}`);
+    console.log(`Using MongoDB: ${this.mdbVersion} \n`);
   }
 
   /**
@@ -213,7 +213,7 @@ class CliRepl {
         }
         callback(null, str);
       } catch (err) {
-        console.log('Catch callback:', err);
+        // console.log('Catch callback:', err);
         callback(err, null);
       } finally {
         this.mapper.cursorAssigned = false;
