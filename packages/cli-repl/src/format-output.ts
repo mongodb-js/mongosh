@@ -31,6 +31,10 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatHelp(value);
   }
 
+  if (type === 'Error') {
+    return formatError(value)
+  }
+
   return formatSimpleType(value);
 }
 
@@ -40,6 +44,10 @@ function formatSimpleType(output) {
   }
 
   return inspect(output);
+}
+
+function formatError(error) {
+  return inspect(error)
 }
 
 function inspect(output) {
