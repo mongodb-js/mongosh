@@ -6,6 +6,7 @@ export const USAGE = `
   ${clr(i18n.__('cli-repl.args.usage'), 'bold')}
 
   ${clr(i18n.__('cli-repl.args.options'), ['bold', 'yellow'])}
+
     -h, --help                                 ${i18n.__('cli-repl.args.help')} 
         --ipv6                                 ${i18n.__('cli-repl.args.ipv6')}
         --host [arg]                           ${i18n.__('cli-repl.args.host')}
