@@ -33,6 +33,7 @@
     "minimist": "^1.2.0",
     "mongodb-ace-autocompleter": "^0.4.1",
     "nanobus": "^4.4.0",
+    "pino": "^5.16.0",
     "read": "^1.0.7",
     "semver": "^7.1.2"
   },

@@ -3,11 +3,11 @@ import path from 'path'
 import os from 'os'
 
 function logger (bus) {
-  const dest = path.join(os.homedir(), './mongosh_log')
-  const log = pino({name: 'monogsh'}, dest) 
+  const dest = path.join(os.homedir(), './.mongosh_log')
+  const log = pino({name: 'monogsh'}, pino.destination(dest))
 
-  bus.on('setCtx', function(info) {
-    log.info('setCtx', info)
+  bus.on('eval:error', function(err) {
+    log.error('eval:error', err)
   })
 
   bus.on('use', function(info) {
@@ -54,12 +54,12 @@ function logger (bus) {
   bus.on('estimatedDocumentCount', function() {
   })
 
-  bus.on('find', function(query) {
-    log.info('find', query)
+  bus.on('find', function(coll, query) {
+    log.info('find', coll, query)
   })
 
-  bus.on('findOne', function(query) {
-    log.info('findOne', query)
+  bus.on('findOne', function(coll, query = {}) {
+    log.info('findOne', coll, query)
   })
 
   bus.on('findOneAndDelete', function() {

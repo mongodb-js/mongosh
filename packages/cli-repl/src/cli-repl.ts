@@ -27,6 +27,7 @@ class CliRepl {
   private mapper: Mapper;
   private mdbVersion: any;
   private repl: REPLServer;
+  private bus: nanobus;
   private options: CliOptions;
 
   /**
@@ -37,11 +38,11 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
-    const bus = nanobus('monogsh');
-    const log = logger(bus)
+    this.bus = nanobus('monogsh');
+    const log = logger(this.bus)
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.mapper = new Mapper(this.serviceProvider, bus);
+    this.mapper = new Mapper(this.serviceProvider, this.bus);
     this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
@@ -204,6 +205,11 @@ class CliRepl {
         }
         callback(null, str);
       } catch (err) {
+<<<<<<< HEAD
+=======
+        // console.log('Catch callback:', err);
+        this.bus.emit('eval:error', err)
+>>>>>>> move bus to a property on CliRepl class
         callback(err, null);
       } finally {
         this.mapper.cursorAssigned = false;

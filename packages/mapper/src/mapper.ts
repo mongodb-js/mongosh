@@ -419,7 +419,7 @@ export default class Mapper {
    */
   find(collection, query, projection): any {
     const options: any = {};
-    this.messageBus.emit('find');
+    this.messageBus.emit('find', collection, query);
 
     if (projection) {
       options.projection = projection;
@@ -451,7 +451,7 @@ export default class Mapper {
    */
   findOne(collection, query, projection): Promise<any> {
     const options: any = {};
-    this.messageBus.emit('findOne');
+    this.messageBus.emit('findOne', collection._collection, query);
 
     if (projection) {
       options.projection = projection;
