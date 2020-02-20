@@ -84,13 +84,16 @@ export default class Mapper {
 
     contextObject.db = this.databases.test;
     this.context = contextObject;
+    this.messageBus.emit('setCtx', this.context.db)
   }
 
   use(_, db): any {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
+    this.messageBus.emit('use', `switched to db ${db}`)
     this.context.db = this.databases[db];
+
     return `switched to db ${db}`;
   }
 
@@ -128,12 +131,14 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) {
       if (!await this.currentCursor.hasNext()) {
+        this.messageBus.emit('it', 'no cursor')
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
+    this.messageBus.emit('it', results.length)
     return results;
   }
 
@@ -188,7 +193,7 @@ export default class Mapper {
       );
     }
 
-    this.messageBus.emit('aggregate:start', cmd)
+    this.messageBus.emit('aggregate', cmd)
 
     const cursor = new AggregationCursor(this, cmd);
 
@@ -216,7 +221,7 @@ export default class Mapper {
     options: Document = {}
   ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
-    this.messageBus.emit('bulkWrite');
+    this.messageBus.emit('bulkWrite', collection);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -256,7 +261,7 @@ export default class Mapper {
    */
   count(collection, query = {}, options: any = {}): any {
     const dbOpts: any = {};
-    this.messageBus.emit('count');
+    this.messageBus.emit('count', collection, query);
 
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
@@ -280,9 +285,8 @@ export default class Mapper {
    *
    * @returns {Integer} The promise of the count.
    */
-
   countDocuments(collection, query, options: any = {}): any {
-    this.messageBus.emit('countDocuments');
+    this.messageBus.emit('countDocuments', collection, query);
 
     return this.serviceProvider.countDocuments(
       collection._database,
