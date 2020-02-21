@@ -91,7 +91,7 @@ export default class Mapper {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
-    this.messageBus.emit('use', `switched to db ${db}`)
+    this.messageBus.emit('cmd:use', `switched to db ${db}`)
     this.context.db = this.databases[db];
 
     return `switched to db ${db}`;
@@ -131,14 +131,14 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) {
       if (!await this.currentCursor.hasNext()) {
-        this.messageBus.emit('it', 'no cursor')
+        this.messageBus.emit('cmd:it', 'no cursor')
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
-    this.messageBus.emit('it', results.length)
+    this.messageBus.emit('cmd:it', results.length)
     return results;
   }
 
@@ -193,7 +193,7 @@ export default class Mapper {
       );
     }
 
-    this.messageBus.emit('aggregate', cmd)
+    this.messageBus.emit('method:aggregate', coll, cmd)
 
     const cursor = new AggregationCursor(this, cmd);
 
@@ -261,7 +261,7 @@ export default class Mapper {
    */
   count(collection, query = {}, options: any = {}): any {
     const dbOpts: any = {};
-    this.messageBus.emit('count', collection, query);
+    this.messageBus.emit('method:count', collection._collection, query);
 
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
@@ -286,7 +286,7 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   countDocuments(collection, query, options: any = {}): any {
-    this.messageBus.emit('countDocuments', collection, query);
+    this.messageBus.emit('method:countDocuments', collection._collection, query, options);
 
     return this.serviceProvider.countDocuments(
       collection._database,
@@ -419,7 +419,7 @@ export default class Mapper {
    */
   find(collection, query, projection): any {
     const options: any = {};
-    this.messageBus.emit('find', collection, query);
+    this.messageBus.emit('method:find', collection._collection, query, projection);
 
     if (projection) {
       options.projection = projection;
@@ -451,7 +451,7 @@ export default class Mapper {
    */
   findOne(collection, query, projection): Promise<any> {
     const options: any = {};
-    this.messageBus.emit('findOne', collection._collection, query);
+    this.messageBus.emit('method:findOne', collection._collection, query, projection);
 
     if (projection) {
       options.projection = projection;

@@ -41,6 +41,8 @@ class CliRepl {
     this.bus = nanobus('monogsh');
     const log = logger(this.bus)
 
+    this.bus.emit('connect', driverUri)
+
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider, this.bus);
     this.shellApi = new ShellApi(this.mapper);
@@ -131,6 +133,7 @@ class CliRepl {
       case 'it':
         return this.repl.context.it();
       case 'help':
+        this.bus.emit('cmd:help')
         return this.repl.context.help();
       case 'var':
         this.mapper.cursorAssigned = true;
@@ -183,6 +186,7 @@ class CliRepl {
     this.greet();
 
     const version = this.mdbVersion;
+    const bus = this.bus;
 
     this.repl = repl.start({
       prompt: `$ mongosh > `,
@@ -205,11 +209,6 @@ class CliRepl {
         }
         callback(null, str);
       } catch (err) {
-<<<<<<< HEAD
-=======
-        // console.log('Catch callback:', err);
-        this.bus.emit('eval:error', err)
->>>>>>> move bus to a property on CliRepl class
         callback(err, null);
       } finally {
         this.mapper.cursorAssigned = false;

@@ -6,40 +6,53 @@ function logger (bus) {
   const dest = path.join(os.homedir(), './.mongosh_log')
   const log = pino({name: 'monogsh'}, pino.destination(dest))
 
+  bus.on('connect', function(info) {
+    log.info('connect', info)
+  })
+
   bus.on('eval:error', function(err) {
     log.error('eval:error', err)
   })
 
-  bus.on('use', function(info) {
-    log.info('use', info)
+  bus.on('error', function(error) {
+    log.error(error)
   })
 
-  bus.on('it', function(info) {
-    log.info('it', info)
+  bus.on('cmd:help', function() {
+    log.info('cmd:help')
   })
 
-  bus.on('start', function(info) {
-    log.info('start', info)
+  bus.on('cmd:use', function(info) {
+    log.info('cmd:use', info)
   })
 
-  bus.on('aggregate', function(pipeline) {
-    log.info('aggregate', pipeline)
+  bus.on('cmd:it', function(info) {
+    log.info('cmd:it', info)
   })
 
-  bus.on('bulkWrite:start', function(coll) {
+  bus.on('method:aggregate', function(coll, pipeline) {
+    log.info('method:aggregate', coll, pipeline)
+  })
+
+  bus.on('method:bulkWrite:start', function(coll) {
     log.info('bulkWrite:start', coll)
   })
 
-  bus.on('bulkWrite:result', function(result) {
+  bus.on('method:bulkWrite:result', function(result) {
     log.info('bulkWrite:result', result)
   })
 
-  bus.on('count', function(coll, query) {
-    log.info('count', coll, query)
+  bus.on('method:count', function(coll, query = {}) {
+    log.info('method:count', coll, query)
   })
 
-  bus.on('countDocuments', function(coll, query) {
-    log.info('countDocument', coll, query)
+  bus.on('method:countDocuments', function(coll, query = {}, options) {
+    const params = {
+      collection: coll, 
+      query,
+      options 
+    }
+    log.info('method:countDocument', params)
   })
 
   bus.on('deleteMany', function() {
@@ -54,12 +67,22 @@ function logger (bus) {
   bus.on('estimatedDocumentCount', function() {
   })
 
-  bus.on('find', function(coll, query) {
-    log.info('find', coll, query)
+  bus.on('method:find', function(coll, query = {}, projection = {}) {
+    const params = {
+      collection: coll, 
+      query,
+      projection
+    }
+    log.info('method:find', params)
   })
 
-  bus.on('findOne', function(coll, query = {}) {
-    log.info('findOne', coll, query)
+  bus.on('method:findOne', function(coll, query = {}, projection = {}) {
+    const params = {
+      collection: coll, 
+      query,
+      projection
+    }
+    log.info('method:findOne', params)
   })
 
   bus.on('findOneAndDelete', function() {
