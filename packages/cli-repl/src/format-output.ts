@@ -81,15 +81,22 @@ function formatHelp(value) {
   const argLen = 47;
   let helpMenu = '';
 
-  helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`
+  if (value.help) {
+    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`
+  }
   value.attr.forEach((method) => {
-    let formatted = `    ${method.name}`;
-    const extraSpaces = 47 - formatted.length;
-    formatted += `${' '.repeat(extraSpaces)}${method.description}`;
-    helpMenu += `${formatted}\n`;
+    if (method.name && method.description) {
+      let formatted = `    ${method.name}`;
+      const extraSpaces = 47 - formatted.length;
+      formatted += `${' '.repeat(extraSpaces)}${method.description}`;
+      helpMenu += `${formatted}\n`;
+    }
+    helpMenu += '\n';
   })
 
-  helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`
+  if (value.docs) {
+    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`
+  }
 
   return helpMenu;
 }
