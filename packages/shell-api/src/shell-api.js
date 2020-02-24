@@ -138,7 +138,7 @@ class Collection {
     this.shellApiType = () => {
       return 'Collection';
     };
-    this.help = () => new Help({'help': 'The collection class.'});
+    this.help = () => new Help({'help': 'shell-api.collection.description', 'docs': '', 'attr': [{'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate'}, {'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write'}, {'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents'}, {'name': 'count', 'description': 'shell-api.collection.help.count'}, {'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many'}, {'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one'}, {'name': 'distinct', 'description': 'shell-api.collection.help.distinct'}, {'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-count'}, {'name': 'find', 'description': 'shell-api.collection.help.find'}, {'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify'}, {'name': 'findOne', 'description': 'shell-api.collection.help.find-one'}, {'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete'}, {'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace'}, {'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update'}, {'name': 'insert', 'description': 'shell-api.collection.help.insert'}, {'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many'}, {'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one'}, {'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped'}, {'name': 'remove', 'description': 'shell-api.collection.help.remove'}, {'name': 'save', 'description': 'shell-api.collection.help.save'}, {'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one'}, {'name': 'update', 'description': 'shell-api.collection.help.update'}, {'name': 'updateMany', 'description': 'shell-api.collection.help.update-many'}, {'name': 'updateOne', 'description': 'shell-api.collection.help.update-one'}]});
     this.aggregate = function() {
       return this._mapper.aggregate(this, ...arguments);
     };
@@ -810,7 +810,7 @@ class ShellApi {
     this.shellApiType = () => {
       return 'ShellApi';
     };
-    this.help = () => new Help({'help': 'shell-api.help', 'docs': 'https://docs.mongodb.com/manual/reference/mongo-shell/#command-helpers', 'attr': [{'name': 'use', 'description': 'Set current database'}, {'name': 'it', 'description': 'Result of the last line evaluated; use to further iterate'}, {'name': '.exit', 'description': 'Quit the mongo shell'}, {'name': 'db.help()', 'description': 'Help on db methods'}, {'name': 'db.mycoll.help()', 'description': 'Help on collection methods'}, {'name': 'sh.help()', 'description': 'Sharding helpers'}, {'name': 'rs.help()', 'description': 'Replica set helpers'}, {'name': 'help admin', 'description': 'Administrative help'}]});
+    this.help = () => new Help({'help': 'shell-api.help.description', 'link': 'shell-api.help.link', 'attr': [{'name': 'use', 'description': 'shell-api.help.help.use'}, {'name': 'it', 'description': 'shell-api.help.help.it'}, {'name': '.exit', 'description': 'shell-api.help.help.exit'}, {'name': 'show', 'description': 'shell-api.help.help.show-dbs'}]});
     this.use = function() {
       return this._mapper.use(this, ...arguments);
     };

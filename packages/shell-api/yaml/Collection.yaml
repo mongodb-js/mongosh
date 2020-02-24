@@ -7,7 +7,57 @@ class:
     __stringRep:
         - this._collection
     help:
-        help: 'The collection class.'
+        help: 'shell-api.collection.description'
+        docs: ''
+        attr:
+          - name: aggregate
+            description: 'shell-api.collection.help.aggregate'
+          - name: bulkWrite
+            description: 'shell-api.collection.help.bulk-write'
+          - name: countDocuments
+            description: 'shell-api.collection.help.count-documents'
+          - name: count
+            description: 'shell-api.collection.help.count'
+          - name: deleteMany
+            description: 'shell-api.collection.help.delete-many'
+          - name: deleteOne
+            description: 'shell-api.collection.help.delete-one'
+          - name: distinct
+            description: 'shell-api.collection.help.distinct'
+          - name: estimatedDocumentCount
+            description: 'shell-api.collection.help.estimated-document-count'
+          - name: find
+            description: 'shell-api.collection.help.find'
+          - name: findAndModify
+            description: 'shell-api.collection.help.find-and-modify'
+          - name: findOne
+            description: 'shell-api.collection.help.find-one'
+          - name: findOneAndDelete
+            description: 'shell-api.collection.help.find-one-and-delete'
+          - name: findOneAndReplace
+            description: 'shell-api.collection.help.find-one-and-replace'
+          - name: findOneAndUpdate
+            description: 'shell-api.collection.help.find-one-and-update'
+          - name: insert
+            description: 'shell-api.collection.help.insert'
+          - name: insertMany
+            description: 'shell-api.collection.help.insert-many'
+          - name: insertOne
+            description: 'shell-api.collection.help.insert-one'
+          - name: isCapped
+            description: 'shell-api.collection.help.is-capped'
+          - name: remove
+            description: 'shell-api.collection.help.remove'
+          - name: save
+            description: 'shell-api.collection.help.save'
+          - name: replaceOne
+            description: 'shell-api.collection.help.replace-one'
+          - name: update
+            description: 'shell-api.collection.help.update'
+          - name: updateMany
+            description: 'shell-api.collection.help.update-many'
+          - name: updateOne
+            description: 'shell-api.collection.help.update-one'
 
     aggregate:
         <<: *__defaultMethod

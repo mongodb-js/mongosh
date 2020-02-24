@@ -74,5 +74,6 @@ function formatCursorIterationResult(value) {
 }
 
 function formatHelp(value) {
+  console.log(value)
   return value.help; // TODO: Irina this one needs some magic.
 }
