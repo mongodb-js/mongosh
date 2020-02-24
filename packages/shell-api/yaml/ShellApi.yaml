@@ -4,7 +4,7 @@ class:
         - _mapper
     help:
         help: 'shell-api.help.description'
-        link: 'shell-api.help.link'
+        docs: 'https://docs.mongodb.com/manual/reference/method'
         attr:
             - name: use
               description: 'shell-api.help.help.use'

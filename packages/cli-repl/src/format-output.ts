@@ -1,4 +1,6 @@
+import i18n from 'mongosh-i18n';
 import util from 'util';
+import clr from './clr';
 
 type EvaluationResult = {
   value: any,
@@ -74,6 +76,20 @@ function formatCursorIterationResult(value) {
 }
 
 function formatHelp(value) {
-  console.log(value)
-  return value.help; // TODO: Irina this one needs some magic.
+  // This is the spacing between arguments and description in mongosh --help.
+  // Use this length for formatting consistency.
+  const argLen = 47;
+  let helpMenu = '';
+
+  helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`
+  value.attr.forEach((method) => {
+    let formatted = `    ${method.name}`;
+    const extraSpaces = 47 - formatted.length;
+    formatted += `${' '.repeat(extraSpaces)}${method.description}`;
+    helpMenu += `${formatted}\n`;
+  })
+
+  helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`
+
+  return helpMenu;
 }

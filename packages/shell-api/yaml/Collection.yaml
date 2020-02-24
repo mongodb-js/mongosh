@@ -8,56 +8,56 @@ class:
         - this._collection
     help:
         help: 'shell-api.collection.description'
-        docs: ''
+        docs: 'https://docs.mongodb.com/manual/reference/method/js-collection'
         attr:
           - name: aggregate
-            description: 'shell-api.collection.help.aggregate'
+            description: 'shell-api.collection.help.aggregate.description'
           - name: bulkWrite
-            description: 'shell-api.collection.help.bulk-write'
+            description: 'shell-api.collection.help.bulk-write.description'
           - name: countDocuments
-            description: 'shell-api.collection.help.count-documents'
+            description: 'shell-api.collection.help.count-documents.description'
           - name: count
-            description: 'shell-api.collection.help.count'
+            description: 'shell-api.collection.help.count.description'
           - name: deleteMany
-            description: 'shell-api.collection.help.delete-many'
+            description: 'shell-api.collection.help.delete-many.description'
           - name: deleteOne
-            description: 'shell-api.collection.help.delete-one'
+            description: 'shell-api.collection.help.delete-one.description'
           - name: distinct
-            description: 'shell-api.collection.help.distinct'
+            description: 'shell-api.collection.help.distinct.description'
           - name: estimatedDocumentCount
-            description: 'shell-api.collection.help.estimated-document-count'
+            description: 'shell-api.collection.help.estimated-document-coun.descriptiont'
           - name: find
-            description: 'shell-api.collection.help.find'
+            description: 'shell-api.collection.help.find.description'
           - name: findAndModify
-            description: 'shell-api.collection.help.find-and-modify'
+            description: 'shell-api.collection.help.find-and-modify.description'
           - name: findOne
-            description: 'shell-api.collection.help.find-one'
+            description: 'shell-api.collection.help.find-one.description'
           - name: findOneAndDelete
-            description: 'shell-api.collection.help.find-one-and-delete'
+            description: 'shell-api.collection.help.find-one-and-delete.description'
           - name: findOneAndReplace
-            description: 'shell-api.collection.help.find-one-and-replace'
+            description: 'shell-api.collection.help.find-one-and-replace.description'
           - name: findOneAndUpdate
-            description: 'shell-api.collection.help.find-one-and-update'
+            description: 'shell-api.collection.help.find-one-and-update.description'
           - name: insert
-            description: 'shell-api.collection.help.insert'
+            description: 'shell-api.collection.help.insert.description'
           - name: insertMany
-            description: 'shell-api.collection.help.insert-many'
+            description: 'shell-api.collection.help.insert-many.description'
           - name: insertOne
-            description: 'shell-api.collection.help.insert-one'
+            description: 'shell-api.collection.help.insert-one.description'
           - name: isCapped
-            description: 'shell-api.collection.help.is-capped'
+            description: 'shell-api.collection.help.is-capped.description'
           - name: remove
-            description: 'shell-api.collection.help.remove'
+            description: 'shell-api.collection.help.remove.description'
           - name: save
-            description: 'shell-api.collection.help.save'
+            description: 'shell-api.collection.help.save.description'
           - name: replaceOne
-            description: 'shell-api.collection.help.replace-one'
+            description: 'shell-api.collection.help.replace-one.description'
           - name: update
-            description: 'shell-api.collection.help.update'
+            description: 'shell-api.collection.help.update.description'
           - name: updateMany
-            description: 'shell-api.collection.help.update-many'
+            description: 'shell-api.collection.help.update-many.description'
           - name: updateOne
-            description: 'shell-api.collection.help.update-one'
+            description: 'shell-api.collection.help.update-one.description'
 
     aggregate:
         <<: *__defaultMethod
