@@ -91,7 +91,6 @@ function formatHelp(value) {
       formatted += `${' '.repeat(extraSpaces)}${method.description}`;
       helpMenu += `${formatted}\n`;
     }
-    helpMenu += '\n';
   })
 
   if (value.docs) {
