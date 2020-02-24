@@ -3,25 +3,16 @@ class:
     __constructorArgs:
         - _mapper
     help:
-        help: 'shell-api.help'
-        docs: "https://docs.mongodb.com/manual/reference/mongo-shell/#command-helpers"
+        help: 'shell-api.help.description'
+        link: 'shell-api.help.link'
         attr:
             - name: use
-              description: Set current database
+              description: 'shell-api.help.help.use'
             - name: it
-              description: Result of the last line evaluated; use to further iterate
+              description: 'shell-api.help.help.it'
             - name: .exit
-              description: Quit the mongo shell
-            - name: db.help()
-              description: Help on db methods
-            - name: db.mycoll.help()
-              description: Help on collection methods
-            - name: sh.help()
-              description: Sharding helpers
-            - name: rs.help()
-              description: Replica set helpers
-            - name: help admin
-              description: Administrative help
-
+              description: 'shell-api.help.help.exit'
+            - name: show
+              description: 'shell-api.help.help.show-dbs'
     use: *__defaultMethod
     it: *__defaultMethod

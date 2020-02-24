@@ -100,6 +100,7 @@ const translations = {
     },
     "collection": {
       "description": "Collection Class",
+      "link": "https://docs.mongodb.com/manual/reference/method/js-collection/",
       "help": {
         "aggregate": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.aggregate",
@@ -927,7 +928,16 @@ const translations = {
     "shard": {
       "description": "The Shard class."
     },
-    "help": "Welcome to the new MongoDB Shell!"
+    "help": {
+      "description": "Shell Help",
+      "link": "https://docs.mongodb.com/manual/reference/method",
+      "help": {
+        "use": "Set current database",
+        "it": "Result of the last line evaluated; use to further iterate",
+        "exit": "Quit the MongoDB shell",
+        "show-dbs": "Show database names"
+      }
+    }
   },
   "transport-browser": {
     "stitch-browser-transport": {
