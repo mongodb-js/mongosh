@@ -7,6 +7,10 @@ class:
         - this._database
     help:
         help: 'shell-api.database.description'
+        docs: 'https://docs.mongodb.com/manual/reference/method/js-database/'
+        attr:
+            - name: runCommand
+              description: 'shell-api.database.help.run-command'
     runCommand:
         <<: *__defaultMethod
         help:

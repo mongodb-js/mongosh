@@ -2,3 +2,4 @@ class:
     <<: *__defaultClass
     help:
         help: 'shell-api.shard.description'
+        docs: 'https://docs.mongodb.com/manual/reference/method/js-sharding'

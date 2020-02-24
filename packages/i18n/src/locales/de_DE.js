@@ -99,7 +99,8 @@ const translations = {
       "description": "The BulkWriteResult class."
     },
     "collection": {
-      "description": "",
+      "description": "Collection Class",
+      "link": "https://docs.mongodb.com/manual/reference/method/js-collection/",
       "help": {
         "aggregate": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.aggregate",
@@ -209,7 +210,7 @@ const translations = {
         },
         "count": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.count",
-          "description": "Returns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query. Avoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.",
+          "description": "Returns the count of documents that would match a find() query for the collection or view.",
           "example": "db.collection.count(query, options)",
           "parameters": {
             "query": {
@@ -641,7 +642,7 @@ const translations = {
         },
         "is-capped": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.isCapped",
-          "description": "",
+          "description": "Checks if a collection is capped",
           "example": "db.collection.isCapped()",
           "parameters": {},
           "returns": "Returns true if the collection is a capped collection, otherwise returns false."
@@ -927,7 +928,16 @@ const translations = {
     "shard": {
       "description": "The Shard class."
     },
-    "help": "Willkommen im neuem MongoDB-Shell!"
+    "help": {
+      "description": "Shell Help",
+      "link": "https://docs.mongodb.com/manual/reference/method",
+      "help": {
+        "use": "Set current database",
+        "it": "Result of the last line evaluated; use to further iterate",
+        "exit": "Quit the MongoDB shell",
+        "show-dbs": "Show database names"
+      }
+    }
   },
   "transport-browser": {
     "stitch-browser-transport": {

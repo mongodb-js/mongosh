@@ -55,7 +55,7 @@ const translations = {
       "filenameDescription": "A list of files to run. Files must end in .js and will exit after unless --shell is specified.",
       "examples": "Examples",
       "connectionExampleWithDatabase": "Start mongosh using 'ships' database on specified connection string:",
-      "moreInformation": "For more information on mongosh usage:",
+      "moreInformation": "For more information on usage:",
     },
     "arg-parser": {
       "unknown-option": "Error parsing command line: unrecognized option:"
@@ -81,7 +81,7 @@ const translations = {
   },
   "shell-api": {
     "aggregation-cursor": {
-      "description": "The aggregation cursor class.",
+      "description": "Aggregation Class",
       "help": {
         "close": "Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.",
         "for-each": "Iterates the cursor to apply a JavaScript function to each document from the cursor.",
@@ -96,7 +96,7 @@ const translations = {
       }
     },
     "bulk-write-result": {
-      "description": "The BulkWriteResult class."
+      "description": "BulkWriteResult Class"
     },
     "collection": {
       "description": "Collection Class",
@@ -210,7 +210,7 @@ const translations = {
         },
         "count": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.count",
-          "description": "Returns the count of documents that would match a find() query for the collection or view. The db.collection.count() method does not perform the find() operation but instead counts and returns the number of results that match a query. Avoid using the db.collection.count() method without a query predicate since without the query predicate, the method returns results based on the collection’s metadata, which may result in an approximate count.",
+          "description": "Returns the count of documents that would match a find() query for the collection or view.",
           "example": "db.collection.count(query, options)",
           "parameters": {
             "query": {
@@ -642,7 +642,7 @@ const translations = {
         },
         "is-capped": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.isCapped",
-          "description": "",
+          "description": "Checks if a collection is capped",
           "example": "db.collection.isCapped()",
           "parameters": {},
           "returns": "Returns true if the collection is a capped collection, otherwise returns false."
@@ -870,7 +870,7 @@ const translations = {
       }
     },
     "cursor": {
-      "description": "The cursor class.",
+      "description": "Collection Cursor",
       "help": {
         "add-option": "Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.",
         "allow-partial-results": "Sets the 'partial' option to true.",
@@ -917,16 +917,16 @@ const translations = {
       }
     },
     "database": {
-      "description": "The database class.",
+      "description": "Database Class",
       "help": {
         "run-command": "Runs an arbitrary command on the database."
       }
     },
     "replica-set": {
-      "description": "The Replica Set class."
+      "description": "Replica Set Class"
     },
     "shard": {
-      "description": "The Shard class."
+      "description": "The Shard Class"
     },
     "help": {
       "description": "Shell Help",

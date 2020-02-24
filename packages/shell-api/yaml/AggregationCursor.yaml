@@ -10,6 +10,28 @@ class:
         firstArg: ''
     help:
         help: 'shell-api.aggregation-cursor.description'
+        docs: 'https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline'
+        attr:
+            - name: close
+              description: 'shell-api.aggregation-cursor.help.close'
+            - name: forEeach
+              description: 'shell-api.aggregation-cursor.help.for-each'
+            - name: hasNext
+              description: 'shell-api.aggregation-cursor.help.has-next'
+            - name: isClosed
+              description: 'shell-api.aggregation-cursor.help.isClosed'
+            - name: isExhausted
+              description: 'shell-api.aggregation-cursor.help.isExhausted'
+            - name: itcount
+              description: 'shell-api.aggregation-cursor.help.itcount'
+            - name: map
+              description: 'shell-api.aggregation-cursor.help.map'
+            - name: next
+              description: 'shell-api.aggregation-cursor.help.next'
+            - name: objsLeftInBatch
+              description: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
+            - name: toArray
+              description: 'shell-api.aggregation-cursor.help.to-array'
     bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod

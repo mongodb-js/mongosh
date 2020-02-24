@@ -13,7 +13,7 @@ class AggregationCursor {
     this.shellApiType = () => {
       return 'AggregationCursor';
     };
-    this.help = () => new Help({'help': 'shell-api.aggregation-cursor.description'});
+    this.help = () => new Help({'help': 'shell-api.aggregation-cursor.description', 'docs': 'https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline', 'attr': [{'name': 'close', 'description': 'shell-api.aggregation-cursor.help.close'}, {'name': 'forEeach', 'description': 'shell-api.aggregation-cursor.help.for-each'}, {'name': 'hasNext', 'description': 'shell-api.aggregation-cursor.help.has-next'}, {'name': 'isClosed', 'description': 'shell-api.aggregation-cursor.help.isClosed'}, {'name': 'isExhausted', 'description': 'shell-api.aggregation-cursor.help.isExhausted'}, {'name': 'itcount', 'description': 'shell-api.aggregation-cursor.help.itcount'}, {'name': 'map', 'description': 'shell-api.aggregation-cursor.help.map'}, {'name': 'next', 'description': 'shell-api.aggregation-cursor.help.next'}, {'name': 'objsLeftInBatch', 'description': 'shell-api.aggregation-cursor.help.objs-left-in-batch'}, {'name': 'toArray', 'description': 'shell-api.aggregation-cursor.help.to-array'}]});
     this.bsonsize = function() {
       return this._cursor.bsonsize(...arguments);
     };
@@ -138,7 +138,7 @@ class Collection {
     this.shellApiType = () => {
       return 'Collection';
     };
-    this.help = () => new Help({'help': 'shell-api.collection.description', 'docs': '', 'attr': [{'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate'}, {'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write'}, {'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents'}, {'name': 'count', 'description': 'shell-api.collection.help.count'}, {'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many'}, {'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one'}, {'name': 'distinct', 'description': 'shell-api.collection.help.distinct'}, {'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-count'}, {'name': 'find', 'description': 'shell-api.collection.help.find'}, {'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify'}, {'name': 'findOne', 'description': 'shell-api.collection.help.find-one'}, {'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete'}, {'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace'}, {'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update'}, {'name': 'insert', 'description': 'shell-api.collection.help.insert'}, {'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many'}, {'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one'}, {'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped'}, {'name': 'remove', 'description': 'shell-api.collection.help.remove'}, {'name': 'save', 'description': 'shell-api.collection.help.save'}, {'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one'}, {'name': 'update', 'description': 'shell-api.collection.help.update'}, {'name': 'updateMany', 'description': 'shell-api.collection.help.update-many'}, {'name': 'updateOne', 'description': 'shell-api.collection.help.update-one'}]});
+    this.help = () => new Help({'help': 'shell-api.collection.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-collection', 'attr': [{'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate.description'}, {'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write.description'}, {'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents.description'}, {'name': 'count', 'description': 'shell-api.collection.help.count.description'}, {'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many.description'}, {'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one.description'}, {'name': 'distinct', 'description': 'shell-api.collection.help.distinct.description'}, {'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-coun.descriptiont'}, {'name': 'find', 'description': 'shell-api.collection.help.find.description'}, {'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify.description'}, {'name': 'findOne', 'description': 'shell-api.collection.help.find-one.description'}, {'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete.description'}, {'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace.description'}, {'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update.description'}, {'name': 'insert', 'description': 'shell-api.collection.help.insert.description'}, {'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many.description'}, {'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one.description'}, {'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped.description'}, {'name': 'remove', 'description': 'shell-api.collection.help.remove.description'}, {'name': 'save', 'description': 'shell-api.collection.help.save.description'}, {'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one.description'}, {'name': 'update', 'description': 'shell-api.collection.help.update.description'}, {'name': 'updateMany', 'description': 'shell-api.collection.help.update-many.description'}, {'name': 'updateOne', 'description': 'shell-api.collection.help.update-one.description'}]});
     this.aggregate = function() {
       return this._mapper.aggregate(this, ...arguments);
     };
@@ -345,7 +345,7 @@ class Cursor {
     this.shellApiType = () => {
       return 'Cursor';
     };
-    this.help = () => new Help({'help': ''});
+    this.help = () => new Help({'help': 'shell-api.cursor.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-cursor', 'attr': [{'name': 'addOption', 'description': 'shell-api.cursor.help.add-option'}, {'name': 'allowPartialResults', 'description': 'shell-api.cursor.help.allow-partial-results'}, {'name': 'arrayAccess', 'description': 'shell-api.cursor.help.array-access'}, {'name': 'batchSize', 'description': 'shell-api.cursor.help.batch-size'}, {'name': 'clone', 'description': 'shell-api.cursor.help.clone'}, {'name': 'close', 'description': 'shell-api.cursor.help.close'}, {'name': 'collation', 'description': 'shell-api.cursor.help.collation'}, {'name': 'comment', 'description': 'shell-api.cursor.help.comment'}, {'name': 'count', 'description': 'shell-api.cursor.help.count'}, {'name': 'explain', 'description': 'shell-api.cursor.help.explain'}, {'name': 'forEach', 'description': 'shell-api.cursor.help.for-each'}, {'name': 'getQueryPlan', 'description': 'shell-api.cursor.help.get-query-plan'}, {'name': 'hasNext', 'description': 'shell-api.cursor.help.has-next'}, {'name': 'hint', 'description': 'shell-api.cursor.help.hint'}, {'name': 'isClosed', 'description': 'shell-api.cursor.help.is-closed'}, {'name': 'isExhausted', 'description': 'shell-api.cursor.help.is-exhausted'}, {'name': 'itcount', 'description': 'shell-api.cursor.help.itcount'}, {'name': 'length', 'description': 'shell-api.cursor.help.length'}, {'name': 'limit', 'description': 'shell-api.cursor.help.limit'}, {'name': 'map', 'description': 'shell-api.cursor.help.map'}, {'name': 'max', 'description': 'shell-api.cursor.help.max'}, {'name': 'maxScan', 'description': 'shell-api.cursor.help.max-scan'}, {'name': 'maxTimeMS', 'description': 'shell-api.cursor.help.max-time-ms'}, {'name': 'min', 'description': 'shell-api.cursor.help.min'}, {'name': 'modifiers', 'description': 'shell-api.cursor.help.modifiers'}, {'name': 'next', 'description': 'shell-api.cursor.help.next'}, {'name': 'noCursorTimeout', 'description': 'shell-api.cursor.help.no-cursor-timeout'}, {'name': 'objsLeftInBatch', 'description': 'shell-api.cursor.help.objs-left-in-batch'}, {'name': 'oplog', 'description': 'shell-api.cursor.help.oplog-replay'}, {'name': 'projection', 'description': 'shell-api.cursor.help.projection'}, {'name': 'pretty', 'description': 'shell-api.cursor.help.pretty'}, {'name': 'readConcern', 'description': 'shell-api.cursor.help.read-concern'}, {'name': 'readOnly', 'description': 'shell-api.cursor.help.read-only'}, {'name': 'readPref', 'description': 'shell-api.cursor.help.read-pref'}, {'name': 'returnKey', 'description': 'shell-api.cursor.help.return-key'}, {'name': 'showDiskLoc', 'description': 'shell-api.cursor.help.show-disk-loc'}, {'name': 'showRecordId', 'description': 'shell-api.cursor.help.show-record-id'}, {'name': 'size', 'description': 'shell-api.cursor.help.size'}, {'name': 'skip', 'description': 'shell-api.cursor.help.skip'}, {'name': 'snapshot', 'description': 'shell-api.cursor.help.snapshot'}, {'name': 'sort', 'description': 'shell-api.cursor.help.sort'}, {'name': 'tailable', 'description': 'shell-api.cursor.help.tailable'}, {'name': 'toArray', 'description': 'shell-api.cursor.help.to-array'}]});
     this.addOption = function() {
       return this._cursor.addOption(...arguments);
     };
@@ -713,7 +713,7 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({'help': 'shell-api.database.description'});
+    this.help = () => new Help({'help': 'shell-api.database.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-database/', 'attr': [{'name': 'runCommand', 'description': 'shell-api.database.help.run-command'}]});
     this.runCommand = function() {
       return this._mapper.runCommand(this, ...arguments);
     };
@@ -782,7 +782,7 @@ class ReplicaSet {
     this.shellApiType = () => {
       return 'ReplicaSet';
     };
-    this.help = () => new Help({'help': 'shell-api.replica-set.description'});
+    this.help = () => new Help({'help': 'shell-api.replica-set.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-replication'});
   }
 }
 class Shard {
@@ -796,7 +796,7 @@ class Shard {
     this.shellApiType = () => {
       return 'Shard';
     };
-    this.help = () => new Help({'help': 'shell-api.shard.description'});
+    this.help = () => new Help({'help': 'shell-api.shard.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-sharding'});
   }
 }
 class ShellApi {
@@ -810,7 +810,7 @@ class ShellApi {
     this.shellApiType = () => {
       return 'ShellApi';
     };
-    this.help = () => new Help({'help': 'shell-api.help.description', 'link': 'shell-api.help.link', 'attr': [{'name': 'use', 'description': 'shell-api.help.help.use'}, {'name': 'it', 'description': 'shell-api.help.help.it'}, {'name': '.exit', 'description': 'shell-api.help.help.exit'}, {'name': 'show', 'description': 'shell-api.help.help.show-dbs'}]});
+    this.help = () => new Help({'help': 'shell-api.help.description', 'docs': 'https://docs.mongodb.com/manual/reference/method', 'attr': [{'name': 'use', 'description': 'shell-api.help.help.use'}, {'name': 'it', 'description': 'shell-api.help.help.it'}, {'name': '.exit', 'description': 'shell-api.help.help.exit'}, {'name': 'show', 'description': 'shell-api.help.help.show-dbs'}]});
     this.use = function() {
       return this._mapper.use(this, ...arguments);
     };
