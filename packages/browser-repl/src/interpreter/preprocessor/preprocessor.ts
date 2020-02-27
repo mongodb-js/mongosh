@@ -42,6 +42,8 @@ export class Preprocessor {
     let ast;
     code = wrapObjectLiteral(code);
     code = transformCommandInvocation(code, SUPPORTED_COMMANDS);
+    code = `;${code}`; // prevent literals from being parsed as directives
+
     ast = parse(code, {allowAwaitOutsideFunction: true});
     ast = injectLastExpressionCallback(this.lastExpressionCallbackFunctionName, ast);
 
