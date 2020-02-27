@@ -1,83 +1,37 @@
 import {uiColors} from '@leafygreen-ui/palette';
 
-// eslint-disable-next-line no-undef
-ace.define(
-  'ace/theme/mongosh',
-  ['require', 'exports', 'module', 'ace/lib/dom'], function(acequire, exports, module) {
-    const palette = {
-      background: uiColors.gray.dark3, // Background
-      borders: uiColors.black, // Borders / non-text graphical accents
-      comments: uiColors.gray.light1, // Comments, Doctags, Formulas
-      defaultText: uiColors.gray.light3, // Default Text
-      highlights: uiColors.gray.dark2, // Highlights
-      variables: '#FF6F44', // Variables, XML Tags, Markup Link Text, Markup Lists, Diff Deleted
-      classes: '#EDB210', // Classes, Markup Bold, Search Text Background
-      strings: '#35DE7B', // Strings, Inherited Class, Markup Code, Diff Inserted
-      support: '#a5e3ff', // Support, Regular Expressions, Escape Characters, Markup Quotes
-      literals: '#2DC4FF', // Functions, Methods, Classes, Names, Sections, Literals
-      keywords: '#FF7DC3', // Keywords, Storage, Selector, Markup Italic, Diff Changed
-    };
+const foregroundColor = uiColors.gray.light3;
+const backgroundColor = uiColors.gray.dark3;
+const borderColor = uiColors.gray.dark1;
+const activeLineColor = uiColors.gray.dark2;
 
-    const syntax = `
-    .ace-mongosh .ace_keyword {
-      color: ${palette.keywords};
-      font-weight: normal;
-    }
-    .ace-mongosh .ace_identifier {
-      color: ${palette.defaultText}
-    }
-    .ace-mongosh .ace_string {
-      color: ${palette.strings};
-    }
-    .ace-mongosh .ace_boolean {
-      color: ${palette.literals};
-      font-weight: normal;
-    }
-    .ace-mongosh .ace_constant.ace_numeric {
-      color: ${palette.variables};
-    }
-    .ace-mongosh .ace_string.ace_regexp {
-      color: ${palette.support};
-    }
-    .ace-mongosh .ace_variable.ace_class {
-      color: ${palette.classes};
-    }
-    .ace-mongosh .ace_constant.ace_buildin {
-      color: ${palette.literals};
-    }
-    .ace-mongosh .ace_support.ace_function {
-      color: ${palette.literals};
-    }
-    .ace-mongosh .ace_comment {
-      color: ${palette.comments};
-      font-style: italic;
-    }
-    .ace-mongosh .ace_variable  {
-      color: ${palette.variables};
-    }
-    .ace-mongosh .ace_paren {
-      font-weight: normal;
-    }
-    .ace-mongosh .ace_variable.ace_instance {
-      color: ${palette.variables};
-    }
-  `;
+const cursorColor = uiColors.green.base;
 
-    exports.isDark = true;
-    exports.cssClass = 'ace-mongosh';
-    exports.cssText = `
+const keywordsColor = '#FF7DC3';
+const stringsColor = '#35DE7B';
+const literalsColor = '#2DC4FF';
+const supportColor = '#a5e3ff';
+const classesColor = '#EDB210';
+const commentsColor = uiColors.gray.light1;
+const variablesColor = '#FF6F44';
+
+const layoutCss = `
   .ace-mongosh.ace_editor {
-    font: inherit;
-    font-size: inherit;
-    font-family: inherit;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 24px;
     margin-left: -4px;
     background: transparent;
-    color: ${uiColors.white};
+    color: ${foregroundColor};
   }
   .ace-mongosh .ace_cursor {
     background: transparent;
-    color: ${uiColors.green.base};
-    border-color: ${uiColors.green.base};
+    color: ${cursorColor};
+    border-color: ${cursorColor};
+  }
+  .ace-mongosh .ace_hidden-cursors .ace_cursor {
+    opacity: 0;
+    visibility: hidden;
   }
   .ace-mongosh.ace_focus .ace_marker-layer .ace_active-line {
     background: transparent;
@@ -88,8 +42,89 @@ ace.define(
   .ace-mongosh .ace_marker-layer .ace_selection {
     background: transparent;
   }
-  ${syntax}`;
+`;
 
-    const dom = acequire('../lib/dom');
-    dom.importCssString(exports.cssText, exports.cssClass);
-  });
+const syntaxCss = `
+  .ace-mongosh .ace_keyword {
+    color: ${keywordsColor};
+    font-weight: normal;
+  }
+  .ace-mongosh .ace_identifier {
+    color: ${foregroundColor}
+  }
+  .ace-mongosh .ace_string {
+    color: ${stringsColor};
+  }
+  .ace-mongosh .ace_boolean {
+    color: ${literalsColor};
+    font-weight: normal;
+  }
+  .ace-mongosh .ace_constant.ace_numeric {
+    color: ${variablesColor};
+  }
+  .ace-mongosh .ace_string.ace_regexp {
+    color: ${supportColor};
+  }
+  .ace-mongosh .ace_variable.ace_class {
+    color: ${classesColor};
+  }
+  .ace-mongosh .ace_constant.ace_buildin {
+    color: ${literalsColor};
+  }
+  .ace-mongosh .ace_support.ace_function {
+    color: ${literalsColor};
+  }
+  .ace-mongosh .ace_comment {
+    color: ${commentsColor};
+    font-style: italic;
+  }
+  .ace-mongosh .ace_variable  {
+    color: ${variablesColor};
+  }
+  .ace-mongosh .ace_variable.ace_instance {
+    color: ${variablesColor};
+  }
+  .ace-mongosh .ace_paren {
+    font-weight: normal;
+  }
+`;
+
+const autocompleteCss = `
+  .ace-mongosh.ace_editor.ace_autocomplete {
+    box-sizing: border-box;
+    border: 1px solid ${borderColor};
+    background-color: ${backgroundColor};
+    box-shadow: 0 5px 8px 0 rgba(0,0,0,0.5);
+    color: ${commentsColor};
+  }
+
+  .ace-mongosh.ace_editor.ace_autocomplete .ace_completion-highlight {
+    color: ${foregroundColor};
+    text-shadow: none;
+    font-weight: bold;
+  }
+
+  .ace-mongosh.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+    background-color: ${activeLineColor};
+  }
+`;
+
+function mongoshAceTheme(acequire, exports, module) {
+  exports.isDark = true;
+  exports.cssClass = 'ace-mongosh';
+  exports.cssText = [
+    layoutCss,
+    syntaxCss,
+    autocompleteCss
+  ].join('\n');
+
+  const dom = acequire('../lib/dom');
+  dom.importCssString(exports.cssText, exports.cssClass);
+}
+
+// eslint-disable-next-line no-undef
+ace.define(
+  'ace/theme/mongosh',
+  ['require', 'exports', 'module', 'ace/lib/dom'],
+  mongoshAceTheme
+);
