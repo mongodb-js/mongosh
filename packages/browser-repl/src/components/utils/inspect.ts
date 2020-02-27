@@ -56,8 +56,6 @@ export function inspect(value, options: InspectOptions = {}): string {
     breakLength: 0
   });
 
-  console.log(stringifiedValue);
-
   return stringifiedValue;
 }
 

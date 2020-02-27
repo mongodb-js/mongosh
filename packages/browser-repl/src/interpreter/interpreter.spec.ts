@@ -50,6 +50,14 @@ describe('Interpreter', () => {
       ).to.equal(1);
     });
 
+    it('evaluates an string literal', async() => {
+      expect(
+        await testEvaluate(
+          '"some text"'
+        )
+      ).to.equal('some text');
+    });
+
     it('allows to set and evaluate a variable', async() => {
       expect(
         await testEvaluate(

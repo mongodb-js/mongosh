@@ -26,6 +26,11 @@ describe('injectLastExpressionCallback', () => {
       .to.equal('mongodbEvalCapture(x = 5);');
   });
 
+  it('captures string literals', () => {
+    expect(testInjectLastExpressionCallback(';\'str\''))
+      .to.equal(';\nmongodbEvalCapture(\'str\');');
+  });
+
   it('captures undefined if the last statement is not an expression', () => {
     expect(testInjectLastExpressionCallback('let x = 5'))
       .to.equal('let x = 5;\nmongodbEvalCapture();');
