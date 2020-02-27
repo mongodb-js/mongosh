@@ -28,10 +28,10 @@ export const IframeRuntimeExample: React.FunctionComponent = () => {
     };
   }, []);
 
-  return (<Shell runtime={runtime}
+  return (<div style={{height: '240px'}}><Shell runtime={runtime}
     redactInfo={boolean('redactInfo', false)}
     maxHistoryLength={number('maxHistoryLength', 1000)}
     maxOutputLength={number('maxOutputLength', 1000)}
     initialHistory={['{x: 1, y: {z: 2}, k: [1, 2, 3]}']}
-  />);
+  /></div>);
 };
