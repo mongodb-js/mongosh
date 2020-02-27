@@ -44,6 +44,11 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <SyntaxHighlight language="none" code={value} />;
     }
 
+    // any primitive type including 'null' and 'undefined'
+    if (value !== Object(value)) {
+      return <SimpleTypeOutput value={value} />;
+    }
+
     if (shellApiType === 'Help') {
       return <HelpOutput value={value} />;
     }
@@ -60,11 +65,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <ErrorOutput value={value} />;
     }
 
-    if (value === Object(value)) {
-      return <ObjectOutput value={value} />;
-    }
-
-    return <SimpleTypeOutput value={value} />;
+    return <ObjectOutput value={value} />;
   }
 
   private getIconGlyph(): string {

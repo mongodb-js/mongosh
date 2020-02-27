@@ -1,13 +1,8 @@
 @import '~@leafygreen-ui/palette/dist/ui-colors.less';
-
-.typography() {
-  font-family: Menlo, Monaco, 'Courier New', monospace;
-  font-size: 13px;
-  line-height: 24px;
-}
+@import './common.less';
 
 .shell {
-  .typography();
+  .font();
 
   background-color: @leafygreen__gray--dark-3;
   color: @leafygreen__gray--light-3;
@@ -20,7 +15,7 @@
   }
 
   pre, code {
-    .typography();
+    .font();
 
     background: transparent;
     border: 0px transparent;

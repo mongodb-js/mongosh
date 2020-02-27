@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import { Expandable } from '../utils/expandable';
 
-const styles = require('./error-output.less');
 
 interface ErrorOutputProps {
   value: any;
@@ -16,17 +14,23 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
   };
 
   renderCollapsed(toggle): JSX.Element {
-    return (<div className={classnames(styles['error-output-header'])}><pre>
+    return (<div><pre>
       <a href="#" onClick={(e): void => { e.preventDefault(); toggle(); }} >
         {this.props.value.name || 'Error'}:
       </a> {this.props.value.message}
     </pre></div>);
   }
 
+  formatStack(): string {
+    return this.props.value.stack.split('\n').slice(1).join('\n');
+  }
+
   renderExpanded(toggle): JSX.Element {
-    return (<div className={classnames(styles['error-output-stack'])}>
+    return (<div>
       {this.renderCollapsed(toggle)}
-      <div><pre>{this.props.value.stack}</pre></div>
+      <div>
+        <pre>{this.formatStack()}</pre>
+      </div>
     </div>);
   }
 
