@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Document, DocumentOutput } from './document-output';
+import { ObjectOutput } from './object-output';
+
+export interface Document {
+  [property: string]: number | string | null | undefined | Document | Document[];
+}
 
 interface CursorIterationResultOutputProps {
   value: Document[];
@@ -20,7 +24,7 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
   }
 
   renderDocument = (document, i): JSX.Element => {
-    return <DocumentOutput key={`document-${i}`} value={document} />;
+    return <ObjectOutput key={`document-${i}`} value={document} />;
   }
 }
 

@@ -32,5 +32,6 @@ export const IframeRuntimeExample: React.FunctionComponent = () => {
     redactInfo={boolean('redactInfo', false)}
     maxHistoryLength={number('maxHistoryLength', 1000)}
     maxOutputLength={number('maxOutputLength', 1000)}
+    initialHistory={['{x: 1, y: {z: 2}, k: [1, 2, 3]}']}
   />);
 };

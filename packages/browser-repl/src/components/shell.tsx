@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
+import classnames from 'classnames';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Runtime } from './runtime';
-
 import changeHistory from 'mongosh-cli-repl/lib/history';
+
+const styles = require('./shell.less');
 
 interface ShellProps {
   /* The runtime used to evaluate code.
@@ -188,12 +189,11 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   render(): JSX.Element {
-    return (<div>
+    return (<div className={classnames(styles.shell)}>
       <div>
         <ShellOutput
           output={this.state.output} />
       </div>
-      <hr/>
       <div ref={(el): void => { this.shellInputElement = el; }}>
         <ShellInput
           onInput={this.onInput}

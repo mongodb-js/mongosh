@@ -1,0 +1,33 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+.typography() {
+  font-family: Menlo, Monaco, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 24px;
+}
+
+.shell {
+  .typography();
+
+  background-color: @leafygreen__gray--dark-3;
+  color: @leafygreen__gray--light-3;
+  padding: 4px 0;
+
+  a {
+    font-weight: bold;
+    color: inherit;
+    background-color: transparent;
+  }
+
+  pre, code {
+    .typography();
+
+    background: transparent;
+    border: 0px transparent;
+    padding: 0px;
+    margin: 0px;
+    font-size: inherit;
+    border-radius: 0px;
+    color: inherit;
+  }
+}
