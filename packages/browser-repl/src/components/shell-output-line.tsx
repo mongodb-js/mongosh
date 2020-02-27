@@ -3,9 +3,7 @@ import classnames from 'classnames';
 
 import PropTypes from 'prop-types';
 import Icon from '@leafygreen-ui/icon';
-import { uiColors } from '@leafygreen-ui/palette';
 
-import { SyntaxHighlight } from './utils/syntax-highlight';
 import { LineWithIcon } from './utils/line-with-icon';
 
 import { HelpOutput } from './types/help-output';
@@ -38,10 +36,11 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     const { shellApiType, value, type } = this.props.entry;
 
     if (
+      typeof value === 'string' &&
       type === 'input' ||
       shellApiType === 'Database' ||
       shellApiType === 'Collection') {
-      return <SyntaxHighlight language="none" code={value} />;
+      return <pre>{value}</pre>;
     }
 
     // any primitive type including 'null' and 'undefined'

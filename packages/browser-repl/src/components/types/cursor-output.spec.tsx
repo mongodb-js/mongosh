@@ -25,8 +25,7 @@ describe('CursorOutput', () => {
       const docs = new Array(21).fill({});
       const wrapper = shallow(<CursorOutput value={docs} />);
 
-      expect(wrapper.find(CursorIterationResultOutput)
-        .text()).to.contain('Type "it" for more');
+      expect(wrapper.text()).to.contain('Type "it" for more');
     });
   });
 
@@ -35,8 +34,7 @@ describe('CursorOutput', () => {
       const docs = new Array(20).fill({});
       const wrapper = shallow(<CursorOutput value={docs} />);
 
-      expect(wrapper.find(CursorIterationResultOutput)
-        .text()).to.contain('Type "it" for more');
+      expect(wrapper.text()).to.contain('Type "it" for more');
     });
   });
 
@@ -45,8 +43,7 @@ describe('CursorOutput', () => {
       const docs = new Array(1).fill({});
       const wrapper = shallow(<CursorOutput value={docs} />);
 
-      expect(wrapper.find(CursorIterationResultOutput)
-        .text()).not.to.contain('Type "it" for more');
+      expect(wrapper.text()).not.to.contain('Type "it" for more');
     });
   });
 });
