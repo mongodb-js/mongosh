@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { Editor } from './editor';
 import { Autocompleter } from '../autocompleter/autocompleter';
+import { LineWithIcon } from './utils/line-with-icon';
+import Icon from '@leafygreen-ui/icon';
+import { uiColors } from '@leafygreen-ui/palette';
+
+const styles = require('./shell-input.less');
 
 interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
@@ -103,7 +109,12 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   render(): JSX.Element {
-    return (<Editor
+    const icon = (<Icon
+      size={12}
+      glyph={'ChevronRight'}
+    />);
+
+    const editor = (<Editor
       value={this.state.currentValue}
       onChange={this.onChange}
       onEnter={this.onEnter}
@@ -111,5 +122,9 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onArrowDownOnLastLine={this.historyNext}
       autocompleter={this.props.autocompleter}
     />);
+
+    const className = classnames(styles['shell-input']);
+
+    return <LineWithIcon className={className} icon={icon}>{editor}</LineWithIcon>;
   }
 }

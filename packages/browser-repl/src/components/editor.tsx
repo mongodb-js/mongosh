@@ -6,7 +6,7 @@ import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/javascript';
-import 'mongodb-ace-theme';
+import './ace-theme';
 
 import ace from 'brace';
 const tools = ace.acequire('ace/ext/language_tools');
@@ -71,7 +71,7 @@ export class Editor extends Component<EditorProps> {
       }}
       name={`mongosh-ace-${Date.now()}`}
       mode="javascript"
-      theme="mongodb"
+      theme="mongosh"
       onChange={this.props.onChange}
       onLoad={this.onEditorLoad}
       commands={[

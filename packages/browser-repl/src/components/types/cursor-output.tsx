@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Document, DocumentOutput } from './document-output';
+import { ObjectOutput } from './object-output';
+import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
 
 interface CursorOutputProps {
   value: Document[];
 }
+
+// TODO: use a shared constant?
+const MAX_DOCUMENT_PER_ITERATION = 20;
 
 export class CursorOutput extends Component<CursorOutputProps> {
   static propTypes = {
@@ -12,11 +16,22 @@ export class CursorOutput extends Component<CursorOutputProps> {
   };
 
   render(): JSX.Element {
-    return <div>{this.props.value.map(this.renderDocument)}</div>;
+    if (!this.props.value.length) {
+      return <pre/>;
+    }
+
+    // TODO: i18n
+    const more = this.props.value.length < MAX_DOCUMENT_PER_ITERATION ? '' :
+      (<pre>Type "it" for more</pre>);
+
+    return (<div>
+      <CursorIterationResultOutput value={this.props.value} />
+      {more}
+    </div>);
   }
 
   renderDocument = (document, i): JSX.Element => {
-    return <DocumentOutput key={`document-${i}`} value={document} />;
+    return <ObjectOutput key={`document-${i}`} value={document} />;
   }
 }
 
