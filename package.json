@@ -12,7 +12,7 @@
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "compile-ts": "lerna run compile-ts",
-    "compile-api": "lerna run compile-api --scope mongosh-shell-api",
+    "compile-api": "lerna run compile-api",
     "start-antlr": "lerna exec npm run start-antlr --scope mongosh-cli-repl",
     "compile-cli": "lerna run compile-ts --scope mongosh-cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
