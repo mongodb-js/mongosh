@@ -16,9 +16,7 @@ export class ObjectOutput extends Component<ObjectOutputProps> {
   render(): JSX.Element {
     return (<Expandable>{
       (expanded): JSX.Element => (
-        <SyntaxHighlight
-          language="javascript"
-          code={inspect(this.props.value, {expanded})} />
+        <SyntaxHighlight code={inspect(this.props.value, {expanded})} />
       )
     }</Expandable>);
   }
