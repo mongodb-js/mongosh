@@ -27,6 +27,7 @@
     "@leafygreen-ui/palette": "^2.0.0",
     "@leafygreen-ui/syntax": "^2.2.0",
     "mongosh-cli-repl": "file:../cli-repl",
+    "mongosh-i18n": "file:../i18n",
     "mongosh-mapper": "file:../mapper",
     "mongosh-service-provider-core": "file:../service-provider-core",
     "mongosh-shell-api": "file:../shell-api"

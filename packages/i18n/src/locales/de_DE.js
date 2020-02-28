@@ -914,6 +914,10 @@ const translations = {
         "sort": "Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.",
         "tailable": "Marks the cursor as tailable.",
         "to-array": "The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor."
+      },
+      "iteration": {
+        "no-cursor": "no cursor",
+        "type-it-for-more": "Type \"it\" for more"
       }
     },
     "database": {

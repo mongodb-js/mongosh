@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
+import i18n from 'mongosh-i18n';
+
+const styles = require('./help-output.less');
 
 type HelpApiObject = {
   help: string;
@@ -24,14 +28,14 @@ export class HelpOutput extends Component<HelpOutputProps> {
   renderAttrTable = (attr: HelpApiObjectAttr[]): JSX.Element => {
     if (!attr || !attr.length) { return; }
 
-    return (<table className="table">
-      {attr.map(this.renderAttrTableRow)}
+    return (<table>
+      <tbody>{attr.map(this.renderAttrTableRow)}</tbody>
     </table>);
   }
 
   renderAttrTableRow = (attr: HelpApiObjectAttr, i: number): JSX.Element => {
     return (<tr key={`row-${i}`}>
-      <td>{attr.name}</td>
+      <th>{attr.name}</th>
       <td>{attr.description}</td>
     </tr>);
   }
@@ -39,7 +43,9 @@ export class HelpOutput extends Component<HelpOutputProps> {
   renderHelpDocsLink(docs: string): JSX.Element {
     if (!docs) { return; }
 
-    return (<div><a href={docs} target="_blank">{docs}</a></div>);
+    return (<div>
+      {i18n.__('cli-repl.args.moreInformation')} <a href={docs} target="_blank">{docs}</a>
+    </div>);
   }
 
   renderHelpText(helpText: string): JSX.Element {
@@ -51,8 +57,9 @@ export class HelpOutput extends Component<HelpOutputProps> {
   render(): JSX.Element {
     const help = this.props.value;
 
+    const className = classnames(styles['help-output']);
     return (
-      <div>
+      <div className={className}>
         {this.renderHelpText(help.help)}
         {this.renderAttrTable(help.attr)}
         {this.renderHelpDocsLink(help.docs)}

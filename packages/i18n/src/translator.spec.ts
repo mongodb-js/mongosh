@@ -35,8 +35,8 @@ describe('Translator', () => {
 
     context('when the result is a string', () => {
       it('returns the string', () => {
-        expect(translator.translateApiHelp('shell-api.help')).
-          to.equal('Welcome to the new MongoDB Shell!');
+        expect(translator.translateApiHelp('shell-api.help.description')).
+          to.equal('Shell Help');
       });
     });
 

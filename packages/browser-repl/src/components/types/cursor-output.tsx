@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import i18n from 'mongosh-i18n';
 import { ObjectOutput } from './object-output';
 import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
 
@@ -20,9 +21,8 @@ export class CursorOutput extends Component<CursorOutputProps> {
       return <pre/>;
     }
 
-    // TODO: i18n
     const more = this.props.value.length < MAX_DOCUMENT_PER_ITERATION ? '' :
-      (<pre>Type "it" for more</pre>);
+      (<pre>{i18n.__('shell-api.cursor.iteration.type-it-for-more')}</pre>);
 
     return (<div>
       <CursorIterationResultOutput value={this.props.value} />

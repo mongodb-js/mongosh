@@ -69,7 +69,7 @@ function formatCursor(value) {
 
 function formatCursorIterationResult(value) {
   if (!value.length) {
-    return 'no cursor';
+    return i18n.__('shell-api.cursor.iteration.no-cursor');
   }
 
   return inspect(value);
@@ -84,7 +84,8 @@ function formatHelp(value) {
   if (value.help) {
     helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`
   }
-  value.attr.forEach((method) => {
+
+  (value.attr || []).forEach((method) => {
     if (method.name && method.description) {
       let formatted = `    ${method.name}`;
       const extraSpaces = 47 - formatted.length;
