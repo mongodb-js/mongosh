@@ -16,9 +16,19 @@ describe('injectLastExpressionCallback', () => {
       .to.equal('mongodbEvalCapture(5);');
   });
 
-  it('captures functions', () => {
+  it('captures function calls', () => {
     expect(testInjectLastExpressionCallback('f()'))
       .to.equal('mongodbEvalCapture(f());');
+  });
+
+  it('captures function declarations', () => {
+    expect(testInjectLastExpressionCallback('function f() {}'))
+      .to.equal('function f() {}\n\nmongodbEvalCapture(f);');
+  });
+
+  it('captures class declarations', () => {
+    expect(testInjectLastExpressionCallback('class C {}'))
+      .to.equal('class C {}\n\nmongodbEvalCapture(C);');
   });
 
   it('captures global assignments', () => {

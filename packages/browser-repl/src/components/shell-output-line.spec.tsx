@@ -37,6 +37,16 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
+  it('renders function', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: (x): any => x}} />);
+    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+  });
+
+  it('renders class', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{type: 'output', value: class C {}}} />);
+    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+  });
+
   it('renders Help', () => {
     const wrapper = shallow(<ShellOutputLine entry={{
       type: 'output',
