@@ -1,4 +1,5 @@
 # mongosh [![Build Status](https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.mongosh?branchName=master)](https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=2&branchName=master)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmongodb-js%2Fmongosh.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmongodb-js%2Fmongosh?ref=badge_shield)
 
 ## The MongoDB Shell
 
@@ -157,3 +158,7 @@ Compile the standalone executable:
 ```shel
 npm run compile-exec
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmongodb-js%2Fmongosh.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmongodb-js%2Fmongosh?ref=badge_large)
