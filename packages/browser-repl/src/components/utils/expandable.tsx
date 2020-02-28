@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import Icon from '@leafygreen-ui/icon';
-import { uiColors } from '@leafygreen-ui/palette';
 
 import { LineWithIcon } from './line-with-icon';
 
 const styles = require('./expandable.less');
 
-type ExpandableProps = {
-  iconFill?: string;
-}
+type ExpandableProps = {}
 
 interface ExpandableState {
   expanded: boolean;
@@ -31,9 +27,7 @@ interface ExpandableState {
  *
  */
 export class Expandable extends Component<ExpandableProps, ExpandableState> {
-  static propTypes = {
-    iconFill: PropTypes.string
-  };
+  static propTypes = {};
 
   state: Readonly<ExpandableState> = {
     expanded: false

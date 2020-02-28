@@ -13,10 +13,7 @@ export class SimpleTypeOutput extends Component<SimpleTypeOutputProps> {
   };
 
   render(): JSX.Element {
-    return (<SyntaxHighlight
-      language="javascript"
-      code={inspect(this.props.value)} />
-    );
+    return (<SyntaxHighlight code={inspect(this.props.value)} />);
   }
 }
 

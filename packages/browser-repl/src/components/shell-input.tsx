@@ -5,7 +5,6 @@ import { Editor } from './editor';
 import { Autocompleter } from '../autocompleter/autocompleter';
 import { LineWithIcon } from './utils/line-with-icon';
 import Icon from '@leafygreen-ui/icon';
-import { uiColors } from '@leafygreen-ui/palette';
 
 const styles = require('./shell-input.less');
 

@@ -37,4 +37,15 @@ describe('<Expandable />', () => {
 
     expect(wrapper.state('expanded')).to.be.true;
   });
+
+  it('renders a caret right icon when not expanded', () => {
+    const wrapper = mount(<Expandable />);
+    expect(wrapper.find('Icon').prop('glyph')).to.equal('CaretRight');
+  });
+
+  it('renders a caret down icon when expanded', () => {
+    const wrapper = mount(<Expandable />);
+    wrapper.setState({expanded: true});
+    expect(wrapper.find('Icon').prop('glyph')).to.equal('CaretDown');
+  });
 });
