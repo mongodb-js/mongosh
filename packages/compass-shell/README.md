@@ -19,7 +19,7 @@ COMPASS_HOME=/path/to/my/compass npm run link-plugin
 COMPASS_HOME=/path/to/my/compass npm run unlink-plugin
 ```
 
-`start:compass`: Runs the plugin in compass master.
+`start-compass`: Runs the plugin in compass master.
 
 ## License
 
