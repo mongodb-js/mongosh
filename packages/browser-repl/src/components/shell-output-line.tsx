@@ -43,8 +43,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <pre>{value}</pre>;
     }
 
-    // any primitive type including 'null' and 'undefined'
-    if (value !== Object(value)) {
+    if (this.isPrimitiveOrFunction(value)) {
       return <SimpleTypeOutput value={value} />;
     }
 
@@ -60,11 +59,22 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <CursorIterationResultOutput value={value} />;
     }
 
-    if (typeof value.message === 'string' && typeof value.stack === 'string') {
+    if (this.isError(value)) {
       return <ErrorOutput value={value} />;
     }
 
     return <ObjectOutput value={value} />;
+  }
+
+  private isError(value: any): boolean {
+    return typeof value.message === 'string' && typeof value.stack === 'string';
+  }
+
+  private isPrimitiveOrFunction(value: any): boolean {
+    // any primitive type including 'null' and 'undefined',
+    // function and classes
+    return value !== Object(value) ||
+      typeof value === 'function';
   }
 
   private getIconGlyph(): string {
