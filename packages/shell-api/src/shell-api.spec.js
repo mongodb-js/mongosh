@@ -19,7 +19,7 @@ describe('ShellApi', () => {
     const shellApi = new ShellApi();
 
     it('returns the translated text', () => {
-      expect(shellApi.help().help).to.equal('Welcome to the new MongoDB Shell!');
+      expect(shellApi.help().help).to.equal('Shell Help');
     });
   });
 });

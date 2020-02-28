@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectOutput } from './object-output';
+import i18n from 'mongosh-i18n';
 
 export interface Document {
   [property: string]: number | string | null | undefined | Document | Document[];
@@ -20,7 +21,7 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
       return <div>{this.props.value.map(this.renderDocument)}</div>;
     }
 
-    return <div>no cursor</div>;
+    return <div>{i18n.__('shell-api.cursor.iteration.no-cursor')}</div>;
   }
 
   renderDocument = (document, i): JSX.Element => {
