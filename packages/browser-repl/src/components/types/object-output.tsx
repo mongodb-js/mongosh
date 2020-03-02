@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SyntaxHighlight } from '../utils/syntax-highlight';
 import { inspect } from '../utils/inspect';
-import { Expandable } from '../utils/expandable';
 
 interface ObjectOutputProps {
   value: any;
@@ -14,11 +13,7 @@ export class ObjectOutput extends Component<ObjectOutputProps> {
   };
 
   render(): JSX.Element {
-    return (<Expandable>{
-      (expanded): JSX.Element => (
-        <SyntaxHighlight code={inspect(this.props.value, {expanded})} />
-      )
-    }</Expandable>);
+    return <SyntaxHighlight code={inspect(this.props.value)} />;
   }
 }
 
