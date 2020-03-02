@@ -64,7 +64,7 @@ describe('inspect', () => {
     context('when collapsed', () => {
       it('formats objects on one line', () => {
         expect(
-          inspect({x: 1, y: 2})
+          inspect({ x: 1, y: 2 })
         ).to.equal('{ x: 1, y: 2 }');
       });
     });

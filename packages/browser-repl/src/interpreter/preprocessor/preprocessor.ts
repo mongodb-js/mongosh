@@ -44,7 +44,7 @@ export class Preprocessor {
     code = transformCommandInvocation(code, SUPPORTED_COMMANDS);
     code = `;${code}`; // prevent literals from being parsed as directives
 
-    ast = parse(code, {allowAwaitOutsideFunction: true});
+    ast = parse(code, { allowAwaitOutsideFunction: true });
     ast = injectLastExpressionCallback(this.lastExpressionCallbackFunctionName, ast);
 
     const {

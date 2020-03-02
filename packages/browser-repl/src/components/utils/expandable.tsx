@@ -34,7 +34,7 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
   };
 
   toggle = (): void => {
-    this.setState({expanded: !this.state.expanded});
+    this.setState({ expanded: !this.state.expanded });
   }
 
   render(): JSX.Element {

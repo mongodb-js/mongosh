@@ -14,7 +14,7 @@ describe('CursorOutput', () => {
 
 
   it('renders a CursorIterationResultOutput if value contains elements', () => {
-    const docs = [{doc: 1}, {doc: 2}];
+    const docs = [{ doc: 1 }, { doc: 2 }];
     const wrapper = shallow(<CursorOutput value={docs} />);
 
     expect(wrapper.find(CursorIterationResultOutput).prop('value')).to.deep.equal(docs);

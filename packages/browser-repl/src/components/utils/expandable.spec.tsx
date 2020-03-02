@@ -22,7 +22,7 @@ describe('<Expandable />', () => {
 
     const child2 = sinon.spy(() => '');
     const wrapper = mount(<Expandable>{child2}</Expandable>);
-    wrapper.setState({expanded: true});
+    wrapper.setState({ expanded: true });
     expect(child2).to.have.been.calledWith(true);
   });
 
@@ -45,7 +45,7 @@ describe('<Expandable />', () => {
 
   it('renders a caret down icon when expanded', () => {
     const wrapper = mount(<Expandable />);
-    wrapper.setState({expanded: true});
+    wrapper.setState({ expanded: true });
     expect(wrapper.find('Icon').prop('glyph')).to.equal('CaretDown');
   });
 });

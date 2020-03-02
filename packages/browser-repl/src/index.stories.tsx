@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Shell } from './index';
 import { IframeRuntime } from './iframe-runtime';
 
@@ -28,7 +28,7 @@ export const IframeRuntimeExample: React.FunctionComponent = () => {
     };
   }, []);
 
-  return (<div style={{height: '240px'}}><Shell runtime={runtime}
+  return (<div style={{ height: '240px' }}><Shell runtime={runtime}
     redactInfo={boolean('redactInfo', false)}
     maxHistoryLength={number('maxHistoryLength', 1000)}
     maxOutputLength={number('maxOutputLength', 1000)}

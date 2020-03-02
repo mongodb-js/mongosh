@@ -21,7 +21,7 @@ export function injectLastExpressionCallback(callbackFunctionName, ast): object 
       break;
 
     default:
-      ast.program.body.push(capture({expression: null}));
+      ast.program.body.push(capture({ expression: null }));
   }
 
   return ast;

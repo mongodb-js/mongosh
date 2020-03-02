@@ -80,7 +80,7 @@ describe('Interpreter', () => {
         await testEvaluate(
           '{x: 1}'
         )
-      ).to.deep.equal({x: 1});
+      ).to.deep.equal({ x: 1 });
     });
 
     it.skip('evaluates object literal after other statements as block', async() => {
