@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const utilInspect = require('util').inspect;
-const utilInspectCustom = utilInspect.custom || 'inspect';
+import {inspect as utilInspect} from 'util';
 
 const formatBsonType = (value): any => ({
-  [utilInspectCustom](): string {
+  inspect(): string {
     return `${value._bsontype}(${(JSON.stringify(value))})`;
   }
 });
@@ -43,16 +41,11 @@ function toViewValue(value): any {
   return value;
 }
 
-type InspectOptions = {
-  expanded?: boolean;
-}
-
-export function inspect(value, options: InspectOptions = {}): string {
+export function inspect(value): string {
   const viewValue = toViewValue(value);
   const stringifiedValue = utilInspect(viewValue, {
     customInspect: true,
-    compact: !options.expanded,
-    depth: options.expanded ? 1000 : 0,
+    depth: 1000,
     breakLength: 0
   });
 

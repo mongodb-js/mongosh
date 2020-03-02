@@ -68,13 +68,5 @@ describe('inspect', () => {
         ).to.equal('{ x: 1, y: 2 }');
       });
     });
-
-    context('when expanded', () => {
-      it.skip('formats objects on multiple lines', () => {
-        expect(
-          inspect({x: 1, y: 2}, { expanded: true })
-        ).to.equal('{\n  x: 1,\n  y: 2\n}');
-      });
-    });
   });
 });
