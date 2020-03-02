@@ -13,7 +13,7 @@ describe('CursorIterationResultOutput', () => {
   });
 
   it('renders a ObjectOutput for each element in value', () => {
-    const wrapper = shallow(<CursorIterationResultOutput value={[{doc: 1}, {doc: 2}]} />);
+    const wrapper = shallow(<CursorIterationResultOutput value={[{ doc: 1 }, { doc: 2 }]} />);
 
     expect(wrapper.find(ObjectOutput)).to.have.lengthOf(2);
   });

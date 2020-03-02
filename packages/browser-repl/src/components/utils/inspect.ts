@@ -1,4 +1,4 @@
-import {inspect as utilInspect} from 'util';
+import { inspect as utilInspect } from 'util';
 
 const formatBsonType = (value): any => ({
   inspect(): string {

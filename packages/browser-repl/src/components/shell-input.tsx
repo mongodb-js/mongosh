@@ -57,7 +57,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private onChange = (value: string): void => {
-    this.setState({currentValue: value});
+    this.setState({ currentValue: value });
   }
 
   private syncCurrentValueWithHistoryNavigation(): void {

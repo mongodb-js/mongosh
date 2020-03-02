@@ -1,4 +1,4 @@
-import {uiColors} from '@leafygreen-ui/palette';
+import { uiColors } from '@leafygreen-ui/palette';
 
 const foregroundColor = uiColors.gray.light3;
 const backgroundColor = uiColors.gray.dark3;

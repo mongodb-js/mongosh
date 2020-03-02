@@ -77,14 +77,14 @@ export class Editor extends Component<EditorProps> {
       commands={[
         {
           name: 'return',
-          bindKey: {win: 'Return', mac: 'Return'},
+          bindKey: { win: 'Return', mac: 'Return' },
           exec: (): void => {
             this.props.onEnter();
           }
         },
         {
           name: 'arrowUpOnFirstLine',
-          bindKey: {win: 'Up', mac: 'Up'},
+          bindKey: { win: 'Up', mac: 'Up' },
           exec: (): void => {
             const selectionRange = this.editor.getSelectionRange();
             if (!selectionRange.isEmpty() || selectionRange.start.row !== 0) {
@@ -96,7 +96,7 @@ export class Editor extends Component<EditorProps> {
         },
         {
           name: 'arrowDownOnLastLine',
-          bindKey: {win: 'Down', mac: 'Down'},
+          bindKey: { win: 'Down', mac: 'Down' },
           exec: (): void => {
             const selectionRange = this.editor.getSelectionRange();
             const lastRowIndex = this.editor.session.getLength() - 1;

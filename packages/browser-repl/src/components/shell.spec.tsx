@@ -29,7 +29,7 @@ describe('<Shell />', () => {
     scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
 
     fakeRuntime = {
-      evaluate: sinon.fake.returns({value: 'some result'})
+      evaluate: sinon.fake.returns({ value: 'some result' })
     };
 
     onOutputChangedSpy = sinon.spy();
@@ -256,10 +256,10 @@ describe('<Shell />', () => {
   it('scrolls the container to the bottom each time the output is updated', () => {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
 
-    wrapper.setState({output: [
+    wrapper.setState({ output: [
       { type: 'input', value: 'some code' },
       { type: 'output', value: 'some result' }
-    ]});
+    ] });
 
     wrapper.update();
 

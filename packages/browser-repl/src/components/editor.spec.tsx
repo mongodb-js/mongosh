@@ -79,7 +79,7 @@ describe('<Editor />', () => {
 
     const aceEditor = getAceEditorInstance(wrapper);
     aceEditor.setValue('row 0\nrow 1');
-    aceEditor.moveCursorToPosition({row: 1, column: 0});
+    aceEditor.moveCursorToPosition({ row: 1, column: 0 });
     aceEditor.clearSelection();
 
     execCommandBoundTo(aceEditor, 'Up');
@@ -92,7 +92,7 @@ describe('<Editor />', () => {
 
     const aceEditor = getAceEditorInstance(wrapper);
     aceEditor.setValue('row 0\nrow 1');
-    aceEditor.moveCursorToPosition({row: 1, column: 0});
+    aceEditor.moveCursorToPosition({ row: 1, column: 0 });
     aceEditor.clearSelection();
 
     expect(spy).not.to.have.been.called;
