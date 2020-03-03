@@ -127,7 +127,11 @@ var Mapper = (function () {
                 switch (_c.label) {
                     case 0:
                         results = new mongosh_shell_api_1.CursorIterationResult();
-                        if (!(this.currentCursor && !this.cursorAssigned)) return [3, 7];
+                        if (!this.currentCursor ||
+                            this.cursorAssigned ||
+                            this.currentCursor.isClosed()) {
+                            return [2, results];
+                        }
                         i = 0;
                         _c.label = 1;
                     case 1:
@@ -145,12 +149,7 @@ var Mapper = (function () {
                     case 5:
                         i++;
                         return [3, 1];
-                    case 6:
-                        if (results.length > 0) {
-                            return [2, results];
-                        }
-                        _c.label = 7;
-                    case 7: return [2, results];
+                    case 6: return [2, results];
                 }
             });
         });
