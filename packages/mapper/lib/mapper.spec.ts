@@ -27,9 +27,9 @@ describe('Mapper', () => {
           ok: 1
         });
 
-        const expectedOutput = `db1\t10000B
-db2\t20000B
-db3\t30000B`;
+        const expectedOutput = `db1  10 kB
+db2  20 kB
+db3  30 kB`;
 
         expect(
           (await mapper.show(null, 'dbs')).toReplString()

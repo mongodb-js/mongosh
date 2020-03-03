@@ -1,4 +1,9 @@
 const {
+  formatTable,
+  formatBytes
+} = require('./format-utils');
+
+const {
   AggregationCursor,
   BulkWriteResult,
   Cursor,
@@ -70,11 +75,13 @@ class Mapper {
           throw new Error('Error: invalid result from listDatabases');
         }
 
-        const text = result.databases.map(
-          (db) => `${db.name}\t${db.sizeOnDisk}B`
-        ).join('\n');
+        const tableEntries = result.databases.map(
+          (db) => [db.name, formatBytes(db.sizeOnDisk)]
+        );
 
-        return new CommandResult({value: text});
+        const table = formatTable(tableEntries);
+
+        return new CommandResult({value: table});
       default:
         throw new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
     }
