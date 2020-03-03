@@ -20,7 +20,8 @@ class DemoServiceProvider {
       databases: [
         { name: 'db1', sizeOnDisk: 10000, empty: false },
         { name: 'db2', sizeOnDisk: 20000, empty: false },
-        { name: 'db3', sizeOnDisk: 30000, empty: false }
+        { name: 'db-with-long-name', sizeOnDisk: 30000, empty: false },
+        { name: '500mb', sizeOnDisk: 500000000, empty: false },
       ],
       totalSize: 50000,
       ok: 1
