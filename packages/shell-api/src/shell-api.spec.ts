@@ -19,7 +19,7 @@ describe('ShellApi', () => {
     const shellApi = new ShellApi();
 
     it('returns the translated text', () => {
-      expect(shellApi.help().help).to.equal('Shell Help');
+      expect(shellApi.help().toReplString().help).to.equal('Shell Help');
     });
   });
 });
