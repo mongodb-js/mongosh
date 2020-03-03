@@ -1,6 +1,6 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const Mapper = require('./mapper');
+import { expect } from 'chai';
+import sinon from 'sinon';
+import Mapper from './mapper';
 
 describe('Mapper', () => {
   let mapper;
@@ -27,13 +27,17 @@ describe('Mapper', () => {
           ok: 1
         });
 
-        const expectedOutput = `
-db1\t10000B
+        const expectedOutput = `db1\t10000B
 db2\t20000B
 db3\t30000B`;
 
-        expect(await mapper.show(null, 'dbs')).to.equal(expectedOutput);
-        expect(await mapper.show(null, 'databases')).to.equal(expectedOutput);
+        expect(
+          (await mapper.show(null, 'dbs')).toReplString()
+        ).to.equal(expectedOutput);
+
+        expect(
+          (await mapper.show(null, 'databases')).toReplString()
+        ).to.equal(expectedOutput);
       });
     });
   });
