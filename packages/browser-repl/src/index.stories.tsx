@@ -15,6 +15,18 @@ class DemoServiceProvider {
   async getServerVersion(): Promise<string> {
     return '4.0.0';
   }
+
+  async listDatabases(): Promise<any> {
+    return {
+      databases: [
+        { name: 'db1', sizeOnDisk: 10000, empty: false },
+        { name: 'db2', sizeOnDisk: 20000, empty: false },
+        { name: 'db3', sizeOnDisk: 30000, empty: false }
+      ],
+      totalSize: 50000,
+      ok: 1
+    };
+  }
 }
 
 const runtime = new IframeRuntime(new DemoServiceProvider() as ServiceProvider);
