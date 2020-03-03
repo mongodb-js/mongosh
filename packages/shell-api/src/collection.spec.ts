@@ -6,7 +6,7 @@ describe('Collection', () => {
     const collection = new Collection();
 
     it('returns the translated text', () => {
-      expect(collection.findOne.help().help).to.include('Selects');
+      expect((collection.findOne as any).help().help).to.include('Selects');
     });
   });
 });
