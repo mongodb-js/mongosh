@@ -7,7 +7,8 @@ const {
   InsertManyResult,
   InsertOneResult,
   UpdateResult,
-  CursorIterationResult
+  CursorIterationResult,
+  CommandResult
 } = require('mongosh-shell-api');
 
 class Mapper {
@@ -68,9 +69,12 @@ class Mapper {
         if (!('databases' in result)) {
           throw new Error('Error: invalid result from listDatabases');
         }
-        return result.databases.reduce((str, db) => {
-          return `${str}\n${db.name}\t${db.sizeOnDisk}B`;
-        }, '');
+
+        const text = result.databases.map(
+          (db) => `${db.name}\t${db.sizeOnDisk}B`
+        ).join('\n');
+
+        return new CommandResult({value: text});
       default:
         throw new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
     }

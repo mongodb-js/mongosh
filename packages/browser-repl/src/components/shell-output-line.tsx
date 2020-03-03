@@ -35,11 +35,8 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   private renderValue(): JSX.Element {
     const { shellApiType, value, type } = this.props.entry;
 
-    if (
-      typeof value === 'string' &&
-      type === 'input' ||
-      shellApiType === 'Database' ||
-      shellApiType === 'Collection') {
+    if (type === 'input' ||
+      this.isCommandResult(value, shellApiType)) {
       return <pre>{value}</pre>;
     }
 
@@ -68,6 +65,13 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
 
   private isError(value: any): boolean {
     return typeof value.message === 'string' && typeof value.stack === 'string';
+  }
+
+  private isCommandResult(value: any, shellApiType: string): boolean {
+    return typeof value === 'string' &&
+    shellApiType === 'Database' ||
+    shellApiType === 'Collection' ||
+    shellApiType === 'CommandResult';
   }
 
   private isPrimitiveOrFunction(value: any): boolean {

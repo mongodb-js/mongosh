@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "compile-api": "npm run antlr-lexer && npm run antlr-parser && npm run antlr-ecmascript",
-    "test": "mocha --recursive --color ./lib/**/*.spec.js",
-    "test-ci": "mocha --recursive ./lib/**/*.spec.js",
+    "test": "mocha --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'",
     "antlr-ecmascript": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -visitor -Xexact-output-dir antlr/ECMAScript.g4",
     "antlr-lexer": "     java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptLexer.g4",

@@ -3,7 +3,6 @@ import { Shell } from './index';
 import { IframeRuntime } from './iframe-runtime';
 
 import { withKnobs, boolean, number } from '@storybook/addon-knobs';
-import { ServiceProvider } from 'mongosh-service-provider-core';
 
 export default {
   title: 'Shell',
@@ -29,7 +28,7 @@ class DemoServiceProvider {
   }
 }
 
-const runtime = new IframeRuntime(new DemoServiceProvider() as ServiceProvider);
+const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
 export const IframeRuntimeExample: React.FunctionComponent = () => {
   useEffect(() => {
