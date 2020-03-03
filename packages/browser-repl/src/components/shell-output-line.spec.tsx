@@ -81,6 +81,36 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.find(CursorIterationResultOutput)).to.have.lengthOf(1);
   });
 
+  it('renders Database', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'Database',
+      value: 'value string'
+    }} />);
+
+    expect(wrapper.text()).to.contain('value string');
+  });
+
+  it('renders Collection', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'Collection',
+      value: 'value string'
+    }} />);
+
+    expect(wrapper.text()).to.contain('value string');
+  });
+
+  it('renders CommandResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'CommandResult',
+      value: 'value string'
+    }} />);
+
+    expect(wrapper.text()).to.contain('value string');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ type: 'output', value: err }} />);
