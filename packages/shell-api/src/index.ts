@@ -14,6 +14,7 @@ import {
 import types from './shell-types';
 
 import { Help } from './help';
+import { CommandResult } from './command-result';
 import { CursorIterationResult } from './cursor-iteration-result';
 
 export default ShellApi;
@@ -30,5 +31,6 @@ export {
   ReplicaSet,
   types,
   Help,
-  CursorIterationResult
+  CursorIterationResult,
+  CommandResult
 };
