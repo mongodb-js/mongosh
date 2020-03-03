@@ -1,36 +1,12 @@
-import {
-  AggregationCursor,
-  BulkWriteResult,
-  Collection,
-  Cursor,
-  Database,
-  DeleteResult,
-  InsertManyResult,
-  InsertOneResult,
-  ReplicaSet,
-  ShellApi
-} from './shell-api';
-
-import types from './shell-types';
-
-import { Help } from './help';
-import { CommandResult } from './command-result';
-import { CursorIterationResult } from './cursor-iteration-result';
-
+import ShellApi from './shell-api';
 export default ShellApi;
-export {
-  ShellApi,
-  AggregationCursor,
-  BulkWriteResult,
-  Collection,
-  Cursor,
-  Database,
-  DeleteResult,
-  InsertManyResult,
-  InsertOneResult,
-  ReplicaSet,
-  types,
-  Help,
-  CursorIterationResult,
-  CommandResult
-};
+
+import * as types from './shell-types';
+export { types };
+
+export { Help } from './help';
+export { CommandResult } from './command-result';
+export { CursorIterationResult } from './cursor-iteration-result';
+
+export * from './shell-api';
+

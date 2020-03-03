@@ -1,804 +1,499 @@
-const {
-  formatTable,
-  formatBytes
-} = require('./format-utils');
-
-const {
-  AggregationCursor,
-  BulkWriteResult,
-  Cursor,
-  Database,
-  DeleteResult,
-  InsertManyResult,
-  InsertOneResult,
-  UpdateResult,
-  CursorIterationResult,
-  CommandResult
-} = require('mongosh-shell-api');
-
-class Mapper {
-  constructor(serviceProvider) {
-    this._serviceProvider = serviceProvider;
-    /* Internal state gets stored in mapper, state that is visible to the user
-     * is stored in ctx */
-    this.currentCursor = null;
-    this.awaitLoc = []; // track locations where await is needed
-    this.checkAwait = false;
-    this.cursorAssigned = false;
-    this.databases = { test: new Database(this, 'test') };
-    /* This will be rewritten so it's less fragile */
-    const parseStack = (s) => {
-      const r = s.match(/repl:1:(\d*)/);
-      return Number(r[1]) - 1;
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
     };
-    const requiresAwait = [
-      'deleteOne',
-      'insertOne' // etc etc
-    ];
-    const handler = {
-      get: function(obj, prop) {
-        if (obj.checkAwait && requiresAwait.includes(prop)) {
-          try {
-            throw new Error();
-          } catch (e) {
-            const loc = parseStack(e.stack);
-            if (!isNaN(loc)) {
-              obj.awaitLoc.push(loc);
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
             }
-          }
-        }
-        return obj[prop];
-      }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var format_utils_1 = require("./format-utils");
+var mongosh_shell_api_1 = require("mongosh-shell-api");
+var Mapper = (function () {
+    function Mapper(serviceProvider) {
+        this.serviceProvider = serviceProvider;
+        this.currentCursor = null;
+        this.awaitLoc = [];
+        this.checkAwait = false;
+        this.cursorAssigned = false;
+        this.databases = { test: new mongosh_shell_api_1.Database(this, 'test') };
+        var parseStack = function (s) {
+            var r = s.match(/repl:1:(\d*)/);
+            return Number(r[1]) - 1;
+        };
+        var requiresAwait = [
+            'deleteOne',
+            'insertOne'
+        ];
+        var handler = {
+            get: function (obj, prop) {
+                if (obj.checkAwait && requiresAwait.includes(prop)) {
+                    try {
+                        throw new Error();
+                    }
+                    catch (e) {
+                        var loc = parseStack(e.stack);
+                        if (!isNaN(loc)) {
+                            obj.awaitLoc.push(loc);
+                        }
+                    }
+                }
+                return obj[prop];
+            }
+        };
+        return new Proxy(this, handler);
+    }
+    Mapper.prototype.setCtx = function (ctx) {
+        this.context = ctx;
+        this.context.db = this.databases.test;
     };
-    return new Proxy(this, handler);
-  }
-
-  setCtx(ctx) {
-    this._ctx = ctx;
-    this._ctx.db = this.databases.test;
-  }
-
-  use(_, db) {
-    if (!(db in this.databases)) {
-      this.databases[db] = new Database(this, db);
-    }
-    this._ctx.db = this.databases[db];
-    return `switched to db ${db}`;
-  }
-
-  async show(_, arg) {
-    switch (arg) {
-      case 'databases':
-      case 'dbs':
-        const result = await this._serviceProvider.listDatabases('admin');
-        if (!('databases' in result)) {
-          throw new Error('Error: invalid result from listDatabases');
+    Mapper.prototype.use = function (_, db) {
+        if (!(db in this.databases)) {
+            this.databases[db] = new mongosh_shell_api_1.Database(this, db);
         }
-
-        const tableEntries = result.databases.map(
-          (db) => [db.name, formatBytes(db.sizeOnDisk)]
-        );
-
-        const table = formatTable(tableEntries);
-
-        return new CommandResult({value: table});
-      default:
-        throw new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
-    }
-  }
-
-  async it() {
-    const results = new CursorIterationResult();
-
-    if (this.currentCursor && !this.cursorAssigned) {
-      for (let i = 0; i < 20; i++) {
-        const hasNext = await this.currentCursor.hasNext();
-        if (hasNext) {
-          results.push(await this.currentCursor.next());
-        } else {
-          break;
+        this.context.db = this.databases[db];
+        return "switched to db " + db;
+    };
+    Mapper.prototype.show = function (_, arg) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, result, tableEntries, table;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = arg;
+                        switch (_a) {
+                            case 'databases': return [3, 1];
+                            case 'dbs': return [3, 1];
+                        }
+                        return [3, 3];
+                    case 1: return [4, this.serviceProvider.listDatabases('admin')];
+                    case 2:
+                        result = _b.sent();
+                        if (!('databases' in result)) {
+                            throw new Error('Error: invalid result from listDatabases');
+                        }
+                        tableEntries = result.databases.map(function (db) { return [db.name, format_utils_1.formatBytes(db.sizeOnDisk)]; });
+                        table = format_utils_1.formatTable(tableEntries);
+                        return [2, new mongosh_shell_api_1.CommandResult({ value: table })];
+                    case 3: throw new Error("Error: don't know how to show " + arg);
+                }
+            });
+        });
+    };
+    Mapper.prototype.it = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var results, i, hasNext, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        results = new mongosh_shell_api_1.CursorIterationResult();
+                        if (!(this.currentCursor && !this.cursorAssigned)) return [3, 7];
+                        i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(i < 20)) return [3, 6];
+                        return [4, this.currentCursor.hasNext()];
+                    case 2:
+                        hasNext = _c.sent();
+                        if (!hasNext) return [3, 4];
+                        _b = (_a = results).push;
+                        return [4, this.currentCursor.next()];
+                    case 3:
+                        _b.apply(_a, [_c.sent()]);
+                        return [3, 5];
+                    case 4: return [3, 6];
+                    case 5:
+                        i++;
+                        return [3, 1];
+                    case 6:
+                        if (results.length > 0) {
+                            return [2, results];
+                        }
+                        _c.label = 7;
+                    case 7: return [2, results];
+                }
+            });
+        });
+    };
+    Mapper.prototype.aggregate = function (collection, pipeline, options) {
+        if (options === void 0) { options = {}; }
+        var db = collection._database;
+        var coll = collection._collection;
+        var dbOptions = {};
+        if ('readConcern' in options) {
+            dbOptions.readConcern = options.readConcern;
         }
-      }
-
-      if (results.length > 0) {return results;}
-    }
-
-    return results;
-  }
-
-  /**
-   * Run an aggregation pipeline.
-   *
-   * @note: Passing a null coll will cause the aggregation to run on the DB.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Shell API sets readConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Shell API sets explain via options in object, data provider API via
-   * cursor.
-   * @note: CRUD API provides batchSize and maxAwaitTimeMS which the shell does not.
-   *
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Array} pipeline - The aggregation pipeline.
-   * @param {Object} options - The pipeline options.
-   *    <explain, allowDiskUse, cursor, maxTimeMS, bypassDocumentValidation,
-   *    readConcern, collation, hint, comment, writeConcern>
-   *
-   * @returns {AggregationCursor} The promise of the aggregation cursor.
-   */
-  aggregate(collection, pipeline, options = {}) {
-    const db = collection._database;
-    const coll = collection._collection;
-
-    const dbOptions = {};
-    if ('readConcern' in options) {
-      dbOptions.readConcern = options.readConcern;
-    }
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-
-    let cmd;
-    if (coll === null) {
-      cmd = this._serviceProvider.aggregateDb(
-        db,
-        pipeline,
-        options,
-        dbOptions
-      );
-    } else {
-      cmd = this._serviceProvider.aggregate(
-        db,
-        coll,
-        pipeline,
-        options,
-        dbOptions
-      );
-    }
-
-    const cursor = new AggregationCursor(this, cmd);
-
-    if ('explain' in options) {
-      return cursor.explain(options.explain);
-    }
-
-    return this.currentCursor = cursor;
-  }
-
-  /**
-   * Execute a mix of write operations.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Array} operations - The bulk write requests.
-   * @param {Object} options - The bulk write options.
-   *  <writeConcern, ordered>
-   *
-   * @returns {BulkWriteResult} The promise of the result.
-   */
-  async bulkWrite(collection, operations, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-
-    const result = await this._serviceProvider.bulkWrite(
-      collection._database,
-      collection._collection,
-      operations,
-      options,
-      dbOptions
-    );
-
-    return new BulkWriteResult(
-      result.result.ok // TODO
-    );
-  }
-
-  /**
-   * Deprecated count command.
-   *
-   * @note: Shell API passes readConcern via options, data provider API via
-   * collection options.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} query - The filter.
-   * @param {Object} options - The count options.
-   *  <limit, skip, hint, maxTimeMS, readConcern, collation>
-   * @returns {Integer} The promise of the count.
-   */
-  count(collection, query = {}, options = {}) {
-    const dbOpts = {};
-    if ('readConcern' in options) {
-      dbOpts.readConcern = options.readConcern;
-    }
-    return this._serviceProvider.count(
-      collection._database,
-      collection._collection,
-      query,
-      options,
-      dbOpts
-    );
-  }
-
-  /**
-   * Get an exact document count from the coll.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} query - The filter.
-   * @param {Object} options - The count options.
-   *  <limit, skip, hint, maxTimeMS>
-   *
-   * @returns {Integer} The promise of the count.
-   */
-  countDocuments(collection, query, options = {}) {
-    return this._serviceProvider.countDocuments(
-      collection._database,
-      collection._collection,
-      query,
-      options
-    );
-  }
-
-  /**
-   * Delete multiple documents from the coll.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} filter - The filter.
-   * @param {Object} options - The delete many options.
-   *  <collation, writeConcern>
-   *
-   * @returns {DeleteResult} The promise of the result.
-   */
-  async deleteMany(collection, filter, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-
-    const result = await this._serviceProvider.deleteMany(
-      collection._database,
-      collection._collection,
-      filter,
-      options,
-      dbOptions
-    );
-    return new DeleteResult(
-      result.result.ok,
-      result.deletedCount
-    );
-  }
-
-  /**
-   * Delete one document from the coll.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} filter - The filter.
-   * @param {Object} options - The delete one options.
-   *  <collation, writeConcern>
-   *
-   * @returns {DeleteResult} The promise of the result.
-   */
-  async deleteOne(collection, filter, options = {}) {
-    if (this.checkAwait) return;
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.deleteOne(
-      collection._database,
-      collection._collection,
-      filter,
-      options,
-      dbOptions
-    );
-    return new DeleteResult(
-      result.result.ok,
-      result.deletedCount
-    );
-  }
-
-  /**
-   * Get distinct values for the field.
-   *
-   * @note Data Provider API also provides maxTimeMS option.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {String} field - The field name.
-   * @param {Object} query - The filter.
-   * @param {Object} options - The distinct options.
-   *  <collation>
-   *
-   * @returns {Array} The promise of the result. TODO: make sure returned type is the same
-   */
-  distinct(collection, field, query, options = {}) {
-    return this._serviceProvider.distinct(
-      collection._database,
-      collection._collection,
-      field,
-      query,
-      options,
-    );
-  }
-
-  /**
-   * Get an estimated document count from the coll.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} options - The count options.
-   *  <maxTimeMS>
-   *
-   * @returns {Integer} The promise of the count.
-   */
-  estimatedDocumentCount(collection, options = {}) {
-    return this._serviceProvider.estimatedDocumentCount(
-      collection._database,
-      collection._collection,
-      options,
-    );
-  }
-
-  /**
-   * Find documents in the collection.
-   *
-   * @note: Shell API passes filter and projection to find, data provider API
-   * uses a options object.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} query - The filter.
-   * @param {Object} projection - The projection.
-   *
-   * @returns {Cursor} The promise of the cursor.
-   */
-  find(collection, query, projection) {
-    const options = {};
-    if (projection) {
-      options.projection = projection;
-    }
-    return this.currentCursor = new Cursor(
-      this,
-      this._serviceProvider.find(
-        collection._database,
-        collection._collection,
-        query,
-        options
-      )
-    );
-  }
-
-  /**
-   * Find one document in the collection.
-   *
-   * @note: findOne is just find with limit.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} query - The filter.
-   * @param {Object} projection - The projection.
-   *
-   * @returns {Cursor} The promise of the cursor.
-   */
-  findOne(collection, query, projection) {
-    const options = {};
-    if (projection) {
-      options.projection = projection;
-    }
-    return new Cursor(
-      this,
-      this._serviceProvider.find(
-        collection._database,
-        collection._collection,
-        query,
-        options
-      )
-    ).limit(1).next();
-  }
-
-  // findAndModify(collection, document) {
-  //   return this._serviceProvider.findAndModify(
-  //     collection._database,
-  //     collection._collection,
-  //     document,
-  //   );
-  // };
-
-  /**
-   * Find one document and delete it.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} filter - The filter.
-   * @param {Object} options - The find options.
-   *  <projection, sort, collation, maxTimeMS>
-   *
-   * @returns {Document} The promise of the result.
-   */
-  async findOneAndDelete(collection, filter, options = {}) {
-    const result = await this._serviceProvider.findOneAndDelete(
-      collection._database,
-      collection._collection,
-      filter,
-      options,
-    );
-    return result.value;
-  }
-
-  /**
-   * Find one document and replace it.
-   *
-   * @note: Shell API uses option 'returnNewDocument' while data provider API
-   * expects 'returnDocument'.
-   * @note: Data provider API provides bypassDocumentValidation option that shell does not have.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} filter - The filter.
-   * @param {Object} replacement - The replacement.
-   * @param {Object} options - The find options.
-   *  <projection, sort, upsert, maxTimeMS, returnNewDocument, collation>
-   *
-   * @returns {Document} The promise of the result.
-   */
-  async findOneAndReplace(collection, filter, replacement, options = {}) {
-    const findOneAndReplaceOptions = { ...options };
-    if ('returnNewDocument' in findOneAndReplaceOptions) {
-      findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
-      delete findOneAndReplaceOptions.returnNewDocument;
-    }
-    const result = await this._serviceProvider.findOneAndReplace(
-      collection._database,
-      collection._collection,
-      filter,
-      replacement,
-      findOneAndReplaceOptions
-    );
-    return result.value;
-  }
-
-  /**
-   * Find one document and update it.
-   *
-   * @note: Shell API uses option 'returnNewDocument' while data provider API
-   * expects 'returnDocument'.
-   *
-   * @param {Collection} collection - The collection class.
-   * @param {Object} filter - The filter.
-   * @param {(Object|Array)} update - The update.
-   * @param {Object} options - The find options.
-   *  <projection, sort,maxTimeMS,upsert,returnNewDocument,collation, arrayFilters>
-   *
-   * @returns {Document} The promise of the result.
-   */
-  async findOneAndUpdate(collection, filter, update, options = {}) {
-    const findOneAndUpdateOptions = { ...options };
-    if ('returnNewDocument' in findOneAndUpdateOptions) {
-      findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
-      delete findOneAndUpdateOptions.returnNewDocument;
-    }
-    const result = await this._serviceProvider.findOneAndUpdate(
-      collection._database,
-      collection._collection,
-      filter,
-      update,
-      options,
-    );
-    return result.value;
-  }
-
-  /**
-   * Alias for insertMany.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection
-   * @param {Object|Array} docs
-   * @param {Object} options
-   *    <writeConcern, ordered>
-   * @return {InsertManyResult}
-   */
-  async insert(collection, docs, options = {}) {
-    const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.insertMany(
-      collection._database,
-      collection._collection,
-      d,
-      options,
-      dbOptions
-    );
-    return new InsertManyResult(
-      result.result.ok,
-      result.insertedIds
-    );
-  }
-
-  /**
-   * Insert multiple documents.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Data provider API allows for bypassDocumentValidation as argument,
-   * shell API doesn't.
-   *
-   * @param {Collection} collection
-   * @param {Object|Array} docs
-   * @param {Object} options
-   *    <writeConcern, ordered>
-   * @return {InsertManyResult}
-   */
-  async insertMany(collection, docs, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-
-    const result = await this._serviceProvider.insertMany(
-      collection._database,
-      collection._collection,
-      docs,
-      options,
-      dbOptions
-    );
-    return new InsertManyResult(
-      result.result.ok,
-      result.insertedIds
-    );
-  }
-
-  /**
-   * Insert one document.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Data provider API allows for bypassDocumentValidation as argument,
-   * shell API doesn't.
-   *
-   * @param {Collection} collection
-   * @param {Object} doc
-   * @param {Object} options
-   *    <writeConcern>
-   * @return {InsertOneResult}
-   */
-  async insertOne(collection, doc, options = {}) {
-    if (this.checkAwait) return;
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.insertOne(
-      collection._database,
-      collection._collection,
-      doc,
-      options,
-      dbOptions
-    );
-    return new InsertOneResult(
-      result.result.ok,
-      result.insertedId
-    );
-  }
-
-  /**
-   * Is collection capped?
-   *
-   * @param {Collection} collection
-   * @return {Boolean}
-   */
-  isCapped(collection) {
-    return this._serviceProvider.isCapped(
-      collection._database,
-      collection._collection,
-    );
-  }
-
-  /**
-   * Deprecated remove command.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Shell API accepts second argument as a bool, indicating justOne.
-   *
-   * @param {Collection} collection
-   * @param {Object} query
-   * @param {Object|Boolean} options
-   *    <justOne, writeConcern, collation>
-   * @return {Promise}
-   */
-  remove(collection, query, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    let removeOptions = {};
-    if (typeof options === 'boolean') {
-      removeOptions.justOne = options;
-    } else {
-      removeOptions = options;
-    }
-    return this._serviceProvider.remove(
-      collection._database,
-      collection._collection,
-      query,
-      removeOptions,
-      dbOptions
-    );
-  }
-
-  // TODO
-  save(collection, doc, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    return this._serviceProvider.save(
-      collection._database,
-      collection._collection,
-      doc,
-      options,
-      dbOptions
-    );
-  }
-
-  /**
-   * Replace a document with another.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   * @note: Data provider API allows for bypassDocumentValidation as argument,
-   * shell API doesn't.
-   *
-   * @param {Collection} collection
-   * @param {Object} filter - The filter.
-   * @param {Object} replacement - The replacement document for matches.
-   * @param {Object} options - The replace options.
-   *    <upsert, writeConcern, collation, hint>
-   *
-   * @returns {UpdateResult} The promise of the result.
-   */
-  async replaceOne(collection, filter, replacement, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.replaceOne(
-      collection._collection,
-      collection._database,
-      filter,
-      replacement,
-      options,
-      dbOptions
-    );
-    return new UpdateResult(
-      result.result.ok,
-      result.matchedCount,
-      result.modifiedCount,
-      result.upsertedCount,
-      result.upsertedId
-    );
-  }
-
-  /**
-   * Run a command against the db.
-   *
-   * @param {Database} database - the db object.
-   * @param {Object} cmd - the command spec.
-   *
-   * @returns {Promise} The promise of command results. TODO: command result object
-   */
-  runCommand(database, cmd) {
-    return this._serviceProvider.runCommand(database._database, cmd);
-  }
-
-  async update(collection, filter, update, options = {}) {
-    let result;
-    if (options.multi) {
-      result = await this._serviceProvider.updateMany(
-        collection._collection,
-        collection._database,
-        filter,
-        update,
-        options,
-      );
-    } else {
-      result = await this._serviceProvider.updateOne(
-        collection._collection,
-        collection._database,
-        filter,
-        update,
-        options,
-      );
-    }
-    return new UpdateResult(
-      result.result.ok,
-      result.matchedCount,
-      result.modifiedCount,
-      result.upsertedCount,
-      result.upsertedId
-    );
-  }
-
-  /**
-   * Update many documents.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection
-   * @param {Object} filter - The filter.
-   * @param {(Object|Array)} update - The updates.
-   * @param {Object} options - The update options.
-   *  <upsert, writeConcern, collation, arrayFilters, hint>
-   *
-   * @returns {UpdateResult} The promise of the result.
-   */
-  async updateMany(collection, filter, update, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.updateMany(
-      collection._collection,
-      collection._database,
-      filter,
-      update,
-      options,
-      dbOptions
-    );
-    return new UpdateResult(
-      result.result.ok,
-      result.matchedCount,
-      result.modifiedCount,
-      result.upsertedCount,
-      result.upsertedId
-    );
-  }
-
-  /**
-   * Update one document.
-   *
-   * @note: Shell API sets writeConcern via options in object, data provider API
-   * expects it as a dbOption object.
-   *
-   * @param {Collection} collection
-   * @param {Object} filter - The filter.
-   * @param {(Object|Array)} update - The updates.
-   * @param {Object} options - The update options.
-   *  <upsert, writeConcern, collation, arrayFilters, hint>
-   *
-   * @returns {UpdateResult} The promise of the result.
-   */
-  async updateOne(collection, filter, update, options = {}) {
-    const dbOptions = {};
-    if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
-    }
-    const result = await this._serviceProvider.updateMany(
-      collection._collection,
-      collection._database,
-      filter,
-      update,
-      options,
-      dbOptions
-    );
-    return new UpdateResult(
-      result.result.ok,
-      result.matchedCount,
-      result.modifiedCount,
-      result.upsertedCount,
-      result.upsertedId
-    );
-  }
-}
-
-module.exports = Mapper;
+        if ('writeConcern' in options) {
+            dbOptions.writeConcern = options.writeConcern;
+        }
+        var cmd;
+        if (coll === null) {
+            cmd = this.serviceProvider.aggregateDb(db, pipeline, options, dbOptions);
+        }
+        else {
+            cmd = this.serviceProvider.aggregate(db, coll, pipeline, options, dbOptions);
+        }
+        var cursor = new mongosh_shell_api_1.AggregationCursor(this, cmd);
+        this.currentCursor = cursor;
+        return this.currentCursor;
+    };
+    Mapper.prototype.bulkWrite = function (collection, operations, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.bulkWrite(collection._database, collection._collection, operations, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.BulkWriteResult(result.result.ok)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.count = function (collection, query, options) {
+        if (query === void 0) { query = {}; }
+        if (options === void 0) { options = {}; }
+        var dbOpts = {};
+        if ('readConcern' in options) {
+            dbOpts.readConcern = options.readConcern;
+        }
+        return this.serviceProvider.count(collection._database, collection._collection, query, options, dbOpts);
+    };
+    Mapper.prototype.countDocuments = function (collection, query, options) {
+        if (options === void 0) { options = {}; }
+        return this.serviceProvider.countDocuments(collection._database, collection._collection, query, options);
+    };
+    Mapper.prototype.deleteMany = function (collection, filter, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.deleteMany(collection._database, collection._collection, filter, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.DeleteResult(result.result.ok, result.deletedCount)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.deleteOne = function (collection, filter, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this.checkAwait)
+                            return [2];
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.deleteOne(collection._database, collection._collection, filter, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.DeleteResult(result.result.ok, result.deletedCount)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.distinct = function (collection, field, query, options) {
+        if (options === void 0) { options = {}; }
+        return this.serviceProvider.distinct(collection._database, collection._collection, field, query, options);
+    };
+    Mapper.prototype.estimatedDocumentCount = function (collection, options) {
+        if (options === void 0) { options = {}; }
+        return this.serviceProvider.estimatedDocumentCount(collection._database, collection._collection, options);
+    };
+    Mapper.prototype.find = function (collection, query, projection) {
+        var options = {};
+        if (projection) {
+            options.projection = projection;
+        }
+        this.currentCursor = new mongosh_shell_api_1.Cursor(this, this.serviceProvider.find(collection._database, collection._collection, query, options));
+        return this.currentCursor;
+    };
+    Mapper.prototype.findOne = function (collection, query, projection) {
+        var options = {};
+        if (projection) {
+            options.projection = projection;
+        }
+        return new mongosh_shell_api_1.Cursor(this, this.serviceProvider.find(collection._database, collection._collection, query, options)).limit(1).next();
+    };
+    Mapper.prototype.findOneAndDelete = function (collection, filter, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this.serviceProvider.findOneAndDelete(collection._database, collection._collection, filter, options)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, result.value];
+                }
+            });
+        });
+    };
+    Mapper.prototype.findOneAndReplace = function (collection, filter, replacement, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var findOneAndReplaceOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        findOneAndReplaceOptions = __assign({}, options);
+                        if ('returnNewDocument' in findOneAndReplaceOptions) {
+                            findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
+                            delete findOneAndReplaceOptions.returnNewDocument;
+                        }
+                        return [4, this.serviceProvider.findOneAndReplace(collection._database, collection._collection, filter, replacement, findOneAndReplaceOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, result.value];
+                }
+            });
+        });
+    };
+    Mapper.prototype.findOneAndUpdate = function (collection, filter, update, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var findOneAndUpdateOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        findOneAndUpdateOptions = __assign({}, options);
+                        if ('returnNewDocument' in findOneAndUpdateOptions) {
+                            findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
+                            delete findOneAndUpdateOptions.returnNewDocument;
+                        }
+                        return [4, this.serviceProvider.findOneAndUpdate(collection._database, collection._collection, filter, update, options)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, result.value];
+                }
+            });
+        });
+    };
+    Mapper.prototype.insert = function (collection, docs, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var d, dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.insertMany(collection._database, collection._collection, d, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.InsertManyResult(result.result.ok, result.insertedIds)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.insertMany = function (collection, docs, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.insertMany(collection._database, collection._collection, docs, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.InsertManyResult(result.result.ok, result.insertedIds)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.insertOne = function (collection, doc, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this.checkAwait)
+                            return [2];
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.insertOne(collection._database, collection._collection, doc, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.InsertOneResult(result.result.ok, result.insertedId)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.isCapped = function (collection) {
+        return this.serviceProvider.isCapped(collection._database, collection._collection);
+    };
+    Mapper.prototype.remove = function (collection, query, options) {
+        if (options === void 0) { options = {}; }
+        var dbOptions = {};
+        if ('writeConcern' in options) {
+            dbOptions.writeConcern = options.writeConcern;
+        }
+        var removeOptions = {};
+        if (typeof options === 'boolean') {
+            removeOptions.justOne = options;
+        }
+        else {
+            removeOptions = options;
+        }
+        return this.serviceProvider.remove(collection._database, collection._collection, query, removeOptions, dbOptions);
+    };
+    Mapper.prototype.save = function (collection, doc, options) {
+        if (options === void 0) { options = {}; }
+        var dbOptions = {};
+        if ('writeConcern' in options) {
+            dbOptions.writeConcern = options.writeConcern;
+        }
+        return this.serviceProvider.save(collection._database, collection._collection, doc, options, dbOptions);
+    };
+    Mapper.prototype.replaceOne = function (collection, filter, replacement, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.replaceOne(collection._collection, collection._database, filter, replacement, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.UpdateResult(result.result.ok, result.matchedCount, result.modifiedCount, result.upsertedCount, result.upsertedId)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.runCommand = function (database, cmd) {
+        return this.serviceProvider.runCommand(database._database, cmd);
+    };
+    Mapper.prototype.update = function (collection, filter, update, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!options.multi) return [3, 2];
+                        return [4, this.serviceProvider.updateMany(collection._collection, collection._database, filter, update, options)];
+                    case 1:
+                        result = _a.sent();
+                        return [3, 4];
+                    case 2: return [4, this.serviceProvider.updateOne(collection._collection, collection._database, filter, update, options)];
+                    case 3:
+                        result = _a.sent();
+                        _a.label = 4;
+                    case 4: return [2, new mongosh_shell_api_1.UpdateResult(result.result.ok, result.matchedCount, result.modifiedCount, result.upsertedCount, result.upsertedId)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.updateMany = function (collection, filter, update, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.updateMany(collection._collection, collection._database, filter, update, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.UpdateResult(result.result.ok, result.matchedCount, result.modifiedCount, result.upsertedCount, result.upsertedId)];
+                }
+            });
+        });
+    };
+    Mapper.prototype.updateOne = function (collection, filter, update, options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var dbOptions, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dbOptions = {};
+                        if ('writeConcern' in options) {
+                            dbOptions.writeConcern = options.writeConcern;
+                        }
+                        return [4, this.serviceProvider.updateMany(collection._collection, collection._database, filter, update, options, dbOptions)];
+                    case 1:
+                        result = _a.sent();
+                        return [2, new mongosh_shell_api_1.UpdateResult(result.result.ok, result.matchedCount, result.modifiedCount, result.upsertedCount, result.upsertedId)];
+                }
+            });
+        });
+    };
+    return Mapper;
+}());
+exports.default = Mapper;
+//# sourceMappingURL=mapper.js.map

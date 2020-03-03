@@ -17,7 +17,7 @@ describe('Mapper', () => {
   describe('commands', () => {
     describe('show databases', () => {
       it('lists databases', async() => {
-        serviceProvider.listDatabases = () => Promise.resolve({
+        serviceProvider.listDatabases = (): any => Promise.resolve({
           databases: [
             { name: 'db1', sizeOnDisk: 10000, empty: false },
             { name: 'db2', sizeOnDisk: 20000, empty: false },
