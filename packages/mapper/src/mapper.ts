@@ -99,17 +99,21 @@ export default class Mapper {
   async it(): Promise<any> {
     const results = new CursorIterationResult();
 
-    if (this.currentCursor && !this.cursorAssigned) {
-      for (let i = 0; i < 20; i++) {
-        const hasNext = await this.currentCursor.hasNext();
-        if (hasNext) {
-          results.push(await this.currentCursor.next());
-        } else {
-          break;
-        }
-      }
+    if (
+      !this.currentCursor ||
+      this.cursorAssigned ||
+      this.currentCursor.isClosed()
+    ) {
+      return results;
+    }
 
-      if (results.length > 0) {return results;}
+    for (let i = 0; i < 20; i++) {
+      const hasNext = await this.currentCursor.hasNext();
+      if (hasNext) {
+        results.push(await this.currentCursor.next());
+      } else {
+        break;
+      }
     }
 
     return results;
@@ -124,15 +128,13 @@ export default class Mapper {
    * expects it as a dbOption object.
    * @note: Shell API sets readConcern via options in object, data provider API
    * expects it as a dbOption object.
-   * @note: Shell API sets explain via options in object, data provider API via
-   * cursor.
    * @note: CRUD API provides batchSize and maxAwaitTimeMS which the shell does not.
    *
    *
    * @param {Collection} collection - The collection class.
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Object} options - The pipeline options.
-   *    <explain, allowDiskUse, cursor, maxTimeMS, bypassDocumentValidation,
+   *    <allowDiskUse, cursor, maxTimeMS, bypassDocumentValidation,
    *    readConcern, collation, hint, comment, writeConcern>
    *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
