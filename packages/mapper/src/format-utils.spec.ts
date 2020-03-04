@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { formatBytes, formatTable } from './format-utils';
+import { formatBytes, formatTable } from './format-utils';
 
 describe('formatBytes', () => {
   it('formats 1000 as KBs', () => {

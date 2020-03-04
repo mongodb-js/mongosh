@@ -21,3 +21,4 @@ packages/shell-api/lib
 packages/transport-browser/lib
 packages/transport-server/lib
 packages/transport-core/lib
+packages/mapper/lib

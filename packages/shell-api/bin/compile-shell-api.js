@@ -169,7 +169,7 @@ const loadAll = () => {
 
   fs.writeFileSync(
     path.join(__dirname, '..', 'src', 'shell-types.js'),
-    `${types.join(';\n')};\nexport default {\n  ${typeConsts.join(',\n  ')}\n};`
+    `${types.join(';\n')};\nexport {\n  ${typeConsts.join(',\n  ')}\n};`
   );
 };
 
