@@ -2,12 +2,15 @@
   "name": "mongosh-mapper",
   "version": "0.0.0",
   "description": "MongoDB Shell Mapper Package",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "compile-api": "npm run antlr-lexer && npm run antlr-parser && npm run antlr-ecmascript",
     "test": "mocha --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
-    "check": "mongodb-js-precommit './lib/**/*{.js}' './test/**/*.js'",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts",
     "antlr-ecmascript": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -visitor -Xexact-output-dir antlr/ECMAScript.g4",
     "antlr-lexer": "     java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptLexer.g4",
     "antlr-parser": "    java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -no-listener -visitor -Xexact-output-dir antlr/JavaScriptParser.g4"

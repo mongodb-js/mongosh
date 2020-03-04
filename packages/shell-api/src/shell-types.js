@@ -147,7 +147,7 @@ const UpdateResult = {
 
   }
 };
-export default {
+export {
   AggregationCursor,
   BulkWriteResult,
   Collection,
