@@ -12,31 +12,7 @@ export () => {
 }
 ```
 
-### Available Runtimes
-
-#### ElectronRuntime
-
-Uses Node.js `vm` module as sandbox for code execution.
-
-``` js
-import { ElectronRuntime } from 'mongosh-browser-repl';
-
-const runtime = new ElectronRuntime(serviceProvider);
-```
-
-##### Example: usage in Compass
-
-``` js
-import { Shell, ElectronRuntime } from 'mongosh-browser-repl';
-
-const runtime = new ElectronRuntime(
-  CompassServiceProvider.fromDataService(dataService)
-);
-
-function MyShell(props) {
-  return <Shell runtime={runtime} />;
-}
-```
+### Built-in Runtimes
 
 #### IframeRuntime
 
@@ -72,20 +48,3 @@ An object representing an entry in the shell output, with the following properti
 - `type: 'input' | 'output' | 'error'`: the type of the entry
 - `shellApiType?: string`: the shell api type if the entry value is a shell api object.
 - `value: any`: the value that has to be rendered in output.
-
-### `Runtime`
-
-Encapsulates the details of evaluation logic exposing an implementation
-agnostic interface.
-
-All runtimes implement the following interface:
-
-- `evaluate(code: string): Promise<EvaluationResult>`: Evaluates a string of code.
-
-### `EvaluationResult`
-
-An object holding the result of an evaluation. Has the following properties:
-
-- `shellApiType?: string`: the shell api type if the entry value is a shell api object.
-- `value: any`: the value that has to be rendered in output.
-
