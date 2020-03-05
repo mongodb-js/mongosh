@@ -18,5 +18,9 @@
   "author": "",
   "license": "SSPL",
   "devDependencies": {},
-  "dependencies": {}
+  "dependencies": {
+    "mongosh-cli-repl": "file:../cli-repl",
+    "mongosh-mapper": "file:../mapper",
+    "mongosh-shell-api": "file:../shell-api"
+  }
 }
