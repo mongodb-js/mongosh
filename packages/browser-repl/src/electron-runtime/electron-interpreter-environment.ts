@@ -3,7 +3,7 @@ import vm, { Context } from 'vm';
 import {
   ContextValue,
   InterpreterEnvironment
-} from '../interpreter';
+} from 'mongosh-browser-runtime-core';
 
 export class ElectronInterpreterEnvironment implements InterpreterEnvironment {
   private context: Context;

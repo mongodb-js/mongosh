@@ -1,7 +1,7 @@
 import {
   ContextValue,
   InterpreterEnvironment
-} from '../interpreter';
+} from 'mongosh-browser-runtime-core';
 
 export class IframeInterpreterEnvironment implements InterpreterEnvironment {
   private window: Window;

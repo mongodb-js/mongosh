@@ -1,5 +1,5 @@
 import { ShellApiAutocompleter } from './shell-api-autocompleter';
-import { expect } from '../../testing/chai';
+import { expect } from 'chai';
 
 describe('Autocompleter', () => {
   describe('getCompletions', () => {

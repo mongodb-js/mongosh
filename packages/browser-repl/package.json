@@ -26,6 +26,7 @@
     "@leafygreen-ui/icon": "^4.0.0",
     "@leafygreen-ui/palette": "^2.0.0",
     "@leafygreen-ui/syntax": "^2.2.0",
+    "mongosh-browser-runtime-core": "file:../browser-runtime-core",
     "mongosh-cli-repl": "file:../cli-repl",
     "mongosh-i18n": "file:../i18n",
     "mongosh-mapper": "file:../mapper",

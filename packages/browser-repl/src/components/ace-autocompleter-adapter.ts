@@ -1,4 +1,4 @@
-import { Autocompleter, Completion } from '../autocompleter/autocompleter';
+import { Autocompleter, Completion } from 'mongosh-browser-runtime-core';
 
 interface AceCompletion {
   caption: string;

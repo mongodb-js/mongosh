@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import { Autocompleter } from '../autocompleter/autocompleter';
+import { Autocompleter } from 'mongosh-browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 
 import 'brace/ext/language_tools';

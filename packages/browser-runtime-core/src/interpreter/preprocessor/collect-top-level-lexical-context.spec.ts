@@ -1,5 +1,4 @@
-import { expect } from '../../../testing/chai';
-
+import { expect } from 'chai';
 import { parse } from '@babel/parser';
 
 import { collectTopLevelLexicalContext } from './collect-top-level-lexical-context';

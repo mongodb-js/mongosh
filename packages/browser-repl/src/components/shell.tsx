@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
-import { Runtime } from './runtime';
+import { Runtime } from 'mongosh-browser-runtime-core';
 import changeHistory from 'mongosh-cli-repl/lib/history';
 
 const styles = require('./shell.less');
