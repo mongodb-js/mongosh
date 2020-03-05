@@ -1,4 +1,4 @@
-import { expect } from '../../../testing/chai';
+import { expect } from 'chai';
 import { parse } from '@babel/parser';
 import generate from '@babel/generator';
 import { wrapInAsyncFunctionCall } from './wrap-in-async-function-call';

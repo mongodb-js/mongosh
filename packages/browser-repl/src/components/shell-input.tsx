@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Editor } from './editor';
-import { Autocompleter } from '../autocompleter/autocompleter';
+import { Autocompleter } from 'mongosh-browser-runtime-core';
 import { LineWithIcon } from './utils/line-with-icon';
 import Icon from '@leafygreen-ui/icon';
 

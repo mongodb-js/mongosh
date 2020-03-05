@@ -4,11 +4,12 @@ import {
 
 import {
   Runtime,
-  EvaluationResult
-} from '../components/runtime';
-import { OpenContextRuntime } from '../runtime-helpers/open-context-runtime';
+  EvaluationResult,
+  OpenContextRuntime,
+  Completion
+} from 'mongosh-browser-runtime-core';
+
 import { ServiceProvider } from 'mongosh-service-provider-core';
-import { Completion } from '../autocompleter/autocompleter';
 
 export class ElectronRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;

@@ -1,0 +1,22 @@
+{
+  "name": "mongosh-browser-runtime-core",
+  "version": "1.0.0",
+  "description": "Mongosh browser runtime core",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "engines": {
+    "node": "^12.4.0"
+  },
+  "scripts": {
+    "test": "mocha --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "prepublish": "rm -rf ./lib && npm run compile-ts",
+    "compile-ts": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "SSPL",
+  "devDependencies": {},
+  "dependencies": {}
+}

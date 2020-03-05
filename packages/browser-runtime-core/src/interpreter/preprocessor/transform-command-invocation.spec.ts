@@ -1,4 +1,4 @@
-import { expect } from '../../../testing/chai';
+import { expect } from 'chai';
 import { transformCommandInvocation } from './transform-command-invocation';
 
 describe('transformCommandInvocation', () => {
