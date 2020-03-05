@@ -25,9 +25,6 @@ jobs:
       - script: |
           npm run test-ci
         displayName: 'Run Tests'
-        env:
-          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
       - script: |
           npm run compile-exec
         displayName: 'Build REPL'
@@ -59,9 +56,6 @@ jobs:
       - script: |
           npm run test-ci
         displayName: 'Run Tests'
-        env:
-          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
 
   - job: MacOS_Mohave
     pool:
@@ -84,9 +78,6 @@ jobs:
       - script: |
           npm run test-ci
         displayName: 'Run Tests'
-        env:
-          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
 
   - job: Windows_Server_2019
     pool:
@@ -109,9 +100,6 @@ jobs:
       - script: |
           npm run test-ci
         displayName: 'Run Tests'
-        env:
-          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
 
   - job: Windows_Server_2016
     pool:
@@ -134,7 +122,3 @@ jobs:
       - script: |
           npm run test-ci
         displayName: 'Run Tests'
-        env:
-          MONGOSH_STITCH_TEST_APP_ID: $(MONGOSH_STITCH_TEST_APP_ID)
-          MONGOSH_STITCH_TEST_SERVICE_NAME: $(MONGOSH_STITCH_TEST_SERVICE_NAME)
-
