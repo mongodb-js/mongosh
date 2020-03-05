@@ -41,7 +41,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "mongosh-browser-repl": "file:../browser-repl",
-    "service-provider-server": "file:../service-provider-server"
+    "mongosh-service-provider-server": "file:../service-provider-server",
+    "mongosh-browser-runtime-electron": "file:../browser-runtime-electron"
   },
   "peerDependencies": {
     "hadron-ipc": "^1.1.0",
