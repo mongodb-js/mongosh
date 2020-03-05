@@ -1,5 +1,45 @@
 import { types as shellTypes } from 'mongosh-shell-api';
 import semver from 'semver';
+import {
+  CONVERSION_OPERATORS,
+  EXPRESSION_OPERATORS,
+  STAGE_OPERATORS,
+  QUERY_OPERATORS,
+  ACCUMULATORS,
+  BSON_TYPES } from 'mongodb-ace-autocompleter'
+
+const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
+  CONVERSION_OPERATORS.concat(BSON_TYPES.concat(STAGE_OPERATORS)
+));
+
+const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
+
+const SHELL_COMPLETIONS = shellTypes.ShellApi.attributes;
+const COLL_COMPLETIONS = shellTypes.Collection.attributes;
+const AGG_CURSOR_COMPLETIONS = shellTypes.AggregationCursor.attributes;
+const COLL_CURSOR_COMPLETIONS = shellTypes.Cursor.attributes;
+const RS_COMPLETIONS = shellTypes.ReplicaSet.attributes;
+const SHARD_COMPLETE = shellTypes.Shard.attributes;
+
+/**
+ * The proect stage operator.
+ */
+const PROJECT = '$project';
+
+/**
+ * The group stage operator.
+ */
+const GROUP = '$group';
+
+/**
+ * The match operator.
+ */
+const MATCH = '$match';
+
+/**
+ * The dollar const.
+ */
+const DOLLAR = '$';
 
 /**
  * Return complete suggestions given currently typed line
@@ -15,17 +55,10 @@ function completer(mdbVersion: string, line: string): [string[], string] {
   const firstLineEl = splitLine[0];
   const elToComplete = splitLine[splitLine.length-1];
 
-  const shellComplete = shellTypes.ShellApi.attributes;
-  const collComplete = shellTypes.Collection.attributes;
-  const aggCursorComplete = shellTypes.AggregationCursor.attributes;
-  const collCursorComplete = shellTypes.Cursor.attributes;
-  const rsComplete = shellTypes.ReplicaSet.attributes;
-  const shardComplete = shellTypes.Shard.attributes;
-
   // suggest SHELLAPI commands
   if (splitLine.length <= 1) {
     // TODO: this should also explicitly suggest 'sh', 'rs', and 'db' strings
-    const hits = filterComplete(mdbVersion, shellComplete, elToComplete);
+    const hits = filterShellAPI(mdbVersion, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length === 2) {
     // TODO: @lrlna suggest DATABASE commands (currently not available in
@@ -34,40 +67,77 @@ function completer(mdbVersion: string, line: string): [string[], string] {
     return [[], line];
   } else if (firstLineEl.includes('db') && splitLine.length > 2) {
     if (splitLine.length > 3) {
+      // aggregation cursor completions
       if (splitLine[2].includes('aggregate')) {
-        const hits = filterComplete(mdbVersion, aggCursorComplete, elToComplete, splitLine);
+        const hits = filterShellAPI(
+          mdbVersion, AGG_CURSOR_COMPLETIONS, elToComplete, splitLine);
         return [hits.length ? hits: [], line];
       }
-      const hits = filterComplete(mdbVersion, collCursorComplete, elToComplete, splitLine);
+      // collection cursor completions
+      const hits = filterShellAPI(
+        mdbVersion, COLL_CURSOR_COMPLETIONS, elToComplete, splitLine);
       return [hits.length ? hits : [], line];
     }
-    // if splitLine[2] === 'aggregate' && splitLine[2].contains('({'), suggest
-    // aggregation operators from 'ace-autocompleter'
+    // complete aggregation queries/stages
+    if (splitLine[2].includes('aggregate') && splitLine[2].includes('([')) {
+      const expressions = BASE_COMPLETIONS.concat(accumulators(
+        elToComplete, mdbVersion));
+      // split on {, as a stage/query will always follow an open curly brace
+      const preAggQuery = line.split("{");
+      const prefix = preAggQuery.pop().trim();
+      const command = line.split(prefix).shift();
+      const hits = filterQueries(mdbVersion, expressions, prefix, command);
+      return [hits.length ? hits: [], line]
+    }
 
-    // if splitLine[2].contains(any of the collComplete), and
+    // if splitLine[2].contains(any of the COLL_COMPLETIONS), and
     // .contains('({'), suggest query operators from 'ace-autocompleter'
 
-    // else:
-    const hits = filterComplete(mdbVersion, collComplete, elToComplete, splitLine);
+    const hits = filterShellAPI(
+      mdbVersion, COLL_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits: [], line];
   } else if (firstLineEl.includes('sh')) {
-    const hits = filterComplete(mdbVersion, shardComplete, elToComplete, splitLine);
+    const hits = filterShellAPI(
+      mdbVersion, SHARD_COMPLETE, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('rs')) {
-    const hits = filterComplete(mdbVersion, rsComplete, elToComplete, splitLine);
+    const hits = filterShellAPI(
+      mdbVersion, RS_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
   }
 
   return [[line], line];
 }
 
-// TODO: @lrlna this should also take this.shellApi.version of sorts and also
-// match on version:
-// semver.gte(version, .version)
-function filterComplete(mdbVersion: string, completions: object, toMatchTo: string, split?:
-                        string[]) {
+// stage completions based on current stage string.
+function accumulators(stage: string, mdbVersion: string) {
+	if (stage !== '') {
+		if (stage.includes(PROJECT)) {
+			return ACCUMULATORS.filter(acc => {
+				return (
+					acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
+				);
+			});
+		} else if (stage.includes(GROUP)) {
+			return ACCUMULATORS;
+		}
+	}
+	return [];
+}
+
+function filterQueries(mdbVersion: string, completions: any, prefix: string, split: string) {
+  const hits = completions.filter((e) => {
+    if (!e.name) return false;
+    return e.name.startsWith(prefix) && semver.gte(mdbVersion, e.version);
+  })
+
+  const adjusted = hits.map(h => `${split}${h.name}`);
+  return adjusted;
+}
+
+function filterShellAPI(mdbVersion: string, completions: object, prefix: string, split?: string[]) {
   const hits = Object.keys(completions).filter((c) => {
-    return c.startsWith(toMatchTo)
+    return c.startsWith(prefix)
       && semver.gte(mdbVersion, completions[c].serverVersions[0])
       && semver.lte(mdbVersion, completions[c].serverVersions[1])
   });
@@ -75,8 +145,6 @@ function filterComplete(mdbVersion: string, completions: object, toMatchTo: stri
   if (split) {
     const adjusted = hits.map(h => `${split.slice(0, -1).join('.')}.${h}`);
     return adjusted;
-    // if (!e.name) return false;
-    // return e.name.startsWith(prefix) && semver.gte(version, e.version);
   }
 
   return hits;
