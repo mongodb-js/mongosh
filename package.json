@@ -78,6 +78,7 @@
     "mongosh-shell-api": "file:packages/shell-api",
     "mongosh-transport-core": "file:packages/transport-core",
     "mongosh-transport-browser": "file:packages/transport-browser",
-    "mongosh-transport-server": "file:packages/transport-server"
+    "mongosh-transport-server": "file:packages/transport-server",
+    "mongosh-browser-runtime-core": "file:packages/browser-runtime-core"
   }
 }

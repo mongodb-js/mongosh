@@ -2,9 +2,13 @@ import {
   IframeInterpreterEnvironment
 } from './iframe-interpreter-environment';
 
-import { Runtime, EvaluationResult } from '../components/runtime';
-import { Completion } from '../autocompleter/autocompleter';
-import { OpenContextRuntime } from '../runtime-helpers/open-context-runtime';
+import {
+  Runtime,
+  EvaluationResult,
+  Completion,
+  OpenContextRuntime
+} from 'mongosh-browser-runtime-core';
+
 import { ServiceProvider } from 'mongosh-service-provider-core';
 
 export class IframeRuntime implements Runtime {

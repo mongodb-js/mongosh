@@ -1,32 +1,20 @@
+import vm from 'vm';
 import { Interpreter } from './interpreter';
-import { expect } from '../../testing/chai';
-
-async function createTestIframe(): Promise<HTMLIFrameElement> {
-  const iframe = document.createElement('iframe');
-  iframe.src = 'about:blank';
-
-  const ready = new Promise<HTMLIFrameElement>((resolve) => {
-    iframe.onload = (): void => resolve(iframe);
-  });
-
-  document.body.appendChild(iframe);
-  return ready;
-}
+import { expect } from 'chai';
 
 describe('Interpreter', () => {
   let interpreter;
   let testEvaluate;
-  let iframe;
   let testEnvironment;
 
   beforeEach(async() => {
-    document.body.innerHTML = '';
-    iframe = await createTestIframe();
-    const contentWindow = iframe.contentWindow as any;
+    const context = {};
+
+    vm.createContext(context);
 
     testEnvironment = {
-      sloppyEval: contentWindow.eval,
-      getContextObject: (): any => contentWindow
+      sloppyEval: (code): any => vm.runInContext(code, context),
+      getContextObject: (): any => context
     };
 
     interpreter = new Interpreter(testEnvironment);
