@@ -73,5 +73,5 @@ __defaultMethod: &__defaultMethod
 
     # Mark a method as fluent.
     # fluent methods will be called on wrappee and
-    #then return 'this'.
+    # then return 'this'.
     __fluent: false
