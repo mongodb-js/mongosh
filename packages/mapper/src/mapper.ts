@@ -18,7 +18,7 @@ import {
 
 export default class Mapper {
   private serviceProvider: any;
-  private currentCursor: any;
+  private currentCursor: Cursor | AggregationCursor;
   private databases: any;
   private context: any;
 
@@ -108,12 +108,11 @@ export default class Mapper {
     }
 
     for (let i = 0; i < 20; i++) {
-      const hasNext = await this.currentCursor.hasNext();
-      if (hasNext) {
-        results.push(await this.currentCursor.next());
-      } else {
+      if (!await this.currentCursor.hasNext()) {
         break;
       }
+
+      results.push(await this.currentCursor.next());
     }
 
     return results;
