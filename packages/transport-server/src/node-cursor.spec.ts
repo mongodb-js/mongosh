@@ -165,16 +165,51 @@ describe('NodeCursor', () => {
     let mock;
 
     beforeEach(() => {
-      mock = sinon.mock().returns(true);
+      mock = sinon.mock().returns(Promise.resolve(true));
       cursor = sinon.createStubInstance(Cursor, {
         hasNext: mock
       });
       nodeCursor = new NodeCursor(cursor);
     });
 
-    it('returns the cursor hasNext value', () => {
-      expect(nodeCursor.hasNext()).to.equal(true);
+    it('returns the cursor hasNext value', async() => {
+      expect(await nodeCursor.hasNext()).to.equal(true);
       mock.verify();
+    });
+  });
+
+  describe('#isExhausted', () => {
+    let cursor;
+    let nodeCursor: NodeCursor;
+    let hasNextMock;
+    let isClosedMock;
+
+    beforeEach(() => {
+      hasNextMock = sinon.mock();
+      isClosedMock = sinon.mock();
+      cursor = sinon.createStubInstance(Cursor, {
+        hasNext: hasNextMock,
+        isClosed: isClosedMock
+      });
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    [ // hasNext, isClosed, expected
+      [true, true, false],
+      [true, false, false],
+      [false, true, true],
+      [false, false, false]
+    ].forEach(([hasNext, isClosed, expected]) => {
+      context(`when cursor.hasNext is ${hasNext} and cursor.isClosed is ${isClosed}`, () => {
+        beforeEach(() => {
+          hasNextMock.returns(Promise.resolve(hasNext));
+          isClosedMock.returns(isClosed);
+        });
+
+        it(`returns ${expected}`, async() => {
+          expect(await nodeCursor.isExhausted()).to.equal(expected);
+        });
+      });
     });
   });
 

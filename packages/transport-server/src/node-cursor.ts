@@ -150,9 +150,9 @@ class NodeCursor implements Cursor {
   /**
    * Does the cursor have a next document?
    *
-   * @returns {boolean} If there is a next document.
+   * @returns {Promise<boolean>} If there is a next document.
    */
-  hasNext(): boolean {
+  async hasNext(): Promise<boolean> {
     return this.cursor.hasNext();
   }
 
@@ -173,8 +173,14 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  isExhausted() {
-    return this.cursor.isClosed() && !this.cursor.hasNext();
+  /**
+   * cursor.isExhausted() returns true if the cursor is closed and there are no
+   * remaining objects in the batch.
+   *
+   * @returns Promise<boolean> - whether the cursor is exhausted
+   */
+  async isExhausted(): Promise<boolean> {
+    return this.cursor.isClosed() && !await this.cursor.hasNext();
   }
 
   itcount() {
