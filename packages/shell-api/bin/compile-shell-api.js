@@ -4,7 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const YAML_DIR = 'yaml';
 
-const proxyTemplate = (contents) => (`    const handler = {
+const databaseConstructorTemplate = (contents) => (`    const handler = {
       get: function (obj, prop) {
         if (!(prop in obj)) {
           obj[prop] = new Collection(_mapper, _database, prop);
@@ -26,7 +26,7 @@ ${contents}
  */
 const attrTemplate = (attrName, lib, base = '') => {
   const attr = lib[attrName];
-  const lhs = `    this${base}.${attrName}`;
+  const lhs = `    ${base}.${attrName}`;
 
   if (attrName === 'help') {
     return `${lhs} = () => new Help(${JSON.stringify(attr)});`;
@@ -36,7 +36,7 @@ const attrTemplate = (attrName, lib, base = '') => {
 };
 
 /**
- * Generate a single method and any method attributes.
+ * Generate a single method definition.
  *
  * @param {String} methodName - the name of the method being generated
  * @param {Object} lib - the spec for a class
@@ -45,12 +45,32 @@ const attrTemplate = (attrName, lib, base = '') => {
 const methodTemplate = (methodName, lib) => {
   const method = lib[methodName];
   const firstArg = lib.__methods.firstArg !== '' ? `${lib.__methods.firstArg}, ` : '';
-  const methodStr = `    this.${methodName} = function() {
-      return this.${lib.__methods.wrappee}.${methodName}(${firstArg}...arguments);
-    };`;
+  const wrappeeCall = `this.${lib.__methods.wrappee}.${methodName}(${firstArg}...args)`;
+
+  return method.__fluent ?
+    `${methodName}(...args) {
+      ${wrappeeCall};
+      return this;
+    }
+` :
+    `${methodName}(...args) {
+      return ${wrappeeCall};
+    }
+`;
+};
+
+/**
+ * Generate a single method attributes.
+ * @param {String} className - the name of the class for which the method is being generated
+ * @param {String} methodName - the name of the method being generated
+ * @param {Object} lib - the spec for a class
+ * @return {String}
+ */
+const methodAttributeTemplate = (className, methodName, lib) => {
+  const method = lib[methodName];
 
   /* add any method attributes, like 'help' */
-  const base = `.${methodName}`;
+  const base = `${className}.prototype.${methodName}`;
   return Object.keys(method)
     .filter((a) => (!a.startsWith('__')))
     .reduce(
@@ -58,9 +78,72 @@ const methodTemplate = (methodName, lib) => {
         const attrStr = attrTemplate(methodAttrName, method, base);
         return `${str}\n${attrStr}`;
       },
-      methodStr
+      ''
     );
 };
+
+function methodAttributesTemplate(lib, className) {
+  return Object.keys(lib).reduce((str, name) => {
+    const element = lib[name];
+    /* skip metadata and attributes */
+    if (name.startsWith('__') || element.__type !== 'function') {
+      return str;
+    }
+    const elementStr = methodAttributeTemplate(className, name, lib);
+    return `${str}${elementStr}\n`;
+  }, '');
+}
+
+function constructorTemplate(args, lib, className) {
+  let constructorBody = args.reduce(
+    (s, k) => (
+      `${s}    this.${k} = ${k};\n`
+    ), ''
+  );
+
+  /* string representaiton */
+  if (lib.__stringRep) {
+    constructorBody = `${constructorBody}
+    this.toReplString = () => {
+      return ${lib.__stringRep};
+    };\n`;
+  }
+
+  /* string the shell api type of the object */
+  constructorBody = `${constructorBody}
+  this.shellApiType = () => {
+    return '${className}';
+  };\n`;
+
+  /* attributes */
+  constructorBody = Object.keys(lib).reduce((str, name) => {
+    const element = lib[name];
+    /* skip metadata and methods */
+    if (name.startsWith('__') || element.__type === 'function') {
+      return str;
+    }
+    const elementStr = attrTemplate(name, lib, 'this');
+    return `${str}${elementStr}\n`;
+  }, constructorBody);
+
+  /* special case for database as it requires proxy */
+  if (className === 'Database') {
+    constructorBody = databaseConstructorTemplate(constructorBody);
+  }
+  return constructorBody;
+}
+
+function instanceMethodsTemplate(lib) {
+  return Object.keys(lib).reduce((str, name) => {
+    const element = lib[name];
+    /* skip metadata and attributes */
+    if (name.startsWith('__') || element.__type !== 'function') {
+      return str;
+    }
+    const elementStr = methodTemplate(name, lib);
+    return `${str}${elementStr}\n`;
+  }, '');
+}
 
 /**
  * Generate a class from a single file spec.
@@ -72,50 +155,20 @@ const methodTemplate = (methodName, lib) => {
 const classTemplate = (className, lib) => {
   /* constructor arguments */
   const args = lib.__constructorArgs;
-  let attributes = args.reduce((s, k) => (
-    `${s}    this.${k} = ${k};\n`
-  ), '');
+  const constructorBody = constructorTemplate(args, lib, className);
+  const instanceMethods = instanceMethodsTemplate(lib);
+  const methodAttributes = methodAttributesTemplate(lib, className);
 
-  /* string representaiton */
-  if (lib.__stringRep) {
-    attributes = `${attributes}
-    this.toReplString = () => {
-      return ${lib.__stringRep};
-    };\n`;
-  }
-
-  /* string the shell api type of the object */
-  attributes = `${attributes}
-  this.shellApiType = () => {
-    return '${className}';
-  };\n`;
-
-  /* class methods and attributes */
-  let contents = Object.keys(lib).reduce((str, name) => {
-    const element = lib[name];
-    /* skip metadata */
-    if (name.startsWith('__')) {
-      return str;
-    }
-
-    let elementStr;
-    if (element.__type === 'function') {
-      elementStr = methodTemplate(name, lib);
-    } else {
-      elementStr = attrTemplate(name, lib);
-    }
-    return `${str}${elementStr}\n`;
-  }, attributes);
-
-  /* special case for proxy */
-  if (className === 'Database') {
-    contents = proxyTemplate(contents);
-  }
-
-  return `class ${className} {
+  return `
+class ${className} {
   constructor(${args.join(', ')}) {
-${contents}  }
+    ${constructorBody}
+  }
+
+  ${instanceMethods || ''}
 }
+
+${methodAttributes};
 `;
 };
 
@@ -124,7 +177,7 @@ const symbolTemplate = (className, lib) => {
     .filter(s => (!s.startsWith('__') && s !== 'help' && s !== 'toReplString'))
     .map((s) => {
       return `    ${s}: { type: 'function', returnsPromise: ${lib[s].returnsPromise}, returnType: '${lib[s].returnType}', serverVersions: ${JSON.stringify(lib[s].serverVersions, null, '')} }`;
-    }).join(',\n')
+    }).join(',\n');
 };
 
 /**

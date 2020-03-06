@@ -46,6 +46,7 @@ __defaultClass: &__defaultClass
     __methods:
         # What attribute should this class pass method calls to
         wrappee: '_mapper'
+
         # Any extra args that should be passed to wrappee. If none, set to ''
         firstArg: 'this'
 
@@ -70,3 +71,7 @@ __defaultMethod: &__defaultMethod
     # What type does this method return
     returnType: 'Unknown'
 
+    # Mark a method as fluent.
+    # fluent methods will be called on wrappee and
+    #then return 'this'.
+    __fluent: false

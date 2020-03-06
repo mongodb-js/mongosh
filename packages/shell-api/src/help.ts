@@ -12,7 +12,7 @@ type HelpPropertiesAttr = {
 };
 
 type HelpOptions = {
-  translate?(string): string
+  translate?(string): string;
 }
 
 const DEFAULT_TRANSLATE = i18n.translateApiHelp.bind(i18n);
@@ -22,8 +22,8 @@ export class Help {
   private docs: string;
   private attr: HelpPropertiesAttr[] = []
 
-  constructor(properties: HelpProperties, options: HelpOptions = {translate: DEFAULT_TRANSLATE}) {
-    this.help = options.translate(properties.help)
+  constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
+    this.help = options.translate(properties.help);
     this.docs = properties.docs;
     this.attr = (properties.attr || []).map((attr) => ({
       name: attr.name,
@@ -31,12 +31,12 @@ export class Help {
     }));
   }
 
-  shellApiType() {
+  shellApiType(): string {
     return 'Help';
   }
 
   toReplString(): HelpProperties {
-    const {help, docs, attr} = this;
-    return {help, docs, attr};
+    const { help, docs, attr } = this;
+    return { help, docs, attr };
   }
 }

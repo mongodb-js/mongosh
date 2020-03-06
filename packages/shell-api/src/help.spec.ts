@@ -11,7 +11,7 @@ describe('Help', () => {
 
   describe('#shellApiType', () => {
     it('returns Help', () => {
-      expect(new Help({help: 'help'}).shellApiType()).to.equal('Help');
+      expect(new Help({ help: 'help' }).shellApiType()).to.equal('Help');
     });
   });
 
@@ -21,7 +21,7 @@ describe('Help', () => {
         help: 'help'
       };
 
-      const help = new Help(properties, {translate});
+      const help = new Help(properties, { translate });
       expect(help.toReplString().constructor.name).to.equal('Object');
       expect(help.toReplString()).to.not.equal(help);
     });
@@ -32,7 +32,7 @@ describe('Help', () => {
       };
 
       expect(
-        new Help(properties, {translate})
+        new Help(properties, { translate })
           .toReplString()
           .help
       ).to.equal('translated: help');
@@ -45,7 +45,7 @@ describe('Help', () => {
       };
 
       expect(
-        new Help(properties, {translate})
+        new Help(properties, { translate })
           .toReplString()
           .docs
       ).to.equal('https://example.com');
@@ -56,7 +56,7 @@ describe('Help', () => {
         help: 'help'
       };
 
-      const help = new Help(properties, {translate});
+      const help = new Help(properties, { translate });
 
       expect(help.toReplString().attr).to.deep.equal([]);
     });
@@ -64,14 +64,14 @@ describe('Help', () => {
     it('returns attr with translated description', () => {
       const properties = {
         help: 'help',
-        attr: [{name: 'key', description: 'description'}]
+        attr: [{ name: 'key', description: 'description' }]
       };
 
       expect(
-        new Help(properties, {translate})
+        new Help(properties, { translate })
           .toReplString()
           .attr
-      ).to.deep.equal([{name: 'key', description: 'translated: description'}]);
+      ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);
     });
   });
 });

@@ -9,6 +9,8 @@
     "precompile-ts": "npm run compile-api",
     "compile-ts": "tsc -p tsconfig.json",
     "pretest": "npm run compile-api",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
