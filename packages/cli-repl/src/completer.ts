@@ -78,20 +78,25 @@ function completer(mdbVersion: string, line: string): [string[], string] {
         mdbVersion, COLL_CURSOR_COMPLETIONS, elToComplete, splitLine);
       return [hits.length ? hits : [], line];
     }
-    // complete aggregation queries/stages
-    if (splitLine[2].includes('aggregate') && splitLine[2].includes('([')) {
-      const expressions = BASE_COMPLETIONS.concat(accumulators(
-        elToComplete, mdbVersion));
+
+    // complete aggregation and collection  queries/stages
+    if (splitLine[2].includes('([') || splitLine[2].includes('({')) {
+      let expressions;
+      if (splitLine[2].includes('aggregate')) {
+        // aggregation needs extra accumulators to autocomplete properly
+        expressions = BASE_COMPLETIONS.concat(accumulators(
+          elToComplete, mdbVersion));
+      } else {
+        // collection quering just needs MATCH COMPLETIONS
+        expressions = MATCH_COMPLETIONS;
+      }
       // split on {, as a stage/query will always follow an open curly brace
-      const preAggQuery = line.split("{");
-      const prefix = preAggQuery.pop().trim();
+      const splitQuery = line.split("{");
+      const prefix = splitQuery.pop().trim();
       const command = line.split(prefix).shift();
       const hits = filterQueries(mdbVersion, expressions, prefix, command);
       return [hits.length ? hits: [], line]
     }
-
-    // if splitLine[2].contains(any of the COLL_COMPLETIONS), and
-    // .contains('({'), suggest query operators from 'ace-autocompleter'
 
     const hits = filterShellAPI(
       mdbVersion, COLL_COMPLETIONS, elToComplete, splitLine);
