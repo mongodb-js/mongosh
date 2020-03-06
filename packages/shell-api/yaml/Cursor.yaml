@@ -181,6 +181,7 @@ class:
             help: 'shell-api.cursor.help.length'
     limit:
         <<: *__defaultMethod
+        __fluent: true
         help:
             help: 'shell-api.cursor.help.limit'
     map:
@@ -270,6 +271,7 @@ class:
             help: 'shell-api.cursor.help.size'
     skip:
         <<: *__defaultMethod
+        __fluent: true
         help:
             help: 'shell-api.cursor.help.skip'
     snapshot: # not documented

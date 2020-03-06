@@ -1,11 +1,11 @@
 export class CommandResult {
   private value: string;
 
-  constructor({value}: {value: string}) {
+  constructor({ value }: {value: string}) {
     this.value = value;
   }
 
-  shellApiType() {
+  shellApiType(): string {
     return 'CommandResult';
   }
 
