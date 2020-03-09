@@ -1,6 +1,6 @@
 import { CliServiceProvider, NodeOptions } from 'mongosh-service-provider-server';
-// import { compile } from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
+import compile, { SymbolTable } from 'mongosh-async-rewriter';
+import ShellApi, { types } from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import changeHistory from './history';
@@ -22,13 +22,14 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  * The REPL used from the terminal.
  */
 class CliRepl {
-  private useAntlr?: boolean;
+  readonly useAntlr?: boolean;
   private serviceProvider: CliServiceProvider;
   private mapper: Mapper;
   private shellApi: ShellApi;
   private mdbVersion: any;
   private repl: REPLServer;
   private options: CliOptions;
+  private scope: SymbolTable;
 
   /**
    * Connect to the cluster.
@@ -41,6 +42,7 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider);
+    this.scope = new SymbolTable([]); // TODO: figure out where initial context is set up
     this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
@@ -51,6 +53,7 @@ class CliRepl {
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
     this.useAntlr = !!options.antlr;
+    console.log(`cli-repl antlr=${this.useAntlr}`);
     this.options = options;
 
     if (this.isPasswordMissing(driverOptions)) {
@@ -193,25 +196,13 @@ class CliRepl {
     const customEval = async(input, context, filename, callback) => {
       try {
         let str;
-        // if (this.useAntlr) {
-          // Eval once with execution turned off and a throwaway copy of the context
-          // this.mapper.checkAwait = true;
-          // this.mapper.awaitLoc = [];
-          // const copyCtx = context;// _.cloneDeep(context);
-          // await this.evaluateAndResolveApiType(originalEval, input, copyCtx, filename);
-          //
-          // // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
-          // const syncStr = compile(input, this.mapper.awaitLoc);
-          // if (syncStr.trim() !== input.trim()) {
-          //   console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          // }
-          //
-          // // Eval the rewritten string, this time for real
-          // this.mapper.checkAwait = false;
-          // str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
-        // } else {
+        if (this.useAntlr) {
+          const syncStr = compile(input, types, this.scope);
+          console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
+          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
+        } else {
           str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
-        // }
+        }
         callback(null, str);
       } catch (err) {
         // console.log('Catch callback:', err);
