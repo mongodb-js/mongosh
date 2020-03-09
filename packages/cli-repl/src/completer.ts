@@ -116,18 +116,18 @@ function completer(mdbVersion: string, line: string): [string[], string] {
 
 // stage completions based on current stage string.
 function accumulators(stage: string, mdbVersion: string) {
-	if (stage !== '') {
-		if (stage.includes(PROJECT)) {
-			return ACCUMULATORS.filter(acc => {
-				return (
-					acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
-				);
-			});
-		} else if (stage.includes(GROUP)) {
-			return ACCUMULATORS;
-		}
-	}
-	return [];
+  if (stage !== '') {
+    if (stage.includes(PROJECT)) {
+      return ACCUMULATORS.filter(acc => {
+        return (
+          acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
+        );
+      });
+    } else if (stage.includes(GROUP)) {
+      return ACCUMULATORS;
+    }
+  }
+  return [];
 }
 
 function filterQueries(mdbVersion: string, completions: any, prefix: string, split: string) {

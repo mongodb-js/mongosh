@@ -98,6 +98,50 @@ describe('completer.completer', () => {
     });
   });
 
+  context('when context is aggregation query', () => {
+    it('has several matches', () => {
+      const i = 'db.shipwrecks.aggregate([ { $so';
+      expect(completer('4.4.0', i)).to.deep.equal([
+        ['db.shipwrecks.aggregate([ { $sort',
+         'db.shipwrecks.aggregate([ { $sortByCount'], i]);
+    });
+
+    it('does not have a match', () => {
+      const i = 'db.shipwrecks.aggregate([ { $cat';
+      expect(completer('4.4.0', i)).to.deep.equal([[], i]);
+    });
+
+    it('matches an aggregation stage', () => {
+      const i = 'db.shipwrecks.aggregate([ { $proj';
+      expect(completer('4.4.0', i)).to.deep.equal([
+        [ 'db.shipwrecks.aggregate([ { $project' ], i]);
+    });
+  });
+
+  context('when context is a collection query', () => {
+    it('has several matches', () => {
+      const i = 'db.bios.find({ birth: { $g';
+      expect(completer('4.4.0', i)).to.deep.equal([
+        [
+          'db.bios.find({ birth: { $geoIntersects',
+          'db.bios.find({ birth: { $geoWithin',
+          'db.bios.find({ birth: { $gt',
+          'db.bios.find({ birth: { $gte',
+        ], i]);
+    });
+
+    it('does not have a match', () => {
+      const i = 'db.bios.find({ field: { $cat';
+      expect(completer('4.4.0', i)).to.deep.equal([[], i]);
+    });
+
+    it('matches an aggregation stage', () => {
+      const i = 'db.bios.find({ field: { $exis';
+      expect(completer('4.4.0', i)).to.deep.equal([
+        [ 'db.bios.find({ field: { $exists' ], i]);
+    });
+  });
+
   context('when context is collections and collection cursor', () => {
     it('matches a collection cursor command', () => {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).for';
