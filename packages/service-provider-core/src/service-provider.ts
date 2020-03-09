@@ -4,5 +4,13 @@ import Writable from './writable';
 /**
  * Interface for all service providers.
  */
-interface ServiceProvider extends Readable, Writable {};
+interface ServiceProvider extends Readable, Writable {
+  /**
+   * Close the connection.
+   *
+   * @param {boolean} force - Whether to force close.
+   */
+  close(boolean): void;
+};
+
 export default ServiceProvider;

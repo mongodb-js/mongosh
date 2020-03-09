@@ -18,8 +18,8 @@ interface Writable {
     database: string,
     collection: string,
     requests: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Delete multiple documents from the collection.
@@ -35,8 +35,8 @@ interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Delete one document from the collection.
@@ -52,8 +52,8 @@ interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Find one document and delete it.
@@ -69,7 +69,7 @@ interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options: Document) : Promise<Result>;
+    options?: Document) : Promise<Result>;
 
   /**
    * Find one document and replace it.
@@ -87,7 +87,7 @@ interface Writable {
     collection: string,
     filter: Document,
     replacement: Document,
-    options: Document) : Promise<Result>;
+    options?: Document) : Promise<Result>;
 
   /**
    * Find one document and update it.
@@ -105,7 +105,7 @@ interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options: Document) : Promise<Result>;
+    options?: Document) : Promise<Result>;
 
   /**
    * Insert many documents into the colleciton.
@@ -121,7 +121,7 @@ interface Writable {
     database: string,
     collection: string,
     docs: object[],
-    options: object) : Promise<Result>;
+    options?: object) : Promise<Result>;
 
   /**
    * Insert one document into the collection.
@@ -137,7 +137,7 @@ interface Writable {
     database: string,
     collection: string,
     doc: object,
-    options: object) : Promise<Result>;
+    options?: object) : Promise<Result>;
 
   /**
    * Replace a document with another.
@@ -155,8 +155,8 @@ interface Writable {
     collection: string,
     filter: Document,
     replacement: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Update many document.
@@ -174,8 +174,8 @@ interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Update a document.
@@ -193,8 +193,19 @@ interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options: Document,
-    dbOptions: Document) : Promise<Result>;
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
+
+  /**
+   * @param {String} db - the db name
+   * @param spec
+   * @param options
+   * @return {any}
+   */
+  runCommand(
+    db: string,
+    spec: Document,
+    options?: Document): Promise<Result>;
 }
 
 export default Writable;

@@ -21,8 +21,44 @@ interface Readable {
     database: string,
     collection: string,
     pipeline: Document[],
-    options: Document,
-    dbOptions: Document) : Cursor;
+    options?: Document,
+    dbOptions?: Document) : Cursor;
+
+  /**
+   * Run an aggregation pipeline on the DB.
+   *
+   * @param {String} database - The database name.
+   * @param {Array} pipeline - The aggregation pipeline.
+   * @param {Document} options - The pipeline options.
+   *
+   * @returns {Cursor} A cursor.
+   */
+  aggregateDb(
+    database: string,
+    pipeline: Document[],
+    options?: Document,
+    dbOptions?: Document) : Cursor;
+
+  /**
+   * Returns the count of documents that would match a find() query for the
+   * collection or view. The db.collection.count() method does not perform the
+   * find() operation but instead counts and returns the number of results
+   * that match a query.
+   *
+   * @param {String} db - the db name
+   * @param {String} coll - the collection name
+   * @param query
+   * @param options
+   * @param dbOptions
+   *
+   * @returns {Promise} A promise of the result.
+   */
+  count(
+    db: string,
+    coll: string,
+    query?: Document,
+    options?: Document,
+    dbOptions?: Document): Promise<Result>;
 
   /**
    * Get an exact document count from the collection.
@@ -37,8 +73,8 @@ interface Readable {
   countDocuments(
     database: string,
     collection: string,
-    filter: Document,
-    options: Document) : Promise<Result>;
+    filter?: Document,
+    options?: Document) : Promise<Result>;
 
   /**
    * Get distinct values for the field.
@@ -55,9 +91,9 @@ interface Readable {
     database: string,
     collection: string,
     fieldName: string,
-    filter: Document,
-    options: Document,
-    dbOptions: Document) : Cursor;
+    filter?: Document,
+    options?: Document,
+    dbOptions?: Document) : Cursor;
 
   /**
    * Get an estimated document count from the collection.
@@ -71,7 +107,7 @@ interface Readable {
   estimatedDocumentCount(
     database: string,
     collection: string,
-    options: Document) : Promise<Result>;
+    options?: Document) : Promise<Result>;
 
   /**
    * Find documents in the collection.
@@ -86,8 +122,8 @@ interface Readable {
   find(
     database: string,
     collection: string,
-    filter: Document,
-    options: Document) : Cursor;
+    filter?: Document,
+    options?: Document) : Cursor;
 
   /**
    * Returns the server version.
