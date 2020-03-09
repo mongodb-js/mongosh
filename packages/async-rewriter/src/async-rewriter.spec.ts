@@ -1,8 +1,9 @@
 import { expect } from 'chai';
-// import compile from './async-rewriter';
+import compile, { SymbolTable } from './async-rewriter';
+import { types } from 'mongosh-shell-api';
 
 describe('Async rewrite', () => {
   it('passes', () => {
-    expect(true);
+    expect(compile('db', types, new SymbolTable({}))).to.equal('db');
   });
 });

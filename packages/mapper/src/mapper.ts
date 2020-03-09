@@ -20,8 +20,8 @@ export default class Mapper {
   private serviceProvider: any;
   private currentCursor: any;
   private databases: any;
-  private context: any;
 
+  public context: any;
   public cursorAssigned: any;
   public checkAwait: any;
   public awaitLoc: any;

@@ -1,2 +1,3 @@
-import compile from './async-rewrite';
+import compile, { SymbolTable } from './async-rewriter';
 export default compile;
+export { SymbolTable };
