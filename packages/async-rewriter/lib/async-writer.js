@@ -25,20 +25,19 @@ var __values = (this && this.__values) || function(o) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ECMAScriptVisitor_1 = require("./antlr/ECMAScriptVisitor");
-var UnknownType;
-(function (UnknownType) {
-    UnknownType["type"] = "Unknown";
-})(UnknownType || (UnknownType = {}));
 var AsyncWriter = (function (_super) {
     __extends(AsyncWriter, _super);
     function AsyncWriter(chars, tokens, shellTypes, symbols) {
         var _this = _super.call(this) || this;
         _this.inputStream = chars;
         _this.commonTokenStream = tokens;
-        _this.Types = shellTypes;
-        _this.Symbols = symbols;
+        _this.shellTypes = shellTypes;
+        _this.symbols = symbols;
         return _this;
     }
+    AsyncWriter.prototype.rewriteTemplate = function (s) {
+        return "(await " + s + ")";
+    };
     AsyncWriter.prototype.visitChildren = function (ctx) {
         var _this = this;
         return ctx.children.reduce(function (str, node) {
@@ -72,7 +71,7 @@ var AsyncWriter = (function (_super) {
             return ctx;
         }
         if (!ctx.children) {
-            ctx.type = UnknownType;
+            ctx.type = this.shellTypes.unknown;
             return ctx;
         }
         try {
@@ -97,19 +96,19 @@ var AsyncWriter = (function (_super) {
             return this.visitChildren(ctx);
         }
         var result = this.visit(ctx.expressionSequence());
-        ctx.type = this._getType(ctx.expressionSequence());
+        ctx.type = this._getType(ctx.expressionSequence()).type;
         return "return " + result + ";\n";
     };
     AsyncWriter.prototype.visitFuncDefExpression = function (ctx) {
-        this.Symbols.pushScope();
+        this.symbols.pushScope();
         this.visit(ctx.functionBody());
         var bodyResult = this._getType(ctx.functionBody());
-        this.Symbols.popScope();
-        var type = { type: 'function', returnsPromise: false, returnType: bodyResult.type.type };
+        this.symbols.popScope();
+        var type = { type: 'function', returnsPromise: false, returnType: bodyResult.type };
         ctx.type = type;
         if (ctx.Identifier()) {
             var id = this.visit(ctx.Identifier());
-            this.Symbols.add(id, type);
+            this.symbols.add(id, type);
         }
         return this.visitChildren(ctx);
     };
@@ -117,7 +116,7 @@ var AsyncWriter = (function (_super) {
         var lhs = this.visit(ctx.singleExpression());
         var rhs = this.visit(ctx.expressionSequence());
         var typedChild = this._getType(ctx.expressionSequence());
-        this.Symbols.add(lhs, typedChild.type);
+        this.symbols.add(lhs, typedChild.type);
         return lhs + " " + this.visit(ctx.Assign()) + " " + rhs;
     };
     AsyncWriter.prototype.visitFuncCallExpression = function (ctx) {
@@ -126,8 +125,8 @@ var AsyncWriter = (function (_super) {
         var rhs = this.visit(ctx.arguments());
         var lhsType = lhsNode.type;
         ctx.type = lhsType.returnType;
-        if (lhsType.returnsPromise) {
-            return "(await " + lhs + ")";
+        if (lhsType.type === 'function' && lhsType.returnsPromise) {
+            return this.rewriteTemplate("" + lhs + rhs);
         }
         return "" + lhs + rhs;
     };
@@ -136,19 +135,22 @@ var AsyncWriter = (function (_super) {
         var lhs = this.visit(lhsNode);
         var lhsType = lhsNode.type;
         var rhs = this.visit(ctx.identifierName());
-        if (rhs in lhsType.attributes) {
+        if (lhsType.attributes === undefined) {
+            ctx.type = this.shellTypes.unknown;
+        }
+        else if (rhs in lhsType.attributes) {
             ctx.type = lhsType.attributes[rhs];
         }
         else if (lhsType.type === 'Database') {
-            ctx.type = this.Types.Collection;
+            ctx.type = this.shellTypes.Collection;
         }
         return lhs + "." + rhs;
     };
     AsyncWriter.prototype.visitIdentifierExpression = function (ctx) {
         var is = this.visitChildren(ctx);
-        var type = this.Symbols.lookup(is);
+        var type = this.symbols.lookup(is);
         if (typeof type === 'string') {
-            type = this.Types[type];
+            type = this.shellTypes[type];
         }
         ctx.type = type;
         return is;

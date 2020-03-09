@@ -1,11 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var mongosh_shell_api_1 = require("mongosh-shell-api");
 var Symbol = (function () {
-    function Symbol(name, type, args) {
-        var _this = this;
+    function Symbol(name, type) {
         this.name = name;
-        this.type = type === undefined ? 'Unknown' : type;
-        Object.keys(args).forEach(function (a) { return _this[a] = args[a]; });
+        this.type = type === undefined ? mongosh_shell_api_1.types.unknown : type;
     }
     return Symbol;
 }());

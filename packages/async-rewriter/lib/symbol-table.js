@@ -1,8 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var SymbolTable = (function () {
-    function SymbolTable(initialScope) {
+    function SymbolTable(initialScope, types) {
+        var _this = this;
         this.scopeStack = [initialScope];
+        this.types = types;
+        Object.keys(types).forEach(function (s) {
+            if (s === 'unknown')
+                return;
+            _this.add(s, { type: 'classdef', returnType: types[s] });
+        });
     }
     SymbolTable.prototype.lookup = function (item) {
         for (var i = 0; i < this.scopeStack.length; i++) {
@@ -10,7 +17,7 @@ var SymbolTable = (function () {
                 return this.scopeStack[i][item];
             }
         }
-        return 'Unknown';
+        return this.types.unknown;
     };
     SymbolTable.prototype.add = function (item, value) {
         this.scopeStack[this.scopeStack.length - 1][item] = value;

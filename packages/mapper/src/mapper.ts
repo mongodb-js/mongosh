@@ -13,8 +13,11 @@ import {
   InsertOneResult,
   UpdateResult,
   CursorIterationResult,
-  CommandResult
+  CommandResult,
+  types
 } from 'mongosh-shell-api';
+
+import { SymbolTable } from 'mongosh-async-rewriter';
 
 export default class Mapper {
   private serviceProvider: any;
@@ -23,48 +26,23 @@ export default class Mapper {
 
   public context: any;
   public cursorAssigned: any;
-  public checkAwait: any;
-  public awaitLoc: any;
+  public scope: any;
 
   constructor(serviceProvider) {
     this.serviceProvider = serviceProvider;
     /* Internal state gets stored in mapper, state that is visible to the user
      * is stored in ctx */
     this.currentCursor = null;
-    this.awaitLoc = []; // track locations where await is needed
-    this.checkAwait = false;
     this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
-    /* This will be rewritten so it's less fragile */
-    const parseStack = (s): number => {
-      const r = s.match(/repl:1:(\d*)/);
-      return Number(r[1]) - 1;
-    };
-    const requiresAwait = [
-      'deleteOne',
-      'insertOne' // etc etc
-    ];
-    const handler = {
-      get: function(obj, prop): any {
-        if (obj.checkAwait && requiresAwait.includes(prop)) {
-          try {
-            throw new Error();
-          } catch (e) {
-            const loc = parseStack(e.stack);
-            if (!isNaN(loc)) {
-              obj.awaitLoc.push(loc);
-            }
-          }
-        }
-        return obj[prop];
-      }
-    };
-    return new Proxy(this, handler);
+    this.scope = new SymbolTable({}, types);
   }
 
+  // TODO: rename to initializeContext
   setCtx(ctx): void {
     this.context = ctx;
     this.context.db = this.databases.test;
+    this.scope.add('db', types.Database);
   }
 
   use(_, db): any {
@@ -302,7 +280,6 @@ export default class Mapper {
    * @returns {DeleteResult} The promise of the result.
    */
   async deleteOne(collection, filter, options: any = {}): Promise<any> {
-    if (this.checkAwait) return;
     const dbOptions: any = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -587,7 +564,6 @@ export default class Mapper {
    * @return {InsertOneResult}
    */
   async insertOne(collection, doc, options: any = {}): Promise<any> {
-    if (this.checkAwait) return;
     const dbOptions: any = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
