@@ -84,7 +84,7 @@ function completer(mdbVersion: string, line: string): [string[], string] {
       let expressions;
       if (splitLine[2].includes('aggregate')) {
         // aggregation needs extra accumulators to autocomplete properly
-        expressions = BASE_COMPLETIONS.concat(accumulators(
+        expressions = BASE_COMPLETIONS.concat(getStageAccumulators(
           elToComplete, mdbVersion));
       } else {
         // collection quering just needs MATCH COMPLETIONS
@@ -115,19 +115,18 @@ function completer(mdbVersion: string, line: string): [string[], string] {
 }
 
 // stage completions based on current stage string.
-function accumulators(stage: string, mdbVersion: string) {
-  if (stage !== '') {
-    if (stage.includes(PROJECT)) {
-      return ACCUMULATORS.filter(acc => {
-        return (
-          acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
-        );
-      });
-    } else if (stage.includes(GROUP)) {
-      return ACCUMULATORS;
-    }
+function getStageAccumulators(stage: string, mdbVersion: string) {
+  if (stage !== '') return [] ;
+
+  if (stage.includes(PROJECT)) {
+    return ACCUMULATORS.filter(acc => {
+      return (
+        acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
+      );
+    });
+  } else if (stage.includes(GROUP)) {
+    return ACCUMULATORS;
   }
-  return [];
 }
 
 function filterQueries(mdbVersion: string, completions: any, prefix: string, split: string) {
