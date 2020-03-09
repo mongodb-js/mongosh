@@ -1,8 +1,12 @@
-import { ServiceProvider } from 'mongosh-service-provider-core';
 import { NodeTransport, NodeOptions } from 'mongosh-transport-server';
 import { Document, Cursor, Result } from 'mongosh-transport-core';
+import { ServiceProvider } from 'mongosh-service-provider-core';
 
 type BuildInfoResult = { version: string };
+
+type CustomWriteConcern = string;
+type WriteConcern = 0 | 1 | "majority" | CustomWriteConcern;
+type WriteConcernDoc = { w: WriteConcern, j: boolean, wtimeout: number };
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
@@ -90,7 +94,7 @@ class CliServiceProvider implements ServiceProvider {
   bulkWrite(
     db: string,
     coll: string,
-    requests: Document = {},
+    requests: Document,
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
 
@@ -212,7 +216,7 @@ class CliServiceProvider implements ServiceProvider {
   deleteOne(
     db: string,
     coll: string,
-    filter: Document = {},
+    filter: Document,
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
 
@@ -233,10 +237,11 @@ class CliServiceProvider implements ServiceProvider {
     db: string,
     coll: string,
     field: string,
+    filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Cursor {
 
-    return this.nodeTransport.distinct(db, coll, field, options, dbOptions);
+    return this.nodeTransport.distinct(db, coll, field, filter, options, dbOptions);
   }
 
   /**
@@ -482,7 +487,7 @@ class CliServiceProvider implements ServiceProvider {
    */
   runCommand(
     db: string,
-    spec: Document = {},
+    spec: Document,
     options: Document = {}): Promise<Result> {
 
     return this.nodeTransport.runCommand(db, spec, options);
