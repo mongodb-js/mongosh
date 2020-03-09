@@ -1,0 +1,177 @@
+functions:
+  prepare:
+    - command: git.get_project
+      params:
+        directory: src
+  install_nvm:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+tasks:
+  - name: install_nvm
+    depends_on: []
+    commands:
+      - func: prepare
+  - name: install_node
+    depends_on: [install_nvm]
+    commands:
+      - func: prepare
+  - name: install_npm
+    depends_on: [install_node]
+    commands:
+      - func: prepare
+  - name: install_lerna
+    depends_on: [install_npm]
+    commands:
+      - func: prepare
+  - name: bootstrap
+    depends_on: [install_lerna]
+    commands:
+      - func: prepare
+  - name: check
+    depends_on: [bootstrap]
+    commands:
+      - func: prepare
+  - name: test
+    depends_on: [check]
+    commands:
+      - func: prepare
+  - name: build
+    depends_on: [test]
+    commands:
+      - func: prepare
+  - name: publish
+    depends_on: [build]
+    commands:
+      - func: prepare
+buildvariants:
+    # TODO: Durran: BUILD-10374 - Need OSX Catalina Signing Machine
+  - name: macos
+    display_name: "MacOS Mohave"
+    run_on: osx-1014
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: windows
+    display_name: Windows
+    run_on: windows-64-vs2017-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: ubuntu
+    display_name: "Ubuntu 18.04"
+    run_on: ubuntu1804-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: ubuntuppc
+    display_name: "Ubuntu 18.04 PPC"
+    run_on: ubuntu1804-power8-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: ubuntuz
+    display_name: "Ubuntu 18.04 Z Series"
+    run_on: ubuntu1804-zseries-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: rhel7
+    display_name: "RHEL 7.6"
+    run_on: rhel76-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: rhelppc
+    display_name: "RHEL 7.1 PPC"
+    run_on: rhel71-power8-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+  - name: rhelz
+    display_name: "RHEL 7.2 Z Series"
+    run_on: rhel72-zseries-test
+    tasks:
+      - name: install_nvm
+      - name: install_node
+      - name: install_npm
+      - name: install_lerna
+      - name: bootstrap
+      - name: check
+      - name: test
+      - name: build
+      - name: publish
+
+
+      # - script: |
+          # npm install --global npm@latest
+          # npm install --global lerna
+        # displayName: 'Install Global Packages'
+      # - script: |
+          # npm run bootstrap
+        # displayName: 'Bootstrap'
+      # - script: |
+          # npm run check
+        # displayName: 'Run Checks'
+      # - script: |
+          # npm run test-ci
+        # displayName: 'Run Tests'
+      # - script: |
+          # npm run compile-exec
+        # displayName: 'Build REPL'
+      # - publish: $(System.DefaultWorkingDirectory)/dist
+        # artifact: binaries
+        # displayName: 'Publish Binaries'
+
