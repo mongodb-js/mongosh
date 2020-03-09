@@ -1,13 +1,10 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var async_rewriter_1 = __importStar(require("./async-rewriter"));
-exports.SymbolTable = async_rewriter_1.SymbolTable;
-exports.default = async_rewriter_1.default;
+var symbol_table_1 = __importDefault(require("./symbol-table"));
+exports.SymbolTable = symbol_table_1.default;
+var compile_1 = __importDefault(require("./compile"));
+exports.default = compile_1.default;
 //# sourceMappingURL=index.js.map
