@@ -70,6 +70,7 @@
     "uuid": "^3.3.3"
   },
   "dependencies": {
+    "mongosh-async-rewriter": "file:packages/async-rewriter",
     "mongosh-cli-repl": "file:packages/cli-repl",
     "mongosh-i18n": "file:packages/i18n",
     "mongosh-mapper": "file:packages/mapper",

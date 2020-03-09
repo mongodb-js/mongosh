@@ -1,6 +1,6 @@
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
-import { compile } from 'mongosh-mapper';
+// import { compile } from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
@@ -194,25 +194,25 @@ class CliRepl {
     const customEval = async(input, context, filename, callback) => {
       try {
         let str;
-        if (this.useAntlr) {
+        // if (this.useAntlr) {
           // Eval once with execution turned off and a throwaway copy of the context
-          this.mapper.checkAwait = true;
-          this.mapper.awaitLoc = [];
-          const copyCtx = context;// _.cloneDeep(context);
-          await this.evaluateAndResolveApiType(originalEval, input, copyCtx, filename);
-
-          // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
-          const syncStr = compile(input, this.mapper.awaitLoc);
-          if (syncStr.trim() !== input.trim()) {
-            console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          }
-
-          // Eval the rewritten string, this time for real
-          this.mapper.checkAwait = false;
-          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
-        } else {
+          // this.mapper.checkAwait = true;
+          // this.mapper.awaitLoc = [];
+          // const copyCtx = context;// _.cloneDeep(context);
+          // await this.evaluateAndResolveApiType(originalEval, input, copyCtx, filename);
+          //
+          // // Pass the locations to a parser so that it can add 'await' if any function calls contain 'await' locations
+          // const syncStr = compile(input, this.mapper.awaitLoc);
+          // if (syncStr.trim() !== input.trim()) {
+          //   console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
+          // }
+          //
+          // // Eval the rewritten string, this time for real
+          // this.mapper.checkAwait = false;
+          // str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
+        // } else {
           str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
-        }
+        // }
         callback(null, str);
       } catch (err) {
         // console.log('Catch callback:', err);

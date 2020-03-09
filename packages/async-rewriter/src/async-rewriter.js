@@ -1,11 +1,13 @@
-const antlr4 = require('antlr4');
-const ECMAScriptLexer = require('./antlr/ECMAScriptLexer.js').ECMAScriptLexer;
-const ECMAScriptParser = require('./antlr/ECMAScriptParser.js').ECMAScriptParser;
-const ECMAScriptVisitor = require('./antlr/ECMAScriptVisitor.js').ECMAScriptVisitor;
+/* eslint no-console: 0 */
+import antlr4 from 'antlr4';
+import ECMAScriptLexer from './antlr/ECMAScriptLexer';
+import ECMAScriptParser from './antlr/ECMAScriptParser';
+import ECMAScriptVisitor from './antlr/ECMAScriptVisitor';
 
-const ShellTypes = require('mongosh-shell-api').types;
+// import { ShellTypes } from 'mongosh-shell-api';
+const ShellTypes = {};
 
-class AsyncWriter extends ECMAScriptVisitor {
+class AsyncWriter extends ECMAScriptVisitor.ECMAScriptVisitor {
   constructor(chars, tokens, types, symbols) {
     super();
     this.inputStream = chars;
@@ -219,10 +221,10 @@ class SymbolTable {
 
 const compileEcma = function(input, types, symbols) {
   const chars = new antlr4.InputStream(input);
-  const lexer = new ECMAScriptLexer(chars);
+  const lexer = new ECMAScriptLexer.ECMAScriptLexer(chars);
   lexer.strictMode = false;
   const tokens = new antlr4.CommonTokenStream(lexer);
-  const parser = new ECMAScriptParser(tokens);
+  const parser = new ECMAScriptParser.ECMAScriptParser(tokens);
   parser.buildParseTrees = true;
   const tree = parser.program();
 
@@ -238,4 +240,4 @@ if (require.main === module) {
   symbols.print();
 }
 
-module.exports = compileEcma;
+export default compileEcma;
