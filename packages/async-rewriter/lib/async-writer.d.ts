@@ -3,9 +3,10 @@ export default class AsyncWriter extends ECMAScriptVisitor {
     visit: any;
     private inputStream;
     private commonTokenStream;
-    readonly Types: any;
-    readonly Symbols: any;
+    readonly shellTypes: any;
+    readonly symbols: any;
     constructor(chars: any, tokens: any, shellTypes: any, symbols: any);
+    rewriteTemplate(s: any): string;
     visitChildren(ctx: any): string;
     visitEof(): string;
     visitEos(ctx: any): string;

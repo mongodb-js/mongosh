@@ -1,6 +1,6 @@
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
-import compile, { SymbolTable } from 'mongosh-async-rewriter';
+import compile from 'mongosh-async-rewriter';
 import ShellApi, { types } from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
@@ -30,7 +30,6 @@ class CliRepl {
   private mdbVersion: any;
   private repl: REPLServer;
   private options: CliOptions;
-  private scope: SymbolTable;
 
   /**
    * Connect to the cluster.
@@ -43,7 +42,6 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider);
-    this.scope = new SymbolTable([]); // TODO: figure out where initial context is set up
     this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
@@ -198,7 +196,7 @@ class CliRepl {
       try {
         let str;
         if (this.useAntlr) {
-          const syncStr = compile(input, types, this.scope);
+          const syncStr = compile(input, types, this.mapper.scope);
           console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
           str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
         } else {

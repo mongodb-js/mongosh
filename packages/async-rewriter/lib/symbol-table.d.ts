@@ -1,6 +1,7 @@
 export default class SymbolTable {
     readonly scopeStack: any;
-    constructor(initialScope: any);
+    readonly types: any;
+    constructor(initialScope: any, types: any);
     lookup(item: any): any;
     add(item: any, value: any): void;
     popScope(): void;

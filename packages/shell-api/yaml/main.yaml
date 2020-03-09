@@ -68,5 +68,5 @@ __defaultMethod: &__defaultMethod
     # Does this method require 'await'
     returnsPromise: false
     # What type does this method return
-    returnType: 'Unknown'
+    returnType: 'unknown'
 

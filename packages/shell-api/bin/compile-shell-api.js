@@ -136,8 +136,8 @@ const loadAll = () => {
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
   let exports = '\nexport default ShellApi;\n';
-  const types = [];
-  const typeConsts = [];
+  const types = ['const unknown = {\n  type: \'unknown\',\n  attributes: {}\n}'];
+  const typeConsts = ['unknown'];
 
   const classes = FILES.reduce((str, fileName) => {
     const className = fileName.slice(0, -5);

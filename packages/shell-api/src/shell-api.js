@@ -21,7 +21,7 @@ class AggregationCursor {
     this.bsonsize.serverVersions = ['0.0.0', '4.4.0'];
     this.bsonsize.topologies = [0, 1, 2];
     this.bsonsize.returnsPromise = false;
-    this.bsonsize.returnType = 'Unknown';
+    this.bsonsize.returnType = 'unknown';
     this.close = function() {
       return this._cursor.close(...arguments);
     };
@@ -29,7 +29,7 @@ class AggregationCursor {
     this.close.serverVersions = ['0.0.0', '4.4.0'];
     this.close.topologies = [0, 1, 2];
     this.close.returnsPromise = false;
-    this.close.returnType = 'Unknown';
+    this.close.returnType = 'unknown';
     this.forEach = function() {
       return this._cursor.forEach(...arguments);
     };
@@ -37,7 +37,7 @@ class AggregationCursor {
     this.forEach.serverVersions = ['0.0.0', '4.4.0'];
     this.forEach.topologies = [0, 1, 2];
     this.forEach.returnsPromise = false;
-    this.forEach.returnType = 'Unknown';
+    this.forEach.returnType = 'unknown';
     this.hasNext = function() {
       return this._cursor.hasNext(...arguments);
     };
@@ -45,7 +45,7 @@ class AggregationCursor {
     this.hasNext.serverVersions = ['0.0.0', '4.4.0'];
     this.hasNext.topologies = [0, 1, 2];
     this.hasNext.returnsPromise = false;
-    this.hasNext.returnType = 'Unknown';
+    this.hasNext.returnType = 'unknown';
     this.isClosed = function() {
       return this._cursor.isClosed(...arguments);
     };
@@ -53,7 +53,7 @@ class AggregationCursor {
     this.isClosed.serverVersions = ['0.0.0', '4.4.0'];
     this.isClosed.topologies = [0, 1, 2];
     this.isClosed.returnsPromise = false;
-    this.isClosed.returnType = 'Unknown';
+    this.isClosed.returnType = 'unknown';
     this.isExhausted = function() {
       return this._cursor.isExhausted(...arguments);
     };
@@ -61,7 +61,7 @@ class AggregationCursor {
     this.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
     this.isExhausted.topologies = [0, 1, 2];
     this.isExhausted.returnsPromise = false;
-    this.isExhausted.returnType = 'Unknown';
+    this.isExhausted.returnType = 'unknown';
     this.itcount = function() {
       return this._cursor.itcount(...arguments);
     };
@@ -69,7 +69,7 @@ class AggregationCursor {
     this.itcount.serverVersions = ['0.0.0', '4.4.0'];
     this.itcount.topologies = [0, 1, 2];
     this.itcount.returnsPromise = false;
-    this.itcount.returnType = 'Unknown';
+    this.itcount.returnType = 'unknown';
     this.map = function() {
       return this._cursor.map(...arguments);
     };
@@ -77,7 +77,7 @@ class AggregationCursor {
     this.map.serverVersions = ['0.0.0', '4.4.0'];
     this.map.topologies = [0, 1, 2];
     this.map.returnsPromise = false;
-    this.map.returnType = 'Unknown';
+    this.map.returnType = 'unknown';
     this.next = function() {
       return this._cursor.next(...arguments);
     };
@@ -85,7 +85,7 @@ class AggregationCursor {
     this.next.serverVersions = ['0.0.0', '4.4.0'];
     this.next.topologies = [0, 1, 2];
     this.next.returnsPromise = false;
-    this.next.returnType = 'Unknown';
+    this.next.returnType = 'unknown';
     this.objsLeftInBatch = function() {
       return this._cursor.objsLeftInBatch(...arguments);
     };
@@ -93,7 +93,7 @@ class AggregationCursor {
     this.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
     this.objsLeftInBatch.topologies = [0, 1, 2];
     this.objsLeftInBatch.returnsPromise = false;
-    this.objsLeftInBatch.returnType = 'Unknown';
+    this.objsLeftInBatch.returnType = 'unknown';
     this.toArray = function() {
       return this._cursor.toArray(...arguments);
     };
@@ -101,7 +101,7 @@ class AggregationCursor {
     this.toArray.serverVersions = ['0.0.0', '4.4.0'];
     this.toArray.topologies = [0, 1, 2];
     this.toArray.returnsPromise = false;
-    this.toArray.returnType = 'Unknown';
+    this.toArray.returnType = 'unknown';
   }
 }
 class BulkWriteResult {
@@ -154,7 +154,7 @@ class Collection {
     this.bulkWrite.serverVersions = ['3.2.0', '4.4.0'];
     this.bulkWrite.topologies = [0, 1, 2];
     this.bulkWrite.returnsPromise = true;
-    this.bulkWrite.returnType = 'Unknown';
+    this.bulkWrite.returnType = 'unknown';
     this.countDocuments = function() {
       return this._mapper.countDocuments(this, ...arguments);
     };
@@ -162,7 +162,7 @@ class Collection {
     this.countDocuments.serverVersions = ['4.0.3', '4.4.0'];
     this.countDocuments.topologies = [0, 1, 2];
     this.countDocuments.returnsPromise = true;
-    this.countDocuments.returnType = 'Unknown';
+    this.countDocuments.returnType = 'unknown';
     this.count = function() {
       return this._mapper.count(this, ...arguments);
     };
@@ -170,7 +170,7 @@ class Collection {
     this.count.serverVersions = ['0.0.0', '4.4.0'];
     this.count.topologies = [0, 1, 2];
     this.count.returnsPromise = true;
-    this.count.returnType = 'Unknown';
+    this.count.returnType = 'unknown';
     this.deleteMany = function() {
       return this._mapper.deleteMany(this, ...arguments);
     };
@@ -178,7 +178,7 @@ class Collection {
     this.deleteMany.serverVersions = ['0.0.0', '4.4.0'];
     this.deleteMany.topologies = [0, 1, 2];
     this.deleteMany.returnsPromise = true;
-    this.deleteMany.returnType = 'Unknown';
+    this.deleteMany.returnType = 'unknown';
     this.deleteOne = function() {
       return this._mapper.deleteOne(this, ...arguments);
     };
@@ -186,7 +186,7 @@ class Collection {
     this.deleteOne.serverVersions = ['0.0.0', '4.4.0'];
     this.deleteOne.topologies = [0, 1, 2];
     this.deleteOne.returnsPromise = true;
-    this.deleteOne.returnType = 'Unknown';
+    this.deleteOne.returnType = 'unknown';
     this.distinct = function() {
       return this._mapper.distinct(this, ...arguments);
     };
@@ -202,7 +202,7 @@ class Collection {
     this.estimatedDocumentCount.serverVersions = ['4.0.3', '4.4.0'];
     this.estimatedDocumentCount.topologies = [0, 1, 2];
     this.estimatedDocumentCount.returnsPromise = true;
-    this.estimatedDocumentCount.returnType = 'Unknown';
+    this.estimatedDocumentCount.returnType = 'unknown';
     this.find = function() {
       return this._mapper.find(this, ...arguments);
     };
@@ -218,7 +218,7 @@ class Collection {
     this.findAndModify.serverVersions = ['0.0.0', '4.4.0'];
     this.findAndModify.topologies = [0, 1, 2];
     this.findAndModify.returnsPromise = false;
-    this.findAndModify.returnType = 'Unknown';
+    this.findAndModify.returnType = 'unknown';
     this.findOne = function() {
       return this._mapper.findOne(this, ...arguments);
     };
@@ -226,7 +226,7 @@ class Collection {
     this.findOne.serverVersions = ['0.0.0', '4.4.0'];
     this.findOne.topologies = [0, 1, 2];
     this.findOne.returnsPromise = false;
-    this.findOne.returnType = 'Unknown';
+    this.findOne.returnType = 'unknown';
     this.findOneAndDelete = function() {
       return this._mapper.findOneAndDelete(this, ...arguments);
     };
@@ -234,7 +234,7 @@ class Collection {
     this.findOneAndDelete.serverVersions = ['3.2.0', '4.4.0'];
     this.findOneAndDelete.topologies = [0, 1, 2];
     this.findOneAndDelete.returnsPromise = true;
-    this.findOneAndDelete.returnType = 'Unknown';
+    this.findOneAndDelete.returnType = 'unknown';
     this.findOneAndReplace = function() {
       return this._mapper.findOneAndReplace(this, ...arguments);
     };
@@ -242,7 +242,7 @@ class Collection {
     this.findOneAndReplace.serverVersions = ['3.2.0', '4.4.0'];
     this.findOneAndReplace.topologies = [0, 1, 2];
     this.findOneAndReplace.returnsPromise = true;
-    this.findOneAndReplace.returnType = 'Unknown';
+    this.findOneAndReplace.returnType = 'unknown';
     this.findOneAndUpdate = function() {
       return this._mapper.findOneAndUpdate(this, ...arguments);
     };
@@ -250,7 +250,7 @@ class Collection {
     this.findOneAndUpdate.serverVersions = ['3.2.0', '4.4.0'];
     this.findOneAndUpdate.topologies = [0, 1, 2];
     this.findOneAndUpdate.returnsPromise = true;
-    this.findOneAndUpdate.returnType = 'Unknown';
+    this.findOneAndUpdate.returnType = 'unknown';
     this.insert = function() {
       return this._mapper.insert(this, ...arguments);
     };
@@ -258,7 +258,7 @@ class Collection {
     this.insert.serverVersions = ['0.0.0', '4.4.0'];
     this.insert.topologies = [0, 1, 2];
     this.insert.returnsPromise = true;
-    this.insert.returnType = 'Unknown';
+    this.insert.returnType = 'unknown';
     this.insertMany = function() {
       return this._mapper.insertMany(this, ...arguments);
     };
@@ -266,7 +266,7 @@ class Collection {
     this.insertMany.serverVersions = ['3.2.0', '4.4.0'];
     this.insertMany.topologies = [0, 1, 2];
     this.insertMany.returnsPromise = true;
-    this.insertMany.returnType = 'Unknown';
+    this.insertMany.returnType = 'unknown';
     this.insertOne = function() {
       return this._mapper.insertOne(this, ...arguments);
     };
@@ -274,7 +274,7 @@ class Collection {
     this.insertOne.serverVersions = ['3.2.0', '4.4.0'];
     this.insertOne.topologies = [0, 1, 2];
     this.insertOne.returnsPromise = true;
-    this.insertOne.returnType = 'Unknown';
+    this.insertOne.returnType = 'unknown';
     this.isCapped = function() {
       return this._mapper.isCapped(this, ...arguments);
     };
@@ -282,7 +282,7 @@ class Collection {
     this.isCapped.serverVersions = ['0.0.0', '4.4.0'];
     this.isCapped.topologies = [0, 1, 2];
     this.isCapped.returnsPromise = true;
-    this.isCapped.returnType = 'Unknown';
+    this.isCapped.returnType = 'unknown';
     this.remove = function() {
       return this._mapper.remove(this, ...arguments);
     };
@@ -290,7 +290,7 @@ class Collection {
     this.remove.serverVersions = ['0.0.0', '4.4.0'];
     this.remove.topologies = [0, 1, 2];
     this.remove.returnsPromise = true;
-    this.remove.returnType = 'Unknown';
+    this.remove.returnType = 'unknown';
     this.save = function() {
       return this._mapper.save(this, ...arguments);
     };
@@ -298,7 +298,7 @@ class Collection {
     this.save.serverVersions = ['0.0.0', '4.4.0'];
     this.save.topologies = [0, 1, 2];
     this.save.returnsPromise = true;
-    this.save.returnType = 'Unknown';
+    this.save.returnType = 'unknown';
     this.replaceOne = function() {
       return this._mapper.replaceOne(this, ...arguments);
     };
@@ -306,7 +306,7 @@ class Collection {
     this.replaceOne.serverVersions = ['3.2.0', '4.4.0'];
     this.replaceOne.topologies = [0, 1, 2];
     this.replaceOne.returnsPromise = true;
-    this.replaceOne.returnType = 'Unknown';
+    this.replaceOne.returnType = 'unknown';
     this.update = function() {
       return this._mapper.update(this, ...arguments);
     };
@@ -314,7 +314,7 @@ class Collection {
     this.update.serverVersions = ['0.0.0', '4.4.0'];
     this.update.topologies = [0, 1, 2];
     this.update.returnsPromise = true;
-    this.update.returnType = 'Unknown';
+    this.update.returnType = 'unknown';
     this.updateMany = function() {
       return this._mapper.updateMany(this, ...arguments);
     };
@@ -322,7 +322,7 @@ class Collection {
     this.updateMany.serverVersions = ['3.2.0', '4.4.0'];
     this.updateMany.topologies = [0, 1, 2];
     this.updateMany.returnsPromise = true;
-    this.updateMany.returnType = 'Unknown';
+    this.updateMany.returnType = 'unknown';
     this.updateOne = function() {
       return this._mapper.updateOne(this, ...arguments);
     };
@@ -330,7 +330,7 @@ class Collection {
     this.updateOne.serverVersions = ['3.2.0', '4.4.0'];
     this.updateOne.topologies = [0, 1, 2];
     this.updateOne.returnsPromise = true;
-    this.updateOne.returnType = 'Unknown';
+    this.updateOne.returnType = 'unknown';
   }
 }
 class Cursor {
@@ -353,7 +353,7 @@ class Cursor {
     this.addOption.serverVersions = ['0.0.0', '3.2.0'];
     this.addOption.topologies = [0, 1, 2];
     this.addOption.returnsPromise = false;
-    this.addOption.returnType = 'Unknown';
+    this.addOption.returnType = 'unknown';
     this.allowPartialResults = function() {
       return this._cursor.allowPartialResults(...arguments);
     };
@@ -361,7 +361,7 @@ class Cursor {
     this.allowPartialResults.serverVersions = ['0.0.0', '4.4.0'];
     this.allowPartialResults.topologies = [0, 1, 2];
     this.allowPartialResults.returnsPromise = false;
-    this.allowPartialResults.returnType = 'Unknown';
+    this.allowPartialResults.returnType = 'unknown';
     this.arrayAccess = function() {
       return this._cursor.arrayAccess(...arguments);
     };
@@ -369,7 +369,7 @@ class Cursor {
     this.arrayAccess.serverVersions = ['0.0.0', '4.4.0'];
     this.arrayAccess.topologies = [0, 1, 2];
     this.arrayAccess.returnsPromise = false;
-    this.arrayAccess.returnType = 'Unknown';
+    this.arrayAccess.returnType = 'unknown';
     this.batchSize = function() {
       return this._cursor.batchSize(...arguments);
     };
@@ -377,7 +377,7 @@ class Cursor {
     this.batchSize.serverVersions = ['0.0.0', '4.4.0'];
     this.batchSize.topologies = [0, 1, 2];
     this.batchSize.returnsPromise = false;
-    this.batchSize.returnType = 'Unknown';
+    this.batchSize.returnType = 'unknown';
     this.clone = function() {
       return this._cursor.clone(...arguments);
     };
@@ -385,7 +385,7 @@ class Cursor {
     this.clone.serverVersions = ['0.0.0', '4.4.0'];
     this.clone.topologies = [0, 1, 2];
     this.clone.returnsPromise = false;
-    this.clone.returnType = 'Unknown';
+    this.clone.returnType = 'unknown';
     this.close = function() {
       return this._cursor.close(...arguments);
     };
@@ -393,7 +393,7 @@ class Cursor {
     this.close.serverVersions = ['0.0.0', '4.4.0'];
     this.close.topologies = [0, 1, 2];
     this.close.returnsPromise = false;
-    this.close.returnType = 'Unknown';
+    this.close.returnType = 'unknown';
     this.collation = function() {
       return this._cursor.collation(...arguments);
     };
@@ -401,7 +401,7 @@ class Cursor {
     this.collation.serverVersions = ['3.4.0', '4.4.0'];
     this.collation.topologies = [0, 1, 2];
     this.collation.returnsPromise = false;
-    this.collation.returnType = 'Unknown';
+    this.collation.returnType = 'unknown';
     this.comment = function() {
       return this._cursor.comment(...arguments);
     };
@@ -409,7 +409,7 @@ class Cursor {
     this.comment.serverVersions = ['3.2.0', '4.4.0'];
     this.comment.topologies = [0, 1, 2];
     this.comment.returnsPromise = false;
-    this.comment.returnType = 'Unknown';
+    this.comment.returnType = 'unknown';
     this.count = function() {
       return this._cursor.count(...arguments);
     };
@@ -417,7 +417,7 @@ class Cursor {
     this.count.serverVersions = ['0.0.0', '4.4.0'];
     this.count.topologies = [0, 1, 2];
     this.count.returnsPromise = false;
-    this.count.returnType = 'Unknown';
+    this.count.returnType = 'unknown';
     this.count.serverVersion = ['0.0.0', '4.0.0'];
     this.explain = function() {
       return this._cursor.explain(...arguments);
@@ -426,7 +426,7 @@ class Cursor {
     this.explain.serverVersions = ['0.0.0', '4.4.0'];
     this.explain.topologies = [0, 1, 2];
     this.explain.returnsPromise = false;
-    this.explain.returnType = 'Unknown';
+    this.explain.returnType = 'unknown';
     this.forEach = function() {
       return this._cursor.forEach(...arguments);
     };
@@ -434,7 +434,7 @@ class Cursor {
     this.forEach.serverVersions = ['0.0.0', '4.4.0'];
     this.forEach.topologies = [0, 1, 2];
     this.forEach.returnsPromise = false;
-    this.forEach.returnType = 'Unknown';
+    this.forEach.returnType = 'unknown';
     this.getQueryPlan = function() {
       return this._cursor.getQueryPlan(...arguments);
     };
@@ -442,7 +442,7 @@ class Cursor {
     this.getQueryPlan.serverVersions = ['0.0.0', '4.4.0'];
     this.getQueryPlan.topologies = [0, 1, 2];
     this.getQueryPlan.returnsPromise = false;
-    this.getQueryPlan.returnType = 'Unknown';
+    this.getQueryPlan.returnType = 'unknown';
     this.hasNext = function() {
       return this._cursor.hasNext(...arguments);
     };
@@ -450,7 +450,7 @@ class Cursor {
     this.hasNext.serverVersions = ['0.0.0', '4.4.0'];
     this.hasNext.topologies = [0, 1, 2];
     this.hasNext.returnsPromise = false;
-    this.hasNext.returnType = 'Unknown';
+    this.hasNext.returnType = 'unknown';
     this.hint = function() {
       return this._cursor.hint(...arguments);
     };
@@ -458,7 +458,7 @@ class Cursor {
     this.hint.serverVersions = ['0.0.0', '4.4.0'];
     this.hint.topologies = [0, 1, 2];
     this.hint.returnsPromise = false;
-    this.hint.returnType = 'Unknown';
+    this.hint.returnType = 'unknown';
     this.isClosed = function() {
       return this._cursor.isClosed(...arguments);
     };
@@ -466,7 +466,7 @@ class Cursor {
     this.isClosed.serverVersions = ['0.0.0', '4.4.0'];
     this.isClosed.topologies = [0, 1, 2];
     this.isClosed.returnsPromise = false;
-    this.isClosed.returnType = 'Unknown';
+    this.isClosed.returnType = 'unknown';
     this.isExhausted = function() {
       return this._cursor.isExhausted(...arguments);
     };
@@ -474,7 +474,7 @@ class Cursor {
     this.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
     this.isExhausted.topologies = [0, 1, 2];
     this.isExhausted.returnsPromise = false;
-    this.isExhausted.returnType = 'Unknown';
+    this.isExhausted.returnType = 'unknown';
     this.itcount = function() {
       return this._cursor.itcount(...arguments);
     };
@@ -482,7 +482,7 @@ class Cursor {
     this.itcount.serverVersions = ['0.0.0', '4.4.0'];
     this.itcount.topologies = [0, 1, 2];
     this.itcount.returnsPromise = false;
-    this.itcount.returnType = 'Unknown';
+    this.itcount.returnType = 'unknown';
     this.length = function() {
       return this._cursor.length(...arguments);
     };
@@ -490,7 +490,7 @@ class Cursor {
     this.length.serverVersions = ['0.0.0', '4.4.0'];
     this.length.topologies = [0, 1, 2];
     this.length.returnsPromise = false;
-    this.length.returnType = 'Unknown';
+    this.length.returnType = 'unknown';
     this.limit = function() {
       return this._cursor.limit(...arguments);
     };
@@ -498,7 +498,7 @@ class Cursor {
     this.limit.serverVersions = ['0.0.0', '4.4.0'];
     this.limit.topologies = [0, 1, 2];
     this.limit.returnsPromise = false;
-    this.limit.returnType = 'Unknown';
+    this.limit.returnType = 'unknown';
     this.map = function() {
       return this._cursor.map(...arguments);
     };
@@ -506,7 +506,7 @@ class Cursor {
     this.map.serverVersions = ['0.0.0', '4.4.0'];
     this.map.topologies = [0, 1, 2];
     this.map.returnsPromise = false;
-    this.map.returnType = 'Unknown';
+    this.map.returnType = 'unknown';
     this.max = function() {
       return this._cursor.max(...arguments);
     };
@@ -514,7 +514,7 @@ class Cursor {
     this.max.serverVersions = ['0.0.0', '4.4.0'];
     this.max.topologies = [0, 1, 2];
     this.max.returnsPromise = false;
-    this.max.returnType = 'Unknown';
+    this.max.returnType = 'unknown';
     this.maxScan = function() {
       return this._cursor.maxScan(...arguments);
     };
@@ -522,7 +522,7 @@ class Cursor {
     this.maxScan.serverVersions = ['0.0.0', '4.0.0'];
     this.maxScan.topologies = [0, 1, 2];
     this.maxScan.returnsPromise = false;
-    this.maxScan.returnType = 'Unknown';
+    this.maxScan.returnType = 'unknown';
     this.maxTimeMS = function() {
       return this._cursor.maxTimeMS(...arguments);
     };
@@ -530,7 +530,7 @@ class Cursor {
     this.maxTimeMS.serverVersions = ['0.0.0', '4.4.0'];
     this.maxTimeMS.topologies = [0, 1, 2];
     this.maxTimeMS.returnsPromise = false;
-    this.maxTimeMS.returnType = 'Unknown';
+    this.maxTimeMS.returnType = 'unknown';
     this.min = function() {
       return this._cursor.min(...arguments);
     };
@@ -538,7 +538,7 @@ class Cursor {
     this.min.serverVersions = ['0.0.0', '4.4.0'];
     this.min.topologies = [0, 1, 2];
     this.min.returnsPromise = false;
-    this.min.returnType = 'Unknown';
+    this.min.returnType = 'unknown';
     this.modifiers = function() {
       return this._cursor.modifiers(...arguments);
     };
@@ -546,7 +546,7 @@ class Cursor {
     this.modifiers.serverVersions = ['0.0.0', '4.4.0'];
     this.modifiers.topologies = [0, 1, 2];
     this.modifiers.returnsPromise = false;
-    this.modifiers.returnType = 'Unknown';
+    this.modifiers.returnType = 'unknown';
     this.next = function() {
       return this._cursor.next(...arguments);
     };
@@ -554,7 +554,7 @@ class Cursor {
     this.next.serverVersions = ['0.0.0', '4.4.0'];
     this.next.topologies = [0, 1, 2];
     this.next.returnsPromise = false;
-    this.next.returnType = 'Unknown';
+    this.next.returnType = 'unknown';
     this.noCursorTimeout = function() {
       return this._cursor.noCursorTimeout(...arguments);
     };
@@ -562,7 +562,7 @@ class Cursor {
     this.noCursorTimeout.serverVersions = ['0.0.0', '4.4.0'];
     this.noCursorTimeout.topologies = [0, 1, 2];
     this.noCursorTimeout.returnsPromise = false;
-    this.noCursorTimeout.returnType = 'Unknown';
+    this.noCursorTimeout.returnType = 'unknown';
     this.objsLeftInBatch = function() {
       return this._cursor.objsLeftInBatch(...arguments);
     };
@@ -570,7 +570,7 @@ class Cursor {
     this.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
     this.objsLeftInBatch.topologies = [0, 1, 2];
     this.objsLeftInBatch.returnsPromise = false;
-    this.objsLeftInBatch.returnType = 'Unknown';
+    this.objsLeftInBatch.returnType = 'unknown';
     this.oplogReplay = function() {
       return this._cursor.oplogReplay(...arguments);
     };
@@ -578,7 +578,7 @@ class Cursor {
     this.oplogReplay.serverVersions = ['0.0.0', '4.4.0'];
     this.oplogReplay.topologies = [0, 1, 2];
     this.oplogReplay.returnsPromise = false;
-    this.oplogReplay.returnType = 'Unknown';
+    this.oplogReplay.returnType = 'unknown';
     this.projection = function() {
       return this._cursor.projection(...arguments);
     };
@@ -586,7 +586,7 @@ class Cursor {
     this.projection.serverVersions = ['0.0.0', '4.4.0'];
     this.projection.topologies = [0, 1, 2];
     this.projection.returnsPromise = false;
-    this.projection.returnType = 'Unknown';
+    this.projection.returnType = 'unknown';
     this.pretty = function() {
       return this._cursor.pretty(...arguments);
     };
@@ -594,7 +594,7 @@ class Cursor {
     this.pretty.serverVersions = ['0.0.0', '4.4.0'];
     this.pretty.topologies = [0, 1, 2];
     this.pretty.returnsPromise = false;
-    this.pretty.returnType = 'Unknown';
+    this.pretty.returnType = 'unknown';
     this.readConcern = function() {
       return this._cursor.readConcern(...arguments);
     };
@@ -602,7 +602,7 @@ class Cursor {
     this.readConcern.serverVersions = ['3.2.0', '4.4.0'];
     this.readConcern.topologies = [0, 1, 2];
     this.readConcern.returnsPromise = false;
-    this.readConcern.returnType = 'Unknown';
+    this.readConcern.returnType = 'unknown';
     this.readOnly = function() {
       return this._cursor.readOnly(...arguments);
     };
@@ -610,7 +610,7 @@ class Cursor {
     this.readOnly.serverVersions = ['0.0.0', '4.4.0'];
     this.readOnly.topologies = [0, 1, 2];
     this.readOnly.returnsPromise = false;
-    this.readOnly.returnType = 'Unknown';
+    this.readOnly.returnType = 'unknown';
     this.readPref = function() {
       return this._cursor.readPref(...arguments);
     };
@@ -618,7 +618,7 @@ class Cursor {
     this.readPref.serverVersions = ['0.0.0', '4.4.0'];
     this.readPref.topologies = [0, 1, 2];
     this.readPref.returnsPromise = false;
-    this.readPref.returnType = 'Unknown';
+    this.readPref.returnType = 'unknown';
     this.returnKey = function() {
       return this._cursor.returnKey(...arguments);
     };
@@ -626,7 +626,7 @@ class Cursor {
     this.returnKey.serverVersions = ['3.2.0', '4.4.0'];
     this.returnKey.topologies = [0, 1, 2];
     this.returnKey.returnsPromise = false;
-    this.returnKey.returnType = 'Unknown';
+    this.returnKey.returnType = 'unknown';
     this.showDiskLoc = function() {
       return this._cursor.showDiskLoc(...arguments);
     };
@@ -634,7 +634,7 @@ class Cursor {
     this.showDiskLoc.serverVersions = ['0.0.0', '4.4.0'];
     this.showDiskLoc.topologies = [0, 1, 2];
     this.showDiskLoc.returnsPromise = false;
-    this.showDiskLoc.returnType = 'Unknown';
+    this.showDiskLoc.returnType = 'unknown';
     this.showRecordId = function() {
       return this._cursor.showRecordId(...arguments);
     };
@@ -642,7 +642,7 @@ class Cursor {
     this.showRecordId.serverVersions = ['0.0.0', '4.4.0'];
     this.showRecordId.topologies = [0, 1, 2];
     this.showRecordId.returnsPromise = false;
-    this.showRecordId.returnType = 'Unknown';
+    this.showRecordId.returnType = 'unknown';
     this.size = function() {
       return this._cursor.size(...arguments);
     };
@@ -650,7 +650,7 @@ class Cursor {
     this.size.serverVersions = ['0.0.0', '4.4.0'];
     this.size.topologies = [0, 1, 2];
     this.size.returnsPromise = false;
-    this.size.returnType = 'Unknown';
+    this.size.returnType = 'unknown';
     this.skip = function() {
       return this._cursor.skip(...arguments);
     };
@@ -658,7 +658,7 @@ class Cursor {
     this.skip.serverVersions = ['0.0.0', '4.4.0'];
     this.skip.topologies = [0, 1, 2];
     this.skip.returnsPromise = false;
-    this.skip.returnType = 'Unknown';
+    this.skip.returnType = 'unknown';
     this.snapshot = function() {
       return this._cursor.snapshot(...arguments);
     };
@@ -666,7 +666,7 @@ class Cursor {
     this.snapshot.serverVersions = ['0.0.0', '4.0.0'];
     this.snapshot.topologies = [0, 1, 2];
     this.snapshot.returnsPromise = false;
-    this.snapshot.returnType = 'Unknown';
+    this.snapshot.returnType = 'unknown';
     this.sort = function() {
       return this._cursor.sort(...arguments);
     };
@@ -674,7 +674,7 @@ class Cursor {
     this.sort.serverVersions = ['0.0.0', '4.4.0'];
     this.sort.topologies = [0, 1, 2];
     this.sort.returnsPromise = false;
-    this.sort.returnType = 'Unknown';
+    this.sort.returnType = 'unknown';
     this.tailable = function() {
       return this._cursor.tailable(...arguments);
     };
@@ -682,7 +682,7 @@ class Cursor {
     this.tailable.serverVersions = ['3.2.0', '4.4.0'];
     this.tailable.topologies = [0, 1, 2];
     this.tailable.returnsPromise = false;
-    this.tailable.returnType = 'Unknown';
+    this.tailable.returnType = 'unknown';
     this.toArray = function() {
       return this._cursor.toArray(...arguments);
     };
@@ -690,7 +690,7 @@ class Cursor {
     this.toArray.serverVersions = ['0.0.0', '4.4.0'];
     this.toArray.topologies = [0, 1, 2];
     this.toArray.returnsPromise = false;
-    this.toArray.returnType = 'Unknown';
+    this.toArray.returnType = 'unknown';
   }
 }
 class Database {
@@ -721,7 +721,7 @@ class Database {
     this.runCommand.serverVersions = ['0.0.0', '4.4.0'];
     this.runCommand.topologies = [0, 1, 2];
     this.runCommand.returnsPromise = false;
-    this.runCommand.returnType = 'Unknown';
+    this.runCommand.returnType = 'unknown';
 
     return new Proxy(this, handler);
   }
@@ -818,7 +818,7 @@ class ShellApi {
     this.use.serverVersions = ['0.0.0', '4.4.0'];
     this.use.topologies = [0, 1, 2];
     this.use.returnsPromise = false;
-    this.use.returnType = 'Unknown';
+    this.use.returnType = 'unknown';
     this.it = function() {
       return this._mapper.it(this, ...arguments);
     };
@@ -826,7 +826,7 @@ class ShellApi {
     this.it.serverVersions = ['0.0.0', '4.4.0'];
     this.it.topologies = [0, 1, 2];
     this.it.returnsPromise = false;
-    this.it.returnType = 'Unknown';
+    this.it.returnType = 'unknown';
     this.show = function() {
       return this._mapper.show(this, ...arguments);
     };
@@ -834,7 +834,7 @@ class ShellApi {
     this.show.serverVersions = ['0.0.0', '4.4.0'];
     this.show.topologies = [0, 1, 2];
     this.show.returnsPromise = false;
-    this.show.returnType = 'Unknown';
+    this.show.returnType = 'unknown';
   }
 }
 class UpdateResult {
