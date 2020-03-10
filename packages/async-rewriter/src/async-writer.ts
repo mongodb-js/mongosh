@@ -1,22 +1,44 @@
 /* eslint no-console:0 */
 import { ECMAScriptVisitor } from './antlr/ECMAScriptVisitor';
+import { ECMAScriptLexer } from './antlr/ECMAScriptLexer';
+import { ECMAScriptParser } from './antlr/ECMAScriptParser';
+import antlr4 from 'antlr4';
+
+import SymbolTable from './symbol-table';
+
+class TSParser extends ECMAScriptParser {
+  buildParseTrees: any;
+}
 
 export default class AsyncWriter extends ECMAScriptVisitor {
-  public visit: any;
+  private visit: any;
   private inputStream: any;
   private commonTokenStream: any;
   readonly shellTypes: any;
-  readonly symbols: any;
-  constructor(chars, tokens, shellTypes, symbols) {
+  public symbols: any;
+  constructor(shellTypes) {
     super();
-    this.inputStream = chars;
-    this.commonTokenStream = tokens;
     this.shellTypes = shellTypes;
-    this.symbols = symbols;
+    this.symbols = new SymbolTable({}, shellTypes);
   }
 
-  rewriteTemplate(s): string {
-    return `(await ${s})`;
+  formatter(s): string {
+    return `(async ${s})`;
+  }
+
+  compile(input): string {
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ECMAScriptLexer(chars);
+    lexer.strictMode = false;
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new TSParser(tokens);
+    parser.buildParseTrees = true;
+    const tree = parser.program();
+
+    this.inputStream = chars;
+    this.commonTokenStream = tokens;
+
+    return this.visit(tree);
   }
 
   visitChildren(ctx): string {
@@ -109,7 +131,7 @@ export default class AsyncWriter extends ECMAScriptVisitor {
     const lhsType = lhsNode.type;
     ctx.type = lhsType.returnType;
     if (lhsType.type === 'function' && lhsType.returnsPromise) {
-      return this.rewriteTemplate(`${lhs}${rhs}`);
+      return this.formatter(`${lhs}${rhs}`);
     }
     return `${lhs}${rhs}`;
   }

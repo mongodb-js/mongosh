@@ -1,14 +1,14 @@
 const { types } = require('mongosh-shell-api');
 
-const compile = require('./lib/compile.js').default;
-const SymbolTable = require('./lib/symbol-table.js').default;
+const AsyncWriter = require('./lib/async-writer.js').default;
 
-const symbols = new SymbolTable({ db: types.Database }, types);
-// console.log(compile('db.coll.insertOne({})', types, symbols));
-//
-// console.log(compile('y = db', types, symbols));
-// console.log(compile('y.coll.insertOne()', types, symbols));
-//
-console.log(compile('function returnsDb() { return db; }', types, symbols));
-console.log(compile('returnsDb().coll.insertOne({})', types, symbols));
-symbols.print();
+const writer = new AsyncWriter(types);
+writer.symbols.add('db', types.Database);
+console.log(writer.compile('db.coll.insertOne({})'));
+
+console.log(writer.compile('y = db'));
+console.log(writer.compile('y.coll.insertOne()'));
+
+console.log(writer.compile('function returnsDb() { return db; }'));
+console.log(writer.compile('returnsDb().coll.insertOne({})'));
+writer.symbols.print();
