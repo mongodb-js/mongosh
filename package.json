@@ -8,7 +8,7 @@
     "prebootstrap": "npm install",
     "bootstrap": "lerna exec -- npm install --no-package-lock",
     "clean": "lerna clean -y && rm -Rf node_modules",
-    "check": "lerna run check",
+    "check": "lerna run check --since HEAD --exclude-dependents",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "compile-ts": "lerna run compile-ts",
