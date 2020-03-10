@@ -3,10 +3,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { ServiceProvider } from 'mongosh-service-provider-core';
 
-export default function testImplementationUnit(ServiceProviderImpl) {
+export default function testImplementationUnit(ServiceProviderImpl): void {
   describe('#aggregate', () => {
     let serviceProvider: ServiceProvider;
-    const pipeline = [{ $match: { name: 'Aphex Twin' }}];
+    const pipeline = [{ $match: { name: 'Aphex Twin' } }];
     const aggResult = [{ name: 'Aphex Twin' }];
     const aggMock = sinon.mock().withArgs('music', 'bands', pipeline, {}, {}).
       returns({ toArray: () => Promise.resolve(aggResult) });
@@ -32,8 +32,8 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#bulkWrite', () => {
     let serviceProvider: ServiceProvider;
-    const requests = [{ insertOne: { name: 'Aphex Twin' }}];
-    const commandResult = { result: { nInserted: 1, ok: 1 }};
+    const requests = [{ insertOne: { name: 'Aphex Twin' } }];
+    const commandResult = { result: { nInserted: 1, ok: 1 } };
     const bulkMock = sinon.mock().once().withArgs('music', 'bands', requests, {}, {}).
       resolves(commandResult);
 
@@ -81,7 +81,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#deleteMany', () => {
     let serviceProvider: ServiceProvider;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const deleteMock = sinon.mock().once().withArgs('music', 'bands', {}, {}, {}).
       resolves(commandResult);
 
@@ -105,7 +105,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#deleteOne', () => {
     let serviceProvider: ServiceProvider;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const deleteMock = sinon.mock().once().withArgs('music', 'bands', {}, {}, {}).
       resolves(commandResult);
 
@@ -202,7 +202,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#findOneAndDelete', () => {
     let serviceProvider: ServiceProvider;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const findMock = sinon.mock().once().withArgs('music', 'bands', {}).
       resolves(commandResult);
 
@@ -226,7 +226,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#findOneAndReplace', () => {
     let serviceProvider: ServiceProvider;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
     const findMock = sinon.mock().once().withArgs('music', 'bands', filter, replacement).
@@ -253,9 +253,9 @@ export default function testImplementationUnit(ServiceProviderImpl) {
 
   describe('#findOneAndUpdate', () => {
     let serviceProvider: ServiceProvider;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
+    const update = { $set: { name: 'Richard James' } };
     const findMock = sinon.mock().once().withArgs('music', 'bands', filter, update).
       resolves(commandResult);
 
@@ -281,7 +281,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
   describe('#insertMany', () => {
     let serviceProvider: ServiceProvider;
     const doc = { name: 'Aphex Twin' };
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const insertMock = sinon.mock().once().withArgs('music', 'bands', [ doc ], {}).
       resolves(commandResult);
 
@@ -306,7 +306,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
   describe('#insertOne', () => {
     let serviceProvider: ServiceProvider;
     const doc = { name: 'Aphex Twin' };
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const insertMock = sinon.mock().once().withArgs('music', 'bands', doc, {}).
       resolves(commandResult);
 
@@ -332,7 +332,7 @@ export default function testImplementationUnit(ServiceProviderImpl) {
     let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const replaceMock = sinon.mock().once().withArgs('music', 'bands', filter, replacement, {}).
       resolves(commandResult);
 
@@ -381,8 +381,8 @@ export default function testImplementationUnit(ServiceProviderImpl) {
   describe('#updateOne', () => {
     let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
     const updateMock = sinon.mock().once().withArgs('music', 'bands', filter, update, {}).
       resolves(commandResult);
 
@@ -407,8 +407,8 @@ export default function testImplementationUnit(ServiceProviderImpl) {
   describe('#updateMany', () => {
     let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
     const updateMock = sinon.mock().once().withArgs('music', 'bands', filter, update, {}).
       resolves(commandResult);
 
@@ -450,6 +450,55 @@ export default function testImplementationUnit(ServiceProviderImpl) {
       const result = await serviceProvider.getServerVersion();
       expect(result).to.deep.equal('4.0.0');
       commandMock.verify();
+    });
+  });
+
+  describe('#dropDatabase', () => {
+    let serviceProvider: ServiceProvider;
+    let runCommandMock;
+
+    beforeEach(() => {
+      runCommandMock = sinon.mock().returns(Promise.resolve({ ok: 1 }));
+      const transportStub: NodeTransport = sinon.createStubInstance(
+        NodeTransport, {
+          runCommand: runCommandMock
+        });
+
+      serviceProvider = new ServiceProviderImpl(transportStub);
+    });
+
+    it('returns runCommand result', async() => {
+      const result = await serviceProvider.dropDatabase('db1');
+      expect(result).to.deep.equal({ ok: 1 });
+    });
+
+    context('when write concern is omitted', () => {
+      beforeEach(async() => {
+        await serviceProvider.dropDatabase('db1');
+      });
+
+      it('executes the command against the database with default write concern', () => {
+        runCommandMock
+          .once()
+          .withArgs('db1', {
+            w: 'majority',
+            timeout: 10 * 60 * 1000
+          })
+          .verify();
+      });
+    });
+
+    context('with write concern', () => {
+      beforeEach(async() => {
+        await serviceProvider.dropDatabase('db1', { w: 0 });
+      });
+
+      it('executes the command against the database passing write concern', () => {
+        runCommandMock
+          .once()
+          .withArgs('db1', { w: 0 })
+          .verify();
+      });
     });
   });
 }
