@@ -8,7 +8,9 @@
     "compile-ts": "tsc -p tsconfig.json",
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
-    "prepublish": "npm run compile-ts"
+    "prepublish": "npm run compile-ts",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint"
   },
   "engines": {
     "node": "^12.4.0"

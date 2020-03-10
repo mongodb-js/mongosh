@@ -7,18 +7,33 @@ interface ServiceProviderImplType {
   connect: (uri: string) => Promise<ServiceProvider>;
 }
 
-export default function testImplementationIntegration(ServiceProviderImpl: ServiceProviderImplType) {
+export default function testImplementationIntegration(
+  ServiceProviderImpl: ServiceProviderImplType
+): void {
   before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
   let serviceProvider: ServiceProvider;
+  let client;
+  let dbName;
+  let db;
 
   beforeEach(async() => {
-    serviceProvider = await ServiceProviderImpl.connect('mongodb://localhost:27018');
+    const connectionString = 'mongodb://localhost:27018';
+
+    serviceProvider = await ServiceProviderImpl.connect(connectionString);
+    client = await MongoClient.connect(
+      connectionString,
+      { useUnifiedTopology: true }
+    );
+
+    dbName = `test-db-${Date.now()}`;
+    db = client.db(dbName);
   });
 
   afterEach(() => {
-    return serviceProvider.close(true);
+    client.close(true);
+    serviceProvider.close(true);
   });
 
   describe('.connect', () => {
@@ -33,7 +48,7 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
 
       beforeEach(async() => {
         result = await serviceProvider.
-          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
+          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' } }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -46,7 +61,7 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
       let result;
 
       beforeEach(async() => {
-        result = await serviceProvider.aggregateDb('admin', [{ $currentOp: {}}]);
+        result = await serviceProvider.aggregateDb('admin', [{ $currentOp: {} }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -198,7 +213,7 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
     context('when the find is valid', () => {
       let result;
       const filter = { name: 'Aphex Twin' };
-      const update = { $set: { name: 'Richard James' }};
+      const update = { $set: { name: 'Richard James' } };
 
       beforeEach(async() => {
         result = await serviceProvider.
@@ -248,17 +263,8 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
   });
 
   describe('#replaceOne', () => {
-    let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
-
-    before(async() => {
-      serviceProvider = await ServiceProviderImpl.connect('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return serviceProvider.close(true);
-    });
 
     context('when the filter is empty', () => {
       let result;
@@ -289,17 +295,8 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
   });
 
   describe('#updateMany', () => {
-    let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-
-    before(async() => {
-      serviceProvider = await ServiceProviderImpl.connect('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return serviceProvider.close(true);
-    });
+    const update = { $set: { name: 'Richard James' } };
 
     context('when the filter is empty', () => {
       let result;
@@ -316,17 +313,8 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
   });
 
   describe('#updateOne', () => {
-    let serviceProvider: ServiceProvider;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-
-    before(async() => {
-      serviceProvider = await ServiceProviderImpl.connect('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return serviceProvider.close(true);
-    });
+    const update = { $set: { name: 'Richard James' } };
 
     context('when the filter is empty', () => {
       let result;
@@ -352,6 +340,42 @@ export default function testImplementationIntegration(ServiceProviderImpl: Servi
 
       it('returns a semver', () => {
         expect(result).to.match(/^\d+.\d+/);
+      });
+    });
+  });
+
+  describe('#dropDatabase', () => {
+    context('when a database does not exist', () => {
+      let result;
+
+      it('returns  {ok: 1}', async() => {
+        result = await serviceProvider.dropDatabase(`test-db-${Date.now()}`);
+        expect(result.ok).to.equal(1);
+      });
+    });
+
+    context('when a database exists', () => {
+      let result;
+
+      const dbExists = async(): Promise<boolean> => {
+        return (await db.admin().listDatabases())
+          .databases
+          .map((database) => database.name)
+          .includes(dbName);
+      };
+
+      beforeEach(async() => {
+        await db.collection('coll1').insertOne({ doc: 1 });
+        expect(await dbExists()).to.be.true;
+        result = await serviceProvider.dropDatabase(dbName);
+      });
+
+      it('returns  {ok: 1}', async() => {
+        expect(result.ok).to.equal(1);
+      });
+
+      it('deletes the database', async() => {
+        expect(await dbExists()).to.be.false;
       });
     });
   });

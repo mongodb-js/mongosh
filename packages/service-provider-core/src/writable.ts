@@ -206,6 +206,19 @@ interface Writable {
     db: string,
     spec: Document,
     options?: Document): Promise<Result>;
+
+  /**
+   * Drop a database
+   *
+   * @param {String} database - The database name.
+   * @param {WriteConcernDoc} writeConcern - The write concern.
+   *
+   * @returns {Promise<Result>} The result of the operation.
+   */
+  dropDatabase(
+    database: string,
+    writeConcern?: Document
+  ) : Promise<Result>;
 }
 
 export default Writable;
