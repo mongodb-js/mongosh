@@ -35,8 +35,6 @@ class NodeTransport implements Transport {
   /**
    * Run an aggregation pipeline.
    *
-   * @note: Passing a null collection will cause the
-   *   aggregation to run on the DB.
    *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
@@ -61,8 +59,7 @@ class NodeTransport implements Transport {
   /**
    * Run an aggregation pipeline only on a DB.
    *
-   * @note: Passing a null collection will cause the
-   *   aggregation to run on the DB.
+
    *
    * @param {String} database - The database name.
    * @param {Array} pipeline - The aggregation pipeline.
