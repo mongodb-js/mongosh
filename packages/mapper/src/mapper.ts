@@ -4,9 +4,6 @@ import {
 } from './format-utils';
 
 import {
-const EventEmitter = require('events');
-
-const {
   AggregationCursor,
   BulkWriteResult,
   Cursor,
@@ -29,16 +26,18 @@ import {
 
 import AsyncWriter from '@mongosh/async-rewriter';
 
+import EventEmitter from 'events';
+
 export default class Mapper {
   private serviceProvider: ServiceProvider;
   private currentCursor: Cursor | AggregationCursor;
   private databases: any;
-
+	private messageBus: EventEmitter;
   public context: any;
   public cursorAssigned: any;
   public asyncWriter: AsyncWriter;
 
-  constructor(serviceProvider) {
+  constructor(serviceProvider, messageBus) {
     this.serviceProvider = serviceProvider;
     /* Internal state gets stored in mapper, state that is visible to the user
      * is stored in ctx */
@@ -91,7 +90,7 @@ export default class Mapper {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
-    this.messageBus.emit('cmd:use', `switched to db ${db}`)
+    this.messageBus.emit('cmd:use', db);
     this.context.db = this.databases[db];
 
     return `switched to db ${db}`;
@@ -103,9 +102,12 @@ export default class Mapper {
       case 'dbs':
         const result = await this.serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
-          throw new Error('Error: invalid result from listDatabases');
+          const err = new Error('Error: invalid result from listDatabases');
+          this.messageBus.emit('error', err);
+          throw err;
         }
 
+        this.messageBus.emit('cmd:show', result.databases);
         const tableEntries = result.databases.map(
           (db) => [db.name, formatBytes(db.sizeOnDisk)]
         );
@@ -114,7 +116,9 @@ export default class Mapper {
 
         return new CommandResult({ value: table });
       default:
-        throw new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
+        const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
+        this.messageBus.emit('error', err);
+        throw err;
     }
   }
 
@@ -131,14 +135,14 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) {
       if (!await this.currentCursor.hasNext()) {
-        this.messageBus.emit('cmd:it', 'no cursor')
+        this.messageBus.emit('cmd:it', 'no cursor');
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
-    this.messageBus.emit('cmd:it', results.length)
+    this.messageBus.emit('cmd:it', results.length);
     return results;
   }
 
@@ -193,8 +197,7 @@ export default class Mapper {
       );
     }
 
-    this.messageBus.emit('method:aggregate', coll, cmd)
-
+    this.messageBus.emit('method:aggregate', coll, cmd);
     const cursor = new AggregationCursor(this, cmd);
 
     this.currentCursor = cursor;
@@ -221,7 +224,7 @@ export default class Mapper {
     options: Document = {}
   ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
-    this.messageBus.emit('bulkWrite', collection);
+    this.messageBus.emit('metho:bulkWrite', collection._collection, operations);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -311,7 +314,7 @@ export default class Mapper {
    */
   async deleteMany(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('deleteMany');
+    this.messageBus.emit('method:deleteMany', collection._collection, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -345,7 +348,7 @@ export default class Mapper {
    */
   async deleteOne(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('deleteOne');
+    this.messageBus.emit('method:deleteOne', collection._collection, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -377,7 +380,7 @@ export default class Mapper {
    * @returns {Array} The promise of the result. TODO: make sure returned type is the same
    */
   distinct(collection, field, query, options: any = {}): any {
-    this.messageBus.emit('distinct');
+    this.messageBus.emit('method:distinct', collection._collection, field, query);
     return this.serviceProvider.distinct(
       collection._database,
       collection._collection,
@@ -397,7 +400,7 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   estimatedDocumentCount(collection, options = {}): Promise<any> {
-    this.messageBus.emit('estimatedDocumentCount');
+    this.messageBus.emit('method:estimatedDocumentCount', collection._collection);
     return this.serviceProvider.estimatedDocumentCount(
       collection._database,
       collection._collection,
@@ -486,7 +489,7 @@ export default class Mapper {
    * @returns {Document} The promise of the result.
    */
   async findOneAndDelete(collection, filter, options = {}): Promise<any> {
-    this.messageBus.emit('findOneAndDelete');
+    this.messageBus.emit('method:findOneAndDelete', collection._collection, filter);
     const result = await this.serviceProvider.findOneAndDelete(
       collection._database,
       collection._collection,
@@ -513,7 +516,7 @@ export default class Mapper {
    */
   async findOneAndReplace(collection, filter, replacement, options = {}): Promise<any> {
     const findOneAndReplaceOptions: any = { ...options };
-    this.messageBus.emit('findOneAndReplace');
+    this.messageBus.emit('method:findOneAndReplace', collection._collection, filter);
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
@@ -545,7 +548,7 @@ export default class Mapper {
    */
   async findOneAndUpdate(collection, filter, update, options = {}): Promise<any> {
     const findOneAndUpdateOptions: any = { ...options };
-    this.messageBus.emit('findOneAndUpdate');
+    this.messageBus.emit('method:findOneAndUpdate', collection._collection, filter);
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
@@ -576,7 +579,7 @@ export default class Mapper {
   async insert(collection, docs, options: any = {}): Promise<any> {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions: any = {};
-    this.messageBus.emit('insert');
+    this.messageBus.emit('method:insert', collection._collection, docs);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -610,7 +613,7 @@ export default class Mapper {
    */
   async insertMany(collection, docs, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('insertMany');
+    this.messageBus.emit('method:insertMany', collection._collection, docs);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -645,7 +648,7 @@ export default class Mapper {
    */
   async insertOne(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('insertOne');
+    this.messageBus.emit('method:insertOne');
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -670,7 +673,7 @@ export default class Mapper {
    * @return {Boolean}
    */
   isCapped(collection): Promise<any> {
-    this.messageBus.emit('isCapped');
+    this.messageBus.emit('method:isCapped', collection._collection);
     return this.serviceProvider.isCapped(
       collection._database,
       collection._collection,
@@ -692,7 +695,7 @@ export default class Mapper {
    */
   remove(collection, query, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('remove');
+    this.messageBus.emit('method:remove', collection._collection, query);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -715,7 +718,7 @@ export default class Mapper {
   // TODO
   save(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('save');
+    this.messageBus.emit('method:save', collection._collection, doc);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -747,7 +750,7 @@ export default class Mapper {
    */
   async replaceOne(collection, filter, replacement, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('replaceOne');
+    this.messageBus.emit('method:replaceOne', collection._collection, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -778,13 +781,13 @@ export default class Mapper {
    * @returns {Promise} The promise of command results. TODO: command result object
    */
   runCommand(database, cmd): Promise<any> {
-    this.messageBus.emit('runCommand');
+    this.messageBus.emit('method:runCommand', database._database, cmd);
     return this.serviceProvider.runCommand(database._database, cmd);
   }
 
   async update(collection, filter, update, options: any = {}): Promise<any> {
     let result;
-    this.messageBus.emit('update');
+    this.messageBus.emit('method:update', collection._collection, filter);
     if (options.multi) {
       result = await this.serviceProvider.updateMany(
         collection._collection,
@@ -827,7 +830,7 @@ export default class Mapper {
    */
   async updateMany(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('updateMany')
+    this.messageBus.emit('method:updateMany', collection._collection, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -865,7 +868,7 @@ export default class Mapper {
    */
   async updateOne(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('updateOne')
+    this.messageBus.emit('method:updateOne', collection._collection, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;

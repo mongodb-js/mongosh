@@ -38,10 +38,10 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
-    this.bus = nanobus('monogsh');
-    const log = logger(this.bus)
+    this.bus = nanobus('mongosh');
+    const log = logger(this.bus);
 
-    this.bus.emit('connect', driverUri)
+    this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider, this.bus);
@@ -112,6 +112,7 @@ class CliRepl {
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
+      this.bus.emit('error', result);
       return formatOutput({type: 'Error', value: result});
     }
 

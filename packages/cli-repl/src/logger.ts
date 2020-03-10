@@ -22,109 +22,136 @@ function logger (bus) {
     log.info('cmd:help')
   })
 
-  bus.on('cmd:use', function(info) {
-    log.info('cmd:use', info)
+  bus.on('cmd:use', function(database) {
+    log.info('cmd:use', database)
+  })
+
+  bus.on('cmd:show', function(databases) {
+    log.info('cmd:show', databases)
   })
 
   bus.on('cmd:it', function(info) {
     log.info('cmd:it', info)
   })
 
-  bus.on('method:aggregate', function(coll, pipeline) {
-    log.info('method:aggregate', coll, pipeline)
+  bus.on('method:aggregate', function(collection, pipeline) {
+    const params = { collection, pipeline }
+    log.info('method:aggregate', params)
   })
 
-  bus.on('method:bulkWrite:start', function(coll) {
-    log.info('bulkWrite:start', coll)
+  bus.on('method:bulkWrite', function(collection, operations) {
+    const params = { collection, operations }
+    log.info('method:bulkWrite', params)
   })
 
-  bus.on('method:bulkWrite:result', function(result) {
-    log.info('bulkWrite:result', result)
+  bus.on('method:count', function(collection, query = {}) {
+    const params = { collection, query }
+    log.info('method:count', params)
   })
 
-  bus.on('method:count', function(coll, query = {}) {
-    log.info('method:count', coll, query)
-  })
-
-  bus.on('method:countDocuments', function(coll, query = {}, options) {
-    const params = {
-      collection: coll, 
-      query,
-      options 
-    }
+  bus.on('method:countDocuments', function(collection, query = {}, options) {
+    const params = { collection, query, options }
     log.info('method:countDocument', params)
   })
 
-  bus.on('deleteMany', function() {
+  bus.on('method:deleteMany', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:deleteMany', params)
   })
 
-  bus.on('deleteOne', function() {
+  bus.on('method:deleteOne', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:deleteOne', params)
   })
 
-  bus.on('distinct', function() {
+  bus.on('method:distinct', function(collection, field, query = {}) {
+    const params = { collection, query, options }
+    log.info('method:distinct', params)
   })
 
-  bus.on('estimatedDocumentCount', function() {
+  bus.on('method:estimatedDocumentCount', function(collection) {
+    const params = { collection }
+    log.info('method:estimatedDocumentCount', params)
   })
 
-  bus.on('method:find', function(coll, query = {}, projection = {}) {
-    const params = {
-      collection: coll, 
-      query,
-      projection
-    }
+  bus.on('method:find', function(collection, query = {}, projection = {}) {
+    const params = { collection, query, projection }
     log.info('method:find', params)
   })
 
-  bus.on('method:findOne', function(coll, query = {}, projection = {}) {
-    const params = {
-      collection: coll, 
-      query,
-      projection
-    }
+  bus.on('method:findOne', function(collection, query = {}, projection = {}) {
+    const params = { collection, query, projection }
     log.info('method:findOne', params)
   })
 
-  bus.on('findOneAndDelete', function() {
+  bus.on('method:findOneAndDelete', function(collection, filter = {}) {
+    const params = { collection, filter }
+    log.info('method:findOneAndDelete', params)
   })
 
-  bus.on('findOneAndReplace', function() {
+  bus.on('method:findOneAndReplace', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:findOneAndReplace', params)
   })
 
-  bus.on('findOneAndUpdate', function() {
+  bus.on('method:findOneAndUpdate', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:findOneAndUpdate', params)
   })
 
-  bus.on('insert', function() {
+  bus.on('method:insert', function(collection, docs) {
+    const params = { collection, docs }
+    log.info('method:insert', params)
   })
 
-  bus.on('insertMany', function() {
+  bus.on('method:insertMany', function(collection, docs) {
+    const params = { collection, docs }
+    log.info('method:insertMany', params)
   })
 
-  bus.on('insertOne', function() {
+  bus.on('method:insertOne', function(collection, doc) {
+    const params = { collection, doc }
+    log.info('method:insertOne', params)
   })
 
-  bus.on('isCapped', function() {
+  bus.on('method:isCapped', function(collection) {
+    const params = { collection }
+    log.info('method:isCapped', params)
   })
 
-  bus.on('remove', function() {
+  bus.on('method:remove', function(collection, query = {}) {
+    const params = { collection, query }
+    log.info('method:remove', params)
   })
 
-  bus.on('save', function() {
+  bus.on('method:save', function(collection, doc) {
+    const params = { collection, doc }
+    log.info('method:save', params)
   })
 
-  bus.on('replaceOne', function() {
+  bus.on('method:replaceOne', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:replaceOne', params)
   })
 
-  bus.on('runCommand', function() {
+  bus.on('method:runCommand', function(database, cmd) {
+    const params = { database, cmd }
+    log.info('method:runCommand', params)
   })
 
-  bus.on('update', function() {
+  bus.on('method:update', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:update', params)
   })
 
-  bus.on('updateMany', function() {
+  bus.on('method:updateMany', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:updateMany', params)
   })
 
-  bus.on('updateOne', function() {
+  bus.on('method:updateOne', function(collection, filter) {
+    const params = { collection, filter }
+    log.info('method:updateOne', params)
   })
 }
 
