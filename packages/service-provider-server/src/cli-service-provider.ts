@@ -5,8 +5,8 @@ import { ServiceProvider } from 'mongosh-service-provider-core';
 type BuildInfoResult = { version: string };
 
 type CustomWriteConcern = string;
-type WriteConcern = 0 | 1 | "majority" | CustomWriteConcern;
-type WriteConcernDoc = { w: WriteConcern, j: boolean, wtimeout: number };
+type WriteConcern = 0 | 1 | 'majority' | CustomWriteConcern;
+type WriteConcernDoc = { w: WriteConcern; j: boolean; wtimeout: number };
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
@@ -43,7 +43,6 @@ class CliServiceProvider implements ServiceProvider {
     pipeline: Document[] = [],
     options: Document = {},
     dbOptions: Document = {}): Cursor {
-
     return this.nodeTransport.aggregate(db, coll, pipeline, options, dbOptions);
   }
 
@@ -73,7 +72,6 @@ class CliServiceProvider implements ServiceProvider {
     pipeline: Document[] = [],
     options: Document = {},
     dbOptions: Document = {}): Cursor {
-
     return this.nodeTransport.aggregateDb(db, pipeline, options, dbOptions);
   }
 
@@ -97,7 +95,6 @@ class CliServiceProvider implements ServiceProvider {
     requests: Document,
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.bulkWrite(db, coll, requests, options, dbOptions);
   }
 
@@ -153,7 +150,6 @@ class CliServiceProvider implements ServiceProvider {
     query: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.count(db, coll, query, options, dbOptions);
   }
 
@@ -173,7 +169,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     filter: Document = {},
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.countDocuments(db, coll, filter, options);
   }
 
@@ -196,7 +191,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.deleteMany(db, coll, filter, options, dbOptions);
   }
 
@@ -219,7 +213,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document,
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.deleteOne(db, coll, filter, options, dbOptions);
   }
 
@@ -240,7 +233,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Cursor {
-
     return this.nodeTransport.distinct(db, coll, field, filter, options, dbOptions);
   }
 
@@ -257,7 +249,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     filter: Document = {},
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.estimatedDocumentCount(db, coll, filter, options);
   }
 
@@ -292,7 +283,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     query: Document = {},
     options: Document = {}): Cursor {
-
     return this.nodeTransport.find(db, coll, query, options);
   }
 
@@ -312,7 +302,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     filter: Document = {},
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.findOneAndDelete(db, coll, filter, options);
   }
 
@@ -335,7 +324,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     filter: Document = {},
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.findOneAndReplace(db, coll, filter, options);
   }
 
@@ -359,7 +347,6 @@ class CliServiceProvider implements ServiceProvider {
     coll: string,
     filter: Document = {},
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.findOneAndUpdate(db, coll, filter, options);
   }
 
@@ -383,7 +370,6 @@ class CliServiceProvider implements ServiceProvider {
     docs: Document[] = [],
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.insertMany(db, coll, docs, options, dbOptions);
   }
 
@@ -406,7 +392,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.insertOne(db, coll, filter, options, dbOptions);
   }
 
@@ -439,7 +424,6 @@ class CliServiceProvider implements ServiceProvider {
     query: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.remove(db, coll, query, options, dbOptions);
   }
 
@@ -449,7 +433,6 @@ class CliServiceProvider implements ServiceProvider {
     doc: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.save(db, coll, doc, options, dbOptions);
   }
 
@@ -475,7 +458,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.replaceOne(db, coll, filter, options, dbOptions);
   }
 
@@ -489,7 +471,6 @@ class CliServiceProvider implements ServiceProvider {
     db: string,
     spec: Document,
     options: Document = {}): Promise<Result> {
-
     return this.nodeTransport.runCommand(db, spec, options);
   }
 
@@ -525,7 +506,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.updateMany(db, coll, filter, options, dbOptions);
   }
 
@@ -552,7 +532,6 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-
     return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
   }
 
@@ -575,6 +554,33 @@ class CliServiceProvider implements ServiceProvider {
     }
 
     return result.version;
+  }
+
+  /**
+   * Drop a database
+   *
+   * @param {String} db - The database name.
+   * @param {WriteConcernDoc} writeConcern - The write concern.
+   *
+   * @returns {Promise<Result>} The result of the operation.
+   */
+  async dropDatabase(
+    db: string,
+    writeConcern?: WriteConcernDoc
+  ): Promise<Result> {
+    // Defaults are based on old shell implementation.
+    // See: https://github.com/mongodb/mongo/blob/d2b75b4e2a6d1e9db7cbb6120c34b0b44476828e/src/mongo/shell/db.js#L7
+    const defaultWriteConcern = {
+      w: 'majority',
+      wtimeout: 10 * 60 * 1000
+    };
+
+    return await this.nodeTransport.runCommand(db, {
+      dropDatabase: 1,
+      writeConcern: writeConcern ?
+        writeConcern :
+        defaultWriteConcern
+    });
   }
 }
 

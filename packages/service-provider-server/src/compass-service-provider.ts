@@ -4,15 +4,14 @@ import { NodeTransport } from 'mongosh-transport-server';
 
 interface DataService {
   client: {
-    client: MongoClient
-  }
+    client: MongoClient;
+  };
 }
 
 /**
  * A service provider that is meant to be used in compass.
  */
 class CompassServiceProvider extends CliServiceProvider {
-
   /**
    * Creates a new CompassServiceProvider that uses compass
    * data service (https://www.npmjs.com/package/mongodb-data-service) for
@@ -27,6 +26,6 @@ class CompassServiceProvider extends CliServiceProvider {
 
     return new CompassServiceProvider(nodeTransport);
   }
-};
+}
 
 export default CompassServiceProvider;
