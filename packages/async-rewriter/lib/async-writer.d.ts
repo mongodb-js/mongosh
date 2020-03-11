@@ -1,12 +1,13 @@
 import { ECMAScriptVisitor } from './antlr/ECMAScriptVisitor';
 export default class AsyncWriter extends ECMAScriptVisitor {
-    visit: any;
+    private visit;
     private inputStream;
     private commonTokenStream;
     readonly shellTypes: any;
-    readonly symbols: any;
-    constructor(chars: any, tokens: any, shellTypes: any, symbols: any);
-    rewriteTemplate(s: any): string;
+    symbols: any;
+    constructor(shellTypes: any);
+    formatter(s: any): string;
+    compile(input: any): string;
     visitChildren(ctx: any): string;
     visitEof(): string;
     visitEos(ctx: any): string;

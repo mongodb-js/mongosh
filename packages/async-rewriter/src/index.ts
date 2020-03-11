@@ -1,5 +1,3 @@
-import SymbolTable from './symbol-table';
-import compile from './compile';
+import AsyncWriter from './async-writer';
 
-export default compile;
-export { SymbolTable };
+export default AsyncWriter;
