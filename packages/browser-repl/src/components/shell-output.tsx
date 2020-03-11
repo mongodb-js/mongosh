@@ -11,11 +11,11 @@ interface ShellOutputProps {
 export class ShellOutput extends Component<ShellOutputProps> {
   static propTypes = {
     output: PropTypes.arrayOf(PropTypes.any).isRequired
-  }
+  };
 
   renderLine = (entry: ShellOutputEntry, index: number): JSX.Element => {
     return <ShellOutputLine key={`shell-output-entry-${index}`} entry={entry} />;
-  }
+  };
 
   render(): JSX.Element[] {
     return this.props.output.map(this.renderLine);

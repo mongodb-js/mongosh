@@ -26,7 +26,7 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
 
   renderDocument = (document, i): JSX.Element => {
     return <ObjectOutput key={`document-${i}`} value={document} />;
-  }
+  };
 }
 
 

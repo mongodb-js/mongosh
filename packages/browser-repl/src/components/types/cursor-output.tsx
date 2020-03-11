@@ -32,7 +32,7 @@ export class CursorOutput extends Component<CursorOutputProps> {
 
   renderDocument = (document, i): JSX.Element => {
     return <ObjectOutput key={`document-${i}`} value={document} />;
-  }
+  };
 }
 
 

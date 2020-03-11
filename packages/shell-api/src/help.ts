@@ -4,7 +4,7 @@ type HelpProperties = {
   help: string;
   docs?: string;
   attr?: HelpPropertiesAttr[];
-}
+};
 
 type HelpPropertiesAttr = {
   name: string;
@@ -13,14 +13,14 @@ type HelpPropertiesAttr = {
 
 type HelpOptions = {
   translate?(string): string;
-}
+};
 
 const DEFAULT_TRANSLATE = i18n.translateApiHelp.bind(i18n);
 
 export class Help {
   private help: string;
   private docs: string;
-  private attr: HelpPropertiesAttr[] = []
+  private attr: HelpPropertiesAttr[] = [];
 
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
     this.help = options.translate(properties.help);

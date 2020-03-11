@@ -7,7 +7,7 @@ import { LineWithIcon } from './line-with-icon';
 
 const styles = require('./expandable.less');
 
-type ExpandableProps = {}
+type ExpandableProps = {};
 
 interface ExpandableState {
   expanded: boolean;
@@ -35,7 +35,7 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
 
   toggle = (): void => {
     this.setState({ expanded: !this.state.expanded });
-  }
+  };
 
   render(): JSX.Element {
     const icon = (<Icon
