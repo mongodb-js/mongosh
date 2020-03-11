@@ -6,6 +6,10 @@ function logger (bus) {
   const dest = path.join(os.homedir(), './.mongosh_log')
   const log = pino({name: 'monogsh'}, pino.destination(dest))
 
+	bus.on('*', function() {
+    // log info from all events
+  })
+
   bus.on('connect', function(info) {
     log.info('connect', info)
   })
