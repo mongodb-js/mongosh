@@ -568,15 +568,8 @@ class CliServiceProvider implements ServiceProvider {
     db: string,
     writeConcern?: WriteConcernDoc
   ): Promise<Result> {
-    // Defaults are based on old shell implementation.
-    // See: https://github.com/mongodb/mongo/blob/d2b75b4e2a6d1e9db7cbb6120c34b0b44476828e/src/mongo/shell/db.js#L7
-    const defaultWriteConcern = {
-      w: 'majority',
-      wtimeout: 10 * 60 * 1000
-    };
-
     return await this.nodeTransport.dropDatabase(
-      db, writeConcern || defaultWriteConcern
+      db, writeConcern
     );
   }
 }
