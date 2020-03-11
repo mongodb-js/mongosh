@@ -26,7 +26,7 @@ import {
 
 import AsyncWriter from '@mongosh/async-rewriter';
 
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 
 export default class Mapper {
   private serviceProvider: ServiceProvider;

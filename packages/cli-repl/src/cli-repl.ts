@@ -38,6 +38,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
+    // @ts-ignore
     this.bus = nanobus('mongosh');
     const log = logger(this.bus);
 

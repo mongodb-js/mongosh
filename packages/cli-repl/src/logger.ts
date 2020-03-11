@@ -4,9 +4,9 @@ import os from 'os'
 
 function logger (bus) {
   const dest = path.join(os.homedir(), './.mongosh_log')
-  const log = pino({name: 'monogsh'}, pino.destination(dest))
+  const log = pino({ name: 'monogsh' }, pino.destination(dest))
 
-	bus.on('*', function() {
+  bus.on('*', function() {
     // log info from all events
   })
 
@@ -69,7 +69,7 @@ function logger (bus) {
   })
 
   bus.on('method:distinct', function(collection, field, query = {}) {
-    const params = { collection, query, options }
+    const params = { collection, field, query }
     log.info('method:distinct', params)
   })
 
