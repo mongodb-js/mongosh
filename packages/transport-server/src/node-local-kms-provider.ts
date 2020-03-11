@@ -1,8 +1,6 @@
 /**
  * Valid options for a Node Local KMS Provider.
  */
-interface NodeLocalKmsProvider {
+export default interface NodeLocalKmsProvider {
   key: string;
 }
-
-export default NodeLocalKmsProvider;

@@ -140,25 +140,6 @@ describe('NodeCursor', () => {
     });
   });
 
-  describe('#explain', () => {
-    let cursor;
-    let nodeCursor;
-    let mock;
-
-    beforeEach(() => {
-      mock = sinon.mock();
-      cursor = sinon.createStubInstance(Cursor, {
-        explain: mock
-      });
-      nodeCursor = new NodeCursor(cursor);
-    });
-
-    it('fluidly sets explain', () => {
-      expect(nodeCursor.explain()).to.equal(nodeCursor);
-      mock.verify();
-    });
-  });
-
   describe('#hasNext', () => {
     let cursor;
     let nodeCursor;

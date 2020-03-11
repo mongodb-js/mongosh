@@ -1,4 +1,5 @@
 import Cursor from './unsupported-cursor';
+import Document from './document';
 
 /**
  * Defines a cursor for an unsupported operation.
@@ -21,8 +22,8 @@ class UnsupportedCursor implements Cursor {
    *
    * @returns {Promise} The rejected promise.
    */
-  toArray(): Promise<Document[]> {
-    return Promise.reject(this.message);
+  async toArray(): Promise<Document[]> {
+    throw new Error(this.message);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Cursor as NativeCursor } from 'mongodb';
+import { Cursor as NativeCursor, CollationDocument } from 'mongodb';
 import { Cursor } from 'mongosh-transport-core';
 
 /**
@@ -85,9 +85,8 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  close(options: Document): NodeCursor {
-    this.cursor.close(options);
-    return this;
+  async close(options: Document): Promise<void> {
+    await this.cursor.close(options as any);
   }
 
   /**
@@ -106,7 +105,7 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  collation(spec: Document): NodeCursor {
+  collation(spec: CollationDocument): NodeCursor {
     this.cursor.collation(spec);
     return this;
   }
@@ -118,7 +117,7 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  comment(cmt: string) {
+  comment(cmt: string): Cursor {
     this.cursor.comment(cmt);
     return this;
   }
@@ -132,17 +131,7 @@ class NodeCursor implements Cursor {
     return this.cursor.count();
   }
 
-  /**
-   * Tell the cursor to execute an explain plan.
-   *
-   * @returns {NodeCursor} The cursor.
-   */
-  explain(): NodeCursor {
-    this.cursor.explain();
-    return this;
-  }
-
-  forEach(f) {
+  forEach(f): NodeCursor {
     this.cursor.forEach(f);
     return this;
   }
@@ -168,10 +157,6 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  getQueryPlan() {
-    this.cursor.explain('executionStats');
-    return this;
-  }
 
   /**
    * cursor.isExhausted() returns true if the cursor is closed and there are no
@@ -183,8 +168,8 @@ class NodeCursor implements Cursor {
     return this.cursor.isClosed() && !await this.cursor.hasNext();
   }
 
-  itcount() {
-    return this.cursor.toArray().length;
+  async itcount(): Promise<number> {
+    return (await this.cursor.toArray()).length;
   }
 
   /**
@@ -199,7 +184,7 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  map(f) {
+  map(f): NodeCursor {
     this.cursor.map(f);
     return this;
   }
@@ -240,12 +225,12 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  next() {
+  next(): Promise<any> {
     return this.cursor.next();
   }
 
-  modifiers() { // TODO
-    return this.cursor.cmd;
+  modifiers(): any { // TODO
+
   }
 
   /**
@@ -253,11 +238,12 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  noTimeout() {
-    return this.addFlag(Flag.NoTimeout);
+  noCursorTimeout(): NodeCursor {
+    this.addFlag(Flag.NoTimeout);
+    return this;
   }
 
-  objsLeftInBatch() {
+  objsLeftInBatch(): any {
     // TODO
   }
 
@@ -282,11 +268,11 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  pretty() {
+  pretty(): void {
     // TODO
   }
 
-  readConcern(v) {
+  readConcern(/** v */): any {
     // TODO
   }
 
@@ -298,7 +284,7 @@ class NodeCursor implements Cursor {
    * @returns {NodeCursor} The cursor.
    */
   readPref(preference: string): NodeCursor {
-    this.cursor.setReadPreference(preference);
+    this.cursor.setReadPreference(preference as any);
     return this;
   }
 
@@ -310,33 +296,37 @@ class NodeCursor implements Cursor {
    * @returns {NodeCursor} The cursor.
    */
   returnKey(enabled: boolean): NodeCursor {
-    this.cursor.returnKey(enabled);
+    this.cursor.returnKey(enabled as any);
     return this;
   }
 
-  /**
-   * Enable showing disk location.
-   *
-   * @returns {NodeCursor} The cursor.
-   */
-  showDiskLoc(): NodeCursor {
-    this.cursor.showRecordId(true);
-    return this;
-  }
+  // TODO: showRecordId takes an object:
+  // https://github.com/mongodb/node-mongodb-native/blob/4c852e7e926776c9aa7a74842accfcd813dafa87/lib/cursor/cursor.js#L341
+  // /**
+  //  * Enable showing disk location.
+  //  *
+  //  * @returns {NodeCursor} The cursor.
+  //  */
+  // showDiskLoc(): NodeCursor {
+  //   this.cursor.showRecordId(true);
+  //   return this;
+  // }
 
-  /**
-   * Enable/disable showing the disk location.
-   *
-   * @param {boolean} enabled - The value.
-   *
-   * @returns {NodeCursor} The cursor.
-   */
-  showRecordId(enabled: boolean): NodeCursor {
-    this.cursor.showRecordId(enabled);
-    return this;
-  }
+  // TODO: showRecordId takes an object:
+  // https://github.com/mongodb/node-mongodb-native/blob/4c852e7e926776c9aa7a74842accfcd813dafa87/lib/cursor/cursor.js#L341
+  // /**
+  //  * Enable/disable showing the disk location.
+  //  *
+  //  * @param {boolean} enabled - The value.
+  //  *
+  //  * @returns {NodeCursor} The cursor.
+  //  */
+  // showRecordId(enabled: boolean): NodeCursor {
+  //   this.cursor.showRecordId(enabled);
+  //   return this;
+  // }
 
-  size() {
+  size(): Promise<number> {
     return this.cursor.count(); // TODO: size same as count?
   }
 
@@ -373,7 +363,7 @@ class NodeCursor implements Cursor {
     return this.addFlag(Flag.Tailable);
   }
 
-  toArray() {
+  toArray(): Promise<any[]> {
     return this.cursor.toArray();
   }
 

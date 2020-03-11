@@ -48,7 +48,7 @@ describe('NodeTransport [ integration ]', function() {
 
       beforeEach(async() => {
         result = await nodeTransport.
-          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' }}]);
+          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' } }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -61,7 +61,7 @@ describe('NodeTransport [ integration ]', function() {
       let result;
 
       beforeEach(async() => {
-        result = await nodeTransport.aggregateDb('admin', [{ $currentOp: {}}]);
+        result = await nodeTransport.aggregateDb('admin', [{ $currentOp: {} }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -213,7 +213,7 @@ describe('NodeTransport [ integration ]', function() {
     context('when the find is valid', () => {
       let result;
       const filter = { name: 'Aphex Twin' };
-      const update = { $set: { name: 'Richard James' }};
+      const update = { $set: { name: 'Richard James' } };
 
       beforeEach(async() => {
         result = await nodeTransport.
@@ -296,7 +296,7 @@ describe('NodeTransport [ integration ]', function() {
 
   describe('#updateMany', () => {
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
+    const update = { $set: { name: 'Richard James' } };
     context('when the filter is empty', () => {
       let result;
 
@@ -313,7 +313,7 @@ describe('NodeTransport [ integration ]', function() {
 
   describe('#updateOne', () => {
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
+    const update = { $set: { name: 'Richard James' } };
     context('when the filter is empty', () => {
       let result;
 

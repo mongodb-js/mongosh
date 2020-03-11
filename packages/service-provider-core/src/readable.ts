@@ -91,7 +91,7 @@ interface Readable {
     fieldName: string,
     filter?: Document,
     options?: Document,
-    dbOptions?: Document) : Cursor;
+    dbOptions?: Document) : Promise<any>;
 
   /**
    * Get an estimated document count from the collection.

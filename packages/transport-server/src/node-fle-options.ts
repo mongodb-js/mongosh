@@ -6,10 +6,8 @@ import NodeKmsProviders from './node-kms-providers';
  *
  * @todo: Durran: Use JSON Schema type for schema map?
  */
-interface NodeFleOptions {
+export default interface NodeFleOptions {
   kmsProviders: NodeKmsProviders;
   keyVaultNamespace?: string;
   schemaMap?: any;
 }
-
-export default NodeFleOptions;

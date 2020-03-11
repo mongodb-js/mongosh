@@ -1,8 +1,7 @@
-import { Transport, Cursor, Result, StitchTransport } from 'mongosh-transport-core';
+import { Transport, Result, StitchTransport } from 'mongosh-transport-core';
 import {
   AnonymousCredential,
   RemoteMongoClient,
-  RemoteMongoDatabase,
   Stitch,
   StitchAppClient
 } from 'mongodb-stitch-server-sdk';
@@ -34,8 +33,7 @@ class StitchServerTransport implements Transport {
    */
   static async fromAppId(
     stitchAppId: string,
-    serviceName: string) : Promise<StitchServerTransport> {
-
+    serviceName: string): Promise<StitchServerTransport> {
     const client = Stitch.initializeDefaultAppClient(stitchAppId);
     try {
       await client.auth.loginWithCredential(new AnonymousCredential());
@@ -63,8 +61,7 @@ class StitchServerTransport implements Transport {
   aggregate(
     database: string,
     collection: string,
-    pipeline: object[] = []) : any {
-
+    pipeline: object[] = []): any {
     return this.stitchTransport.aggregate(database, collection, pipeline);
   }
 
@@ -73,7 +70,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Promise} The rejected promise.
    */
-  bulkWrite() : Promise<Result> {
+  bulkWrite(): Promise<Result> {
     return this.stitchTransport.bulkWrite();
   }
 
@@ -91,8 +88,7 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.countDocuments(database, collection, filter, options);
   }
 
@@ -130,8 +126,7 @@ class StitchServerTransport implements Transport {
   deleteMany(
     database: string,
     collection: string,
-    filter: object = {}) : Promise<Result> {
-
+    filter: object = {}): Promise<Result> {
     return this.stitchTransport.deleteMany(database, collection, filter);
   }
 
@@ -148,8 +143,7 @@ class StitchServerTransport implements Transport {
   deleteOne(
     database: string,
     collection: string,
-    filter: object = {}) : Promise<Result> {
-
+    filter: object = {}): Promise<Result> {
     return this.stitchTransport.deleteOne(database, collection, filter);
   }
 
@@ -158,7 +152,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Cursor} The rejected promise.
    */
-  distinct() : Cursor {
+  distinct(): Promise<any> {
     return this.stitchTransport.distinct();
   }
 
@@ -167,7 +161,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Promise} The rejected promise.
    */
-  estimatedDocumentCount() : Promise<Result> {
+  estimatedDocumentCount(): Promise<Result> {
     return this.stitchTransport.estimatedDocumentCount();
   }
 
@@ -185,8 +179,7 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : any {
-
+    options: object = {}): any {
     return this.stitchTransport.find(database, collection, filter, options);
   }
 
@@ -204,8 +197,7 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndDelete(database, collection, filter, options);
   }
 
@@ -225,8 +217,7 @@ class StitchServerTransport implements Transport {
     collection: string,
     filter: object = {},
     replacement: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndReplace(database, collection, filter, replacement, options);
   }
 
@@ -246,8 +237,7 @@ class StitchServerTransport implements Transport {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndUpdate(database, collection, filter, update, options);
   }
 
@@ -265,8 +255,8 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     docs: object[] = [],
-    options: object = {}) : Promise<Result> {
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.insertMany(database, collection, docs);
   }
 
@@ -284,8 +274,8 @@ class StitchServerTransport implements Transport {
     database: string,
     collection: string,
     doc: object = {},
-    options: object = {}) : Promise<Result> {
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.insertOne(database, collection, doc);
   }
 
@@ -294,7 +284,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Promise} The rejected promise.
    */
-  replaceOne() : Promise<Result> {
+  replaceOne(): Promise<Result> {
     return this.stitchTransport.replaceOne();
   }
 
@@ -303,7 +293,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {Promise} The rejected promise.
    */
-  runCommand() : Promise<Result> {
+  runCommand(): Promise<Result> {
     return this.stitchTransport.runCommand();
   }
 
@@ -323,8 +313,7 @@ class StitchServerTransport implements Transport {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.updateMany(database, collection, filter, update, options);
   }
 
@@ -344,8 +333,7 @@ class StitchServerTransport implements Transport {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.updateOne(database, collection, filter, update, options);
   }
 
@@ -354,7 +342,7 @@ class StitchServerTransport implements Transport {
    *
    * @returns {String} The user id.
    */
-  get userId() : string {
+  get userId(): string {
     return this.stitchTransport.userId;
   }
 }

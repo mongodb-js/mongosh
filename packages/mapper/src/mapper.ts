@@ -339,7 +339,7 @@ export default class Mapper {
       collection._collection,
       field,
       query,
-      options,
+      options
     );
   }
 
