@@ -171,7 +171,7 @@ describe('StitchTransport', () => {
     });
 
     it('rejects the promise', () => {
-      return stitchTransport.distinct('music', 'bands', 'name').toArray().catch((error) => {
+      return stitchTransport.distinct('music', 'bands', 'name').catch((error) => {
         expect(error).to.not.equal(null);
       });
     });
