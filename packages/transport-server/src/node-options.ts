@@ -5,7 +5,7 @@ import NodeFleOptions from './node-fle-options';
  * Valid options that can be used with the Node driver. This is a
  * partial list of things that need to be mapped.
  */
-interface NodeOptions {
+export default interface NodeOptions {
   auth?: NodeAuthOptions;
   authSource?: string;
   authMechanism?: string;
@@ -20,5 +20,3 @@ interface NodeOptions {
   tlsCertificateKeyFile?: string;
   tlsCertificateKeyFilePassword?: string;
 }
-
-export default NodeOptions;

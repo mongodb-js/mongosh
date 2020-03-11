@@ -132,8 +132,8 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> imple
    *
    * @returns {Cursor} The rejected promise when toArray is called.
    */
-  distinct() : Cursor {
-    return new UnsupportedCursor(`Distinct ${i18n.__(NOT_IMPLEMENTED)}`);
+  distinct() : Promise<any> {
+    return Promise.resolve(new UnsupportedCursor(`Distinct ${i18n.__(NOT_IMPLEMENTED)}`));
   }
 
   /**

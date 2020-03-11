@@ -20,6 +20,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
     before(async() => {
       stitchTransport = await StitchServerTransport.fromAppId(stitchAppId, serviceName);
+      // eslint-disable-next-line @typescript-eslint/camelcase
       testScope = { testId: testId, owner_id: stitchTransport.userId };
     });
 
@@ -39,7 +40,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
         beforeEach(async() => {
           result = await stitchTransport.
-            aggregate('music', 'bands', [{ $match: { ...testScope, name: 'Aphex Twin' }}]);
+            aggregate('music', 'bands', [{ $match: { ...testScope, name: 'Aphex Twin' } }]);
         });
 
         it('executes the command and resolves the result', async() => {
@@ -49,8 +50,8 @@ describe('StitchServerTransport [ integration ]', function() {
       });
 
       context('when running against a database', () => {
-        it.skip('it rejects the action', () => {
-          return stitchTransport.aggregate('admin', null, [{ $currentOp: {}}]).catch((err) => {
+        it('it rejects the action', () => {
+          return stitchTransport.aggregate('admin', null, [{ $currentOp: {} }]).catch((err) => {
             expect(err).to.not.equal(null);
           });
         });
@@ -185,7 +186,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             findOneAndUpdate('music', 'bands', filter, update);
@@ -257,7 +258,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             updateMany('music', 'bands', filter, update);
@@ -275,7 +276,7 @@ describe('StitchServerTransport [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             updateOne('music', 'bands', filter, update);
@@ -288,6 +289,9 @@ describe('StitchServerTransport [ integration ]', function() {
     });
   } else {
     /* eslint no-console:0 */
-    console.log('Could not run Stitch Server integration tests: process.env: ', process.env);
+    console.log('Could not run Stitch Server integration tests: process.env: ', {
+      MONGOSH_STITCH_TEST_APP_ID: process.env.MONGOSH_STITCH_TEST_APP_ID,
+      MONGOSH_STITCH_TEST_SERVICE_NAME: process.env.MONGOSH_STITCH_TEST_SERVICE_NAME
+    });
   }
 });

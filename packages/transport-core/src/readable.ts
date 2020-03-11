@@ -55,7 +55,7 @@ interface Readable {
     collection: string,
     fieldName: string,
     filter: Document,
-    options: Document) : Cursor;
+    options: Document) : Promise<any>;
 
   /**
    * Get an estimated document count from the collection.

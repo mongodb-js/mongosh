@@ -232,7 +232,7 @@ class CliServiceProvider implements ServiceProvider {
     field: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Cursor {
+    dbOptions: Document = {}): Promise<any> {
     return this.nodeTransport.distinct(db, coll, field, filter, options, dbOptions);
   }
 

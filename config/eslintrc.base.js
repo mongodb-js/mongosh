@@ -19,10 +19,15 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 0, // seems necessary to import less files
     '@typescript-eslint/no-unused-vars': 2,
     'mocha/no-skipped-tests': 1,
-    'mocha/no-exclusive-tests': 2
+    'mocha/no-exclusive-tests': 2,
+    'semi': 0,
+    '@typescript-eslint/semi': [2, 'always']
   },
   overrides: [{
     files: ['**/*.js'],
-    rules: ruleOverridesForJs
+    rules: {
+      ...ruleOverridesForJs,
+      semi: [2, 'always']
+    }
   }]
 };
