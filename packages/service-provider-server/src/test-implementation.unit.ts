@@ -475,10 +475,7 @@ export default function testImplementationUnit(ServiceProviderImpl): void {
     context('when write concern is omitted', () => {
       it('executes the command against the database with default write concern', async() => {
         dropDatabaseMock.once().withArgs('db1');
-        await serviceProvider.dropDatabase('db1', {
-          w: 'majority',
-          wtimeout: 600000
-        });
+        await serviceProvider.dropDatabase('db1');
         dropDatabaseMock.verify();
       });
     });
