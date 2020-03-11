@@ -7,7 +7,7 @@ describe('CompassServiceProvider', () => {
     it('creates a new CompassServiceProvider', () => {
       const instance = CompassServiceProvider.fromDataService({
         client: {
-          client: {}
+          client: {} as any
         }
       });
 
