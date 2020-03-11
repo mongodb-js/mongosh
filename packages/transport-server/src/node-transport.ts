@@ -53,7 +53,8 @@ class NodeTransport implements Transport {
     database: string,
     collection: string,
     pipeline: Document[] = [],
-    options: Document = {}): Cursor {
+    options: Document = {},
+    dbOptions: Document = {}): Cursor {
     return new NodeCursor(
       this.db(database).collection(collection).aggregate(pipeline, options)
     );

@@ -1,3 +1,5 @@
-type Document = object;
+interface Document {
+  [prop: string]: any
+};
 
 export default Document;
