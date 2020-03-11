@@ -23,20 +23,44 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ECMAScriptVisitor_1 = require("./antlr/ECMAScriptVisitor");
+var ECMAScriptLexer_1 = require("./antlr/ECMAScriptLexer");
+var ECMAScriptParser_1 = require("./antlr/ECMAScriptParser");
+var antlr4_1 = __importDefault(require("antlr4"));
+var symbol_table_1 = __importDefault(require("./symbol-table"));
+var TSParser = (function (_super) {
+    __extends(TSParser, _super);
+    function TSParser() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return TSParser;
+}(ECMAScriptParser_1.ECMAScriptParser));
 var AsyncWriter = (function (_super) {
     __extends(AsyncWriter, _super);
-    function AsyncWriter(chars, tokens, shellTypes, symbols) {
+    function AsyncWriter(shellTypes) {
         var _this = _super.call(this) || this;
-        _this.inputStream = chars;
-        _this.commonTokenStream = tokens;
         _this.shellTypes = shellTypes;
-        _this.symbols = symbols;
+        _this.symbols = new symbol_table_1.default({}, shellTypes);
         return _this;
     }
-    AsyncWriter.prototype.rewriteTemplate = function (s) {
-        return "(await " + s + ")";
+    AsyncWriter.prototype.formatter = function (s) {
+        return "(async " + s + ")";
+    };
+    AsyncWriter.prototype.compile = function (input) {
+        var chars = new antlr4_1.default.InputStream(input);
+        var lexer = new ECMAScriptLexer_1.ECMAScriptLexer(chars);
+        lexer.strictMode = false;
+        var tokens = new antlr4_1.default.CommonTokenStream(lexer);
+        var parser = new TSParser(tokens);
+        parser.buildParseTrees = true;
+        var tree = parser.program();
+        this.inputStream = chars;
+        this.commonTokenStream = tokens;
+        return this.visit(tree);
     };
     AsyncWriter.prototype.visitChildren = function (ctx) {
         var _this = this;
@@ -126,7 +150,7 @@ var AsyncWriter = (function (_super) {
         var lhsType = lhsNode.type;
         ctx.type = lhsType.returnType;
         if (lhsType.type === 'function' && lhsType.returnsPromise) {
-            return this.rewriteTemplate("" + lhs + rhs);
+            return this.formatter("" + lhs + rhs);
         }
         return "" + lhs + rhs;
     };

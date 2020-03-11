@@ -1,5 +1,4 @@
 import { CliServiceProvider, NodeOptions } from 'mongosh-service-provider-server';
-import compile from 'mongosh-async-rewriter';
 import ShellApi, { types } from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
@@ -195,9 +194,10 @@ class CliRepl {
       try {
         let str;
         if (this.useAntlr) {
-          const syncStr = compile(input, types, this.mapper.scope);
-          console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
+          console.log(`DEBUG: antlr turned off for the moment`);
+          // const syncStr = this.mapper.asyncWriter.compile(input, types, this.mapper.scope);
+          // console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
+          // str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
         } else {
           str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
         }
