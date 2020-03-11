@@ -31,7 +31,7 @@ export class AceAutocompleterAdapter {
         ));
       })
       .catch(done);
-  }
+  };
 
   adaptCompletion = (prefix: string, line: string, completion: Completion): AceCompletion => {
     // We convert the completion to the ACE editor format by taking only
@@ -41,5 +41,5 @@ export class AceAutocompleterAdapter {
       caption: value,
       value: value
     };
-  }
+  };
 }

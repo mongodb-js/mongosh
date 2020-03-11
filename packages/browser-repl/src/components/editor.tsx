@@ -39,7 +39,7 @@ export class Editor extends Component<EditorProps> {
     onArrowDownOnLastLine: noop,
     onChange: noop,
     value: ''
-  }
+  };
 
   private editor: any;
 
@@ -55,7 +55,7 @@ export class Editor extends Component<EditorProps> {
 
       tools.setCompleters([new AceAutocompleterAdapter(this.props.autocompleter)]);
     }
-  }
+  };
 
   render(): JSX.Element {
     return (<AceEditor

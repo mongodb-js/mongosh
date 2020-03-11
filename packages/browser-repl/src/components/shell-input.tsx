@@ -58,7 +58,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
 
   private onChange = (value: string): void => {
     this.setState({ currentValue: value });
-  }
+  };
 
   private syncCurrentValueWithHistoryNavigation(): void {
     const value = this.historyNavigationEntries[this.historyNavigationIndex];
@@ -80,7 +80,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.historyNavigationIndex++;
 
     this.syncCurrentValueWithHistoryNavigation();
-  }
+  };
 
   private historyNext = (): void => {
     if (this.historyNavigationIndex <= 0) {
@@ -90,7 +90,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.historyNavigationIndex--;
 
     this.syncCurrentValueWithHistoryNavigation();
-  }
+  };
 
   private onEnter = (): void => {
     const currentValue = this.state.currentValue;
@@ -105,7 +105,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.setState({
       currentValue: ''
     });
-  }
+  };
 
   render(): JSX.Element {
     const icon = (<Icon

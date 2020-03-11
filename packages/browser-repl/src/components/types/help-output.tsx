@@ -9,7 +9,7 @@ type HelpApiObject = {
   help: string;
   docs: string;
   attr: HelpApiObjectAttr[];
-}
+};
 
 type HelpApiObjectAttr = {
   name: string;
@@ -31,14 +31,14 @@ export class HelpOutput extends Component<HelpOutputProps> {
     return (<table>
       <tbody>{attr.map(this.renderAttrTableRow)}</tbody>
     </table>);
-  }
+  };
 
   renderAttrTableRow = (attr: HelpApiObjectAttr, i: number): JSX.Element => {
     return (<tr key={`row-${i}`}>
       <th>{attr.name}</th>
       <td>{attr.description}</td>
     </tr>);
-  }
+  };
 
   renderHelpDocsLink(docs: string): JSX.Element {
     if (!docs) { return; }

@@ -130,7 +130,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
 
     return outputLine;
-  }
+  };
 
   private addEntryToHistory(code: string): readonly string[] {
     const history = [
@@ -178,7 +178,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
     this.props.onOutputChanged(output);
     this.props.onHistoryChanged(history);
-  }
+  };
 
   private scrollToBottom(): void {
     if (!this.shellInputElement) {
