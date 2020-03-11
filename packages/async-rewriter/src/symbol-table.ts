@@ -1,4 +1,14 @@
 /* eslint no-console:0 */
+/**
+ * Symbol Table implementation, which is a stack of key-value maps.
+ *
+ * A single symbol has a name and type attribute.
+ * The type attribute will be one of:
+ *     unknown: { type: 'unknown', attributes?: {} }
+ *     function: { type: 'function', returnsPromise?: bool, returnType?: type name or obj, attributes?: {} }
+ *     class instance: { type: classname, attributes?: {} }
+ *     class definition: { type: 'classdef', returnType: type name or obj }
+ */
 export default class SymbolTable {
   readonly scopeStack: any;
   readonly types: any;
