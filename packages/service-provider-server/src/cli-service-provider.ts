@@ -575,12 +575,9 @@ class CliServiceProvider implements ServiceProvider {
       wtimeout: 10 * 60 * 1000
     };
 
-    return await this.nodeTransport.runCommand(db, {
-      dropDatabase: 1,
-      writeConcern: writeConcern ?
-        writeConcern :
-        defaultWriteConcern
-    });
+    return await this.nodeTransport.dropDatabase(
+      db, writeConcern || defaultWriteConcern
+    );
   }
 }
 

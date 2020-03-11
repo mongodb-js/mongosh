@@ -35,7 +35,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#aggregate', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const pipeline = [{ $match: { name: 'Aphex Twin' }}];
     const aggResult = [{ name: 'Aphex Twin' }];
     const aggMock = sinon.mock().withArgs(pipeline).
@@ -61,7 +61,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#bulkWrite', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const requests = [{ insertOne: { name: 'Aphex Twin' }}];
     const commandResult = { result: { nInserted: 1, ok: 1 }};
     const bulkMock = sinon.mock().once().withArgs(requests).resolves(commandResult);
@@ -85,7 +85,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#countDocuments', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const countResult = 10;
     const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
@@ -108,7 +108,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#deleteMany', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { result: { n: 1, ok: 1 }};
     const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
@@ -131,7 +131,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#deleteOne', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { result: { n: 1, ok: 1 }};
     const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
@@ -154,7 +154,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#distinct', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const distinctResult = [ 'Aphex Twin' ];
     const distinctMock = sinon.mock().once().
       withArgs('name', {}, {}).resolves(distinctResult);
@@ -178,7 +178,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#estimatedDocumentCount', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const countResult = 10;
     const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
@@ -201,7 +201,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#find', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
     const findMock = sinon.mock().withArgs(filter).
@@ -227,7 +227,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#findOneAndDelete', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { result: { n: 1, ok: 1 }};
     const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
@@ -250,7 +250,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#findOneAndReplace', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { result: { n: 1, ok: 1 }};
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
@@ -277,7 +277,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#findOneAndUpdate', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { result: { n: 1, ok: 1 }};
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
@@ -304,7 +304,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#insertMany', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 }};
     const insertMock = sinon.mock().once().withArgs([ doc ]).resolves(commandResult);
@@ -328,7 +328,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#insertOne', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 }};
     const insertMock = sinon.mock().once().withArgs(doc).resolves(commandResult);
@@ -352,7 +352,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#replaceOne', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
     const commandResult = { result: { n: 1, ok: 1 }};
@@ -380,7 +380,7 @@ describe('NodeTransport', () => {
   describe('#runCommand', () => {
     let clientStub;
     let dbStub;
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const commandResult = { ismaster: true };
     const commandMock = sinon.mock().
       withArgs({ ismaster: 1 }).resolves(commandResult);
@@ -409,7 +409,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#updateOne', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
     const commandResult = { result: { n: 1, ok: 1 }};
@@ -435,7 +435,7 @@ describe('NodeTransport', () => {
   });
 
   describe('#updateMany', () => {
-    let nodeTransport;
+    let nodeTransport: NodeTransport;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
     const commandResult = { result: { n: 1, ok: 1 }};
@@ -457,6 +457,62 @@ describe('NodeTransport', () => {
       const result = await nodeTransport.updateMany('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
       updateMock.verify();
+    });
+  });
+
+  describe('#dropDatabase', () => {
+    let dropDatabaseMock;
+    let nodeTransport: NodeTransport;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      dropDatabaseMock = sinon.mock().resolves(true);
+
+      const dbStub = sinon.createStubInstance(Db, {
+        dropDatabase: dropDatabaseMock
+      });
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+
+      nodeTransport = new NodeTransport(clientStub);
+    });
+
+    it('returns ok: 1 if dropped', async() => {
+      const result = await nodeTransport.dropDatabase('db1');
+      expect(result).to.contain({ ok: 1 });
+    });
+
+    it('returns ok: 0 if not dropped', async() => {
+      dropDatabaseMock.resolves(false);
+      const result = await nodeTransport.dropDatabase('db1');
+      expect(result).to.contain({ ok: 0 });
+    });
+
+    it('returns dropped: "db name" if dropped', async() => {
+      const result = await nodeTransport.dropDatabase('db1');
+      expect(result).to.contain({ dropped: 'db1' });
+    });
+
+    context('when write concern is omitted', () => {
+      it('runs against the database with default write concern', async () => {
+        dropDatabaseMock.once().withArgs();
+        await nodeTransport.dropDatabase('db1');
+        expect(clientStub.db.calledOnce);
+        expect(clientStub.db.calledWith('db1'));
+        dropDatabaseMock.verify();
+      });
+    });
+
+    context('with write concern', () => {
+      it('runs against the database passing write concern', async() => {
+        dropDatabaseMock.once().withArgs({ w: 1 });
+        await nodeTransport.dropDatabase('db1', { w: 1 });
+        expect(clientStub.db.calledOnce);
+        expect(clientStub.db.calledWith('db1'));
+        dropDatabaseMock.verify();
+      });
     });
   });
 });

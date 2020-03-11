@@ -3,6 +3,11 @@ import { Transport, Cursor, Result, Document } from 'mongosh-transport-core';
 import NodeCursor from './node-cursor';
 import NodeOptions from './node-options';
 
+type DropDatabaseResult = {
+  ok: 0 | 1;
+  dropped?: string;
+};
+
 /**
  * Default driver options we always use.
  */
@@ -26,7 +31,7 @@ class NodeTransport implements Transport {
    *
    * @returns {NodeTransport} The Node transport.
    */
-  static async fromURI(uri: string, options: NodeOptions = {}) : Promise<NodeTransport> {
+  static async fromURI(uri: string, options: NodeOptions = {}): Promise<NodeTransport> {
     const mongoClient = new MongoClient(uri, { ...DEFAULT_OPTIONS, ...options });
     await mongoClient.connect();
     return new NodeTransport(mongoClient);
@@ -48,9 +53,7 @@ class NodeTransport implements Transport {
     database: string,
     collection: string,
     pipeline: Document[] = [],
-    options: Document = {},
-    dbOptions: Document = {}) : Cursor {
-
+    options: Document = {}): Cursor {
     return new NodeCursor(
       this.db(database).collection(collection).aggregate(pipeline, options)
     );
@@ -69,14 +72,13 @@ class NodeTransport implements Transport {
    * @returns {Cursor} The aggregation cursor.
    */
   aggregateDb(
-      database: string,
-      pipeline: Document[] = [],
-      options: Document = {},
-      dbOptions: Document = {}) : Cursor {
-
-      return new NodeCursor(
-        this.db(database, dbOptions).aggregate(pipeline, options)
-      );
+    database: string,
+    pipeline: Document[] = [],
+    options: Document = {},
+    dbOptions: Document = {}): Cursor {
+    return new NodeCursor(
+      this.db(database, dbOptions).aggregate(pipeline, options)
+    );
   }
 
   /**
@@ -95,8 +97,7 @@ class NodeTransport implements Transport {
     collection: string,
     requests: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       bulkWrite(requests, options);
   }
@@ -122,11 +123,12 @@ class NodeTransport implements Transport {
    * @returns {Promise} The promise of the count.
    */
   count(
-      database: string,
-      collection: string,
-      query: Document = {},
-      options: Document = {},
-      dbOptions: Document = {}) : Promise<Result> {
+    database: string,
+    collection: string,
+    query: Document = {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).count(query);
   }
 
@@ -145,8 +147,7 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       countDocuments(filter, options);
   }
@@ -177,8 +178,7 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       deleteMany(filter, options);
   }
@@ -199,8 +199,7 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       deleteOne(filter, options);
   }
@@ -223,8 +222,7 @@ class NodeTransport implements Transport {
     fieldName: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Cursor {
-
+    dbOptions: Document = {}): Cursor {
     return this.db(database, dbOptions).collection(collection).
       distinct(fieldName, filter, options);
   }
@@ -243,8 +241,7 @@ class NodeTransport implements Transport {
     database: string,
     collection: string,
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       estimatedDocumentCount(options);
   }
@@ -263,20 +260,16 @@ class NodeTransport implements Transport {
     database: string,
     collection: string,
     filter: Document = {},
-    options: Document = {}) : Cursor {
-
-    const findOptions = { ...options };
+    options: Document = {}): Cursor {
+    const findOptions: any = { ...options };
     if ('allowPartialResults' in findOptions) {
-      // @ts-ignore
       findOptions.partial = findOptions.allowPartialResults;
     }
     if ('noCursorTimeout' in findOptions) {
-      // @ts-ignore
       findOptions.timeout = findOptions.noCursorTimeout;
     }
     if ('tailable' in findOptions) {
-      // @ts-ignore
-      findOptions.cursorType  = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE' // TODO
+      findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
     }
     return new NodeCursor(
       this.db(database).collection(collection).find(filter, options)
@@ -299,8 +292,7 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       findOneAndDelete(filter, options);
   }
@@ -321,13 +313,10 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     replacement: Document = {},
-    options: Document = {}) : Promise<Result> {
-
-    const findOneAndReplaceOptions = { ...options };
+    options: Document = {}): Promise<Result> {
+    const findOneAndReplaceOptions: any = { ...options };
     if ('returnDocument' in options) {
-      // @ts-ignore
       findOneAndReplaceOptions.returnOriginal = options.returnDocument;
-      // @ts-ignore
       delete findOneAndReplaceOptions.returnDocument;
     }
     return this.db(database).collection(collection).
@@ -350,14 +339,11 @@ class NodeTransport implements Transport {
     collection: string,
     filter: Document = {},
     update: Document = {},
-    options: Document = {}) : Promise<Result> {
-
-    const findOneAndUpdateOptions = { ...options };
+    options: Document = {}): Promise<Result> {
+    const findOneAndUpdateOptions: any = { ...options };
     if ('returnDocument' in options) {
-      // @ts-ignore
-      findOneAndReplaceOptions.returnOriginal = options.returnDocument;
-      // @ts-ignore
-      delete findOneAndReplaceOptions.returnDocument;
+      findOneAndUpdateOptions.returnOriginal = options.returnDocument;
+      delete findOneAndUpdateOptions.returnDocument;
     }
     return this.db(database).collection(collection).
       findOneAndUpdate(filter, update, findOneAndUpdateOptions);
@@ -379,8 +365,7 @@ class NodeTransport implements Transport {
     collection: string,
     docs: Document[] = [],
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       insertMany(docs, options);
   }
@@ -401,8 +386,7 @@ class NodeTransport implements Transport {
     collection: string,
     doc: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       insertOne(doc, options);
   }
@@ -415,8 +399,8 @@ class NodeTransport implements Transport {
    * @returns {Promise} The promise of the result.
    */
   isCapped(
-      database: string,
-      collection: string) : Promise<Result> {
+    database: string,
+    collection: string): Promise<Result> {
     return this.db(database).collection(collection).isCapped();
   }
 
@@ -434,8 +418,7 @@ class NodeTransport implements Transport {
     collection: string,
     query: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       remove(query, options);
   }
@@ -458,8 +441,7 @@ class NodeTransport implements Transport {
     collection: string,
     doc: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       save(doc, options);
   }
@@ -482,8 +464,7 @@ class NodeTransport implements Transport {
     filter: Document = {},
     replacement: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       replaceOne(filter, replacement, options);
   }
@@ -498,9 +479,9 @@ class NodeTransport implements Transport {
    * @returns {Promise} The promise of command results.
    */
   runCommand(
-      database: string,
-      spec: Document = {},
-      options: Document = {}) : Promise<Result> {
+    database: string,
+    spec: Document = {},
+    options: Document = {}): Promise<Result> {
     return this.db(database).command(spec, options);
   }
 
@@ -511,7 +492,7 @@ class NodeTransport implements Transport {
    *
    * @returns {Promise} The promise of command results.
    */
-  listDatabases(database: string) : Promise<Result> {
+  listDatabases(database: string): Promise<Result> {
     return this.db(database).admin().listDatabases();
   }
 
@@ -533,8 +514,7 @@ class NodeTransport implements Transport {
     filter: Document = {},
     update: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       updateMany(filter, update, options);
   }
@@ -557,8 +537,7 @@ class NodeTransport implements Transport {
     filter: Document = {},
     update: Document = {},
     options: Document = {},
-    dbOptions: Document = {}) : Promise<Result> {
-
+    dbOptions: Document = {}): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       updateOne(filter, update, options);
   }
@@ -571,11 +550,33 @@ class NodeTransport implements Transport {
    *
    * @returns {Db} The database.
    */
-  private db(name: string, options: Document = {}) : Db {
+  private db(name: string, options: Document = {}): Db {
     if (Object.keys(options).length !== 0) {
       return this.mongoClient.db(name, options);
     }
     return this.mongoClient.db(name);
+  }
+
+  /**
+   * Drop a database
+   *
+   * @param {String} db - The database name.
+   * @param {WriteConcernDoc} writeConcern - The write concern.
+   *
+   * @returns {Promise<Result>} The result of the operation.
+   */
+  async dropDatabase(
+    db: string,
+    writeConcern: Document = {}
+  ): Promise<DropDatabaseResult> {
+    const nativeResult = await this.db(db)
+      .dropDatabase(writeConcern);
+
+    const ok = nativeResult ? 1 : 0;
+    return {
+      ok,
+      ...(ok ? { dropped: db } : {})
+    };
   }
 }
 

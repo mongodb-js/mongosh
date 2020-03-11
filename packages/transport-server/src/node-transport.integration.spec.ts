@@ -1,22 +1,38 @@
 import NodeTransport from './node-transport';
 import { expect } from 'chai';
+import { MongoClient } from 'mongodb';
 
 describe('NodeTransport [ integration ]', function() {
   this.timeout(30000);
-  before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port: 27018 }));
+
+  const port = 27018;
+  const connectionString = `mongodb://localhost:${port}`;
+
+  before(require('mongodb-runner/mocha/before')({ port, timeout: 60000 }));
+  after(require('mongodb-runner/mocha/after')({ port }));
+
+  let client;
+  let dbName;
+  let db;
+  let nodeTransport: NodeTransport;
+
+  beforeEach(async() => {
+    client = await MongoClient.connect(
+      connectionString,
+      { useUnifiedTopology: true }
+    );
+
+    dbName = `test-db-${Date.now()}`;
+    db = client.db(dbName);
+    nodeTransport = new NodeTransport(client);
+  });
+
+  afterEach(() => {
+    client.close(true);
+    return nodeTransport.close(true);
+  });
 
   describe('.fromURI', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     it('returns a NodeTransport with mongo client set', () => {
       expect(nodeTransport.mongoClient).to.not.equal(undefined);
     });
@@ -27,16 +43,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#aggregate', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when running against a collection', () => {
       let result;
 
@@ -66,16 +72,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#bulkWrite', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
       const requests = [{
@@ -97,16 +93,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#countDocuments', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
 
@@ -121,16 +107,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#deleteMany', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
 
@@ -145,16 +121,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#deleteOne', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
 
@@ -169,16 +135,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#distinct', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the distinct is valid', () => {
       let result;
 
@@ -193,16 +149,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#estimatedDocumentCount', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when no options are provided', () => {
       let result;
 
@@ -217,16 +163,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#find', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the find is valid', () => {
       let result;
 
@@ -242,16 +178,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndDelete', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the find is valid', () => {
       let result;
       const filter = { name: 'Aphex Twin' };
@@ -267,16 +193,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndReplace', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the find is valid', () => {
       let result;
       const filter = { name: 'Aphex Twin' };
@@ -294,16 +210,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#findOneAndUpdate', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the find is valid', () => {
       let result;
       const filter = { name: 'Aphex Twin' };
@@ -321,16 +227,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#insertMany', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the insert is valid', () => {
       let result;
 
@@ -349,16 +245,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#insertOne', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the insert is valid', () => {
       let result;
 
@@ -377,17 +263,8 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#replaceOne', () => {
-    let nodeTransport;
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
 
     context('when the filter is empty', () => {
       let result;
@@ -404,16 +281,6 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#runCommand', () => {
-    let nodeTransport;
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the command is valid', () => {
       let result;
 
@@ -428,18 +295,8 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#updateMany', () => {
-    let nodeTransport;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
 
@@ -455,18 +312,8 @@ describe('NodeTransport [ integration ]', function() {
   });
 
   describe('#updateOne', () => {
-    let nodeTransport;
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' }};
-
-    before(async() => {
-      nodeTransport = await NodeTransport.fromURI('mongodb://localhost:27018');
-    });
-
-    after(() => {
-      return nodeTransport.close(true);
-    });
-
     context('when the filter is empty', () => {
       let result;
 
@@ -477,6 +324,42 @@ describe('NodeTransport [ integration ]', function() {
 
       it('executes the count with an empty filter and resolves the result', () => {
         expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+
+  describe('#dropDatabase', () => {
+    context('when a database does not exist', () => {
+      let result;
+
+      it('returns  {ok: 1}', async() => {
+        result = await nodeTransport.dropDatabase(`test-db-${Date.now()}`);
+        expect(result.ok).to.equal(1);
+      });
+    });
+
+    context('when a database exists', () => {
+      let result;
+
+      const dbExists = async(): Promise<boolean> => {
+        return (await db.admin().listDatabases())
+          .databases
+          .map((database) => database.name)
+          .includes(dbName);
+      };
+
+      beforeEach(async() => {
+        await db.collection('coll1').insertOne({ doc: 1 });
+        expect(await dbExists()).to.be.true;
+        result = await nodeTransport.dropDatabase(dbName);
+      });
+
+      it('returns  {ok: 1}', async() => {
+        expect(result.ok).to.equal(1);
+      });
+
+      it('deletes the database', async() => {
+        expect(await dbExists()).to.be.false;
       });
     });
   });

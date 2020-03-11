@@ -455,49 +455,39 @@ export default function testImplementationUnit(ServiceProviderImpl): void {
 
   describe('#dropDatabase', () => {
     let serviceProvider: ServiceProvider;
-    let runCommandMock;
+    let dropDatabaseMock;
 
     beforeEach(() => {
-      runCommandMock = sinon.mock().returns(Promise.resolve({ ok: 1 }));
+      dropDatabaseMock = sinon.mock().returns(Promise.resolve({ ok: 1 }));
       const transportStub: NodeTransport = sinon.createStubInstance(
         NodeTransport, {
-          runCommand: runCommandMock
+          dropDatabase: dropDatabaseMock
         });
 
       serviceProvider = new ServiceProviderImpl(transportStub);
     });
 
-    it('returns runCommand result', async() => {
+    it('returns transport.dropDatabase result', async() => {
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.deep.equal({ ok: 1 });
     });
 
     context('when write concern is omitted', () => {
-      beforeEach(async() => {
-        await serviceProvider.dropDatabase('db1');
-      });
-
-      it('executes the command against the database with default write concern', () => {
-        runCommandMock
-          .once()
-          .withArgs('db1', {
-            w: 'majority',
-            timeout: 10 * 60 * 1000
-          })
-          .verify();
+      it('executes the command against the database with default write concern', async() => {
+        dropDatabaseMock.once().withArgs('db1');
+        await serviceProvider.dropDatabase('db1', {
+          w: 'majority',
+          wtimeout: 600000
+        });
+        dropDatabaseMock.verify();
       });
     });
 
     context('with write concern', () => {
-      beforeEach(async() => {
+      it('executes the command against the database passing write concern', async() => {
+        dropDatabaseMock.once().withArgs('db1', { w: 0 });
         await serviceProvider.dropDatabase('db1', { w: 0 });
-      });
-
-      it('executes the command against the database passing write concern', () => {
-        runCommandMock
-          .once()
-          .withArgs('db1', { w: 0 })
-          .verify();
+        dropDatabaseMock.verify();
       });
     });
   });
