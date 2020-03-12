@@ -1,2 +1,11 @@
 import ServiceProvider from './service-provider';
-export { ServiceProvider };
+import Document from './document';
+import Cursor from './cursor';
+import Result from './result';
+
+export {
+  ServiceProvider,
+  Document,
+  Cursor,
+  Result
+};

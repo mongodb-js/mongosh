@@ -1,4 +1,5 @@
-import { Result, Document } from 'mongosh-transport-core';
+import Document from './document';
+import Result from './result';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -195,6 +196,23 @@ interface Writable {
     update: Document,
     options?: Document,
     dbOptions?: Document) : Promise<Result>;
+
+  /**
+   * Deprecated save command.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} doc - The doc.
+   * @param {Object} options - The options.
+   * @param {Object} dbOptions - The DB options
+   * @return {Promise}
+   */
+  save(
+    database: string,
+    collection: string,
+    doc: Document,
+    options?: Document,
+    dbOptions?: Document): Promise<Result>
 
   /**
    * @param {String} db - the db name

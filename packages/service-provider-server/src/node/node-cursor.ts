@@ -1,5 +1,5 @@
 import { Cursor as NativeCursor, CollationDocument } from 'mongodb';
-import { Cursor } from 'mongosh-transport-core';
+import { Cursor } from 'mongosh-service-provider-core';
 
 /**
  * Enum for the available cursor flags.

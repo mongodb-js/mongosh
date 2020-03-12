@@ -1,3 +1,3 @@
-interface Result {}
+type Result = any;
 
 export default Result;

@@ -1,4 +1,4 @@
-import StitchBrowserTransport from './stitch-browser-transport';
+import StitchServiceProviderBrowser from './stitch-service-provider-browser';
 import { expect } from 'chai';
 import uuidv4 from 'uuid/v4';
 
@@ -8,7 +8,7 @@ import uuidv4 from 'uuid/v4';
  *   - MONGOSH_STITCH_TEST_APP_ID
  *   - MONGOSH_STITCH_TEST_SERVICE_NAME
  */
-describe('StitchBrowserTransport [ integration ]', function() {
+describe('StitchServiceProviderBrowser [ integration ]', function() {
   this.timeout(30000);
   const stitchAppId = process.env.MONGOSH_STITCH_TEST_APP_ID;
   const serviceName = process.env.MONGOSH_STITCH_TEST_SERVICE_NAME;
@@ -19,12 +19,12 @@ describe('StitchBrowserTransport [ integration ]', function() {
     const testId = uuidv4();
 
     before(async() => {
-      stitchTransport = await StitchBrowserTransport.fromAppId(stitchAppId, serviceName);
+      stitchTransport = await StitchServiceProviderBrowser.fromAppId(stitchAppId, serviceName);
       testScope = { testId: testId, owner_id: stitchTransport.userId };
     });
 
     describe('.fromAppId', () => {
-      it('returns a StitchBrowserTransport with stitch transport set', () => {
+      it('returns a StitchServiceProviderBrowser with stitch transport set', () => {
         expect(stitchTransport.stitchTransport).to.not.equal(undefined);
       });
     });

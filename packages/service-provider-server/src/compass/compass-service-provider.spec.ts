@@ -1,6 +1,5 @@
 import CompassServiceProvider from './compass-service-provider';
 import { expect } from 'chai';
-import testImplementation from './test-implementation.unit';
 
 describe('CompassServiceProvider', () => {
   describe('fromDataService', () => {
@@ -14,7 +13,4 @@ describe('CompassServiceProvider', () => {
       expect(instance).to.be.instanceOf(CompassServiceProvider);
     });
   });
-
-
-  testImplementation(CompassServiceProvider);
 });

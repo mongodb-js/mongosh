@@ -1,6 +1,474 @@
-import CliServiceProvider from './compass-service-provider';
-import testImplementation from './test-implementation.unit';
+import mongodb, { MongoClient, Db } from 'mongodb';
+const Collection = (mongodb as any).Collection;
 
-describe('CliServiceProvider', function() {
-  testImplementation(CliServiceProvider);
+import { expect } from 'chai';
+import sinon from 'sinon';
+
+import CliServiceProvider from './cli-service-provider';
+
+/**
+ * Create a client stub from the provided collection stub.
+ *
+ * @note: We basically only care about the method under test
+ *   which is always mocked on a new collection stub each
+ *   test run. We we can use the boilerplate creation of the
+ *   db and client here.
+ *
+ * @param {Stub} collectionStub - The collection stub.
+ *
+ * @returns {Stub} The client stub to pass to the transport.
+ */
+const createClientStub = (collectionStub): MongoClient => {
+  const dbStub = sinon.createStubInstance(Db, {
+    collection: sinon.stub().returns(collectionStub)
+  });
+  return sinon.createStubInstance(MongoClient, {
+    db: sinon.stub().returns(dbStub)
+  });
+};
+
+describe('CliServiceProvider', () => {
+  let serviceProvider: CliServiceProvider;
+
+  describe('#constructor', () => {
+    const mongoClient = sinon.spy();
+    serviceProvider = new CliServiceProvider(mongoClient);
+
+    it('sets the mongo client on the instance', () => {
+      expect((serviceProvider as any).mongoClient).to.equal(mongoClient);
+    });
+  });
+
+  describe('#aggregate', () => {
+    const pipeline = [{ $match: { name: 'Aphex Twin' } }];
+    const aggResult = [{ name: 'Aphex Twin' }];
+    const aggMock = sinon.mock().withArgs(pipeline).
+      returns({ toArray: () => Promise.resolve(aggResult) });
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        aggregate: aggMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const cursor = await serviceProvider.aggregate('music', 'bands', pipeline);
+      const result = await cursor.toArray();
+      expect(result).to.deep.equal(aggResult);
+      aggMock.verify();
+    });
+  });
+
+  describe('#bulkWrite', () => {
+    const requests = [{ insertOne: { name: 'Aphex Twin' } }];
+    const commandResult = { result: { nInserted: 1, ok: 1 } };
+    const bulkMock = sinon.mock().once().withArgs(requests).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        bulkWrite: bulkMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.bulkWrite('music', 'bands', requests);
+      expect(result).to.deep.equal(commandResult);
+      bulkMock.verify();
+    });
+  });
+
+  describe('#countDocuments', () => {
+    const countResult = 10;
+    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        countDocuments: countMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.countDocuments('music', 'bands');
+      expect(result).to.deep.equal(countResult);
+      countMock.verify();
+    });
+  });
+
+  describe('#deleteMany', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        deleteMany: deleteMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.deleteMany('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      deleteMock.verify();
+    });
+  });
+
+  describe('#deleteOne', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        deleteOne: deleteMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.deleteOne('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      deleteMock.verify();
+    });
+  });
+
+  describe('#distinct', () => {
+    const distinctResult = [ 'Aphex Twin' ];
+    const distinctMock = sinon.mock().once().
+      withArgs('name', {}, {}).resolves(distinctResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        distinct: distinctMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.distinct('music', 'bands', 'name');
+      expect(result).to.deep.equal(distinctResult);
+      distinctMock.verify();
+    });
+  });
+
+  describe('#estimatedDocumentCount', () => {
+    const countResult = 10;
+    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        estimatedDocumentCount: countMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.estimatedDocumentCount('music', 'bands');
+      expect(result).to.deep.equal(countResult);
+      countMock.verify();
+    });
+  });
+
+  describe('#find', () => {
+    const filter = { name: 'Aphex Twin' };
+    const findResult = [{ name: 'Aphex Twin' }];
+    const findMock = sinon.mock().withArgs(filter).
+      returns({ toArray: () => Promise.resolve(findResult) });
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        find: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const cursor = await serviceProvider.find('music', 'bands', filter);
+      const result = await cursor.toArray();
+      expect(result).to.deep.equal(findResult);
+      findMock.verify();
+    });
+  });
+
+  describe('#findOneAndDelete', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndDelete: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.findOneAndDelete('music', 'bands', {});
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
+  describe('#findOneAndReplace', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const filter = { name: 'Aphex Twin' };
+    const replacement = { name: 'Richard James' };
+    const findMock = sinon.mock().once().withArgs(filter, replacement).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndReplace: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.
+        findOneAndReplace('music', 'bands', filter, replacement);
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
+  describe('#findOneAndUpdate', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' } };
+    const findMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findOneAndUpdate: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.
+        findOneAndUpdate('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
+  describe('#insertMany', () => {
+    const doc = { name: 'Aphex Twin' };
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const insertMock = sinon.mock().once().withArgs([ doc ]).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        insertMany: insertMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.insertMany('music', 'bands', [ doc ]);
+      expect(result).to.deep.equal(commandResult);
+      insertMock.verify();
+    });
+  });
+
+  describe('#insertOne', () => {
+    const doc = { name: 'Aphex Twin' };
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const insertMock = sinon.mock().once().withArgs(doc).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        insertOne: insertMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.insertOne('music', 'bands', doc);
+      expect(result).to.deep.equal(commandResult);
+      insertMock.verify();
+    });
+  });
+
+  describe('#replaceOne', () => {
+    const filter = { name: 'Aphex Twin' };
+    const replacement = { name: 'Richard James' };
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const replaceMock = sinon.mock().once().withArgs(filter, replacement).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        replaceOne: replaceMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.replaceOne('music', 'bands', filter, replacement);
+      expect(result).to.deep.equal(commandResult);
+      replaceMock.verify();
+    });
+  });
+
+  describe('#runCommand', () => {
+    let clientStub;
+    let dbStub;
+    const commandResult = { ismaster: true };
+    const commandMock = sinon.mock().
+      withArgs({ ismaster: 1 }).resolves(commandResult);
+
+    beforeEach(() => {
+      dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    afterEach(() => {
+      dbStub = null;
+      clientStub = null;
+      serviceProvider = null;
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.runCommand('admin', { ismaster: 1 });
+      expect(result).to.deep.equal(commandResult);
+      commandMock.verify();
+    });
+  });
+
+  describe('#updateOne', () => {
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const updateMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        updateOne: updateMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.updateOne('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      updateMock.verify();
+    });
+  });
+
+  describe('#updateMany', () => {
+    const filter = { name: 'Aphex Twin' };
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const updateMock = sinon.mock().once().withArgs(filter, update).
+      resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        updateMany: updateMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.updateMany('music', 'bands', filter, update);
+      expect(result).to.deep.equal(commandResult);
+      updateMock.verify();
+    });
+  });
+
+  describe('#dropDatabase', () => {
+    let dropDatabaseMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      dropDatabaseMock = sinon.mock().resolves(true);
+
+      const dbStub = sinon.createStubInstance(Db, {
+        dropDatabase: dropDatabaseMock
+      });
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('returns ok: 1 if dropped', async() => {
+      const result = await serviceProvider.dropDatabase('db1');
+      expect(result).to.contain({ ok: 1 });
+    });
+
+    it('returns ok: 0 if not dropped', async() => {
+      dropDatabaseMock.resolves(false);
+      const result = await serviceProvider.dropDatabase('db1');
+      expect(result).to.contain({ ok: 0 });
+    });
+
+    it('returns dropped: "db name" if dropped', async() => {
+      const result = await serviceProvider.dropDatabase('db1');
+      expect(result).to.contain({ dropped: 'db1' });
+    });
+
+    context('when write concern is omitted', () => {
+      it('runs against the database with default write concern', async() => {
+        dropDatabaseMock.once().withArgs();
+        await serviceProvider.dropDatabase('db1');
+        expect((clientStub.db as any).calledOnce);
+        expect((clientStub.db as any).calledWith('db1'));
+        dropDatabaseMock.verify();
+      });
+    });
+
+    context('with write concern', () => {
+      it('runs against the database passing write concern', async() => {
+        dropDatabaseMock.once().withArgs({ w: 1 });
+        await serviceProvider.dropDatabase('db1', { w: 1 });
+        expect((clientStub.db as any).calledOnce);
+        expect((clientStub.db as any).calledWith('db1'));
+        dropDatabaseMock.verify();
+      });
+    });
+  });
+
+  describe('#getServerVersion', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs({ buildInfo: 1 }, {})
+        .resolves({ version: '4.0.0' });
+
+      const dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('admin')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes the command against the admin database', async() => {
+      const result = await serviceProvider.getServerVersion();
+      expect(result).to.deep.equal('4.0.0');
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
 });

@@ -1,5 +1,4 @@
-import { CliServiceProvider } from 'mongosh-service-provider-server';
-import { NodeOptions } from 'mongosh-transport-server';
+import { CliServiceProvider, NodeOptions } from 'mongosh-service-provider-server';
 import { compile } from 'mongosh-mapper';
 import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';

@@ -1,6 +1,5 @@
-import CliServiceProvider from './cli-service-provider';
+import CliServiceProvider from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
-import { NodeTransport } from 'mongosh-transport-server';
 
 interface DataService {
   client: {
@@ -22,9 +21,8 @@ class CompassServiceProvider extends CliServiceProvider {
    */
   static fromDataService(dataService: DataService): CompassServiceProvider {
     const mongoClient = dataService.client.client;
-    const nodeTransport = new NodeTransport(mongoClient);
 
-    return new CompassServiceProvider(nodeTransport);
+    return new CompassServiceProvider(mongoClient);
   }
 }
 

@@ -1,11 +1,9 @@
 import i18n from 'mongosh-i18n';
-import Transport from './transport';
-import Cursor from './cursor';
-import Document from './document';
-import Result from './result';
+
 import StitchClient from './stitch-client';
 import StitchMongoClient from './stitch-mongo-client';
 import UnsupportedCursor from './unsupported-cursor';
+import { Document, Cursor, Result } from 'mongosh-service-provider-core';
 
 /**
  * Constant for not implemented rejections.
@@ -20,7 +18,7 @@ const AGG_ON_DB = 'transport-core.stitch-transport.agg-on-db';
 /**
  * Encapsulates logic for communicating with a MongoDB instance via Stitch.
  */
-class StitchTransport<S extends StitchClient, M extends StitchMongoClient> implements Transport {
+class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
   readonly stitchClient: S;
   readonly mongoClient: M;
 

@@ -1,23 +1,89 @@
-import { NodeTransport, NodeOptions } from 'mongosh-transport-server';
-import { Document, Cursor, Result } from 'mongosh-transport-core';
-import { ServiceProvider } from 'mongosh-service-provider-core';
+import { MongoClient, Db } from 'mongodb';
 
-type BuildInfoResult = { version: string };
+import {
+  ServiceProvider,
+  Document,
+  Cursor,
+  Result
+} from 'mongosh-service-provider-core';
 
-type CustomWriteConcern = string;
-type WriteConcern = 0 | 1 | 'majority' | CustomWriteConcern;
-type WriteConcernDoc = { w: WriteConcern; j: boolean; wtimeout: number };
+import NodeOptions from './node/node-options';
+import NodeCursor from './node/node-cursor';
+
+type DropDatabaseResult = {
+  ok: 0 | 1;
+  dropped?: string;
+};
+
+/**
+ * Default driver options we always use.
+ */
+const DEFAULT_OPTIONS = Object.freeze({
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
 class CliServiceProvider implements ServiceProvider {
-  private readonly nodeTransport: NodeTransport;
+  /**
+   * Create a new CLI service provider from the provided URI.
+   *
+   * @param {String} uri - The URI.
+   * @param {NodeOptions} options - The options.
+   *
+   * @returns {Promise} The promise with cli service provider.
+   */
+  static async connect(
+    uri: string,
+    options: NodeOptions = {}
+  ): Promise<CliServiceProvider> {
+    const clientOptions: any = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    };
+
+    const mongoClient = await MongoClient.connect(
+      uri,
+      clientOptions
+    );
+
+    return new CliServiceProvider(mongoClient);
+  }
+
+  private readonly mongoClient: MongoClient;
 
   /**
+   * Instantiate a new CliServiceProvider with the Node driver's connected
+   * MongoClient instance.
    *
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
+   * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   */
+  constructor(mongoClient: MongoClient) {
+    this.mongoClient = mongoClient;
+  }
+
+  /**
+   * Get the Db object from the client.
+   *
+   * @param {String} name - The database name.
+   * @param {Object} options - The DB options.
+   *
+   * @returns {Db} The database.
+   */
+  private db(name: string, options: Document = {}): Db {
+    if (Object.keys(options).length !== 0) {
+      return this.mongoClient.db(name, options);
+    }
+    return this.mongoClient.db(name);
+  }
+
+  /**
+   * Run an aggregation pipeline.
+   *
+   * @param {String} database - the db name
+   * @param {String} collection - the collection name
    * @param pipeline
    * @param options
    *    allowDiskUse: Optional<Boolean>;
@@ -35,19 +101,24 @@ class CliServiceProvider implements ServiceProvider {
    *        j: Optional<Boolean>
    *        w: Optional<Int32 | String>
    *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * @returns {Cursor} The aggregation cursor.
    */
   aggregate(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     pipeline: Document[] = [],
     options: Document = {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     dbOptions: Document = {}): Cursor {
-    return this.nodeTransport.aggregate(db, coll, pipeline, options, dbOptions);
+    return new NodeCursor(
+      this.db(database)
+        .collection(collection)
+        .aggregate(pipeline, options)
+    );
   }
 
   /**
-   * @param {String} db - the db name
+   * @param {String} database - the db name
    * @param pipeline
    * @param options
    *    allowDiskUse: Optional<Boolean>;
@@ -68,16 +139,17 @@ class CliServiceProvider implements ServiceProvider {
    * @return {any}
    */
   aggregateDb(
-    db: string,
+    database: string,
     pipeline: Document[] = [],
     options: Document = {},
     dbOptions: Document = {}): Cursor {
-    return this.nodeTransport.aggregateDb(db, pipeline, options, dbOptions);
+    const db: any = (this.db(database, dbOptions) as any);
+    return new NodeCursor(db.aggregate(pipeline, options));
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
+   * @param {String} database - the db name
+   * @param {String} collection - the collection name
    * @param requests
    * @param options
    *      ordered: Boolean;
@@ -90,48 +162,29 @@ class CliServiceProvider implements ServiceProvider {
    * @return {any}
    */
   bulkWrite(
-    db: string,
-    coll: string,
-    requests: Document,
+    database: string,
+    collection: string,
+    requests,
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.bulkWrite(db, coll, requests, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      bulkWrite(requests as any[], options);
   }
 
   /**
    * Close the connection.
    *
-   * @param {boolean} force - Whether to force close.
+   * @param {boolean} force - Whether to force close the connection.
    */
   close(force: boolean): void {
-    this.nodeTransport.close(force);
+    this.mongoClient.close(force);
   }
 
   /**
-   * Create a new CLI service provider from the provided URI.
+   * Deprecated count command.
    *
-   * @param {String} uri - The URI.
-   * @param {NodeOptions} options - The options.
-   *
-   * @returns {Promise} The promise with cli service provider.
-   */
-  static async connect(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
-    const nodeTransport = await NodeTransport.fromURI(uri, options);
-    return new CliServiceProvider(nodeTransport);
-  }
-
-  /**
-   * Instantiate the new service provider.
-   *
-   * @param {NodeTransport} nodeTransport - The node transport.
-   */
-  constructor(nodeTransport: NodeTransport) {
-    this.nodeTransport = nodeTransport;
-  }
-
-  /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
+   * @param {String} database - the db name
+   * @param {String} collection - the collection name
    * @param query
    * @param options
    *    collation: Optional<Document>
@@ -142,20 +195,23 @@ class CliServiceProvider implements ServiceProvider {
    * @param dbOptions
    *    readConcern:
    *        level: <String local|majority|linearizable|available>
-   * @return {any}
+   * @return {Promise<any>}
    */
   count(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     query: Document = {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.count(db, coll, query, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).count(query);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
+   * Get an exact document count from the collection.
+   *
+   * @param {String} database - the db name
+   * @param {String} collection - the collection name
    * @param filter
    * @param options
    *    hint: Optional<(String | Document = {})>;
@@ -165,374 +221,394 @@ class CliServiceProvider implements ServiceProvider {
    * @return {any}
    */
   countDocuments(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
-    options: Document = {}): Promise<Result> {
-    return this.nodeTransport.countDocuments(db, coll, filter, options);
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).
+      countDocuments(filter, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    collation: Optional<Document>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Delete multiple documents from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The delete many options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   deleteMany(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.deleteMany(db, coll, filter, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      deleteMany(filter, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    collation: Optional<Document>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Delete one document from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The delete one options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   deleteOne(
-    db: string,
-    coll: string,
-    filter: Document,
+    database: string,
+    collection: string,
+    filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.deleteOne(db, coll, filter, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      deleteOne(filter, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param {string} field - The field name.
-   * @param options
-   *    collation: Optional<Document>;
-   *    maxTimeMS: Optional<Int64>;
-   * @param dbOptions
-   * @return {any}
+   * Get distinct values for the field.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {String} fieldName - The field name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The distinct options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Cursor} The cursor.
    */
   distinct(
-    db: string,
-    coll: string,
-    field: string,
+    database: string,
+    collection: string,
+    fieldName: string,
     filter: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<any> {
-    return this.nodeTransport.distinct(db, coll, field, filter, options, dbOptions);
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .distinct(fieldName, filter, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    maxTimeMS: Optional<Int64>;
-   * @return {any}
+   * Get an estimated document count from the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} options - The count options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   estimatedDocumentCount(
-    db: string,
-    coll: string,
-    filter: Document = {},
-    options: Document = {}): Promise<Result> {
-    return this.nodeTransport.estimatedDocumentCount(db, coll, filter, options);
+    database: string,
+    collection: string,
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).
+      estimatedDocumentCount(options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param query
-   * @param options
-   *    allowPartialPromise<Result>s: Optional<Boolean>;
-   *    batchSize: Optional<Int32>;
-   *    collation: Optional<Document>;
-   *    comment: Optional<String>;
-   *    cursorType: Optional<CursorType>; TODO
-   *    hint: Optional<(String | Document = {})>;
-   *    limit: Optional<Int64>;
-   *    max: Optional<Document>;
-   *    maxAwaitTimeMS: Optional<Int64>; TODO
-   *    maxScan: Optional<Int64>;
-   *    maxTimeMS: Optional<Int64>;
-   *    min: Optional<Document>;
-   *    noCursorTimeout: Optional<Boolean>;
-   *    projection: Optional<Document>;
-   *    returnKey: Optional<Boolean>;
-   *    showRecordId: Optional<Boolean>; TODO
-   *    skip: Optional<Int64>;
-   *    snapshot: Optional<Boolean>;
-   *    sort: Optional<Document>;
-   * @return {Cursor}
+   * Find documents in the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Cursor} The cursor.
    */
   find(
-    db: string,
-    coll: string,
-    query: Document = {},
+    database: string,
+    collection: string,
+    filter: Document = {},
     options: Document = {}): Cursor {
-    return this.nodeTransport.find(db, coll, query, options);
+    const findOptions: any = { ...options };
+    if ('allowPartialResults' in findOptions) {
+      findOptions.partial = findOptions.allowPartialResults;
+    }
+    if ('noCursorTimeout' in findOptions) {
+      findOptions.timeout = findOptions.noCursorTimeout;
+    }
+    if ('tailable' in findOptions) {
+      findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
+    }
+    return new NodeCursor(
+      this.db(database).collection(collection).find(filter, options)
+    );
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    collation: Optional<Document>;
-   *    maxTimeMS: Optional<Int64>;
-   *    projection: Optional<Document>;
-   *    sort: Optional<Document>;
-   * @return {any}
+   * Find one document and delete it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The find options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   findOneAndDelete(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
-    options: Document = {}): Promise<Result> {
-    return this.nodeTransport.findOneAndDelete(db, coll, filter, options);
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).
+      findOneAndDelete(filter, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    collation: Optional<Document>;
-   *    maxTimeMS: Optional<Int64>;
-   *    projection: Optional<Document>;
-   *    returnDocument: Optional<ReturnDocument>;
-   *    sort: Optional<Document>;
-   *    upsert: Optional<Boolean>;
-   * @return {any}
+   * Find one document and replace it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
    */
   findOneAndReplace(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
+    replacement: Document = {},
     options: Document = {}): Promise<Result> {
-    return this.nodeTransport.findOneAndReplace(db, coll, filter, options);
+    const findOneAndReplaceOptions: any = { ...options };
+    if ('returnDocument' in options) {
+      findOneAndReplaceOptions.returnOriginal = options.returnDocument;
+      delete findOneAndReplaceOptions.returnDocument;
+    }
+    return (this.db(database).collection(collection) as any).
+      findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    arrayFilters: Optional<Array<Document>>;
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    collation: Optional<Document>;
-   *    maxTimeMS: Optional<Int64>;
-   *    projection: Optional<Document>;
-   *    returnDocument: Optional<ReturnDocument>;
-   *    sort: Optional<Document>;
-   *    upsert: Optional<Boolean>;
-   * @return {any}
+   * Find one document and update it.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The update.
+   * @param {Object} options - The find options.
+   *
+   * @returns {Promise} The promise of the result.
    */
   findOneAndUpdate(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
+    update: Document = {},
     options: Document = {}): Promise<Result> {
-    return this.nodeTransport.findOneAndUpdate(db, coll, filter, options);
+    const findOneAndUpdateOptions: any = { ...options };
+    if ('returnDocument' in options) {
+      findOneAndUpdateOptions.returnOriginal = options.returnDocument;
+      delete findOneAndUpdateOptions.returnDocument;
+    }
+    return (this.db(database).collection(collection) as any).
+      findOneAndUpdate(filter, update, findOneAndUpdateOptions);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param {document[]} docs - The documents.
-   * @param options
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    ordered: Boolean;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Insert many documents into the colleciton.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Array} docs - The documents.
+   * @param {Object} options - The insert many options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   insertMany(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     docs: Document[] = [],
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.insertMany(db, coll, docs, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      insertMany(docs, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    bypassDocumentValidation: Optional<Boolean>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Insert one document into the collection.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} doc - The document.
+   * @param {Object} options - The insert one options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   insertOne(
-    db: string,
-    coll: string,
-    filter: Document = {},
-    options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.insertOne(db, coll, filter, options, dbOptions);
-  }
-
-  /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @return {any}
-   */
-  isCapped(db: string, coll: string): Promise<Result> {
-    return this.nodeTransport.isCapped(db, coll);
-  }
-
-  /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param query
-   * @param options
-   *    collation: Optional<Document>;
-   *    justOne: Optional<Boolean>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
-   */
-  remove(
-    db: string,
-    coll: string,
-    query: Document = {},
-    options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.remove(db, coll, query, options, dbOptions);
-  }
-
-  save(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     doc: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.save(db, coll, doc, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      insertOne(doc, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document = {})>;
-   *    upsert: Optional<Boolean>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Is the collection capped?
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @returns {Promise} The promise of the result.
+   */
+  isCapped(
+    database: string,
+    collection: string): Promise<Result> {
+    return this.db(database).collection(collection).isCapped();
+  }
+
+  /**
+   * Deprecated remove command.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} query - The query.
+   * @param {Object} options - The options.
+   * @return {Promise}
+   */
+  remove(
+    database: string,
+    collection: string,
+    query: Document = {},
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).
+      remove(query, options);
+  }
+
+  /**
+   * Deprecated save command.
+   *
+   * @note: Shell API sets writeConcern via options in Document,
+   * node driver flat.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} doc - The doc.
+   * @param {Object} options - The options.
+   * @param {Object} dbOptions - The DB options
+   * @return {Promise}
+   */
+  save(
+    database: string,
+    collection: string,
+    doc: Document,
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).
+      save(doc, options);
+  }
+
+  /**
+   * Replace a document with another.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement document for matches.
+   * @param {Object} options - The replace options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   replaceOne(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
+    replacement: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.replaceOne(db, coll, filter, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      replaceOne(filter, replacement, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param spec
-   * @param options
-   * @return {any}
+   * Run a command against the database.
+   *
+   * @param {String} database - The database name.
+   * @param {Object} spec - The command specification.
+   * @param {Object} options - The database options.
+   *
+   * @returns {Promise} The promise of command results.
    */
   runCommand(
-    db: string,
-    spec: Document,
+    database: string,
+    spec: Document = {},
     options: Document = {}): Promise<Result> {
-    return this.nodeTransport.runCommand(db, spec, options);
+    return (this.db(database) as any).command(spec, options as any);
   }
 
   /**
-   * @param {String} db - the db name
-   * @return {any}
+   * list databases.
+   *
+   * @param {String} database - The database name.
+   *
+   * @returns {Promise} The promise of command results.
    */
-  listDatabases(db: string): Promise<Result> {
-    return this.nodeTransport.listDatabases(db);
+  listDatabases(database: string): Promise<Result> {
+    return this.db(database).admin().listDatabases();
   }
 
-
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    arrayFilters: Optional<Array<Document>>;
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document = {})>;
-   *    upsert: Optional<Boolean>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Update many document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   updateMany(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
+    update: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.updateMany(db, coll, filter, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      updateMany(filter, update, options);
   }
 
   /**
-   * @param {String} db - the db name
-   * @param {String} coll - the collection name
-   * @param filter
-   * @param options
-   *    arrayFilters: Optional<Array<Document>>;
-   *    bypassDocumentValidation: Optional<Boolean>;
-   *    collation: Optional<Document>;
-   *    hint: Optional<(String | Document = {})>;
-   *    upsert: Optional<Boolean>;
-   * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
-   * @return {any}
+   * Update a document.
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param {Object} filter - The filter.
+   * @param {(Object|Array)} update - The updates.
+   * @param {Object} options - The update options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @returns {Promise} The promise of the result.
    */
   updateOne(
-    db: string,
-    coll: string,
+    database: string,
+    collection: string,
     filter: Document = {},
+    update: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.nodeTransport.updateOne(db, coll, filter, options, dbOptions);
+    return this.db(database, dbOptions).collection(collection).
+      updateOne(filter, update, options);
   }
 
   /**
@@ -541,13 +617,13 @@ class CliServiceProvider implements ServiceProvider {
    * @returns {Promise} The server version.
    */
   async getServerVersion(): Promise<string> {
-    const result: BuildInfoResult = await this.nodeTransport.runCommand(
+    const result: any = await this.runCommand(
       'admin',
       {
         buildInfo: 1
       },
       {}
-    ) as BuildInfoResult;
+    );
 
     if (!result) {
       return;
@@ -566,11 +642,16 @@ class CliServiceProvider implements ServiceProvider {
    */
   async dropDatabase(
     db: string,
-    writeConcern?: WriteConcernDoc
-  ): Promise<Result> {
-    return await this.nodeTransport.dropDatabase(
-      db, writeConcern
-    );
+    writeConcern: Document = {}
+  ): Promise<DropDatabaseResult> {
+    const nativeResult = await (this.db(db) as any)
+      .dropDatabase(writeConcern);
+
+    const ok = nativeResult ? 1 : 0;
+    return {
+      ok,
+      ...(ok ? { dropped: db } : {})
+    };
   }
 }
 

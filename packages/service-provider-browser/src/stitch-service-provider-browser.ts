@@ -1,9 +1,10 @@
-import { Transport, Cursor, Result, StitchTransport } from 'mongosh-transport-core';
+import { ServiceProvider, Result, Document, Cursor } from 'mongosh-service-provider-core';
+import StitchTransport from './stitch-transport';
+
 import i18n from 'mongosh-i18n';
 import {
   AnonymousCredential,
   RemoteMongoClient,
-  RemoteMongoDatabase,
   Stitch,
   StitchAppClient
 } from 'mongodb-stitch-browser-sdk';
@@ -22,7 +23,7 @@ const ATLAS = 'mongodb-atlas';
  * Encapsulates logic for communicating with a MongoDB instance via
  * Stitch in the browser.
  */
-class StitchBrowserTransport implements Transport {
+class StitchServiceProviderBrowser implements ServiceProvider {
   readonly stitchTransport: StitchTransport<StitchAppClient, RemoteMongoClient>;
 
   /**
@@ -35,7 +36,7 @@ class StitchBrowserTransport implements Transport {
    */
   static async fromAppId(
     stitchAppId: string,
-    serviceName: string) : Promise<StitchBrowserTransport> {
+    serviceName: string) : Promise<StitchServiceProviderBrowser> {
 
     const client = Stitch.initializeDefaultAppClient(stitchAppId);
     try {
@@ -44,7 +45,7 @@ class StitchBrowserTransport implements Transport {
       /* eslint no-console:0 */
       console.log(i18n.__(INIT_ERROR), err);
     }
-    return new StitchBrowserTransport(client, serviceName);
+    return new StitchServiceProviderBrowser(client, serviceName);
   }
 
   /**
@@ -63,7 +64,7 @@ class StitchBrowserTransport implements Transport {
   aggregate(
     database: string,
     collection: string,
-    pipeline: object[] = []) : any {
+    pipeline: object[] = []) : Cursor {
 
     return this.stitchTransport.aggregate(database, collection, pipeline);
   }
@@ -108,6 +109,30 @@ class StitchBrowserTransport implements Transport {
       getServiceClient(RemoteMongoClient.factory, serviceName);
     this.stitchTransport =
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
+  }
+
+  save(database: string, collection: string, doc: Document, options?: Document, dbOptions?: Document): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+
+  close(boolean: any): void {
+    throw new Error('Method not implemented.');
+  }
+
+  aggregateDb(database: string, pipeline: Document[], options?: any, dbOptions?: any): Cursor {
+    throw new Error('Method not implemented.');
+  }
+
+  count(db: string, coll: string, query?: any, options?: any, dbOptions?: any): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+
+  getServerVersion(): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
+
+  dropDatabase(database: string, writeConcern?: any): Promise<any> {
+    throw new Error('Method not implemented.');
   }
 
   /**
@@ -352,4 +377,4 @@ class StitchBrowserTransport implements Transport {
   }
 }
 
-export default StitchBrowserTransport;
+export default StitchServiceProviderBrowser;
