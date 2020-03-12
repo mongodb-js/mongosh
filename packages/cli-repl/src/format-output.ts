@@ -1,3 +1,5 @@
+import prettyBytes from 'pretty-bytes';
+import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
 import clr from './clr';
@@ -33,6 +35,10 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatHelp(value);
   }
 
+  if (type === 'CommandResult') {
+    return formatDatabases(value)
+  }
+
   if (type === 'Error') {
     return formatError(value)
   }
@@ -46,6 +52,14 @@ function formatSimpleType(output) {
   }
 
   return inspect(output);
+}
+
+function formatDatabases(output) {
+  const tableEntries = output.map(
+    (db) => [clr(db.name, 'bold'), prettyBytes(db.sizeOnDisk)]
+  )
+
+  return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
 function formatError(error) {
