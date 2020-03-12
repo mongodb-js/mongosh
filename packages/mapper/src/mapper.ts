@@ -1,9 +1,4 @@
 import {
-  formatTable,
-  formatBytes
-} from './format-utils';
-
-import {
   AggregationCursor,
   BulkWriteResult,
   Cursor,
@@ -109,17 +104,7 @@ export default class Mapper {
         }
 
         this.messageBus.emit('cmd:show', result.databases);
-        const tableEntries = result.databases.map(
-          (db) => [db.name, formatBytes(db.sizeOnDisk)]
-        );
-
-        const table = formatTable(tableEntries);
-
-        return new CommandResult({ value: table });
-      case 'collections':
-        const collectionNames = await this.getCollectionNames(this.context.db);
-
-        return new CommandResult({ value: collectionNames.join('\n') });
+        return new CommandResult({ value: result.databases });
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
         this.messageBus.emit('error', err);

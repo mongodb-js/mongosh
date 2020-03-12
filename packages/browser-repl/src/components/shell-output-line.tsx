@@ -7,6 +7,7 @@ import Icon from '@leafygreen-ui/icon';
 import { LineWithIcon } from './utils/line-with-icon';
 
 import { HelpOutput } from './types/help-output';
+// import { CommandOutput } from './types/command-output';
 import { CursorOutput } from './types/cursor-output';
 import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 import { ObjectOutput } from './types/object-output';
