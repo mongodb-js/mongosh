@@ -23,7 +23,5 @@
       "encoding"
     ]
   },
-  "dependencies": {
-    "mongosh-transport-core": "file:../transport-core"
-  }
+  "dependencies": {}
 }

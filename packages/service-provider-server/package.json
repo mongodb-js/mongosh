@@ -28,7 +28,7 @@
     ]
   },
   "dependencies": {
-    "mongosh-service-provider-core": "file:../service-provider-core",
-    "mongosh-transport-server": "file:../transport-server"
+    "mongodb": "3.5.3 || ^3.5.5",
+    "mongosh-service-provider-core": "file:../service-provider-core"
   }
 }

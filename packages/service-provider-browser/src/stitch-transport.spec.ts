@@ -1,8 +1,8 @@
 import StitchTransport from './stitch-transport';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import StitchClient from '../lib/stitch-client';
-import StitchMongoClient from '../lib/stitch-mongo-client';
+import StitchClient from './stitch-client';
+import StitchMongoClient from './stitch-mongo-client';
 
 /**
  * Create a client stub from the provided collection stub.

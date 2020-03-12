@@ -4,7 +4,7 @@
     "outDir": "./lib",
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
   ],
   "exclude": [
     "./src/**/*.spec.*"

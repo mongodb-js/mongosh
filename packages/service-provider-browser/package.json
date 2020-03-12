@@ -1,7 +1,7 @@
 {
-  "name": "mongosh-transport-browser",
+  "name": "mongosh-service-provider-browser",
   "version": "0.0.0",
-  "description": "MongoDB Shell Transport Browser Package",
+  "description": "MongoDB Shell Service Provider Browser Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
@@ -27,6 +27,6 @@
   "dependencies": {
     "mongodb-stitch-browser-sdk": "^4.7.0",
     "mongosh-i18n": "file:../i18n",
-    "mongosh-transport-core": "file:../transport-core"
+    "mongosh-service-provider-core": "file:../service-provider-core"
   }
 }

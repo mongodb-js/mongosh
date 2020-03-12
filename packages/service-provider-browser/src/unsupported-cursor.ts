@@ -1,5 +1,4 @@
-import Cursor from './unsupported-cursor';
-import Document from './document';
+import { Document, Cursor } from 'mongosh-service-provider-core';
 
 /**
  * Defines a cursor for an unsupported operation.

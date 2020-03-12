@@ -1,10 +1,9 @@
-import { Cursor, Document, Result } from 'mongosh-transport-core';
+import NodeOptions from './node/node-options';
+
 import CliServiceProvider from './cli-service-provider';
-import CompassServiceProvider from './compass-service-provider';
+import CompassServiceProvider from './compass/compass-service-provider';
 export {
   CliServiceProvider,
   CompassServiceProvider,
-  Cursor,
-  Document,
-  Result
+  NodeOptions
 };

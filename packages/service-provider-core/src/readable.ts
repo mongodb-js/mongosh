@@ -1,4 +1,6 @@
-import { Document, Cursor, Result } from 'mongosh-transport-core';
+import Document from './document';
+import Cursor from './cursor';
+import Result from './result';
 
 /**
  * Interface for read operations in the CRUD specification.
