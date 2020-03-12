@@ -37,7 +37,7 @@ export default class Mapper {
   public cursorAssigned: any;
   public asyncWriter: AsyncWriter;
 
-  constructor(serviceProvider, messageBus) {
+  constructor(serviceProvider, messageBus?) {
     this.serviceProvider = serviceProvider;
     /* Internal state gets stored in mapper, state that is visible to the user
      * is stored in ctx */
