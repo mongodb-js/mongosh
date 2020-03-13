@@ -44,7 +44,7 @@ const OPTIONS = {
     'username'
   ],
   boolean: [
-    'antlr',
+    'async',
     'disableImplicitSessions',
     'help',
     'ipv6',

@@ -21,7 +21,7 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  * The REPL used from the terminal.
  */
 class CliRepl {
-  readonly useAntlr?: boolean;
+  readonly useAsync?: boolean;
   private serviceProvider: CliServiceProvider;
   private mapper: Mapper;
   private shellApi: ShellApi;
@@ -49,8 +49,8 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
-    this.useAntlr = !!options.antlr;
-    console.log(`cli-repl antlr=${this.useAntlr}`);
+    this.useAsync = !!options.async;
+    console.log(`cli-repl async=${this.useAsync}`);
     this.options = options;
 
     if (this.isPasswordMissing(driverOptions)) {
@@ -193,17 +193,15 @@ class CliRepl {
     const customEval = async(input, context, filename, callback) => {
       try {
         let str;
-        if (this.useAntlr) {
-          console.log(`DEBUG: antlr turned off for the moment`);
-          // const syncStr = this.mapper.asyncWriter.compile(input, types, this.mapper.scope);
-          // console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          // str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
+        if (this.useAsync) {
+          const syncStr = this.mapper.asyncWriter(input);
+          console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
+          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
         } else {
           str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
         }
         callback(null, str);
       } catch (err) {
-        // console.log('Catch callback:', err);
         callback(err, null);
       } finally {
         this.mapper.cursorAssigned = false;
