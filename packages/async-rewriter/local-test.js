@@ -1,3 +1,4 @@
+/* eslint no-console:0 */
 const SymbolTable = require('./lib/symbol-table').default;
 const getWriter = require('./lib/async-writer-babel.js').default;
 
@@ -8,7 +9,7 @@ const { types } = require('mongosh-shell-api');
 
 const symbols = new SymbolTable({ db: types.Database }, types);
 const writer = getWriter(symbols, types);
-const input = 'let x = db; x.coll.insert({})';
+const input = 'x = db;';
 console.log(`"${input}" ==> "${writer(input)}"`);
 // console.log(writer.compile('db.coll.insertOne({})'));
 //
