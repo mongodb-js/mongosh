@@ -9,15 +9,13 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile-ts",
-    "antlr-ecmascript": "java -Xmx500M -cp '/usr/local/lib/antlr-4.7.2-complete.jar:$CLASSPATH' org.antlr.v4.Tool  -Dlanguage=JavaScript -lib antlr -o antlr -visitor -Xexact-output-dir src/antlr/ECMAScript.g4"
+    "prepublish": "npm run compile-ts"
   },
   "engines": {
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@babel/core": "^7.8.7",
-    "antlr4": "^4.7.1"
+    "@babel/core": "^7.8.7"
   },
   "devDependencies": {
     "ast-pretty-print": "^2.0.1",

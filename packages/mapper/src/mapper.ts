@@ -14,19 +14,20 @@ import {
   UpdateResult,
   CursorIterationResult,
   CommandResult,
-  // types
+  types
 } from 'mongosh-shell-api';
 
-// import AsyncWriter from 'mongosh-async-rewriter';
+import getWriter, { SymbolTable } from 'mongosh-async-rewriter';
 
 export default class Mapper {
   private serviceProvider: any;
   private currentCursor: Cursor | AggregationCursor;
   private databases: any;
+  private symbols: SymbolTable;
 
   public context: any;
   public cursorAssigned: any;
-  // public asyncWriter: AsyncWriter;
+  public asyncWriter: any;
 
   constructor(serviceProvider) {
     this.serviceProvider = serviceProvider;
@@ -35,14 +36,14 @@ export default class Mapper {
     this.currentCursor = null;
     this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
-    // this.asyncWriter = new AsyncWriter(types);
+    this.symbols = new SymbolTable({ db: types.Database }, types);
+    this.asyncWriter = getWriter(this.symbols);
   }
 
   // TODO: rename to initializeContext
   setCtx(ctx): void {
     this.context = ctx;
     this.context.db = this.databases.test;
-    // this.asyncWriter.symbols.add('db', types.Database);
   }
 
   use(_, db): any {

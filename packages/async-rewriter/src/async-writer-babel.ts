@@ -2,7 +2,7 @@
 import * as babel from '@babel/core';
 // import printAST from 'ast-pretty-print';
 
-export default (symbols, shellTypes): any => {
+export default (symbols): any => {
   const debug = (str, type?): void => {
     str = `  ${str}${type === undefined ? '' : ` ==> ${type}`}`;
     // console.log(str);
@@ -14,7 +14,7 @@ export default (symbols, shellTypes): any => {
         const id = path.node.name;
         let sType = symbols.lookup(id);
         if (typeof sType === 'string') {
-          sType = shellTypes[sType];
+          sType = symbols.types[sType];
         }
         path.node.shellType = sType;
         path.findParent(()=>true).node.shellType = sType;
@@ -25,13 +25,13 @@ export default (symbols, shellTypes): any => {
       exit(path): void {
         const rhs = path.node.property.name;
         const lhsType = path.node.object.shellType;
-        let sType = shellTypes.unknown;
+        let sType = symbols.types.unknown;
         if (lhsType.attributes === undefined) {
-          sType = shellTypes.unknown;
+          sType = symbols.types.unknown;
         } else if (rhs in lhsType.attributes) {
           sType = lhsType.attributes[rhs];
         } else if (lhsType.type === 'Database') {
-          sType = shellTypes.Collection;
+          sType = symbols.types.Collection;
         }
         path.node.shellType = sType;
         path.findParent(()=>true).node.shellType = sType;
@@ -43,10 +43,10 @@ export default (symbols, shellTypes): any => {
         const dbg = `callee.type: ${path.node.callee.type}`;
         const lhsType = path.node.callee.shellType;
         const returnType = lhsType.returnType;
-        let sType = shellTypes.unknown;
+        let sType = symbols.types.unknown;
         if (lhsType.type === 'function') {
           if (typeof returnType === 'string') {
-            sType = shellTypes[returnType];
+            sType = symbols.types[returnType];
           } else if (returnType !== undefined) {
             sType = returnType;
           }
@@ -61,11 +61,11 @@ export default (symbols, shellTypes): any => {
     },
     VariableDeclarator: {
       exit(path): void {
-        let sType = shellTypes.unknown;
+        let sType = symbols.types.unknown;
         if (path.node.init !== null) {
           sType = path.node.init.shellType;
         }
-        path.node.shellType = shellTypes.unknown;
+        path.node.shellType = symbols.types.unknown;
         symbols.update(path.node.id.name, sType);
         debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init.shellType: ${
           path.node.init === null ? 'null' : sType.type
@@ -105,10 +105,10 @@ export default (symbols, shellTypes): any => {
         if (returnTypes.length === 0) { // no return value, take last or unknown
           if (path.node.body.length === 0) {
             dbg = 'empty stmt';
-            path.node.shellType = shellTypes.unknown;
+            path.node.shellType = symbols.types.unknown;
           } else {
             dbg = 'last stmt';
-            path.node.shellType = path.node.body[0].shellType || shellTypes.unknown;
+            path.node.shellType = path.node.body[0].shellType || symbols.types.unknown;
           }
         } else {
           // TODO: if any of the return statements are shell types, return shell type as to add async. Can add user warning, but for now take last return.
@@ -120,14 +120,14 @@ export default (symbols, shellTypes): any => {
     },
     ReturnStatement: {
       exit(path, state): void {
-        const sType = path.node.argument === null ? shellTypes.unknown : path.node.argument.shellType;
+        const sType = path.node.argument === null ? symbols.types.unknown : path.node.argument.shellType;
         path.node.shellType = sType;
         state.toRet[state.toRet.length - 1].push(sType);
         debug('ReturnStatement', sType.type);
       }
     },
     exit(path): void {
-      const type = path.node.shellType || shellTypes.unknown;
+      const type = path.node.shellType || symbols.types.unknown;
       if (this.skip.some((t) => (this.t[t](path.node)))) { // TODO: nicer?
         debug(`${path.node.type}`);
         return;

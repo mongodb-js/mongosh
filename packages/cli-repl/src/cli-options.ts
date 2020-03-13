@@ -3,7 +3,7 @@
  */
 interface CliOptions {
   _?: string[];
-  antlr?: boolean;
+  async?: boolean;
   authenticationDatabase?: string;
   authenticationMechanism?: string;
   awsAccessKeyId?: string;

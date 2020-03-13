@@ -8,7 +8,7 @@ const { types } = require('mongosh-shell-api');
 // const AsyncWriter = require('./lib/async-writer-antlr.js').default;
 
 const symbols = new SymbolTable({ db: types.Database }, types);
-const writer = getWriter(symbols, types);
+const writer = getWriter(symbols);
 const input = [
   'db.coll.insertOne()',
   'y = db',

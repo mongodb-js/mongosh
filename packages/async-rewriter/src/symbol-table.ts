@@ -11,7 +11,7 @@
  */
 export default class SymbolTable {
   readonly scopeStack: any;
-  readonly types: any;
+  public types: any;
   constructor(initialScope, types) {
     this.scopeStack = [initialScope];
     this.types = types;
