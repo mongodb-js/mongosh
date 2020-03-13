@@ -8,7 +8,7 @@ var SymbolTable = (function () {
         Object.keys(types).forEach(function (s) {
             if (s === 'unknown')
                 return;
-            _this.add(s, { type: 'classdef', returnType: types[s] });
+            _this.add(s, { type: 'classdef', returnType: types[s], lib: true });
         });
     }
     SymbolTable.prototype.lookup = function (item) {
@@ -21,6 +21,15 @@ var SymbolTable = (function () {
     };
     SymbolTable.prototype.add = function (item, value) {
         this.scopeStack[this.scopeStack.length - 1][item] = value;
+    };
+    SymbolTable.prototype.update = function (item, value) {
+        for (var i = 0; i < this.scopeStack.length; i++) {
+            if (this.scopeStack[i][item]) {
+                this.scopeStack[i][item] = value;
+                return;
+            }
+        }
+        return this.add(item, value);
     };
     SymbolTable.prototype.popScope = function () {
         this.scopeStack.pop();
@@ -53,7 +62,7 @@ var SymbolTable = (function () {
         var _loop_1 = function (i) {
             var scope = this_1.scopeStack[i];
             console.log('scope:');
-            Object.keys(scope).forEach(function (k) {
+            Object.keys(scope).filter(function (s) { return (!scope[s].lib); }).forEach(function (k) {
                 _this.printSymbol(scope[k], k);
             });
         };

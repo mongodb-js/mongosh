@@ -17,7 +17,7 @@ export default class SymbolTable {
     this.types = types;
     Object.keys(types).forEach(s => {
       if (s === 'unknown') return;
-      this.add(s, { type: 'classdef', returnType: types[s] });
+      this.add(s, { type: 'classdef', returnType: types[s], lib: true });
     });
   }
   lookup(item): any {
@@ -30,6 +30,15 @@ export default class SymbolTable {
   }
   add(item, value): void {
     this.scopeStack[this.scopeStack.length - 1][item] = value;
+  }
+  update(item, value): void {
+    for (let i = 0; i < this.scopeStack.length; i++) {
+      if (this.scopeStack[i][item]) {
+        this.scopeStack[i][item] = value;
+        return;
+      }
+    }
+    return this.add(item, value);
   }
   popScope(): void {
     this.scopeStack.pop();
@@ -59,7 +68,7 @@ export default class SymbolTable {
     for (let i = this.scopeStack.length - 1; i >= 0; i--) {
       const scope = this.scopeStack[i];
       console.log('scope:');
-      Object.keys(scope).forEach((k) => {
+      Object.keys(scope).filter((s) => (!scope[s].lib)).forEach((k) => {
         this.printSymbol(scope[k], k);
       });
     }
