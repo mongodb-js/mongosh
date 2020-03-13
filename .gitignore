@@ -11,6 +11,7 @@ npm-debug.log
 coverage/
 dist/
 node_modules/
+packages/async-rewriter/lib
 packages/build/lib
 packages/cli-repl/lib
 packages/i18n/lib

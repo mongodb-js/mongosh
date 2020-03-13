@@ -4,9 +4,6 @@ const getWriter = require('./lib/async-writer-babel.js').default;
 
 const { types } = require('mongosh-shell-api');
 
-
-// const AsyncWriter = require('./lib/async-writer-antlr.js').default;
-
 const symbols = new SymbolTable({ db: types.Database }, types);
 const writer = getWriter(symbols);
 const input = [
@@ -20,12 +17,5 @@ const input = [
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer(i)}"`));
-// console.log(writer.compile('db.coll.insertOne({})'));
-//
-// console.log(writer.compile('y = db'));
-// console.log(writer.compile('y.coll.insertOne()'));
-//
-// console.log(writer.compile('function returnsDb() { return db; }'));
-// console.log(writer.compile('returnsDb().coll.insertOne({})'));
 symbols.print();
 
