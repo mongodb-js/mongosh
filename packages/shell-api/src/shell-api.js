@@ -67,67 +67,67 @@ AggregationCursor.prototype.bsonsize.help = () => new Help({ 'help': '!! No help
 AggregationCursor.prototype.bsonsize.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.bsonsize.topologies = [0, 1, 2];
 AggregationCursor.prototype.bsonsize.returnsPromise = false;
-AggregationCursor.prototype.bsonsize.returnType = 'Unknown';
+AggregationCursor.prototype.bsonsize.returnType = 'unknown';
 
 AggregationCursor.prototype.close.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.close' });
 AggregationCursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.close.topologies = [0, 1, 2];
 AggregationCursor.prototype.close.returnsPromise = false;
-AggregationCursor.prototype.close.returnType = 'Unknown';
+AggregationCursor.prototype.close.returnType = 'unknown';
 
 AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.for-each' });
 AggregationCursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.forEach.topologies = [0, 1, 2];
 AggregationCursor.prototype.forEach.returnsPromise = false;
-AggregationCursor.prototype.forEach.returnType = 'Unknown';
+AggregationCursor.prototype.forEach.returnType = 'unknown';
 
 AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.has-next' });
 AggregationCursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.hasNext.topologies = [0, 1, 2];
 AggregationCursor.prototype.hasNext.returnsPromise = false;
-AggregationCursor.prototype.hasNext.returnType = 'Unknown';
+AggregationCursor.prototype.hasNext.returnType = 'unknown';
 
 AggregationCursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-closed' });
 AggregationCursor.prototype.isClosed.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.isClosed.topologies = [0, 1, 2];
 AggregationCursor.prototype.isClosed.returnsPromise = false;
-AggregationCursor.prototype.isClosed.returnType = 'Unknown';
+AggregationCursor.prototype.isClosed.returnType = 'unknown';
 
 AggregationCursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-exhausted' });
 AggregationCursor.prototype.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.isExhausted.topologies = [0, 1, 2];
 AggregationCursor.prototype.isExhausted.returnsPromise = false;
-AggregationCursor.prototype.isExhausted.returnType = 'Unknown';
+AggregationCursor.prototype.isExhausted.returnType = 'unknown';
 
 AggregationCursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.itcount' });
 AggregationCursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.itcount.topologies = [0, 1, 2];
 AggregationCursor.prototype.itcount.returnsPromise = false;
-AggregationCursor.prototype.itcount.returnType = 'Unknown';
+AggregationCursor.prototype.itcount.returnType = 'unknown';
 
 AggregationCursor.prototype.map.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.map' });
 AggregationCursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.map.topologies = [0, 1, 2];
 AggregationCursor.prototype.map.returnsPromise = false;
-AggregationCursor.prototype.map.returnType = 'Unknown';
+AggregationCursor.prototype.map.returnType = 'unknown';
 
 AggregationCursor.prototype.next.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.next' });
 AggregationCursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.next.topologies = [0, 1, 2];
 AggregationCursor.prototype.next.returnsPromise = false;
-AggregationCursor.prototype.next.returnType = 'Unknown';
+AggregationCursor.prototype.next.returnType = 'unknown';
 
 AggregationCursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.objs-left-in-batch' });
 AggregationCursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
 AggregationCursor.prototype.objsLeftInBatch.returnsPromise = false;
-AggregationCursor.prototype.objsLeftInBatch.returnType = 'Unknown';
+AggregationCursor.prototype.objsLeftInBatch.returnType = 'unknown';
 
 AggregationCursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.to-array' });
 AggregationCursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.toArray.topologies = [0, 1, 2];
 AggregationCursor.prototype.toArray.returnsPromise = false;
-AggregationCursor.prototype.toArray.returnType = 'Unknown';
+AggregationCursor.prototype.toArray.returnType = 'unknown';
 
 
 class BulkWriteResult {
@@ -277,31 +277,31 @@ Collection.prototype.bulkWrite.help = () => new Help({ 'help': 'shell-api.collec
 Collection.prototype.bulkWrite.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.bulkWrite.topologies = [0, 1, 2];
 Collection.prototype.bulkWrite.returnsPromise = true;
-Collection.prototype.bulkWrite.returnType = 'Unknown';
+Collection.prototype.bulkWrite.returnType = 'unknown';
 
 Collection.prototype.countDocuments.help = () => new Help({ 'help': 'shell-api.collection.help.count-documents' });
 Collection.prototype.countDocuments.serverVersions = ['4.0.3', '4.4.0'];
 Collection.prototype.countDocuments.topologies = [0, 1, 2];
 Collection.prototype.countDocuments.returnsPromise = true;
-Collection.prototype.countDocuments.returnType = 'Unknown';
+Collection.prototype.countDocuments.returnType = 'unknown';
 
 Collection.prototype.count.help = () => new Help({ 'help': 'shell-api.collection.help.count' });
 Collection.prototype.count.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.count.topologies = [0, 1, 2];
 Collection.prototype.count.returnsPromise = true;
-Collection.prototype.count.returnType = 'Unknown';
+Collection.prototype.count.returnType = 'unknown';
 
 Collection.prototype.deleteMany.help = () => new Help({ 'help': 'shell-api.collection.help.delete-many' });
 Collection.prototype.deleteMany.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.deleteMany.topologies = [0, 1, 2];
 Collection.prototype.deleteMany.returnsPromise = true;
-Collection.prototype.deleteMany.returnType = 'Unknown';
+Collection.prototype.deleteMany.returnType = 'unknown';
 
 Collection.prototype.deleteOne.help = () => new Help({ 'help': 'shell-api.collection.help.delete-one' });
 Collection.prototype.deleteOne.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.deleteOne.topologies = [0, 1, 2];
 Collection.prototype.deleteOne.returnsPromise = true;
-Collection.prototype.deleteOne.returnType = 'Unknown';
+Collection.prototype.deleteOne.returnType = 'unknown';
 
 Collection.prototype.distinct.help = () => new Help({ 'help': 'shell-api.collection.help.distinct' });
 Collection.prototype.distinct.serverVersions = ['0.0.0', '4.4.0'];
@@ -313,7 +313,7 @@ Collection.prototype.estimatedDocumentCount.help = () => new Help({ 'help': 'she
 Collection.prototype.estimatedDocumentCount.serverVersions = ['4.0.3', '4.4.0'];
 Collection.prototype.estimatedDocumentCount.topologies = [0, 1, 2];
 Collection.prototype.estimatedDocumentCount.returnsPromise = true;
-Collection.prototype.estimatedDocumentCount.returnType = 'Unknown';
+Collection.prototype.estimatedDocumentCount.returnType = 'unknown';
 
 Collection.prototype.find.help = () => new Help({ 'help': 'shell-api.collection.help.find' });
 Collection.prototype.find.serverVersions = ['0.0.0', '4.4.0'];
@@ -325,91 +325,91 @@ Collection.prototype.findAndModify.help = () => new Help({ 'help': 'shell-api.co
 Collection.prototype.findAndModify.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findAndModify.topologies = [0, 1, 2];
 Collection.prototype.findAndModify.returnsPromise = false;
-Collection.prototype.findAndModify.returnType = 'Unknown';
+Collection.prototype.findAndModify.returnType = 'unknown';
 
 Collection.prototype.findOne.help = () => new Help({ 'help': 'shell-api.collection.help.find-one' });
 Collection.prototype.findOne.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findOne.topologies = [0, 1, 2];
 Collection.prototype.findOne.returnsPromise = false;
-Collection.prototype.findOne.returnType = 'Unknown';
+Collection.prototype.findOne.returnType = 'unknown';
 
 Collection.prototype.findOneAndDelete.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-delete' });
 Collection.prototype.findOneAndDelete.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndDelete.topologies = [0, 1, 2];
 Collection.prototype.findOneAndDelete.returnsPromise = true;
-Collection.prototype.findOneAndDelete.returnType = 'Unknown';
+Collection.prototype.findOneAndDelete.returnType = 'unknown';
 
 Collection.prototype.findOneAndReplace.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-replace' });
 Collection.prototype.findOneAndReplace.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndReplace.topologies = [0, 1, 2];
 Collection.prototype.findOneAndReplace.returnsPromise = true;
-Collection.prototype.findOneAndReplace.returnType = 'Unknown';
+Collection.prototype.findOneAndReplace.returnType = 'unknown';
 
 Collection.prototype.findOneAndUpdate.help = () => new Help({ 'help': 'shell-api-collection.help.find-one-and-update' });
 Collection.prototype.findOneAndUpdate.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndUpdate.topologies = [0, 1, 2];
 Collection.prototype.findOneAndUpdate.returnsPromise = true;
-Collection.prototype.findOneAndUpdate.returnType = 'Unknown';
+Collection.prototype.findOneAndUpdate.returnType = 'unknown';
 
 Collection.prototype.insert.help = () => new Help({ 'help': 'shell-api.collection.help.insert' });
 Collection.prototype.insert.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.insert.topologies = [0, 1, 2];
 Collection.prototype.insert.returnsPromise = true;
-Collection.prototype.insert.returnType = 'Unknown';
+Collection.prototype.insert.returnType = 'unknown';
 
 Collection.prototype.insertMany.help = () => new Help({ 'help': 'shell-api.collection.help.insert-many' });
 Collection.prototype.insertMany.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.insertMany.topologies = [0, 1, 2];
 Collection.prototype.insertMany.returnsPromise = true;
-Collection.prototype.insertMany.returnType = 'Unknown';
+Collection.prototype.insertMany.returnType = 'unknown';
 
 Collection.prototype.insertOne.help = () => new Help({ 'help': 'shell-api.collection.help.insert-one' });
 Collection.prototype.insertOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.insertOne.topologies = [0, 1, 2];
 Collection.prototype.insertOne.returnsPromise = true;
-Collection.prototype.insertOne.returnType = 'Unknown';
+Collection.prototype.insertOne.returnType = 'unknown';
 
 Collection.prototype.isCapped.help = () => new Help({ 'help': 'shell-api.collection.help.is-capped' });
 Collection.prototype.isCapped.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.isCapped.topologies = [0, 1, 2];
 Collection.prototype.isCapped.returnsPromise = true;
-Collection.prototype.isCapped.returnType = 'Unknown';
+Collection.prototype.isCapped.returnType = 'unknown';
 
 Collection.prototype.remove.help = () => new Help({ 'help': 'shell-api.collection.help.remove' });
 Collection.prototype.remove.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.remove.topologies = [0, 1, 2];
 Collection.prototype.remove.returnsPromise = true;
-Collection.prototype.remove.returnType = 'Unknown';
+Collection.prototype.remove.returnType = 'unknown';
 
 Collection.prototype.save.help = () => new Help({ 'help': 'shell-api.collection.help.save' });
 Collection.prototype.save.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.save.topologies = [0, 1, 2];
 Collection.prototype.save.returnsPromise = true;
-Collection.prototype.save.returnType = 'Unknown';
+Collection.prototype.save.returnType = 'unknown';
 
 Collection.prototype.replaceOne.help = () => new Help({ 'help': 'shell-api.collection.help.replace-one' });
 Collection.prototype.replaceOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.replaceOne.topologies = [0, 1, 2];
 Collection.prototype.replaceOne.returnsPromise = true;
-Collection.prototype.replaceOne.returnType = 'Unknown';
+Collection.prototype.replaceOne.returnType = 'unknown';
 
 Collection.prototype.update.help = () => new Help({ 'help': 'shell-api.collection.help.update' });
 Collection.prototype.update.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.update.topologies = [0, 1, 2];
 Collection.prototype.update.returnsPromise = true;
-Collection.prototype.update.returnType = 'Unknown';
+Collection.prototype.update.returnType = 'unknown';
 
 Collection.prototype.updateMany.help = () => new Help({ 'help': 'shell-api.collection.help.update-many' });
 Collection.prototype.updateMany.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.updateMany.topologies = [0, 1, 2];
 Collection.prototype.updateMany.returnsPromise = true;
-Collection.prototype.updateMany.returnType = 'Unknown';
+Collection.prototype.updateMany.returnType = 'unknown';
 
 Collection.prototype.updateOne.help = () => new Help({ 'help': 'shell-api.collection.help.update-one' });
 Collection.prototype.updateOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.updateOne.topologies = [0, 1, 2];
 Collection.prototype.updateOne.returnsPromise = true;
-Collection.prototype.updateOne.returnType = 'Unknown';
+Collection.prototype.updateOne.returnType = 'unknown';
 
 
 class Cursor {
@@ -607,260 +607,260 @@ Cursor.prototype.addOption.help = () => new Help({ 'help': 'shell-api.cursor.hel
 Cursor.prototype.addOption.serverVersions = ['0.0.0', '3.2.0'];
 Cursor.prototype.addOption.topologies = [0, 1, 2];
 Cursor.prototype.addOption.returnsPromise = false;
-Cursor.prototype.addOption.returnType = 'Unknown';
+Cursor.prototype.addOption.returnType = 'unknown';
 
 Cursor.prototype.allowPartialResults.help = () => new Help({ 'help': 'shell-api.cursor.help.allow-partial-results' });
 Cursor.prototype.allowPartialResults.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.allowPartialResults.topologies = [0, 1, 2];
 Cursor.prototype.allowPartialResults.returnsPromise = false;
-Cursor.prototype.allowPartialResults.returnType = 'Unknown';
+Cursor.prototype.allowPartialResults.returnType = 'unknown';
 
 Cursor.prototype.arrayAccess.help = () => new Help({ 'help': '!! No help defined for this method' });
 Cursor.prototype.arrayAccess.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.arrayAccess.topologies = [0, 1, 2];
 Cursor.prototype.arrayAccess.returnsPromise = false;
-Cursor.prototype.arrayAccess.returnType = 'Unknown';
+Cursor.prototype.arrayAccess.returnType = 'unknown';
 
 Cursor.prototype.batchSize.help = () => new Help({ 'help': 'shell-api.cursor.help.batch-size' });
 Cursor.prototype.batchSize.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.batchSize.topologies = [0, 1, 2];
 Cursor.prototype.batchSize.returnsPromise = false;
-Cursor.prototype.batchSize.returnType = 'Unknown';
+Cursor.prototype.batchSize.returnType = 'unknown';
 
 Cursor.prototype.clone.help = () => new Help({ 'help': 'shell-api.cursor.help.clone' });
 Cursor.prototype.clone.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.clone.topologies = [0, 1, 2];
 Cursor.prototype.clone.returnsPromise = false;
-Cursor.prototype.clone.returnType = 'Unknown';
+Cursor.prototype.clone.returnType = 'unknown';
 
 Cursor.prototype.close.help = () => new Help({ 'help': 'shell-api.cursor.help.close' });
 Cursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.close.topologies = [0, 1, 2];
 Cursor.prototype.close.returnsPromise = false;
-Cursor.prototype.close.returnType = 'Unknown';
+Cursor.prototype.close.returnType = 'unknown';
 
 Cursor.prototype.collation.help = () => new Help({ 'help': 'shell-api.cursor.help.collation' });
 Cursor.prototype.collation.serverVersions = ['3.4.0', '4.4.0'];
 Cursor.prototype.collation.topologies = [0, 1, 2];
 Cursor.prototype.collation.returnsPromise = false;
-Cursor.prototype.collation.returnType = 'Unknown';
+Cursor.prototype.collation.returnType = 'unknown';
 
 Cursor.prototype.comment.help = () => new Help({ 'help': 'shell-api.cursor.help.comment' });
 Cursor.prototype.comment.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.comment.topologies = [0, 1, 2];
 Cursor.prototype.comment.returnsPromise = false;
-Cursor.prototype.comment.returnType = 'Unknown';
+Cursor.prototype.comment.returnType = 'unknown';
 
 Cursor.prototype.count.help = () => new Help({ 'help': 'shell-api.cursor.help.count' });
 Cursor.prototype.count.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.count.topologies = [0, 1, 2];
 Cursor.prototype.count.returnsPromise = false;
-Cursor.prototype.count.returnType = 'Unknown';
+Cursor.prototype.count.returnType = 'unknown';
 Cursor.prototype.count.serverVersion = ['0.0.0', '4.0.0'];
 
 Cursor.prototype.explain.help = () => new Help({ 'help': 'shell-api.cursor.help.explain' });
 Cursor.prototype.explain.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.explain.topologies = [0, 1, 2];
 Cursor.prototype.explain.returnsPromise = false;
-Cursor.prototype.explain.returnType = 'Unknown';
+Cursor.prototype.explain.returnType = 'unknown';
 
 Cursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.cursor.help.for-each' });
 Cursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.forEach.topologies = [0, 1, 2];
 Cursor.prototype.forEach.returnsPromise = false;
-Cursor.prototype.forEach.returnType = 'Unknown';
+Cursor.prototype.forEach.returnType = 'unknown';
 
 Cursor.prototype.getQueryPlan.help = () => new Help({ 'help': 'shell-api.cursor.help.get-query-plan' });
 Cursor.prototype.getQueryPlan.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.getQueryPlan.topologies = [0, 1, 2];
 Cursor.prototype.getQueryPlan.returnsPromise = false;
-Cursor.prototype.getQueryPlan.returnType = 'Unknown';
+Cursor.prototype.getQueryPlan.returnType = 'unknown';
 
 Cursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.cursor.help.has-next' });
 Cursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hasNext.topologies = [0, 1, 2];
 Cursor.prototype.hasNext.returnsPromise = false;
-Cursor.prototype.hasNext.returnType = 'Unknown';
+Cursor.prototype.hasNext.returnType = 'unknown';
 
 Cursor.prototype.hint.help = () => new Help({ 'help': 'shell-api.cursor.help.hint' });
 Cursor.prototype.hint.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hint.topologies = [0, 1, 2];
 Cursor.prototype.hint.returnsPromise = false;
-Cursor.prototype.hint.returnType = 'Unknown';
+Cursor.prototype.hint.returnType = 'unknown';
 
 Cursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.cursor.help.is-closed' });
 Cursor.prototype.isClosed.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.isClosed.topologies = [0, 1, 2];
 Cursor.prototype.isClosed.returnsPromise = false;
-Cursor.prototype.isClosed.returnType = 'Unknown';
+Cursor.prototype.isClosed.returnType = 'unknown';
 
 Cursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.cursor.help.is-exhausted' });
 Cursor.prototype.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.isExhausted.topologies = [0, 1, 2];
 Cursor.prototype.isExhausted.returnsPromise = false;
-Cursor.prototype.isExhausted.returnType = 'Unknown';
+Cursor.prototype.isExhausted.returnType = 'unknown';
 
 Cursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.cursor.help.itcount' });
 Cursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.itcount.topologies = [0, 1, 2];
 Cursor.prototype.itcount.returnsPromise = false;
-Cursor.prototype.itcount.returnType = 'Unknown';
+Cursor.prototype.itcount.returnType = 'unknown';
 
 Cursor.prototype.length.help = () => new Help({ 'help': 'shell-api.cursor.help.length' });
 Cursor.prototype.length.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.length.topologies = [0, 1, 2];
 Cursor.prototype.length.returnsPromise = false;
-Cursor.prototype.length.returnType = 'Unknown';
+Cursor.prototype.length.returnType = 'unknown';
 
 Cursor.prototype.limit.help = () => new Help({ 'help': 'shell-api.cursor.help.limit' });
 Cursor.prototype.limit.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.limit.topologies = [0, 1, 2];
 Cursor.prototype.limit.returnsPromise = false;
-Cursor.prototype.limit.returnType = 'Unknown';
+Cursor.prototype.limit.returnType = 'unknown';
 
 Cursor.prototype.map.help = () => new Help({ 'help': 'shell-api.cursor.help.map' });
 Cursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.map.topologies = [0, 1, 2];
 Cursor.prototype.map.returnsPromise = false;
-Cursor.prototype.map.returnType = 'Unknown';
+Cursor.prototype.map.returnType = 'unknown';
 
 Cursor.prototype.max.help = () => new Help({ 'help': 'shell-api.cursor.help.max' });
 Cursor.prototype.max.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.max.topologies = [0, 1, 2];
 Cursor.prototype.max.returnsPromise = false;
-Cursor.prototype.max.returnType = 'Unknown';
+Cursor.prototype.max.returnType = 'unknown';
 
 Cursor.prototype.maxScan.help = () => new Help({ 'help': 'shell-api.cursor.help.max-scan' });
 Cursor.prototype.maxScan.serverVersions = ['0.0.0', '4.0.0'];
 Cursor.prototype.maxScan.topologies = [0, 1, 2];
 Cursor.prototype.maxScan.returnsPromise = false;
-Cursor.prototype.maxScan.returnType = 'Unknown';
+Cursor.prototype.maxScan.returnType = 'unknown';
 
 Cursor.prototype.maxTimeMS.help = () => new Help({ 'help': 'shell-api.cursor.help.max-time-ms' });
 Cursor.prototype.maxTimeMS.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.maxTimeMS.topologies = [0, 1, 2];
 Cursor.prototype.maxTimeMS.returnsPromise = false;
-Cursor.prototype.maxTimeMS.returnType = 'Unknown';
+Cursor.prototype.maxTimeMS.returnType = 'unknown';
 
 Cursor.prototype.min.help = () => new Help({ 'help': 'shell-api.cursor.help.min' });
 Cursor.prototype.min.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.min.topologies = [0, 1, 2];
 Cursor.prototype.min.returnsPromise = false;
-Cursor.prototype.min.returnType = 'Unknown';
+Cursor.prototype.min.returnType = 'unknown';
 
 Cursor.prototype.modifiers.help = () => new Help({ 'help': 'shell-api.cursor.help.modifiers' });
 Cursor.prototype.modifiers.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.modifiers.topologies = [0, 1, 2];
 Cursor.prototype.modifiers.returnsPromise = false;
-Cursor.prototype.modifiers.returnType = 'Unknown';
+Cursor.prototype.modifiers.returnType = 'unknown';
 
 Cursor.prototype.next.help = () => new Help({ 'help': 'shell-api.cursor.help.next' });
 Cursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.next.topologies = [0, 1, 2];
 Cursor.prototype.next.returnsPromise = false;
-Cursor.prototype.next.returnType = 'Unknown';
+Cursor.prototype.next.returnType = 'unknown';
 
 Cursor.prototype.noCursorTimeout.help = () => new Help({ 'help': 'shell-api.cursor.help.no-cursor-timeout' });
 Cursor.prototype.noCursorTimeout.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.noCursorTimeout.topologies = [0, 1, 2];
 Cursor.prototype.noCursorTimeout.returnsPromise = false;
-Cursor.prototype.noCursorTimeout.returnType = 'Unknown';
+Cursor.prototype.noCursorTimeout.returnType = 'unknown';
 
 Cursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.cursor.help.objs-left-in-batch' });
 Cursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
 Cursor.prototype.objsLeftInBatch.returnsPromise = false;
-Cursor.prototype.objsLeftInBatch.returnType = 'Unknown';
+Cursor.prototype.objsLeftInBatch.returnType = 'unknown';
 
 Cursor.prototype.oplogReplay.help = () => new Help({ 'help': 'shell-api.cursor.help.oplog-replay' });
 Cursor.prototype.oplogReplay.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.oplogReplay.topologies = [0, 1, 2];
 Cursor.prototype.oplogReplay.returnsPromise = false;
-Cursor.prototype.oplogReplay.returnType = 'Unknown';
+Cursor.prototype.oplogReplay.returnType = 'unknown';
 
 Cursor.prototype.projection.help = () => new Help({ 'help': 'shell-api.cursor.help.projection' });
 Cursor.prototype.projection.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.projection.topologies = [0, 1, 2];
 Cursor.prototype.projection.returnsPromise = false;
-Cursor.prototype.projection.returnType = 'Unknown';
+Cursor.prototype.projection.returnType = 'unknown';
 
 Cursor.prototype.pretty.help = () => new Help({ 'help': 'shell-api.cursor.help.pretty' });
 Cursor.prototype.pretty.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.pretty.topologies = [0, 1, 2];
 Cursor.prototype.pretty.returnsPromise = false;
-Cursor.prototype.pretty.returnType = 'Unknown';
+Cursor.prototype.pretty.returnType = 'unknown';
 
 Cursor.prototype.readConcern.help = () => new Help({ 'help': 'shell-api.cursor.help.read-concern' });
 Cursor.prototype.readConcern.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.readConcern.topologies = [0, 1, 2];
 Cursor.prototype.readConcern.returnsPromise = false;
-Cursor.prototype.readConcern.returnType = 'Unknown';
+Cursor.prototype.readConcern.returnType = 'unknown';
 
 Cursor.prototype.readOnly.help = () => new Help({ 'help': 'shell-api.cursor.help.readonly' });
 Cursor.prototype.readOnly.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.readOnly.topologies = [0, 1, 2];
 Cursor.prototype.readOnly.returnsPromise = false;
-Cursor.prototype.readOnly.returnType = 'Unknown';
+Cursor.prototype.readOnly.returnType = 'unknown';
 
 Cursor.prototype.readPref.help = () => new Help({ 'help': 'shell-api.cursor.help.read-pref' });
 Cursor.prototype.readPref.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.readPref.topologies = [0, 1, 2];
 Cursor.prototype.readPref.returnsPromise = false;
-Cursor.prototype.readPref.returnType = 'Unknown';
+Cursor.prototype.readPref.returnType = 'unknown';
 
 Cursor.prototype.returnKey.help = () => new Help({ 'help': 'shell-api.cursor.help.return-key' });
 Cursor.prototype.returnKey.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.returnKey.topologies = [0, 1, 2];
 Cursor.prototype.returnKey.returnsPromise = false;
-Cursor.prototype.returnKey.returnType = 'Unknown';
+Cursor.prototype.returnKey.returnType = 'unknown';
 
 Cursor.prototype.showDiskLoc.help = () => new Help({ 'help': 'shell-api.cursor.help.show-disk-loc' });
 Cursor.prototype.showDiskLoc.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.showDiskLoc.topologies = [0, 1, 2];
 Cursor.prototype.showDiskLoc.returnsPromise = false;
-Cursor.prototype.showDiskLoc.returnType = 'Unknown';
+Cursor.prototype.showDiskLoc.returnType = 'unknown';
 
 Cursor.prototype.showRecordId.help = () => new Help({ 'help': 'shell-api.cursor.help.show-record-id' });
 Cursor.prototype.showRecordId.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.showRecordId.topologies = [0, 1, 2];
 Cursor.prototype.showRecordId.returnsPromise = false;
-Cursor.prototype.showRecordId.returnType = 'Unknown';
+Cursor.prototype.showRecordId.returnType = 'unknown';
 
 Cursor.prototype.size.help = () => new Help({ 'help': 'shell-api.cursor.help.size' });
 Cursor.prototype.size.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.size.topologies = [0, 1, 2];
 Cursor.prototype.size.returnsPromise = false;
-Cursor.prototype.size.returnType = 'Unknown';
+Cursor.prototype.size.returnType = 'unknown';
 
 Cursor.prototype.skip.help = () => new Help({ 'help': 'shell-api.cursor.help.skip' });
 Cursor.prototype.skip.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.skip.topologies = [0, 1, 2];
 Cursor.prototype.skip.returnsPromise = false;
-Cursor.prototype.skip.returnType = 'Unknown';
+Cursor.prototype.skip.returnType = 'unknown';
 
 Cursor.prototype.snapshot.help = () => new Help({ 'help': 'shell-api.cursor.help.snapshot' });
 Cursor.prototype.snapshot.serverVersions = ['0.0.0', '4.0.0'];
 Cursor.prototype.snapshot.topologies = [0, 1, 2];
 Cursor.prototype.snapshot.returnsPromise = false;
-Cursor.prototype.snapshot.returnType = 'Unknown';
+Cursor.prototype.snapshot.returnType = 'unknown';
 
 Cursor.prototype.sort.help = () => new Help({ 'help': 'shell-api.cursor.help.sort' });
 Cursor.prototype.sort.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.sort.topologies = [0, 1, 2];
 Cursor.prototype.sort.returnsPromise = false;
-Cursor.prototype.sort.returnType = 'Unknown';
+Cursor.prototype.sort.returnType = 'unknown';
 
 Cursor.prototype.tailable.help = () => new Help({ 'help': 'shell-api.cursor.help.tailable' });
 Cursor.prototype.tailable.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.tailable.topologies = [0, 1, 2];
 Cursor.prototype.tailable.returnsPromise = false;
-Cursor.prototype.tailable.returnType = 'Unknown';
+Cursor.prototype.tailable.returnType = 'unknown';
 
 Cursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.cursor.help.to-array' });
 Cursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.toArray.topologies = [0, 1, 2];
 Cursor.prototype.toArray.returnsPromise = false;
-Cursor.prototype.toArray.returnType = 'Unknown';
+Cursor.prototype.toArray.returnType = 'unknown';
 
 
 class Database {
@@ -898,7 +898,7 @@ Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.databas
 Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.runCommand.topologies = [0, 1, 2];
 Database.prototype.runCommand.returnsPromise = false;
-Database.prototype.runCommand.returnType = 'Unknown';
+Database.prototype.runCommand.returnType = 'unknown';
 
 
 class DeleteResult {
@@ -1016,19 +1016,19 @@ ShellApi.prototype.use.help = () => new Help({ 'help': '!! No help defined for t
 ShellApi.prototype.use.serverVersions = ['0.0.0', '4.4.0'];
 ShellApi.prototype.use.topologies = [0, 1, 2];
 ShellApi.prototype.use.returnsPromise = false;
-ShellApi.prototype.use.returnType = 'Unknown';
+ShellApi.prototype.use.returnType = 'unknown';
 
 ShellApi.prototype.it.help = () => new Help({ 'help': '!! No help defined for this method' });
 ShellApi.prototype.it.serverVersions = ['0.0.0', '4.4.0'];
 ShellApi.prototype.it.topologies = [0, 1, 2];
 ShellApi.prototype.it.returnsPromise = false;
-ShellApi.prototype.it.returnType = 'Unknown';
+ShellApi.prototype.it.returnType = 'unknown';
 
 ShellApi.prototype.show.help = () => new Help({ 'help': '!! No help defined for this method' });
 ShellApi.prototype.show.serverVersions = ['0.0.0', '4.4.0'];
 ShellApi.prototype.show.topologies = [0, 1, 2];
 ShellApi.prototype.show.returnsPromise = false;
-ShellApi.prototype.show.returnType = 'Unknown';
+ShellApi.prototype.show.returnType = 'unknown';
 
 
 class UpdateResult {
