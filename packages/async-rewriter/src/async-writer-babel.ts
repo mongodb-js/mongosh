@@ -1,116 +1,114 @@
+/* eslint no-console:0 */
 import * as babel from '@babel/core';
 import printAST from 'ast-pretty-print';
 
-export default (symbols, shellTypes) => {
+export default (symbols, shellTypes): string => {
+  const debug = (str, type?): void => {
+    type = type === undefined ? '' : ` ==> ${type}`;
+    console.log(`  ${str}${type}`);
+  };
+
   const inferTypeVisitor = {
     Identifier: {
-      exit(path) {
+      exit(path): void {
         const id = path.node.name;
-        let type = symbols.lookup(id);
-        if (typeof type === 'string') {
-          type = shellTypes[type];
+        let sType = symbols.lookup(id);
+        if (typeof sType === 'string') {
+          sType = shellTypes[sType];
         }
-        path.node.shellType = type;
-        path.findParent(()=>true).node.shellType = type;
-        console.log(`Identifier: name=${path.node.name} ==> ${type.type}`);
+        path.node.shellType = sType;
+        path.findParent(()=>true).node.shellType = sType;
+        debug(`Identifier: { name: ${path.node.name} }`, sType.type);
       }
     },
     MemberExpression: {
-      exit(path) {
+      exit(path): void {
         const rhs = path.node.property.name;
         const lhsType = path.node.object.shellType;
-        let type = shellTypes.unknown;
+        let sType = shellTypes.unknown;
         if (lhsType.attributes === undefined) {
-          type = shellTypes.unknown;
+          sType = shellTypes.unknown;
         } else if (rhs in lhsType.attributes) {
-          type = lhsType.attributes[rhs];
+          sType = lhsType.attributes[rhs];
         } else if (lhsType.type === 'Database') {
-          type = shellTypes.Collection;
+          sType = shellTypes.Collection;
         }
-        path.node.shellType = type;
-        path.findParent(()=>true).node.shellType = type;
-        console.log(`MemberExpression: lhsType=${lhsType.type} and attr=${rhs} ==> ${type.type}`);
+        path.node.shellType = sType;
+        path.findParent(()=>true).node.shellType = sType;
+        debug(`MemberExpression: { object.type: ${lhsType.type}, property.name: ${rhs} }`, sType.type);
       }
     },
     CallExpression: {
-      exit(path) {
-        console.log(`CallExpression: callee type${path.node.callee.type}`);
+      exit(path): void {
         const returnType = path.node.callee.shellType;
+        let sType = shellTypes.unknown;
         if (returnType.type === 'function') {
           if (returnType.returnType !== undefined) {
-            path.node.shellType = shellTypes[returnType.returnType];
+            sType = shellTypes[returnType.returnType];
           }
           if (returnType.returnsPromise) {
             path.replaceWith(this.t.awaitExpression(path.node));
             path.skip();
           }
         }
+        debug(`CallExpression: { callee.type: ${path.node.callee.type} }`, sType.type);
+        path.node.shellType = sType;
       }
     },
     VariableDeclarator: {
-      exit(path) {
-        console.log(`VariableDeclaration: var name=${path.node.id.name}`); // id must be a identifier
-        let type = shellTypes.unknown;
+      exit(path): void {
+        let sType = shellTypes.unknown;
         if (path.node.init !== null) {
-          type = path.node.init.shellType;
+          sType = path.node.init.shellType;
         }
-        symbols.update(path.node.id.name, type)
+        path.node.shellType = shellTypes.unknown;
+        symbols.update(path.node.id.name, sType);
+        debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init.shellType: ${
+          path.node.init === null ? 'null' : sType.type
+        }`, 'unknown'); // id must be a identifier
       }
     },
     AssignmentExpression: {
-      exit(path) {
-        console.log(`AssignmentExpression`);
-        // TODO: where is LVal defined
+      exit(path): void {
+        const sType = path.node.right.shellType;
+        symbols.update(path.node.left.name, sType);
+        path.node.shellType = sType; // assignment returns value unlike decl
+        debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
       }
     },
-    exit(path) {
+    exit(path): void {
       const type = path.node.shellType || shellTypes.unknown;
-      if (this.t.isIdentifier(path.node) || this.t.isMemberExpression(path.node) || this.t.isCallExpression(path.node)) {
+      if (this.skip.includes(path.node.type)) { // TODO: better?
+        debug(`${path.node.type}`);
         return;
       }
       path.node.shellType = type;
       path.findParent(()=>true).node.shellType = type;
-      console.log(`INFER ${path.node.type} ==> ${type.type}`);
+      debug(`*${path.node.type}`, type.type);
     }
   };
 
-  const plugin = ({ types: t }) => {
+  const plugin = ({ types: t }): any => {
     return {
-      // post(state) {
-        // console.log('transformed AST:');
-        // console.log(printAST(state.ast));
-      // },
+      post(state): void {
+        console.log('transformed AST:');
+        console.log(printAST(state.ast));
+      },
       visitor: {
         Program: {
-          exit(path) {
-            path.traverse(inferTypeVisitor, { t: t });
+          exit(path): void {
+            path.traverse(inferTypeVisitor, {
+              t: t,
+              skip: [
+                'AssignmentExpression', 'VariableDeclarator', 'CallExpression', 'MemberExpression', 'Identifier'
+              ]
+            });
           }
-        },
-        // CallExpression: {
-        //   exit(path) {
-        //     const opts = { t: t };
-        //     path.traverse(inferTypeVisitor, opts);
-        //     const returnType = path.node.callee.shellType;
-        //     if (returnType.type === 'function') {
-        //       if (returnType.returnType !== undefined) {
-        //         path.node.shellType = shellTypes[returnType.returnType];
-        //       }
-        //       if (returnType.returnsPromise) {
-        //         path.replaceWith(t.awaitExpression(path.node));
-        //         path.skip();
-        //       }
-        //     }
-        //   }
-        // AssignmentExpression: {
-        //   exit(path) {
-        //     const opts = { t: t };
-        //     path.traverse(inferTypeVisitor, opts);
-        //   }
-        // }
+        }
       }
     };
   };
-  return (code) => {
+  return (code): string => {
     return babel.transform(code, {
       plugins: [plugin],
       code: true,
