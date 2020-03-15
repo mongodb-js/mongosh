@@ -103,18 +103,18 @@ db3  30 kB`;
     describe('collection', () => {
       describe('bulkWrite', () => {
         let collection;
+        let requests;
         beforeEach(async() => {
           collection = new Collection(mapper, 'db1', 'coll1');
+          requests = [
+            { insertOne: { 'document': { doc: 1 } } }
+          ];
         });
 
         it('calls service provider bulkWrite', async() => {
           serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
             result: { ok: 1 }
           }));
-
-          const requests = [
-            { insertOne: { 'document': { doc: 1 } } }
-          ];
 
           await mapper.bulkWrite(collection, requests);
 
@@ -136,10 +136,6 @@ db3  30 kB`;
             insertedIds: [ 6 ],
             upsertedIds: [ 7 ]
           }));
-
-          const requests = [
-            { insertOne: { 'document': { doc: 1 } } }
-          ];
 
           const result = await mapper.bulkWrite(collection, requests);
 

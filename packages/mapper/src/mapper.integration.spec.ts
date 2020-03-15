@@ -21,63 +21,122 @@ describe('Mapper (integration)', function() {
 
   let mapper: Mapper;
   let dbName;
+  let collection;
+  let collectionName;
 
   beforeEach(async() => {
     dbName = `test-${Date.now()}`;
+    collectionName = 'docs';
+
     mapper = new Mapper(serviceProvider);
     mapper.setCtx({});
     mapper.use({}, dbName);
+    collection = new Collection(
+      mapper,
+      dbName,
+      collectionName
+    );
   });
 
   afterEach(async() => {
-    // todo: drop database
+    await serviceProvider.dropDatabase(dbName);
   });
 
-  describe('it', () => {
-    let collection;
+  describe('commands', () => {
+    describe('it', () => {
+      beforeEach(async() => {
+        const docs = [];
 
-    beforeEach(async() => {
-      const docs = [];
+        let i = 1;
+        while (i <= 21) {
+          docs.push({ doc: i });
+          i++;
+        }
 
-      let i = 1;
-      while (i <= 21) {
-        docs.push({ doc: i });
-        i++;
-      }
-
-      await serviceProvider.insertMany(dbName, 'docs', docs);
-
-      collection = new Collection(mapper, dbName, 'docs');
-    });
-
-    describe('when calling it after find', () => {
-      it('returns next batch of docs', async() => {
-        mapper.find(collection, {}, { _id: 0 });
-        await mapper.it();
-        expect(await mapper.it()).to.deep.equal([{
-          doc: 21
-        }]);
-      });
-    });
-    describe('when calling limit after skip', () => {
-      let cursor: Cursor;
-
-      beforeEach(() => {
-        cursor = mapper
-          .find(collection, {}, { _id: 0 })
-          .skip(1)
-          .limit(1);
+        await serviceProvider.insertMany(dbName, collectionName, docs);
       });
 
-      describe('when calling toArray on the cursor', () => {
-        it('returns the right documents', async() => {
-          expect(await cursor.toArray()).to.deep.equal([{ doc: 2 }]);
+      describe('when calling it after find', () => {
+        it('returns next batch of docs', async() => {
+          mapper.find(collection, {}, { _id: 0 });
+          await mapper.it();
+          expect(await mapper.it()).to.deep.equal([{
+            doc: 21
+          }]);
         });
       });
 
-      describe('when calling toReplString on the cursor', () => {
-        it('returns the right documents', async() => {
-          expect(await cursor.toReplString()).to.deep.equal([{ doc: 2 }]);
+      describe('when calling limit after skip', () => {
+        let cursor: Cursor;
+
+        beforeEach(() => {
+          cursor = mapper
+            .find(collection, {}, { _id: 0 })
+            .skip(1)
+            .limit(1);
+        });
+
+        describe('when calling toArray on the cursor', () => {
+          it('returns the right documents', async() => {
+            expect(await cursor.toArray()).to.deep.equal([{ doc: 2 }]);
+          });
+        });
+
+        describe('when calling toReplString on the cursor', () => {
+          it('returns the right documents', async() => {
+            expect(await cursor.toReplString()).to.deep.equal([{ doc: 2 }]);
+          });
+        });
+      });
+    });
+  });
+
+  describe('collection', () => {
+    describe('bulkWrite', () => {
+      context('with an insertOne request', () => {
+        let requests;
+        let result;
+
+        beforeEach(async() => {
+          requests = [
+            {
+              insertOne: {
+                document: {
+                  doc: 1
+                }
+              }
+            }
+          ];
+
+          result = await mapper.bulkWrite(
+            collection,
+            requests
+          );
+        });
+
+        it('returns ackowledged = true', () => {
+          expect(result.ackowledged).to.be.true;
+        });
+
+        it('returns insertedCount = 1', () => {
+          expect(result.insertedCount).to.equal(1);
+        });
+
+        it('returns insertedIds', () => {
+          expect(Object.keys(result.insertedIds)).to.have.lengthOf(1);
+        });
+
+        it('performs insert', async() => {
+          const docs = await serviceProvider.find(
+            dbName,
+            collectionName,
+            {},
+            { projection: { _id: 0 } }
+          ).toArray();
+
+          expect(docs).to.deep.equal([
+            { doc: 1 }
+          ]);
         });
       });
     });
