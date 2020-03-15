@@ -5,7 +5,7 @@ import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpr
 import { Runtime } from './runtime';
 
 import Mapper from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
+import ShellApi, { types } from 'mongosh-shell-api';
 
 /**
  * This class is the core implementation for a runtime which is not isolated
@@ -48,15 +48,20 @@ export class OpenContextRuntime implements Runtime {
     const mapper = new Mapper(serviceProvider);
     const shellApi = new ShellApi(mapper);
 
-    Object.keys(shellApi)
-      .filter(k => (!k.startsWith('_')))
-      .forEach(k => {
-        const value = shellApi[k];
+    const attributes = Object.keys(types.ShellApi.attributes);
+    const ownProperties = Object.getOwnPropertyNames(shellApi);
 
-        if (typeof(value) === 'function') {
-          context[k] = value.bind(shellApi);
+    [
+      ...attributes,
+      ...ownProperties
+    ]
+      .filter((name) => (!name.startsWith('_')))
+      .forEach((name) => {
+        const attribute = shellApi[name];
+        if (typeof(attribute) === 'function') {
+          context[name] = attribute.bind(shellApi);
         } else {
-          context[k] = value;
+          context[name] = attribute;
         }
       });
 

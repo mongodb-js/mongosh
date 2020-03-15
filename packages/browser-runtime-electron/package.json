@@ -17,7 +17,9 @@
   },
   "author": "",
   "license": "SSPL",
-  "devDependencies": {},
+  "devDependencies": {
+    "mongosh-service-provider-server": "file:../service-provider-server"
+  },
   "dependencies": {
     "mongosh-browser-runtime-core": "file:../browser-runtime-core"
   }
