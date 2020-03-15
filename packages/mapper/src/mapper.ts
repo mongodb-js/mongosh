@@ -13,7 +13,9 @@ import {
   InsertOneResult,
   UpdateResult,
   CursorIterationResult,
-  CommandResult
+  CommandResult,
+  ShellApi,
+  types
 } from 'mongosh-shell-api';
 
 export default class Mapper {
@@ -62,9 +64,41 @@ export default class Mapper {
     return new Proxy(this, handler);
   }
 
-  setCtx(ctx): void {
-    this.context = ctx;
-    this.context.db = this.databases.test;
+  /**
+   * Prepare a `contextObject` as global context and set it as context
+   * for the mapper.
+   *
+   * The `contextObject` is prepared so that it can be used as global object
+   * for the repl evaluation.
+   *
+   * @note The `contextObject` is mutated, it will retain all of its existing
+   * properties but also have the global shell api objects and functions.
+   *
+   * @param {Object} - contextObject an object used as global context.
+   */
+  setCtx(contextObject: any): void {
+    const shellApi = new ShellApi(this);
+
+    const attributes = Object.keys(types.ShellApi.attributes);
+    const ownProperties = Object.getOwnPropertyNames(shellApi);
+
+    const publicAttributes = [
+      ...attributes,
+      ...ownProperties
+    ]
+      .filter((name) => (!name.startsWith('_')));
+
+    publicAttributes.forEach((name) => {
+      const attribute = shellApi[name];
+      if (typeof(attribute) === 'function') {
+        contextObject[name] = attribute.bind(shellApi);
+      } else {
+        contextObject[name] = attribute;
+      }
+    });
+
+    contextObject.db = this.databases.test;
+    this.context = contextObject;
   }
 
   use(_, db): any {

@@ -1,7 +1,6 @@
 import { CliServiceProvider } from 'mongosh-service-provider-server';
 import { NodeOptions } from 'mongosh-transport-server';
 import { compile } from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import changeHistory from './history';
@@ -26,7 +25,6 @@ class CliRepl {
   private useAntlr?: boolean;
   private serviceProvider: CliServiceProvider;
   private mapper: Mapper;
-  private shellApi: ShellApi;
   private mdbVersion: any;
   private repl: REPLServer;
   private options: CliOptions;
@@ -42,7 +40,6 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider);
-    this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
   }
@@ -123,13 +120,13 @@ class CliRepl {
     argv.shift();
     switch(cmd) {
       case 'use':
-        return this.shellApi.use(argv[0]);
+        return this.repl.context.use(argv[0]);
       case 'show':
-        return this.shellApi.show(argv[0]);
+        return this.repl.context.show(argv[0]);
       case 'it':
-        return this.shellApi.it();
+        return this.repl.context.it();
       case 'help':
-        return this.shellApi.help();
+        return this.repl.context.help();
       case 'var':
         this.mapper.cursorAssigned = true;
       default:
@@ -245,9 +242,6 @@ class CliRepl {
       process.exit();
     });
 
-    Object.keys(this.shellApi)
-      .filter(k => (!k.startsWith('_')))
-      .forEach(k => (this.repl.context[k] = this.shellApi[k]));
     this.mapper.setCtx(this.repl.context);
   }
 }

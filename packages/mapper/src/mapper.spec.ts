@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import Mapper from './mapper';
+import { Database } from 'mongosh-shell-api';
 
 describe('Mapper', () => {
   let mapper;
@@ -8,6 +9,26 @@ describe('Mapper', () => {
   beforeEach(() => {
     serviceProvider = {};
     mapper = new Mapper(serviceProvider);
+  });
+
+  describe('setCtx', () => {
+    let ctx;
+    beforeEach(() => {
+      ctx = {};
+      mapper.setCtx(ctx);
+    });
+
+    it('sets shell api globals', () => {
+      expect(ctx).to.include.all.keys('it', 'help', 'show', 'use');
+    });
+
+    it('sets db', () => {
+      expect(ctx.db).to.be.instanceOf(Database);
+    });
+
+    it('sets the object as context for the mapper', () => {
+      expect((mapper as any).context).to.equal(ctx);
+    });
   });
 
   describe('commands', () => {
