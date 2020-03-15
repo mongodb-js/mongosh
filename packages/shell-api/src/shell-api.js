@@ -131,12 +131,12 @@ AggregationCursor.prototype.toArray.returnType = 'Unknown';
 
 
 class BulkWriteResult {
-  constructor(ackowledged, insertedCount, insertedIds, matchedCount, modifedCount, deletedCount, upsertedCount, upsertedIds) {
+  constructor(ackowledged, insertedCount, insertedIds, matchedCount, modifiedCount, deletedCount, upsertedCount, upsertedIds) {
     this.ackowledged = ackowledged;
     this.insertedCount = insertedCount;
     this.insertedIds = insertedIds;
     this.matchedCount = matchedCount;
-    this.modifedCount = modifedCount;
+    this.modifiedCount = modifiedCount;
     this.deletedCount = deletedCount;
     this.upsertedCount = upsertedCount;
     this.upsertedIds = upsertedIds;

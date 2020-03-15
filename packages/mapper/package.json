@@ -25,6 +25,7 @@
     "text-table": "^0.2.0"
   },
   "devDependencies": {
+    "mongosh-service-provider-core": "file:../service-provider-core",
     "mongosh-service-provider-server": "file:../service-provider-server"
   }
 }

@@ -13,11 +13,17 @@ import {
   InsertOneResult,
   UpdateResult,
   CursorIterationResult,
-  CommandResult
+  CommandResult,
+  Collection
 } from 'mongosh-shell-api';
 
+import {
+  ServiceProvider,
+  Document
+} from 'mongosh-service-provider-core';
+
 export default class Mapper {
-  private serviceProvider: any;
+  private serviceProvider: ServiceProvider;
   private currentCursor: Cursor | AggregationCursor;
   private databases: any;
   private context: any;
@@ -189,7 +195,11 @@ export default class Mapper {
    *
    * @returns {BulkWriteResult} The promise of the result.
    */
-  async bulkWrite(collection, operations, options: any = {}): Promise<any> {
+  async bulkWrite(
+    collection: Collection,
+    operations: Document,
+    options: Document = {}
+  ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -203,11 +213,15 @@ export default class Mapper {
       dbOptions
     );
 
-    // TODO: implement BulkWriteResult and remove ts ignore
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
     return new BulkWriteResult(
-      result.result.ok // TODO
+      !!result.result.ok, // ackowledged
+      result.insertedCount,
+      result.insertedIds,
+      result.matchedCount,
+      result.modifiedCount,
+      result.deletedCount,
+      result.upsertedCount,
+      result.upsertedIds
     );
   }
 

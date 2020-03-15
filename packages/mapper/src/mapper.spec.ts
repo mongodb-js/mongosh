@@ -1,12 +1,15 @@
 import { expect } from 'chai';
 import Mapper from './mapper';
+import sinon from 'sinon';
+import { ServiceProvider } from 'mongosh-service-provider-core';
+import { Collection } from 'mongosh-shell-api';
 
 describe('Mapper', () => {
-  let mapper;
-  let serviceProvider;
+  let mapper: Mapper;
+  let serviceProvider: ServiceProvider;
 
   beforeEach(() => {
-    serviceProvider = {};
+    serviceProvider = {} as ServiceProvider;
     mapper = new Mapper(serviceProvider);
   });
 
@@ -92,6 +95,63 @@ db3  30 kB`;
             const result = await mapper.it();
             expect(result.shellApiType()).to.equal('CursorIterationResult');
             expect(result).to.have.lengthOf(0);
+          });
+        });
+      });
+    });
+
+    describe('collection', () => {
+      describe('bulkWrite', () => {
+        let collection;
+        beforeEach(async() => {
+          collection = new Collection(mapper, 'db1', 'coll1');
+        });
+
+        it('calls service provider bulkWrite', async() => {
+          serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
+            result: { ok: 1 }
+          }));
+
+          const requests = [
+            { insertOne: { 'document': { doc: 1 } } }
+          ];
+
+          await mapper.bulkWrite(collection, requests);
+
+          expect((serviceProvider.bulkWrite as sinon.Spy).calledWith(
+            'db1',
+            'coll1',
+            requests
+          ));
+        });
+
+        it('adapts the result', async() => {
+          serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
+            result: { ok: 1 },
+            insertedCount: 1,
+            matchedCount: 2,
+            modifiedCount: 3,
+            deletedCount: 4,
+            upsertedCount: 5,
+            insertedIds: [ 6 ],
+            upsertedIds: [ 7 ]
+          }));
+
+          const requests = [
+            { insertOne: { 'document': { doc: 1 } } }
+          ];
+
+          const result = await mapper.bulkWrite(collection, requests);
+
+          expect(await result.toReplString()).to.be.deep.equal({
+            ackowledged: true,
+            insertedCount: 1,
+            matchedCount: 2,
+            modifiedCount: 3,
+            deletedCount: 4,
+            upsertedCount: 5,
+            insertedIds: [ 6 ],
+            upsertedIds: [ 7 ]
           });
         });
       });
