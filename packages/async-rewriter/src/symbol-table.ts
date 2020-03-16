@@ -13,6 +13,7 @@ export default class SymbolTable {
   readonly scopeStack: any;
   public types: any;
   constructor(initialScope, types) {
+    initialScope.global = true;
     this.scopeStack = [initialScope];
     this.types = types;
     Object.keys(types).forEach(s => {
@@ -41,6 +42,7 @@ export default class SymbolTable {
     return this.add(item, value);
   }
   popScope(): void {
+    if (this.scopeStack[this.scopeStack.length - 1].global) return;
     this.scopeStack.pop();
   }
   pushScope(): void {

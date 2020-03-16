@@ -17,13 +17,12 @@ import {
   types
 } from 'mongosh-shell-api';
 
-import getWriter, { SymbolTable } from 'mongosh-async-rewriter';
+import AsyncWriter from 'mongosh-async-rewriter';
 
 export default class Mapper {
   private serviceProvider: any;
   private currentCursor: Cursor | AggregationCursor;
   private databases: any;
-  private symbols: SymbolTable;
 
   public context: any;
   public cursorAssigned: any;
@@ -36,11 +35,9 @@ export default class Mapper {
     this.currentCursor = null;
     this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
-    this.symbols = new SymbolTable({ db: types.Database }, types);
-    this.asyncWriter = getWriter(this.symbols);
+    this.asyncWriter = new AsyncWriter({ db: types.Database }, types); // TODO: this will go in context object
   }
 
-  // TODO: rename to initializeContext
   setCtx(ctx): void {
     this.context = ctx;
     this.context.db = this.databases.test;

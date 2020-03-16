@@ -194,7 +194,7 @@ class CliRepl {
       try {
         let str;
         if (this.useAsync) {
-          const syncStr = this.mapper.asyncWriter(input);
+          const syncStr = this.mapper.asyncWriter.compile(input);
           console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
           str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
         } else {
