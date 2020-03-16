@@ -140,6 +140,37 @@ describe('Mapper (integration)', function() {
         });
       });
     });
+
+    describe('converToCapped', () => {
+      context('when the collection exists', () => {
+        let result;
+
+        beforeEach(async() => {
+          await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+
+          expect(await serviceProvider.isCapped(
+            dbName,
+            collectionName
+          )).to.be.false;
+
+          result = await mapper.convertToCapped(
+            collection,
+            1000
+          );
+        });
+
+        it('returns ok = 1', () => {
+          expect(result.ok).to.equal(1);
+        });
+
+        it('converts the collection', async() => {
+          expect(await serviceProvider.isCapped(
+            dbName,
+            collectionName
+          )).to.be.true;
+        });
+      });
+    });
   });
 });
 
