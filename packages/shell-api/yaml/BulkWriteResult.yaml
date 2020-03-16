@@ -7,7 +7,7 @@ class:
         - insertedCount
         - insertedIds
         - matchedCount
-        - modifedCount
+        - modifiedCount
         - deletedCount
         - upsertedCount
         - upsertedIds

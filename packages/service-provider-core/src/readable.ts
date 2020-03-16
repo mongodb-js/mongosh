@@ -131,6 +131,26 @@ interface Readable {
    * @returns {Promise} The server version.
    */
   getServerVersion(): Promise<string>;
+
+  /**
+   * list databases.
+   *
+   * @param {String} database - The database name.
+   *
+   * @returns {Promise} The promise of command results.
+   */
+  listDatabases(database: string): Promise<Result>;
+
+  /**
+   * Is the collection capped?
+   *
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @returns {Promise} The promise of the result.
+   */
+  isCapped(
+    database: string,
+    collection: string): Promise<Result>;
 }
 
 export default Readable;

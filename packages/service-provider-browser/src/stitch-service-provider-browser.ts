@@ -1,4 +1,4 @@
-import { ServiceProvider, Result, Document, Cursor } from 'mongosh-service-provider-core';
+import { ServiceProvider, Result, BulkWriteResult, Document, Cursor } from 'mongosh-service-provider-core';
 import StitchTransport from './stitch-transport';
 
 import i18n from 'mongosh-i18n';
@@ -74,7 +74,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Promise} The rejected promise.
    */
-  bulkWrite() : Promise<Result> {
+  bulkWrite() : Promise<BulkWriteResult> {
     return this.stitchTransport.bulkWrite();
   }
 
@@ -109,6 +109,18 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       getServiceClient(RemoteMongoClient.factory, serviceName);
     this.stitchTransport =
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
+  }
+
+  listDatabases(database: string): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  isCapped(database: string, collection: string): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  remove(database: string, collection: string, query: Document, options?: Document, dbOptions?: Document): Promise<any> {
+    throw new Error("Method not implemented.");
   }
 
   save(database: string, collection: string, doc: Document, options?: Document, dbOptions?: Document): Promise<any> {

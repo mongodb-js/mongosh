@@ -1,5 +1,6 @@
 import Document from './document';
 import Result from './result';
+import BulkWriteResult from './bulk-write-result';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -20,7 +21,7 @@ interface Writable {
     collection: string,
     requests: Document,
     options?: Document,
-    dbOptions?: Document) : Promise<Result>;
+    dbOptions?: Document) : Promise<BulkWriteResult>;
 
   /**
    * Delete multiple documents from the collection.
@@ -121,8 +122,9 @@ interface Writable {
   insertMany(
     database: string,
     collection: string,
-    docs: object[],
-    options?: object) : Promise<Result>;
+    docs: Document[],
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Insert one document into the collection.
@@ -137,8 +139,9 @@ interface Writable {
   insertOne(
     database: string,
     collection: string,
-    doc: object,
-    options?: object) : Promise<Result>;
+    doc: Document,
+    options?: Document,
+    dbOptions?: Document) : Promise<Result>;
 
   /**
    * Replace a document with another.
@@ -237,6 +240,22 @@ interface Writable {
     database: string,
     writeConcern?: Document
   ) : Promise<Result>;
+
+  /**
+   * Deprecated remove command.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} query - The query.
+   * @param {Object} options - The options.
+   * @return {Promise}
+   */
+  remove(
+    database: string,
+    collection: string,
+    query: Document,
+    options?: Document,
+    dbOptions?: Document): Promise<Result>;
 }
 
 export default Writable;
