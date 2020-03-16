@@ -256,6 +256,22 @@ interface Writable {
     query: Document,
     options?: Document,
     dbOptions?: Document): Promise<Result>;
+
+  /**
+   * Converts an existing, non-capped collection to
+   * a capped collection within the same database.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {String} size - The maximum size, in bytes, for the capped collection.
+   *
+   * @return {Promise}
+   */
+  convertToCapped(
+    database: string,
+    collection: string,
+    size: number
+  ): Promise<Result>
 }
 
 export default Writable;
