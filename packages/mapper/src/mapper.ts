@@ -26,7 +26,7 @@ export default class Mapper {
 
   public context: any;
   public cursorAssigned: any;
-  public asyncWriter: any;
+  public asyncWriter: AsyncWriter;
 
   constructor(serviceProvider) {
     this.serviceProvider = serviceProvider;
