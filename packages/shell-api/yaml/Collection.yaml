@@ -58,6 +58,8 @@ class:
             description: 'shell-api.collection.help.update-many.description'
           - name: updateOne
             description: 'shell-api.collection.help.update-one.description'
+          - name: converToCapped
+            description: 'shell-api.collection.help.convert-to-capped.description'
 
     aggregate:
         <<: *__defaultMethod
@@ -223,3 +225,11 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.update-one'
+    convertToCapped:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.convert-to-capped'
