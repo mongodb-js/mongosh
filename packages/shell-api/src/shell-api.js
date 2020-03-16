@@ -999,15 +999,15 @@ class ShellApi {
   }
 
   use(...args) {
-    return this._mapper.use(this, ...args);
+    return this._mapper.use(...args);
   }
 
   it(...args) {
-    return this._mapper.it(this, ...args);
+    return this._mapper.it(...args);
   }
 
   show(...args) {
-    return this._mapper.show(this, ...args);
+    return this._mapper.show(...args);
   }
 }
 

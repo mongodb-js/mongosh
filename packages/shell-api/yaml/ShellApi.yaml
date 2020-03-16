@@ -2,6 +2,9 @@ class:
     <<: *__defaultClass
     __constructorArgs:
         - _mapper
+    __methods:
+        wrappee: '_mapper'
+        firstArg: ''
     help:
         help: 'shell-api.help.description'
         docs: 'https://docs.mongodb.com/manual/reference/method'

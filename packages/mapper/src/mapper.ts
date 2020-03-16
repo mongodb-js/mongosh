@@ -101,7 +101,7 @@ export default class Mapper {
     this.context = contextObject;
   }
 
-  use(_, db): any {
+  use(db): any {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
@@ -109,7 +109,7 @@ export default class Mapper {
     return `switched to db ${db}`;
   }
 
-  async show(_, arg): Promise<any> {
+  async show(arg): Promise<any> {
     switch (arg) {
       case 'databases':
       case 'dbs':
