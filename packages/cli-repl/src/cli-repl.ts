@@ -1,5 +1,5 @@
 import { CliServiceProvider, NodeOptions } from 'mongosh-service-provider-server';
-import ShellApi, { types } from 'mongosh-shell-api';
+import ShellApi from 'mongosh-shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import changeHistory from './history';
