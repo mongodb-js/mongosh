@@ -23,5 +23,8 @@
   ],
   "dependencies": {
     "mongosh-i18n": "file:../i18n"
+  },
+  "devDependencies": {
+    "mongosh-mapper": "file:../mapper"
   }
 }
