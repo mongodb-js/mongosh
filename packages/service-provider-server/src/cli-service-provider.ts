@@ -4,7 +4,8 @@ import {
   ServiceProvider,
   Document,
   Cursor,
-  Result
+  Result,
+  BulkWriteResult
 } from 'mongosh-service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -166,9 +167,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     requests,
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      bulkWrite(requests as any[], options);
+    dbOptions: Document = {}): Promise<BulkWriteResult> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .bulkWrite(requests as any[], options);
   }
 
   /**
