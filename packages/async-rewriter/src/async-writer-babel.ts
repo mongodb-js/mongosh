@@ -25,14 +25,27 @@ export default class AsyncWriter {
             sType = symbols.types[sType];
           }
           path.node.shellType = sType;
-          path.findParent(() => true).node.shellType = sType;
           debug(`Identifier: { name: ${path.node.name} }`, sType.type);
         }
       },
       MemberExpression: {
         exit(path): void {
-          const rhs = path.node.property.name;
           const lhsType = path.node.object.shellType;
+          let rhs;
+          if (this.t.isIdentifier(path.node.property)) {
+            rhs = path.node.property.name;
+          } else if (this.t.isLiteral(path.node.property)) {
+            rhs = path.node.property.value;
+          } else {
+            if (lhsType.hasAsyncChild) {
+              const help = lhsType.type === 'Database' ?
+                ' If you are accessing a collection try Database.get(\'collection\').' :
+                '';
+              throw new Error(`Cannot access shell API attributes dynamically.${help}`);
+            }
+            path.node.shellType = types.unknown;
+            return;
+          }
           let sType = symbols.types.unknown;
           if (lhsType.attributes === undefined) {
             sType = symbols.types.unknown;
@@ -42,7 +55,6 @@ export default class AsyncWriter {
             sType = symbols.types.Collection;
           }
           path.node.shellType = sType;
-          path.findParent(() => true).node.shellType = sType;
           debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, sType.type);
         }
       },
@@ -169,11 +181,25 @@ export default class AsyncWriter {
     };
   }
 
-  compile(code): string {
-    return babel.transform(code, {
+  /**
+   * Returns entire AST, separated for testing.
+   *
+   * @param {string} code - string to compile.
+   * @returns {Object} - { ast, code }
+   */
+  getTransform(code): any {
+    return babel.transformSync(code, {
       plugins: [this.plugin],
       code: true,
       ast: true
-    }).code;
+    });
+  }
+
+  /**
+   * Returns translated code.
+   * @param {string} code - string to compile.
+   */
+  compile(code): string {
+    return this.getTransform(code).code;
   }
 }

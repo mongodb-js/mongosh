@@ -203,7 +203,7 @@ const loadAll = () => {
 
     /* append class to exports */
     exports = `${exports}export { ${className}  };\n`;
-    types.push(`const ${className} = {\n  type: '${className}',\n  attributes: {\n${symbolTemplate(className, lib.class)}\n  }\n}`);
+    types.push(`const ${className} = {\n  type: '${className}',\n  hasAsyncChild: ${!!lib.class.__hasAsyncChild},\n  attributes: {\n${symbolTemplate(className, lib.class)}\n  }\n}`);
     typeConsts.push(className);
 
     /* generate class */

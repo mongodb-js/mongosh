@@ -4,6 +4,7 @@ const unknown = {
 };
 const AggregationCursor = {
   type: 'AggregationCursor',
+  hasAsyncChild: false,
   attributes: {
     bsonsize: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     close: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -20,12 +21,14 @@ const AggregationCursor = {
 };
 const BulkWriteResult = {
   type: 'BulkWriteResult',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const Collection = {
   type: 'Collection',
+  hasAsyncChild: true,
   attributes: {
     aggregate: { type: 'function', returnsPromise: false, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
     bulkWrite: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
@@ -72,6 +75,7 @@ const Collection = {
 };
 const Cursor = {
   type: 'Cursor',
+  hasAsyncChild: false,
   attributes: {
     addOption: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '3.2.0'] },
     allowPartialResults: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -120,6 +124,7 @@ const Cursor = {
 };
 const Database = {
   type: 'Database',
+  hasAsyncChild: true,
   attributes: {
     runCommand: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     getCollectionNames: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -128,36 +133,42 @@ const Database = {
 };
 const DeleteResult = {
   type: 'DeleteResult',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const InsertManyResult = {
   type: 'InsertManyResult',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const InsertOneResult = {
   type: 'InsertOneResult',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const ReplicaSet = {
   type: 'ReplicaSet',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const Shard = {
   type: 'Shard',
+  hasAsyncChild: false,
   attributes: {
 
   }
 };
 const ShellApi = {
   type: 'ShellApi',
+  hasAsyncChild: false,
   attributes: {
     use: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     it: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -166,6 +177,7 @@ const ShellApi = {
 };
 const UpdateResult = {
   type: 'UpdateResult',
+  hasAsyncChild: false,
   attributes: {
 
   }

@@ -6,15 +6,17 @@ const { types } = require('@mongosh/shell-api');
 
 const writer = new AsyncWriter({ db: types.Database }, types);
 const input = [
-  'db.coll.insertOne()',
-  'y = db',
-  'y.coll.insertOne()',
-  '() => {return db; 1}',
-  'f = () => {return db; 1}',
-  'function x() {return db;}',
-  'x().coll.insertOne()'
+  // 'db.coll.insertOne()',
+  // 'y = db',
+  // 'y.coll.insertOne()',
+  // '() => {return db; 1}',
+  // 'f = () => {return db; 1}',
+  // 'function x() {return db;}',
+  // 'x().coll.insertOne()',
+  // 'f().coll.insertOne()',
+  'db.coll[x()]'
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));
-writer.symbols.print();
+// writer.symbols.print();
 
