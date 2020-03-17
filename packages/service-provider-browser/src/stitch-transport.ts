@@ -1,9 +1,9 @@
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 
 import StitchClient from './stitch-client';
 import StitchMongoClient from './stitch-mongo-client';
 import UnsupportedCursor from './unsupported-cursor';
-import { Document, Cursor, Result } from 'mongosh-service-provider-core';
+import { Document, Cursor, Result } from '@mongosh/service-provider-core';
 
 /**
  * Constant for not implemented rejections.

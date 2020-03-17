@@ -1,6 +1,6 @@
 import CliOptions from './cli-options';
 import { USAGE } from './constants';
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 import minimist from 'minimist';
 import clr from './clr';
 import os from 'os';

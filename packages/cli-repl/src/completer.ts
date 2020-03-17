@@ -1,4 +1,4 @@
-import { types as shellTypes } from 'mongosh-shell-api';
+import { types as shellTypes } from '@mongosh/shell-api';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,

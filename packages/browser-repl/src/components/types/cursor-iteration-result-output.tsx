@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectOutput } from './object-output';
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 
 export interface Document {
   [property: string]: number | string | null | undefined | Document | Document[];

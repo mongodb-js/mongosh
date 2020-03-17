@@ -1,6 +1,6 @@
 import { IframeRuntime } from './iframe-runtime';
 import { expect } from '../../testing/chai';
-import { ServiceProvider } from 'mongosh-service-provider-core';
+import { ServiceProvider } from '@mongosh/service-provider-core';
 
 describe('IframeRuntime', () => {
   let runtime;

@@ -1,4 +1,4 @@
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 import util from 'util';
 import clr from './clr';
 

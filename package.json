@@ -70,15 +70,15 @@
     "uuid": "^3.3.3"
   },
   "dependencies": {
-    "mongosh-async-rewriter": "file:packages/async-rewriter",
-    "mongosh-cli-repl": "file:packages/cli-repl",
-    "mongosh-i18n": "file:packages/i18n",
-    "mongosh-mapper": "file:packages/mapper",
-    "mongosh-service-provider-core": "file:packages/service-provider-core",
-    "mongosh-service-provider-server": "file:packages/service-provider-server",
-    "mongosh-service-provider-browser": "file:packages/service-provider-browser",
-    "mongosh-shell-api": "file:packages/shell-api",
-    "mongosh-browser-runtime-core": "file:packages/browser-runtime-core",
-    "mongosh-browser-runtime-electron": "file:packages/browser-runtime-electron"
+    "@mongosh/async-rewriter": "file:packages/async-rewriter",
+    "@mongosh/cli-repl": "file:packages/cli-repl",
+    "@mongosh/i18n": "file:packages/i18n",
+    "@mongosh/mapper": "file:packages/mapper",
+    "@mongosh/service-provider-core": "file:packages/service-provider-core",
+    "@mongosh/service-provider-server": "file:packages/service-provider-server",
+    "@mongosh/service-provider-browser": "file:packages/service-provider-browser",
+    "@mongosh/shell-api": "file:packages/shell-api",
+    "@mongosh/browser-runtime-core": "file:packages/browser-runtime-core",
+    "@mongosh/browser-runtime-electron": "file:packages/browser-runtime-electron"
   }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 
 const styles = require('./help-output.less');
 
