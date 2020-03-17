@@ -233,3 +233,11 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.convert-to-capped'
+    createIndexes:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.2.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.create-indexes'

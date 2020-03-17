@@ -51,8 +51,14 @@ describe('Collection', () => {
   });
 
   describe('#convertToCapped', () => {
-    it('wraps mapper.convertToCapped', async() => {
+    it('wraps mapper.convertToCapped', () => {
       testWrappedMethod('convertToCapped');
+    });
+  });
+
+  describe('#createIndexes', () => {
+    it('wraps mapper.createIndexes', () => {
+      testWrappedMethod('createIndexes');
     });
   });
 });
