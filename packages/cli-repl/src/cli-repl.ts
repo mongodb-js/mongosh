@@ -1,11 +1,11 @@
-import { CliServiceProvider, NodeOptions } from 'mongosh-service-provider-server';
-import ShellApi from 'mongosh-shell-api';
+import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import ShellApi from '@mongosh/shell-api';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import changeHistory from './history';
-import Mapper from 'mongosh-mapper';
+import Mapper from '@mongosh/mapper';
 import completer from './completer';
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 import formatOutput from './format-output';
 import path from 'path';
 import util from 'util';

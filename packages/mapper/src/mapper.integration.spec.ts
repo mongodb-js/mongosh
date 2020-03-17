@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { CliServiceProvider } from 'mongosh-service-provider-server';
+import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
-import { Collection, Cursor } from 'mongosh-shell-api';
+import { Collection, Cursor } from '@mongosh/shell-api';
 
 describe('Mapper (integration)', function() {
   this.timeout(10000);

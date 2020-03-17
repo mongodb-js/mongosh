@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Shell } from 'mongosh-browser-repl';
+import { Shell } from '@mongosh/browser-repl';
 import { CompassShell } from './compass-shell';
 
 function updateAndWaitAsync(wrapper) {

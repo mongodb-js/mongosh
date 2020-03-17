@@ -4,7 +4,7 @@ import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Shell } from 'mongosh-browser-repl';
+import { Shell } from '@mongosh/browser-repl';
 
 export class CompassShell extends Component {
   static propTypes = {

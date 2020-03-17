@@ -2,7 +2,7 @@
 const SymbolTable = require('./lib/symbol-table').default;
 const AsyncWriter = require('./lib/async-writer-babel.js').default;
 
-const { types } = require('mongosh-shell-api');
+const { types } = require('@mongosh/shell-api');
 
 const writer = new AsyncWriter({ db: types.Database }, types);
 const input = [

@@ -1,5 +1,5 @@
 import completer from './completer';
-import { types as shellTypes } from 'mongosh-shell-api';
+import { types as shellTypes } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
 

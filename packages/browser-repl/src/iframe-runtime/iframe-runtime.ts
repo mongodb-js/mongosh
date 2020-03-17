@@ -7,9 +7,9 @@ import {
   EvaluationResult,
   Completion,
   OpenContextRuntime
-} from 'mongosh-browser-runtime-core';
+} from '@mongosh/browser-runtime-core';
 
-import { ServiceProvider } from 'mongosh-service-provider-core';
+import { ServiceProvider } from '@mongosh/service-provider-core';
 
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;

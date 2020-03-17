@@ -1,11 +1,11 @@
 import { Completion } from './autocompleter/autocompleter';
-import { ServiceProvider } from 'mongosh-service-provider-core';
+import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
 import { Runtime } from './runtime';
 
-import Mapper from 'mongosh-mapper';
-import ShellApi from 'mongosh-shell-api';
+import Mapper from '@mongosh/mapper';
+import ShellApi from '@mongosh/shell-api';
 
 /**
  * This class is the core implementation for a runtime which is not isolated

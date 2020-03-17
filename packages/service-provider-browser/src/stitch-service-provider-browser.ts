@@ -1,7 +1,7 @@
-import { ServiceProvider, Result, BulkWriteResult, Document, Cursor } from 'mongosh-service-provider-core';
+import { ServiceProvider, Result, BulkWriteResult, Document, Cursor } from '@mongosh/service-provider-core';
 import StitchTransport from './stitch-transport';
 
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 import {
   AnonymousCredential,
   RemoteMongoClient,

@@ -1,6 +1,6 @@
 import CompassShellStore from 'stores';
 import { EventEmitter } from 'events';
-import { ElectronRuntime } from 'mongosh-browser-runtime-electron';
+import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 
 describe('CompassShellStore [Store]', () => {
   let store;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import i18n from 'mongosh-i18n';
+import i18n from '@mongosh/i18n';
 import { ObjectOutput } from './object-output';
 import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
 

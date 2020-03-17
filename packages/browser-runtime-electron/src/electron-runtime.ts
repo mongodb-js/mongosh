@@ -7,9 +7,9 @@ import {
   EvaluationResult,
   OpenContextRuntime,
   Completion
-} from 'mongosh-browser-runtime-core';
+} from '@mongosh/browser-runtime-core';
 
-import { ServiceProvider } from 'mongosh-service-provider-core';
+import { ServiceProvider } from '@mongosh/service-provider-core';
 
 export class ElectronRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;

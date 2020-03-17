@@ -16,14 +16,14 @@ import {
   CommandResult,
   types,
   Collection
-} from 'mongosh-shell-api';
+} from '@mongosh/shell-api';
 
 import {
   ServiceProvider,
   Document
-} from 'mongosh-service-provider-core';
+} from '@mongos/service-provider-core';
 
-import AsyncWriter from 'mongosh-async-rewriter';
+import AsyncWriter from '@mongosh/async-rewriter';
 
 export default class Mapper {
   private serviceProvider: ServiceProvider;

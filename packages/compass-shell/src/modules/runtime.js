@@ -1,5 +1,5 @@
-import { ElectronRuntime } from 'mongosh-browser-runtime-electron';
-import { CompassServiceProvider } from 'mongosh-service-provider-server';
+import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
+import { CompassServiceProvider } from '@mongosh/service-provider-server';
 
 /**
  * The prefix.

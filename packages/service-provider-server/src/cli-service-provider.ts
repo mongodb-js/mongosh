@@ -6,7 +6,7 @@ import {
   Cursor,
   Result,
   BulkWriteResult
-} from 'mongosh-service-provider-core';
+} from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
 import NodeCursor from './node/node-cursor';
