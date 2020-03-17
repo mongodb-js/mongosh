@@ -1,3 +1,6 @@
+variables:
+  MONGODB_VERSION: '4.2.3'
+
 trigger:
   - master
 jobs:
