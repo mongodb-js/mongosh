@@ -151,6 +151,22 @@ interface Readable {
   isCapped(
     database: string,
     collection: string): Promise<Result>;
+
+  /**
+   * Returns an array that holds a list of documents that identify and
+   * describe the existing indexes on the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options
+   *  (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  getIndexes(
+    database: string,
+    collection: string,
+    dbOptions?: Document): Promise<Result>;
 }
 
 export default Readable;

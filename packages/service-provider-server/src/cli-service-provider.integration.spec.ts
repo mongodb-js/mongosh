@@ -434,4 +434,22 @@ describe('CliServiceProvider [integration]', function() {
       ).to.be.true;
     });
   });
+
+  describe('#getIndexes', () => {
+    it('returns indexes', async() => {
+      const collName = 'coll1';
+      const nativeCollection = db.collection(collName);
+
+      await nativeCollection.createIndex('x');
+
+      const result = await serviceProvider.getIndexes(
+        dbName,
+        collName
+      );
+
+      expect(
+        result.map((spec) => spec.key)
+      ).to.deep.equal([{ _id: 1 }, { x: 1 }]);
+    });
+  });
 });

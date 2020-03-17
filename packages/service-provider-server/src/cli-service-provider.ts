@@ -448,7 +448,8 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   /**
-   * Insert many documents into the colleciton.
+   * Insert many documents into the collection. {
+   * db('db1').collection('coll1').listIndexes().toArray()}
    *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
@@ -702,6 +703,27 @@ class CliServiceProvider implements ServiceProvider {
     return this.db(database, dbOptions)
       .collection(collection)
       .createIndexes(indexSpecs, options);
+  }
+
+  /**
+   * Returns an array that holds a list of documents that identify and
+   * describe the existing indexes on the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options
+   *  (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  async getIndexes(
+    database: string,
+    collection: string,
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .listIndexes()
+      .toArray();
   }
 }
 
