@@ -682,6 +682,27 @@ class CliServiceProvider implements ServiceProvider {
       ...(ok ? { dropped: db } : {})
     };
   }
+
+  /**
+   * Adds new indexes to a collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object[]} indexSpecs the spec of the intexes to be created.
+   * @param {Object} options - The command options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @return {Promise}
+   */
+  async createIndexes(
+    database: string,
+    collection: string,
+    indexSpecs: Document[],
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .createIndexes(indexSpecs, options);
+  }
 }
 
 export default CliServiceProvider;

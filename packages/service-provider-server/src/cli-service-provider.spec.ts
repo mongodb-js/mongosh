@@ -504,4 +504,41 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#createIndexes', () => {
+    let nativeMethodArgs;
+    let nativeMethodResult;
+    let nativeMethodMock;
+
+    beforeEach(() => {
+      nativeMethodArgs = [
+        [{ key: 'x' }]
+      ];
+
+      nativeMethodResult = {
+        createdCollectionAutomatically: false,
+        numIndexesBefore: 2,
+        numIndexesAfter: 3,
+        ok: 1
+      };
+
+      nativeMethodMock = sinon.mock().once().withArgs(...nativeMethodArgs).
+        resolves(nativeMethodResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        createIndexes: nativeMethodMock
+      });
+
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await (serviceProvider as any).createIndexes(
+        'db1',
+        'coll1',
+        ...nativeMethodArgs);
+      expect(result).to.deep.equal(nativeMethodResult);
+      nativeMethodMock.verify();
+    });
+  });
 });
