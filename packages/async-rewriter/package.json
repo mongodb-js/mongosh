@@ -15,7 +15,8 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@babel/core": "^7.8.7"
+    "@babel/core": "^7.8.7",
+    "mocha": "^7.1.0"
   },
   "devDependencies": {
     "ast-pretty-print": "^2.0.1",

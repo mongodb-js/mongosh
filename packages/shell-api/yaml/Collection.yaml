@@ -6,6 +6,7 @@ class:
         - _collection
     __stringRep:
         - this._collection
+    __hasAsyncChild: true
     help:
         help: 'shell-api.collection.description'
         docs: 'https://docs.mongodb.com/manual/reference/method/js-collection'
