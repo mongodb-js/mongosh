@@ -819,4 +819,32 @@ export default class Mapper {
       size
     );
   }
+
+  /**
+   * Create indexes for the given specs
+   *
+   * @param {Collection} collection
+   * @param {String} size - The maximum size, in bytes, for the capped collection.
+   *
+   * @return {Promise}
+   */
+  async createIndexes(
+    collection: Collection,
+    keyPatterns: Document[],
+    options: Document = {}
+  ): Promise<any> {
+    if (typeof options !== 'object' || Array.isArray(options)) {
+      throw new Error('options must be an object');
+    }
+
+    const specs = keyPatterns.map((pattern) => ({
+      ...options, key: pattern
+    }));
+
+    return await this.serviceProvider.createIndexes(
+      collection._database,
+      collection._collection,
+      specs
+    );
+  }
 }
