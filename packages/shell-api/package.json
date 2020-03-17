@@ -1,5 +1,5 @@
 {
-  "name": "mongosh-shell-api",
+  "name": "@mongosh/shell-api",
   "version": "0.0.0",
   "description": "MongoDB Shell API Package",
   "main": "lib/index.js",
@@ -22,6 +22,6 @@
     "build"
   ],
   "dependencies": {
-    "mongosh-i18n": "file:../i18n"
+    "@mongosh/i18n": "file:../i18n"
   }
 }
