@@ -5,6 +5,7 @@ class:
         - _name
     __stringRep:
         - this._name
+    __hasAsyncChild: true
     help:
         help: 'shell-api.database.description'
         docs: 'https://docs.mongodb.com/manual/reference/method/js-database/'
