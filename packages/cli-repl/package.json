@@ -1,5 +1,5 @@
 {
-  "name": "mongosh-cli-repl",
+  "name": "@mongosh/cli-repl",
   "version": "0.0.0",
   "description": "MongoDB Shell CLI REPL Package",
   "main": "lib/index.js",
@@ -24,10 +24,10 @@
     "minimist": "^1.2.0",
     "mongodb-ace-autocompleter": "^0.4.1",
     "mongodb-redact": "^0.2.0",
-    "mongosh-i18n": "file:../i18n",
-    "mongosh-mapper": "file:../mapper",
-    "mongosh-service-provider-server": "file:../service-provider-server",
-    "mongosh-shell-api": "file:../shell-api",
+    "@mongosh/i18n": "file:../i18n",
+    "@mongosh/mapper": "file:../mapper",
+    "@mongosh/service-provider-server": "file:../service-provider-server",
+    "@mongosh/shell-api": "file:../shell-api",
     "read": "^1.0.7",
     "semver": "^7.1.2"
   },

@@ -1,5 +1,5 @@
 {
-  "name": "mongosh-mapper",
+  "name": "@mongosh/mapper",
   "version": "0.0.0",
   "description": "MongoDB Shell Mapper Package",
   "main": "./lib/index.js",
@@ -15,13 +15,13 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "mongosh-shell-api": "file:../shell-api",
-    "mongosh-async-rewriter": "file:../async-rewriter",
-    "mongosh-service-provider-core": "file:../service-provider-core",
+    "@mongosh/shell-api": "file:../shell-api",
+    "@mongosh/async-rewriter": "file:../async-rewriter",
+    "@mongosh/service-provider-core": "file:../service-provider-core",
     "pretty-bytes": "^5.3.0",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
-    "mongosh-service-provider-server": "file:../service-provider-server"
+    "@mongosh/service-provider-server": "file:../service-provider-server"
   }
 }

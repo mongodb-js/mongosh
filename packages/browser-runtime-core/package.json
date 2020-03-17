@@ -1,6 +1,6 @@
 {
-  "name": "mongosh-browser-runtime-core",
-  "version": "1.0.0",
+  "name": "@mongosh/browser-runtime-core",
+  "version": "0.0.0",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,8 +19,8 @@
   "license": "SSPL",
   "devDependencies": {},
   "dependencies": {
-    "mongosh-cli-repl": "file:../cli-repl",
-    "mongosh-mapper": "file:../mapper",
-    "mongosh-shell-api": "file:../shell-api"
+    "@mongosh/cli-repl": "file:../cli-repl",
+    "@mongosh/mapper": "file:../mapper",
+    "@mongosh/shell-api": "file:../shell-api"
   }
 }

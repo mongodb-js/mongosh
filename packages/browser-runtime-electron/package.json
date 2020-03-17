@@ -1,6 +1,6 @@
 {
-  "name": "mongosh-browser-runtime-electron",
-  "version": "1.0.0",
+  "name": "@mongosh/browser-runtime-electron",
+  "version": "0.0.0",
   "description": "Mongosh browser runtime electron",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,6 +19,6 @@
   "license": "SSPL",
   "devDependencies": {},
   "dependencies": {
-    "mongosh-browser-runtime-core": "file:../browser-runtime-core"
+    "@mongosh/browser-runtime-core": "file:../browser-runtime-core"
   }
 }
