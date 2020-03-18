@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import Mapper from './mapper';
 import sinon from 'sinon';
-import { ServiceProvider } from 'mongosh-service-provider-core';
-import { Collection } from 'mongosh-shell-api';
+import { ServiceProvider } from '@mongosh/service-provider-core';
+import { Collection } from '@mongosh/shell-api';
 
 describe('Mapper', () => {
   let mapper: Mapper;
