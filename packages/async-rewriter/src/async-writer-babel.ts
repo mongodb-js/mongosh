@@ -96,7 +96,7 @@ export default class AsyncWriter {
       },
       AssignmentExpression: {
         exit(path): void {
-          const sType = path.node.right.shellType;
+          const sType = path.node.right.shellType === undefined ? types.unknown : path.node.right.shellType;
           symbols.update(path.node.left.name, sType);
           path.node.shellType = sType; // assignment returns value unlike decl
           debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
