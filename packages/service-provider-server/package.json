@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-server",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.3",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

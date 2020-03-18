@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "MongoDB Shell CLI REPL Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
