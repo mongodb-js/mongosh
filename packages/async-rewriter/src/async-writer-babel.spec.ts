@@ -15,7 +15,7 @@ import SymbolTable from './symbol-table';
  * @param {String} expected
  * @returns {Node} result of getTransform.ast
  */
-const compare = (writer, input, expected) => {
+const compare = (writer, input, expected): object => {
   const result = writer.getTransform(input);
   expect(result.code).to.equal(expected);
   return result.ast;
@@ -447,15 +447,88 @@ describe('async-writer-babel', () => {
       });
     });
   });
-  // describe('assignment', () => {
-  //
-  // });
+  describe('assignment', () => {
+    describe('known type', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable({ db: types.Database }, { unknown: types.unknown }));
+        writer = new AsyncWriter({ db: types.Database }, { unknown: types.unknown }, spy);
+        ast = compare(writer, 'x = db', 'x = db;');
+      });
+      it('sets type of assignment node', (done) => {
+        traverse(ast, {
+          AssignmentExpression(path) {
+            expect(path.node.shellType).to.deep.equal(types.Database);
+            done();
+          }
+        });
+      });
+      it('updates the symbol table with new key', () => {
+        expect(spy.update.calledOnce).to.be.true;
+        expect(spy.update.calledWith('x', types.Database)).to.be.true;
+      });
+    });
+    describe('unknown type', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable({ db: types.Database }, { unknown: types.unknown }));
+        writer = new AsyncWriter({ db: types.Database }, { unknown: types.unknown }, spy);
+        ast = compare(writer, 'x = 1', 'x = 1;');
+      });
+      it('sets type of assignment node', (done) => {
+        traverse(ast, {
+          AssignmentExpression(path) {
+            expect(path.node.shellType).to.deep.equal(types.unknown);
+            done();
+          }
+        });
+      });
+      it('updates the symbol table with new key', () => {
+        expect(spy.update.calledOnce).to.be.true;
+        expect(spy.update.calledWith('x', types.unknown)).to.be.true;
+      });
+    });
+    describe('existing symbol', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable({ db: types.Database, coll: types.Collection }, { unknown: types.unknown }));
+        writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, { unknown: types.unknown }, spy);
+        ast = compare(writer, 'coll = db', 'coll = db;');
+      });
+      it('sets type of assignment node', (done) => {
+        traverse(ast, {
+          AssignmentExpression(path) {
+            expect(path.node.shellType).to.deep.equal(types.Database);
+            done();
+          }
+        });
+      });
+      it('updates the symbol table with new key', () => {
+        expect(spy.update.calledOnce).to.be.true;
+        expect(spy.update.calledWith('coll', types.Database)).to.be.true;
+      });
+    });
+  });
   // describe('function definition', () => {
   //   describe('arrow function', () => {
+  //     describe('with return;', () => {
   //
+  //     });
+  //     describe('with return val', () => {
+  //
+  //     });
+  //     describe('with implicit return val', () => {
+  //
+  //     });
   //   });
   //   describe('function keyword', () => {
   //
   //   });
+  // });
+  // describe('branching', () => {
+  //
+  // });
+  // describe('class definitions', () => {
+  //
+  // });
+  // describe('multi-line input', () => {
+  //
   // });
 });
