@@ -109,7 +109,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
     describe('#distinct', () => {
       it('it rejects the action', () => {
-        return stitchTransport.distinct().toArray().catch((err) => {
+        return stitchTransport.distinct().catch((err) => {
           expect(err).to.not.equal(null);
         });
       });
