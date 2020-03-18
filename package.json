@@ -34,6 +34,9 @@
     "Stitch"
   ],
   "license": "SSPL",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^12.4.0"
   },
