@@ -39,6 +39,9 @@
     ]
   },
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@mongosh/browser-repl": "file:../browser-repl",
     "@mongosh/service-provider-server": "file:../service-provider-server",

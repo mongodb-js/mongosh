@@ -17,6 +17,9 @@
   },
   "author": "",
   "license": "SSPL",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {},
   "dependencies": {
     "@mongosh/cli-repl": "file:../cli-repl",

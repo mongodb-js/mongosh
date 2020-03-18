@@ -17,6 +17,9 @@
   },
   "author": "",
   "license": "SSPL",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {},
   "dependencies": {
     "@mongosh/browser-runtime-core": "file:../browser-runtime-core"
