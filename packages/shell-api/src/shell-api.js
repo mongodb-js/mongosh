@@ -272,6 +272,10 @@ class Collection {
   createIndexes(...args) {
     return this._mapper.createIndexes(this, ...args);
   }
+
+  createIndex(...args) {
+    return this._mapper.createIndex(this, ...args);
+  }
 }
 
 
@@ -426,10 +430,16 @@ Collection.prototype.convertToCapped.returnsPromise = true;
 Collection.prototype.convertToCapped.returnType = 'unknown';
 
 Collection.prototype.createIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.create-indexes' });
-Collection.prototype.createIndexes.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.createIndexes.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.createIndexes.topologies = [0, 1, 2];
 Collection.prototype.createIndexes.returnsPromise = true;
 Collection.prototype.createIndexes.returnType = 'unknown';
+
+Collection.prototype.createIndex.help = () => new Help({ 'help': 'shell-api.collection.help.create-index' });
+Collection.prototype.createIndex.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.createIndex.topologies = [0, 1, 2];
+Collection.prototype.createIndex.returnsPromise = true;
+Collection.prototype.createIndex.returnType = 'unknown';
 
 
 class Cursor {

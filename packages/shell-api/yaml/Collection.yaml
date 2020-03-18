@@ -241,3 +241,11 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.create-indexes'
+    createIndex:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.2.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.create-index'
