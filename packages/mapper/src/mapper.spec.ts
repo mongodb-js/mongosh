@@ -152,6 +152,28 @@ db3  30 kB`;
         });
       });
     });
+
+    describe('convertToCapped', () => {
+      let collection;
+      beforeEach(async() => {
+        collection = new Collection(mapper, 'db1', 'coll1');
+      });
+
+      it('calls service provider convertToCapped', async() => {
+        serviceProvider.convertToCapped = sinon.spy(
+          () => Promise.resolve({ ok: 1 }));
+
+        const result = await mapper.convertToCapped(collection, 1000);
+
+        expect((serviceProvider.convertToCapped as sinon.Spy).calledWith(
+          'db1',
+          'coll1',
+          1000
+        ));
+
+        expect(result).to.deep.equal({ ok: 1 });
+      });
+    });
   });
 });
 

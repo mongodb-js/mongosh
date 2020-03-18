@@ -385,4 +385,27 @@ describe('CliServiceProvider [integration]', function() {
       });
     });
   });
+
+  describe('#convertToCapped', () => {
+    it('converts a collection to capped', async() => {
+      const collName = 'coll1';
+      const nativeCollection = db.collection(collName);
+
+      await nativeCollection.insertOne({ doc: 1 });
+
+      expect(
+        await nativeCollection.isCapped()
+      ).to.be.false;
+
+      await serviceProvider.convertToCapped(
+        dbName,
+        collName,
+        10000
+      );
+
+      expect(
+        await nativeCollection.isCapped()
+      ).to.be.true;
+    });
+  });
 });

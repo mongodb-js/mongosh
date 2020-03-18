@@ -803,4 +803,20 @@ export default class Mapper {
       result.upsertedId
     );
   }
+
+  /**
+   * Converts a collection to capped
+   *
+   * @param {Collection} collection
+   * @param {String} size - The maximum size, in bytes, for the capped collection.
+   *
+   * @return {Promise}
+   */
+  async convertToCapped(collection: Collection, size: number): Promise<any> {
+    return await this.serviceProvider.convertToCapped(
+      collection._database,
+      collection._collection,
+      size
+    );
+  }
 }

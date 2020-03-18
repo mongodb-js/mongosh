@@ -471,4 +471,37 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#convertToCapped', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs({ convertToCapped: 'coll1', size: 1000 }, {})
+        .resolves({ ok: 1 });
+
+      const dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('db1')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes the command', async() => {
+      const result = await serviceProvider.convertToCapped('db1', 'coll1', 1000);
+      expect(result).to.deep.equal({ ok: 1 });
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
 });
