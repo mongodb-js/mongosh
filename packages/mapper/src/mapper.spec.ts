@@ -224,5 +224,48 @@ db3  30 kB`;
       });
     });
   });
+
+  describe('createIndex', () => {
+    let collection;
+    beforeEach(async() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+      serviceProvider.createIndexes.resolves({ ok: 1 });
+    });
+
+    context('when options is not passed', () => {
+      it('calls serviceProvider.createIndexes using keys', async() => {
+        await mapper.createIndex(collection, { x: 1 });
+
+        expect(serviceProvider.createIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ key: { x: 1 } }]
+        );
+      });
+    });
+
+    context('when options is an object', () => {
+      it('calls serviceProvider.createIndexes merging options', async() => {
+        await mapper.createIndex(collection, { x: 1 }, { name: 'index-1' });
+
+        expect(serviceProvider.createIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ key: { x: 1 }, name: 'index-1' }]
+        );
+      });
+    });
+
+    context('when options is not an object', () => {
+      it('throws an error', async() => {
+        const error = await mapper.createIndex(
+          collection, { x: 1 }, 'unsupported' as any
+        ).catch(e => e);
+
+        expect(error).to.be.instanceOf(Error);
+        expect(error.message).to.equal('options must be an object');
+      });
+    });
+  });
 });
 

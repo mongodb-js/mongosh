@@ -821,11 +821,14 @@ export default class Mapper {
   }
 
   /**
-   * Create indexes for the given specs
+   * Create indexes for a collection
    *
    * @param {Collection} collection
-   * @param {String} size - The maximum size, in bytes, for the capped collection.
-   *
+   * @param {Document} keyPatterns - An array of documents that contains
+   *  the field and value pairs where the field is the index key and the
+   *  value describes the type of index for that field.
+   * @param {Document} options - createIndexes options (
+   *  name, background, sparse ...)
    * @return {Promise}
    */
   async createIndexes(
@@ -845,6 +848,30 @@ export default class Mapper {
       collection._database,
       collection._collection,
       specs
+    );
+  }
+
+  /**
+   * Create index for a collection
+   *
+   * @param {Collection} collection
+   * @param {Document} keys - An document that contains
+   *  the field and value pairs where the field is the index key and the
+   *  value describes the type of index for that field.
+   * @param {Document} options - createIndexes options (
+   *  name, background, sparse ...)
+   *
+   * @return {Promise}
+   */
+  async createIndex(
+    collection: Collection,
+    keys: Document,
+    options: Document = {}
+  ): Promise<any> {
+    return await this.createIndexes(
+      collection,
+      [keys],
+      options
     );
   }
 }
