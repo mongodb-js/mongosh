@@ -12,6 +12,9 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^12.4.0"
   },

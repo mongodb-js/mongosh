@@ -10,6 +10,9 @@
     "test-ci": "karma start --colors",
     "prepublish": "npm run compile-ts"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^12.4.0"
   },

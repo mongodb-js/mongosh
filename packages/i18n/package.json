@@ -10,6 +10,9 @@
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\""
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^12.4.0"
   },

@@ -5,6 +5,9 @@
   "scripts": {
     "browserify-mapper": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^12.4.0"
   }
