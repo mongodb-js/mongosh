@@ -66,6 +66,33 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   /**
+   * Converts an existing, non-capped collection to
+   * a capped collection within the same database.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {String} size - The maximum size, in bytes, for the capped collection.
+   *
+   * @return {Promise}
+   */
+  async convertToCapped(database: string, collection: string, size: number): Promise<any> {
+    const result: any = await this.runCommand(
+      database,
+      {
+        convertToCapped: collection,
+        size: size
+      },
+      {}
+    );
+
+    if (!result) {
+      return;
+    }
+
+    return result;
+  }
+
+  /**
    * Get the Db object from the client.
    *
    * @param {String} name - The database name.

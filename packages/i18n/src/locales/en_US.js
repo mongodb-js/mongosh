@@ -825,6 +825,17 @@ const translations = {
           },
           "returns": ""
         },
+        "convert-to-capped": {
+          "link": "",
+          "description": "calls {convertToCapped:'coll', size:maxBytes}} command",
+          "example": "db.coll.convertToCapped(10000)",
+          "parameters": {
+            "size": {
+              "type": "number",
+              "description": "The maximum size, in bytes, for the capped collection."
+            }
+          }
+        },
         "update-one": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.updateOne",
           "description": "Updates a single document within the collection based on the filter.",

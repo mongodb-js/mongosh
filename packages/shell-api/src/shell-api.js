@@ -166,7 +166,7 @@ class Collection {
     this.shellApiType = () => {
       return 'Collection';
     };
-    this.help = () => new Help({ 'help': 'shell-api.collection.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-collection', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write.description' }, { 'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents.description' }, { 'name': 'count', 'description': 'shell-api.collection.help.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many.description' }, { 'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one.description' }, { 'name': 'distinct', 'description': 'shell-api.collection.help.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-coun.descriptiont' }, { 'name': 'find', 'description': 'shell-api.collection.help.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify.description' }, { 'name': 'findOne', 'description': 'shell-api.collection.help.find-one.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update.description' }, { 'name': 'insert', 'description': 'shell-api.collection.help.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many.description' }, { 'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one.description' }, { 'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped.description' }, { 'name': 'remove', 'description': 'shell-api.collection.help.remove.description' }, { 'name': 'save', 'description': 'shell-api.collection.help.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one.description' }, { 'name': 'update', 'description': 'shell-api.collection.help.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.collection.help.update-many.description' }, { 'name': 'updateOne', 'description': 'shell-api.collection.help.update-one.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.collection.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-collection', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write.description' }, { 'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents.description' }, { 'name': 'count', 'description': 'shell-api.collection.help.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many.description' }, { 'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one.description' }, { 'name': 'distinct', 'description': 'shell-api.collection.help.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-coun.descriptiont' }, { 'name': 'find', 'description': 'shell-api.collection.help.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify.description' }, { 'name': 'findOne', 'description': 'shell-api.collection.help.find-one.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update.description' }, { 'name': 'insert', 'description': 'shell-api.collection.help.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many.description' }, { 'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one.description' }, { 'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped.description' }, { 'name': 'remove', 'description': 'shell-api.collection.help.remove.description' }, { 'name': 'save', 'description': 'shell-api.collection.help.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one.description' }, { 'name': 'update', 'description': 'shell-api.collection.help.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.collection.help.update-many.description' }, { 'name': 'updateOne', 'description': 'shell-api.collection.help.update-one.description' }, { 'name': 'converToCapped', 'description': 'shell-api.collection.help.convert-to-capped.description' }] });
   }
 
   aggregate(...args) {
@@ -263,6 +263,10 @@ class Collection {
 
   updateOne(...args) {
     return this._mapper.updateOne(this, ...args);
+  }
+
+  convertToCapped(...args) {
+    return this._mapper.convertToCapped(this, ...args);
   }
 }
 
@@ -410,6 +414,12 @@ Collection.prototype.updateOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.updateOne.topologies = [0, 1, 2];
 Collection.prototype.updateOne.returnsPromise = true;
 Collection.prototype.updateOne.returnType = 'unknown';
+
+Collection.prototype.convertToCapped.help = () => new Help({ 'help': 'shell-api.collection.help.convert-to-capped' });
+Collection.prototype.convertToCapped.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.convertToCapped.topologies = [0, 1, 2];
+Collection.prototype.convertToCapped.returnsPromise = true;
+Collection.prototype.convertToCapped.returnType = 'unknown';
 
 
 class Cursor {

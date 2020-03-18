@@ -111,6 +111,10 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
+  convertToCapped(database: string, collection: string, size: number): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
   listDatabases(database: string): Promise<any> {
     throw new Error("Method not implemented.");
   }
