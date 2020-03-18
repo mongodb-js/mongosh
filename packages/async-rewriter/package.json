@@ -20,6 +20,7 @@
   "devDependencies": {
     "ast-pretty-print": "^2.0.1",
     "mocha": "^7.1.0",
-    "mongosh-shell-api": "file:../shell-api"
+    "mongosh-shell-api": "file:../shell-api",
+    "sinon": "^9.0.1"
   }
 }
