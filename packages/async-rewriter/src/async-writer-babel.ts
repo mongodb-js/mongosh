@@ -3,9 +3,10 @@ import * as babel from '@babel/core';
 // import printAST from 'ast-pretty-print';
 import SymbolTable from './symbol-table';
 
-const debug = (str, type?): void => {
-  str = `  ${str}${type === undefined ? '' : ` ==> ${type}`}`;
-  // console.log(str);
+const debug = (str, type?, indent?): void => {
+  indent = indent ? '' : '  ';
+  str = `${indent}${str}${type === undefined ? '' : ` ==> ${type}`}`;
+  console.log(str);
 };
 
 export default class AsyncWriter {
@@ -13,8 +14,8 @@ export default class AsyncWriter {
   private inferTypeVisitor: any;
   private plugin: any;
 
-  constructor(initialScope, types) {
-    const symbols = new SymbolTable(initialScope, types);
+  constructor(initialScope, types, st?) {
+    const symbols = st ? st : new SymbolTable(initialScope, types);
     this.symbols = symbols;
     this.inferTypeVisitor = {
       Identifier: {
@@ -71,12 +72,13 @@ export default class AsyncWriter {
               sType = returnType;
             }
             if (lhsType.returnsPromise) {
+              path.node.shellType = sType;
               path.replaceWith(this.t.awaitExpression(path.node));
               path.skip();
             }
           }
-          debug(`CallExpression: { ${dbg}, callee.shellType: ${lhsType.type} }`, sType.type);
           path.node.shellType = sType;
+          debug(`CallExpression: { ${dbg}, callee.shellType: ${lhsType.type} }`, path.node.shellType.type);
         }
       },
       VariableDeclarator: {
@@ -101,11 +103,7 @@ export default class AsyncWriter {
         }
       },
       Function: {
-        enter(): void {
-          symbols.pushScope();
-        },
         exit(path): void {
-          symbols.popScope();
           const rType = path.node.body.shellType; // should always be set
           const sType = { type: 'function', returnsPromise: false, returnType: rType };
           if (path.node.id !== null) {
@@ -146,6 +144,16 @@ export default class AsyncWriter {
           debug('ReturnStatement', sType.type);
         }
       },
+      Scopable: {
+        enter(path): void {
+          debug(`---new scope at i=${symbols.scopeStack.length}`, path.node.type, true);
+          symbols.pushScope();
+        },
+        exit(path): void {
+          symbols.popScope();
+          debug(`---pop scope at i=${symbols.scopeStack.length}`, path.node.type, true);
+        }
+      },
       exit(path): void {
         const type = path.node.shellType || symbols.types.unknown;
         if (this.skip.some((t) => (this.t[t](path.node)))) { // TODO: nicer?
@@ -168,12 +176,16 @@ export default class AsyncWriter {
         // },
         visitor: {
           Program: {
+            enter(): void {
+              symbols.pushScope();
+            },
             exit(path): void {
               path.traverse(visitor, {
                 t: t,
                 skip: skips,
                 toRet: []
               });
+              symbols.popScope();
             }
           }
         }
