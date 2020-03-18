@@ -21,7 +21,7 @@ import {
 import {
   ServiceProvider,
   Document
-} from '@mongos/service-provider-core';
+} from '@mongosh/service-provider-core';
 
 import AsyncWriter from '@mongosh/async-rewriter';
 
