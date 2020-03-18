@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
@@ -44,8 +44,8 @@
   },
   "dependencies": {
     "@mongosh/browser-repl": "file:../browser-repl",
-    "@mongosh/service-provider-server": "file:../service-provider-server",
-    "@mongosh/browser-runtime-electron": "file:../browser-runtime-electron"
+    "@mongosh/browser-runtime-electron": "file:../browser-runtime-electron",
+    "@mongosh/service-provider-server": "file:../service-provider-server"
   },
   "peerDependencies": {
     "hadron-ipc": "^1.1.0",

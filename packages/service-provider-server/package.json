@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-server",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -31,7 +31,7 @@
     ]
   },
   "dependencies": {
-    "mongodb": "3.5.3 || ^3.5.5",
-    "@mongosh/service-provider-core": "file:../service-provider-core"
+    "@mongosh/service-provider-core": "file:../service-provider-core",
+    "mongodb": "3.5.3 || ^3.5.5"
   }
 }

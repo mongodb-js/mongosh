@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/async-rewriter",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "@babel/core": "^7.8.7"
   },
   "devDependencies": {
-    "ast-pretty-print": "^2.0.1",
-    "@mongosh/shell-api": "file:../shell-api"
+    "@mongosh/shell-api": "file:../shell-api",
+    "ast-pretty-print": "^2.0.1"
   }
 }
