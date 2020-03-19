@@ -504,4 +504,76 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#createIndexes', () => {
+    let indexSpecs;
+    let nativeMethodResult;
+    let nativeMethodMock;
+
+    beforeEach(() => {
+      indexSpecs = [
+        { key: 'x' }
+      ];
+
+      nativeMethodResult = {
+        createdCollectionAutomatically: false,
+        numIndexesBefore: 2,
+        numIndexesAfter: 3,
+        ok: 1
+      };
+
+      nativeMethodMock = sinon.mock().once().withArgs(indexSpecs).
+        resolves(nativeMethodResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        createIndexes: nativeMethodMock
+      });
+
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.createIndexes(
+        'db1',
+        'coll1',
+        indexSpecs);
+      expect(result).to.deep.equal(nativeMethodResult);
+      nativeMethodMock.verify();
+    });
+  });
+
+  describe('#getIndexes', () => {
+    let indexSpecs;
+    let nativeMethodResult;
+    let nativeMethodMock;
+
+    beforeEach(() => {
+      indexSpecs = [
+        { key: 'x' }
+      ];
+
+      nativeMethodResult = {
+        toArray: (): Promise<any[]> => Promise.resolve(indexSpecs)
+      };
+
+      nativeMethodMock = sinon.mock().once().withArgs().
+        returns(nativeMethodResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        listIndexes: nativeMethodMock
+      });
+
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await (serviceProvider as any).getIndexes(
+        'db1',
+        'coll1'
+      );
+
+      expect(result).to.deep.equal(indexSpecs);
+      nativeMethodMock.verify();
+    });
+  });
 });

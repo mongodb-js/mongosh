@@ -142,33 +142,64 @@ describe('Mapper (integration)', function() {
     });
 
     describe('converToCapped', () => {
-      context('when the collection exists', () => {
-        let result;
+      let result;
 
-        beforeEach(async() => {
-          await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+      beforeEach(async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
 
-          expect(await serviceProvider.isCapped(
-            dbName,
-            collectionName
-          )).to.be.false;
+        expect(await serviceProvider.isCapped(
+          dbName,
+          collectionName
+        )).to.be.false;
 
-          result = await mapper.convertToCapped(
-            collection,
-            1000
-          );
+        result = await mapper.convertToCapped(
+          collection,
+          1000
+        );
+      });
+
+      it('returns ok = 1', () => {
+        expect(result.ok).to.equal(1);
+      });
+
+      it('converts the collection', async() => {
+        expect(await serviceProvider.isCapped(
+          dbName,
+          collectionName
+        )).to.be.true;
+      });
+    });
+
+    describe('createIndexes', () => {
+      let result;
+
+      beforeEach(async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+
+        expect((await serviceProvider.getIndexes(
+          dbName,
+          collectionName
+        )).map((spec) => spec.name)).not.to.contain('index-1');
+
+        result = await mapper.createIndexes(collection, [{ x: 1 }], {
+          name: 'index-1'
         });
+      });
 
-        it('returns ok = 1', () => {
-          expect(result.ok).to.equal(1);
+      it('returns creation result', () => {
+        expect(result).to.contain({
+          createdCollectionAutomatically: false,
+          numIndexesBefore: 1,
+          numIndexesAfter: 2,
+          ok: 1
         });
+      });
 
-        it('converts the collection', async() => {
-          expect(await serviceProvider.isCapped(
-            dbName,
-            collectionName
-          )).to.be.true;
-        });
+      it('creates the index', async() => {
+        expect((await serviceProvider.getIndexes(
+          dbName,
+          collectionName
+        )).map((spec) => spec.name)).to.contain('index-1');
       });
     });
   });

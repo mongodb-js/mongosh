@@ -391,7 +391,7 @@ describe('CliServiceProvider [integration]', function() {
       const collName = 'coll1';
       const nativeCollection = db.collection(collName);
 
-      await nativeCollection.insertOne({ doc: 1 });
+      await db.createCollection(collName);
 
       expect(
         await nativeCollection.isCapped()
@@ -406,6 +406,50 @@ describe('CliServiceProvider [integration]', function() {
       expect(
         await nativeCollection.isCapped()
       ).to.be.true;
+    });
+  });
+
+  describe('#createIndexes', () => {
+    it('creates a new index', async() => {
+      const collName = 'coll1';
+      const nativeCollection = db.collection(collName);
+
+      await db.createCollection(collName);
+
+      expect(
+        await nativeCollection.indexExists('index-1')
+      ).to.be.false;
+
+      await serviceProvider.createIndexes(
+        dbName,
+        collName,
+        [{
+          name: 'index-1',
+          key: { x: 1 }
+        }]
+      );
+
+      expect(
+        await nativeCollection.indexExists('index-1')
+      ).to.be.true;
+    });
+  });
+
+  describe('#getIndexes', () => {
+    it('returns indexes', async() => {
+      const collName = 'coll1';
+      const nativeCollection = db.collection(collName);
+
+      await nativeCollection.createIndex('x');
+
+      const result = await serviceProvider.getIndexes(
+        dbName,
+        collName
+      );
+
+      expect(
+        result.map((spec) => spec.key)
+      ).to.deep.equal([{ _id: 1 }, { x: 1 }]);
     });
   });
 });
