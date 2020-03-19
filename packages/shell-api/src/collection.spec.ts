@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import Mapper from 'mongosh-mapper';
+import Mapper from '../../mapper';
 import { Collection } from './shell-api';
 import * as types from './shell-types';
 import { expect } from 'chai';
