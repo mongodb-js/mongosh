@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -21,8 +21,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@mongosh/cli-repl": "^0.0.1-alpha.3",
-    "@mongosh/mapper": "^0.0.1-alpha.3",
-    "@mongosh/shell-api": "^0.0.1-alpha.3"
+    "@mongosh/cli-repl": "^0.0.1-alpha.4",
+    "@mongosh/mapper": "^0.0.1-alpha.4",
+    "@mongosh/shell-api": "^0.0.1-alpha.4"
   }
 }

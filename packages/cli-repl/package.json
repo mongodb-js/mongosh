@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "MongoDB Shell CLI REPL Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,10 +23,10 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@mongosh/i18n": "^0.0.1-alpha.3",
-    "@mongosh/mapper": "^0.0.1-alpha.3",
-    "@mongosh/service-provider-server": "^0.0.1-alpha.3",
-    "@mongosh/shell-api": "^0.0.1-alpha.3",
+    "@mongosh/i18n": "^0.0.1-alpha.4",
+    "@mongosh/mapper": "^0.0.1-alpha.4",
+    "@mongosh/service-provider-server": "^0.0.1-alpha.4",
+    "@mongosh/shell-api": "^0.0.1-alpha.4",
     "ansi-escape-sequences": "^5.1.2",
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.0",
