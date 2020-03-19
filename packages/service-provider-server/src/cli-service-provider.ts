@@ -448,8 +448,7 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   /**
-   * Insert many documents into the collection. {
-   * db('db1').collection('coll1').listIndexes().toArray()}
+   * Insert many documents into the collection.
    *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
