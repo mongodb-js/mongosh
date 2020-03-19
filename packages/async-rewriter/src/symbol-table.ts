@@ -68,7 +68,7 @@ export default class SymbolTable {
     console.log('----Printing Symbol Table----');
     for (let i = this.scopeStack.length - 1; i >= 0; i--) {
       const scope = this.scopeStack[i];
-      console.log('scope:');
+      console.log(`scope@${i}:`);
       Object.keys(scope).filter((s) => (!scope[s].lib)).forEach((k) => {
         this.printSymbol(scope[k], k);
       });
