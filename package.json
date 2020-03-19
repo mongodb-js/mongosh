@@ -1,6 +1,5 @@
 {
   "name": "mongosh",
-  "version": "0.0.0",
   "description": "The MongoDB Shell",
   "main": "index.js",
   "bin": "packages/cli-repl/bin/mongosh.js",
@@ -24,7 +23,7 @@
     "start": "npm run start-cli",
     "precompile-exec": "npm run compile-cli",
     "compile-exec": "pkg packages/cli-repl/bin/mongosh.js --out-path dist",
-    "publish": "lerna publish --force-publish"
+    "publish-npm": "lerna publish --force-publish"
   },
   "keywords": [
     "MongoDB",
@@ -39,7 +38,7 @@
     "access": "public"
   },
   "engines": {
-    "node": "^12.4.0"
+    "node": ">= 12.4.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.5",
@@ -72,17 +71,5 @@
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2",
     "uuid": "^3.3.3"
-  },
-  "dependencies": {
-    "@mongosh/async-rewriter": "^0.0.1-alpha.3",
-    "@mongosh/cli-repl": "^0.0.1-alpha.3",
-    "@mongosh/i18n": "^0.0.1-alpha.3",
-    "@mongosh/mapper": "^0.0.1-alpha.3",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.3",
-    "@mongosh/service-provider-server": "^0.0.1-alpha.3",
-    "@mongosh/service-provider-browser": "^0.0.1-alpha.3",
-    "@mongosh/shell-api": "^0.0.1-alpha.3",
-    "@mongosh/browser-runtime-core": "^0.0.1-alpha.3",
-    "@mongosh/browser-runtime-electron": "^0.0.1-alpha.3"
   }
 }
