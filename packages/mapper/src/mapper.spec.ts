@@ -1,4 +1,11 @@
-import { expect } from 'chai';
+import chai from 'chai';
+import sinonChai from 'sinon-chai';
+import { stubInterface, StubbedInstance } from 'ts-sinon';
+
+chai.use(sinonChai);
+const { expect } = chai;
+
+
 import Mapper from './mapper';
 import sinon from 'sinon';
 import { ServiceProvider } from '@mongosh/service-provider-core';
@@ -6,10 +13,10 @@ import { Collection, Database } from '@mongosh/shell-api';
 
 describe('Mapper', () => {
   let mapper: Mapper;
-  let serviceProvider: ServiceProvider;
+  let serviceProvider: StubbedInstance<ServiceProvider>;
 
   beforeEach(() => {
-    serviceProvider = {} as ServiceProvider;
+    serviceProvider = stubInterface<ServiceProvider>();
     mapper = new Mapper(serviceProvider);
   });
 
@@ -36,7 +43,7 @@ describe('Mapper', () => {
   describe('commands', () => {
     describe('show databases', () => {
       it('lists databases', async() => {
-        serviceProvider.listDatabases = (): any => (Promise.resolve({
+        serviceProvider.listDatabases.resolves({
           databases: [
             { name: 'db1', sizeOnDisk: 10000, empty: false },
             { name: 'db2', sizeOnDisk: 20000, empty: false },
@@ -44,7 +51,7 @@ describe('Mapper', () => {
           ],
           totalSize: 50000,
           ok: 1
-        }));
+        });
 
         const expectedOutput = `db1  10 kB
 db2  20 kB
@@ -79,7 +86,7 @@ db3  30 kB`;
             next: (): Promise<any> => Promise.resolve({})
           };
 
-          serviceProvider.find = (): any => cursor;
+          serviceProvider.find.returns(cursor);
           await mapper.find({}, {}, {});
         });
 
@@ -134,19 +141,19 @@ db3  30 kB`;
         it('calls service provider bulkWrite', async() => {
           serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
             result: { ok: 1 }
-          }));
+          })) as any;
 
           await mapper.bulkWrite(collection, requests);
 
-          expect((serviceProvider.bulkWrite as sinon.Spy).calledWith(
+          expect(serviceProvider.bulkWrite).to.have.been.calledWith(
             'db1',
             'coll1',
             requests
-          ));
+          );
         });
 
         it('adapts the result', async() => {
-          serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
+          serviceProvider.bulkWrite.resolves({
             result: { ok: 1 },
             insertedCount: 1,
             matchedCount: 2,
@@ -155,7 +162,7 @@ db3  30 kB`;
             upsertedCount: 5,
             insertedIds: [ 6 ],
             upsertedIds: [ 7 ]
-          }));
+          });
 
           const result = await mapper.bulkWrite(collection, requests);
 
@@ -180,18 +187,103 @@ db3  30 kB`;
       });
 
       it('calls service provider convertToCapped', async() => {
-        serviceProvider.convertToCapped = sinon.spy(
-          () => Promise.resolve({ ok: 1 }));
+        serviceProvider.convertToCapped.resolves({ ok: 1 });
 
         const result = await mapper.convertToCapped(collection, 1000);
 
-        expect((serviceProvider.convertToCapped as sinon.Spy).calledWith(
+        expect(serviceProvider.convertToCapped).to.have.been.calledWith(
           'db1',
           'coll1',
           1000
-        ));
+        );
 
         expect(result).to.deep.equal({ ok: 1 });
+      });
+    });
+
+    describe('createIndexes', () => {
+      let collection;
+      beforeEach(async() => {
+        collection = new Collection(mapper, 'db1', 'coll1');
+        serviceProvider.createIndexes.resolves({ ok: 1 });
+      });
+
+      context('when options is not passed', () => {
+        it('calls serviceProvider.createIndexes using keyPatterns as keys', async() => {
+          await mapper.createIndexes(collection, [{ x: 1 }]);
+
+          expect(serviceProvider.createIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [{ key: { x: 1 } }]
+          );
+        });
+      });
+
+      context('when options is an object', () => {
+        it('calls serviceProvider.createIndexes merging options', async() => {
+          await mapper.createIndexes(collection, [{ x: 1 }], { name: 'index-1' });
+
+          expect(serviceProvider.createIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [{ key: { x: 1 }, name: 'index-1' }]
+          );
+        });
+      });
+
+      context('when options is not an object', () => {
+        it('throws an error', async() => {
+          const error = await mapper.createIndexes(
+            collection, [{ x: 1 }], 'unsupported' as any
+          ).catch(e => e);
+
+          expect(error).to.be.instanceOf(Error);
+          expect(error.message).to.equal('options must be an object');
+        });
+      });
+    });
+  });
+
+  describe('createIndex', () => {
+    let collection;
+    beforeEach(async() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+      serviceProvider.createIndexes.resolves({ ok: 1 });
+    });
+
+    context('when options is not passed', () => {
+      it('calls serviceProvider.createIndexes using keys', async() => {
+        await mapper.createIndex(collection, { x: 1 });
+
+        expect(serviceProvider.createIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ key: { x: 1 } }]
+        );
+      });
+    });
+
+    context('when options is an object', () => {
+      it('calls serviceProvider.createIndexes merging options', async() => {
+        await mapper.createIndex(collection, { x: 1 }, { name: 'index-1' });
+
+        expect(serviceProvider.createIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ key: { x: 1 }, name: 'index-1' }]
+        );
+      });
+    });
+
+    context('when options is not an object', () => {
+      it('throws an error', async() => {
+        const error = await mapper.createIndex(
+          collection, { x: 1 }, 'unsupported' as any
+        ).catch(e => e);
+
+        expect(error).to.be.instanceOf(Error);
+        expect(error.message).to.equal('options must be an object');
       });
     });
   });

@@ -111,6 +111,14 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
+  getIndexes(database: string, collection: string, dbOptions?: Document): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, dbOptions?: Document): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
   convertToCapped(database: string, collection: string, size: number): Promise<any> {
     throw new Error("Method not implemented.");
   }

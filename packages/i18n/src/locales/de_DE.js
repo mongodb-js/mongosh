@@ -836,6 +836,18 @@ const translations = {
             }
           }
         },
+        "create-indexes": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.createIndexes",
+          "description": "Creates one or more indexes on a collection",
+          "example": "db.coll.db.coll.createIndexes({ category: 1 }, { name: 'index-1' })",
+          "parameters": {}
+        },
+        "create-index": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.createIndex",
+          "description": "Creates one or more index on a collection",
+          "example": "db.coll.db.coll.createIndex({ category: 1 }, { name: 'index-1' })",
+          "parameters": {}
+        },
         "update-one": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.updateOne",
           "description": "Updates a single document within the collection based on the filter.",
