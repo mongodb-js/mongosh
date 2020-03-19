@@ -6,7 +6,7 @@ import SymbolTable from './symbol-table';
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
   str = `${indent}${str}${type === undefined ? '' : ` ==> ${type}`}`;
-  console.log(str);
+  // console.log(str);
 };
 
 export default class AsyncWriter {
@@ -103,37 +103,44 @@ export default class AsyncWriter {
         }
       },
       Function: {
-        exit(path): void {
-          const rType = path.node.body.shellType; // should always be set
-          const sType = { type: 'function', returnsPromise: false, returnType: rType };
-          if (path.node.id !== null) {
-            symbols.add(path.node.id.name, sType);
-          }
-          path.node.shellType = sType;
-          debug(`Function: { id: ${path.node.id === null ? '<lambda>' : path.node.id.name} }`, `${sType.type}<${rType.type}>`);
-        }
-      },
-      BlockStatement: {
         enter(): void {
           this.toRet.push([]);
         },
         exit(path): void {
+          let rType = types.unknown;
           const returnTypes = this.toRet.pop();
           let dbg;
           if (returnTypes.length === 0) { // no return value, take last or unknown
-            if (path.node.body.length === 0) {
-              dbg = 'empty stmt';
-              path.node.shellType = symbols.types.unknown;
-            } else {
-              dbg = 'last stmt';
-              path.node.shellType = path.node.body[0].shellType || symbols.types.unknown;
+            if (!this.t.isBlockStatement(path.node.body)) { // => (...);
+              dbg = 'single value';
+              rType = path.node.body.shellType;
+            } else { // => { ... }
+              dbg = 'no return in block statement, undefined';
+              rType = symbols.types.unknown;
             }
           } else {
-            // TODO: if any of the return statements are shell types, return shell type as to add async. Can add user warning, but for now take last return.
-            path.node.shellType = returnTypes[returnTypes.length - 1];
-            dbg = 'return stmt';
+            if (returnTypes.length === 1) {
+              dbg = 'single return stmt';
+              rType = returnTypes[returnTypes.length - 1];
+            } else {
+              dbg = 'multi return stmt';
+              // Cannot predict what type, so warn the user if there are shell types that may be returned.
+              // TODO: move this into conditional block
+              const someAsync = returnTypes.some((t) => (t.hasAsyncChild));
+              if (someAsync) {
+                throw new Error('Error: conditional statement');
+              }
+              rType = types.unknown;
+            }
           }
-          debug(`BlockStatement: ${dbg}`, path.node.shellType.type);
+
+          const sType = { type: 'function', returnsPromise: false, returnType: rType };
+          if (path.node.id !== null) {
+            symbols.add(path.node.id.name, sType);
+          }
+
+          path.node.shellType = sType;
+          debug(`Function: { id: ${path.node.id === null ? '<lambda>' : path.node.id.name} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
         }
       },
       ReturnStatement: {
@@ -185,7 +192,6 @@ export default class AsyncWriter {
                 skip: skips,
                 toRet: []
               });
-              symbols.popScope();
             }
           }
         }
