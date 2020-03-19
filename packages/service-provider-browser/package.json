@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-browser",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.4",
   "description": "MongoDB Shell Service Provider Browser Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -29,8 +29,8 @@
     ]
   },
   "dependencies": {
-    "@mongosh/i18n": "^0.0.1-alpha.5",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.5",
+    "@mongosh/i18n": "^0.0.1-alpha.4",
+    "@mongosh/service-provider-core": "^0.0.1-alpha.4",
     "mongodb-stitch-browser-sdk": "^4.7.0"
   }
 }
