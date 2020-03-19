@@ -13,21 +13,30 @@ const scope = [
   { db: types.Database }
 ];
 
-const st = new SymbolTable(scope[1], empty_types);
-const spy = sinon.spy(st);
-const writer = new AsyncWriter(scope[1], empty_types, st);
+// const st = new SymbolTable(scope[1], empty_types);
+// const spy = sinon.spy(st);
+const writer = new AsyncWriter(scope[1], types);
 const input = [
   // 'db.coll.insertOne()',
   // 'y = db',
-  'var x = db;'
+  // 'var x = db;'
   // 'y.coll.insertOne()',
-  // '() => {return db; 1}',
-  // 'f = () => {return db; 1}',
+  // '() => {return db;}',
+  '() => {db;}',
+  // '() => (db)',
   // 'function x() {return db;}',
   // 'x().coll.insertOne()',
   // 'f().coll.insertOne()',
   // 'db.coll[x()]',
   // 'x(x(1))'
+  // `function fn() {
+  //   if (x) {
+  //     return 1;
+  //   } else {
+  //     return 1;
+  //   }
+  // }`,
+  // 'y.coll.insertOne({})'
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));

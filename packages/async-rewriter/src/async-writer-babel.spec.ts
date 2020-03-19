@@ -7,55 +7,69 @@ import { types } from 'mongosh-shell-api';
 import AsyncWriter from './async-writer-babel';
 import SymbolTable from './symbol-table';
 
-/**
- * Helper method that runs transform on the input, compares the result
- * with the expected argument, and returns the translated AST to be
- * visited.
- * @param {String} input
- * @param {String} expected
- * @returns {Node} result of getTransform.ast
- */
-const compare = (writer, input, expected): object => {
-  const result = writer.getTransform(input);
-  expect(result.code).to.equal(expected);
-  return result.ast;
-};
-
 describe('async-writer-babel', () => {
   let writer;
   let ast;
   let spy;
-  describe('identifier', () => {
-    beforeEach(() => {
+  let input;
+  let output;
+  describe('Identifier', () => {
+    before(() => {
       writer = new AsyncWriter({ db: types.Database }, types);
     });
-    it('decorates a known type', (done) => {
-      ast = compare(writer, 'db', 'db;');
-      traverse(ast, {
-        Identifier(path) {
-          expect(path.node.shellType).to.deep.equal(types.Database);
-          done();
-        }
+    describe('with known type', () => {
+      before(() => {
+        input = 'db';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('db;');
+      });
+      it('decorates Identifier', (done) => {
+        traverse(ast, {
+          Identifier(path) {
+            expect(path.node.shellType).to.deep.equal(types.Database);
+            done();
+          }
+        });
       });
     });
-    it('decorates an unknown type', (done) => {
-      ast = compare(writer, 'x', 'x;');
-      traverse(ast, {
-        Identifier(path) {
-          expect(path.node.shellType).to.deep.equal(types.unknown);
-          done();
-        }
+    describe('with unknown type', () => {
+      before(() => {
+        input = 'x';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('x;');
+      });
+      it('decorates Identifier', (done) => {
+        traverse(ast, {
+          Identifier(path) {
+            expect(path.node.shellType).to.deep.equal(types.unknown);
+            done();
+          }
+        });
       });
     });
   });
-  describe('member expression', () => { // TODO: need to support `get` method too?
-    describe('dot', () => {
-      describe('Database', () => {
+  describe('MemberExpression', () => {
+    before(() => {
+      writer = new AsyncWriter({
+        db: types.Database,
+        c: types.Collection,
+        t: types.unknown
+      }, types);
+    });
+    describe('dot notation', () => {
+      describe('with Database lhs type', () => {
         before(() => {
-          writer = new AsyncWriter({ db: types.Database }, types);
-          ast = compare(writer, 'db.coll', 'db.coll;');
+          input = 'db.coll';
+          ast = writer.getTransform(input).ast;
         });
-        it('decorates the object', (done) => {
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('db.coll;');
+        });
+        it('decorates node.object Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
               if (path.node.name === 'db') {
@@ -65,7 +79,7 @@ describe('async-writer-babel', () => {
             }
           });
         });
-        it('decorates the key as unknown', (done) => {
+        it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be descorated with that value not undefined.
           traverse(ast, {
             Identifier(path) {
               if (path.node.name === 'coll') {
@@ -75,7 +89,7 @@ describe('async-writer-babel', () => {
             }
           });
         });
-        it('decorates the MemberExpression', (done) => {
+        it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
               expect(path.node.shellType).to.deep.equal(types.Collection);
@@ -84,46 +98,91 @@ describe('async-writer-babel', () => {
           });
         });
       });
-      describe('known', () => {
-        before(() => {
-          writer = new AsyncWriter({ coll: types.Collection }, types);
-          ast = compare(writer, 'coll.insertOne', 'coll.insertOne;');
-        });
-        it('decorates the object', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'coll') {
-                expect(path.node.shellType).to.deep.equal(types.Collection);
+      describe('with non-Database known lhs type', () => {
+        describe('with known rhs', () => {
+          before(() => {
+            input = 'c.insertOne';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('c.insertOne;');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'c') {
+                  expect(path.node.shellType).to.deep.equal(types.Collection);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates node.key Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'insertOne') {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', (done) => {
+            traverse(ast, {
+              MemberExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
                 done();
               }
-            }
+            });
           });
         });
-        it('decorates the key as unknown', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'insertOne') {
+        describe('with unknown rhs', () => {
+          before(() => {
+            input = 'c.x';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('c.x;');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'c') {
+                  expect(path.node.shellType).to.deep.equal(types.Collection);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates node.key Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'x') {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', (done) => {
+            traverse(ast, {
+              MemberExpression(path) {
                 expect(path.node.shellType).to.deep.equal(types.unknown);
                 done();
               }
-            }
-          });
-        });
-        it('decorates the MemberExpression', (done) => {
-          traverse(ast, {
-            MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
-              done();
-            }
+            });
           });
         });
       });
-      describe('unknown object', () => {
+      describe('with unknown lhs type', () => {
         before(() => {
-          writer = new AsyncWriter({}, types);
-          ast = compare(writer, 'x.coll', 'x.coll;');
+          input = 'x.coll';
+          ast = writer.getTransform(input).ast;
         });
-        it('decorates the object', (done) => {
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('x.coll;');
+        });
+        it('decorates node.object Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
               if (path.node.name === 'x') {
@@ -133,7 +192,7 @@ describe('async-writer-babel', () => {
             }
           });
         });
-        it('decorates the key', (done) => {
+        it('decorates node.key Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
               if (path.node.name === 'coll') {
@@ -143,41 +202,7 @@ describe('async-writer-babel', () => {
             }
           });
         });
-        it('decorates the MemberExpression', (done) => {
-          traverse(ast, {
-            MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.unknown);
-              done();
-            }
-          });
-        });
-      });
-      describe('unknown key', () => {
-        before(() => {
-          writer = new AsyncWriter({ coll: types.Collection }, types);
-          ast = compare(writer, 'coll.x', 'coll.x;');
-        });
-        it('decorates the object', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'coll') {
-                expect(path.node.shellType).to.deep.equal(types.Collection);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates the key', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'x') {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates the MemberExpression', (done) => {
+        it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
               expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -187,60 +212,62 @@ describe('async-writer-babel', () => {
         });
       });
     });
-    describe('bracket', () => {
-      describe('literal', () => {
-        describe('known', () => {
-          before(() => {
-            writer = new AsyncWriter({ coll: types.Collection }, types);
-            ast = compare(writer, 'coll[\'insertOne\']', 'coll[\'insertOne\'];');
-          });
-          it('decorates the object', (done) => {
-            traverse(ast, {
-              Identifier(path) {
-                if (path.node.name === 'coll') {
-                  expect(path.node.shellType).to.deep.equal(types.Collection);
-                  done();
-                }
-              }
-            });
-          });
-          it('decorates the key as unknown', (done) => {
-            traverse(ast, {
-              Literal(path) {
-                if (path.node.value === 'insertOne') {
-                  expect(path.node.shellType).to.deep.equal(types.unknown);
-                  done();
-                }
-              }
-            });
-          });
-          it('decorates the MemberExpression', (done) => {
-            traverse(ast, {
-              MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
+    describe('bracket notation', () => {
+      describe('literal property', () => {
+        before(() => {
+          input = 'c[\'insertOne\']';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal( 'c[\'insertOne\'];');
+        });
+        it('decorates node.object Identifier', (done) => {
+          traverse(ast, {
+            Identifier(path) {
+              if (path.node.name === 'c') {
+                expect(path.node.shellType).to.deep.equal(types.Collection);
                 done();
               }
-            });
+            }
+          });
+        });
+        it('decorates node.key Literal', (done) => {
+          traverse(ast, {
+            Literal(path) {
+              if (path.node.value === 'insertOne') {
+                expect(path.node.shellType).to.deep.equal(types.unknown);
+                done();
+              }
+            }
+          });
+        });
+        it('decorates MemberExpression', (done) => {
+          traverse(ast, {
+            MemberExpression(path) {
+              expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
+              done();
+            }
           });
         });
       });
-      describe('computed', () => {
-        describe('has async child', () => {
+      describe('computed property', () => {
+        describe('when lhs has async child', () => {
           it('throws an error', () => {
-            writer = new AsyncWriter({ coll: types.Collection }, types);
-            expect(() => writer.compile('coll[x()]')).to.throw();
+            expect(() => writer.compile('c[x()]')).to.throw();
           });
           it('throws an error with suggestion for db', () => {
-            writer = new AsyncWriter({ db: types.Database }, types);
             expect(() => writer.compile('db[x()]')).to.throw();
           });
         });
-        describe('has no async child', () => {
+        describe('when lhs has no async child', () => {
           before(() => {
-            writer = new AsyncWriter({ t: types.unknown }, types);
-            ast = compare(writer, 't[x()]', 't[x()];');
+            input = 't[x()]';
+            ast = writer.getTransform(input).ast;
           });
-          it('decorates the object', (done) => {
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('t[x()];');
+          });
+          it('decorates node.object Identifier', (done) => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 't') {
@@ -250,7 +277,7 @@ describe('async-writer-babel', () => {
               }
             });
           });
-          it('decorates the key as unknown', (done) => {
+          it('decorates node.key CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
                 expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -258,7 +285,7 @@ describe('async-writer-babel', () => {
               }
             });
           });
-          it('decorates the MemberExpression', (done) => {
+          it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
                 expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -270,11 +297,19 @@ describe('async-writer-babel', () => {
       });
     });
   });
-  describe('call expression', () => {
-    describe('unknown type', () => {
-      it('decorates the expression with unknown', (done) => {
-        writer = new AsyncWriter({}, types);
-        ast = compare(writer, 'x()', 'x();');
+  describe('CallExpression', () => {
+    describe('with unknown callee', () => {
+      before(() => {
+        writer = new AsyncWriter({
+          t: types.unknown
+        }, types);
+        input = 'x()';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('x();');
+      });
+      it('decorates CallExpression', (done) => {
         traverse(ast, {
           CallExpression(path) {
             expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -283,117 +318,157 @@ describe('async-writer-babel', () => {
         });
       });
     });
-    describe('known type', () => {
-      describe('requires await', () => {
-        it('returnType undefined', (done) => {
-          writer = new AsyncWriter(
-            { x: { type: 'function', returnsPromise: true } },
-            types
-          );
-          ast = compare(writer, 'x()', 'await x();');
-          traverse(ast, {
-            CallExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.unknown);
-              done();
-            }
+    describe('with known callee', () => {
+      describe('that requires await', () => {
+        describe('returnType undefined', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              reqAwait: { type: 'function', returnsPromise: true }
+            }, types);
+            input = 'reqAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await reqAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.unknown);
+                done();
+              }
+            });
+          });
+        });
+        describe('returnType string', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              reqAwait: { type: 'function', returnsPromise: true, returnType: 'Collection' }
+            }, types);
+            input = 'reqAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await reqAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Collection);
+                done();
+              }
+            });
+          });
+        });
+        describe('returnType {}', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              reqAwait: { type: 'function', returnsPromise: true, returnType: { type: 'new' } }
+            }, types);
+            input = 'reqAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await reqAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal({ type: 'new' });
+                done();
+              }
+            });
+          });
+        });
+        describe('with call nested as argument', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              reqAwait: { type: 'function', returnsPromise: true, returnType: { type: 'new' } }
+            }, types);
+            input = 'reqAwait(reqAwait())';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await reqAwait((await reqAwait()));');
           });
         });
       });
-      it('returnType string', (done) => {
-        writer = new AsyncWriter(
-          { x: { type: 'function', returnsPromise: true, returnType: 'Collection' } },
-          types
-        );
-        ast = compare(writer, 'x()', 'await x();');
-        traverse(ast, {
-          CallExpression(path) {
-            expect(path.node.shellType).to.deep.equal(types.Collection);
-            done();
-          }
+      describe('that does not require await', () => {
+        describe('returnType undefined', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              noAwait: { type: 'function', returnsPromise: false }
+            }, types);
+            input = 'noAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('noAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.unknown);
+                done();
+              }
+            });
+          });
         });
-      });
-      it('returnType new type', (done) => {
-        writer = new AsyncWriter(
-          { x: { type: 'function', returnsPromise: true, returnType: { type: 'new' } } },
-          types
-        );
-        ast = compare(writer, 'x()', 'await x();');
-        traverse(ast, {
-          CallExpression(path) {
-            expect(path.node.shellType).to.deep.equal({ type: 'new' });
-            done();
-          }
+        describe('returnType string', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              noAwait: { type: 'function', returnsPromise: false, returnType: 'Collection' }
+            }, types);
+            input = 'noAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('noAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Collection);
+                done();
+              }
+            });
+          });
         });
-      });
-    });
-    describe('does not require await', () => {
-      it('returnType undefined', (done) => {
-        writer = new AsyncWriter(
-          { x: { type: 'function', returnsPromise: false } },
-          types
-        );
-        ast = compare(writer, 'x()', 'x();');
-        traverse(ast, {
-          CallExpression(path) {
-            expect(path.node.shellType).to.deep.equal(types.unknown);
-            done();
-          }
-        });
-      });
-    });
-    it('returnType string', (done) => {
-      writer = new AsyncWriter(
-        { x: { type: 'function', returnsPromise: false, returnType: 'Collection' } },
-        types
-      );
-      ast = compare(writer, 'x()', 'x();');
-      traverse(ast, {
-        CallExpression(path) {
-          expect(path.node.shellType).to.deep.equal(types.Collection);
-          done();
-        }
-      });
-    });
-    it('returnType new type', (done) => {
-      writer = new AsyncWriter(
-        { x: { type: 'function', returnsPromise: false, returnType: { type: 'new' } } },
-        types
-      );
-      ast = compare(writer, 'x()', 'x();');
-      traverse(ast, {
-        CallExpression(path) {
-          expect(path.node.shellType).to.deep.equal({ type: 'new' });
-          done();
-        }
-      });
-    });
-    describe('nested as argument', () => {
-      it('returnType new type', (done) => {
-        writer = new AsyncWriter(
-          { x: { type: 'function', returnsPromise: true, returnType: { type: 'new' } } },
-          types
-        );
-        ast = compare(writer, 'x(x())', 'await x((await x()));');
-        traverse(ast, {
-          CallExpression(path) {
-            expect(path.node.shellType).to.deep.equal({ type: 'new' });
-            if (path.node.arguments.length !== 0) {
-              expect(path.node.arguments[0].shellType).to.deep.equal({ type: 'new' });
-              done();
-            }
-          }
+        describe('returnType {}', () => {
+          before(() => {
+            writer = new AsyncWriter({
+              noAwait: { type: 'function', returnsPromise: false, returnType: { type: 'new' } }
+            }, types);
+            input = 'noAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('noAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node.shellType).to.deep.equal({ type: 'new' });
+                done();
+              }
+            });
+          });
         });
       });
     });
   });
-  describe('var decl', () => {
+  describe('VariableDeclarator', () => {
     describe('without assignment', () => {
       before(() => {
-        spy = sinon.spy(new SymbolTable({}, { unknown: types.unknown }));
-        writer = new AsyncWriter({}, { unknown: types.unknown }, spy);
-        ast = compare(writer, 'var x', 'var x;');
+        spy = sinon.spy(new SymbolTable({}, types));
+        writer = new AsyncWriter({}, types, spy);
+        input = 'var x';
+        ast = writer.getTransform(input).ast;
       });
-      it('sets type unknown', (done) => {
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('var x;');
+      });
+      it('decorates VariableDeclarator', (done) => {
         traverse(ast, {
           VariableDeclarator(path) {
             expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -407,13 +482,17 @@ describe('async-writer-babel', () => {
       });
     });
     describe('with assignment', () => {
-      describe('unknown type', () => {
+      describe('rhs is unknown type', () => {
         before(() => {
-          spy = sinon.spy(new SymbolTable({}, { unknown: types.unknown }));
-          writer = new AsyncWriter({}, { unknown: types.unknown }, spy);
-          ast = compare(writer, 'var x = 1', 'var x = 1;');
+          spy = sinon.spy(new SymbolTable({}, types));
+          writer = new AsyncWriter({}, types, spy);
+          input = 'var x = 1';
+          ast = writer.getTransform(input).ast;
         });
-        it('sets type unknown', (done) => {
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('var x = 1;');
+        });
+        it('decorates VariableDeclarator', (done) => {
           traverse(ast, {
             VariableDeclarator(path) {
               expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -426,13 +505,17 @@ describe('async-writer-babel', () => {
           expect(spy.add.calledWith('x', types.unknown)).to.be.true;
         });
       });
-      describe('known type', () => {
+      describe('rhs is known type', () => {
         before(() => {
-          spy = sinon.spy(new SymbolTable({ db: types.Database }, { unknown: types.unknown }));
-          writer = new AsyncWriter({ db: types.Database }, { unknown: types.unknown }, spy);
-          ast = compare(writer, 'var x = db', 'var x = db;');
+          spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = 'var x = db';
+          ast = writer.getTransform(input).ast;
         });
-        it('sets type', (done) => {
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('var x = db;');
+        });
+        it('decorates VariableDeclarator', (done) => {
           traverse(ast, {
             VariableDeclarator(path) {
               expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -447,14 +530,20 @@ describe('async-writer-babel', () => {
       });
     });
   });
-  describe('assignment', () => {
-    describe('known type', () => {
+  describe('AssignmentExpression', () => {
+    describe('rhs is known type', () => {
       before(() => {
-        spy = sinon.spy(new SymbolTable({ db: types.Database }, { unknown: types.unknown }));
-        writer = new AsyncWriter({ db: types.Database }, { unknown: types.unknown }, spy);
-        ast = compare(writer, 'x = db', 'x = db;');
+        spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+        writer = new AsyncWriter({ db: types.Database }, types, spy);
+        input = 'x = db';
+        const result = writer.getTransform(input);
+        ast = result.ast;
+        output = result.code;
       });
-      it('sets type of assignment node', (done) => {
+      it('compiles correctly', () => {
+        expect(output).to.equal('x = db;');
+      });
+      it('decorates AssignmentExpression', (done) => {
         traverse(ast, {
           AssignmentExpression(path) {
             expect(path.node.shellType).to.deep.equal(types.Database);
@@ -462,18 +551,24 @@ describe('async-writer-babel', () => {
           }
         });
       });
-      it('updates the symbol table with new key', () => {
+      it('updates symbol table', () => {
         expect(spy.update.calledOnce).to.be.true;
         expect(spy.update.calledWith('x', types.Database)).to.be.true;
       });
     });
-    describe('unknown type', () => {
+    describe('rhs is unknown type', () => {
       before(() => {
-        spy = sinon.spy(new SymbolTable({ db: types.Database }, { unknown: types.unknown }));
-        writer = new AsyncWriter({ db: types.Database }, { unknown: types.unknown }, spy);
-        ast = compare(writer, 'x = 1', 'x = 1;');
+        spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+        writer = new AsyncWriter({ db: types.Database }, types, spy);
+        input = 'x = 1';
+        const result = writer.getTransform(input);
+        ast = result.ast;
+        output = result.code;
       });
-      it('sets type of assignment node', (done) => {
+      it('compiles correctly', () => {
+        expect(output).to.equal('x = 1;');
+      });
+      it('decorates AssignmentExpression', (done) => {
         traverse(ast, {
           AssignmentExpression(path) {
             expect(path.node.shellType).to.deep.equal(types.unknown);
@@ -481,18 +576,24 @@ describe('async-writer-babel', () => {
           }
         });
       });
-      it('updates the symbol table with new key', () => {
+      it('updates symbol table', () => {
         expect(spy.update.calledOnce).to.be.true;
         expect(spy.update.calledWith('x', types.unknown)).to.be.true;
       });
     });
     describe('existing symbol', () => {
       before(() => {
-        spy = sinon.spy(new SymbolTable({ db: types.Database, coll: types.Collection }, { unknown: types.unknown }));
-        writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, { unknown: types.unknown }, spy);
-        ast = compare(writer, 'coll = db', 'coll = db;');
+        spy = sinon.spy(new SymbolTable({ db: types.Database, coll: types.Collection }, types));
+        writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, types, spy);
+        input = 'coll = db';
+        const result = writer.getTransform(input);
+        ast = result.ast;
+        output = result.code;
       });
-      it('sets type of assignment node', (done) => {
+      it('compiles correctly', () => {
+        expect(output).to.equal('coll = db;');
+      });
+      it('decorates AssignmentExpression', (done) => {
         traverse(ast, {
           AssignmentExpression(path) {
             expect(path.node.shellType).to.deep.equal(types.Database);
@@ -500,30 +601,146 @@ describe('async-writer-babel', () => {
           }
         });
       });
-      it('updates the symbol table with new key', () => {
+      it('updates symbol table', () => {
         expect(spy.update.calledOnce).to.be.true;
         expect(spy.update.calledWith('coll', types.Database)).to.be.true;
       });
     });
   });
-  // describe('function definition', () => {
-  //   describe('arrow function', () => {
-  //     describe('with return;', () => {
-  //
-  //     });
-  //     describe('with return val', () => {
-  //
-  //     });
-  //     describe('with implicit return val', () => {
-  //
-  //     });
-  //   });
-  //   describe('function keyword', () => {
-  //
-  //   });
-  // });
+  describe('Function', () => {
+    describe('arrow function', () => {
+      describe('with empty return statement', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '() => { return; }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('() => {\n' +
+            '  return;\n' +
+            '};');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              done();
+            }
+          });
+        });
+      });
+      describe('with return statement', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '() => { return db; }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('() => {\n' +
+            '  return db;\n' +
+            '};');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              done();
+            }
+          });
+        });
+      });
+      describe('with implicit return value', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '() => (db)';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('() => db;');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              done();
+            }
+          });
+        });
+      });
+      describe('with block and no return statement', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '() => {1; db}';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('() => {\n  1;\n  db;\n};');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              done();
+            }
+          });
+        });
+      });
+    });
+    describe('function keyword', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+        writer = new AsyncWriter({ db: types.Database }, types, spy);
+        input = 'function fn() { return db; }';
+        const result = writer.getTransform(input);
+        ast = result.ast;
+        output = result.code;
+      });
+      it('compiles correctly', () => {
+        expect(output).to.equal('function fn() {\n' +
+          '  return db;\n' +
+          '}');
+      });
+      it('decorates Function', (done) => {
+        traverse(ast, {
+          Function(path) {
+            expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+            done();
+          }
+        });
+      });
+      it('updates symbol table', () => {
+        expect(spy.add.calledOnce).to.be.true;
+        expect(spy.add.calledWith('fn', { type: 'function', returnsPromise: false, returnType: types.Database })).to.be.true;
+      });
+    });
+  });
   // describe('branching', () => {
-  //
+  //   describe('assignment within if statement', () => {
+  //     before(() => {
+  //       spy = sinon.spy(new SymbolTable({ db: types.Database }, types));
+  //       writer = new AsyncWriter({ db: types.Database }, types, spy);
+  //     });
+  //     it('pops scope after if statements', () => {
+  //       compare(writer, 'if (x) { y = db; y.coll.insertOne();} y.coll.insertOne();', 'if (x) {\n' +
+  //         '  y = db;\n' +
+  //         '  await y.coll.insertOne();\n' +
+  //         '}\n\ny.coll.insertOne();');
+  //     });
+  //   });
+  //   describe('branching and return values', () => {
+  //   });
   // });
   // describe('class definitions', () => {
   //
