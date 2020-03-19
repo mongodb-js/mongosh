@@ -43,9 +43,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@mongosh/browser-repl": "file:../browser-repl",
-    "@mongosh/browser-runtime-electron": "file:../browser-runtime-electron",
-    "@mongosh/service-provider-server": "file:../service-provider-server"
+    "@mongosh/browser-repl": "^0.0.1-alpha.3",
+    "@mongosh/browser-runtime-electron": "^0.0.1-alpha.3",
+    "@mongosh/service-provider-server": "^0.0.1-alpha.3"
   },
   "peerDependencies": {
     "hadron-ipc": "^1.1.0",

@@ -18,6 +18,7 @@
     "check": "npm run lint",
     "compile-ts": "npm run build"
   },
+  "license": "SSPL",
   "publishConfig": {
     "access": "public"
   },
@@ -29,9 +30,9 @@
     "@leafygreen-ui/icon": "^4.0.0",
     "@leafygreen-ui/palette": "^2.0.0",
     "@leafygreen-ui/syntax": "^2.2.0",
-    "@mongosh/browser-runtime-core": "file:../browser-runtime-core",
-    "@mongosh/i18n": "file:../i18n",
-    "@mongosh/service-provider-core": "file:../service-provider-core"
+    "@mongosh/browser-runtime-core": "^0.0.1-alpha.3",
+    "@mongosh/i18n": "^0.0.1-alpha.3",
+    "@mongosh/service-provider-core": "^0.0.1-alpha.3"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",

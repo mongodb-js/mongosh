@@ -11,6 +11,7 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "license": "SSPL",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +22,7 @@
     "@babel/core": "^7.8.7"
   },
   "devDependencies": {
-    "@mongosh/shell-api": "file:../shell-api",
+    "@mongosh/shell-api": "^0.0.1-alpha.3",
     "ast-pretty-print": "^2.0.1"
   }
 }

@@ -8,6 +8,7 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "license": "SSPL",
   "publishConfig": {
     "access": "public"
   },

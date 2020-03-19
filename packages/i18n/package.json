@@ -10,6 +10,7 @@
     "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\""
   },
+  "license": "SSPL",
   "publishConfig": {
     "access": "public"
   },

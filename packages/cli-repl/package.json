@@ -15,6 +15,7 @@
     "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
+  "license": "SSPL",
   "publishConfig": {
     "access": "public"
   },
@@ -22,10 +23,10 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@mongosh/i18n": "file:../i18n",
-    "@mongosh/mapper": "file:../mapper",
-    "@mongosh/service-provider-server": "file:../service-provider-server",
-    "@mongosh/shell-api": "file:../shell-api",
+    "@mongosh/i18n": "^0.0.1-alpha.3",
+    "@mongosh/mapper": "^0.0.1-alpha.3",
+    "@mongosh/service-provider-server": "^0.0.1-alpha.3",
+    "@mongosh/shell-api": "^0.0.1-alpha.3",
     "ansi-escape-sequences": "^5.1.2",
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.0",
