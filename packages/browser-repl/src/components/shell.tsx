@@ -4,15 +4,7 @@ import classnames from 'classnames';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Runtime } from '@mongosh/browser-runtime-core';
-
-// TODO: this wont work:
-// import changeHistory from '@mongosh/cli-repl/lib/history';
-// import { changeHistory } from '@mongosh/cli-repl';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const changeHistory = (_arg0, __arg1): void => {
-  //
-};
+import { changeHistory } from '@mongosh/history';
 
 const styles = require('./shell.less');
 

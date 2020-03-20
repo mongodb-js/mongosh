@@ -1,7 +1,7 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
-import changeHistory from './history';
+import { changeHistory } from '@mongosh/history';
 import Mapper from '@mongosh/mapper';
 import completer from './completer';
 import i18n from '@mongosh/i18n';

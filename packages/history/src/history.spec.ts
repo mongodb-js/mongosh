@@ -1,4 +1,4 @@
-import changeHistory from './history';
+import { changeHistory } from './history';
 
 import { expect } from 'chai';
 

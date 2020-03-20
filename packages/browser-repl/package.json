@@ -32,7 +32,8 @@
     "@leafygreen-ui/syntax": "^2.2.0",
     "@mongosh/browser-runtime-core": "^0.0.1-alpha.6",
     "@mongosh/i18n": "^0.0.1-alpha.6",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.6"
+    "@mongosh/service-provider-core": "^0.0.1-alpha.6",
+    "@mongosh/history": "^0.0.1-alpha.6"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",

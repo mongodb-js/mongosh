@@ -27,15 +27,14 @@
     "@mongosh/mapper": "^0.0.1-alpha.6",
     "@mongosh/service-provider-server": "^0.0.1-alpha.6",
     "@mongosh/shell-api": "^0.0.1-alpha.6",
+    "@mongosh/history": "^0.0.1-alpha.6",
     "ansi-escape-sequences": "^5.1.2",
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.0",
     "mongodb-ace-autocompleter": "^0.4.1",
-    "mongodb-redact": "^0.2.0",
     "read": "^1.0.7",
     "semver": "^7.1.2"
   },
   "devDependencies": {
-    "mocha": "^7.0.0"
   }
 }
