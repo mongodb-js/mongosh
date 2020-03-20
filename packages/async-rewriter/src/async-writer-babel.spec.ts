@@ -456,6 +456,23 @@ describe('async-writer-babel', () => {
         });
       });
     });
+    describe('with shell API type as argument', () => {
+      before(() => {
+        writer = new AsyncWriter({ db: types.Database }, types);
+      });
+      it('throws an error for db', () => {
+        expect(() => writer.compile('fn(db)')).to.throw();
+      });
+      it('throws an error for db.coll', () => {
+        expect(() => writer.compile('fn(db.coll)')).to.throw();
+      });
+      it('throws an error for db.coll.insertOne', () => {
+        expect(() => writer.compile('fb(db.coll.insertOne)')).to.throw();
+      });
+      it('does not throw error for regular arg', () => {
+        expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
+      });
+    });
   });
   describe('VariableDeclarator', () => {
     describe('without assignment', () => {
