@@ -3,6 +3,8 @@
 .idea/
 .vscode/
 *.iml
+.nvmrc
+.nyc_output
 *.swp
 lerna-debug.log
 lib-cov
@@ -11,3 +13,4 @@ npm-debug.log
 coverage/
 dist/
 node_modules/
+.lock-wscript

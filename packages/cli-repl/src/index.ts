@@ -2,7 +2,6 @@ import CliRepl from './cli-repl';
 import parseCliArgs from './arg-parser';
 import mapCliToDriver from './arg-mapper';
 import generateUri from './uri-generator';
-import changeHistory from './history';
 import completer from './completer'
 import clr from './clr'
 import { USAGE } from './constants';

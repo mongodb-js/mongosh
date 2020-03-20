@@ -9,7 +9,7 @@ import redactInfo from 'mongodb-redact';
  *
  * @param {boolean} Redact - Option to redact sensitive info.
  */
-function changeHistory(history: string[], redact: boolean = false): void {
+export function changeHistory(history: string[], redact = false): void {
   const hiddenCommands =
     RegExp('createUser|auth|updateUser|changeUserPassword', 'g');
 
@@ -21,4 +21,3 @@ function changeHistory(history: string[], redact: boolean = false): void {
   if (redact) history[0] = redactInfo(history[0]);
 }
 
-export default changeHistory;
