@@ -1,0 +1,24 @@
+{
+  "name": "@mongosh/history",
+  "version": "0.0.1-alpha.6",
+  "description": "MongoDB Shell History Package",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "mocha --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "SSPL",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^12.4.0"
+  },
+  "dependencies": {
+    "mongodb-redact": "^0.2.0"
+  }
+}
