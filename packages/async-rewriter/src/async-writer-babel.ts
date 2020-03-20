@@ -63,6 +63,15 @@ export default class AsyncWriter {
         exit(path): void {
           const dbg = `callee.type: ${path.node.callee.type}`;
           const lhsType = path.node.callee.shellType;
+
+          // check that the user is not passing a type that has async children to a self-defined function
+          path.node.arguments.forEach((a) => {
+            if (a.shellType.hasAsyncChild || a.shellType.returnsPromise) {
+              throw new Error('Cannot pass Shell API object to user-defined function');
+            }
+          });
+
+          // determine return type
           const returnType = lhsType.returnType;
           let sType = symbols.types.unknown;
           if (lhsType.type === 'function') {
@@ -126,7 +135,7 @@ export default class AsyncWriter {
               dbg = 'multi return stmt';
               // Cannot predict what type, so warn the user if there are shell types that may be returned.
               // TODO: move this into conditional block
-              const someAsync = returnTypes.some((t) => (t.hasAsyncChild));
+              const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
               if (someAsync) {
                 throw new Error('Error: conditional statement');
               }
