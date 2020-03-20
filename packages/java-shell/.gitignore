@@ -1,3 +1,1 @@
-.gradle/
-src/main/resources/js/all-standalone.js
-build/
+lib/
