@@ -21,6 +21,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@mongosh/service-provider-core": "^0.0.1-alpha.6",
     "@mongosh/browser-runtime-core": "^0.0.1-alpha.6"
   }
 }
