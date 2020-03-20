@@ -5,7 +5,7 @@
   "bin": "packages/cli-repl/bin/mongosh.js",
   "scripts": {
     "prebootstrap": "npm install",
-    "bootstrap": "lerna exec -- npm install --no-package-lock",
+    "bootstrap": "lerna bootstrap",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "test": "lerna run test",
