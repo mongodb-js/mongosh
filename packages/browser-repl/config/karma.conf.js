@@ -37,6 +37,11 @@ module.exports = (config) => {
       'mocha'
     ],
     browsers: [ 'ChromeHeadless' ],
-    singleRun: true
+    singleRun: true,
+    client: {
+      mocha: {
+        timeout: 15000
+      }
+    }
   });
 };
