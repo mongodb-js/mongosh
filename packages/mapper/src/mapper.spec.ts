@@ -290,7 +290,7 @@ db3  30 kB`;
     });
   });
 
-  ['getIndexes', 'getIndexSpecs'].forEach((method) => {
+  ['getIndexes', 'getIndexSpecs', 'getIndices'].forEach((method) => {
     describe(method, () => {
       let collection;
       let result;

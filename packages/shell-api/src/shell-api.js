@@ -280,6 +280,22 @@ class Collection {
   ensureIndex(...args) {
     return this._mapper.ensureIndex(this, ...args);
   }
+
+  getIndexes(...args) {
+    return this._mapper.getIndexes(this, ...args);
+  }
+
+  getIndexSpecs(...args) {
+    return this._mapper.getIndexSpecs(this, ...args);
+  }
+
+  getIndexKeys(...args) {
+    return this._mapper.getIndexKeys(this, ...args);
+  }
+
+  getIndices(...args) {
+    return this._mapper.getIndices(this, ...args);
+  }
 }
 
 
@@ -450,6 +466,30 @@ Collection.prototype.ensureIndex.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.ensureIndex.topologies = [0, 1, 2];
 Collection.prototype.ensureIndex.returnsPromise = true;
 Collection.prototype.ensureIndex.returnType = 'unknown';
+
+Collection.prototype.getIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.get-indexes' });
+Collection.prototype.getIndexes.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.getIndexes.topologies = [0, 1, 2];
+Collection.prototype.getIndexes.returnsPromise = true;
+Collection.prototype.getIndexes.returnType = 'unknown';
+
+Collection.prototype.getIndexSpecs.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-specs' });
+Collection.prototype.getIndexSpecs.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.getIndexSpecs.topologies = [0, 1, 2];
+Collection.prototype.getIndexSpecs.returnsPromise = true;
+Collection.prototype.getIndexSpecs.returnType = 'unknown';
+
+Collection.prototype.getIndexKeys.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-keys' });
+Collection.prototype.getIndexKeys.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.getIndexKeys.topologies = [0, 1, 2];
+Collection.prototype.getIndexKeys.returnsPromise = true;
+Collection.prototype.getIndexKeys.returnType = 'unknown';
+
+Collection.prototype.getIndices.help = () => new Help({ 'help': 'shell-api.collection.help.get-indices' });
+Collection.prototype.getIndices.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.getIndices.topologies = [0, 1, 2];
+Collection.prototype.getIndices.returnsPromise = true;
+Collection.prototype.getIndices.returnType = 'unknown';
 
 
 class Cursor {
