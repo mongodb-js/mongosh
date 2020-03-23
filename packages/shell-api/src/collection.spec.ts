@@ -86,6 +86,12 @@ describe('Collection', () => {
     });
   });
 
+  describe('#getIndices', () => {
+    it('wraps mapper.getIndices', () => {
+      testWrappedMethod('getIndices');
+    });
+  });
+
   describe('#getIndexKeys', () => {
     it('wraps mapper.getIndexKeys', () => {
       testWrappedMethod('getIndexKeys');

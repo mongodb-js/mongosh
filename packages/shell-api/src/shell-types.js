@@ -54,7 +54,11 @@ const Collection = {
     convertToCapped: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     createIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
     createIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    ensureIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    ensureIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    getIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
+    getIndexSpecs: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
+    getIndexKeys: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
+    getIndices: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] }
   }
 };
 const Cursor = {

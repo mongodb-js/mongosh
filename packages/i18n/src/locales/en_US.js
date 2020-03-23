@@ -866,6 +866,12 @@ const translations = {
           "example": "",
           "parameters": {}
         },
+        "get-indices": {
+          "link": "",
+          "description": "",
+          "example": "",
+          "parameters": {}
+        },
         "get-index-specs": {
           "link": "",
           "description": "",
