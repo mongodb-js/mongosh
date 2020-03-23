@@ -6,7 +6,7 @@ import Mapper from '@mongosh/mapper';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import formatOutput from './format-output';
-import nanobus from 'nanobus';
+import Nanobus from 'nanobus';
 import logger from './logger';
 import path from 'path';
 import util from 'util';
@@ -27,7 +27,7 @@ class CliRepl {
   private mapper: Mapper;
   private mdbVersion: any;
   private repl: REPLServer;
-  private bus: nanobus;
+  private bus: Nanobus;
   private options: CliOptions;
 
   /**
@@ -39,7 +39,7 @@ class CliRepl {
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
     // @ts-ignore
-    this.bus = nanobus('mongosh');
+    this.bus = new Nanobus('mongosh');
     const log = logger(this.bus);
 
     this.bus.emit('connect', driverUri);
