@@ -73,4 +73,22 @@ describe('Collection', () => {
       testWrappedMethod('ensureIndex');
     });
   });
+
+  describe('#getIndexes', () => {
+    it('wraps mapper.getIndexes', () => {
+      testWrappedMethod('getIndexes');
+    });
+  });
+
+  describe('#getIndexSpecs', () => {
+    it('wraps mapper.getIndexSpecs', () => {
+      testWrappedMethod('getIndexSpecs');
+    });
+  });
+
+  describe('#getIndexKeys', () => {
+    it('wraps mapper.getIndexKeys', () => {
+      testWrappedMethod('getIndexKeys');
+    });
+  });
 });

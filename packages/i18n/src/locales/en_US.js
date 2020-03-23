@@ -854,6 +854,24 @@ const translations = {
           "example": "db.coll.db.coll.ensureIndex({ category: 1 }, { name: 'index-1' })",
           "parameters": {}
         },
+        "get-indexes": {
+          "link": "",
+          "description": "",
+          "example": "",
+          "parameters": {}
+        },
+        "get-index-keys": {
+          "link": "",
+          "description": "",
+          "example": "",
+          "parameters": {}
+        },
+        "get-index-specs": {
+          "link": "",
+          "description": "",
+          "example": "",
+          "parameters": {}
+        },
         "update-one": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.updateOne",
           "description": "Updates a single document within the collection based on the filter.",
