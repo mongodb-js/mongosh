@@ -14,10 +14,6 @@ function logger (bus) {
     log.info('connect', info)
   })
 
-  bus.on('eval:error', function(err) {
-    log.error('eval:error', err)
-  })
-
   bus.on('error', function(error) {
     log.error(error)
   })
