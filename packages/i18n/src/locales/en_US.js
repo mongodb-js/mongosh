@@ -844,8 +844,14 @@ const translations = {
         },
         "create-index": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.createIndex",
-          "description": "Creates one or more index on a collection",
+          "description": "Creates one index on a collection",
           "example": "db.coll.db.coll.createIndex({ category: 1 }, { name: 'index-1' })",
+          "parameters": {}
+        },
+        "ensure-index": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.ensureIndex",
+          "description": "Creates one index on a collection",
+          "example": "db.coll.db.coll.ensureIndex({ category: 1 }, { name: 'index-1' })",
           "parameters": {}
         },
         "update-one": {

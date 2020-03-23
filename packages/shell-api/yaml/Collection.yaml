@@ -245,7 +245,15 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - '3.2.0'
+            - *ServerVersions.earliest
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.create-index'
+    ensureIndex:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.ensure-index'

@@ -67,4 +67,10 @@ describe('Collection', () => {
       testWrappedMethod('createIndex');
     });
   });
+
+  describe('#ensureIndex', () => {
+    it('wraps mapper.ensureIndex', () => {
+      testWrappedMethod('ensureIndex');
+    });
+  });
 });
