@@ -6,6 +6,8 @@ import Mapper from '@mongosh/mapper';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import formatOutput from './format-output';
+import Nanobus from 'nanobus';
+import logger from './logger';
 import path from 'path';
 import util from 'util';
 import read from 'read';
@@ -25,6 +27,7 @@ class CliRepl {
   private mapper: Mapper;
   private mdbVersion: any;
   private repl: REPLServer;
+  private bus: Nanobus;
   private options: CliOptions;
 
   /**
@@ -36,8 +39,12 @@ class CliRepl {
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
 
+    this.bus = new Nanobus('mongosh');
+    const log = logger(this.bus);
+    this.bus.emit('connect', driverUri);
+
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.mapper = new Mapper(this.serviceProvider);
+    this.mapper = new Mapper(this.serviceProvider, this.bus);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
   }
@@ -104,6 +111,7 @@ class CliRepl {
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
+      this.bus.emit('error', result);
       return formatOutput({type: 'Error', value: result});
     }
 
@@ -125,6 +133,7 @@ class CliRepl {
       case 'it':
         return this.repl.context.it();
       case 'help':
+        this.bus.emit('cmd:help')
         return this.repl.context.help();
       case 'var':
         this.mapper.cursorAssigned = true;
@@ -177,6 +186,7 @@ class CliRepl {
     this.greet();
 
     const version = this.mdbVersion;
+    const bus = this.bus;
 
     this.repl = repl.start({
       prompt: `$ mongosh > `,
