@@ -1017,8 +1017,7 @@ export default class Mapper {
   }
 
   /**
-   * Returns an array that holds a list of documents that identify
-   * key patters for the indexes defined on the collection.
+   * Returns an array of key patters for the indexes defined on the collection.
    *
    * @param {Collection} collection
    *
