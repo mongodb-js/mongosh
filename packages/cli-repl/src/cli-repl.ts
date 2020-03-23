@@ -38,15 +38,13 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
-    // @ts-ignore
+
     this.bus = new Nanobus('mongosh');
     const log = logger(this.bus);
-
     this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.mapper = new Mapper(this.serviceProvider, this.bus);
-    this.shellApi = new ShellApi(this.mapper);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
   }
