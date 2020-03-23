@@ -4,8 +4,8 @@
   "description": "MongoDB Shell Mapper Package",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
-    "test-ci": "mocha -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
