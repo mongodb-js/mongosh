@@ -202,6 +202,40 @@ describe('Mapper (integration)', function() {
         )).map((spec) => spec.name)).to.contain('index-1');
       });
     });
+
+    describe('getIndexes', () => {
+      let result;
+
+      beforeEach(async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await serviceProvider.createIndexes(dbName, collectionName, [
+          { key: { x: 1 } }
+        ]);
+
+        result = await mapper.getIndexes(collection);
+      });
+
+      it('returns indexes for the collection', () => {
+        expect(result).to.deep.equal([
+          {
+            key: {
+              _id: 1
+            },
+            name: '_id_',
+            ns: `${dbName}.${collectionName}`,
+            v: 2
+          },
+          {
+            key: {
+              x: 1
+            },
+            name: 'x_1',
+            ns: `${dbName}.${collectionName}`,
+            v: 2
+          }
+        ]);
+      });
+    });
   });
 });
 

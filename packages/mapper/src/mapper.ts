@@ -984,4 +984,49 @@ export default class Mapper {
       options
     );
   }
+
+  /**
+   * Returns an array that holds a list of documents that identify and
+   * describe the existing indexes on the collection.
+   *
+   * @param {Collection} collection
+   *
+   * @return {Promise}
+   */
+  async getIndexes(
+    collection: Collection,
+  ): Promise<any> {
+    return await this.serviceProvider.getIndexes(
+      collection._database,
+      collection._collection
+    );
+  }
+
+  /**
+   * Returns an array that holds a list of documents that identify and
+   * describe the existing indexes on the collection. (alias for getIndexes)
+   *
+   * @param {Collection} collection
+   *
+   * @return {Promise}
+   */
+  async getIndexSpecs(
+    collection: Collection,
+  ): Promise<any> {
+    return await this.getIndexes(collection);
+  }
+
+  /**
+   * Returns an array that holds a list of documents that identify
+   * key patters for the indexes defined on the collection.
+   *
+   * @param {Collection} collection
+   *
+   * @return {Promise}
+   */
+  async getIndexKeys(
+    collection: Collection,
+  ): Promise<any> {
+    return (await this.getIndexes(collection)).map(i => i.key);
+  }
 }

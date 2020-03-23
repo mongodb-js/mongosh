@@ -289,5 +289,60 @@ db3  30 kB`;
       });
     });
   });
+
+  ['getIndexes', 'getIndexSpecs'].forEach((method) => {
+    describe(method, () => {
+      let collection;
+      let result;
+      beforeEach(async() => {
+        result = [{
+          v: 2,
+          key: {
+            _id: 1
+          },
+          name: '_id_',
+          ns: 'test.coll1'
+        }];
+        collection = new Collection(mapper, 'db1', 'coll1');
+        serviceProvider.getIndexes.resolves(result);
+      });
+
+      it('returns serviceProvider.getIndexes using keys', async() => {
+        expect(await mapper[method](collection)).to.deep.equal(result);
+      });
+    });
+  });
+
+  describe('getIndexKeys', () => {
+    let collection;
+    let result;
+    beforeEach(async() => {
+      result = [{
+        v: 2,
+        key: {
+          _id: 1
+        },
+        name: '_id_',
+        ns: 'test.coll1'
+      },
+      {
+        v: 2,
+        key: {
+          name: 1
+        },
+        name: '_name_',
+        ns: 'test.coll1'
+      }];
+      collection = new Collection(mapper, 'db1', 'coll1');
+      serviceProvider.getIndexes.resolves(result);
+    });
+
+    it('returns only indexes keys', async() => {
+      expect(await mapper.getIndexKeys(collection)).to.deep.equal([
+        { _id: 1 },
+        { name: 1 }
+      ]);
+    });
+  });
 });
 

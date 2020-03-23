@@ -257,3 +257,27 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.ensure-index'
+    getIndexes:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.2.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.get-indexes'
+    getIndexSpecs:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.2.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.get-index-specs'
+    getIndexKeys:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.2.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.get-index-keys'
