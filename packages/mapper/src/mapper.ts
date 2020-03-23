@@ -907,4 +907,28 @@ export default class Mapper {
       options
     );
   }
+
+  /**
+   * Create index for a collection (alias for createIndex)
+   *
+   * @param {Collection} collection
+   * @param {Document} keys - An document that contains
+   *  the field and value pairs where the field is the index key and the
+   *  value describes the type of index for that field.
+   * @param {Document} options - createIndexes options (
+   *  name, background, sparse ...)
+   *
+   * @return {Promise}
+   */
+  async ensureIndex(
+    collection: Collection,
+    keys: Document,
+    options: Document
+  ): Promise<any> {
+    return await this.createIndex(
+      collection,
+      keys,
+      options
+    );
+  }
 }

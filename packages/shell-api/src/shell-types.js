@@ -53,7 +53,8 @@ const Collection = {
     updateOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
     convertToCapped: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     createIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    createIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] }
+    createIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    ensureIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const Cursor = {
