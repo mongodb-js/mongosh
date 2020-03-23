@@ -11,8 +11,8 @@
     "compile-ts": "tsc -p tsconfig.json",
     "start": "node --experimental-repl-await bin/mongosh.js start",
     "start-async": "node --experimental-repl-await bin/mongosh.js start --async",
-    "test": "mocha --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
   "license": "SSPL",
