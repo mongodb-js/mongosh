@@ -40,7 +40,12 @@ const configure = (config) => {
       },
     },
     browsers: [ 'ChromeHeadless' ],
-    singleRun: true
+    singleRun: true,
+    client: {
+      mocha: {
+        timeout: 15000
+      }
+    }
   });
 };
 
