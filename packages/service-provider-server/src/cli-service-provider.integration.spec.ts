@@ -452,4 +452,40 @@ describe('CliServiceProvider [integration]', function() {
       ).to.deep.equal([{ _id: 1 }, { x: 1 }]);
     });
   });
+
+  describe('#dropIndexes', () => {
+    it('drop existing indexes', async() => {
+      const collName = 'coll1';
+      const nativeCollection = db.collection(collName);
+
+      await nativeCollection.createIndex({ x: 1 }, { name: 'index-1' });
+
+      expect(
+        await nativeCollection.indexExists('index-1')
+      ).to.be.true;
+
+      await serviceProvider.dropIndexes(
+        dbName,
+        collName,
+        ['index-1']
+      );
+
+      expect(
+        await nativeCollection.indexExists('index-1')
+      ).to.be.false;
+    });
+  });
+
+  it('returns the error if index does not exist', async() => {
+    const collName = 'coll1';
+    await db.createCollection(collName);
+    const error = await serviceProvider.dropIndexes(
+      dbName,
+      collName,
+      ['index-1']
+    );
+
+    expect(error.ok).to.equal(0);
+    expect(error.codeName).to.equal('IndexNotFound');
+  });
 });

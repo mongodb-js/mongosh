@@ -278,7 +278,7 @@ interface Writable {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {Object[]} indexSpecs the spec of the intexes to be created.
+   * @param {Object[]} indexSpecs the spec of the indexes to be created.
    * @param {Object} options - The command options.
    * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
    * @return {Promise}
@@ -287,6 +287,24 @@ interface Writable {
     database: string,
     collection: string,
     indexSpecs: Document[],
+    options?: Document,
+    dbOptions?: Document): Promise<Result>;
+
+
+  /**
+   * Drop indexes for a collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {string|Object[]|string[]} indexes the indexes to be removed.
+   * @param {Object} options - The command options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @return {Promise}
+   */
+  dropIndexes(
+    database: string,
+    collection: string,
+    indexes: Document[],
     options?: Document,
     dbOptions?: Document): Promise<Result>;
 }

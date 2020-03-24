@@ -579,8 +579,9 @@ class CliServiceProvider implements ServiceProvider {
   runCommand(
     database: string,
     spec: Document = {},
-    options: Document = {}): Promise<Result> {
-    return (this.db(database) as any).command(spec, options as any);
+    options: Document = {},
+    dbOptions: Document = {}): Promise<Result> {
+    return (this.db(database, dbOptions) as any).command(spec, options as any);
   }
 
   /**
@@ -606,15 +607,17 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @returns {Promise} The promise of the result.
    */
-  updateMany(
+  async updateMany(
     database: string,
     collection: string,
     filter: Document = {},
     update: Document = {},
     options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
+    const result = await this.db(database, dbOptions).collection(collection).
       updateMany(filter, update, options);
+
+    return result;
   }
 
   /**
@@ -723,6 +726,36 @@ class CliServiceProvider implements ServiceProvider {
       .collection(collection)
       .listIndexes()
       .toArray();
+  }
+
+  /**
+   * Drop indexes for a collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {string|Object[]|string[]} indexes the indexes to be removed.
+   * @param {Object} options - The command options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @return {Promise}
+   */
+  async dropIndexes(
+    database: string,
+    collection: string,
+    indexes: string|Document[]|string[],
+    options?: Document,
+    dbOptions?: Document): Promise<Result> {
+    try {
+      return await this.runCommand(database, {
+        dropIndexes: collection,
+        index: indexes,
+      }, options, dbOptions);
+    } catch (error) {
+      if (error.codeName === 'IndexNotFound') {
+        return error;
+      }
+
+      throw error;
+    }
   }
 }
 
