@@ -1,13 +1,14 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import { changeHistory } from '@mongosh/history';
+import formatOutput from './format-output';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
-import { changeHistory } from '@mongosh/history';
 import Mapper from '@mongosh/mapper';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
-import formatOutput from './format-output';
 import Nanobus from 'nanobus';
 import logger from './logger';
+import mkdirp from 'mkdirp';
 import path from 'path';
 import util from 'util';
 import read from 'read';
@@ -29,6 +30,7 @@ class CliRepl {
   private repl: REPLServer;
   private bus: Nanobus;
   private options: CliOptions;
+  private mongoshDir: string;
 
   /**
    * Connect to the cluster.
@@ -38,9 +40,6 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), driverUri);
-
-    this.bus = new Nanobus('mongosh');
-    const log = logger(this.bus);
     this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
@@ -56,6 +55,16 @@ class CliRepl {
     this.useAsync = !!options.async;
     console.log(`cli-repl async=${this.useAsync}`);
     this.options = options;
+    this.mongoshDir = '.mongodb/mongosh/'
+
+    this.bus = new Nanobus('mongosh');
+    const log = logger(this.bus, this.mongoshDir);
+    // create a directory to store all mongosh logs and history
+    try {
+      mkdirp.sync(path.join(os.homedir(), this.mongoshDir));
+    } catch(e) {
+      this.bus.emit('error', e)
+    }
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
@@ -218,7 +227,7 @@ class CliRepl {
     // @ts-ignore
     this.repl.eval = customEval;
 
-    const historyFile = path.join(os.homedir(), '.mongosh_repl_history');
+    const historyFile = path.join(os.homedir(), this.mongoshDir,  '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     this.repl.setupHistory(historyFile, function(err, repl) {
       // TODO: @lrlna format this error
