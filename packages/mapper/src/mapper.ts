@@ -83,7 +83,7 @@ export default class Mapper {
 
     contextObject.db = this.databases.test;
     this.context = contextObject;
-    this.messageBus.emit('setCtx', this.context.db)
+    this.messageBus.emit('setCtx', this.context.db);
   }
 
   use(_, db): any {
@@ -756,8 +756,8 @@ export default class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.replaceOne(
-      collection._collection,
       collection._database,
+      collection._collection,
       filter,
       replacement,
       options,
@@ -836,8 +836,8 @@ export default class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._collection,
       collection._database,
+      collection._collection,
       filter,
       update,
       options,
@@ -874,8 +874,8 @@ export default class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._collection,
       collection._database,
+      collection._collection,
       filter,
       update,
       options,
