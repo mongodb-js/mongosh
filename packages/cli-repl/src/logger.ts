@@ -1,43 +1,45 @@
-import pino from 'pino'
-import path from 'path'
-import os from 'os'
+import { uuid } from 'uuidv4';
+import pino from 'pino';
+import path from 'path';
+import os from 'os';
 
-function logger (bus) {
-  const dest = path.join(os.homedir(), './.mongosh_log')
-  const log = pino({ name: 'monogsh' }, pino.destination(dest))
+function logger (bus: any, logDir: string) {
+  const time = Date.now();
+  const dest = path.join(os.homedir(), logDir, `${time}_log`);
+  const log = pino({ name: 'monogsh' }, pino.destination(dest));
+  const sessionID = uuid();
 
-  bus.on('*', function() {
-    // log info from all events
-  })
+  bus.on('*', function() {});
 
   bus.on('connect', function(info) {
-    log.info('connect', info)
-  })
+    const params = { sessionID, info }
+    log.info('connect', params)
+  });
 
   bus.on('error', function(error) {
-    log.error(error)
-  })
+    log.error(error);
+  });
 
   bus.on('cmd:help', function() {
-    log.info('cmd:help')
-  })
+    log.info('cmd:help');
+  });
 
   bus.on('cmd:use', function(database) {
-    log.info('cmd:use', database)
-  })
+    log.info('cmd:use', database);
+  });
 
   bus.on('cmd:show', function(databases) {
-    log.info('cmd:show', databases)
-  })
+    log.info('cmd:show', databases);
+  });
 
   bus.on('cmd:it', function(info) {
-    log.info('cmd:it', info)
-  })
+    log.info('cmd:it', info);
+  });
 
   bus.on('method:aggregate', function(collection, pipeline) {
-    const params = { collection, pipeline }
-    log.info('method:aggregate', params)
-  })
+    const params = { collection, pipeline };
+    log.info('method:aggregate', params);
+  });
 
   bus.on('method:bulkWrite', function(collection, operations) {
     const params = { collection, operations }
