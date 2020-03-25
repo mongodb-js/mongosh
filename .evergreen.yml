@@ -125,7 +125,7 @@ tasks:
 buildvariants:
   - name: macos
     display_name: "MacOS Mohave"
-    run_on: osx-1014
+    run_on: macos-1014
     tasks:
       - name: checkout
       - name: install_nvm
