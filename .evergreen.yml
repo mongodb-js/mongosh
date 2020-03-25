@@ -1,3 +1,13 @@
+## Variables
+variables:
+  - &save-artifact
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
 # Functions are any command that can be run.
 functions:
   prepare:
@@ -69,6 +79,12 @@ functions:
         shell: bash
         script: |
           echo "################# Publish artifacts to S3, NPM and Github ################"
+    - <<: *save-artifact
+      params:
+        local_file: src/dist/${gzip_filename}
+        remote_file: ${project}/${revision}/${gzip_filename}
+        content_type: application/zip
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 tasks:
