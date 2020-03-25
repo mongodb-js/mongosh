@@ -68,33 +68,33 @@ functions:
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 tasks:
-  - name: checkout
+  - name: install
     commands:
       - func: checkout
-  - name: install
-    depends_on: 
-      - name: checkout
-    commands:
       - func: install
   - name: check
-    depends_on: 
-      - name: install
     commands:
+      - func: checkout
+      - func: install
       - func: check
   - name: test
-    depends_on: 
-      - name: check
     commands:
+      - func: checkout
+      - func: install
       - func: test
   - name: build
-    depends_on:
-      - name: test
     commands:
+      - func: checkout
+      - func: install
       - func: build
   - name: publish
     depends_on:
+      - name: check
+      - name: test
       - name: build
     commands:
+      - func: checkout
+      - func: install
       - func: publish
 # Need to run builds for every possible build variant.
 # TODO: Durran: BUILD-10374 - Need OSX Catalina Signing Machine
@@ -103,7 +103,6 @@ buildvariants:
     display_name: "MacOS Mohave"
     run_on: macos-1014
     tasks:
-      - name: checkout
       - name: install
       - name: check
       - name: test
@@ -113,7 +112,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04"
 #    run_on: ubuntu1804-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
@@ -123,7 +121,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
@@ -133,7 +130,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04 Z Series"
 #    run_on: ubuntu1804-zseries-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
@@ -143,7 +139,6 @@ buildvariants:
 #    display_name: "RHEL 7.6"
 #    run_on: rhel76-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
@@ -153,7 +148,6 @@ buildvariants:
 #    display_name: "RHEL 7.1 PPC"
 #    run_on: rhel71-power8-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
@@ -163,7 +157,6 @@ buildvariants:
 #    display_name: "RHEL 7.2 Z Series"
 #    run_on: rhel72-zseries-test
 #    tasks:
-#      - name: checkout
 #      - name: install
 #      - name: check
 #      - name: test
