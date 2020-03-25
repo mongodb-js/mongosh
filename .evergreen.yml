@@ -4,14 +4,13 @@ functions:
     - command: git.get_project
       params:
         directory: src
-  install_nvm:
+  install:
     - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-  install_node:
     - command: subprocess.exec
       params:
         working_dir: src
@@ -19,21 +18,18 @@ functions:
         script: |
           nvm install 12.4.0
           nvm alias default 12.4.0
-  install_npm:
     - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g npm@latest
-  install_lerna:
     - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g lerna
-  bootstrap:
     - command: subprocess.exec
       params:
         working_dir: src
@@ -75,34 +71,14 @@ tasks:
   - name: checkout
     commands:
       - func: checkout
-  - name: install_nvm
+  - name: install
     depends_on: 
       - name: checkout
     commands:
-      - func: install_nvm
-  - name: install_node
-    depends_on:
-      - name: install_nvm
-    commands:
-      - func: install_node
-  - name: install_npm
-    depends_on: 
-      - name: install_node
-    commands:
-      - func: install_npm
-  - name: install_lerna
-    depends_on:
-      - name: install_npm
-    commands:
-      - func: install_lerna
-  - name: bootstrap
-    depends_on: 
-      - name: install_lerna
-    commands:
-      - func: bootstrap
+      - func: install
   - name: check
     depends_on: 
-      - name: bootstrap
+      - name: install
     commands:
       - func: check
   - name: test
@@ -128,11 +104,7 @@ buildvariants:
     run_on: macos-1014
     tasks:
       - name: checkout
-      - name: install_nvm
-      - name: install_node
-      - name: install_npm
-      - name: install_lerna
-      - name: bootstrap
+      - name: install
       - name: check
       - name: test
       - name: build
@@ -142,11 +114,7 @@ buildvariants:
 #    run_on: ubuntu1804-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -156,11 +124,7 @@ buildvariants:
 #    run_on: ubuntu1804-power8-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -170,11 +134,7 @@ buildvariants:
 #    run_on: ubuntu1804-zseries-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -184,11 +144,7 @@ buildvariants:
 #    run_on: rhel76-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -198,11 +154,7 @@ buildvariants:
 #    run_on: rhel71-power8-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -212,11 +164,7 @@ buildvariants:
 #    run_on: rhel72-zseries-test
 #    tasks:
 #      - name: checkout
-#      - name: install_nvm
-#      - name: install_node
-#      - name: install_npm
-#      - name: install_lerna
-#      - name: bootstrap
+#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
