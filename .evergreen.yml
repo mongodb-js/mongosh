@@ -73,43 +73,51 @@ functions:
 # pass or fail.
 tasks:
   - name: checkout
-    depends_on: []
     commands:
       - func: checkout
   - name: install_nvm
-    depends_on: [checkout]
+    depends_on: 
+      - name: checkout
     commands:
       - func: install_nvm
   - name: install_node
-    depends_on: [install_nvm]
+    depends_on: -
+      - name: install_nvm
     commands:
       - func: install_node
   - name: install_npm
-    depends_on: [install_node]
+    depends_on: 
+      - name: install_node
     commands:
       - func: install_npm
   - name: install_lerna
-    depends_on: [install_npm]
+    depends_on:
+      - name: install_npm
     commands:
       - func: install_lerna
   - name: bootstrap
-    depends_on: [install_lerna]
+    depends_on: 
+      - name: install_lerna
     commands:
       - func: bootstrap
   - name: check
-    depends_on: [bootstrap]
+    depends_on: 
+      - name: bootstrap
     commands:
       - func: check
   - name: test
-    depends_on: [check]
+    depends_on: 
+      - name: check
     commands:
       - func: test
   - name: build
-    depends_on: [test]
+    depends_on:
+      - name: test
     commands:
       - func: build
   - name: publish
-    depends_on: [build]
+    depends_on:
+      - name: build
     commands:
       - func: publish
 # Need to run builds for every possible build variant.
