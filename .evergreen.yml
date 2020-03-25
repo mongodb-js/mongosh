@@ -1,6 +1,6 @@
 # Functions are any command that can be run.
 functions:
-  prepare:
+  checkout:
     - command: git.get_project
       params:
         directory: src
@@ -72,12 +72,12 @@ functions:
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 tasks:
-  - name: prepare
+  - name: checkout
     depends_on: []
     commands:
-      - func: prepare
+      - func: checkout
   - name: install_nvm
-    depends_on: [prepare]
+    depends_on: [checkout]
     commands:
       - func: install_nvm
   - name: install_node
