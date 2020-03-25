@@ -37,10 +37,12 @@
     "@leafygreen-ui/icon": "^4.0.0",
     "@leafygreen-ui/palette": "^2.0.0",
     "@leafygreen-ui/syntax": "^2.2.0",
-    "@mongosh/browser-runtime-core": "^0.0.1-alpha.10",
-    "@mongosh/history": "^0.0.1-alpha.10",
-    "@mongosh/i18n": "^0.0.1-alpha.10",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.10"
+    "@mongosh/browser-runtime-core": "^0.0.1-alpha.6",
+    "@mongosh/history": "^0.0.1-alpha.6",
+    "@mongosh/i18n": "^0.0.1-alpha.6",
+    "@mongosh/service-provider-core": "^0.0.1-alpha.6",
+    "pretty-bytes": "^5.3.0",
+    "text-table": "^0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
