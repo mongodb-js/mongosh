@@ -12,7 +12,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint"
   },
-  "license": "SSPL",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },

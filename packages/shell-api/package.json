@@ -15,7 +15,7 @@
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
   },
-  "license": "SSPL",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },

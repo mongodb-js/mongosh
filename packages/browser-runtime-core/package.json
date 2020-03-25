@@ -16,7 +16,7 @@
     "compile-ts": "tsc -p tsconfig.json"
   },
   "author": "",
-  "license": "SSPL",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },
