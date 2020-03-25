@@ -10,7 +10,7 @@
     "test-ci": "karma start --colors",
     "prepublish": "npm run compile-ts"
   },
-  "license": "SSPL",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },

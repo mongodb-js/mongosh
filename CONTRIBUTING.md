@@ -2,7 +2,7 @@
 
 ## Workflow
 
-MongoDB welcomes community contributions! If you’re interested in making a contribution to MongoDB Compass, please follow the steps below before you start writing any code:
+MongoDB welcomes community contributions! If you’re interested in making a contribution to the MongoDB Shell, please follow the steps below before you start writing any code:
 
 1. Sign the [contributor's agreement](http://www.mongodb.com/contributor). This will allow us to review and accept contributions.
 1. Fork the repository on GitHub

@@ -10,7 +10,7 @@
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\""
   },
-  "license": "SSPL",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },
