@@ -81,7 +81,7 @@ tasks:
     commands:
       - func: install_nvm
   - name: install_node
-    depends_on: -
+    depends_on:
       - name: install_nvm
     commands:
       - func: install_node
