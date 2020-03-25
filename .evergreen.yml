@@ -1,36 +1,44 @@
 # Functions are any command that can be run.
+#
+# Current functions:
+#   checkout - Checks out the project from git.
+#   install - Installs Node and all dependencies.
+#   check - Performs linter and dependency checks.
+#   test - Runs all tests.
+#   build - Builds the mongosh executable.
+#   publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
       params:
         directory: src
   install:
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           nvm install 12.4.0
           nvm alias default 12.4.0
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g npm@latest
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g lerna
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
@@ -38,28 +46,28 @@ functions:
           npm install
           npm run bootstrap
   check:
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm run check
   test:
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm test
   build:
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm run compile-exec
   publish:
-    - command: subprocess.exec
+    - command: shell.exec
       params:
         working_dir: src
         shell: bash
@@ -67,6 +75,12 @@ functions:
           echo "################# Publish artifacts to S3, NPM and Github ################"
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
+#
+# Current tasks:
+#   check - Performs linter and dependency checks.
+#   test - Runs all tests.
+#   build - Builds the mongosh executable.
+#   publish - Publishes the npm packages and uploads the tarballs.
 tasks:
   - name: check
     commands:
