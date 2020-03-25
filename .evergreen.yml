@@ -5,14 +5,14 @@ functions:
       params:
         directory: src
   install_nvm:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
   install_node:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
@@ -20,21 +20,21 @@ functions:
           nvm install 12.4.0
           nvm alias default 12.4.0
   install_npm:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g npm@latest
   install_lerna:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm install -g lerna
   bootstrap:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
@@ -42,28 +42,28 @@ functions:
           npm install
           npm run bootstrap
   check:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm run check
   test:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm test
   build:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
         script: |
           npm run compile-exec
   publish:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
         shell: bash
