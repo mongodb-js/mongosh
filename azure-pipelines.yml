@@ -101,7 +101,7 @@ jobs:
           npm run check
         displayName: 'Run Checks'
       - script: |
-          npm run test-ci
+          DEBUG=* npm run test-ci
         displayName: 'Run Tests'
 
   - job: Windows_Server_2016
@@ -123,5 +123,5 @@ jobs:
           npm run check
         displayName: 'Run Checks'
       - script: |
-          npm run test-ci
+          DEBUG=* npm run test-ci
         displayName: 'Run Tests'
