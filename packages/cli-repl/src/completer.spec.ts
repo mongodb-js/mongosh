@@ -119,6 +119,56 @@ describe('completer.completer', () => {
   });
 
   context('when context is a collection query', () => {
+    it('returns all suggestions', () => {
+      const i = 'db.shipwrecks.find({ ';
+      expect(completer('4.4.0', i)).to.deep.equal([
+      [ 'db.shipwrecks.find({ $all',
+        'db.shipwrecks.find({ $and',
+        'db.shipwrecks.find({ $bitsAllClear',
+        'db.shipwrecks.find({ $bitsAllSet',
+        'db.shipwrecks.find({ $bitsAnyClear',
+        'db.shipwrecks.find({ $bitsAnySet',
+        'db.shipwrecks.find({ $comment',
+        'db.shipwrecks.find({ $elemMatch',
+        'db.shipwrecks.find({ $eq',
+        'db.shipwrecks.find({ $exists',
+        'db.shipwrecks.find({ $expr',
+        'db.shipwrecks.find({ $geoIntersects',
+        'db.shipwrecks.find({ $geoWithin',
+        'db.shipwrecks.find({ $gt',
+        'db.shipwrecks.find({ $gte',
+        'db.shipwrecks.find({ $in',
+        'db.shipwrecks.find({ $jsonSchema',
+        'db.shipwrecks.find({ $lt',
+        'db.shipwrecks.find({ $lte',
+        'db.shipwrecks.find({ $mod',
+        'db.shipwrecks.find({ $ne',
+        'db.shipwrecks.find({ $near',
+        'db.shipwrecks.find({ $nearSphere',
+        'db.shipwrecks.find({ $nin',
+        'db.shipwrecks.find({ $not',
+        'db.shipwrecks.find({ $nor',
+        'db.shipwrecks.find({ $or',
+        'db.shipwrecks.find({ $regex',
+        'db.shipwrecks.find({ $size',
+        'db.shipwrecks.find({ $slice',
+        'db.shipwrecks.find({ $text',
+        'db.shipwrecks.find({ $type',
+        'db.shipwrecks.find({ $where',
+        'db.shipwrecks.find({ Code',
+        'db.shipwrecks.find({ ObjectId',
+        'db.shipwrecks.find({ Binary',
+        'db.shipwrecks.find({ DBRef',
+        'db.shipwrecks.find({ Timestamp',
+        'db.shipwrecks.find({ NumberInt',
+        'db.shipwrecks.find({ NumberLong',
+        'db.shipwrecks.find({ NumberDecimal',
+        'db.shipwrecks.find({ MaxKey',
+        'db.shipwrecks.find({ MinKey',
+        'db.shipwrecks.find({ ISODate',
+        'db.shipwrecks.find({ RegExp' ], i]);
+    });
+
     it('has several matches', () => {
       const i = 'db.bios.find({ birth: { $g';
       expect(completer('4.4.0', i)).to.deep.equal([
