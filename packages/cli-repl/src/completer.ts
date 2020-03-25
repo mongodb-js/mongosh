@@ -93,7 +93,7 @@ function completer(mdbVersion: string, line: string): [string[], string] {
       // split on {, as a stage/query will always follow an open curly brace
       const splitQuery = line.split("{");
       const prefix = splitQuery.pop().trim();
-      const command = line.split(prefix).shift();
+      const command = prefix !== '' ? line.split(prefix).shift() : line;
       const hits = filterQueries(mdbVersion, expressions, prefix, command);
       return [hits.length ? hits: [], line]
     }
