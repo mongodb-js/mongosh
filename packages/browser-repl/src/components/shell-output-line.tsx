@@ -7,7 +7,7 @@ import Icon from '@leafygreen-ui/icon';
 import { LineWithIcon } from './utils/line-with-icon';
 
 import { HelpOutput } from './types/help-output';
-// import { CommandOutput } from './types/command-output';
+import { ShowDbsOutput } from './types/show-dbs-output';
 import { CursorOutput } from './types/cursor-output';
 import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 import { ObjectOutput } from './types/object-output';
@@ -49,6 +49,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <HelpOutput value={value} />;
     }
 
+    if (shellApiType === 'CommandResult') {
+      return <ShowDbsOutput value={value} />;
+    }
+
     if (shellApiType === 'Cursor') {
       return <CursorOutput value={value} />;
     }
@@ -71,8 +75,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   private isCommandResult(value: any, shellApiType: string): boolean {
     return typeof value === 'string' &&
     shellApiType === 'Database' ||
-    shellApiType === 'Collection' ||
-    shellApiType === 'CommandResult';
+    shellApiType === 'Collection';
   }
 
   private isPrimitiveOrFunction(value: any): boolean {

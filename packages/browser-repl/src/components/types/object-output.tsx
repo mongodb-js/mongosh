@@ -16,4 +16,3 @@ export class ObjectOutput extends Component<ObjectOutputProps> {
     return <SyntaxHighlight code={inspect(this.props.value)} />;
   }
 }
-

@@ -61,17 +61,19 @@ describe('Mapper', () => {
           ok: 1
         });
 
-        const expectedOutput = `db1  10 kB
-db2  20 kB
-db3  30 kB`;
+        const expectedOutput = [
+          { name: 'db1', sizeOnDisk: 10000, empty: false },
+          { name: 'db2', sizeOnDisk: 20000, empty: false },
+          { name: 'db3', sizeOnDisk: 30000, empty: false }
+        ];
 
         expect(
           (await mapper.show(null, 'dbs')).toReplString()
-        ).to.equal(expectedOutput);
+        ).to.deep.equal(expectedOutput);
 
         expect(
           (await mapper.show(null, 'databases')).toReplString()
-        ).to.equal(expectedOutput);
+        ).to.deep.equal(expectedOutput);
       });
 
       describe('show collections', () => {
