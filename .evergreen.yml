@@ -68,10 +68,6 @@ functions:
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 tasks:
-  - name: install
-    commands:
-      - func: checkout
-      - func: install
   - name: check
     commands:
       - func: checkout
@@ -103,7 +99,6 @@ buildvariants:
     display_name: "MacOS Mohave"
     run_on: macos-1014
     tasks:
-      - name: install
       - name: check
       - name: test
       - name: build
@@ -112,7 +107,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04"
 #    run_on: ubuntu1804-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -121,7 +115,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -130,7 +123,6 @@ buildvariants:
 #    display_name: "Ubuntu 18.04 Z Series"
 #    run_on: ubuntu1804-zseries-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -139,7 +131,6 @@ buildvariants:
 #    display_name: "RHEL 7.6"
 #    run_on: rhel76-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -148,7 +139,6 @@ buildvariants:
 #    display_name: "RHEL 7.1 PPC"
 #    run_on: rhel71-power8-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
@@ -157,7 +147,6 @@ buildvariants:
 #    display_name: "RHEL 7.2 Z Series"
 #    run_on: rhel72-zseries-test
 #    tasks:
-#      - name: install
 #      - name: check
 #      - name: test
 #      - name: build
