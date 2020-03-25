@@ -69,7 +69,6 @@ functions:
         shell: bash
         script: |
           echo "################# Publish artifacts to S3, NPM and Github ################"
-
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 tasks:
