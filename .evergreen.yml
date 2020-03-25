@@ -6,7 +6,9 @@
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
 #   build - Builds the mongosh executable.
-#   publish - Publishes the npm packages and uploads the tarballs.
+#   release_macos - Publishes the npm packages and uploads the tarballs.
+#   release_linux - Publishes the npm packages and uploads the tarballs.
+#   release_win - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
@@ -66,13 +68,27 @@ functions:
         shell: bash
         script: |
           npm run compile-exec
-  publish:
+  release_macos:
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          echo "################# Publish artifacts to S3, NPM and Github ################"
+          echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
+  release_linux:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          echo "################# Sign and release Linux artifacts to S3 and Github ################"
+  release_win:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          echo "################# Sign and release Windows artifacts to S3 and Github ################"
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -80,7 +96,9 @@ functions:
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
 #   build - Builds the mongosh executable.
-#   publish - Publishes the npm packages and uploads the tarballs.
+#   release_macos - Publishes the npm packages and uploads the tarballs.
+#   release_linux - Publishes the npm packages and uploads the tarballs.
+#   release_win - Publishes the npm packages and uploads the tarballs.
 tasks:
   - name: check
     commands:
@@ -97,7 +115,7 @@ tasks:
       - func: checkout
       - func: install
       - func: build
-  - name: publish
+  - name: release_macos
     depends_on:
       - name: check
       - name: test
@@ -105,7 +123,25 @@ tasks:
     commands:
       - func: checkout
       - func: install
-      - func: publish
+      - func: release_macos
+  - name: release_linux
+    depends_on:
+      - name: check
+      - name: test
+      - name: build
+    commands:
+      - func: checkout
+      - func: install
+      - func: release_linux
+  - name: release_win
+    depends_on:
+      - name: check
+      - name: test
+      - name: build
+    commands:
+      - func: checkout
+      - func: install
+      - func: release_win
 # Need to run builds for every possible build variant.
 # TODO: Durran: BUILD-10374 - Need OSX Catalina Signing Machine
 buildvariants:
@@ -116,7 +152,7 @@ buildvariants:
       - name: check
       - name: test
       - name: build
-      - name: publish
+      - name: release_macos
 #  - name: ubuntu
 #    display_name: "Ubuntu 18.04"
 #    run_on: ubuntu1804-test
@@ -124,7 +160,7 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
@@ -132,7 +168,7 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
 #  - name: ubuntuz
 #    display_name: "Ubuntu 18.04 Z Series"
 #    run_on: ubuntu1804-zseries-test
@@ -140,7 +176,7 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
 #  - name: rhel7
 #    display_name: "RHEL 7.6"
 #    run_on: rhel76-test
@@ -148,7 +184,7 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
 #  - name: rhelppc
 #    display_name: "RHEL 7.1 PPC"
 #    run_on: rhel71-power8-test
@@ -156,7 +192,7 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
 #  - name: rhelz
 #    display_name: "RHEL 7.2 Z Series"
 #    run_on: rhel72-zseries-test
@@ -164,4 +200,4 @@ buildvariants:
 #      - name: check
 #      - name: test
 #      - name: build
-#      - name: publish
+#      - name: release_linux
