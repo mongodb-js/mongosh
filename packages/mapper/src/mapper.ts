@@ -899,6 +899,12 @@ export default class Mapper {
    * @return {Promise}
    */
   async convertToCapped(collection: Collection, size: number): Promise<any> {
+    this.messageBus.emit(
+      'method:convertToCapped',
+      collection._collection,
+      size
+    );
+
     return await this.serviceProvider.convertToCapped(
       collection._database,
       collection._collection,
@@ -922,6 +928,13 @@ export default class Mapper {
     keyPatterns: Document[],
     options: Document = {}
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:createIndexes',
+      collection._collection,
+      keyPatterns,
+      options
+    );
+
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new Error('options must be an object');
     }
@@ -954,6 +967,13 @@ export default class Mapper {
     keys: Document,
     options: Document = {}
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:createIndex',
+      collection._collection,
+      keys,
+      options
+    );
+
     return await this.createIndexes(
       collection,
       [keys],
@@ -978,6 +998,13 @@ export default class Mapper {
     keys: Document,
     options: Document
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:ensureIndex',
+      collection._collection,
+      keys,
+      options
+    );
+
     return await this.createIndex(
       collection,
       keys,
@@ -996,6 +1023,11 @@ export default class Mapper {
   async getIndexes(
     collection: Collection,
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:getIndexes',
+      collection._collection
+    );
+
     return await this.serviceProvider.getIndexes(
       collection._database,
       collection._collection
@@ -1013,6 +1045,11 @@ export default class Mapper {
   async getIndexSpecs(
     collection: Collection,
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:getIndexSpecs',
+      collection._collection
+    );
+
     return await this.getIndexes(collection);
   }
 
@@ -1027,6 +1064,11 @@ export default class Mapper {
   async getIndices(
     collection: Collection,
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:getIndices',
+      collection._collection
+    );
+
     return await this.getIndexes(collection);
   }
 
@@ -1040,13 +1082,32 @@ export default class Mapper {
   async getIndexKeys(
     collection: Collection,
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:getIndexKeys',
+      collection._collection
+    );
+
     return (await this.getIndexes(collection)).map(i => i.key);
   }
 
+  /**
+   * Drops the specified index or indexes (except the index on the _id field)
+   * from a collection.
+   *
+   * @param {Collection} collection
+   * @param {string|string[]|Object|Object[]} indexes the indexes to be removed.
+   * @return {Promise}
+   */
   async dropIndexes(
     collection: Collection,
     indexes: string|string[]|Document|Document[]
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:dropIndexes',
+      collection._collection,
+      indexes
+    );
+
     try {
       return await this.serviceProvider.dropIndexes(
         collection._database,
@@ -1067,10 +1128,23 @@ export default class Mapper {
     }
   }
 
+  /**
+   * Drops the specified index from a collection.
+   *
+   * @param {Collection} collection
+   * @param {string|Object} index the index to be removed.
+   * @return {Promise}
+   */
   async dropIndex(
     collection: Collection,
     index: string|Document
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:dropIndex',
+      collection._collection,
+      index
+    );
+
     if (index === '*') {
       throw new Error('To drop indexes in the collection using \'*\', use db.collection.dropIndexes()');
     }
