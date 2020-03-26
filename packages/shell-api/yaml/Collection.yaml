@@ -60,6 +60,24 @@ class:
             description: 'shell-api.collection.help.update-one.description'
           - name: converToCapped
             description: 'shell-api.collection.help.convert-to-capped.description'
+          - name: createIndexes
+            description: 'shell-api.collection.help.create-indexes'
+          - name: createIndex
+            description: 'shell-api.collection.help.create-index'
+          - name: ensureIndex
+            description: 'shell-api.collection.help.ensure-index'
+          - name: getIndexes
+            description: 'shell-api.collection.help.get-indexes'
+          - name: getIndexSpecs
+            description: 'shell-api.collection.help.get-index-specs'
+          - name: getIndexKeys
+            description: 'shell-api.collection.help.get-index-keys'
+          - name: getIndices
+            description: 'shell-api.collection.help.get-indices'
+          - name: dropIndexes
+            description: 'shell-api.collection.help.drop-indexes'
+          - name: dropIndex
+            description: 'shell-api.collection.help.drop-index'
 
     aggregate:
         <<: *__defaultMethod
@@ -285,7 +303,23 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         serverVersions:
-            - '3.2.0'
+            - *ServerVersions.earliest
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.get-indices'
+    dropIndexes:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.drop-indexes'
+    dropIndex:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.drop-index'

@@ -878,6 +878,18 @@ const translations = {
           "example": "",
           "parameters": {}
         },
+        "drop-indexes": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.dropIndexes",
+          "description": "Drops the specified index or indexes (except the index on the _id field) from a collection.",
+          "example": "",
+          "parameters": {}
+        },
+        "drop-index": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.dropIndex",
+          "description": "Drops or removes the specified index from a collection.",
+          "example": "",
+          "parameters": {}
+        },
         "update-one": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.updateOne",
           "description": "Updates a single document within the collection based on the filter.",

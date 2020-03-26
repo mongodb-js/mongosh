@@ -733,7 +733,7 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {string|Object[]|string[]} indexes the indexes to be removed.
+   * @param {string|string[]|Object|Object[]} indexes the indexes to be removed.
    * @param {Object} options - The command options.
    * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
    * @return {Promise}
@@ -741,7 +741,7 @@ class CliServiceProvider implements ServiceProvider {
   async dropIndexes(
     database: string,
     collection: string,
-    indexes: string|string[]|Document[],
+    indexes: string|string[]|Document|Document[],
     options?: Document,
     dbOptions?: Document): Promise<Result> {
     return await this.runCommand(database, {

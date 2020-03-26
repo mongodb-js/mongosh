@@ -97,4 +97,10 @@ describe('Collection', () => {
       testWrappedMethod('getIndexKeys');
     });
   });
+
+  describe('#dropIndexes', () => {
+    it('wraps mapper.dropIndexes', () => {
+      testWrappedMethod('dropIndexes');
+    });
+  });
 });
