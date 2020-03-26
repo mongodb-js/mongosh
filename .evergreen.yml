@@ -23,8 +23,7 @@ functions:
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
           nvm install 12.4.0
           nvm alias default 12.4.0
-          npm install -g npm@latest
-          npm install -g lerna
+          npm install -g npm@latest lerna
           npm install
           npm run bootstrap
   check:
