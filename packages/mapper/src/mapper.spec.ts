@@ -344,5 +344,63 @@ db3  30 kB`;
       ]);
     });
   });
+
+  describe('dropIndexes', () => {
+    let collection;
+
+    beforeEach(() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+    });
+
+    context('when serviceProvider.dropIndexes resolves', () => {
+      let result;
+      beforeEach(async() => {
+        result = { nIndexesWas: 3, ok: 1 };
+        serviceProvider.dropIndexes.resolves(result);
+      });
+
+      it('returns the result of serviceProvider.dropIndexes', async() => {
+        expect(await mapper.dropIndexes(collection, 'index_1')).to.deep.equal(result);
+      });
+    });
+
+    context('when serviceProvider.dropIndexes rejects IndexNotFound', () => {
+      beforeEach(async() => {
+        const error = new Error('index not found with name [index_1]');
+        Object.assign(error, {
+          ok: 0,
+          errmsg: 'index not found with name [index_1]',
+          code: 27,
+          codeName: 'IndexNotFound',
+          name: 'MongoError'
+        });
+
+        serviceProvider.dropIndexes.rejects(error);
+      });
+
+      it('returns the result of serviceProvider.dropIndexes', async() => {
+        expect(await mapper.dropIndexes(collection, 'index_1')).to.deep.equal({
+          ok: 0,
+          errmsg: 'index not found with name [index_1]',
+          code: 27,
+          codeName: 'IndexNotFound'
+        });
+      });
+    });
+
+    context('when serviceProvider.dropIndexes rejects any other error', () => {
+      let error;
+      beforeEach(async() => {
+        error = new Error('Some error');
+        serviceProvider.dropIndexes.rejects(new Error('Some error'));
+      });
+
+      it('rejects with error', async() => {
+        let catched;
+        await mapper.dropIndexes(collection, 'index_1').catch(err => { catched = err; });
+        expect(catched.message).to.equal(error.message);
+      });
+    });
+  });
 });
 

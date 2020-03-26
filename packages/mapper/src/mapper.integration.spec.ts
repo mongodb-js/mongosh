@@ -11,6 +11,15 @@ describe('Mapper (integration)', function() {
 
   let serviceProvider: CliServiceProvider;
 
+  const getIndexNames = async(dbName: string, collectionName: string): Promise<any> => {
+    const specs = await serviceProvider.getIndexes(
+      dbName,
+      collectionName
+    );
+
+    return specs.map(spec => spec.name);
+  };
+
   before(async() => {
     serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
   });
@@ -176,10 +185,7 @@ describe('Mapper (integration)', function() {
       beforeEach(async() => {
         await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
 
-        expect((await serviceProvider.getIndexes(
-          dbName,
-          collectionName
-        )).map((spec) => spec.name)).not.to.contain('index-1');
+        expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
 
         result = await mapper.createIndexes(collection, [{ x: 1 }], {
           name: 'index-1'
@@ -196,10 +202,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('creates the index', async() => {
-        expect((await serviceProvider.getIndexes(
-          dbName,
-          collectionName
-        )).map((spec) => spec.name)).to.contain('index-1');
+        expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
       });
     });
 
@@ -234,6 +237,23 @@ describe('Mapper (integration)', function() {
             v: 2
           }
         ]);
+      });
+    });
+
+    describe('dropIndexes', () => {
+      beforeEach(async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await serviceProvider.createIndexes(dbName, collectionName, [
+          { key: { x: 1 }, name: 'index-1' }
+        ]);
+      });
+
+      it('removes indexes', async() => {
+        expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
+
+        await mapper.dropIndexes(collection, '*');
+
+        expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
       });
     });
   });

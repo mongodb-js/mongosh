@@ -476,14 +476,16 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  it('returns the error if index does not exist', async() => {
+  it('throws an error if index does not exist', async() => {
     const collName = 'coll1';
     await db.createCollection(collName);
-    const error = await serviceProvider.dropIndexes(
+
+    let error;
+    await serviceProvider.dropIndexes(
       dbName,
       collName,
       ['index-1']
-    );
+    ).catch(err => {error = err;});
 
     expect(error.ok).to.equal(0);
     expect(error.codeName).to.equal('IndexNotFound');

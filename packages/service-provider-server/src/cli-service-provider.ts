@@ -741,21 +741,13 @@ class CliServiceProvider implements ServiceProvider {
   async dropIndexes(
     database: string,
     collection: string,
-    indexes: string|Document[]|string[],
+    indexes: string|string[]|Document[],
     options?: Document,
     dbOptions?: Document): Promise<Result> {
-    try {
-      return await this.runCommand(database, {
-        dropIndexes: collection,
-        index: indexes,
-      }, options, dbOptions);
-    } catch (error) {
-      if (error.codeName === 'IndexNotFound') {
-        return error;
-      }
-
-      throw error;
-    }
+    return await this.runCommand(database, {
+      dropIndexes: collection,
+      index: indexes,
+    }, options, dbOptions);
   }
 }
 

@@ -111,7 +111,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
-  dropIndexes(database: string, collection: string, indexes: Document[], options?: Document, dbOptions?: Document): Promise<any> {
+  dropIndexes(database: string, collection: string, indexes: string|string[]|Document[], options?: Document, dbOptions?: Document): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
