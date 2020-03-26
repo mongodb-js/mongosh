@@ -1042,4 +1042,28 @@ export default class Mapper {
   ): Promise<any> {
     return (await this.getIndexes(collection)).map(i => i.key);
   }
+
+  async dropIndexes(
+    collection: Collection,
+    indexes: string|Document[]|string[]
+  ): Promise<any> {
+    try {
+      return await this.serviceProvider.dropIndexes(
+        collection._database,
+        collection._collection,
+        indexes
+      );
+    } catch (error) {
+      if (error.codeName === 'IndexNotFound') {
+        return {
+          ok: error.ok,
+          errmsg: error.errmsg,
+          code: error.code,
+          codeName: error.codeName
+        };
+      }
+
+      throw error;
+    }
+  }
 }

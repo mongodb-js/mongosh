@@ -304,7 +304,7 @@ interface Writable {
   dropIndexes(
     database: string,
     collection: string,
-    indexes: Document[],
+    indexes: string|string[]|Document[],
     options?: Document,
     dbOptions?: Document): Promise<Result>;
 }
