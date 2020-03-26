@@ -1045,7 +1045,7 @@ export default class Mapper {
 
   async dropIndexes(
     collection: Collection,
-    indexes: string|Document[]|string[]
+    indexes: string|string[]|Document|Document[]
   ): Promise<any> {
     try {
       return await this.serviceProvider.dropIndexes(
@@ -1065,5 +1065,20 @@ export default class Mapper {
 
       throw error;
     }
+  }
+
+  async dropIndex(
+    collection: Collection,
+    index: string|Document
+  ): Promise<any> {
+    if (index === '*') {
+      throw new Error('To drop indexes in the collection using \'*\', use db.collection.dropIndexes()');
+    }
+
+    if (Array.isArray(index)) {
+      throw new Error('The index to drop must be either the index name or the index specification document');
+    }
+
+    return await this.dropIndexes(collection, index);
   }
 }

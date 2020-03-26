@@ -402,5 +402,43 @@ db3  30 kB`;
       });
     });
   });
+
+  describe('dropIndex', () => {
+    let collection;
+
+    beforeEach(() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+    });
+
+    context('when mapper.dropIndexes resolves', () => {
+      let result;
+      beforeEach(async() => {
+        result = { nIndexesWas: 3, ok: 1 };
+        mapper.dropIndexes = sinon.mock().resolves(result);
+      });
+
+      it('returns the result of serviceProvider.dropIndexes', async() => {
+        expect(await mapper.dropIndex(collection, 'index_1')).to.deep.equal(result);
+      });
+
+      it('throws if index is "*"', async() => {
+        let catched;
+        await mapper.dropIndex(collection, '*').catch(err => { catched = err; });
+
+        expect(catched.message).to.equal(
+          'To drop indexes in the collection using \'*\', use db.collection.dropIndexes()'
+        );
+      });
+
+      it('throws if index is an array', async() => {
+        let catched;
+        await mapper.dropIndex(collection, ['index-1']).catch(err => { catched = err; });
+
+        expect(catched.message).to.equal(
+          'The index to drop must be either the index name or the index specification document'
+        );
+      });
+    });
+  });
 });
 

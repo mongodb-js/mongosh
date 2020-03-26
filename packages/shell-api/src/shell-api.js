@@ -166,7 +166,7 @@ class Collection {
     this.shellApiType = () => {
       return 'Collection';
     };
-    this.help = () => new Help({ 'help': 'shell-api.collection.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-collection', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write.description' }, { 'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents.description' }, { 'name': 'count', 'description': 'shell-api.collection.help.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many.description' }, { 'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one.description' }, { 'name': 'distinct', 'description': 'shell-api.collection.help.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-coun.descriptiont' }, { 'name': 'find', 'description': 'shell-api.collection.help.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify.description' }, { 'name': 'findOne', 'description': 'shell-api.collection.help.find-one.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update.description' }, { 'name': 'insert', 'description': 'shell-api.collection.help.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many.description' }, { 'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one.description' }, { 'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped.description' }, { 'name': 'remove', 'description': 'shell-api.collection.help.remove.description' }, { 'name': 'save', 'description': 'shell-api.collection.help.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one.description' }, { 'name': 'update', 'description': 'shell-api.collection.help.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.collection.help.update-many.description' }, { 'name': 'updateOne', 'description': 'shell-api.collection.help.update-one.description' }, { 'name': 'converToCapped', 'description': 'shell-api.collection.help.convert-to-capped.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.collection.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-collection', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.collection.help.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.collection.help.bulk-write.description' }, { 'name': 'countDocuments', 'description': 'shell-api.collection.help.count-documents.description' }, { 'name': 'count', 'description': 'shell-api.collection.help.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.collection.help.delete-many.description' }, { 'name': 'deleteOne', 'description': 'shell-api.collection.help.delete-one.description' }, { 'name': 'distinct', 'description': 'shell-api.collection.help.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-coun.descriptiont' }, { 'name': 'find', 'description': 'shell-api.collection.help.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.collection.help.find-and-modify.description' }, { 'name': 'findOne', 'description': 'shell-api.collection.help.find-one.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.collection.help.find-one-and-delete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.collection.help.find-one-and-replace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.collection.help.find-one-and-update.description' }, { 'name': 'insert', 'description': 'shell-api.collection.help.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.collection.help.insert-many.description' }, { 'name': 'insertOne', 'description': 'shell-api.collection.help.insert-one.description' }, { 'name': 'isCapped', 'description': 'shell-api.collection.help.is-capped.description' }, { 'name': 'remove', 'description': 'shell-api.collection.help.remove.description' }, { 'name': 'save', 'description': 'shell-api.collection.help.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.collection.help.replace-one.description' }, { 'name': 'update', 'description': 'shell-api.collection.help.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.collection.help.update-many.description' }, { 'name': 'updateOne', 'description': 'shell-api.collection.help.update-one.description' }, { 'name': 'converToCapped', 'description': 'shell-api.collection.help.convert-to-capped.description' }, { 'name': 'createIndexes', 'description': 'shell-api.collection.help.create-indexes' }, { 'name': 'createIndex', 'description': 'shell-api.collection.help.create-index' }, { 'name': 'ensureIndex', 'description': 'shell-api.collection.help.ensure-index' }, { 'name': 'getIndexes', 'description': 'shell-api.collection.help.get-indexes' }, { 'name': 'getIndexSpecs', 'description': 'shell-api.collection.help.get-index-specs' }, { 'name': 'getIndexKeys', 'description': 'shell-api.collection.help.get-index-keys' }, { 'name': 'getIndices', 'description': 'shell-api.collection.help.get-indices' }, { 'name': 'dropIndexes', 'description': 'shell-api.collection.help.drop-indexes' }, { 'name': 'dropIndex', 'description': 'shell-api.collection.help.drop-index' }] });
   }
 
   aggregate(...args) {
@@ -295,6 +295,14 @@ class Collection {
 
   getIndices(...args) {
     return this._mapper.getIndices(this, ...args);
+  }
+
+  dropIndexes(...args) {
+    return this._mapper.dropIndexes(this, ...args);
+  }
+
+  dropIndex(...args) {
+    return this._mapper.dropIndex(this, ...args);
   }
 }
 
@@ -486,10 +494,22 @@ Collection.prototype.getIndexKeys.returnsPromise = true;
 Collection.prototype.getIndexKeys.returnType = 'unknown';
 
 Collection.prototype.getIndices.help = () => new Help({ 'help': 'shell-api.collection.help.get-indices' });
-Collection.prototype.getIndices.serverVersions = ['3.2.0', '4.4.0'];
+Collection.prototype.getIndices.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.getIndices.topologies = [0, 1, 2];
 Collection.prototype.getIndices.returnsPromise = true;
 Collection.prototype.getIndices.returnType = 'unknown';
+
+Collection.prototype.dropIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.drop-indexes' });
+Collection.prototype.dropIndexes.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.dropIndexes.topologies = [0, 1, 2];
+Collection.prototype.dropIndexes.returnsPromise = true;
+Collection.prototype.dropIndexes.returnType = 'unknown';
+
+Collection.prototype.dropIndex.help = () => new Help({ 'help': 'shell-api.collection.help.drop-index' });
+Collection.prototype.dropIndex.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.dropIndex.topologies = [0, 1, 2];
+Collection.prototype.dropIndex.returnsPromise = true;
+Collection.prototype.dropIndex.returnType = 'unknown';
 
 
 class Cursor {
