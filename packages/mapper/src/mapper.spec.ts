@@ -378,7 +378,7 @@ db3  30 kB`;
         serviceProvider.dropIndexes.rejects(error);
       });
 
-      it('returns the result of serviceProvider.dropIndexes', async() => {
+      it('returns the error as object', async() => {
         expect(await mapper.dropIndexes(collection, 'index_1')).to.deep.equal({
           ok: 0,
           errmsg: 'index not found with name [index_1]',
