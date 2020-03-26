@@ -3,7 +3,7 @@ import pino from 'pino';
 import path from 'path';
 import os from 'os';
 
-function logger (bus: any, logDir: string) {
+function logger(bus: any, logDir: string) {
   const time = Date.now();
   const dest = path.join(os.homedir(), logDir, `${time}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(dest));
@@ -157,54 +157,54 @@ function logger (bus: any, logDir: string) {
   });
 
   bus.on('method:convertToCapped', function(collection, size) {
-    const params = { collection, size }
-    log.info('method:convertToCapped', params)
-  })
+    const params = { collection, size };
+    log.info('method:convertToCapped', params);
+  });
 
   bus.on('method:createIndexes', function(collection, keyPatterns, options) {
-    const params = { collection, keyPatterns, options }
-    log.info('method:createIndexes', params)
-  })
+    const params = { collection, keyPatterns, options };
+    log.info('method:createIndexes', params);
+  });
 
   bus.on('method:createIndex', function(collection, keys, options) {
-    const params = { collection, keys, options }
-    log.info('method:createIndex', params)
-  })
+    const params = { collection, keys, options };
+    log.info('method:createIndex', params);
+  });
 
   bus.on('method:ensureIndex', function(collection, keys, options) {
-    const params = { collection, keys, options }
-    log.info('method:ensureIndex', params)
-  })
+    const params = { collection, keys, options };
+    log.info('method:ensureIndex', params);
+  });
 
   bus.on('method:getIndexes', function(collection) {
-    const params = { collection }
-    log.info('method:getIndexes', params)
-  })
+    const params = { collection };
+    log.info('method:getIndexes', params);
+  });
 
   bus.on('method:getIndexSpecs', function(collection) {
-    const params = { collection }
-    log.info('method:getIndexSpecs', params)
-  })
+    const params = { collection };
+    log.info('method:getIndexSpecs', params);
+  });
 
   bus.on('method:getIndices', function(collection) {
-    const params = { collection }
-    log.info('method:getIndices', params)
-  })
+    const params = { collection };
+    log.info('method:getIndices', params);
+  });
 
   bus.on('method:getIndexKeys', function(collection) {
-    const params = { collection }
-    log.info('method:getIndexKeys', params)
-  })
+    const params = { collection };
+    log.info('method:getIndexKeys', params);
+  });
 
   bus.on('method:dropIndexes', function(collection, indexes) {
-    const params = { collection, indexes }
-    log.info('method:dropIndexes', params)
-  })
+    const params = { collection, indexes };
+    log.info('method:dropIndexes', params);
+  });
 
   bus.on('method:dropIndex', function(collection, index) {
-    const params = { collection, index }
-    log.info('method:dropIndex', params)
-  })
+    const params = { collection, index };
+    log.info('method:dropIndex', params);
+  });
 }
 
 export default logger;
