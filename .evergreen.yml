@@ -21,31 +21,10 @@ functions:
         shell: bash
         script: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-          source ~/.bashrc
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
           nvm install 12.4.0
           nvm alias default 12.4.0
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
           npm install -g npm@latest
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
           npm install -g lerna
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
           npm install
           npm run bootstrap
   check:
