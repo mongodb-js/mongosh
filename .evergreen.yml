@@ -32,6 +32,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          source ~/.bashrc
           npm run check
   test:
     - command: shell.exec
@@ -39,6 +40,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          source ~/.bashrc
           npm test
   build:
     - command: shell.exec
@@ -46,6 +48,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          source ~/.bashrc
           npm run compile-exec
   release_macos:
     - command: shell.exec
