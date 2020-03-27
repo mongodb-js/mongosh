@@ -31,6 +31,10 @@ export default class SymbolTable {
   add(item, value): void {
     this.scopeStack[this.scopeStack.length - 1][item] = value;
   }
+  addToParent(item, value): void {
+    const i = this.scopeStack.length - 2;
+    this.scopeStack[i > 0 ? i : 0][item] = value;
+  }
   update(item, value): void {
     for (let i = 0; i < this.scopeStack.length; i++) {
       if (this.scopeStack[i][item]) {
@@ -47,37 +51,38 @@ export default class SymbolTable {
   pushScope(): void {
     this.scopeStack.push([]);
   }
-  printSymbol(s, i): void {
-    const type = s.type;
+  printSymbol(symbol, key): string {
+    const type = symbol.type;
     let info = '';
     if (type === 'function') {
-      let rt = s.returnType;
-      if (typeof s.returnType === 'undefined') {
+      let rt = symbol.returnType;
+      if (typeof symbol.returnType === 'undefined') {
         rt = '?';
-      } else if (typeof s.returnType === 'object') {
+      } else if (typeof symbol.returnType === 'object') {
         rt = rt.type;
       }
-      const rp = s.returnsPromise === undefined ? '?' : s.returnsPromise;
+      const rp = symbol.returnsPromise === undefined ? '?' : symbol.returnsPromise;
       info = `returnType: ${rt} returnsPromise: ${rp}`;
+    } else if (type === 'classdef') {
+      info = this.printSymbol(symbol.returnType, 'returnType');
     } else {
       info = '[]';
-      if (s.attributes !== undefined) {
-        info = Object.keys(s.attributes).map((v) => {
-          return `${v}: <${s.attributes[v].type}>`;
+      if (symbol.attributes !== undefined) {
+        info = Object.keys(symbol.attributes).map((v) => {
+          return `${v}: <${symbol.attributes[v].type}>`;
         }).join(', ');
       }
-      info = ` attr: { ${info} }`;
-      // info = ` attr: ${s.attributes ? JSON.stringify(Object.keys(s.attributes).map((n) => `${n}: ${s.attributes[n].type}`)) : []}`;
+      info = ` attributes: { ${info} }`;
     }
-    console.log(`  ${i}: { type: '${type}' ${info} }`);
+    return `  ${key}: { type: '${type}' ${info} }`;
   }
   print(): void {
     console.log('----Printing Symbol Table----');
-    for (let i = this.scopeStack.length - 1; i >= 0; i--) {
-      const scope = this.scopeStack[i];
-      console.log(`scope@${i}:`);
+    for (let scopeDepth = this.scopeStack.length - 1; scopeDepth >= 0; scopeDepth--) {
+      const scope = this.scopeStack[scopeDepth];
+      console.log(`scope@${scopeDepth}:`);
       Object.keys(scope).filter((s) => (!scope[s].lib)).forEach((k) => {
-        this.printSymbol(scope[k], k);
+        console.log(this.printSymbol(scope[k], k));
       });
     }
     console.log('-----------------------------');

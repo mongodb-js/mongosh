@@ -23,7 +23,7 @@ const input = [
   // 'y.coll.insertOne()',
   // '() => {return db;}',
   // '() => {db;}',
-  // 'function x(d) { d.coll.insertOne({}) }',
+  // 'function x() { db.coll.insertOne({}) }',
   // 'x(abc);'
   // '() => (db)',
   // 'function x() {return db;}',
@@ -38,14 +38,11 @@ const input = [
   //     return 1;
   //   }
   // }`,
-  `class test {
-    constructor() {
-      this.db = db;
-    }
-    fn() {
-      this.db.coll.insertOne()
-    }
+  `class Test {
+    constructor() {}
+    fn() { return db; }
   }`,
+  'x = new Test()'
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));
