@@ -770,6 +770,25 @@ class CliServiceProvider implements ServiceProvider {
       filter, options
     ).toArray();
   }
+
+  /**
+   * Get all the collection statistics.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} options - The count options.
+   * @param {Object} dbOptions - The database options
+   * @return {Promise} returns Promise
+   */
+  async stats(
+    database: string,
+    collection: string,
+    options: Document = {},
+    dbOptions: Document = {}): Promise<any> {
+    return await this.db(database, dbOptions)
+      .collection(collection)
+      .stats(options);
+  }
 }
 
 export default CliServiceProvider;

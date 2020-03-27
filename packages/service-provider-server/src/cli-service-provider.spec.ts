@@ -655,4 +655,28 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#stats', () => {
+    let options;
+    let expectedResult;
+    let statsMock;
+
+    beforeEach(() => {
+      options = { scale: 1 };
+      expectedResult = { ok: 1 };
+      statsMock = sinon.mock().once().withArgs(options).
+        resolves(expectedResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        stats: statsMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.stats('db1', 'coll1', options);
+      expect(result).to.deep.equal(expectedResult);
+      statsMock.verify();
+    });
+  });
 });
