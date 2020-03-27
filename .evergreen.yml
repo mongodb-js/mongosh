@@ -48,6 +48,8 @@ functions:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
+          export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm test
   build:
     - command: shell.exec
