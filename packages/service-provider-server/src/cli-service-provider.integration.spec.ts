@@ -474,21 +474,49 @@ describe('CliServiceProvider [integration]', function() {
         await nativeCollection.indexExists('index-1')
       ).to.be.false;
     });
+
+    it('throws an error if index does not exist', async() => {
+      const collName = 'coll1';
+      await db.createCollection(collName);
+
+      let error;
+      await serviceProvider.dropIndexes(
+        dbName,
+        collName,
+        ['index-1']
+      ).catch(err => {error = err;});
+
+      expect(error.ok).to.equal(0);
+      expect(error.codeName).to.equal('IndexNotFound');
+    });
   });
 
-  it('throws an error if index does not exist', async() => {
-    const collName = 'coll1';
-    await db.createCollection(collName);
+  describe('stats', () => {
+    it('returns collection stats', async() => {
+      const collName = 'coll1';
+      await db.createCollection(collName);
 
-    let error;
-    await serviceProvider.dropIndexes(
-      dbName,
-      collName,
-      ['index-1']
-    ).catch(err => {error = err;});
+      const stats = await serviceProvider.stats(
+        dbName,
+        collName
+      );
 
-    expect(error.ok).to.equal(0);
-    expect(error.codeName).to.equal('IndexNotFound');
+      expect(Object.keys(stats)).to.contain.members([
+        'ns',
+        'size',
+        'count',
+        'storageSize',
+        'capped',
+        'wiredTiger',
+        'nindexes',
+        'indexDetails',
+        'indexBuilds',
+        'totalIndexSize',
+        'indexSizes',
+        'scaleFactor',
+        'ok'
+      ]);
+    });
   });
 
   describe('#listCollections', () => {
