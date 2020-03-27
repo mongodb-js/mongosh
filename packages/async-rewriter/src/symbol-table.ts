@@ -60,7 +60,14 @@ export default class SymbolTable {
       const rp = s.returnsPromise === undefined ? '?' : s.returnsPromise;
       info = `returnType: ${rt} returnsPromise: ${rp}`;
     } else {
-      info = ` attr: ${s.attributes ? JSON.stringify(Object.keys(s.attributes)) : []}`;
+      info = '[]';
+      if (s.attributes !== undefined) {
+        info = Object.keys(s.attributes).map((v) => {
+          return `${v}: <${s.attributes[v].type}>`;
+        }).join(', ');
+      }
+      info = ` attr: { ${info} }`;
+      // info = ` attr: ${s.attributes ? JSON.stringify(Object.keys(s.attributes).map((n) => `${n}: ${s.attributes[n].type}`)) : []}`;
     }
     console.log(`  ${i}: { type: '${type}' ${info} }`);
   }
