@@ -38,7 +38,6 @@ const input = [
   //     return 1;
   //   }
   // }`,
-  // 'y.coll.insertOne({})'
   `class test {
     constructor() {
       this.db = db;
@@ -46,7 +45,7 @@ const input = [
     fn() {
       this.db.coll.insertOne()
     }
-  }`
+  }`,
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));

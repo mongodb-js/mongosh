@@ -9,6 +9,15 @@ const debug = (str, type?, indent?): void => {
   // console.log(str);
 };
 
+const getNameOrValue = (t, node) => {
+  if (t.isIdentifier(node)) {
+    return node.name;
+  } else if (t.isLiteral(node)) {
+    return node.value;
+  }
+  return false;
+};
+
 export default class AsyncWriter {
   public symbols: SymbolTable;
   private inferTypeVisitor: any;
@@ -32,12 +41,8 @@ export default class AsyncWriter {
       MemberExpression: {
         exit(path): void {
           const lhsType = path.node.object.shellType;
-          let rhs;
-          if (this.t.isIdentifier(path.node.property)) {
-            rhs = path.node.property.name;
-          } else if (this.t.isLiteral(path.node.property)) {
-            rhs = path.node.property.value;
-          } else {
+          const rhs = getNameOrValue(this.t, path.node.property);
+          if (rhs === false || (path.node.computed && !this.t.isLiteral(path.node.property))) {
             if (lhsType.hasAsyncChild) {
               const help = lhsType.type === 'Database' ?
                 ' If you are accessing a collection try Database.get(\'collection\').' :
@@ -109,6 +114,36 @@ export default class AsyncWriter {
           symbols.update(path.node.left.name, sType);
           path.node.shellType = sType; // assignment returns value unlike decl
           debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
+        }
+      },
+      ObjectExpression: {
+        exit(path): void {
+          const attributes = {};
+          let hasAsyncChild = false;
+          path.node.properties.forEach((n) => {
+            const k = getNameOrValue(this.t, n.key);
+            if (k === false) {
+              throw new Error('Unreachable');
+            }
+            attributes[k] = n.value.shellType;
+            if ((attributes[k].type !== 'unknown' && attributes[k].type in types) || attributes[k].hasAsyncChild) {
+              hasAsyncChild = true;
+            }
+          });
+          path.node.shellType = { type: 'object', attributes: attributes, hasAsyncChild: hasAsyncChild };
+        }
+      },
+      ArrayExpression: {
+        exit(path): void {
+          const attributes = {};
+          let hasAsyncChild = false;
+          path.node.elements.forEach((n, i) => {
+            attributes[i] = n.shellType;
+            if ((attributes[i].type !== 'unknown' && attributes[i].type in types) || attributes[i].hasAsyncChild) {
+              hasAsyncChild = true;
+            }
+          });
+          path.node.shellType = { type: 'array', attributes: attributes, hasAsyncChild };
         }
       },
       Function: {

@@ -53,59 +53,174 @@ describe('async-writer-babel', () => {
     });
   });
   describe('MemberExpression', () => {
-    before(() => {
-      writer = new AsyncWriter({
-        db: types.Database,
-        c: types.Collection,
-        t: types.unknown
-      }, types);
-    });
-    describe('dot notation', () => {
-      describe('with Database lhs type', () => {
-        before(() => {
-          input = 'db.coll';
-          ast = writer.getTransform(input).ast;
-        });
-        it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('db.coll;');
-        });
-        it('decorates node.object Identifier', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'db') {
-                expect(path.node.shellType).to.deep.equal(types.Database);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be descorated with that value not undefined.
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'coll') {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates MemberExpression', (done) => {
-          traverse(ast, {
-            MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.Collection);
-              done();
-            }
-          });
-        });
+    describe('with Identifier lhs', () => {
+      before(() => {
+        writer = new AsyncWriter({
+          db: types.Database,
+          c: types.Collection,
+          t: types.unknown
+        }, types);
       });
-      describe('with non-Database known lhs type', () => {
-        describe('with known rhs', () => {
+      describe('dot notation', () => {
+        describe('with Database lhs type', () => {
           before(() => {
-            input = 'c.insertOne';
+            input = 'db.coll';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('c.insertOne;');
+            expect(writer.compile(input)).to.equal('db.coll;');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'db') {
+                  expect(path.node.shellType).to.deep.equal(types.Database);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be descorated with that value not undefined.
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'coll') {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', (done) => {
+            traverse(ast, {
+              MemberExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Collection);
+                done();
+              }
+            });
+          });
+        });
+        describe('with non-Database known lhs type', () => {
+          describe('with known rhs', () => {
+            before(() => {
+              input = 'c.insertOne';
+              ast = writer.getTransform(input).ast;
+            });
+            it('compiles correctly', () => {
+              expect(writer.compile(input)).to.equal('c.insertOne;');
+            });
+            it('decorates node.object Identifier', (done) => {
+              traverse(ast, {
+                Identifier(path) {
+                  if (path.node.name === 'c') {
+                    expect(path.node.shellType).to.deep.equal(types.Collection);
+                    done();
+                  }
+                }
+              });
+            });
+            it('decorates node.key Identifier', (done) => {
+              traverse(ast, {
+                Identifier(path) {
+                  if (path.node.name === 'insertOne') {
+                    expect(path.node.shellType).to.deep.equal(types.unknown);
+                    done();
+                  }
+                }
+              });
+            });
+            it('decorates MemberExpression', (done) => {
+              traverse(ast, {
+                MemberExpression(path) {
+                  expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
+                  done();
+                }
+              });
+            });
+          });
+          describe('with unknown rhs', () => {
+            before(() => {
+              input = 'c.x';
+              ast = writer.getTransform(input).ast;
+            });
+            it('compiles correctly', () => {
+              expect(writer.compile(input)).to.equal('c.x;');
+            });
+            it('decorates node.object Identifier', (done) => {
+              traverse(ast, {
+                Identifier(path) {
+                  if (path.node.name === 'c') {
+                    expect(path.node.shellType).to.deep.equal(types.Collection);
+                    done();
+                  }
+                }
+              });
+            });
+            it('decorates node.key Identifier', (done) => {
+              traverse(ast, {
+                Identifier(path) {
+                  if (path.node.name === 'x') {
+                    expect(path.node.shellType).to.deep.equal(types.unknown);
+                    done();
+                  }
+                }
+              });
+            });
+            it('decorates MemberExpression', (done) => {
+              traverse(ast, {
+                MemberExpression(path) {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              });
+            });
+          });
+        });
+        describe('with unknown lhs type', () => {
+          before(() => {
+            input = 'x.coll';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('x.coll;');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'x') {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates node.key Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'coll') {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', (done) => {
+            traverse(ast, {
+              MemberExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.unknown);
+                done();
+              }
+            });
+          });
+        });
+      });
+      describe('bracket notation', () => {
+        describe('literal property', () => {
+          before(() => {
+            input = 'c[\'insertOne\']';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('c[\'insertOne\'];');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -117,10 +232,10 @@ describe('async-writer-babel', () => {
               }
             });
           });
-          it('decorates node.key Identifier', (done) => {
+          it('decorates node.key Literal', (done) => {
             traverse(ast, {
-              Identifier(path) {
-                if (path.node.name === 'insertOne') {
+              Literal(path) {
+                if (path.node.value === 'insertOne') {
                   expect(path.node.shellType).to.deep.equal(types.unknown);
                   done();
                 }
@@ -136,105 +251,84 @@ describe('async-writer-babel', () => {
             });
           });
         });
-        describe('with unknown rhs', () => {
-          before(() => {
-            input = 'c.x';
-            ast = writer.getTransform(input).ast;
-          });
-          it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('c.x;');
-          });
-          it('decorates node.object Identifier', (done) => {
-            traverse(ast, {
-              Identifier(path) {
-                if (path.node.name === 'c') {
-                  expect(path.node.shellType).to.deep.equal(types.Collection);
-                  done();
-                }
-              }
+        describe('computed property', () => {
+          describe('when lhs has async child', () => {
+            it('throws an error', () => {
+              expect(() => writer.compile('c[x()]')).to.throw();
+            });
+            it('throws an error with suggestion for db', () => {
+              expect(() => writer.compile('db[x()]')).to.throw();
             });
           });
-          it('decorates node.key Identifier', (done) => {
-            traverse(ast, {
-              Identifier(path) {
-                if (path.node.name === 'x') {
+          describe('when lhs has no async child', () => {
+            before(() => {
+              input = 't[x()]';
+              ast = writer.getTransform(input).ast;
+            });
+            it('compiles correctly', () => {
+              expect(writer.compile(input)).to.equal('t[x()];');
+            });
+            it('decorates node.object Identifier', (done) => {
+              traverse(ast, {
+                Identifier(path) {
+                  if (path.node.name === 't') {
+                    expect(path.node.shellType).to.deep.equal(types.unknown);
+                    done();
+                  }
+                }
+              });
+            });
+            it('decorates node.key CallExpression', (done) => {
+              traverse(ast, {
+                CallExpression(path) {
                   expect(path.node.shellType).to.deep.equal(types.unknown);
                   done();
                 }
-              }
+              });
             });
-          });
-          it('decorates MemberExpression', (done) => {
-            traverse(ast, {
-              MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
-                done();
-              }
+            it('decorates MemberExpression', (done) => {
+              traverse(ast, {
+                MemberExpression(path) {
+                  expect(path.node.shellType).to.deep.equal(types.unknown);
+                  done();
+                }
+              });
             });
-          });
-        });
-      });
-      describe('with unknown lhs type', () => {
-        before(() => {
-          input = 'x.coll';
-          ast = writer.getTransform(input).ast;
-        });
-        it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('x.coll;');
-        });
-        it('decorates node.object Identifier', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'x') {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates node.key Identifier', (done) => {
-          traverse(ast, {
-            Identifier(path) {
-              if (path.node.name === 'coll') {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
-                done();
-              }
-            }
-          });
-        });
-        it('decorates MemberExpression', (done) => {
-          traverse(ast, {
-            MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.unknown);
-              done();
-            }
           });
         });
       });
     });
-    describe('bracket notation', () => {
-      describe('literal property', () => {
+    describe('with Object lhs', () => {
+      before(() => {
+        writer = new AsyncWriter({
+          db: types.Database,
+        }, types);
+        writer.compile('a = { d: db }');
+      });
+      describe('dot notation', () => {
         before(() => {
-          input = 'c[\'insertOne\']';
+          input = 'a.d';
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal( 'c[\'insertOne\'];');
+          expect(writer.compile(input)).to.equal('a.d;');
         });
         it('decorates node.object Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
-              if (path.node.name === 'c') {
-                expect(path.node.shellType).to.deep.equal(types.Collection);
-                done();
-              }
+              expect(path.node.shellType).to.deep.equal({
+                type: 'object',
+                attributes: { d: types.Database },
+                hasAsyncChild: true
+              });
+              done();
             }
           });
         });
-        it('decorates node.key Literal', (done) => {
+        it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be descorated with that value not undefined.
           traverse(ast, {
-            Literal(path) {
-              if (path.node.value === 'insertOne') {
+            Identifier(path) {
+              if (path.node.name === 'd') {
                 expect(path.node.shellType).to.deep.equal(types.unknown);
                 done();
               }
@@ -244,43 +338,29 @@ describe('async-writer-babel', () => {
         it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(types.Collection.attributes.insertOne);
+              expect(path.node.shellType).to.deep.equal(types.Database);
               done();
             }
           });
         });
       });
-      describe('computed property', () => {
-        describe('when lhs has async child', () => {
-          it('throws an error', () => {
-            expect(() => writer.compile('c[x()]')).to.throw();
-          });
-          it('throws an error with suggestion for db', () => {
-            expect(() => writer.compile('db[x()]')).to.throw();
-          });
-        });
-        describe('when lhs has no async child', () => {
+      describe('bracket notation', () => {
+        describe('with string', () => {
           before(() => {
-            input = 't[x()]';
+            input = 'a[\'d\']';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('t[x()];');
+            expect(writer.compile(input)).to.equal('a[\'d\'];');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
               Identifier(path) {
-                if (path.node.name === 't') {
-                  expect(path.node.shellType).to.deep.equal(types.unknown);
-                  done();
-                }
-              }
-            });
-          });
-          it('decorates node.key CallExpression', (done) => {
-            traverse(ast, {
-              CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
+                expect(path.node.shellType).to.deep.equal({
+                  type: 'object',
+                  attributes: { d: types.Database },
+                  hasAsyncChild: true
+                });
                 done();
               }
             });
@@ -288,11 +368,184 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(types.unknown);
+                expect(path.node.shellType).to.deep.equal(types.Database);
                 done();
               }
             });
           });
+        });
+        describe('with variable', () => {
+          it('throws an error with suggestion for db', () => {
+            expect(() => writer.compile('a[d]')).to.throw();
+          });
+        });
+      });
+    });
+    describe('with Array lhs', () => {
+      before(() => {
+        writer = new AsyncWriter({
+          db: types.Database,
+        }, types);
+        writer.compile('a = [db]');
+      });
+      describe('with literal index', () => {
+        before(() => {
+          input = 'a[0]';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('a[0];');
+        });
+        it('decorates node.object Identifier', (done) => {
+          traverse(ast, {
+            Identifier(path) {
+              expect(path.node.shellType).to.deep.equal({
+                type: 'array',
+                attributes: { '0': types.Database },
+                hasAsyncChild: true
+              });
+              done();
+            }
+          });
+        });
+        it('decorates MemberExpression', (done) => {
+          traverse(ast, {
+            MemberExpression(path) {
+              expect(path.node.shellType).to.deep.equal(types.Database);
+              done();
+            }
+          });
+        });
+      });
+      describe('with variable', () => {
+        it('throws an error with suggestion for db', () => {
+          expect(() => writer.compile('a[d]')).to.throw();
+        });
+      });
+    });
+  });
+  describe('ObjectExpression', () => {
+    before(() => {
+      writer = new AsyncWriter({ db: types.Database }, types);
+    });
+    describe('with known type', () => {
+      before(() => {
+        input = 'a = {x: db}';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('a = {\n  x: db\n};');
+      });
+      it('decorates object', (done) => {
+        traverse(ast, {
+          ObjectExpression(path) {
+            expect(path.node.shellType).to.deep.equal({
+              type: 'object',
+              attributes: { x: types.Database },
+              hasAsyncChild: true
+            });
+            done();
+          }
+        });
+      });
+      it('decorates element', (done) => {
+        traverse(ast, {
+          Property(path) {
+            expect(path.node.value.shellType).to.deep.equal(types.Database);
+            done();
+          }
+        });
+      });
+    });
+    describe('with unknown type', () => {
+      before(() => {
+        input = 'a = {x: y}';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('a = {\n  x: y\n};');
+      });
+      it('decorates object', (done) => {
+        traverse(ast, {
+          ObjectExpression(path) {
+            expect(path.node.shellType).to.deep.equal({
+              type: 'object',
+              attributes: { x: types.unknown },
+              hasAsyncChild: false
+            });
+            done();
+          }
+        });
+      });
+      it('decorates element', (done) => {
+        traverse(ast, {
+          Property(path) {
+            expect(path.node.value.shellType).to.deep.equal(types.unknown);
+            done();
+          }
+        });
+      });
+    });
+  });
+  describe('ArrayExpression', () => {
+    before(() => {
+      writer = new AsyncWriter({ db: types.Database }, types);
+    });
+    describe('with known type', () => {
+      before(() => {
+        input = '[db]';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('[db];');
+      });
+      it('decorates array', (done) => {
+        traverse(ast, {
+          ArrayExpression(path) {
+            expect(path.node.shellType).to.deep.equal({
+              type: 'array',
+              attributes: { '0': types.Database },
+              hasAsyncChild: true
+            });
+            done();
+          }
+        });
+      });
+      it('decorates element', (done) => {
+        traverse(ast, {
+          Identifier(path) {
+            expect(path.node.shellType).to.deep.equal(types.Database);
+            done();
+          }
+        });
+      });
+    });
+    describe('with unknown type', () => {
+      before(() => {
+        input = '[x]';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('[x];');
+      });
+      it('decorates array', (done) => {
+        traverse(ast, {
+          ArrayExpression(path) {
+            expect(path.node.shellType).to.deep.equal({
+              type: 'array',
+              attributes: { '0': types.unknown },
+              hasAsyncChild: false
+            });
+            done();
+          }
+        });
+      });
+      it('decorates element', (done) => {
+        traverse(ast, {
+          Identifier(path) {
+            expect(path.node.shellType).to.deep.equal(types.unknown);
+            done();
+          }
         });
       });
     });
