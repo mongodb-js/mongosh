@@ -215,6 +215,11 @@ function logger(bus: any, logDir: string) {
     const params = { database };
     log.info('method:getCollectionNames', params);
   });
+
+  bus.on('method:totalIndexSize', function(collection) {
+    const params = { collection };
+    log.info('method:totalIndexSize', params);
+  });
 }
 
 export default logger;

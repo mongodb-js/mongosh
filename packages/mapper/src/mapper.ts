@@ -1223,6 +1223,11 @@ export default class Mapper {
     collection: Collection,
     ...args: any[]
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:totalIndexSize',
+      collection._collection
+    );
+
     if (args.length) {
       throw new Error(
         'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
