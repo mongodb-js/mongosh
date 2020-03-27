@@ -21,7 +21,7 @@ functions:
         shell: bash
         script: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-          ./.evergreen/setup.sh
+          bash .evergreen/setup.sh
           nvm install 12.4.0
           nvm alias default 12.4.0
           npm install -g npm@latest lerna
@@ -33,7 +33,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          ./.evergreen/setup.sh
+          bash .evergreen/setup.sh
           npm run check-ci
   test:
     - command: shell.exec
@@ -41,7 +41,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          ./.evergreen/setup.sh
+          bash .evergreen/setup.sh
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm test
@@ -51,7 +51,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          ./.evergreen/setup.sh
+          bash .evergreen/setup.sh
           npm run compile-exec
   release_macos:
     - command: shell.exec
