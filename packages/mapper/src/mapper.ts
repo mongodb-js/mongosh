@@ -1212,4 +1212,28 @@ export default class Mapper {
 
     return infos.map(collection => collection.name);
   }
+
+  /**
+   * Returns the total size of all indexes for the collection.
+   *
+   * @param {Collection} collection
+   * @return {Promise}
+   */
+  async totalIndexSize(
+    collection: Collection,
+    ...args: any[]
+  ): Promise<any> {
+    if (args.length) {
+      throw new Error(
+        'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
+      );
+    }
+
+    const stats = await this.serviceProvider.stats(
+      collection._database,
+      collection._collection
+    );
+
+    return stats.totalIndexSize;
+  }
 }

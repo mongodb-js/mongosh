@@ -286,5 +286,15 @@ describe('Mapper (integration)', function() {
       });
     });
   });
+
+  describe('totalIndexSize', () => {
+    beforeEach(async() => {
+      await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+    });
+
+    it('returns total index size', async() => {
+      expect(typeof await mapper.totalIndexSize(collection)).to.equal('number');
+    });
+  });
 });
 
