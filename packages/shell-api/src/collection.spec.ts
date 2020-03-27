@@ -103,4 +103,10 @@ describe('Collection', () => {
       testWrappedMethod('dropIndexes');
     });
   });
+
+  describe('#totalIndexSize', () => {
+    it('wraps mapper.totalIndexSize', () => {
+      testWrappedMethod('totalIndexSize');
+    });
+  });
 });

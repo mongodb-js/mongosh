@@ -878,6 +878,12 @@ const translations = {
           "example": "",
           "parameters": {}
         },
+        "total-index-size": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.totalIndexSize",
+          "description": "Reports the total size used by the indexes on a collection.",
+          "example": "",
+          "parameters": {}
+        },
         "drop-indexes": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.dropIndexes",
           "description": "Drops the specified index or indexes (except the index on the _id field) from a collection.",

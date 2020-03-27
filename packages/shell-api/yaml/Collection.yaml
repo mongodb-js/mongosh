@@ -61,24 +61,25 @@ class:
           - name: converToCapped
             description: 'shell-api.collection.help.convert-to-capped.description'
           - name: createIndexes
-            description: 'shell-api.collection.help.create-indexes'
+            description: 'shell-api.collection.help.create-indexes.description'
           - name: createIndex
-            description: 'shell-api.collection.help.create-index'
+            description: 'shell-api.collection.help.create-index.description'
           - name: ensureIndex
-            description: 'shell-api.collection.help.ensure-index'
+            description: 'shell-api.collection.help.ensure-index.description'
           - name: getIndexes
-            description: 'shell-api.collection.help.get-indexes'
+            description: 'shell-api.collection.help.get-indexes.description'
           - name: getIndexSpecs
-            description: 'shell-api.collection.help.get-index-specs'
+            description: 'shell-api.collection.help.get-index-specs.description'
           - name: getIndexKeys
-            description: 'shell-api.collection.help.get-index-keys'
+            description: 'shell-api.collection.help.get-index-keys.description'
           - name: getIndices
-            description: 'shell-api.collection.help.get-indices'
+            description: 'shell-api.collection.help.get-indices.description'
           - name: dropIndexes
-            description: 'shell-api.collection.help.drop-indexes'
+            description: 'shell-api.collection.help.drop-indexes.description'
           - name: dropIndex
-            description: 'shell-api.collection.help.drop-index'
-
+            description: 'shell-api.collection.help.drop-index.description'
+          - name: totalIndexSize
+            description: 'shell-api.collection.help.total-index-size.description'
     aggregate:
         <<: *__defaultMethod
         returnType: 'AggregationCursor'
@@ -323,3 +324,11 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.drop-index'
+    totalIndexSize:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.total-index-size'
