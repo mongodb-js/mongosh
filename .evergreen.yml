@@ -146,14 +146,14 @@ buildvariants:
       - name: test
       - name: build
       - name: release_macos
-#  - name: ubuntu
-#    display_name: "Ubuntu 18.04"
-#    run_on: ubuntu1804-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: build
-#      - name: release_linux
+  - name: ubuntu
+    display_name: "Ubuntu 18.04"
+    run_on: ubuntu1804-test
+    tasks:
+      - name: check
+      - name: test
+      - name: build
+      - name: release_linux
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
@@ -170,14 +170,14 @@ buildvariants:
 #      - name: test
 #      - name: build
 #      - name: release_linux
-#  - name: rhel7
-#    display_name: "RHEL 7.6"
-#    run_on: rhel76-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: build
-#      - name: release_linux
+  - name: rhel7
+    display_name: "RHEL 7.6"
+    run_on: rhel76-test
+    tasks:
+      - name: check
+      - name: test
+      - name: build
+      - name: release_linux
 #  - name: rhelppc
 #    display_name: "RHEL 7.1 PPC"
 #    run_on: rhel71-power8-test
