@@ -1,6 +1,5 @@
 /* eslint no-console:0 */
 import * as babel from '@babel/core';
-// import printAST from 'ast-pretty-print';
 import SymbolTable from './symbol-table';
 
 const debug = (str, type?, indent?): void => {
@@ -9,7 +8,7 @@ const debug = (str, type?, indent?): void => {
   // console.log(str);
 };
 
-const getNameOrValue = (t, node) => {
+const getNameOrValue = (t, node): any => {
   if (t.isIdentifier(node)) {
     return node.name;
   } else if (t.isLiteral(node)) {
@@ -88,6 +87,10 @@ export default class AsyncWriter {
             if (lhsType.returnsPromise) {
               path.node.shellType = sType;
               path.replaceWith(this.t.awaitExpression(path.node));
+              const parent = path.findParent(p => this.t.isFunction(p));
+              if (parent !== null) {
+                parent.node.async = true;
+              } // TODO: if need to convert top-level await into async func can do it here.
               path.skip();
             }
           }
@@ -146,6 +149,48 @@ export default class AsyncWriter {
           path.node.shellType = { type: 'array', attributes: attributes, hasAsyncChild };
         }
       },
+      ClassDeclaration: {
+        exit(path): void {
+          const className = path.node.id === null ? 'TODO' : path.node.id.name;
+          const attributes = {};
+          path.node.body.body.forEach((attr) => {
+            const fnName = attr.key.name;
+            attributes[fnName] = attr.shellType;
+          });
+          path.node.shellType = {
+            type: 'classdef',
+            returnType: {
+              type: className,
+              attributes: attributes
+            }
+          };
+          symbols.addToParent(className, path.node.shellType);
+          debug(`ClassDeclaration: { name: ${className}}`, path.node.shellType);
+        }
+      },
+      NewExpression: {
+        exit(path): void {
+          const dbg = `callee.type: ${path.node.callee.type}`;
+          const className = path.node.callee.name; // TODO: computed classes
+          // check that the user is not passing a type that has async children to a self-defined function
+          path.node.arguments.forEach((a) => {
+            if (a.shellType.hasAsyncChild || a.shellType.returnsPromise) {
+              throw new Error('Cannot pass Shell API object to class');
+            }
+          });
+
+          // determine return type
+          const lhsType = symbols.lookup(className);
+
+          path.node.shellType = lhsType.returnType || types.unknown;
+          debug(`NewExpression: { ${dbg}, callee.shellType: ${lhsType.type} }`, path.node.shellType.type);
+        }
+      },
+      ThisExpression: {
+        enter(): void {
+          // TODO: find best way to determine parent scope
+        }
+      },
       Function: {
         enter(): void {
           this.toRet.push([]);
@@ -178,7 +223,7 @@ export default class AsyncWriter {
             }
           }
 
-          const sType = { type: 'function', returnsPromise: false, returnType: rType };
+          const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
           if (path.node.id !== null) {
             symbols.add(path.node.id.name, sType);
           }
@@ -222,6 +267,7 @@ export default class AsyncWriter {
       const skips = Object.keys(visitor).filter(s => /^[A-Z]/.test(s[0])).map(s => `is${s}`);
       return {
         // post(state): void {
+        //   const printAST = require('ast-pretty-print');
         //   console.log('transformed AST:');
         //   console.log(printAST(state.ast));
         // },
