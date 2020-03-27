@@ -494,5 +494,31 @@ coll2`;
         'db1', {}, { nameOnly: true });
     });
   });
+
+  describe('totalIndexSize', () => {
+    let collection;
+
+    beforeEach(() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+      serviceProvider.stats.resolves({
+        totalIndexSize: 1000
+      });
+    });
+
+    it('returns totalIndexSize', async() => {
+      expect(await mapper.totalIndexSize(collection)).to.equal(1000);
+      expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+    });
+
+    it('throws an error if called with verbose', async() => {
+      let catched;
+      await mapper.totalIndexSize(collection, true)
+        .catch(err => { catched = err; });
+
+      expect(catched.message).to.equal(
+        'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
+      );
+    });
+  });
 });
 
