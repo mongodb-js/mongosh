@@ -52,6 +52,7 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
+          export export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run compile-exec
   release_macos:
     - command: shell.exec
