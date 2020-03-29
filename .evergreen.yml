@@ -120,12 +120,23 @@ functions:
         local_file: src/dist/mongosh-linux.tgz
         remote_file: ${project}/${revision}/mongosh-linux.tgz
   release_win:
+    - <<: *compile_exec
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           echo "################# Sign and release Windows artifacts ################"
+    - command: archive.targz_pack
+      params:
+        target: "src/dist/mongosh-win.tgz"
+        source_dir: "src/dist"
+        include:
+          - "mongosh-win.exe"
+    - <<: *upload_file
+      params:
+        local_file: src/dist/mongosh-win.tgz
+        remote_file: ${project}/${revision}/mongosh-win.tgz
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
