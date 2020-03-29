@@ -24,8 +24,9 @@ functions:
           source .evergreen/.setup
           nvm install 12.4.0
           nvm alias default 12.4.0
-          npm install -g npm@latest
-          npm run bootstrap-ci
+          npm install -g npm@latest lerna
+          npm install
+          npm run bootstrap
   check:
     - command: shell.exec
       params:
@@ -44,7 +45,7 @@ functions:
           source .evergreen/.setup
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
-          npm test-ci
+          npm test
   build:
     - command: shell.exec
       params:
