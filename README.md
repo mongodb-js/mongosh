@@ -1,5 +1,7 @@
 # mongosh [![Build Status](https://dev.azure.com/team-compass/team-compass/_apis/build/status/mongodb-js.mongosh?branchName=master)](https://dev.azure.com/team-compass/team-compass/_build/latest?definitionId=2&branchName=master)
 
+[Evergreen Waterfall](https://evergreen.mongodb.com/waterfall/mongosh)
+
 ## The MongoDB Shell
 
 This repository is a monorepo for all the various components in the MongoDB Shell across
