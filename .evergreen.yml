@@ -90,13 +90,14 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          mv dist/mongosh-macos dist/mongosh
           echo "################# Sign, notarise, and release MacOS artifacts ################"
     - command: archive.targz_pack
       params:
         target: "src/dist/mongosh-macos.tgz"
         source_dir: "src/dist"
         include:
-          - "mongosh-macos"
+          - "mongosh"
     - <<: *upload_file
       params:
         local_file: src/dist/mongosh-macos.tgz
@@ -108,13 +109,14 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          mv dist/mongosh-linux dist/mongosh
           echo "################# Sign and release Linux artifacts ################"
     - command: archive.targz_pack
       params:
         target: "src/dist/mongosh-linux.tgz"
         source_dir: "src/dist"
         include:
-          - "mongosh-linux"
+          - "mongosh"
     - <<: *upload_file
       params:
         local_file: src/dist/mongosh-linux.tgz
@@ -126,13 +128,14 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          mv dist/mongosh-win.exe dist/mongosh.exe
           echo "################# Sign and release Windows artifacts ################"
     - command: archive.targz_pack
       params:
         target: "src/dist/mongosh-win.tgz"
         source_dir: "src/dist"
         include:
-          - "mongosh-win.exe"
+          - "mongosh.exe"
     - <<: *upload_file
       params:
         local_file: src/dist/mongosh-win.tgz
