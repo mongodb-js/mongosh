@@ -18,6 +18,9 @@
     "check": "npm run lint",
     "compile-ts": "npm run build"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

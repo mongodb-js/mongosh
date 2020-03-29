@@ -4,6 +4,9 @@
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

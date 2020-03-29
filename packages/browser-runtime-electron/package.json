@@ -7,6 +7,9 @@
   "engines": {
     "node": "^12.4.0"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

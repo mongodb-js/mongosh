@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "scripts": {
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",

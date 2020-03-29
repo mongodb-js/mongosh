@@ -11,6 +11,9 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

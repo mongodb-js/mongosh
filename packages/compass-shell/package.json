@@ -9,6 +9,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "scripts": {
     "clean": "rimraf lib",
     "precompile": "npm run clean",

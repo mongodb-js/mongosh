@@ -3,6 +3,9 @@
   "version": "0.0.1-alpha.6",
   "description": "MongoDB Shell Mapper Package",
   "main": "./lib/index.js",
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"
