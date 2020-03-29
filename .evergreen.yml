@@ -45,7 +45,7 @@ functions:
           source .evergreen/.setup
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
-          npm test
+          npm test-ci
   build:
     - command: shell.exec
       params:
