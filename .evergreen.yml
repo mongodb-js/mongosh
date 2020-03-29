@@ -24,8 +24,7 @@ functions:
           source .evergreen/.setup
           nvm install 12.4.0
           nvm alias default 12.4.0
-          npm install -g npm@latest lerna
-          npm install
+          npm install -g npm@latest
           npm run bootstrap
   check:
     - command: shell.exec
