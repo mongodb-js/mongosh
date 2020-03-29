@@ -11,13 +11,15 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
-  - &archive_mongosh
-    command: archive.targz_pack
+  - &compile_exec
+    command: shell.exec
     params:
-      target: "mongosh.tgz"
-      source_dir: "src/dist"
-      include:
-        - "*"
+      working_dir: src
+      shell: bash
+      script: |
+        source .evergreen/.setup
+        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+        npm run compile-exec
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -82,44 +84,48 @@ functions:
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   release_macos:
+    - <<: *compile_exec
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          source .evergreen/.setup
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-          npm run compile-exec
-          ls -la dist
-          echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
-    - <<: *archive_mongosh
+          echo "################# Sign, notarise, and release MacOS artifacts ################"
+    - command: archive.targz_pack
+      params:
+        target: "src/dist/mongosh-macos.tgz"
+        source_dir: "src/dist"
+        include:
+          - "mongosh-macos"
     - <<: *upload_file
       params:
-        local_file: src/dist/mongosh.tgz
-        remote_file: ${project}/${revision}/mongosh.tgz
+        local_file: src/dist/mongosh-macos.tgz
+        remote_file: ${project}/${revision}/mongosh-macos.tgz
   release_linux:
+    - <<: *compile_exec
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          source .evergreen/.setup
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-          npm run compile-exec
-          ls -la dist
-          echo "################# Sign and release Linux artifacts to S3 and Github ################"
-    - <<: *archive_mongosh
+          echo "################# Sign and release Linux artifacts ################"
+    - command: archive.targz_pack
+      params:
+        target: "src/dist/mongosh-linux.tgz"
+        source_dir: "src/dist"
+        include:
+          - "mongosh-linux"
     - <<: *upload_file
       params:
-        local_file: src/dist/mongosh.tgz
-        remote_file: ${project}/${revision}/mongosh.tgz
+        local_file: src/dist/mongosh-linux.tgz
+        remote_file: ${project}/${revision}/mongosh-linux.tgz
   release_win:
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          echo "################# Sign and release Windows artifacts to S3 and Github ################"
+          echo "################# Sign and release Windows artifacts ################"
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
