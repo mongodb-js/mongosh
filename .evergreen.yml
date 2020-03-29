@@ -25,7 +25,6 @@ variables:
 #   install - Installs Node and all dependencies.
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
-#   build - Builds the mongosh executable.
 #   release_macos - Publishes the npm packages and uploads the tarballs.
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win - Publishes the npm packages and uploads the tarballs.
@@ -82,7 +81,7 @@ functions:
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
-  build:
+  release_macos:
     - command: shell.exec
       params:
         working_dir: src
@@ -91,13 +90,6 @@ functions:
           source .evergreen/.setup
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run compile-exec
-  release_macos:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          source .evergreen/.setup
           ls -la
           echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
     - <<: *archive_mongosh
@@ -112,6 +104,8 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+          npm run compile-exec
           ls -la
           echo "################# Sign and release Linux artifacts to S3 and Github ################"
     - <<: *archive_mongosh
@@ -132,7 +126,6 @@ functions:
 # Current tasks:
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
-#   build - Builds the mongosh executable.
 #   release_macos - Publishes the npm packages and uploads the tarballs.
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win - Publishes the npm packages and uploads the tarballs.
@@ -147,30 +140,22 @@ tasks:
       - func: checkout
       - func: install
       - func: test
-  - name: build
-    commands:
-      - func: checkout
-      - func: install
-      - func: build
   - name: release_macos
     depends_on:
       - name: check
       - name: test
-      - name: build
     commands:
       - func: release_macos
   - name: release_linux
     depends_on:
       - name: check
       - name: test
-      - name: build
     commands:
       - func: release_linux
   - name: release_win
     depends_on:
       - name: check
       - name: test
-      - name: build
     commands:
       - func: release_win
 # Need to run builds for every possible build variant.
@@ -182,7 +167,6 @@ buildvariants:
     tasks:
       - name: check
       - name: test
-      - name: build
       - name: release_macos
   - name: ubuntu
     display_name: "Ubuntu 18.04"
@@ -190,7 +174,6 @@ buildvariants:
     tasks:
       - name: check
       - name: test
-      - name: build
       - name: release_linux
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
@@ -198,7 +181,6 @@ buildvariants:
 #    tasks:
 #      - name: check
 #      - name: test
-#      - name: build
 #      - name: release_linux
 #  - name: ubuntuz
 #    display_name: "Ubuntu 18.04 Z Series"
@@ -206,7 +188,6 @@ buildvariants:
 #    tasks:
 #      - name: check
 #      - name: test
-#      - name: build
 #      - name: release_linux
 #  - name: rhel7
 #    display_name: "RHEL 7.6"
@@ -214,7 +195,6 @@ buildvariants:
 #    tasks:
 #      - name: check
 #      - name: test
-#      - name: build
 #      - name: release_linux
 #  - name: rhelppc
 #    display_name: "RHEL 7.1 PPC"
@@ -222,7 +202,6 @@ buildvariants:
 #    tasks:
 #      - name: check
 #      - name: test
-#      - name: build
 #      - name: release_linux
 #  - name: rhelz
 #    display_name: "RHEL 7.2 Z Series"
@@ -230,5 +209,4 @@ buildvariants:
 #    tasks:
 #      - name: check
 #      - name: test
-#      - name: build
 #      - name: release_linux
