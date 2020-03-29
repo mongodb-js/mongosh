@@ -1,3 +1,23 @@
+# Variables for common functions.
+#
+# save_artifact: Saves a file to the S3 bucket.
+# archive_mongosh: Puts the executable in a tarball.
+variables:
+  - &upload_file
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+  - &archive_mongosh
+    command: archive.targz_pack
+    params:
+      target: "mongosh.tgz"
+      source_dir: "src/dist"
+      include:
+        - "*"
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -9,6 +29,23 @@
 #   release_macos - Publishes the npm packages and uploads the tarballs.
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win - Publishes the npm packages and uploads the tarballs.
+#
+# TODO: Durran:
+#
+# MacOS Notarise:
+#
+# 1) Store password in Keychain:
+#
+# xcrun altool --store-password-in-keychain-item "AC_PASSWORD" \
+#              -u "AC_USERNAME" \
+#              -p <secret_password>
+#
+# xcrun altool --notarize-app \
+#      --primary-bundle-id "com.mongodb-js.mongosh" \
+#      --username "AC_USERNAME" \
+#      --password "@keychain:AC_PASSWORD" \
+#      --asc-provider <ProviderShortname> \
+#      --file OvernightTextEditor_11.6.8.zip
 functions:
   checkout:
     - command: git.get_project
@@ -61,8 +98,13 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+          ls -la dist/
           echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
+    - <<: *archive_mongosh
+    - <<: *upload_file
+      params:
+        local_file: src/dist/mongosh.tgz
+        remote_file: ${project}/${revision}/mongosh.tgz
   release_linux:
     - command: shell.exec
       params:
@@ -70,8 +112,13 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+          ls -la dist/
           echo "################# Sign and release Linux artifacts to S3 and Github ################"
+    - <<: *archive_mongosh
+    - <<: *upload_file
+      params:
+        local_file: src/dist/mongosh.tgz
+        remote_file: ${project}/${revision}/mongosh.tgz
   release_win:
     - command: shell.exec
       params:
