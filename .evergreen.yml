@@ -98,7 +98,7 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
-          ls -la dist/
+          ls -la
           echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
     - <<: *archive_mongosh
     - <<: *upload_file
@@ -112,7 +112,7 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup
-          ls -la dist/
+          ls -la
           echo "################# Sign and release Linux artifacts to S3 and Github ################"
     - <<: *archive_mongosh
     - <<: *upload_file
@@ -158,8 +158,6 @@ tasks:
       - name: test
       - name: build
     commands:
-      - func: checkout
-      - func: install
       - func: release_macos
   - name: release_linux
     depends_on:
@@ -167,8 +165,6 @@ tasks:
       - name: test
       - name: build
     commands:
-      - func: checkout
-      - func: install
       - func: release_linux
   - name: release_win
     depends_on:
@@ -176,8 +172,6 @@ tasks:
       - name: test
       - name: build
     commands:
-      - func: checkout
-      - func: install
       - func: release_win
 # Need to run builds for every possible build variant.
 # TODO: Durran: BUILD-10374 - Need OSX Catalina Signing Machine
