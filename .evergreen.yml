@@ -145,18 +145,24 @@ tasks:
       - name: check
       - name: test
     commands:
+      - func: checkout
+      - func: install
       - func: release_macos
   - name: release_linux
     depends_on:
       - name: check
       - name: test
     commands:
+      - func: checkout
+      - func: install
       - func: release_linux
   - name: release_win
     depends_on:
       - name: check
       - name: test
     commands:
+      - func: checkout
+      - func: install
       - func: release_win
 # Need to run builds for every possible build variant.
 # TODO: Durran: BUILD-10374 - Need OSX Catalina Signing Machine
