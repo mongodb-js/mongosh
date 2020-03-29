@@ -90,7 +90,7 @@ functions:
           source .evergreen/.setup
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run compile-exec
-          ls -la
+          ls -la dist
           echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
     - <<: *archive_mongosh
     - <<: *upload_file
@@ -106,7 +106,7 @@ functions:
           source .evergreen/.setup
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run compile-exec
-          ls -la
+          ls -la dist
           echo "################# Sign and release Linux artifacts to S3 and Github ################"
     - <<: *archive_mongosh
     - <<: *upload_file
