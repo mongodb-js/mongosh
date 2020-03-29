@@ -11,6 +11,10 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"

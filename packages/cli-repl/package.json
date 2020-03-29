@@ -7,6 +7,10 @@
   "bin": {
     "mongosh": "./bin/mongosh.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
     "start": "node --experimental-repl-await bin/mongosh.js start",

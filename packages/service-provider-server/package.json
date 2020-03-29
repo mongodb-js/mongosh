@@ -4,6 +4,10 @@
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",

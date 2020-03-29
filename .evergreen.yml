@@ -61,6 +61,8 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          source .evergreen/.setup
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           echo "################# Sign, notarise, and release MacOS artifacts to S3 and Github ################"
   release_linux:
     - command: shell.exec
@@ -68,6 +70,8 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          source .evergreen/.setup
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           echo "################# Sign and release Linux artifacts to S3 and Github ################"
   release_win:
     - command: shell.exec

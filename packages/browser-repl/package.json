@@ -18,6 +18,10 @@
     "check": "npm run lint",
     "compile-ts": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"

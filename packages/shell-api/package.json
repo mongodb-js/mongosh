@@ -4,6 +4,10 @@
   "description": "MongoDB Shell API Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "scripts": {
     "compile-api": "node bin/compile-shell-api.js && eslint --fix src/shell-api.js && eslint --fix src/shell-types.js",
     "precompile-ts": "npm run compile-api",

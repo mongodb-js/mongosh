@@ -26,6 +26,10 @@
     "compile-exec": "pkg packages/cli-repl/bin/mongosh.js --out-path dist",
     "publish-npm": "lerna publish --force-publish"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
   "keywords": [
     "MongoDB",
     "Shell",
