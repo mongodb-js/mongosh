@@ -513,18 +513,21 @@ describe('CliServiceProvider [integration]', function() {
       await db.createCollection('coll1');
       await db.createCollection('coll2');
 
+      const collections = await serviceProvider.listCollections(dbName, {}, { nameOnly: true });
+
       expect(
-        await serviceProvider.listCollections(dbName, {}, { nameOnly: true })
-      ).to.deep.equal([
-        {
-          name: 'coll1',
-          type: 'collection'
-        },
-        {
-          name: 'coll2',
-          type: 'collection'
-        }
-      ]);
+        collections
+      ).to.deep.contain({
+        name: 'coll1',
+        type: 'collection'
+      });
+
+      expect(
+        collections
+      ).to.deep.contain({
+        name: 'coll2',
+        type: 'collection'
+      });
     });
   });
 });
