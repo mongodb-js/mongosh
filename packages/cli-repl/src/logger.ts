@@ -220,6 +220,11 @@ function logger(bus: any, logDir: string) {
     const params = { collection };
     log.info('method:totalIndexSize', params);
   });
+
+  bus.on('method:reIndex', function(collection) {
+    const params = { collection };
+    log.info('method:reIndex', params);
+  });
 }
 
 export default logger;
