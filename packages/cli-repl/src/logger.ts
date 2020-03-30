@@ -205,6 +205,16 @@ function logger(bus: any, logDir: string) {
     const params = { collection, index };
     log.info('method:dropIndex', params);
   });
+
+  bus.on('method:getCollectionInfos', function(database, filter, options) {
+    const params = { database, filter, options };
+    log.info('method:getCollectionInfos', params);
+  });
+
+  bus.on('method:getCollectionNames', function(database) {
+    const params = { database };
+    log.info('method:getCollectionNames', params);
+  });
 }
 
 export default logger;

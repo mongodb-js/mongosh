@@ -1169,6 +1169,13 @@ export default class Mapper {
     database: Database,
     filter: Document = {},
     options: Document = {}): Promise<any> {
+    this.messageBus.emit(
+      'method:getCollectionInfos',
+      database._database,
+      filter,
+      options
+    );
+
     return await this.serviceProvider.listCollections(
       database._database,
       filter,
@@ -1188,6 +1195,11 @@ export default class Mapper {
   async getCollectionNames(
     database: Database
   ): Promise<any> {
+    this.messageBus.emit(
+      'method:getCollectionNames',
+      database._database
+    );
+
     const infos = await this.getCollectionInfos(
       database,
       {},
