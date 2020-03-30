@@ -710,6 +710,10 @@ class CliServiceProvider implements ServiceProvider {
       .updateOne(filter, update, options);
   }
 
+  getTopology(): any {
+    return this.mongoClient.topology;
+  }
+
   /**
    * Returns the server version.
    *

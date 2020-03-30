@@ -52,6 +52,8 @@ class CliRepl {
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
+    const connectionInfo = this.getConnectionInfo(driverUri, driverOptions);
+    this.bus.emit('connect', connectionInfo);
     this.start();
   }
 
@@ -73,6 +75,21 @@ class CliRepl {
     } else {
       this.connect(driverUri, driverOptions);
     }
+  }
+
+  // if it's an Atlas connection
+  // if it's a localhost connection
+  // if it's a Data Lake connection
+  // if it's a connection to a server running in one of the public clouds
+  // if it's a connection to a non-genuine MDB
+  // server version
+  // if it's an enterprise service
+  // auth type (SCRAM, Kerberos, LDAP, X.509)
+  getConnectionInfo(uri: string, options: NodeOptions) {
+    const topology = this.serviceProvider.getTopology();
+    console.log(topology)
+    const ATLAS_REGEX = /mongodb.net[:/]/i;
+    const LOCALHOST_REGEX = /localhost/i; 
   }
 
   /**
