@@ -109,4 +109,16 @@ describe('Collection', () => {
       testWrappedMethod('totalIndexSize');
     });
   });
+
+  describe('#dropIndex', () => {
+    it('wraps mapper.dropIndex', () => {
+      testWrappedMethod('dropIndex');
+    });
+  });
+
+  describe('#reIndex', () => {
+    it('wraps mapper.reIndex', () => {
+      testWrappedMethod('reIndex');
+    });
+  });
 });

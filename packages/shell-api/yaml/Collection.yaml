@@ -78,6 +78,8 @@ class:
             description: 'shell-api.collection.help.drop-indexes.description'
           - name: dropIndex
             description: 'shell-api.collection.help.drop-index.description'
+          - name: reIndex
+            description: 'shell-api.collection.help.re-index.description'
           - name: totalIndexSize
             description: 'shell-api.collection.help.total-index-size.description'
     aggregate:
@@ -324,6 +326,14 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.drop-index'
+    reIndex:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.re-index'
     totalIndexSize:
         <<: *__defaultMethod
         returnsPromise: true
