@@ -307,6 +307,21 @@ interface Writable {
     indexes: string|string[]|Document|Document[],
     options?: Document,
     dbOptions?: Document): Promise<Result>;
+
+  /**
+   * Reindex all indexes on the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} options - The command options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @return {Promise}
+   */
+  reIndex(
+    database: string,
+    collection: string,
+    options?: Document,
+    dbOptions?: Document): Promise<Result>;
 }
 
 export default Writable;

@@ -119,6 +119,10 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     throw new Error("Method not implemented.");
   }
 
+  reIndex(database: string, collection: string, options?: Document, dbOptions?: Document): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
   dropIndexes(database: string, collection: string, indexes: string|string[]|Document|Document[], options?: Document, dbOptions?: Document): Promise<any> {
     throw new Error("Method not implemented.");
   }
