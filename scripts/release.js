@@ -2,7 +2,7 @@ const os = require('os');
 const path = require('path');
 const { exec } = require('pkg');
 const tar = require('tar');
-const config = path.join(__dirname, '..', 'packages', 'cli-repl', 'package.json');
+const config = require(path.join(__dirname, '..', 'packages', 'cli-repl', 'package.json'));
 
 const getFilename = () => {
   if (os.platform === 'win32') {
@@ -19,21 +19,29 @@ const getTarget = () => {
   }
 }
 
+const getArtifact = () => {
+  return path.join(__dirname, '..', 'dist', getFilename());
+};
+
 const archive = async() => {
+  const filename = path.join(__dirname, '..', 'dist', `mongosh-${config.version}-${os.platform}.tgz`);
+  console.log('mongosh: archiving:', filename);
   await tar.c(
     {
       gzip: true,
-      file: path.join(__dirname, '..', 'dist', `mongosh-${config.version}-${os.platform}.tgz`)
+      file: filename
     },
-    [path.join(__dirname, '..', 'dist', getFilename())]
+    [getArtifact()]
   );
 };
 
 const release = async() => {
+  const artifact = getArtifact();
+  console.log('mongosh: creating binary:', artifact);
   await exec([
     path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),
     '-o',
-    path.join(__dirname, '..', 'dist', getFilename()),
+    artifact,
     '-t',
     getTarget()
   ]);
