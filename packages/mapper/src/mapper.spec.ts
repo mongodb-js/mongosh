@@ -520,5 +520,21 @@ coll2`;
       );
     });
   });
+
+  describe('reIndex', () => {
+    let result;
+    let collection;
+
+    beforeEach(() => {
+      collection = new Collection(mapper, 'db1', 'coll1');
+      result = { ok: 1 };
+      serviceProvider.reIndex.resolves(result);
+    });
+
+    it('returns the result of serviceProvider.dropIndexes', async() => {
+      expect(await mapper.reIndex(collection)).to.deep.equal(result);
+      expect(serviceProvider.reIndex).to.have.been.calledWith('db1', 'coll1');
+    });
+  });
 });
 

@@ -1241,4 +1241,24 @@ export default class Mapper {
 
     return stats.totalIndexSize;
   }
+
+  /**
+   * Drops and recreate indexes for a collection.
+   *
+   * @param {Collection} collection
+   * @return {Promise}
+   */
+  async reIndex(
+    collection: Collection
+  ): Promise<any> {
+    this.messageBus.emit(
+      'method:reIndex',
+      collection._collection
+    );
+
+    return await this.serviceProvider.reIndex(
+      collection._database,
+      collection._collection
+    );
+  }
 }

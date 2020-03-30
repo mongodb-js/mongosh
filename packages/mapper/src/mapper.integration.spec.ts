@@ -264,6 +264,34 @@ describe('Mapper (integration)', function() {
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
       });
     });
+
+    describe('#reIndex', () => {
+      beforeEach(async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+      });
+
+      it('runs against the db', async() => {
+        const result = await mapper.reIndex(collection);
+
+        expect(
+          result
+        ).to.deep.equal({
+          nIndexesWas: 1,
+          nIndexes: 1,
+          indexes: [
+            {
+              v: 2,
+              key: {
+                '_id': 1
+              },
+              name: '_id_',
+              ns: `${dbName}.${collectionName}`
+            }
+          ],
+          ok: 1
+        });
+      });
+    });
   });
 
   describe('db', () => {
