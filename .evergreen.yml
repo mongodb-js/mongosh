@@ -91,16 +91,11 @@ functions:
         shell: bash
         script: |
           echo "################# Sign, notarise, and release MacOS artifacts ################"
-    - command: archive.targz_pack
-      params:
-        target: "src/dist/mongosh-macos.tgz"
-        source_dir: "src/dist"
-        include:
-          - "mongosh"
     - <<: *upload_file
       params:
-        local_file: src/dist/mongosh-macos.tgz
-        remote_file: ${project}/${revision}/mongosh-macos.tgz
+        local_files_include_filter:
+          - src/dist/*.tgz
+        remote_file: ${project}/${revision}/
   release_linux:
     - <<: *compile_exec
     - command: shell.exec
@@ -109,16 +104,11 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Linux artifacts ################"
-    - command: archive.targz_pack
-      params:
-        target: "src/dist/mongosh-linux.tgz"
-        source_dir: "src/dist"
-        include:
-          - "mongosh"
     - <<: *upload_file
       params:
-        local_file: src/dist/mongosh-linux.tgz
-        remote_file: ${project}/${revision}/mongosh-linux.tgz
+        local_files_include_filter:
+          - src/dist/*.tgz
+        remote_file: ${project}/${revision}/
   release_win:
     - <<: *compile_exec
     - command: shell.exec
@@ -127,16 +117,11 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Windows artifacts ################"
-    - command: archive.targz_pack
-      params:
-        target: "src/dist/mongosh-win.tgz"
-        source_dir: "src/dist"
-        include:
-          - "mongosh.exe"
     - <<: *upload_file
       params:
-        local_file: src/dist/mongosh-win.tgz
-        remote_file: ${project}/${revision}/mongosh-win.tgz
+        local_files_include_filter:
+          - src/dist/*.tgz
+        remote_file: ${project}/${revision}/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
