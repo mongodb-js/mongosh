@@ -167,6 +167,20 @@ interface Readable {
     database: string,
     collection: string,
     dbOptions?: Document): Promise<Result>;
+
+  /**
+   * Returns an array of collection infos
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options
+   *  (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  listCollections(
+    database: string,
+    dbOptions?: Document): Promise<Result>;
 }
 
 export default Readable;

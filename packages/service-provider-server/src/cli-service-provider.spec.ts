@@ -609,4 +609,50 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#listCollections', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs()
+        .returns({
+          toArray: () => {
+            return Promise.resolve([
+              {
+                name: 'coll1'
+              }
+            ]);
+          }
+        });
+
+      const dbStub = sinon.createStubInstance(Db, {
+        listCollections: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('db1')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes the command', async() => {
+      const result = await serviceProvider.listCollections('db1');
+      expect(result).to.deep.equal([
+        {
+          name: 'coll1'
+        }
+      ]);
+
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
 });

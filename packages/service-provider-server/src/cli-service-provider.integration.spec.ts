@@ -490,4 +490,14 @@ describe('CliServiceProvider [integration]', function() {
     expect(error.ok).to.equal(0);
     expect(error.codeName).to.equal('IndexNotFound');
   });
+
+  describe('#listCollections', () => {
+    it('returns the list of collections', async() => {
+      await db.createCollection('coll1');
+
+      expect(
+        (await serviceProvider.listCollections(dbName)).map((c) => c.name)
+      ).to.deep.equal(['coll1']);
+    });
+  });
 });
