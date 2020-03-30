@@ -11,7 +11,27 @@ class:
         attr:
             - name: runCommand
               description: 'shell-api.database.help.run-command'
+            - name: getCollectionNames
+              description: 'shell-api.collection.help.get-collection-names.description'
+            - name: getCollectionInfos
+              description: 'shell-api.collection.help.get-collection-infos.description'
     runCommand:
         <<: *__defaultMethod
         help:
             help: 'shell-api.database.help.run-command'
+    getCollectionNames:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.get-collection-names'
+    getCollectionInfos:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - '3.0.0'
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.get-collection-infos'
