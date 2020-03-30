@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
-import { Collection, Cursor } from '@mongosh/shell-api';
+import { Collection, Cursor, Database } from '@mongosh/shell-api';
 
 describe('Mapper (integration)', function() {
   this.timeout(10000);
@@ -20,6 +20,12 @@ describe('Mapper (integration)', function() {
     return specs.map(spec => spec.name);
   };
 
+  // TODO: replace with serviceProvider.createCollection()
+  const createCollection = async(dbName: string, collectionName: string): Promise<any> => {
+    const now = Date.now();
+    await serviceProvider.insertOne(dbName, collectionName, { _id: now });
+  };
+
   before(async() => {
     serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
   });
@@ -30,6 +36,7 @@ describe('Mapper (integration)', function() {
 
   let mapper: Mapper;
   let dbName;
+  let database;
   let collection;
   let collectionName;
 
@@ -45,6 +52,8 @@ describe('Mapper (integration)', function() {
       dbName,
       collectionName
     );
+
+    database = new Database(mapper, dbName);
   });
 
   afterEach(async() => {
@@ -154,7 +163,7 @@ describe('Mapper (integration)', function() {
       let result;
 
       beforeEach(async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await createCollection(dbName, collectionName);
 
         expect(await serviceProvider.isCapped(
           dbName,
@@ -183,8 +192,7 @@ describe('Mapper (integration)', function() {
       let result;
 
       beforeEach(async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
-
+        await createCollection(dbName, collectionName);
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
 
         result = await mapper.createIndexes(collection, [{ x: 1 }], {
@@ -210,7 +218,7 @@ describe('Mapper (integration)', function() {
       let result;
 
       beforeEach(async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await createCollection(dbName, collectionName);
         await serviceProvider.createIndexes(dbName, collectionName, [
           { key: { x: 1 } }
         ]);
@@ -242,7 +250,7 @@ describe('Mapper (integration)', function() {
 
     describe('dropIndexes', () => {
       beforeEach(async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await createCollection(dbName, collectionName);
         await serviceProvider.createIndexes(dbName, collectionName, [
           { key: { x: 1 }, name: 'index-1' }
         ]);
@@ -254,6 +262,27 @@ describe('Mapper (integration)', function() {
         await mapper.dropIndexes(collection, '*');
 
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
+      });
+    });
+  });
+
+  describe('db', () => {
+    describe('getCollectionInfos', () => {
+      it('returns an array with collection infos', async() => {
+        await createCollection(dbName, collectionName);
+
+        expect(await mapper.getCollectionInfos(database, {}, { nameOnly: true })).to.deep.equal([{
+          name: collectionName,
+          type: 'collection'
+        }]);
+      });
+    });
+
+    describe('getCollectionNames', () => {
+      it('returns an array with collection names', async() => {
+        await createCollection(dbName, collectionName);
+
+        expect(await mapper.getCollectionNames(database)).to.deep.equal([collectionName]);
       });
     });
   });

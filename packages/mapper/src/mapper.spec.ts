@@ -440,5 +440,39 @@ db3  30 kB`;
       });
     });
   });
+
+  describe('getCollectionInfos', () => {
+    it('returns the result of serviceProvider.listCollections', async() => {
+      const database = new Database(mapper, 'db1');
+
+      const filter = { name: 'abc' };
+      const options = { nameOnly: true };
+      const result = [{ name: 'coll1' }];
+
+      serviceProvider.listCollections.resolves(result);
+
+      expect(await mapper.getCollectionInfos(
+        database,
+        filter,
+        options)).to.deep.equal(result);
+
+      expect(serviceProvider.listCollections).to.have.been.calledOnceWith('db1', filter, options);
+    });
+  });
+
+  describe('getCollectionNames', () => {
+    it('returns the result of serviceProvider.listCollections', async() => {
+      const database = new Database(mapper, 'db1');
+      const result = [{ name: 'coll1' }];
+
+      serviceProvider.listCollections.resolves(result);
+
+      expect(await mapper.getCollectionNames(
+        database)).to.deep.equal(['coll1']);
+
+      expect(serviceProvider.listCollections).to.have.been.calledOnceWith(
+        'db1', {}, { nameOnly: true });
+    });
+  });
 });
 

@@ -1155,4 +1155,45 @@ export default class Mapper {
 
     return await this.dropIndexes(collection, index);
   }
+
+  /**
+   * Returns an array of collection infos
+   *
+   * @param {String} database - The database.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The options.
+   *
+   * @return {Promise}
+   */
+  async getCollectionInfos(
+    database: Database,
+    filter: Document = {},
+    options: Document = {}): Promise<any> {
+    return await this.serviceProvider.listCollections(
+      database._database,
+      filter,
+      options
+    );
+  }
+
+  /**
+   * Returns an array of collection names
+   *
+   * @param {String} database - The database.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The options.
+   *
+   * @return {Promise}
+   */
+  async getCollectionNames(
+    database: Database
+  ): Promise<any> {
+    const infos = await this.getCollectionInfos(
+      database,
+      {},
+      { nameOnly: true }
+    );
+
+    return infos.map(collection => collection.name);
+  }
 }
