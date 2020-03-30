@@ -23,7 +23,7 @@
     "start-compass": "lerna run start-compass --scope @mongodb-js/compass-shell",
     "start": "npm run start-cli",
     "precompile-exec": "npm run compile-cli",
-    "compile-exec": "pkg packages/cli-repl/bin/mongosh.js --out-path dist",
+    "compile-exec": "node scripts/release.js",
     "publish-npm": "lerna publish --force-publish"
   },
   "config": {
