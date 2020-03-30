@@ -115,6 +115,10 @@ export default class Mapper {
         const table = formatTable(tableEntries);
 
         return new CommandResult({ value: table });
+      case 'collections':
+        const collectionNames = await this.getCollectionNames(this.context.db);
+
+        return new CommandResult({ value: collectionNames.join('\n') });
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
         this.messageBus.emit('error', err);
