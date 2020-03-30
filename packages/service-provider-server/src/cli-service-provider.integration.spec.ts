@@ -558,4 +558,34 @@ describe('CliServiceProvider [integration]', function() {
       });
     });
   });
+
+  describe('#reIndex', () => {
+    it('runs against the db', async() => {
+      const collName = 'coll1';
+      await db.createCollection(collName);
+
+      const result = await serviceProvider.reIndex(
+        dbName,
+        collName
+      );
+
+      expect(
+        result
+      ).to.deep.equal({
+        nIndexesWas: 1,
+        nIndexes: 1,
+        indexes: [
+          {
+            v: 2,
+            key: {
+              '_id': 1
+            },
+            name: '_id_',
+            ns: `${dbName}.${collName}`
+          }
+        ],
+        ok: 1
+      });
+    });
+  });
 });

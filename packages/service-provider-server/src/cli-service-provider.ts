@@ -789,6 +789,25 @@ class CliServiceProvider implements ServiceProvider {
       .collection(collection)
       .stats(options);
   }
+
+  /**
+   * Reindex all indexes on the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} options - The command options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @return {Promise}
+   */
+  async reIndex(
+    database: string,
+    collection: string,
+    options?: Document,
+    dbOptions?: Document): Promise<Result> {
+    return await this.runCommand(database, {
+      reIndex: collection
+    }, options, dbOptions);
+  }
 }
 
 export default CliServiceProvider;

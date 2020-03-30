@@ -679,4 +679,37 @@ describe('CliServiceProvider', () => {
       statsMock.verify();
     });
   });
+
+  describe('#reIndex', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs({ reIndex: 'coll1' }, {})
+        .resolves({ ok: 1 });
+
+      const dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('db1')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.reIndex('db1', 'coll1');
+      expect(result).to.deep.equal({ ok: 1 });
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
 });
