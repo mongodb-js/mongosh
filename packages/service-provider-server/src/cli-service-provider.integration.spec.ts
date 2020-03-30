@@ -499,5 +499,32 @@ describe('CliServiceProvider [integration]', function() {
         (await serviceProvider.listCollections(dbName)).map((c) => c.name)
       ).to.deep.equal(['coll1']);
     });
+
+    it('filter the list of collections', async() => {
+      await db.createCollection('coll1');
+      await db.createCollection('coll2');
+
+      expect(
+        (await serviceProvider.listCollections(dbName, { name: 'coll2' })).map((c) => c.name)
+      ).to.deep.equal(['coll2']);
+    });
+
+    it('allows options', async() => {
+      await db.createCollection('coll1');
+      await db.createCollection('coll2');
+
+      expect(
+        await serviceProvider.listCollections(dbName, {}, { nameOnly: true })
+      ).to.deep.equal([
+        {
+          name: 'coll1',
+          type: 'collection'
+        },
+        {
+          name: 'coll2',
+          type: 'collection'
+        }
+      ]);
+    });
   });
 });

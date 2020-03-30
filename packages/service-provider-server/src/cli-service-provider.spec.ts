@@ -617,7 +617,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs()
+        .withArgs({}, {})
         .returns({
           toArray: () => {
             return Promise.resolve([

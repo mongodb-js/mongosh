@@ -754,7 +754,8 @@ class CliServiceProvider implements ServiceProvider {
    * Returns an array of collection infos
    *
    * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The command options.
    * @param {Object} dbOptions - The database options
    *  (i.e. readConcern, writeConcern. etc).
    *
@@ -762,8 +763,12 @@ class CliServiceProvider implements ServiceProvider {
    */
   async listCollections(
     database: string,
+    filter: Document = {},
+    options: Document = {},
     dbOptions: Document = {}): Promise<Result> {
-    return await this.db(database, dbOptions).listCollections().toArray();
+    return await this.db(database, dbOptions).listCollections(
+      filter, options
+    ).toArray();
   }
 }
 
