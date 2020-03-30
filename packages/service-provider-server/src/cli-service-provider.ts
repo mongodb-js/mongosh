@@ -749,6 +749,22 @@ class CliServiceProvider implements ServiceProvider {
       index: indexes,
     }, options, dbOptions);
   }
+
+  /**
+   * Returns an array of collection infos
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options
+   *  (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  async listCollections(
+    database: string,
+    dbOptions: Document = {}): Promise<Result> {
+    return await this.db(database, dbOptions).listCollections().toArray();
+  }
 }
 
 export default CliServiceProvider;
