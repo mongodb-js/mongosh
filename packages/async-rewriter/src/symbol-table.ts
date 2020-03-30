@@ -10,18 +10,22 @@
  *     class definition: { type: 'classdef', returnType: type name or obj }
  */
 export default class SymbolTable {
-  readonly scopeStack: any;
+  private scopeStack: any;
   public types: any;
-  constructor(initialScope, types) {
-    this.scopeStack = [initialScope];
+  constructor(initialScope: object[], types: object) {
     this.types = types;
-    Object.keys(types).forEach(s => {
-      if (s === 'unknown') return;
-      this.add(s, { type: 'classdef', returnType: types[s], lib: true });
+    this.scopeStack = initialScope;
+    Object.keys(this.types).forEach(s => {
+      if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
+      this.add(s, { type: 'classdef', returnType: this.types[s], lib: true });
     });
   }
+  deepCopy(): SymbolTable {
+    const newStack = JSON.parse(JSON.stringify(this.scopeStack));
+    return new SymbolTable(newStack, this.types);
+  }
   lookup(item): any {
-    for (let i = 0; i < this.scopeStack.length; i++) {
+    for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         return this.scopeStack[i][item];
       }
@@ -29,14 +33,20 @@ export default class SymbolTable {
     return this.types.unknown;
   }
   add(item, value): void {
-    this.scopeStack[this.scopeStack.length - 1][item] = value;
+    this.scopeStack[this.last][item] = value;
   }
   addToParent(item, value): void {
-    const i = this.scopeStack.length - 2;
-    this.scopeStack[i > 0 ? i : 0][item] = value;
+    const end = Math.max(this.last - 1, 0);
+    for (let i = end; i >= 0; i--) {
+      if (this.scopeStack[i][item]) {
+        this.scopeStack[i][item] = value;
+        return;
+      }
+    }
+    this.scopeStack[end][item] = value;
   }
   update(item, value): void {
-    for (let i = 0; i < this.scopeStack.length; i++) {
+    for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         this.scopeStack[i][item] = value;
         return;
@@ -45,11 +55,63 @@ export default class SymbolTable {
     return this.add(item, value);
   }
   popScope(): void {
-    if (this.scopeStack.length === 1) return;
-    this.scopeStack.pop();
+    if (this.depth === 1) return;
+    return this.scopeStack.pop();
   }
   pushScope(): void {
-    this.scopeStack.push([]);
+    this.scopeStack.push({});
+  }
+  get depth(): number {
+    return this.scopeStack.length;
+  }
+  get last(): number {
+    return this.depth - 1;
+  }
+  scopeAt(i): object {
+    return this.scopeStack[i];
+  }
+  compareScope(consequent): void {
+    if (this.depth !== consequent.depth) {
+      throw new Error('Internal Error: scope tracking errored');
+    }
+    this.scopeStack.forEach((resultScope, i) => {
+      const consScope = consequent.scopeAt(i);
+      Object.keys(consScope).forEach((k) => {
+        if (JSON.stringify(consScope[k]) === JSON.stringify(resultScope[k])) { // branches don't diverge
+          resultScope[k] = consScope[k];
+        } else { // branches diverge
+          if ((consScope[k] !== undefined && consScope[k].hasAsyncChild) || (resultScope[k] !== undefined && resultScope[k].hasAsyncChild)) { // conditional async, error
+            throw new Error('Error: cannot conditionally assign Shell API types');
+          }
+          resultScope[k] = consScope[k] || this.types.unknown; // update to whatever
+        }
+      });
+    });
+  }
+  compareScopes(consequent, alternate): void {
+    if (this.depth !== consequent.depth || consequent.depth !== alternate.depth) {
+      throw new Error('Internal Error: scope tracking errored');
+    }
+    this.scopeStack.forEach((resultScope, i) => {
+      const consScope = consequent.scopeAt(i);
+      const altScope = alternate.scopeAt(i);
+      const union = new Set([...Object.keys(consScope), ...Object.keys(altScope)]);
+      union.forEach((k) => {
+        if (JSON.stringify(consScope[k]) === JSON.stringify(altScope[k])) { // branches don't diverge
+          resultScope[k] = consScope[k];
+        } else if (consScope[k] === undefined || altScope[k] === undefined) { // something defined in only one branch
+          if (consScope[k] !== undefined && consScope[k].hasAsyncChild || altScope[k] !== undefined && altScope[k].hasAsyncChild) { // if defined with async, error
+            throw new Error('Error: cannot conditionally assign shell API types');
+          }
+          resultScope[k] = consScope[k] || altScope[k]; // update to whatever
+        } else { // branches diverge
+          if (consScope[k].hasAsyncChild || altScope[k].hasAsyncChild) { // conditional async, error
+            throw new Error('Error: cannot conditionally assign Shell API types');
+          }
+          resultScope[k] = consScope[k]; // update to whatever
+        }
+      });
+    });
   }
   printSymbol(symbol, key): string {
     const type = symbol.type;
@@ -78,7 +140,7 @@ export default class SymbolTable {
   }
   print(): void {
     console.log('----Printing Symbol Table----');
-    for (let scopeDepth = this.scopeStack.length - 1; scopeDepth >= 0; scopeDepth--) {
+    for (let scopeDepth = this.last; scopeDepth >= 0; scopeDepth--) {
       const scope = this.scopeStack[scopeDepth];
       console.log(`scope@${scopeDepth}:`);
       Object.keys(scope).filter((s) => (!scope[s].lib)).forEach((k) => {
