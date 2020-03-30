@@ -983,13 +983,21 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.database.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-database/', 'attr': [{ 'name': 'runCommand', 'description': 'shell-api.database.help.run-command' }] });
+    this.help = () => new Help({ 'help': 'shell-api.database.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-database/', 'attr': [{ 'name': 'runCommand', 'description': 'shell-api.database.help.run-command' }, { 'name': 'getCollectionNames', 'description': 'shell-api.collection.help.get-collection-names.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.collection.help.get-collection-infos.description' }] });
 
     return new Proxy(this, handler);
   }
 
   runCommand(...args) {
     return this._mapper.runCommand(this, ...args);
+  }
+
+  getCollectionNames(...args) {
+    return this._mapper.getCollectionNames(this, ...args);
+  }
+
+  getCollectionInfos(...args) {
+    return this._mapper.getCollectionInfos(this, ...args);
   }
 }
 
@@ -999,6 +1007,18 @@ Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.runCommand.topologies = [0, 1, 2];
 Database.prototype.runCommand.returnsPromise = false;
 Database.prototype.runCommand.returnType = 'unknown';
+
+Database.prototype.getCollectionNames.help = () => new Help({ 'help': 'shell-api.collection.help.get-collection-names' });
+Database.prototype.getCollectionNames.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.getCollectionNames.topologies = [0, 1, 2];
+Database.prototype.getCollectionNames.returnsPromise = true;
+Database.prototype.getCollectionNames.returnType = 'unknown';
+
+Database.prototype.getCollectionInfos.help = () => new Help({ 'help': 'shell-api.collection.help.get-collection-infos' });
+Database.prototype.getCollectionInfos.serverVersions = ['3.0.0', '4.4.0'];
+Database.prototype.getCollectionInfos.topologies = [0, 1, 2];
+Database.prototype.getCollectionInfos.returnsPromise = true;
+Database.prototype.getCollectionInfos.returnType = 'unknown';
 
 
 class DeleteResult {
