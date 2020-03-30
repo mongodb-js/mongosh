@@ -90,7 +90,6 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          mv dist/mongosh-macos dist/mongosh
           echo "################# Sign, notarise, and release MacOS artifacts ################"
     - command: archive.targz_pack
       params:
@@ -109,7 +108,6 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          mv dist/mongosh-linux dist/mongosh
           echo "################# Sign and release Linux artifacts ################"
     - command: archive.targz_pack
       params:
@@ -128,7 +126,6 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          mv dist/mongosh-win.exe dist/mongosh.exe
           echo "################# Sign and release Windows artifacts ################"
     - command: archive.targz_pack
       params:
