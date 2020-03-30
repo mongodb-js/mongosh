@@ -17,7 +17,10 @@ const getNameOrValue = (t, node): any => {
   return false;
 };
 
-const TypeInferenceVisitor = {
+// required so visitor can self-reference
+var TypeInferenceVisitor; /* eslint no-var:0 */
+
+TypeInferenceVisitor = {
   Identifier: {
     exit(path): void {
       const id = path.node.name;
@@ -126,6 +129,7 @@ const TypeInferenceVisitor = {
         }
       });
       path.node.shellType = { type: 'object', attributes: attributes, hasAsyncChild: hasAsyncChild };
+      debug('ObjectExpression', path.node.shellType);
     }
   },
   ArrayExpression: {
@@ -139,6 +143,7 @@ const TypeInferenceVisitor = {
         }
       });
       path.node.shellType = { type: 'array', attributes: attributes, hasAsyncChild };
+      debug('ArrayExpression', path.node.shellType);
     }
   },
   ClassDeclaration: {
@@ -184,12 +189,19 @@ const TypeInferenceVisitor = {
     }
   },
   Function: {
-    enter(): void {
-      this.toRet.push([]);
-    },
-    exit(path): void {
+    enter(path): void {
+      debug('Function Enter');
+      const returnTypes = [];
+      const symbolCopy1 = this.symbols.deepCopy();
+      path.skip();
+      path.traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: returnTypes,
+        symbols: symbolCopy1
+      });
+
       let rType = this.symbols.types.unknown;
-      const returnTypes = this.toRet.pop();
       let dbg;
       if (returnTypes.length === 0) { // no return value, take last or unknown
         if (!this.t.isBlockStatement(path.node.body)) { // => (...);
@@ -225,10 +237,10 @@ const TypeInferenceVisitor = {
     }
   },
   ReturnStatement: {
-    exit(path, state): void {
+    exit(path): void {
       const sType = path.node.argument === null ? this.symbols.types.unknown : path.node.argument.shellType;
       path.node.shellType = sType;
-      state.toRet[state.toRet.length - 1].push(sType);
+      this.toRet.push(sType);
       debug('ReturnStatement', sType.type);
     }
   },
@@ -244,11 +256,33 @@ const TypeInferenceVisitor = {
   },
   Conditional: {
     enter(path): void {
-      console.log('conditional enter INSIDE');
+      debug('Conditional');
+      const symbolCopy1 = this.symbols.deepCopy();
       path.skip();
-    },
-    exit(): void {
-      console.log('conditional exit INSIDE');
+      path.get('test').traverse(TypeInferenceVisitor, { // TODO: this get skipped
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: this.symbols
+      });
+      path.get('consequent').traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: symbolCopy1
+      });
+      if (path.node.alternate === null) {
+        return this.symbols.compareScope(symbolCopy1);
+      }
+
+      const symbolCopy2 = this.symbols.deepCopy();
+      path.get('alternate').traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: symbolCopy2
+      });
+      this.symbols.compareScopes(symbolCopy1, symbolCopy2);
     }
   },
   exit(path): void {
@@ -280,10 +314,9 @@ export default class AsyncWriter {
         // },
         visitor: {
           Program: {
-            enter(): void {
+            enter(path): void {
               symbols.pushScope();
-            },
-            exit(path): void {
+              path.skip();
               path.traverse(TypeInferenceVisitor, {
                 t: t,
                 skip: skips,
@@ -292,40 +325,6 @@ export default class AsyncWriter {
               });
             }
           },
-          Conditional: {
-            enter(path): void {
-              path.skip();
-              console.log('conditional enter');
-              const symbolCopy1 = symbols.deepCopy();
-              path.get('test').traverse(TypeInferenceVisitor, {
-                t: t,
-                skip: skips,
-                toRet: [],
-                symbols: symbols
-              });
-              path.get('consequent').traverse(TypeInferenceVisitor, {
-                t: t,
-                skip: skips,
-                toRet: [],
-                symbols: symbolCopy1
-              });
-              if (path.node.alternate === null) {
-                return symbols.compareScope(symbolCopy1);
-              }
-
-              const symbolCopy2 = symbols.deepCopy();
-              path.get('alternate').traverse(TypeInferenceVisitor, {
-                t: t,
-                skip: skips,
-                toRet: [],
-                symbols: symbolCopy2
-              });
-              symbols.compareScopes(symbolCopy1, symbolCopy2);
-            },
-            exit(): void {
-              console.log('conditional exit');
-            }
-          }
         }
       };
     };

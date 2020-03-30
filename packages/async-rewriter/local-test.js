@@ -19,11 +19,13 @@ const writer = new AsyncWriter(scope[1], types);
 const input = [
   // 'db.coll.insertOne()',
   // 'y = db',
-  'db'
+  // 'db'
   // 'y.coll.insertOne()',
   // '() => {return db;}',
-  // '() => {db;}',
-  // 'function x() { db.coll.insertOne({}) }',
+  // '() => (db)',
+  // 'a = 1;',
+  // 'function x() { return 1; }',
+  // 'x()'
   // 'x(abc);'
   // '() => (db)',
   // 'function x() {return db;}',
@@ -38,7 +40,7 @@ const input = [
   //     return 1;
   //   }
   // }`,
-  // 'if (x) { a = db; }',
+  'if (x) { a = db; } else { a = db; }',
 ];
 
 input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));
