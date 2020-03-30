@@ -172,7 +172,8 @@ interface Readable {
    * Returns an array of collection infos
    *
    * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The command options.
    * @param {Object} dbOptions - The database options
    *  (i.e. readConcern, writeConcern. etc).
    *
@@ -180,6 +181,8 @@ interface Readable {
    */
   listCollections(
     database: string,
+    filter?: Document,
+    options?: Document,
     dbOptions?: Document): Promise<Result>;
 }
 
