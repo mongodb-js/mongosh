@@ -41,6 +41,10 @@ describe('Mapper', () => {
   });
 
   describe('commands', () => {
+    beforeEach(() => {
+      mapper.setCtx({});
+    });
+
     describe('show databases', () => {
       it('lists databases', async() => {
         serviceProvider.listDatabases.resolves({
@@ -64,6 +68,22 @@ db3  30 kB`;
         expect(
           (await mapper.show(null, 'databases')).toReplString()
         ).to.equal(expectedOutput);
+      });
+
+      describe('show collections', () => {
+        it('lists collection names', async() => {
+          serviceProvider.listCollections.resolves([
+            { name: 'coll1' },
+            { name: 'coll2' }
+          ]);
+
+          const expectedOutput = `coll1
+coll2`;
+
+          expect(
+            (await mapper.show(null, 'collections')).toReplString()
+          ).to.equal(expectedOutput);
+        });
       });
     });
 
