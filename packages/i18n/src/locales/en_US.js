@@ -988,7 +988,19 @@ const translations = {
     "database": {
       "description": "Database Class",
       "help": {
-        "run-command": "Runs an arbitrary command on the database."
+        "run-command": "Runs an arbitrary command on the database.",
+        "get-collection-infos": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.getCollectionInfos",
+          "description": "Returns an array of documents with collection information, i.e. collection name and options, for the current database.",
+          "example": "",
+          "parameters": {}
+        },
+        "get-collection-names": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.getCollectionNames",
+          "description": "Returns an array containing the names of all collections in the current database.",
+          "example": "",
+          "parameters": {}
+        }
       }
     },
     "replica-set": {
