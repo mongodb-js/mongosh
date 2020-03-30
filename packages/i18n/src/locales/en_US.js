@@ -896,6 +896,12 @@ const translations = {
           "example": "",
           "parameters": {}
         },
+        "re-index": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.collection.reIndex",
+          "description": "Rebuilds all existing indexes on a collection.",
+          "example": "",
+          "parameters": {}
+        },
         "update-one": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.updateOne",
           "description": "Updates a single document within the collection based on the filter.",
