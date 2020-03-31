@@ -1271,6 +1271,8 @@ export default class Mapper {
   getDB(
     collection: Collection
   ): Database {
+    this.messageBus.emit('method:getDB', collection._name);
+
     return collection._database;
   }
 }

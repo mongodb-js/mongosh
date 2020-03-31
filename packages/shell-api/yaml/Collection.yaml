@@ -82,6 +82,8 @@ class:
             description: 'shell-api.collection.help.re-index.description'
           - name: totalIndexSize
             description: 'shell-api.collection.help.total-index-size.description'
+          - name: getDB
+            description: 'shell-api.collection.help.get-db.description'
     aggregate:
         <<: *__defaultMethod
         returnType: 'AggregationCursor'
