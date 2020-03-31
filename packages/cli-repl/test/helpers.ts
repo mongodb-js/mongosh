@@ -2,12 +2,18 @@ import { spawn } from 'child_process';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 
-export async function eventually(fn) {
-  let i = 50;
+export async function eventually(fn, options: { frequency?: number, timeout?: number } = {}) {
+  options = {
+    frequency: 100,
+    timeout: 15000,
+    ...options
+  };
+
+  let attempts = Math.round(options.timeout / options.frequency);
   let err;
 
-  while(i) {
-    i--;
+  while(attempts) {
+    attempts--;
 
     try {
       await fn();
@@ -16,7 +22,7 @@ export async function eventually(fn) {
       err = e;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, options.frequency));
   }
 
   throw err;
