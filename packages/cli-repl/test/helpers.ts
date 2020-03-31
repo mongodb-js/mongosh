@@ -39,12 +39,22 @@ export function startShell(...args) {
 
   const stdio = {
     stdin: shell.stdin,
+    output: '',
     stdout: '',
     stderr: ''
   }
 
-  shell.stdout.on('data', (chunk) => { stdio.stdout += stripAnsi(chunk.toString()); })
-  shell.stderr.on('data', (chunk) => { stdio.stderr += stripAnsi(chunk.toString()); })
+  shell.stdout.on('data', (chunk) => {
+    const plainChunk = stripAnsi(chunk.toString());
+    stdio.output += plainChunk;
+    stdio.stdout += plainChunk;
+  });
+
+  shell.stderr.on('data', (chunk) => {
+    const plainChunk = stripAnsi(chunk.toString());
+    stdio.output += plainChunk;
+    stdio.stderr += plainChunk;
+  });
 
   openShells.push(shell);
 
