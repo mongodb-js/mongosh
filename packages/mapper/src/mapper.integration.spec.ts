@@ -267,7 +267,7 @@ describe('Mapper (integration)', function() {
 
     describe('#reIndex', () => {
       beforeEach(async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+        await createCollection(dbName, collectionName);
       });
 
       it('runs against the db', async() => {
