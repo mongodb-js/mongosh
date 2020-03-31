@@ -3,9 +3,9 @@ class:
     __constructorArgs:
         - _mapper
         - _database
-        - _collection
+        - _name
     __stringRep:
-        - this._collection
+        - this._name
     help:
         help: 'shell-api.collection.description'
         docs: 'https://docs.mongodb.com/manual/reference/method/js-collection'
@@ -342,3 +342,12 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.total-index-size'
+    getDB:
+        <<: *__defaultMethod
+        returnsPromise: false
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        returnType: 'Database'
+        help:
+            help: 'shell-api.collection.help.get-db'

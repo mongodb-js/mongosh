@@ -47,13 +47,13 @@ describe('Mapper (integration)', function() {
     mapper = new Mapper(serviceProvider);
     mapper.setCtx({});
     mapper.use({}, dbName);
+    database = new Database(mapper, dbName);
+
     collection = new Collection(
       mapper,
-      dbName,
+      database,
       collectionName
     );
-
-    database = new Database(mapper, dbName);
   });
 
   afterEach(async() => {

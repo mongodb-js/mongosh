@@ -14,10 +14,14 @@ import { Collection, Database } from '@mongosh/shell-api';
 describe('Mapper', () => {
   let mapper: Mapper;
   let serviceProvider: StubbedInstance<ServiceProvider>;
+  let collection;
+  let database;
 
   beforeEach(() => {
     serviceProvider = stubInterface<ServiceProvider>();
     mapper = new Mapper(serviceProvider);
+    database = new Database(mapper, 'db1');
+    collection = new Collection(mapper, database, 'coll1');
   });
 
   describe('setCtx', () => {
@@ -107,7 +111,7 @@ coll2`;
           };
 
           serviceProvider.find.returns(cursor);
-          await mapper.find({}, {}, {});
+          await mapper.find(collection, {}, {});
         });
 
         it('returns CursorIterationResult', async() => {
@@ -149,10 +153,8 @@ coll2`;
 
     describe('collection', () => {
       describe('bulkWrite', () => {
-        let collection;
         let requests;
         beforeEach(async() => {
-          collection = new Collection(mapper, 'db1', 'coll1');
           requests = [
             { insertOne: { 'document': { doc: 1 } } }
           ];
@@ -201,11 +203,6 @@ coll2`;
     });
 
     describe('convertToCapped', () => {
-      let collection;
-      beforeEach(async() => {
-        collection = new Collection(mapper, 'db1', 'coll1');
-      });
-
       it('calls service provider convertToCapped', async() => {
         serviceProvider.convertToCapped.resolves({ ok: 1 });
 
@@ -222,9 +219,7 @@ coll2`;
     });
 
     describe('createIndexes', () => {
-      let collection;
       beforeEach(async() => {
-        collection = new Collection(mapper, 'db1', 'coll1');
         serviceProvider.createIndexes.resolves({ ok: 1 });
       });
 
@@ -267,9 +262,7 @@ coll2`;
 
   ['ensureIndex', 'createIndex'].forEach((method) => {
     describe(method, () => {
-      let collection;
       beforeEach(async() => {
-        collection = new Collection(mapper, 'db1', 'coll1');
         serviceProvider.createIndexes.resolves({ ok: 1 });
       });
 
@@ -312,7 +305,6 @@ coll2`;
 
   ['getIndexes', 'getIndexSpecs', 'getIndices'].forEach((method) => {
     describe(method, () => {
-      let collection;
       let result;
       beforeEach(async() => {
         result = [{
@@ -323,7 +315,6 @@ coll2`;
           name: '_id_',
           ns: 'test.coll1'
         }];
-        collection = new Collection(mapper, 'db1', 'coll1');
         serviceProvider.getIndexes.resolves(result);
       });
 
@@ -334,7 +325,6 @@ coll2`;
   });
 
   describe('getIndexKeys', () => {
-    let collection;
     let result;
     beforeEach(async() => {
       result = [{
@@ -353,7 +343,6 @@ coll2`;
         name: '_name_',
         ns: 'test.coll1'
       }];
-      collection = new Collection(mapper, 'db1', 'coll1');
       serviceProvider.getIndexes.resolves(result);
     });
 
@@ -366,12 +355,6 @@ coll2`;
   });
 
   describe('dropIndexes', () => {
-    let collection;
-
-    beforeEach(() => {
-      collection = new Collection(mapper, 'db1', 'coll1');
-    });
-
     context('when serviceProvider.dropIndexes resolves', () => {
       let result;
       beforeEach(async() => {
@@ -424,12 +407,6 @@ coll2`;
   });
 
   describe('dropIndex', () => {
-    let collection;
-
-    beforeEach(() => {
-      collection = new Collection(mapper, 'db1', 'coll1');
-    });
-
     context('when mapper.dropIndexes resolves', () => {
       let result;
       beforeEach(async() => {
@@ -463,8 +440,6 @@ coll2`;
 
   describe('getCollectionInfos', () => {
     it('returns the result of serviceProvider.listCollections', async() => {
-      const database = new Database(mapper, 'db1');
-
       const filter = { name: 'abc' };
       const options = { nameOnly: true };
       const result = [{ name: 'coll1' }];
@@ -482,7 +457,6 @@ coll2`;
 
   describe('getCollectionNames', () => {
     it('returns the result of serviceProvider.listCollections', async() => {
-      const database = new Database(mapper, 'db1');
       const result = [{ name: 'coll1' }];
 
       serviceProvider.listCollections.resolves(result);
@@ -496,10 +470,7 @@ coll2`;
   });
 
   describe('totalIndexSize', () => {
-    let collection;
-
     beforeEach(() => {
-      collection = new Collection(mapper, 'db1', 'coll1');
       serviceProvider.stats.resolves({
         totalIndexSize: 1000
       });

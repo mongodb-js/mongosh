@@ -62,7 +62,8 @@ const Collection = {
     dropIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     dropIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     reIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    totalIndexSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    totalIndexSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    getDB: { type: 'function', returnsPromise: false, returnType: 'Database', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const Cursor = {

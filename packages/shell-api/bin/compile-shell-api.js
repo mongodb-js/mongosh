@@ -4,16 +4,18 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const YAML_DIR = 'yaml';
 
-const databaseConstructorTemplate = (contents) => (`    const handler = {
-      get: function (obj, prop) {
+const databaseConstructorTemplate = (contents) => (`
+    const proxy = new Proxy(this, {
+      get: (obj, prop) => {
         if (!(prop in obj)) {
-          obj[prop] = new Collection(_mapper, _database, prop);
+          obj[prop] = new Collection(_mapper, proxy, prop);
         }
+
         return obj[prop];
       }
-    };
+    });
 ${contents}
-    return new Proxy(this, handler);
+    return proxy;
 `);
 
 /**

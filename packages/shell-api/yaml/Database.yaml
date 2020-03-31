@@ -2,9 +2,9 @@ class:
     <<: *__defaultClass
     __constructorArgs:
         - _mapper
-        - _database
+        - _name
     __stringRep:
-        - this._database
+        - this._name
     help:
         help: 'shell-api.database.description'
         docs: 'https://docs.mongodb.com/manual/reference/method/js-database/'

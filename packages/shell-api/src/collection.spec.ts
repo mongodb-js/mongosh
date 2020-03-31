@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import Mapper from '../../mapper';
-import { Collection } from './shell-api';
+import { Collection, Database } from './shell-api';
 import * as types from './shell-types';
 import { expect } from 'chai';
 
@@ -30,8 +30,8 @@ function testWrappedMethod(name: string): void {
   const args = [1, 2, 3];
   const retVal = {};
 
-  const collection = new Collection(
-    mapper, 'db1', 'coll1');
+  const database = new Database('db1');
+  const collection = new Collection(mapper, database, 'coll1');
 
   mock.withArgs(collection, ...args).returns(retVal);
 
@@ -53,6 +53,18 @@ describe('Collection', () => {
   describe('#convertToCapped', () => {
     it('wraps mapper.convertToCapped', () => {
       testWrappedMethod('convertToCapped');
+    });
+  });
+
+  describe('#find', () => {
+    it('wraps mapper.find', () => {
+      testWrappedMethod('find');
+    });
+  });
+
+  describe('#findOne', () => {
+    it('wraps mapper.findOne', () => {
+      testWrappedMethod('findOne');
     });
   });
 
@@ -119,6 +131,15 @@ describe('Collection', () => {
   describe('#reIndex', () => {
     it('wraps mapper.reIndex', () => {
       testWrappedMethod('reIndex');
+    });
+  });
+
+  describe('#getDB', () => {
+    it('returns the db', () => {
+      const database = new Database('db1');
+      const collection = new Collection(new Mapper({}), database, 'coll1');
+
+      expect(collection.getDB()).to.equal(database);
     });
   });
 });
