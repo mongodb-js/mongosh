@@ -225,6 +225,11 @@ function logger(bus: any, logDir: string) {
     const params = { collection };
     log.info('method:reIndex', params);
   });
+
+  bus.on('method:getDB', function(collection) {
+    const params = { collection };
+    log.info('method:getDB', params);
+  });
 }
 
 export default logger;
