@@ -55,16 +55,12 @@ class CliRepl {
     this.useAsync = !!options.async;
     console.log(`cli-repl async=${this.useAsync}`);
     this.options = options;
-    this.mongoshDir = '.mongodb/mongosh/'
+    this.mongoshDir = '.mongodb/mongosh/';
+
+    this.createMongoshDir();
 
     this.bus = new Nanobus('mongosh');
     const log = logger(this.bus, this.mongoshDir);
-    // create a directory to store all mongosh logs and history
-    try {
-      mkdirp.sync(path.join(os.homedir(), this.mongoshDir));
-    } catch(e) {
-      this.bus.emit('error', e)
-    }
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
@@ -150,6 +146,19 @@ class CliRepl {
         return originalEval(input, context, filename);
     }
   }
+
+  /** 
+  * Creaates a directory to store all mongosh logs & history
+  */
+  createMongoshDir(): void {
+    try {
+      mkdirp.sync(path.join(os.homedir(), this.mongoshDir));
+    } catch(e) {
+      this.bus.emit('error', e)
+      throw e;
+    }
+  }
+
   /**
    * The greeting for the shell.
    */
