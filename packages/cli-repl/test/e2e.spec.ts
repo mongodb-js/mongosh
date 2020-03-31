@@ -15,6 +15,7 @@ describe.only('e2e', function() {
     it('shows version', async() => {
       const shell = startShell('--version');
       await eventually(() => {
+        expect(shell.stdio.stderr).to.be.empty;
         expect(shell.stdio.output).to.contain(
           require('../package.json').version
         );
@@ -51,7 +52,8 @@ describe.only('e2e', function() {
       shell.stdio.stdin.write('db\n');
 
       await eventually(() => {
-        expect(shell.stdio.output).to.contain(`> ${dbName}\n`);
+        expect(shell.stdio.stderr).to.be.empty;
+        expect(shell.stdio.stdout).to.contain(`> ${dbName}\n`);
       });
     });
 
@@ -59,7 +61,8 @@ describe.only('e2e', function() {
       shell.stdio.stdin.write('help\n');
 
       await eventually(() => {
-        expect(shell.stdio.output).to.contain('Shell Help');
+        expect(shell.stdio.stderr).to.be.empty;
+        expect(shell.stdio.stdout).to.contain('Shell Help');
       });
     });
 
@@ -76,9 +79,9 @@ describe.only('e2e', function() {
 
       await eventually(() => {
         expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.output).to.contain('doc: 1');
-        expect(shell.stdio.output).to.contain('doc: 2');
-        expect(shell.stdio.output).to.contain('doc: 3');
+        expect(shell.stdio.stdout).to.contain('doc: 1');
+        expect(shell.stdio.stdout).to.contain('doc: 2');
+        expect(shell.stdio.stdout).to.contain('doc: 3');
       });
     });
   });

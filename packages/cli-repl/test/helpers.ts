@@ -46,13 +46,11 @@ export function startShell(...args) {
 
   shell.stdout.on('data', (chunk) => {
     const plainChunk = stripAnsi(chunk.toString());
-    stdio.output += plainChunk;
     stdio.stdout += plainChunk;
   });
 
   shell.stderr.on('data', (chunk) => {
     const plainChunk = stripAnsi(chunk.toString());
-    stdio.output += plainChunk;
     stdio.stderr += plainChunk;
   });
 
