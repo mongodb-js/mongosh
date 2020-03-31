@@ -9,6 +9,7 @@ import i18n from '@mongosh/i18n';
 import Nanobus from 'nanobus';
 import logger from './logger';
 import mkdirp from 'mkdirp';
+import clr from './clr';
 import path from 'path';
 import util from 'util';
 import read from 'read';
@@ -137,6 +138,10 @@ class CliRepl {
         return this.repl.context.show(argv[0]);
       case 'it':
         return this.repl.context.it();
+      case 'enableTelemtry()':
+        return this.enableTelemtry();
+      case 'disableTelemtry()':
+        return this.disableTelemtry();
       case 'help':
         this.bus.emit('cmd:help')
         return this.repl.context.help();
@@ -164,6 +169,13 @@ class CliRepl {
    */
   greet(): void {
     console.log(`Using MongoDB: ${this.mdbVersion} \n`);
+    console.log('\nTelemtry is off by default.')
+    console.log(
+      `To enable telemetry, run the following command: ${clr('enableTelemtry()', 'bold')}.`
+    )
+    console.log(
+      `To disable telemetry at any time, run ${clr('disableTelemtry()', 'bold')}.\n`
+    )
   }
 
   /**
@@ -195,6 +207,14 @@ class CliRepl {
       driverOptions.auth.password = password;
       this.connect(driverUri, driverOptions);
     });
+  }
+
+  enableTelemtry(): void {
+    console.log('Telemtry is now enabled')
+  }
+
+  disableTelemtry(): void {
+    console.log('Telemtry is now disabled')
   }
 
   /**
