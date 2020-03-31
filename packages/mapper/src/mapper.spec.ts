@@ -494,10 +494,8 @@ coll2`;
 
   describe('reIndex', () => {
     let result;
-    let collection;
 
     beforeEach(() => {
-      collection = new Collection(mapper, 'db1', 'coll1');
       result = { ok: 1 };
       serviceProvider.reIndex.resolves(result);
     });
