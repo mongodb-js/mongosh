@@ -22,6 +22,8 @@ export async function eventually(fn) {
   throw err;
 }
 
+const openShells = [];
+
 export function startShell(...args) {
   const execPath = path.resolve(__dirname, '..', 'bin', 'mongosh.js');
 
@@ -38,8 +40,16 @@ export function startShell(...args) {
   shell.stdout.on('data', (chunk) => { stdio.stdout += stripAnsi(chunk.toString()); })
   shell.stderr.on('data', (chunk) => { stdio.stderr += stripAnsi(chunk.toString()); })
 
+  openShells.push(shell);
+
   return {
     process: shell,
     stdio,
   };
+}
+
+export function killOpenShells() {
+  while(openShells.length) {
+    openShells.pop().kill();
+  }
 }
