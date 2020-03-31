@@ -289,7 +289,7 @@ describe('Mapper (integration)', function() {
 
   describe('totalIndexSize', () => {
     beforeEach(async() => {
-      await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+      await createCollection(dbName, collectionName);
     });
 
     it('returns total index size', async() => {
