@@ -5,7 +5,7 @@ import stripAnsi from 'strip-ansi';
 export async function eventually(fn, options: { frequency?: number, timeout?: number } = {}) {
   options = {
     frequency: 100,
-    timeout: 15000,
+    timeout: 10000,
     ...options
   };
 
