@@ -4,8 +4,6 @@ import { MongoClient } from 'mongodb';
 import { eventually, startShell, killOpenShells } from './helpers';
 
 describe.only('e2e', function() {
-  this.timeout(10000);
-
   before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
