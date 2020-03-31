@@ -154,13 +154,13 @@ class BulkWriteResult {
 
 
 class Collection {
-  constructor(_mapper, _database, _collection) {
+  constructor(_mapper, _database, _name) {
     this._mapper = _mapper;
     this._database = _database;
-    this._collection = _collection;
+    this._name = _name;
 
     this.toReplString = () => {
-      return this._collection;
+      return this._name;
     };
 
     this.shellApiType = () => {
@@ -311,6 +311,10 @@ class Collection {
 
   totalIndexSize(...args) {
     return this._mapper.totalIndexSize(this, ...args);
+  }
+
+  getDB(...args) {
+    return this._mapper.getDB(this, ...args);
   }
 }
 
@@ -530,6 +534,12 @@ Collection.prototype.totalIndexSize.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.totalIndexSize.topologies = [0, 1, 2];
 Collection.prototype.totalIndexSize.returnsPromise = true;
 Collection.prototype.totalIndexSize.returnType = 'unknown';
+
+Collection.prototype.getDB.help = () => new Help({ 'help': 'shell-api.collection.help.get-db' });
+Collection.prototype.getDB.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.getDB.topologies = [0, 1, 2];
+Collection.prototype.getDB.returnsPromise = false;
+Collection.prototype.getDB.returnType = 'Database';
 
 
 class Cursor {
@@ -984,20 +994,21 @@ Cursor.prototype.toArray.returnType = 'unknown';
 
 
 class Database {
-  constructor(_mapper, _database) {
-    const handler = {
-      get: function(obj, prop) {
+  constructor(_mapper, _name) {
+    const proxy = new Proxy(this, {
+      get: (obj, prop) => {
         if (!(prop in obj)) {
-          obj[prop] = new Collection(_mapper, _database, prop);
+          obj[prop] = new Collection(_mapper, proxy, prop);
         }
+
         return obj[prop];
       }
-    };
+    });
     this._mapper = _mapper;
-    this._database = _database;
+    this._name = _name;
 
     this.toReplString = () => {
-      return this._database;
+      return this._name;
     };
 
     this.shellApiType = () => {
@@ -1005,7 +1016,7 @@ class Database {
     };
     this.help = () => new Help({ 'help': 'shell-api.database.description', 'docs': 'https://docs.mongodb.com/manual/reference/method/js-database/', 'attr': [{ 'name': 'runCommand', 'description': 'shell-api.database.help.run-command' }, { 'name': 'getCollectionNames', 'description': 'shell-api.collection.help.get-collection-names.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.collection.help.get-collection-infos.description' }] });
 
-    return new Proxy(this, handler);
+    return proxy;
   }
 
   runCommand(...args) {

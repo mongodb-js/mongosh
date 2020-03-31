@@ -171,8 +171,8 @@ export default class Mapper {
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
   aggregate(collection, pipeline, options: any = {}): any {
-    const db = collection._database;
-    const coll = collection._collection;
+    const db = collection._database._name;
+    const coll = collection._name;
 
     const dbOptions: any = {};
 
@@ -228,15 +228,15 @@ export default class Mapper {
     options: Document = {}
   ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
-    this.messageBus.emit('metho:bulkWrite', collection._collection, operations);
+    this.messageBus.emit('metho:bulkWrite', collection._name, operations);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
     const result = await this.serviceProvider.bulkWrite(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       operations,
       options,
       dbOptions
@@ -268,14 +268,14 @@ export default class Mapper {
    */
   count(collection, query = {}, options: any = {}): any {
     const dbOpts: any = {};
-    this.messageBus.emit('method:count', collection._collection, query);
+    this.messageBus.emit('method:count', collection._name, query);
 
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
     }
     return this.serviceProvider.count(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       query,
       options,
       dbOpts
@@ -293,11 +293,11 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   countDocuments(collection, query, options: any = {}): any {
-    this.messageBus.emit('method:countDocuments', collection._collection, query, options);
+    this.messageBus.emit('method:countDocuments', collection._name, query, options);
 
     return this.serviceProvider.countDocuments(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       query,
       options
     );
@@ -318,15 +318,15 @@ export default class Mapper {
    */
   async deleteMany(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:deleteMany', collection._collection, filter);
+    this.messageBus.emit('method:deleteMany', collection._name, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
     const result = await this.serviceProvider.deleteMany(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       options,
       dbOptions
@@ -352,14 +352,14 @@ export default class Mapper {
    */
   async deleteOne(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:deleteOne', collection._collection, filter);
+    this.messageBus.emit('method:deleteOne', collection._name, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.deleteOne(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       options,
       dbOptions
@@ -384,10 +384,10 @@ export default class Mapper {
    * @returns {Array} The promise of the result. TODO: make sure returned type is the same
    */
   distinct(collection, field, query, options: any = {}): any {
-    this.messageBus.emit('method:distinct', collection._collection, field, query);
+    this.messageBus.emit('method:distinct', collection._name, field, query);
     return this.serviceProvider.distinct(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       field,
       query,
       options
@@ -404,10 +404,10 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   estimatedDocumentCount(collection, options = {}): Promise<any> {
-    this.messageBus.emit('method:estimatedDocumentCount', collection._collection);
+    this.messageBus.emit('method:estimatedDocumentCount', collection._name);
     return this.serviceProvider.estimatedDocumentCount(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       options,
     );
   }
@@ -426,7 +426,7 @@ export default class Mapper {
    */
   find(collection, query, projection): any {
     const options: any = {};
-    this.messageBus.emit('method:find', collection._collection, query, projection);
+    this.messageBus.emit('method:find', collection._name, query, projection);
 
     if (projection) {
       options.projection = projection;
@@ -435,8 +435,8 @@ export default class Mapper {
     this.currentCursor = new Cursor(
       this,
       this.serviceProvider.find(
-        collection._database,
-        collection._collection,
+        collection._database._name,
+        collection._name,
         query,
         options
       )
@@ -458,7 +458,7 @@ export default class Mapper {
    */
   findOne(collection, query, projection): Promise<any> {
     const options: any = {};
-    this.messageBus.emit('method:findOne', collection._collection, query, projection);
+    this.messageBus.emit('method:findOne', collection._name, query, projection);
 
     if (projection) {
       options.projection = projection;
@@ -466,8 +466,8 @@ export default class Mapper {
     return new Cursor(
       this,
       this.serviceProvider.find(
-        collection._database,
-        collection._collection,
+        collection._database._name,
+        collection._name,
         query,
         options
       )
@@ -476,8 +476,8 @@ export default class Mapper {
 
   // findAndModify(collection, document) {
   //   return this._serviceProvider.findAndModify(
-  //     collection._database,
-  //     collection._collection,
+  //     collection._database._name,
+  //     collection._name,
   //     document,
   //   );
   // };
@@ -493,10 +493,10 @@ export default class Mapper {
    * @returns {Document} The promise of the result.
    */
   async findOneAndDelete(collection, filter, options = {}): Promise<any> {
-    this.messageBus.emit('method:findOneAndDelete', collection._collection, filter);
+    this.messageBus.emit('method:findOneAndDelete', collection._name, filter);
     const result = await this.serviceProvider.findOneAndDelete(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       options,
     );
@@ -520,15 +520,15 @@ export default class Mapper {
    */
   async findOneAndReplace(collection, filter, replacement, options = {}): Promise<any> {
     const findOneAndReplaceOptions: any = { ...options };
-    this.messageBus.emit('method:findOneAndReplace', collection._collection, filter);
+    this.messageBus.emit('method:findOneAndReplace', collection._name, filter);
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
       delete findOneAndReplaceOptions.returnNewDocument;
     }
     const result = await this.serviceProvider.findOneAndReplace(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       replacement,
       findOneAndReplaceOptions
@@ -552,15 +552,15 @@ export default class Mapper {
    */
   async findOneAndUpdate(collection, filter, update, options = {}): Promise<any> {
     const findOneAndUpdateOptions: any = { ...options };
-    this.messageBus.emit('method:findOneAndUpdate', collection._collection, filter);
+    this.messageBus.emit('method:findOneAndUpdate', collection._name, filter);
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
       delete findOneAndUpdateOptions.returnNewDocument;
     }
     const result = await this.serviceProvider.findOneAndUpdate(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       update,
       options,
@@ -583,14 +583,14 @@ export default class Mapper {
   async insert(collection, docs, options: any = {}): Promise<any> {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions: any = {};
-    this.messageBus.emit('method:insert', collection._collection, docs);
+    this.messageBus.emit('method:insert', collection._name, docs);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.insertMany(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       d,
       options,
       dbOptions
@@ -617,15 +617,15 @@ export default class Mapper {
    */
   async insertMany(collection, docs, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:insertMany', collection._collection, docs);
+    this.messageBus.emit('method:insertMany', collection._name, docs);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
     const result = await this.serviceProvider.insertMany(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       docs,
       options,
       dbOptions
@@ -658,8 +658,8 @@ export default class Mapper {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.insertOne(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       doc,
       options,
       dbOptions
@@ -677,10 +677,10 @@ export default class Mapper {
    * @return {Boolean}
    */
   isCapped(collection): Promise<any> {
-    this.messageBus.emit('method:isCapped', collection._collection);
+    this.messageBus.emit('method:isCapped', collection._name);
     return this.serviceProvider.isCapped(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
     );
   }
 
@@ -699,7 +699,7 @@ export default class Mapper {
    */
   remove(collection, query, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:remove', collection._collection, query);
+    this.messageBus.emit('method:remove', collection._name, query);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
@@ -711,8 +711,8 @@ export default class Mapper {
       removeOptions = options;
     }
     return this.serviceProvider.remove(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       query,
       removeOptions,
       dbOptions
@@ -722,14 +722,14 @@ export default class Mapper {
   // TODO
   save(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:save', collection._collection, doc);
+    this.messageBus.emit('method:save', collection._name, doc);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     return this.serviceProvider.save(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       doc,
       options,
       dbOptions
@@ -754,14 +754,14 @@ export default class Mapper {
    */
   async replaceOne(collection, filter, replacement, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:replaceOne', collection._collection, filter);
+    this.messageBus.emit('method:replaceOne', collection._name, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.replaceOne(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       replacement,
       options,
@@ -785,25 +785,25 @@ export default class Mapper {
    * @returns {Promise} The promise of command results. TODO: command result object
    */
   runCommand(database, cmd): Promise<any> {
-    this.messageBus.emit('method:runCommand', database._database, cmd);
-    return this.serviceProvider.runCommand(database._database, cmd);
+    this.messageBus.emit('method:runCommand', database._name, cmd);
+    return this.serviceProvider.runCommand(database._name, cmd);
   }
 
   async update(collection, filter, update, options: any = {}): Promise<any> {
     let result;
-    this.messageBus.emit('method:update', collection._collection, filter);
+    this.messageBus.emit('method:update', collection._name, filter);
     if (options.multi) {
       result = await this.serviceProvider.updateMany(
-        collection._collection,
-        collection._database,
+        collection._name,
+        collection._database._name,
         filter,
         update,
         options,
       );
     } else {
       result = await this.serviceProvider.updateOne(
-        collection._collection,
-        collection._database,
+        collection._name,
+        collection._database._name,
         filter,
         update,
         options,
@@ -834,14 +834,14 @@ export default class Mapper {
    */
   async updateMany(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:updateMany', collection._collection, filter);
+    this.messageBus.emit('method:updateMany', collection._name, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       update,
       options,
@@ -872,14 +872,14 @@ export default class Mapper {
    */
   async updateOne(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('method:updateOne', collection._collection, filter);
+    this.messageBus.emit('method:updateOne', collection._name, filter);
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       filter,
       update,
       options,
@@ -905,13 +905,13 @@ export default class Mapper {
   async convertToCapped(collection: Collection, size: number): Promise<any> {
     this.messageBus.emit(
       'method:convertToCapped',
-      collection._collection,
+      collection._name,
       size
     );
 
     return await this.serviceProvider.convertToCapped(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       size
     );
   }
@@ -934,7 +934,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:createIndexes',
-      collection._collection,
+      collection._name,
       keyPatterns,
       options
     );
@@ -948,8 +948,8 @@ export default class Mapper {
     }));
 
     return await this.serviceProvider.createIndexes(
-      collection._database,
-      collection._collection,
+      collection._database._name,
+      collection._name,
       specs
     );
   }
@@ -973,7 +973,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:createIndex',
-      collection._collection,
+      collection._name,
       keys,
       options
     );
@@ -1004,7 +1004,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:ensureIndex',
-      collection._collection,
+      collection._name,
       keys,
       options
     );
@@ -1029,12 +1029,12 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:getIndexes',
-      collection._collection
+      collection._name
     );
 
     return await this.serviceProvider.getIndexes(
-      collection._database,
-      collection._collection
+      collection._database._name,
+      collection._name
     );
   }
 
@@ -1051,7 +1051,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:getIndexSpecs',
-      collection._collection
+      collection._name
     );
 
     return await this.getIndexes(collection);
@@ -1070,7 +1070,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:getIndices',
-      collection._collection
+      collection._name
     );
 
     return await this.getIndexes(collection);
@@ -1088,7 +1088,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:getIndexKeys',
-      collection._collection
+      collection._name
     );
 
     return (await this.getIndexes(collection)).map(i => i.key);
@@ -1108,14 +1108,14 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:dropIndexes',
-      collection._collection,
+      collection._name,
       indexes
     );
 
     try {
       return await this.serviceProvider.dropIndexes(
-        collection._database,
-        collection._collection,
+        collection._database._name,
+        collection._name,
         indexes
       );
     } catch (error) {
@@ -1145,7 +1145,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:dropIndex',
-      collection._collection,
+      collection._name,
       index
     );
 
@@ -1175,13 +1175,13 @@ export default class Mapper {
     options: Document = {}): Promise<any> {
     this.messageBus.emit(
       'method:getCollectionInfos',
-      database._database,
+      database._name,
       filter,
       options
     );
 
     return await this.serviceProvider.listCollections(
-      database._database,
+      database._name,
       filter,
       options
     );
@@ -1201,7 +1201,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:getCollectionNames',
-      database._database
+      database._name
     );
 
     const infos = await this.getCollectionInfos(
@@ -1225,7 +1225,7 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:totalIndexSize',
-      collection._collection
+      collection._name
     );
 
     if (args.length) {
@@ -1235,8 +1235,8 @@ export default class Mapper {
     }
 
     const stats = await this.serviceProvider.stats(
-      collection._database,
-      collection._collection
+      collection._database._name,
+      collection._name
     );
 
     return stats.totalIndexSize;
@@ -1253,12 +1253,24 @@ export default class Mapper {
   ): Promise<any> {
     this.messageBus.emit(
       'method:reIndex',
-      collection._collection
+      collection._name
     );
 
     return await this.serviceProvider.reIndex(
-      collection._database,
-      collection._collection
+      collection._database._name,
+      collection._name
     );
+  }
+
+  /**
+   * Returns the collection database.
+   *
+   * @param {Collection} collection
+   * @return {Database}
+   */
+  getDB(
+    collection: Collection
+  ): Database {
+    return collection._database;
   }
 }
