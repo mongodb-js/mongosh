@@ -505,5 +505,19 @@ coll2`;
       expect(serviceProvider.reIndex).to.have.been.calledWith('db1', 'coll1');
     });
   });
+
+  describe('stats', () => {
+    let result;
+
+    beforeEach(() => {
+      result = {};
+      serviceProvider.stats.resolves(result);
+    });
+
+    it('returns stats', async() => {
+      expect(await mapper.stats(collection, { scale: 1 })).to.equal(result);
+      expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1', { scale: 1 });
+    });
+  });
 });
 
