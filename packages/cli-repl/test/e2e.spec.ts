@@ -16,7 +16,7 @@ describe.only('e2e', function() {
       const shell = startShell('--version');
       await eventually(() => {
         expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.output).to.contain(
+        expect(shell.stdio.stdout).to.contain(
           require('../package.json').version
         );
       });
