@@ -230,6 +230,26 @@ function logger(bus: any, logDir: string) {
     const params = { collection };
     log.info('method:getDB', params);
   });
+
+  bus.on('method:stats', function(collection, options) {
+    const params = { collection, options };
+    log.info('method:stats', params);
+  });
+
+  bus.on('method:dataSize', function(collection) {
+    const params = { collection };
+    log.info('method:dataSize', params);
+  });
+
+  bus.on('method:storageSize', function(collection) {
+    const params = { collection };
+    log.info('method:storageSize', params);
+  });
+
+  bus.on('method:totalSize', function(collection) {
+    const params = { collection };
+    log.info('method:totalSize', params);
+  });
 }
 
 export default logger;

@@ -363,3 +363,27 @@ class:
             - *ServerVersions.latest
         help:
             help: 'shell-api.collection.help.stats'
+    dataSize:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.data-size'
+    storageSize:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.storage-size'
+    totalSize:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.total-size'
