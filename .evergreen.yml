@@ -17,7 +17,7 @@ variables:
       working_dir: src
       shell: bash
       script: |
-        source .evergreen/.setup
+        source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         npm run compile-exec
 # Functions are any command that can be run.
@@ -58,20 +58,14 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          echo $OSTYPE
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-          source .evergreen/.setup
-          nvm install 12.4.0
-          nvm alias default 12.4.0
-          npm install -g npm@latest
-          npm run bootstrap
+          source .evergreen/.install_node
   check:
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          source .evergreen/.setup
+          source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run check-ci
   test:
@@ -80,7 +74,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          source .evergreen/.setup
+          source .evergreen/.setup_env
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
