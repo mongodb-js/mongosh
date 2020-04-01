@@ -4,8 +4,10 @@ import formatOutput from './format-output';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import Mapper from '@mongosh/mapper';
+import { TELEMETRY } from './constants';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
+import { ObjectId } from 'bson';
 import Nanobus from 'nanobus';
 import logger from './logger';
 import mkdirp from 'mkdirp';
@@ -14,6 +16,7 @@ import path from 'path';
 import util from 'util';
 import read from 'read';
 import os from 'os';
+import fs from 'fs';
 
 /**
  * Connecting text key.
@@ -30,6 +33,8 @@ class CliRepl {
   private mdbVersion: any;
   private repl: REPLServer;
   private bus: Nanobus;
+  private enableTelemetry: boolean;
+  private userId: ObjectId;
   private options: CliOptions;
   private mongoshDir: string;
 
@@ -40,7 +45,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
-    console.log(i18n.__(CONNECTING), driverUri);
+    console.log(i18n.__(CONNECTING), clr(driverUri, 'bold'));
     this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
@@ -56,9 +61,10 @@ class CliRepl {
     this.useAsync = !!options.async;
     console.log(`cli-repl async=${this.useAsync}`);
     this.options = options;
-    this.mongoshDir = '.mongodb/mongosh/';
+    this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
 
     this.createMongoshDir();
+    this.generateOrReadTelemetryConfig();
 
     this.bus = new Nanobus('mongosh');
     const log = logger(this.bus, this.mongoshDir);
@@ -69,6 +75,47 @@ class CliRepl {
       this.connect(driverUri, driverOptions);
     }
   }
+
+  /**
+  * Creates a directory to store all mongosh logs, history and config
+  */
+  createMongoshDir(): void {
+    try {
+      mkdirp.sync(this.mongoshDir);
+    } catch(e) {
+      this.bus.emit('error', e)
+      throw e;
+    }
+  }
+
+  /**
+  * Checks if config file exists.
+  *
+  * If exists: sets userId and enabledTelemetry to this.
+  * If does not exist: writes a new file with a newly generated ObjectID for
+  * userid and enableTelemetry set to false.
+  */
+  generateOrReadTelemetryConfig(): void {
+    const configPath = path.join(this.mongoshDir, 'config');
+
+    fs.open(configPath, 'wx', (err, fd) => {
+      if (err) {
+        if (err.code === 'EEXIST') {
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          this.userId = config.userId;
+          this.enableTelemetry = config.enableTelemetry;
+          return;
+        }
+        throw err;
+      }
+
+      this.userId = new ObjectId(Date.now());
+      this.enableTelemetry = false;
+      const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
+      fs.writeFileSync(fd, JSON.stringify(config));
+    });
+  }
+
   /**
    * Returns true if a value is a shell api type
    *
@@ -138,10 +185,10 @@ class CliRepl {
         return this.repl.context.show(argv[0]);
       case 'it':
         return this.repl.context.it();
-      case 'enableTelemtry()':
-        return this.enableTelemtry();
-      case 'disableTelemtry()':
-        return this.disableTelemtry();
+      case 'enableTelemetry':
+        return this.toggleTelemetry(true);
+      case 'disableTelemetry':
+        return this.toggleTelemetry(false);
       case 'help':
         this.bus.emit('cmd:help')
         return this.repl.context.help();
@@ -152,30 +199,12 @@ class CliRepl {
     }
   }
 
-  /** 
-  * Creaates a directory to store all mongosh logs & history
-  */
-  createMongoshDir(): void {
-    try {
-      mkdirp.sync(path.join(os.homedir(), this.mongoshDir));
-    } catch(e) {
-      this.bus.emit('error', e)
-      throw e;
-    }
-  }
-
   /**
    * The greeting for the shell.
    */
   greet(): void {
     console.log(`Using MongoDB: ${this.mdbVersion} \n`);
-    console.log('\nTelemtry is off by default.')
-    console.log(
-      `To enable telemetry, run the following command: ${clr('enableTelemtry()', 'bold')}.`
-    )
-    console.log(
-      `To disable telemetry at any time, run ${clr('disableTelemtry()', 'bold')}.\n`
-    )
+    console.log(TELEMETRY);
   }
 
   /**
@@ -209,12 +238,26 @@ class CliRepl {
     });
   }
 
-  enableTelemtry(): void {
-    console.log('Telemtry is now enabled')
-  }
+  /**
+  * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
+  * config file.
+  *
+  * @param {boolean} enabled or disabled status
+  *
+  * @returns {string} Status of telemetry logging: disabled/enabled
+  */
+  toggleTelemetry(enabled: boolean): string {
+    this.enableTelemetry = enabled;
 
-  disableTelemtry(): void {
-    console.log('Telemtry is now disabled')
+    const configPath = path.join(this.mongoshDir, 'config');
+    const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
+    fs.writeFileSync(configPath, JSON.stringify(config));
+
+    if (enabled) {
+      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+    } else {
+      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+    }
   }
 
   /**
@@ -256,7 +299,7 @@ class CliRepl {
     // @ts-ignore
     this.repl.eval = customEval;
 
-    const historyFile = path.join(os.homedir(), this.mongoshDir,  '.mongosh_repl_history');
+    const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     this.repl.setupHistory(historyFile, function(err, repl) {
       // TODO: @lrlna format this error

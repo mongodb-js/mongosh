@@ -61,7 +61,12 @@ const translations = {
       "unknown-option": "Fehler beim Kommandozeile-Parsen: unerkannte Option:"
     },
     "cli-repl": {
-      "connecting": "Verbindung mit:"
+      "connecting": "Verbindung mit:",
+      "telemetry": "Telemetry is off by default.",
+      "enableTelemetry": "To enable telemetry, run the following command: ",
+      "disableTelemetry": "To disable telemetry at any time, run: ",
+      "enabledTelemetry": "Telemetry is now enabled",
+      "disabledTelemetry": "Telemetry is now disabled"
     },
     "uri-generator": {
       "no-host-port": "Wenn ein kompletter URI angegeben wurde, man kann nicht --host oder --port angeben"
