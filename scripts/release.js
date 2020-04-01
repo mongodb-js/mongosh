@@ -4,7 +4,7 @@ const { exec } = require('pkg');
 const tar = require('tar');
 const config = require(path.join(__dirname, '..', 'packages', 'cli-repl', 'package.json'));
 
-const getFilename = () => {
+const getExecutable = () => {
   if (os.platform === 'win32') {
     return 'mongosh.exe';
   }
@@ -20,7 +20,7 @@ const getTarget = () => {
 }
 
 const getArtifact = () => {
-  return path.join(__dirname, '..', 'dist', getFilename());
+  return path.join(__dirname, '..', 'dist', getExecutable());
 };
 
 const archive = async() => {
@@ -33,7 +33,7 @@ const archive = async() => {
       file: filename,
       cwd: 'dist'
     },
-    [getFilename()]
+    [getExecutable()]
   );
 };
 
