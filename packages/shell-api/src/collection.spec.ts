@@ -142,4 +142,10 @@ describe('Collection', () => {
       expect(collection.getDB()).to.equal(database);
     });
   });
+
+  describe('#stats', () => {
+    it('wraps mapper.stats', () => {
+      testWrappedMethod('stats');
+    });
+  });
 });

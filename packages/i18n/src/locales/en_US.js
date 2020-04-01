@@ -842,6 +842,12 @@ const translations = {
           "example": "",
           "parameters": {}
         },
+        "stats": {
+          "link": "",
+          "description": "",
+          "example": "",
+          "parameters": {}
+        },
         "create-indexes": {
           "link": "https://docs.mongodb.com/manual/reference/method/db.collection.createIndexes",
           "description": "Creates one or more indexes on a collection",

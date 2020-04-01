@@ -84,6 +84,8 @@ class:
             description: 'shell-api.collection.help.total-index-size.description'
           - name: getDB
             description: 'shell-api.collection.help.get-db.description'
+          - name: stats
+            description: 'shell-api.collection.help.stats.description'
     aggregate:
         <<: *__defaultMethod
         returnType: 'AggregationCursor'
@@ -353,3 +355,11 @@ class:
         returnType: 'Database'
         help:
             help: 'shell-api.collection.help.get-db'
+    stats:
+        <<: *__defaultMethod
+        returnsPromise: true
+        serverVersions:
+            - *ServerVersions.earliest
+            - *ServerVersions.latest
+        help:
+            help: 'shell-api.collection.help.stats'
