@@ -519,5 +519,47 @@ coll2`;
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1', { scale: 1 });
     });
   });
+
+  describe('dataSize', () => {
+    let result;
+
+    beforeEach(() => {
+      result = { size: 1000 };
+      serviceProvider.stats.resolves(result);
+    });
+
+    it('returns stats.size', async() => {
+      expect(await mapper.dataSize(collection)).to.equal(1000);
+      expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+    });
+  });
+
+  describe('storageSize', () => {
+    let result;
+
+    beforeEach(() => {
+      result = { storageSize: 1000 };
+      serviceProvider.stats.resolves(result);
+    });
+
+    it('returns stats.storageSize', async() => {
+      expect(await mapper.storageSize(collection)).to.equal(1000);
+      expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+    });
+  });
+
+  describe('totalSize', () => {
+    let result;
+
+    beforeEach(() => {
+      result = { storageSize: 1000, totalIndexSize: 1000 };
+      serviceProvider.stats.resolves(result);
+    });
+
+    it('returns sum of storageSize and totalIndexSize', async() => {
+      expect(await mapper.totalSize(collection)).to.equal(2000);
+      expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+    });
+  });
 });
 

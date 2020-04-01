@@ -303,6 +303,36 @@ describe('Mapper (integration)', function() {
       });
     });
 
+    describe('dataSize', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+      it('returns total index size', async() => {
+        expect(typeof await mapper.dataSize(collection)).to.equal('number');
+      });
+    });
+
+    describe('storageSize', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+      it('returns total index size', async() => {
+        expect(typeof await mapper.storageSize(collection)).to.equal('number');
+      });
+    });
+
+    describe('totalSize', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+      it('returns total index size', async() => {
+        expect(typeof await mapper.totalSize(collection)).to.equal('number');
+      });
+    });
+
     describe('stats', () => {
       beforeEach(async() => {
         await createCollection(dbName, collectionName);

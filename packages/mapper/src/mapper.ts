@@ -1296,4 +1296,56 @@ export default class Mapper {
       options
     );
   }
+
+  /**
+   * Get the collection dataSize.
+   *
+   * @param {Collection} collection - The collection name.
+   * @return {Promise} returns Promise
+   */
+  async dataSize(
+    collection: Collection,
+  ): Promise<any> {
+    this.messageBus.emit(
+      'method:dataSize',
+      collection._name
+    );
+
+    return (await this.stats(collection)).size;
+  }
+
+  /**
+   * Get the collection storageSize.
+   *
+   * @param {Collection} collection - The collection name.
+   * @return {Promise} returns Promise
+   */
+  async storageSize(
+    collection: Collection,
+  ): Promise<any> {
+    this.messageBus.emit(
+      'method:storageSize',
+      collection._name
+    );
+
+    return (await this.stats(collection)).storageSize;
+  }
+
+  /**
+   * Get the collection totalSize.
+   *
+   * @param {Collection} collection - The collection name.
+   * @return {Promise} returns Promise
+   */
+  async totalSize(
+    collection: Collection,
+  ): Promise<any> {
+    this.messageBus.emit(
+      'method:totalSize',
+      collection._name
+    );
+
+    const stats = await this.stats(collection);
+    return (stats.storageSize || 0) + (stats.totalIndexSize || 0);
+  }
 }
