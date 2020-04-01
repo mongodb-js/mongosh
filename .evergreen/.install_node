@@ -2,10 +2,11 @@ export NODE_JS_VERSION='12.4.0'
 
 if [[ $OSTYPE == "cygwin" ]]; then
   echo "Installing nodejs v$NODE_JS_VERSION for windows..."
+  mkdir .deps
   curl -fs -v \
   -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
   --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-win-x64.zip"
-  ls -alh
+  cd .deps
   unzip -q node-v$NODE_JS_VERSION-win-x64.zip
   mv node-v$NODE_JS_VERSION-win-x64/* .
   rm -rf node-v$NODE_JS_VERSION-win-x64
