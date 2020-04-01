@@ -100,7 +100,24 @@ TypeInferenceVisitor = {
         sType = path.node.init.shellType;
       }
       path.node.shellType = this.symbols.types.unknown;
-      this.symbols.update(path.node.id.name, sType);
+      const scopeParent = path.getFunctionParent();
+
+      const kind = path.findParent(p => this.t.isVariableDeclaration(p));
+      if (kind === null) {
+        throw new Error('internal error');
+      }
+      if (kind.node.kind === 'const' || kind.node.kind === 'let') { // block scoped
+        this.symbols.add(path.node.id.name, sType);
+      } else if (scopeParent === null) { // at the top-level, but using var so want to get top-level scope
+        this.symbols.scopeAt(1)[path.node.id.name] = sType;
+      } else {
+        const shellScope = scopeParent.node.shellScope;
+        if (shellScope === undefined) {
+          // scope of the parent is out of scope?
+          throw new Error('internal error');
+        }
+        shellScope[path.node.id.name] = sType;
+      }
       debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init.shellType: ${
         path.node.init === null ? 'null' : sType.type
       }`, 'unknown'); // id must be a identifier
@@ -193,13 +210,16 @@ TypeInferenceVisitor = {
       debug('Function Enter');
       const returnTypes = [];
       const symbolCopy1 = this.symbols.deepCopy();
+      // TODO: add arguments to ST
       path.skip();
+      path.node.shellScope = symbolCopy1.pushScope();
       path.traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: returnTypes,
         symbols: symbolCopy1
       });
+      symbolCopy1.popScope();
 
       let rType = this.symbols.types.unknown;
       let dbg;
@@ -229,6 +249,7 @@ TypeInferenceVisitor = {
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
       if (path.node.id !== null) {
+        // TODO: hoisted
         this.symbols.update(path.node.id.name, sType);
       }
 
@@ -247,9 +268,10 @@ TypeInferenceVisitor = {
   Scopable: {
     enter(path): void {
       debug(`---new scope at i=${this.symbols.scopeStack.length}`, path.node.type, true);
-      this.symbols.pushScope();
+      path.node.shellScope = this.symbols.pushScope();
     },
     exit(path): void {
+      // TODO: need to unassign shellScope on pop?
       this.symbols.popScope();
       debug(`---pop scope at i=${this.symbols.scopeStack.length}`, path.node.type, true);
     }
@@ -259,29 +281,44 @@ TypeInferenceVisitor = {
       debug('Conditional');
       const symbolCopy1 = this.symbols.deepCopy();
       path.skip();
+
+      // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
+      path.get('test').replaceWith(this.t.sequenceExpression([path.node.test]));
       path.get('test').traverse(TypeInferenceVisitor, { // TODO: this get skipped
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
         symbols: this.symbols
       });
+
+      if (!this.t.isBlockStatement(path.node.consequent)) {
+        path.get('consequent').replaceWith(this.t.blockStatement([path.node.consequent]));
+      }
+
+      path.node.consequent.shellScope = symbolCopy1.pushScope();
       path.get('consequent').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
         symbols: symbolCopy1
       });
+      symbolCopy1.popScope();
       if (path.node.alternate === null) {
-        return this.symbols.compareScope(symbolCopy1);
+        return this.symbols.compareSymbolTables(symbolCopy1);
       }
 
+      if (!this.t.isBlockStatement(path.node.alternate)) {
+        path.get('alternate').replaceWith(this.t.blockStatement([path.node.alternate]));
+      }
       const symbolCopy2 = this.symbols.deepCopy();
+      path.node.alternate.shellScope = symbolCopy2.pushScope();
       path.get('alternate').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
         symbols: symbolCopy2
       });
+      symbolCopy2.popScope();
       this.symbols.compareScopes(symbolCopy1, symbolCopy2);
     }
   },
@@ -315,7 +352,7 @@ export default class AsyncWriter {
         visitor: {
           Program: {
             enter(path): void {
-              symbols.pushScope();
+              path.node.shellScope = symbols.pushScope();
               path.skip();
               path.traverse(TypeInferenceVisitor, {
                 t: t,
