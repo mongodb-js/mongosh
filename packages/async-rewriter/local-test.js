@@ -17,33 +17,17 @@ const scope = [
 // const spy = sinon.spy(st);
 const writer = new AsyncWriter(scope[1], types);
 const input = [
-  // 'db.coll.insertOne()',
-  // 'y = db',
-  // 'db'
-  // 'y.coll.insertOne()',
-  // '() => {return db;}',
-  // '() => (db)',
-  // 'a = 1;',
-  // 'function x() { return 1; }',
-  // 'x()'
-  // 'x(abc);'
-  // '() => (db)',
-  // 'function x() {return db;}',
-  // 'x().coll.insertOne()',
-  // 'f().coll.insertOne()',
-  // 'db.coll[x()]',
-  // 'x(x(1))'
-  // `function fn() {
-  //   if (x) {
-  //     return 1;
-  //   } else {
-  //     return 1;
-  //   }
-  // }`,
-  'if (x) { a = db; } else { a = db; }',
+//   `
+// a = db.coll1;
+// if (TEST) {
+//   a = db.coll2;
+// }
+// `,
+//   'var a = 1;'
+  'const x = db;'
 ];
 
-input.forEach((i) => console.log(`"${i}" ==> "${writer.compile(i)}"`));
+input.forEach((i) => console.log(`${i}\n======> \n${writer.compile(i)}`));
 writer.symbols.print();
 
 // console.log(spy.add.getCalls());

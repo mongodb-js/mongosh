@@ -66,8 +66,10 @@ export default class SymbolTable {
     if (this.depth === 1) return;
     return this.scopeStack.pop();
   }
-  pushScope(): void {
-    this.scopeStack.push({});
+  pushScope(): object {
+    const scope = {};
+    this.scopeStack.push(scope);
+    return scope;
   }
   get depth(): number {
     return this.scopeStack.length;
@@ -78,20 +80,18 @@ export default class SymbolTable {
   scopeAt(i): object {
     return this.scopeStack[i];
   }
-  compareScope(consequent): void {
+  compareSymbolTables(consequent): void {
     if (this.depth !== consequent.depth) {
       throw new Error('Internal Error: scope tracking errored');
     }
     this.scopeStack.forEach((resultScope, i) => {
       const consScope = consequent.scopeAt(i);
       Object.keys(consScope).forEach((k) => {
-        if (JSON.stringify(consScope[k]) === JSON.stringify(resultScope[k])) { // branches don't diverge
-          resultScope[k] = consScope[k];
-        } else { // branches diverge
-          if ((consScope[k] !== undefined && consScope[k].hasAsyncChild) || (resultScope[k] !== undefined && resultScope[k].hasAsyncChild)) { // conditional async, error
+        const equal = JSON.stringify(consScope[k]) === JSON.stringify(resultScope[k]);
+        if (!equal && resultScope[k] !== undefined) { // branches diverge, symbol defined in both scopes
+          if (consScope[k].hasAsyncChild || resultScope[k].hasAsyncChild) {
             throw new Error('Error: cannot conditionally assign Shell API types');
           }
-          resultScope[k] = consScope[k] || this.types.unknown; // update to whatever
         }
       });
     });
