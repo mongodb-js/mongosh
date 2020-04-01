@@ -148,4 +148,22 @@ describe('Collection', () => {
       testWrappedMethod('stats');
     });
   });
+
+  describe('#dataSize', () => {
+    it('wraps mapper.dataSize', () => {
+      testWrappedMethod('dataSize');
+    });
+  });
+
+  describe('#storageSize', () => {
+    it('wraps mapper.storageSize', () => {
+      testWrappedMethod('storageSize');
+    });
+  });
+
+  describe('#totalSize', () => {
+    it('wraps mapper.totalSize', () => {
+      testWrappedMethod('totalSize');
+    });
+  });
 });

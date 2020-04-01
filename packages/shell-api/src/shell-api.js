@@ -320,6 +320,18 @@ class Collection {
   stats(...args) {
     return this._mapper.stats(this, ...args);
   }
+
+  dataSize(...args) {
+    return this._mapper.dataSize(this, ...args);
+  }
+
+  storageSize(...args) {
+    return this._mapper.storageSize(this, ...args);
+  }
+
+  totalSize(...args) {
+    return this._mapper.totalSize(this, ...args);
+  }
 }
 
 
@@ -550,6 +562,24 @@ Collection.prototype.stats.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.stats.topologies = [0, 1, 2];
 Collection.prototype.stats.returnsPromise = true;
 Collection.prototype.stats.returnType = 'unknown';
+
+Collection.prototype.dataSize.help = () => new Help({ 'help': 'shell-api.collection.help.data-size' });
+Collection.prototype.dataSize.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.dataSize.topologies = [0, 1, 2];
+Collection.prototype.dataSize.returnsPromise = true;
+Collection.prototype.dataSize.returnType = 'unknown';
+
+Collection.prototype.storageSize.help = () => new Help({ 'help': 'shell-api.collection.help.storage-size' });
+Collection.prototype.storageSize.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.storageSize.topologies = [0, 1, 2];
+Collection.prototype.storageSize.returnsPromise = true;
+Collection.prototype.storageSize.returnType = 'unknown';
+
+Collection.prototype.totalSize.help = () => new Help({ 'help': 'shell-api.collection.help.total-size' });
+Collection.prototype.totalSize.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.totalSize.topologies = [0, 1, 2];
+Collection.prototype.totalSize.returnsPromise = true;
+Collection.prototype.totalSize.returnType = 'unknown';
 
 
 class Cursor {
