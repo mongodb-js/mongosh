@@ -24,14 +24,16 @@ const getArtifact = () => {
 };
 
 const archive = async() => {
-  const filename = path.join(__dirname, '..', 'dist', `mongosh-${config.version}-${os.platform}.tgz`);
+  const dirname = path.join(__dirname, '..', 'dist');
+  const filename = path.join(dirname, `mongosh-${config.version}-${os.platform}.tgz`);
   console.log('mongosh: archiving:', filename);
   await tar.c(
     {
       gzip: true,
-      file: filename
+      file: filename,
+      cwd: 'dist'
     },
-    [getArtifact()]
+    [getFilename()]
   );
 };
 
