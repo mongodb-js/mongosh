@@ -1,10 +1,10 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import { changeHistory } from '@mongosh/history';
 import formatOutput from './format-output';
+import { TELEMETRY } from './constants';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import Mapper from '@mongosh/mapper';
-import { TELEMETRY } from './constants';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
@@ -106,6 +106,7 @@ class CliRepl {
           this.enableTelemetry = config.enableTelemetry;
           return;
         }
+        this.bus.emit('error', e)
         throw err;
       }
 
