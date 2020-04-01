@@ -5,8 +5,8 @@ import os from 'os';
 
 function logger(bus: any, logDir: string) {
   const time = Date.now();
-  const dest = path.join(os.homedir(), logDir, `${time}_log`);
-  const log = pino({ name: 'monogsh' }, pino.destination(dest));
+  const logDest = path.join(logDir, `${time}_log`);
+  const log = pino({ name: 'monogsh' }, pino.destination(logDest));
   const sessionID = uuid();
 
   bus.on('*', function() {});

@@ -4,13 +4,14 @@ import mapCliToDriver from './arg-mapper';
 import generateUri from './uri-generator';
 import completer from './completer'
 import clr from './clr'
-import { USAGE } from './constants';
+import { USAGE, TELEMETRY } from './constants';
 
 export default CliRepl;
 
 export {
   clr,
   USAGE,
+  TELEMETRY,
   CliRepl,
   completer,
   generateUri,

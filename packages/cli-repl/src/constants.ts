@@ -1,6 +1,12 @@
 import i18n from '@mongosh/i18n';
 import clr from './clr';
 
+export const TELEMETRY = `
+${i18n.__('cli-repl.cli-repl.telemetry')}
+${i18n.__('cli-repl.cli-repl.enableTelemetry')}${clr('enableTelemtry()', 'bold')}.
+${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr('disableTelemtry()', 'bold')}.
+`
+
 export const USAGE = `
 
   ${clr(i18n.__('cli-repl.args.usage'), 'bold')}
