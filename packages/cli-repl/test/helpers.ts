@@ -39,7 +39,6 @@ export function startShell(...args) {
 
   const stdio = {
     stdin: shell.stdin,
-    output: '',
     stdout: '',
     stderr: ''
   }
