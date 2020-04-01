@@ -1234,10 +1234,7 @@ export default class Mapper {
       );
     }
 
-    const stats = await this.serviceProvider.stats(
-      collection._database._name,
-      collection._name
-    );
+    const stats = await this.stats(collection);
 
     return stats.totalIndexSize;
   }
@@ -1274,5 +1271,29 @@ export default class Mapper {
     this.messageBus.emit('method:getDB', collection._name);
 
     return collection._database;
+  }
+
+  /**
+   * Get all the collection statistics.
+   *
+   * @param {Collection} collection - The collection name.
+   * @param {Object} options - The stats options.
+   * @return {Promise} returns Promise
+   */
+  async stats(
+    collection: Collection,
+    options: Document = {}
+  ): Promise<any> {
+    this.messageBus.emit(
+      'method:stats',
+      collection._name,
+      options
+    );
+
+    return await this.serviceProvider.stats(
+      collection._database._name,
+      collection._name,
+      options
+    );
   }
 }

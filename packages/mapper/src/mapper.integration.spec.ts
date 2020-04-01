@@ -292,6 +292,42 @@ describe('Mapper (integration)', function() {
         });
       });
     });
+
+    describe('totalIndexSize', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+      it('returns total index size', async() => {
+        expect(typeof await mapper.totalIndexSize(collection)).to.equal('number');
+      });
+    });
+
+    describe('stats', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+      it('returns stats', async() => {
+        const stats = await mapper.stats(collection);
+        expect(stats).to.contain.keys(
+          'avgObjSize',
+          'capped',
+          'count',
+          'indexBuilds',
+          'indexDetails',
+          'indexSizes',
+          'nindexes',
+          'ns',
+          'ok',
+          'scaleFactor',
+          'size',
+          'storageSize',
+          'totalIndexSize',
+          'wiredTiger'
+        );
+      });
+    });
   });
 
   describe('db', () => {
@@ -312,16 +348,6 @@ describe('Mapper (integration)', function() {
 
         expect(await mapper.getCollectionNames(database)).to.deep.equal([collectionName]);
       });
-    });
-  });
-
-  describe('totalIndexSize', () => {
-    beforeEach(async() => {
-      await createCollection(dbName, collectionName);
-    });
-
-    it('returns total index size', async() => {
-      expect(typeof await mapper.totalIndexSize(collection)).to.equal('number');
     });
   });
 });
