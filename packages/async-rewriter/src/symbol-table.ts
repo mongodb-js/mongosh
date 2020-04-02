@@ -104,23 +104,25 @@ export default class SymbolTable {
   scopeAt(i): object {
     return this.scopeStack[i];
   }
-  compareSymbolTables(consequent, alternate): void {
-    if (consequent.depth !== alternate.depth) {
-      throw new Error('Internal Error: scope tracking errored');
-    }
-    consequent.scopeStack.forEach((consScope, i) => {
-      const altScope = alternate.scopeAt(i);
-      const union = new Set([...Object.keys(consScope), ...Object.keys(altScope)]);
-      // console.log(union);
-      union.forEach((k) => {
-        const equal = JSON.stringify(altScope[k]) === JSON.stringify(consScope[k]);
-        // console.log(`comparing scope at ${i} for key ${k}, values are equal=${equal}`);
-        if (!equal && consScope[k] === undefined) { // not defined in top-level so assume declaration
-          consScope[k] = altScope[k];
-        } else if (!equal && altScope[k] !== undefined) { // branches diverge, and neither is undefined
-          // console.log(`not equal, and neither is undefined`);
-          if ((altScope[k].hasAsyncChild && !consScope[k].hasAsyncChild) || (!altScope[k].hasAsyncChild && consScope[k].hasAsyncChild)) {
-            throw new Error('Error: cannot conditionally assign Shell API types');
+  compareSymbolTables(alternates): void {
+    this.scopeStack.forEach((thisScope, i) => {
+      const keys = new Set();
+      alternates.forEach((st) => {
+        if (this.depth !== st.depth) {
+          throw new Error('Internal Error: scope tracking errored');
+        }
+        Object.keys(st.scopeAt(i)).forEach(k => keys.add(k));
+      });
+      keys.forEach((k: number) => {
+        const equal = alternates.every((a) => JSON.stringify(a.scopeAt(i)[k]) === JSON.stringify(alternates[0].scopeAt(i)[k]));
+        if (equal) {
+          thisScope[k] = alternates[0].scopeAt(i)[k];
+        } else {
+          const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && a.scopeAt(i)[k].hasAsyncChild);
+          if (hasAsync) {
+            throw new Error(`Error: cannot conditionally assign Shell API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
+          } else {
+            thisScope[k] = this.types.unknown;
           }
         }
       });
