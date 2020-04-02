@@ -1652,43 +1652,108 @@ class Test {
       describe('with only consequent', () => {
         describe('symbol defined in upper scope', () => {
           describe('types are the same', () => {
-            before(() => {
-              spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-              writer = new AsyncWriter({ db: types.Database }, types, spy);
-              output = writer.compile(`
+            describe('both async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                output = writer.compile(`
 a = db.coll1;
 if (TEST) {
   a = db.coll2;
 }
 `);
-            });
-            it('compiles correctly', () => {
-              expect(output).to.equal(`a = db.coll1;
+              });
+              it('compiles correctly', () => {
+                expect(output).to.equal(`a = db.coll1;
 
 if (TEST) {
   a = db.coll2;
 }`);
-            });
-            it('symbol table final state is correct', () => {
-              expect(spy.lookup('a')).to.deep.equal(types.Collection);
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.Collection);
+              });
             });
           });
           describe('types are not the same', () => {
             describe('top-level type async', () => {
-
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+              });
+              it('throws', () => {
+                expect(() => writer.compile(`
+a = db.coll1;
+if (TEST) {
+  a = 1;
+}
+`)).to.throw();
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.Collection);
+              });
             });
             describe('inner type async', () => {
-
-            });
-            describe('both async', () => {
-
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+              });
+              it('throws', () => {
+                expect(() => writer.compile(`
+a = 1;
+if (TEST) {
+  a = db.coll;
+}
+`)).to.throw();
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.unknown);
+              });
             });
             describe('neither async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                output = writer.compile(`
+a = 2;
+if (TEST) {
+  a = db.coll.find;
+}
+`);
+              });
+              it('compiles correctly', () => {
+                expect(output).to.equal(`a = 2;
 
+if (TEST) {
+  a = db.coll.find;
+}`);
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.unknown);
+              });
             });
           });
         });
-        describe('symbol not defined in the upper scope', () => {
+        describe('const does not get hoisted', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(`
+if (TEST) {
+  const a = db.coll2;
+}
+`);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(`if (TEST) {
+  const a = db.coll2;
+}`);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ }); // TODO: ensure cond is like block
+          });
+        });
+        describe('assignment to undecl var gets hoisted', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
             writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1703,16 +1768,119 @@ if (TEST) {
   a = db.coll2;
 }`);
           });
-          it('updates the symbol table copy', () => {
-            expect(spy.update.calledOnce).to.be.false;
+          it('symbol table final state is correct', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Collection }); // TODO: ensure cond is like block
+          });
+        });
+        describe('vars get hoisted', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(`
+if (TEST) {
+  var a = db;
+}
+`);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(`if (TEST) {
+  var a = db;
+}`);
           });
           it('symbol table final state is correct', () => {
-            expect(spy.lookup('a')).to.deep.equal(types.unknown);
+            expect(spy.lookup('a')).to.deep.equal(types.Database);
           });
         });
       });
       describe('with alternate', () => {
-
+        describe('undefined in upper scope', () => {
+          describe('types are the same', () => {
+            describe('both async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                output = writer.compile(`
+if (TEST) {
+  a = db.coll2;
+} else {
+  a = db.coll1;
+}
+`);
+              });
+              it('compiles correctly', () => {
+                expect(output).to.equal(`if (TEST) {
+  a = db.coll2;
+} else {
+  a = db.coll1;
+}`);
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.Collection);
+              });
+            });
+          });
+          describe('types are not the same', () => {
+            describe('alternate type async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+              });
+              it('throws', () => {
+                expect(() => writer.compile(`
+if (TEST) {
+  a = 1;
+} else {
+  a = db;
+}
+`)).to.throw();
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.unknown);
+              });
+            });
+            describe('inner type async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+              });
+              it('throws', () => {
+                expect(() => writer.compile(`
+if (TEST) {
+  a = db;
+} else {
+  a = 1;
+}
+`)).to.throw();
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.unknown);
+              });
+            });
+            describe('neither async', () => {
+              before(() => {
+                spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                output = writer.compile(`
+if (TEST) {
+  a = db.coll.find;
+} else {
+  a = 1;
+}
+`);
+              });
+              it('compiles correctly', () => {
+                expect(output).to.equal(`if (TEST) {
+  a = db.coll.find;
+} else {
+  a = 1;
+}`);
+              });
+              it('symbol table final state is correct', () => {
+                expect(spy.lookup('a')).to.deep.equal(types.unknown);
+              });
+            });
+          });
+        });
       });
     });
     describe('loop', () => {

@@ -74,27 +74,26 @@ export default class SymbolTable {
     }
     return false;
   }
-  updateFunctionScoped(path, key, type): void {
-    const scopeParent = path.getFunctionParent();
+  updateFunctionScoped(path, key, type, t): void {
+    // Because it adds to scopes only via nodes, will add to actual ST regardless of branching
+    let scopeParent = path.getFunctionParent();
     if (scopeParent === null) {
-      this.addToTopLevel(key, type);
-    } else {
-      const shellScope = scopeParent.node.shellScope;
-      if (shellScope === undefined) {
-        // scope of the parent is out of scope?
-        throw new Error('internal error');
-      }
-      shellScope[key] = type;
+      scopeParent = path.findParent(p => t.isProgram(p));
     }
+    const shellScope = scopeParent.node.shellScope;
+    if (shellScope === undefined) {
+      // scope of the parent is out of scope?
+      throw new Error('internal error');
+    }
+    this.scopeAt(shellScope)[key] = type;
   }
   popScope(): object {
     if (this.depth === 1) return;
     return this.scopeStack.pop();
   }
-  pushScope(): object {
+  pushScope(): number {
     const scope = {};
-    this.scopeStack.push(scope);
-    return scope;
+    return this.scopeStack.push(scope) - 1;
   }
   get depth(): number {
     return this.scopeStack.length;
@@ -105,16 +104,22 @@ export default class SymbolTable {
   scopeAt(i): object {
     return this.scopeStack[i];
   }
-  compareSymbolTables(consequent): void {
-    if (this.depth !== consequent.depth) {
+  compareSymbolTables(consequent, alternate): void {
+    if (consequent.depth !== alternate.depth) {
       throw new Error('Internal Error: scope tracking errored');
     }
-    this.scopeStack.forEach((resultScope, i) => {
-      const consScope = consequent.scopeAt(i);
-      Object.keys(consScope).forEach((k) => {
-        const equal = JSON.stringify(consScope[k]) === JSON.stringify(resultScope[k]);
-        if (!equal && resultScope[k] !== undefined) { // branches diverge, symbol defined in both scopes
-          if (consScope[k].hasAsyncChild || resultScope[k].hasAsyncChild) {
+    consequent.scopeStack.forEach((consScope, i) => {
+      const altScope = alternate.scopeAt(i);
+      const union = new Set([...Object.keys(consScope), ...Object.keys(altScope)]);
+      // console.log(union);
+      union.forEach((k) => {
+        const equal = JSON.stringify(altScope[k]) === JSON.stringify(consScope[k]);
+        // console.log(`comparing scope at ${i} for key ${k}, values are equal=${equal}`);
+        if (!equal && consScope[k] === undefined) { // not defined in top-level so assume declaration
+          consScope[k] = altScope[k];
+        } else if (!equal && altScope[k] !== undefined) { // branches diverge, and neither is undefined
+          // console.log(`not equal, and neither is undefined`);
+          if ((altScope[k].hasAsyncChild && !consScope[k].hasAsyncChild) || (!altScope[k].hasAsyncChild && consScope[k].hasAsyncChild)) {
             throw new Error('Error: cannot conditionally assign Shell API types');
           }
         }
