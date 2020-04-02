@@ -1,5 +1,7 @@
 import { parse } from '@babel/parser';
 import generate from '@babel/generator';
+import AsyncWriter from '@mongosh/async-rewriter';
+import { types } from '@mongosh/shell-api';
 
 import {
   injectLastExpressionCallback
@@ -29,6 +31,7 @@ export class Preprocessor {
   private lexicalContext = {};
   private lastExpressionCallbackFunctionName: string;
   private lexicalContextStoreVariableName: string;
+  private asyncWriter: AsyncWriter;
 
   constructor(options: {
     lastExpressionCallbackFunctionName: string;
@@ -36,6 +39,7 @@ export class Preprocessor {
   }) {
     this.lastExpressionCallbackFunctionName = options.lastExpressionCallbackFunctionName;
     this.lexicalContextStoreVariableName = options.lexicalContextStoreVariableName;
+    this.asyncWriter = new AsyncWriter({ db: types.Database }, types);
   }
 
   preprocess(code: string): string {
@@ -44,8 +48,11 @@ export class Preprocessor {
     code = transformCommandInvocation(code, SUPPORTED_COMMANDS);
     code = `;${code}`; // prevent literals from being parsed as directives
 
+    code = this.asyncWriter.compile(code);
+
     ast = parse(code, { allowAwaitOutsideFunction: true });
-    ast = injectLastExpressionCallback(this.lastExpressionCallbackFunctionName, ast);
+    ast = injectLastExpressionCallback(
+      this.lastExpressionCallbackFunctionName, ast);
 
     const {
       ast: newAst,

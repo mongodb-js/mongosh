@@ -33,6 +33,7 @@
     "@mongosh/cli-repl": "^0.0.1-alpha.10",
     "@mongosh/mapper": "^0.0.1-alpha.10",
     "@mongosh/service-provider-core": "^0.0.1-alpha.10",
-    "@mongosh/shell-api": "^0.0.1-alpha.10"
+    "@mongosh/shell-api": "^0.0.1-alpha.10",
+    "@mongosh/async-rewriter": "^0.0.1-alpha.10"
   }
 }
