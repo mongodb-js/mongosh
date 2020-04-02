@@ -60,46 +60,6 @@ class CliRepl {
     }
   }
   /**
-   * Returns true if a value is a shell api type
-   *
-   * @param {any} evaluationResult - The result of evaluation
-   */
-  private isShellApiType(evaluationResult: any): boolean {
-    return evaluationResult &&
-      typeof evaluationResult.shellApiType === 'function' &&
-      typeof evaluationResult.toReplString === 'function'
-  }
-
-  /**
-   * The custom evaluation function. Evaluates the provided input and further
-   * resolves the the result with
-   *
-   * @param {} originalEval - The original eval function.
-   * @param {} input - The input.
-   * @param {} context - The context.
-   * @param {} filename - The filename.
-   */
-  async evaluateAndResolveApiType(originalEval: any, input: string, context: any, filename: string) {
-    const evaluationResult = await this.evaluate(
-      originalEval,
-      input,
-      context,
-      filename
-    )
-
-    if (this.isShellApiType(evaluationResult)) {
-      return {
-        type: evaluationResult.shellApiType(),
-        value: await evaluationResult.toReplString()
-      };
-    }
-
-    return {
-      value: evaluationResult
-    };
-  }
-
-  /**
    * Format the result to a string so it can be written to the output stream.
    */
   writer = (result: any): string => {
@@ -113,28 +73,6 @@ class CliRepl {
     return formatOutput(result);
   }
 
-  /**
-   * Evaluates the provided input
-   */
-  async evaluate(originalEval: any, input: string, context: any, filename: string) {
-    const argv = input.trim().split(' ');
-    const cmd = argv[0];
-    argv.shift();
-    switch(cmd) {
-      case 'use':
-        return this.shellApi.use(argv[0]);
-      case 'show':
-        return this.shellApi.show(argv[0]);
-      case 'it':
-        return this.shellApi.it();
-      case 'help':
-        return this.shellApi.help();
-      case 'var':
-        this.mapper.cursorAssigned = true;
-      default:
-        return originalEval(input, context, filename);
-    }
-  }
   /**
    * The greeting for the shell.
    */
@@ -190,17 +128,10 @@ class CliRepl {
 
     const originalEval = util.promisify(this.repl.eval);
 
-    const customEval = async(input, context, filename, callback) => {
+    const customEval = async (input, context, filename, callback) => {
       try {
-        let str;
-        if (this.useAsync) {
-          const syncStr = this.mapper.asyncWriter.compile(input);
-          console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
-        } else {
-          str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
-        }
-        callback(null, str);
+        const result = await this.shellApi.customEval(originalEval, input, context, filename);
+        callback(null, result);
       } catch (err) {
         callback(err, null);
       } finally {

@@ -313,12 +313,6 @@ TypeInferenceVisitor = {
       });
       symbolCopyAlt.popScope();
 
-      // console.log('SYMBOLs');
-      // this.symbols.print();
-      // console.log('CONS');
-      // symbolCopyCons.print();
-      // console.log('ALT');
-      // symbolCopyAlt.print();
       this.symbols.compareSymbolTables([symbolCopyCons, symbolCopyAlt]);
     }
   },

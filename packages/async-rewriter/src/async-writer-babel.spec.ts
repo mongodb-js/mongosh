@@ -1077,7 +1077,6 @@ describe('async-writer-babel', () => {
       });
     });
   });
-  // TODO: scoping in assignment expressions
   describe('AssignmentExpression', () => {
     describe('top-level scope', () => {
       describe('new symbol', () => {

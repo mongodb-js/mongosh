@@ -1,5 +1,5 @@
-import ShellApi from './shell-api';
-export default ShellApi;
+import TopLevelApi from './top-level-api';
+export default TopLevelApi;
 
 import * as types from './shell-types';
 export { types };
