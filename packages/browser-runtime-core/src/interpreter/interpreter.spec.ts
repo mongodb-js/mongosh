@@ -7,8 +7,10 @@ describe('Interpreter', () => {
   let testEvaluate;
   let testEnvironment;
 
+  let context;
+
   beforeEach(async() => {
-    const context = {};
+    context = {};
 
     vm.createContext(context);
 
@@ -208,12 +210,26 @@ describe('Interpreter', () => {
       expect(error.message).to.contain('Identifier \'sum\' has already been declared');
     });
 
-    it.skip('allows top level await', async() => {
+    it('allows top level await', async() => {
       expect(
         await testEvaluate(
           '1 + await Promise.resolve(1)'
         )
       ).to.equal(1);
+    });
+
+    it('async rewrites shell api invokation', async() => {
+      context.db = {
+        coll1: {
+          stats: (): Promise<any> => Promise.resolve({ size: 1000 })
+        }
+      };
+
+      expect(
+        await testEvaluate(
+          'db.coll1.stats().size'
+        )
+      ).to.equal(1000);
     });
 
     it('throws with top level return', async() => {
