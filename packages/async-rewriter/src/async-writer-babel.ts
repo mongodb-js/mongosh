@@ -107,7 +107,7 @@ TypeInferenceVisitor = {
       if (kind.node.kind === 'const' || kind.node.kind === 'let') { // block scoped
         this.symbols.add(path.node.id.name, sType);
       } else {
-        this.symbols.updateFunctionScoped(path, path.node.id.name, sType);
+        this.symbols.updateFunctionScoped(path, path.node.id.name, sType, this.t);
       }
       debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init.shellType: ${
         path.node.init === null ? 'null' : sType.type
@@ -118,7 +118,7 @@ TypeInferenceVisitor = {
     exit(path): void {
       const sType = path.node.right.shellType === undefined ? this.symbols.types.unknown : path.node.right.shellType;
       if (!this.symbols.updateIfDefined(path.node.left.name, sType)) {
-        this.symbols.updateFunctionScoped(path, path.node.left.name, sType);
+        this.symbols.updateFunctionScoped(path, path.node.left.name, sType, this.t);
       }
       path.node.shellType = sType; // assignment returns value unlike decl
       debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
@@ -272,7 +272,8 @@ TypeInferenceVisitor = {
   Conditional: {
     enter(path): void {
       debug('Conditional');
-      const symbolCopy1 = this.symbols.deepCopy();
+      const symbolCopyCons = this.symbols.deepCopy();
+      const symbolCopyAlt = this.symbols.deepCopy();
       path.skip();
 
       // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
@@ -288,31 +289,37 @@ TypeInferenceVisitor = {
         path.get('consequent').replaceWith(this.t.blockStatement([path.node.consequent]));
       }
 
-      path.node.consequent.shellScope = symbolCopy1.pushScope();
+      path.node.consequent.shellScope = symbolCopyCons.pushScope();
       path.get('consequent').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
-        symbols: symbolCopy1
+        symbols: symbolCopyCons
       });
-      symbolCopy1.popScope();
+      symbolCopyCons.popScope();
       if (path.node.alternate === null) {
-        return this.symbols.compareSymbolTables(symbolCopy1);
+        return this.symbols.compareSymbolTables(this.symbols, symbolCopyCons);
       }
 
       if (!this.t.isBlockStatement(path.node.alternate)) {
         path.get('alternate').replaceWith(this.t.blockStatement([path.node.alternate]));
       }
-      const symbolCopy2 = this.symbols.deepCopy();
-      path.node.alternate.shellScope = symbolCopy2.pushScope();
+      path.node.alternate.shellScope = symbolCopyAlt.pushScope();
       path.get('alternate').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
-        symbols: symbolCopy2
+        symbols: symbolCopyAlt
       });
-      symbolCopy2.popScope();
-      this.symbols.compareScopes(symbolCopy1, symbolCopy2);
+      symbolCopyAlt.popScope();
+
+      console.log('SYMBOLs');
+      this.symbols.print();
+      console.log('CONS');
+      symbolCopyCons.print();
+      console.log('ALT');
+      symbolCopyAlt.print();
+      // this.symbols.compareSymbolTables([symbolCopy1, symbolCopy2]); // TODO: need to check hoisted changes
     }
   },
   exit(path): void {
