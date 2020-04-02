@@ -1,7 +1,7 @@
 import { Completion } from './autocompleter/autocompleter';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
-import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
+import { Interpreter, InterpreterEnvironment, EvaluationResult, EvaluateOptions } from './interpreter';
 import { Runtime } from './runtime';
 
 import Mapper from '@mongosh/mapper';
@@ -39,8 +39,8 @@ export class OpenContextRuntime implements Runtime {
     return this.autocompleter.getCompletions(code);
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
-    return await this.interpreter.evaluate(code);
+  async evaluate(code: string, options?: EvaluateOptions): Promise<EvaluationResult> {
+    return await this.interpreter.evaluate(code, options);
   }
 
   private setupEvaluationContext(context: object, serviceProvider: object): void {

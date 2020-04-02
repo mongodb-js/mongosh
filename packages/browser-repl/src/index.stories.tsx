@@ -3,7 +3,6 @@ import { Shell } from './index';
 import { IframeRuntime } from './iframe-runtime';
 
 import { withKnobs, boolean, number } from '@storybook/addon-knobs';
-import { Size } from '@leafygreen-ui/icon';
 
 export default {
   title: 'Shell',

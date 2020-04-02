@@ -22,9 +22,11 @@ describe('Interpreter', () => {
     interpreter = new Interpreter(testEnvironment);
 
     testEvaluate = async(...program): Promise<object> => {
+      const options = typeof program[0] === 'object' ? program.shift() : {};
+
       let result = undefined;
       for (const code of program) {
-        result = await interpreter.evaluate(code);
+        result = await interpreter.evaluate(code, options);
       }
 
       return result.value;
@@ -213,6 +215,11 @@ describe('Interpreter', () => {
     it('allows top level await', async() => {
       expect(
         await testEvaluate(
+          {
+            preprocessorOptions: {
+              wrapInAsyncFunctionCall: true
+            }
+          },
           '1 + await Promise.resolve(1)'
         )
       ).to.equal(1);
@@ -227,6 +234,11 @@ describe('Interpreter', () => {
 
       expect(
         await testEvaluate(
+          {
+            preprocessorOptions: {
+              rewriteAsync: true
+            }
+          },
           'db.coll1.stats().size'
         )
       ).to.equal(1000);

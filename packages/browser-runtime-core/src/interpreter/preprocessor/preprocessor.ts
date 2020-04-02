@@ -27,6 +27,31 @@ const SUPPORTED_COMMANDS = [
   'help', 'use', 'it', 'show'
 ];
 
+export type PreprocessOptions = {
+  /**
+   * Enables the rewriting of input prefixing all the calls to shell api
+   * methdos that are meant to return a promise with the `async` keyword.
+   *
+   * Allows for expressions like `db.coll1.stats().size` to work as if the method
+   * call would have been synchronous.
+   */
+  rewriteAsync?: boolean;
+
+  /**
+   * Enables the rewriting of input by wrapping the code with an
+   * immediately invoked async function expression.
+   *
+   * That allows for code with top level await.
+   *
+   * This rewrite is necessary for `rewriteAsync` to work, and
+   * enabled by default in case `rewriteAsync` is enabled.
+   *
+   * It would be possible to remove this feature once native
+   * top level await will be supported by js engines.
+   */
+  wrapInAsyncFunctionCall?: boolean;
+};
+
 export class Preprocessor {
   private lexicalContext = {};
   private lastExpressionCallbackFunctionName: string;
@@ -42,13 +67,15 @@ export class Preprocessor {
     this.asyncWriter = new AsyncWriter({ db: types.Database }, types);
   }
 
-  preprocess(code: string): string {
+  preprocess(code: string, options: PreprocessOptions = {}): string {
     let ast;
     code = wrapObjectLiteral(code);
     code = transformCommandInvocation(code, SUPPORTED_COMMANDS);
     code = `;${code}`; // prevent literals from being parsed as directives
 
-    code = this.asyncWriter.compile(code);
+    if (options.rewriteAsync) {
+      code = this.asyncWriter.compile(code);
+    }
 
     ast = parse(code, { allowAwaitOutsideFunction: true });
     ast = injectLastExpressionCallback(
@@ -63,7 +90,10 @@ export class Preprocessor {
     });
 
     ast = newAst;
-    ast = wrapInAsyncFunctionCall(ast);
+
+    if (options.wrapInAsyncFunctionCall || options.rewriteAsync) {
+      ast = wrapInAsyncFunctionCall(ast);
+    }
 
     const newCode = generate(ast).code;
     this.lexicalContext = newLexicalContext;

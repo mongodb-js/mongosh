@@ -6,7 +6,8 @@ import {
   Runtime,
   EvaluationResult,
   OpenContextRuntime,
-  Completion
+  Completion,
+  EvaluateOptions
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
@@ -21,8 +22,8 @@ export class ElectronRuntime implements Runtime {
     );
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
-    return await this.openContextRuntime.evaluate(code);
+  async evaluate(code: string, options?: EvaluateOptions): Promise<EvaluationResult> {
+    return await this.openContextRuntime.evaluate(code, options);
   }
 
   async getCompletions(code: string): Promise<Completion[]> {

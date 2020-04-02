@@ -1,4 +1,5 @@
 import { Completion } from './autocompleter/autocompleter';
+import { EvaluateOptions } from './interpreter/interpreter';
 
 export type ContextValue = any;
 
@@ -15,7 +16,7 @@ export interface Runtime {
    * @param {string} code - A string of code
    * @return {Promise<EvaluationResult>} the result of the evaluation
    */
-  evaluate(code: string): Promise<EvaluationResult>;
+  evaluate(code: string, options?: EvaluateOptions): Promise<EvaluationResult>;
 
   /**
    * Get shell api completions give a code prefix

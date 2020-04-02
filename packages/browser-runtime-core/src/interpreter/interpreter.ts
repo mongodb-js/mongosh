@@ -1,4 +1,4 @@
-import { Preprocessor } from './preprocessor';
+import { Preprocessor, PreprocessOptions } from './preprocessor';
 
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
@@ -8,6 +8,10 @@ export type ContextValue = any;
 export type EvaluationResult = {
   shellApiType: string;
   value: ContextValue;
+};
+
+export type EvaluateOptions = {
+  preprocessorOptions?: PreprocessOptions;
 };
 
 export interface InterpreterEnvironment {
@@ -29,7 +33,7 @@ export class Interpreter {
     });
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string, options: EvaluateOptions = {}): Promise<EvaluationResult> {
     let result;
     const contextObjext = this.environment.getContextObject();
 
@@ -37,7 +41,7 @@ export class Interpreter {
       result = val;
     };
 
-    const preprocessedCode = this.preprocessor.preprocess(code);
+    const preprocessedCode = this.preprocessor.preprocess(code, options.preprocessorOptions);
     await this.environment.sloppyEval(preprocessedCode);
 
     return await this.adaptResult(result);

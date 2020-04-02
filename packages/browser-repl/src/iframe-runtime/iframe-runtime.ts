@@ -6,7 +6,8 @@ import {
   Runtime,
   EvaluationResult,
   Completion,
-  OpenContextRuntime
+  OpenContextRuntime,
+  EvaluateOptions
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
@@ -21,12 +22,12 @@ export class IframeRuntime implements Runtime {
     this.serviceProvider = serviceProvider;
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string, options?: EvaluateOptions): Promise<EvaluationResult> {
     if (!this.openContextRuntime) {
       await this.initialize();
     }
 
-    return await this.openContextRuntime.evaluate(code);
+    return await this.openContextRuntime.evaluate(code, options);
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
