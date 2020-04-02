@@ -128,31 +128,6 @@ export default class SymbolTable {
       });
     });
   }
-  compareScopes(consequent, alternate): void {
-    if (this.depth !== consequent.depth || consequent.depth !== alternate.depth) {
-      throw new Error('Internal Error: scope tracking errored');
-    }
-    this.scopeStack.forEach((resultScope, i) => {
-      const consScope = consequent.scopeAt(i);
-      const altScope = alternate.scopeAt(i);
-      const union = new Set([...Object.keys(consScope), ...Object.keys(altScope)]);
-      union.forEach((k) => {
-        if (JSON.stringify(consScope[k]) === JSON.stringify(altScope[k])) { // branches don't diverge
-          resultScope[k] = consScope[k];
-        } else if (consScope[k] === undefined || altScope[k] === undefined) { // something defined in only one branch
-          if (consScope[k] !== undefined && consScope[k].hasAsyncChild || altScope[k] !== undefined && altScope[k].hasAsyncChild) { // if defined with async, error
-            throw new Error('Error: cannot conditionally assign shell API types');
-          }
-          resultScope[k] = consScope[k] || altScope[k]; // update to whatever
-        } else { // branches diverge
-          if (consScope[k].hasAsyncChild || altScope[k].hasAsyncChild) { // conditional async, error
-            throw new Error('Error: cannot conditionally assign Shell API types');
-          }
-          resultScope[k] = consScope[k]; // update to whatever
-        }
-      });
-    });
-  }
   printSymbol(symbol, key): string {
     const type = symbol.type;
     let info = '';
