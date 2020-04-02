@@ -1759,17 +1759,20 @@ if (TEST) {
             writer = new AsyncWriter({ db: types.Database }, types, spy);
             output = writer.compile(`
 if (TEST) {
-  a = db.coll2;
+  a = 1;
 }
 `);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(`if (TEST) {
-  a = db.coll2;
+  a = 1;
 }`);
           });
           it('symbol table final state is correct', () => {
-            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Collection }); // TODO: ensure cond is like block
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.unknown }); // TODO: ensure cond is like block
+          });
+          it('throws for shell type', () => {
+            expect(() => writer.compile('if (TEST) { a = db }')).to.throw();
           });
         });
         describe('vars get hoisted', () => {
@@ -1778,17 +1781,20 @@ if (TEST) {
             writer = new AsyncWriter({ db: types.Database }, types, spy);
             output = writer.compile(`
 if (TEST) {
-  var a = db;
+  var a = 1;
 }
 `);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(`if (TEST) {
-  var a = db;
+  var a = 1;
 }`);
           });
           it('symbol table final state is correct', () => {
-            expect(spy.lookup('a')).to.deep.equal(types.Database);
+            expect(spy.lookup('a')).to.deep.equal(types.unknown);
+          });
+          it('throws for shell type', () => {
+            expect(() => writer.compile('if (TEST) { var a = db }')).to.throw();
           });
         });
       });
@@ -1879,6 +1885,31 @@ if (TEST) {
                 expect(spy.lookup('a')).to.deep.equal(types.unknown);
               });
             });
+          });
+        });
+        describe('else if', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(`
+if (TEST) {
+  a = db.coll.find;
+} else if (TEST2) {
+  a = 1;
+}
+`);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(`if (TEST) {
+  a = db.coll.find;
+} else {
+  if (TEST2) {
+    a = 1;
+  }
+}`);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.unknown);
           });
         });
       });
