@@ -19,9 +19,9 @@ const writer = new AsyncWriter(scope[1], types);
 const input = [`
 var a = db.coll2;
 if (TEST) {
-  a = db.coll;
-} else {
   a = 1;
+} else {
+  a = db.coll2;
 }
 `,
 //   'var a = 1;'

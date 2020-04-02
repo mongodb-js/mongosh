@@ -298,7 +298,7 @@ TypeInferenceVisitor = {
       });
       symbolCopyCons.popScope();
       if (path.node.alternate === null) {
-        return this.symbols.compareSymbolTables(this.symbols, symbolCopyCons);
+        return this.symbols.compareSymbolTables( [this.symbols, symbolCopyCons]);
       }
 
       if (!this.t.isBlockStatement(path.node.alternate)) {
@@ -313,13 +313,13 @@ TypeInferenceVisitor = {
       });
       symbolCopyAlt.popScope();
 
-      console.log('SYMBOLs');
-      this.symbols.print();
-      console.log('CONS');
-      symbolCopyCons.print();
-      console.log('ALT');
-      symbolCopyAlt.print();
-      // this.symbols.compareSymbolTables([symbolCopy1, symbolCopy2]); // TODO: need to check hoisted changes
+      // console.log('SYMBOLs');
+      // this.symbols.print();
+      // console.log('CONS');
+      // symbolCopyCons.print();
+      // console.log('ALT');
+      // symbolCopyAlt.print();
+      this.symbols.compareSymbolTables([symbolCopyCons, symbolCopyAlt]);
     }
   },
   exit(path): void {
