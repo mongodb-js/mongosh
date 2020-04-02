@@ -100,23 +100,14 @@ TypeInferenceVisitor = {
         sType = path.node.init.shellType;
       }
       path.node.shellType = this.symbols.types.unknown;
-      const scopeParent = path.getFunctionParent();
-
       const kind = path.findParent(p => this.t.isVariableDeclaration(p));
       if (kind === null) {
         throw new Error('internal error');
       }
       if (kind.node.kind === 'const' || kind.node.kind === 'let') { // block scoped
         this.symbols.add(path.node.id.name, sType);
-      } else if (scopeParent === null) { // at the top-level, but using var so want to get top-level scope
-        this.symbols.scopeAt(1)[path.node.id.name] = sType;
       } else {
-        const shellScope = scopeParent.node.shellScope;
-        if (shellScope === undefined) {
-          // scope of the parent is out of scope?
-          throw new Error('internal error');
-        }
-        shellScope[path.node.id.name] = sType;
+        this.symbols.updateFunctionScoped(path, path.node.id.name, sType);
       }
       debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init.shellType: ${
         path.node.init === null ? 'null' : sType.type
@@ -126,7 +117,9 @@ TypeInferenceVisitor = {
   AssignmentExpression: {
     exit(path): void {
       const sType = path.node.right.shellType === undefined ? this.symbols.types.unknown : path.node.right.shellType;
-      this.symbols.update(path.node.left.name, sType);
+      if (!this.symbols.updateIfDefined(path.node.left.name, sType)) {
+        this.symbols.updateFunctionScoped(path, path.node.left.name, sType);
+      }
       path.node.shellType = sType; // assignment returns value unlike decl
       debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
     }
