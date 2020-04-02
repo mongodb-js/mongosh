@@ -783,8 +783,8 @@ describe('async-writer-babel', () => {
           });
           describe('rhs is known type', () => {
             before(() => {
-              spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-              writer = new AsyncWriter({db: types.Database}, types, spy);
+              spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+              writer = new AsyncWriter({ db: types.Database }, types, spy);
               input = 'var x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -809,8 +809,8 @@ describe('async-writer-babel', () => {
         });
         describe('redefine existing variable', () => {
           before(() => {
-            spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-            writer = new AsyncWriter({db: types.Database}, types, spy);
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
             input = 'var db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -887,8 +887,8 @@ describe('async-writer-babel', () => {
           });
           describe('rhs is known type', () => {
             before(() => {
-              spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-              writer = new AsyncWriter({db: types.Database}, types, spy);
+              spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+              writer = new AsyncWriter({ db: types.Database }, types, spy);
               input = 'const x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -906,8 +906,8 @@ describe('async-writer-babel', () => {
         });
         describe('redefine existing variable', () => {
           before(() => {
-            spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-            writer = new AsyncWriter({db: types.Database}, types, spy);
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
             input = 'const db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1002,8 +1002,8 @@ describe('async-writer-babel', () => {
           });
           describe('rhs is known type', () => {
             before(() => {
-              spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-              writer = new AsyncWriter({db: types.Database}, types, spy);
+              spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+              writer = new AsyncWriter({ db: types.Database }, types, spy);
               input = 'let x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1021,8 +1021,8 @@ describe('async-writer-babel', () => {
         });
         describe('redefine existing variable', () => {
           before(() => {
-            spy = sinon.spy(new SymbolTable([{db: types.Database}], types));
-            writer = new AsyncWriter({db: types.Database}, types, spy);
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
             input = 'let db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1079,79 +1079,295 @@ describe('async-writer-babel', () => {
   });
   // TODO: scoping in assignment expressions
   describe('AssignmentExpression', () => {
-    describe('rhs is known type', () => {
-      before(() => {
-        spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-        writer = new AsyncWriter({ db: types.Database }, types, spy);
-        input = 'x = db';
-        const result = writer.getTransform(input);
-        ast = result.ast;
-        output = result.code;
-      });
-      it('compiles correctly', () => {
-        expect(output).to.equal('x = db;');
-      });
-      it('decorates AssignmentExpression', (done) => {
-        traverse(ast, {
-          AssignmentExpression(path) {
-            expect(path.node.shellType).to.deep.equal(types.Database);
-            done();
-          }
+    describe('top-level scope', () => {
+      describe('new symbol', () => {
+        describe('rhs is known type', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            input = 'x = db';
+            const result = writer.getTransform(input);
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('x = db;');
+          });
+          it('decorates AssignmentExpression', (done) => {
+            traverse(ast, {
+              AssignmentExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Database);
+                done();
+              }
+            });
+          });
+          it('updates symbol table', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'x', types.Database
+            ]);
+            expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+            const args = spy.updateFunctionScoped.getCall(0).args;
+            expect(args[1]).to.equal('x');
+            expect(args[2]).to.deep.equal(types.Database);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ x: types.Database });
+          });
+        });
+        describe('rhs is unknown type', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            input = 'x = 1';
+            const result = writer.getTransform(input);
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('x = 1;');
+          });
+          it('decorates AssignmentExpression', (done) => {
+            traverse(ast, {
+              AssignmentExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.unknown);
+                done();
+              }
+            });
+          });
+          it('updates symbol table', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'x', types.unknown
+            ]);
+            expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+            const args = spy.updateFunctionScoped.getCall(0).args;
+            expect(args[1]).to.equal('x');
+            expect(args[2]).to.deep.equal(types.unknown);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ x: types.unknown });
+          });
         });
       });
-      it('updates symbol table', () => {
-        expect(spy.update.calledOnce).to.be.true;
-        expect(spy.update.calledWith('x', types.Database)).to.be.true;
+      describe('existing symbol', () => {
+        describe('redef shell variable', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database, coll: types.Collection }], types));
+            writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, types, spy);
+            input = 'coll = db';
+            const result = writer.getTransform(input);
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('coll = db;');
+          });
+          it('decorates AssignmentExpression', (done) => {
+            traverse(ast, {
+              AssignmentExpression(path) {
+                expect(path.node.shellType).to.deep.equal(types.Database);
+                done();
+              }
+            });
+          });
+          it('updates symbol table', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'coll', types.Database
+            ]);
+            expect(spy.updateFunctionScoped.calledOnce).to.be.false;
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.lookup('coll')).to.deep.equal(types.Database);
+          });
+        });
+        describe('previously defined var', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('var a = 1');
+            const result = writer.getTransform('a = db');
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('a = db;');
+          });
+          it('updates symbol table for assignment', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'a', types.Database
+            ]);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
+          });
+        });
+        describe('previously defined let', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('let a = 1');
+            const result = writer.getTransform('a = db');
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('a = db;');
+          });
+          it('updates symbol table for assignment', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'a', types.Database
+            ]);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
+          });
+        });
       });
     });
-    describe('rhs is unknown type', () => {
-      before(() => {
-        spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-        writer = new AsyncWriter({ db: types.Database }, types, spy);
-        input = 'x = 1';
-        const result = writer.getTransform(input);
-        ast = result.ast;
-        output = result.code;
-      });
-      it('compiles correctly', () => {
-        expect(output).to.equal('x = 1;');
-      });
-      it('decorates AssignmentExpression', (done) => {
-        traverse(ast, {
-          AssignmentExpression(path) {
-            expect(path.node.shellType).to.deep.equal(types.unknown);
-            done();
-          }
+    describe('inner scope', () => {
+      describe('new symbol', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          const result = writer.getTransform('{ a = db }');
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('{\n  a = db;\n}');
+        });
+        it('updates symbol table for assignment', () => {
+          expect(spy.updateIfDefined.calledOnce).to.be.true;
+          expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+            'a', types.Database
+          ]);
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const args = spy.updateFunctionScoped.getCall(0).args;
+          expect(args[1]).to.equal('a');
+          expect(args[2]).to.deep.equal(types.Database);
+        });
+        it('final symbol table state updated', () => {
+          expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
         });
       });
-      it('updates symbol table', () => {
-        expect(spy.update.calledOnce).to.be.true;
-        expect(spy.update.calledWith('x', types.unknown)).to.be.true;
+      describe('existing symbol', () => {
+        describe('declared as var in outer', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('var a;');
+            output = writer.compile('{ a = db }');
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('{\n  a = db;\n}');
+          });
+          it('updates symbol table for assignment', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'a', types.Database
+            ]);
+          });
+          it('updates symbol table for var', () => {
+            expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+            const args = spy.updateFunctionScoped.getCall(0).args;
+            expect(args[1]).to.equal('a');
+            expect(args[2]).to.deep.equal(types.unknown);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
+          });
+        });
+        describe('declared with let in outer', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('let a;');
+            output = writer.compile('{ a = db }');
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('{\n  a = db;\n}');
+          });
+          it('updates symbol table for assignment', () => {
+            expect(spy.updateIfDefined.calledOnce).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'a', types.Database
+            ]);
+          });
+          it('updates symbol table for let', () => {
+            expect(spy.updateFunctionScoped.calledOnce).to.be.false;
+            expect(spy.add.calledOnce).to.be.true;
+            expect(spy.add.getCall(0).args).to.deep.equal(['a', types.unknown]);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
+          });
+        });
+        describe('assigned without declaration in outer', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('a = 1;');
+            output = writer.compile('{ a = db }');
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('{\n  a = db;\n}');
+          });
+          it('updates symbol table for initial assignment', () => {
+            expect(spy.updateIfDefined.calledTwice).to.be.true;
+            expect(spy.updateIfDefined.getCall(0).args).to.deep.equal([
+              'a', types.unknown
+            ]);
+            expect(spy.updateIfDefined.getCall(1).args).to.deep.equal([
+              'a', types.Database
+            ]);
+          });
+          it('updates symbol table for var', () => {
+            expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+            const args = spy.updateFunctionScoped.getCall(0).args;
+            expect(args[1]).to.equal('a');
+            expect(args[2]).to.deep.equal(types.unknown);
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.Database });
+          });
+        });
       });
     });
-    describe('existing symbol', () => {
-      before(() => {
-        spy = sinon.spy(new SymbolTable([{ db: types.Database, coll: types.Collection }], types));
-        writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, types, spy);
-        input = 'coll = db';
-        const result = writer.getTransform(input);
-        ast = result.ast;
-        output = result.code;
-      });
-      it('compiles correctly', () => {
-        expect(output).to.equal('coll = db;');
-      });
-      it('decorates AssignmentExpression', (done) => {
-        traverse(ast, {
-          AssignmentExpression(path) {
-            expect(path.node.shellType).to.deep.equal(types.Database);
-            done();
-          }
+    describe('inside function', () => {
+      describe('new symbol', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          const result = writer.getTransform('function x() { a = db }');
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('function x() {\n  a = db;\n}');
+        });
+        it('final symbol table state updated', () => {
+          expect(spy.scopeAt(1)).to.deep.equal({ x: { returnType: types.unknown, returnsPromise: false, type: 'function' } });
         });
       });
-      it('updates symbol table', () => {
-        expect(spy.update.calledOnce).to.be.true;
-        expect(spy.update.calledWith('coll', types.Database)).to.be.true;
+      describe('existing symbol', () => {
+        describe('declared as var in outer', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer.compile('var a;');
+            output = writer.compile('function x() { a = db }');
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('function x() {\n  a = db;\n}');
+          });
+          it('final symbol table state updated', () => {
+            expect(spy.scopeAt(1)).to.deep.equal({ a: types.unknown });
+          });
+        });
       });
     });
   });
@@ -1407,12 +1623,12 @@ class Test {
   regularFn() { return db; }
   awaitFn() { db.coll.insertOne({}) }
 };`);
-      const result = writer.getTransform('x = new Test()');
+      const result = writer.getTransform('const x = new Test()');
       ast = result.ast;
       output = result.code;
     });
     it('compiles correctly', () => {
-      expect(output).to.equal('x = new Test();');
+      expect(output).to.equal('const x = new Test();');
     });
     it('decorates NewExpression', (done) => {
       traverse(ast, {
@@ -1452,14 +1668,6 @@ if (TEST) {
 if (TEST) {
   a = db.coll2;
 }`);
-            });
-            it('updates the symbol table once', () => {
-              expect(spy.update.calledOnce).to.be.true;
-              const call = spy.update.getCall(0);
-              expect(call.args).to.deep.equal([
-                'a',
-                types.Collection
-              ]);
             });
             it('symbol table final state is correct', () => {
               expect(spy.lookup('a')).to.deep.equal(types.Collection);
