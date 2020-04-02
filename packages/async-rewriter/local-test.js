@@ -24,7 +24,7 @@ const input = [
 // }
 // `,
 //   'var a = 1;'
-  'const x = db;'
+  '{ const x = db; }'
 ];
 
 input.forEach((i) => console.log(`${i}\n======> \n${writer.compile(i)}`));

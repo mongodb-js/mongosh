@@ -53,6 +53,9 @@ export default class SymbolTable {
     }
     this.scopeStack[end][item] = value;
   }
+  addToTopLevel(item, value): void {
+    this.scopeAt(1)[item] = value;
+  }
   update(item, value): void {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
@@ -61,6 +64,28 @@ export default class SymbolTable {
       }
     }
     return this.add(item, value);
+  }
+  updateIfDefined(item, value): boolean {
+    for (let i = this.last; i >= 0; i--) {
+      if (this.scopeStack[i][item]) {
+        this.scopeStack[i][item] = value;
+        return true;
+      }
+    }
+    return false;
+  }
+  updateFunctionScoped(path, key, type): void {
+    const scopeParent = path.getFunctionParent();
+    if (scopeParent === null) {
+      this.addToTopLevel(key, type);
+    } else {
+      const shellScope = scopeParent.node.shellScope;
+      if (shellScope === undefined) {
+        // scope of the parent is out of scope?
+        throw new Error('internal error');
+      }
+      shellScope[key] = type;
+    }
   }
   popScope(): object {
     if (this.depth === 1) return;
