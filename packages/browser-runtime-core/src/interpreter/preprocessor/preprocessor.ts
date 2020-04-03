@@ -36,20 +36,6 @@ export type PreprocessOptions = {
    * call would have been synchronous.
    */
   rewriteAsync?: boolean;
-
-  /**
-   * Enables the rewriting of input by wrapping the code with an
-   * immediately invoked async function expression.
-   *
-   * That allows for code with top level await.
-   *
-   * This rewrite is necessary for `rewriteAsync` to work, and
-   * enabled by default in case `rewriteAsync` is enabled.
-   *
-   * It would be possible to remove this feature once native
-   * top level await will be supported by js engines.
-   */
-  wrapInAsyncFunctionCall?: boolean;
 };
 
 export class Preprocessor {
@@ -90,14 +76,10 @@ export class Preprocessor {
     });
 
     ast = newAst;
-
-    if (options.wrapInAsyncFunctionCall || options.rewriteAsync) {
-      ast = wrapInAsyncFunctionCall(ast);
-    }
+    ast = wrapInAsyncFunctionCall(ast);
 
     const newCode = generate(ast).code;
     this.lexicalContext = newLexicalContext;
     return newCode;
   }
 }
-

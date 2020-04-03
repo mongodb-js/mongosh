@@ -215,14 +215,9 @@ describe('Interpreter', () => {
     it('allows top level await', async() => {
       expect(
         await testEvaluate(
-          {
-            preprocessorOptions: {
-              wrapInAsyncFunctionCall: true
-            }
-          },
           '1 + await Promise.resolve(1)'
         )
-      ).to.equal(1);
+      ).to.equal(2);
     });
 
     it('async rewrites shell api invokation', async() => {
