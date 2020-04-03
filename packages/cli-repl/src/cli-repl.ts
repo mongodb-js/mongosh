@@ -98,24 +98,64 @@ class CliRepl {
   generateOrReadTelemetryConfig(): void {
     const configPath = path.join(this.mongoshDir, 'config');
 
-    fs.open(configPath, 'wx', (err, fd) => {
-      if (err) {
-        if (err.code === 'EEXIST') {
-          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-          this.userId = config.userId;
-          this.enableTelemetry = config.enableTelemetry;
-          return;
-        }
-        this.bus.emit('error', e)
-        throw err;
-      }
+    let fd;
 
+    try {
+      fd = fs.openSync(configPath, 'wx');
       this.userId = new ObjectId(Date.now());
       this.enableTelemetry = false;
-      const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
-      fs.writeFileSync(fd, JSON.stringify(config));
-    });
+      this.writeConfigFileSync(configPath);
+    } catch (err) {
+      if (err.code === 'EEXIST') {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        this.userId = config.userId;
+        this.enableTelemetry = config.enableTelemetry;
+        return;
+      }
+      this.bus.emit('error', err)
+      throw err;
+
+    } finally {
+      if (fd !== undefined) fs.closeSync(fd);
+    }
   }
+
+  /**
+  * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
+  * config file.
+  *
+  * @param {boolean} enabled - enabled or disabled status
+  *
+  * @returns {string} Status of telemetry logging: disabled/enabled
+  */
+  toggleTelemetry(enabled: boolean): string {
+    this.enableTelemetry = enabled;
+
+    const configPath = path.join(this.mongoshDir, 'config');
+    this.writeConfigFileSync(configPath);
+
+    if (enabled) {
+      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+    } else {
+      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+    }
+  }
+
+  /** write file sync given path and contents
+  *
+  * @param {string} path - path to file
+  */
+  writeConfigFileSync(path: string): void {
+    const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
+
+    try {
+      fs.writeFileSync(path, JSON.stringify(config));
+    } catch(err) {
+      this.bus.emit('error', err)
+      throw err;
+    }
+  }
+
 
   /**
    * Returns true if a value is a shell api type
@@ -237,28 +277,6 @@ class CliRepl {
       driverOptions.auth.password = password;
       this.connect(driverUri, driverOptions);
     });
-  }
-
-  /**
-  * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
-  * config file.
-  *
-  * @param {boolean} enabled or disabled status
-  *
-  * @returns {string} Status of telemetry logging: disabled/enabled
-  */
-  toggleTelemetry(enabled: boolean): string {
-    this.enableTelemetry = enabled;
-
-    const configPath = path.join(this.mongoshDir, 'config');
-    const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
-    fs.writeFileSync(configPath, JSON.stringify(config));
-
-    if (enabled) {
-      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
-    } else {
-      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
-    }
   }
 
   /**
