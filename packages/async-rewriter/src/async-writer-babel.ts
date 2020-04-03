@@ -17,10 +17,8 @@ const getNameOrValue = (t, node): any => {
   return false;
 };
 
-// required so visitor can self-reference
-var TypeInferenceVisitor; /* eslint no-var:0 */
-
-TypeInferenceVisitor = {
+// var required so visitor can self-reference
+var TypeInferenceVisitor = { /* eslint no-var:0 */
   Identifier: {
     exit(path): void {
       const id = path.node.name;
@@ -278,7 +276,7 @@ TypeInferenceVisitor = {
 
       // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
       path.get('test').replaceWith(this.t.sequenceExpression([path.node.test]));
-      path.get('test').traverse(TypeInferenceVisitor, { // TODO: this get skipped
+      path.get('test').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
         toRet: this.toRet,
@@ -314,6 +312,41 @@ TypeInferenceVisitor = {
       symbolCopyAlt.popScope();
 
       this.symbols.compareSymbolTables([symbolCopyCons, symbolCopyAlt]);
+    }
+  },
+  Loop: {
+    enter(path): void {
+      debug('Loop', path.node.type);
+
+      if (this.t.isForXStatement(path)) {
+        // TODO: this can be implemented, but it's tedious. Save for future work?
+        throw new Error('for in and for of statements are not supported at this time.');
+      }
+      const symbolCopyBody = this.symbols.deepCopy();
+      path.skip();
+
+      // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
+      path.get('test').replaceWith(this.t.sequenceExpression([path.node.test]));
+      path.get('test').traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: this.symbols
+      });
+
+      if (!this.t.isBlockStatement(path.node.body)) {
+        path.get('body').replaceWith(this.t.blockStatement([path.node.body]));
+      }
+
+      path.node.body.shellScope = symbolCopyBody.pushScope();
+      path.get('body').traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: symbolCopyBody
+      });
+      symbolCopyBody.popScope();
+      this.symbols.compareSymbolTables( [this.symbols, symbolCopyBody]);
     }
   },
   exit(path): void {
