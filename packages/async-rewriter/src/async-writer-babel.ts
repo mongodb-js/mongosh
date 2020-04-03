@@ -247,8 +247,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
       if (path.node.id !== null) {
-        // TODO: hoisted
-        this.symbols.update(path.node.id.name, sType);
+        this.symbols.updateFunctionScoped(path, path.node.id.name, sType, this.t);
       }
 
       path.node.shellType = sType;
@@ -269,7 +268,6 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.node.shellScope = this.symbols.pushScope();
     },
     exit(path): void {
-      // TODO: need to unassign shellScope on pop?
       this.symbols.popScope();
       debug(`---pop scope at i=${this.symbols.scopeStack.length}`, path.node.type, true);
     }

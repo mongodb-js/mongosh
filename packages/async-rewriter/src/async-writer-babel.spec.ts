@@ -839,10 +839,10 @@ describe('async-writer-babel', () => {
           expect(output).to.equal('function f() {\n  var x = db;\n}');
         });
         it('adds to symbol table', () => {
-          expect(spy.add.calledOnce).to.be.true;
-          expect(spy.add.getCall(0).args).to.deep.equal([
-            'f', type
-          ]);
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0);
+          expect(calls.args[1]).to.equal('f');
+          expect(calls.args[2]).to.deep.equal(type);
           expect(spy.scopeAt(1)).to.deep.equal({ f: type }); // var hoisted only to function
         });
       });
@@ -937,8 +937,9 @@ describe('async-writer-babel', () => {
           expect(output).to.equal('function f() {\n  const x = db;\n}');
         });
         it('adds to symbol table', () => {
-          expect(spy.add.calledOnce).to.be.true;
-          expect(spy.add.getCall(0).args).to.deep.equal(['f', type]); // added to ST copy
+          const calls = spy.updateFunctionScoped.getCall(0);
+          expect(calls.args[1]).to.equal('f');
+          expect(calls.args[2]).to.deep.equal(type);
           expect(spy.scopeAt(1)).to.deep.equal({ f: type }); // var hoisted only to function
         });
       });
@@ -1052,9 +1053,11 @@ describe('async-writer-babel', () => {
           expect(output).to.equal('function f() {\n  let x = db;\n}');
         });
         it('adds to symbol table', () => {
-          expect(spy.add.calledOnce).to.be.true;
-          expect(spy.add.getCall(0).args).to.deep.equal(['f', type]); // added to ST copy
-          expect(spy.scopeAt(1)).to.deep.equal({ f: type }); // var hoisted only to function
+          expect(spy.add.calledOnce).to.be.false;
+          const calls = spy.updateFunctionScoped.getCall(0);
+          expect(calls.args[1]).to.equal('f');
+          expect(calls.args[2]).to.deep.equal(type);
+          expect(spy.lookup('x')).to.deep.equal(types.unknown);
         });
       });
       describe('inside block scope', () => {
@@ -1508,8 +1511,10 @@ describe('async-writer-babel', () => {
           });
         });
         it('updates symbol table', () => {
-          expect(spy.add.calledOnce).to.be.true;
-          expect(spy.add.calledWith('fn', { type: 'function', returnsPromise: false, returnType: types.Database })).to.be.true;
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0).args;
+          expect(calls[1]).to.equal('fn');
+          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
         });
       });
       describe('with await within', () => {
@@ -1535,12 +1540,43 @@ describe('async-writer-babel', () => {
           });
         });
         it('updates symbol table', () => {
-          expect(spy.add.calledOnce).to.be.true;
-          const call = spy.add.getCall(0);
-          expect(call.args).to.deep.equal([
-            'fn',
-            { type: 'function', returnsPromise: true, returnType: types.unknown }
-          ]);
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0).args;
+          expect(calls[1]).to.equal('fn');
+          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+        });
+      });
+      describe('ensure function name is hoisted', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '{ function f() {} }';
+          const result = writer.getTransform(input);
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`{
+  function f() {}
+}`);
+        });
+        it('updates symbol table', () => {
+          expect(spy.scopeAt(1)).to.deep.equal({ f: { type: 'function', returnType: types.unknown, returnsPromise: false } });
+        });
+      });
+      xdescribe('ensure assigned function name is not hoisted', () => { // TODO: start here
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = 'const c = function f() {}';
+          const result = writer.getTransform(input);
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('const c = function f() {};');
+        });
+        it('updates symbol table', () => {
+          expect(spy.lookup('f')).to.deep.equal(types.unknown);
+          expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
         });
       });
     });
