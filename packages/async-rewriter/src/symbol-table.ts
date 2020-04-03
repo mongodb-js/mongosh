@@ -11,22 +11,14 @@
  */
 export default class SymbolTable {
   private scopeStack: object[];
-  private copies: object[][];
   public types: any;
   constructor(initialScope: object[], types: object) {
     this.types = types;
     this.scopeStack = initialScope;
-    this.copies = []; // TODO
     Object.keys(this.types).forEach(s => {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
       this.add(s, { type: 'classdef', returnType: this.types[s], lib: true });
     });
-  }
-  saveState(): void {
-    this.copies.push(JSON.parse(JSON.stringify(this.scopeStack)));
-  }
-  restoreState(): void {
-    this.scopeStack = this.copies.pop();
   }
   deepCopy(): SymbolTable {
     const newStack = JSON.parse(JSON.stringify(this.scopeStack));

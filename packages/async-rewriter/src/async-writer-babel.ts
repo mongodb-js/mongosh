@@ -270,8 +270,6 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
   Conditional: {
     enter(path): void {
       debug('Conditional');
-      const symbolCopyCons = this.symbols.deepCopy();
-      const symbolCopyAlt = this.symbols.deepCopy();
       path.skip();
 
       // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
@@ -283,6 +281,8 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         symbols: this.symbols
       });
 
+      const symbolCopyCons = this.symbols.deepCopy();
+      const symbolCopyAlt = this.symbols.deepCopy();
       if (!this.t.isBlockStatement(path.node.consequent)) {
         path.get('consequent').replaceWith(this.t.blockStatement([path.node.consequent]));
       }
@@ -322,7 +322,6 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         // TODO: this can be implemented, but it's tedious. Save for future work?
         throw new Error('for in and for of statements are not supported at this time.');
       }
-      const symbolCopyBody = this.symbols.deepCopy();
       path.skip();
 
       // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
@@ -333,6 +332,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         toRet: this.toRet,
         symbols: this.symbols
       });
+      const symbolCopyBody = this.symbols.deepCopy();
 
       if (!this.t.isBlockStatement(path.node.body)) {
         path.get('body').replaceWith(this.t.blockStatement([path.node.body]));
@@ -347,6 +347,43 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       });
       symbolCopyBody.popScope();
       this.symbols.compareSymbolTables( [this.symbols, symbolCopyBody]);
+    }
+  },
+  SwitchStatement: {
+    enter(path): void {
+      debug('SwitchStatement');
+      path.skip();
+
+      path.get('discriminant').replaceWith(this.t.sequenceExpression([path.node.discriminant]));
+      path.get('discriminant').traverse(TypeInferenceVisitor, {
+        t: this.t,
+        skip: this.skip,
+        toRet: this.toRet,
+        symbols: this.symbols
+      });
+
+      let exhaustive = false;
+      const symbolCopies = path.node.cases.map(() => this.symbols.deepCopy());
+      path.node.cases.forEach((consNode, i) => {
+        path.node.cases[i].shellScope = symbolCopies[i].pushScope();
+        const casePath = path.get(`cases.${i}`);
+        casePath.traverse(TypeInferenceVisitor, {
+          t: this.t,
+          skip: this.skip,
+          toRet: this.toRet,
+          symbols: symbolCopies[i]
+        });
+        symbolCopies[i].popScope();
+
+        if (casePath.node.test === null) {
+          exhaustive = true;
+        }
+      });
+      // check if the last case is default, if not then not all branches covered by switch
+      if (!exhaustive) {
+        symbolCopies.unshift(this.symbols);
+      }
+      this.symbols.compareSymbolTables(symbolCopies);
     }
   },
   exit(path): void {
