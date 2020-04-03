@@ -16,10 +16,12 @@ const scope = [
 // const st = new SymbolTable(scope[1], empty_types);
 // const spy = sinon.spy(st);
 const writer = new AsyncWriter(scope[1], types);
-const input = [`x = db;`, `
-a = 2;
-for (const x of [1, 2, 3]) {
-  a = db.coll.find;
+const input = [`
+switch(TEST) {
+  case 1:
+    a = db.coll1;
+  case 2:
+    a = db.coll2;
 }
 `,
 ];
