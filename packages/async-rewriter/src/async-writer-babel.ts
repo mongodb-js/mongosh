@@ -1,4 +1,4 @@
-/* eslint no-console:0 */
+/* eslint no-console:0 complexity:0 */
 import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
 
@@ -15,6 +15,15 @@ const getNameOrValue = (t, node): any => {
     return node.value;
   }
   return false;
+};
+
+const optionallyWrapNode = (t, path, nodeName): void => {
+  if (!t.isBlockStatement(path.node[nodeName])) {
+    const replacement = t.isStatement(path.node[nodeName]) ?
+      t.blockStatement([path.node[nodeName]]) :
+      t.sequenceExpression([path.node[nodeName]]);
+    path.get(nodeName).replaceWith(replacement);
+  }
 };
 
 // var required so visitor can self-reference
@@ -222,20 +231,18 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           dbg = 'no return in block statement, undefined';
           rType = this.symbols.types.unknown;
         }
+      } else if (returnTypes.length === 1) {
+        dbg = 'single return stmt';
+        rType = returnTypes[returnTypes.length - 1];
       } else {
-        if (returnTypes.length === 1) {
-          dbg = 'single return stmt';
-          rType = returnTypes[returnTypes.length - 1];
-        } else {
-          dbg = 'multi return stmt';
-          // Cannot predict what type, so warn the user if there are shell types that may be returned.
-          // TODO: move this into conditional block
-          const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
-          if (someAsync) {
-            throw new Error('Error: conditional statement');
-          }
-          rType = this.symbols.types.unknown;
+        dbg = 'multi return stmt';
+        // Cannot predict what type, so warn the user if there are shell types that may be returned.
+        // TODO: move this into conditional block
+        const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
+        if (someAsync) {
+          throw new Error('Error: conditional statement');
         }
+        rType = this.symbols.types.unknown;
       }
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
@@ -283,10 +290,8 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
 
       const symbolCopyCons = this.symbols.deepCopy();
       const symbolCopyAlt = this.symbols.deepCopy();
-      if (!this.t.isBlockStatement(path.node.consequent)) {
-        path.get('consequent').replaceWith(this.t.blockStatement([path.node.consequent]));
-      }
 
+      optionallyWrapNode(this.t, path, 'consequent');
       path.node.consequent.shellScope = symbolCopyCons.pushScope();
       path.get('consequent').traverse(TypeInferenceVisitor, {
         t: this.t,
@@ -299,9 +304,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         return this.symbols.compareSymbolTables( [this.symbols, symbolCopyCons]);
       }
 
-      if (!this.t.isBlockStatement(path.node.alternate)) {
-        path.get('alternate').replaceWith(this.t.blockStatement([path.node.alternate]));
-      }
+      optionallyWrapNode(this.t, path, 'alternate');
       path.node.alternate.shellScope = symbolCopyAlt.pushScope();
       path.get('alternate').traverse(TypeInferenceVisitor, {
         t: this.t,
@@ -312,6 +315,27 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       symbolCopyAlt.popScope();
 
       this.symbols.compareSymbolTables([symbolCopyCons, symbolCopyAlt]);
+
+      // set type for ternary
+      if (this.t.isConditionalExpression(path.node)) {
+        path.node.shellType = this.symbols.types.unknown;
+        if (this.t.isSequenceExpression(path.node.consequent) && this.t.isSequenceExpression(path.node.alternate)) {
+          const consType = path.node.consequent.expressions[path.node.consequent.expressions.length - 1].shellType;
+          const altType = path.node.alternate.expressions[path.node.alternate.expressions.length - 1].shellType;
+
+          if (JSON.stringify(consType) === JSON.stringify(altType)) {
+            path.node.shellType = consType;
+          } else {
+            const cAsync = consType && (consType.hasAsyncChild || consType.returnsPromise);
+            const aAsync = altType && (altType.hasAsyncChild || altType.returnsPromise);
+            if (cAsync || aAsync) {
+              throw new Error('cannot conditionally assign shell API types');
+            }
+            path.node.shellType = this.symbols.types.unknown;
+          }
+        }
+      }
+      debug('Conditional', path.node.shellType);
     }
   },
   Loop: {
@@ -334,10 +358,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       });
       const symbolCopyBody = this.symbols.deepCopy();
 
-      if (!this.t.isBlockStatement(path.node.body)) {
-        path.get('body').replaceWith(this.t.blockStatement([path.node.body]));
-      }
-
+      optionallyWrapNode(this.t, path, 'body');
       path.node.body.shellScope = symbolCopyBody.pushScope();
       path.get('body').traverse(TypeInferenceVisitor, {
         t: this.t,

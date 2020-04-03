@@ -110,7 +110,7 @@ export default class SymbolTable {
         if (equal) {
           thisScope[k] = alternates[0].scopeAt(i)[k];
         } else {
-          const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && a.scopeAt(i)[k].hasAsyncChild);
+          const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && (a.scopeAt(i)[k].hasAsyncChild || a.scopeAt(i)[k].returnsPromise));
           if (hasAsync) {
             throw new Error(`Error: cannot conditionally assign Shell API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
           } else {
