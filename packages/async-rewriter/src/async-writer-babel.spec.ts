@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import traverse from '@babel/traverse';
 
-import { types } from 'mongosh-shell-api';
+import { types } from '@mongosh/shell-api';
 
 import AsyncWriter from './async-writer-babel';
 import SymbolTable from './symbol-table';
