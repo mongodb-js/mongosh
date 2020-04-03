@@ -26,13 +26,12 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/helper-hoist-variables": "^7.8.3"
+    "@babel/core": "^7.8.7"
   },
   "devDependencies": {
     "ast-pretty-print": "^2.0.1",
     "mocha": "^7.1.0",
-    "mongosh-shell-api": "file:../shell-api",
+    "@mongosh/shell-api": "^0.0.1-alpha.10",
     "sinon": "^9.0.1"
   }
 }
