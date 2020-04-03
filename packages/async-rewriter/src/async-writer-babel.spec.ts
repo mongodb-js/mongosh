@@ -1651,7 +1651,7 @@ class Test {
       describe('with only consequent', () => {
         describe('symbol defined in upper scope', () => {
           describe('types are the same', () => {
-            describe('both async', () => {
+            describe('both async, same type', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
                 writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1672,6 +1672,20 @@ if (TEST) {
               it('symbol table final state is correct', () => {
                 expect(spy.lookup('a')).to.deep.equal(types.Collection);
               });
+            });
+          });
+          describe('both async, different type', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+              writer = new AsyncWriter({ db: types.Database }, types, spy);
+            });
+            it('throws', () => {
+              expect(() => writer.compile(`
+a = db;
+if (TEST) {
+  a = db.coll2;
+}
+`)).to.throw();
             });
           });
           describe('types are not the same', () => {
@@ -1914,7 +1928,234 @@ if (TEST) {
       });
     });
     describe('loop', () => {
+      describe('while', () => {
+        describe('same type, async', () => {
+          const inputLoop = `
+a = db.coll1;
+while (TEST) {
+  a = db.coll2;
+}
+`;
+          const expected = `a = db.coll1;
 
+while (TEST) {
+  a = db.coll2;
+}`;
+
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.Collection);
+          });
+        });
+        describe('same type, nonasync', () => {
+          const inputLoop = `
+a = 2;
+while (TEST) {
+  a = db.coll.find;
+}
+`;
+          const expected = `a = 2;
+
+while (TEST) {
+  a = db.coll.find;
+}`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.unknown);
+          });
+        });
+        describe('different types', () => {
+          const inputLoop = `
+a = db.coll1;
+while (TEST) {
+  a = 1;
+}
+`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+          });
+          it('throws', () => {
+            expect(() => writer.compile(inputLoop)).to.throw();
+          });
+        });
+      });
+      describe('for', () => {
+        describe('same type, async', () => {
+          const inputLoop = `
+a = db.coll1;
+for (let t = 0; t < 100; t++) {
+  a = db.coll2;
+}
+`;
+          const expected = `a = db.coll1;
+
+for (let t = 0; t < 100; t++) {
+  a = db.coll2;
+}`;
+
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.Collection);
+          });
+        });
+        describe('same type, nonasync', () => {
+          const inputLoop = `
+a = 2;
+for (let t = 0; t < 100; t++) {
+  a = db.coll.find;
+}
+`;
+          const expected = `a = 2;
+
+for (let t = 0; t < 100; t++) {
+  a = db.coll.find;
+}`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.unknown);
+          });
+        });
+        describe('different types', () => {
+          const inputLoop = `
+a = db.coll1;
+for (let t = 0; t < 100; t++) {
+  a = 1;
+}
+`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+          });
+          it('throws', () => {
+            expect(() => writer.compile(inputLoop)).to.throw();
+          });
+        });
+      });
+      describe('do while', () => {
+        describe('same type, async', () => {
+          const inputLoop = `
+a = db.coll1;
+do {
+  a = db.coll2;
+} while(TEST);
+`;
+          const expected = `a = db.coll1;
+
+do {
+  a = db.coll2;
+} while ((TEST));`;
+
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.Collection);
+          });
+        });
+        describe('same type, nonasync', () => {
+          const inputLoop = `
+a = 2;
+do {
+  a = db.coll.find;
+} while(TEST)
+`;
+          const expected = `a = 2;
+
+do {
+  a = db.coll.find;
+} while ((TEST));`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            output = writer.compile(inputLoop);
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal(expected);
+          });
+          it('symbol table final state is correct', () => {
+            expect(spy.lookup('a')).to.deep.equal(types.unknown);
+          });
+        });
+        describe('different types', () => {
+          const inputLoop = `
+a = db.coll1;
+do {
+  a = 1;
+} while(TEST);
+`;
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+          });
+          it('throws', () => {
+            expect(() => writer.compile(inputLoop)).to.throw();
+          });
+        });
+      });
+      describe('for in', () => {
+        const inputLoop = `
+a = db.coll1;
+for (const x in [1, 2, 3]) {
+  a = 1;
+}
+`;
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+        });
+        it('throws', () => {
+          expect(() => writer.compile(inputLoop)).to.throw();
+        });
+      });
+      describe('for of', () => {
+        const inputLoop = `
+a = db.coll1;
+for (const x of [1, 2, 3]) {
+  a = 1;
+}
+`;
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+        });
+        it('throws', () => {
+          expect(() => writer.compile(inputLoop)).to.throw();
+        });
+      });
     });
     describe('switch', () => {
 
