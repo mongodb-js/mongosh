@@ -2299,7 +2299,46 @@ switch(TEST) {
       });
     });
     describe('ternary', () => {
-
+      describe('same type, async', () => {
+        const inputLoop = 'a = TEST ? db.coll1 : db.coll2;';
+        const expected = 'a = (TEST) ? (db.coll1) : (db.coll2);';
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          output = writer.compile(inputLoop);
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(expected);
+        });
+        it('symbol table final state is correct', () => {
+          expect(spy.lookup('a')).to.deep.equal(types.Collection);
+        });
+      });
+      describe('same type, nonasync', () => {
+        const inputLoop = 'a = TEST ? 1 : db.coll.find;';
+        const expected = 'a = (TEST) ? (1) : (db.coll.find);';
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          output = writer.compile(inputLoop);
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(expected);
+        });
+        it('symbol table final state is correct', () => {
+          expect(spy.lookup('a')).to.deep.equal(types.unknown);
+        });
+      });
+      describe('different types', () => {
+        const inputLoop = 'a = TEST ? 1 : db';
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+        });
+        it('throws', () => {
+          expect(() => writer.compile(inputLoop)).to.throw();
+        });
+      });
     });
   });
   // describe('multi-line input', () => {
