@@ -111,6 +111,22 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('value string');
   });
 
+  it('renders ShowDbsResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'ShowDbsResult',
+      value: [
+        { name: 'admin', sizeOnDisk: 45056, empty: false },
+        { name: 'dxl', sizeOnDisk: 8192, empty: false },
+        { name: 'supplies', sizeOnDisk: 2236416, empty: false },
+        { name: 'test', sizeOnDisk: 5664768, empty: false },
+        { name: 'test', sizeOnDisk: 599999768000, empty: false }
+      ]
+    }} />);
+
+    expect(wrapper.text()).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ type: 'output', value: err }} />);
