@@ -29,7 +29,7 @@ describe('Mapper (integration)', function() {
     });
 
     const result = await electronRuntime.evaluate('show dbs');
-    expect(result.shellApiType).to.equal('CommandResult');
+    expect(result.shellApiType).to.equal('ShowDbsResult');
   });
 
   it('can switch database', async() => {

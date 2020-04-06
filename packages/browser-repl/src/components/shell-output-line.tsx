@@ -49,7 +49,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <HelpOutput value={value} />;
     }
 
-    if (shellApiType === 'CommandResult') {
+    if (shellApiType === 'ShowDbsResult') {
       return <ShowDbsOutput value={value} />;
     }
 
@@ -75,6 +75,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   private isCommandResult(value: any, shellApiType: string): boolean {
     return typeof value === 'string' &&
     shellApiType === 'Database' ||
+    shellApiType === 'CommandResult' ||
     shellApiType === 'Collection';
   }
 

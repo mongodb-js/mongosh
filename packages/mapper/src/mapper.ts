@@ -9,6 +9,7 @@ import {
   UpdateResult,
   CursorIterationResult,
   CommandResult,
+  ShowDbsResult,
   ShellApi,
   types,
   Collection
@@ -103,7 +104,11 @@ export default class Mapper {
         }
 
         this.messageBus.emit('cmd:show', result.databases);
-        return new CommandResult({ value: result.databases });
+        return new ShowDbsResult({ value: result.databases });
+      case 'collections':
+        const collectionNames = await this.getCollectionNames(this.context.db);
+
+        return new CommandResult({ value: collectionNames.join('\n') });
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
         this.messageBus.emit('error', err);
