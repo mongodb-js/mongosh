@@ -1374,8 +1374,65 @@ describe('async-writer-babel', () => {
     });
   });
   describe('Function', () => {
-    describe('arrow function', () => {
-      describe('with await within', () => {
+    describe('without internal await', () => {
+      describe('function keyword', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = 'function fn() { return db; }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('function fn() {\n' +
+            '  return db;\n' +
+            '}');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              done();
+            }
+          });
+        });
+        it('updates symbol table', () => {
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0).args;
+          expect(calls[1]).to.equal('fn');
+          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+        });
+      });
+      describe('arrow function', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = '() => { return db; }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('() => {\n' +
+            '  return db;\n' +
+            '};');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              done();
+            }
+          });
+        });
+        it('updates symbol table', () => {
+          expect(spy.scopeAt(1)).to.deep.equal({});
+        });
+      });
+    });
+    describe('with internal await', () => {
+      describe('arrow function with await within', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
           writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1398,6 +1455,66 @@ describe('async-writer-babel', () => {
           });
         });
       });
+      describe('function keyword with await within', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = 'function fn() { db.coll.insertOne({}); }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('async function fn() {\n' +
+            '  await db.coll.insertOne({});\n' +
+            '}');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+              done();
+            }
+          });
+        });
+        it('updates symbol table', () => {
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0).args;
+          expect(calls[1]).to.equal('fn');
+          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+        });
+      });
+      describe('already an async function', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = 'async function fn() { db.coll.insertOne({}); }';
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal('async function fn() {\n' +
+            '  await db.coll.insertOne({});\n' +
+            '}');
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+              done();
+            }
+          });
+        });
+        it('updates symbol table', () => {
+          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
+          const calls = spy.updateFunctionScoped.getCall(0).args;
+          expect(calls[1]).to.equal('fn');
+          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+        });
+      });
+    });
+    describe('return statements', () => {
       describe('with empty return statement', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
@@ -1421,7 +1538,7 @@ describe('async-writer-babel', () => {
           });
         });
       });
-      describe('with return statement', () => {
+      describe('with return value', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
           writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1465,7 +1582,7 @@ describe('async-writer-babel', () => {
           });
         });
       });
-      describe('with block and no return statement', () => {
+      describe('with {} and no return statement', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
           writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1486,67 +1603,169 @@ describe('async-writer-babel', () => {
           });
         });
       });
+      describe('with multiple return values of different types', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+() => {
+  if (TEST) {
+    return db;
+  } else {
+    return 1;
+  }
+}`;
+        });
+        it('throws', () => {
+          expect(() => writer.compile(input)).to.throw();
+        });
+      });
+      describe('with multiple return values of the same non-async type', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+() => {
+  if (TEST) {
+    return 2;
+  } else {
+    return 1;
+  }
+}`;
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`() => {
+  if (TEST) {
+    return 2;
+  } else {
+    return 1;
+  }
+};`);
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              done();
+            }
+          });
+        });
+      });
+      describe('with multiple return values of the same async type', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+() => {
+  if (TEST) {
+    return db.coll;
+  } else {
+    return db.coll2;
+  }
+}`;
+        });
+        it('throws', () => {
+          expect(() => writer.compile(input)).to.throw();
+        });
+      });
+      describe('function returns a function', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+function f() {
+  return () => {
+    return db;
+  }
+}`;
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`function f() {
+  return () => {
+    return db;
+  };
+}`);
+        });
+        it('decorates Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              if (path.node.id.name === 'f') {
+                expect(path.node.shellType).to.deep.equal({
+                  type: 'function',
+                  returnsPromise: false,
+                  returnType: {
+                    type: 'function', returnsPromise: false, returnType: types.Database
+                  }
+                });
+                done();
+              }
+            }
+          });
+        });
+      });
+      describe('function defined inside a function', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+function f() {
+  function g() {
+    return db.coll.find;
+  };
+  return 1;
+}`;
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`function f() {
+  function g() {
+    return db.coll.find;
+  }
+
+  ;
+  return 1;
+}`);
+        });
+        it('decorates outer Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              if (path.node.id.name === 'f') {
+                expect(path.node.shellType).to.deep.equal({
+                  type: 'function',
+                  returnsPromise: false,
+                  returnType: types.unknown
+                });
+                done();
+              }
+            }
+          });
+        });
+        it('decorates inner Function', (done) => {
+          traverse(ast, {
+            Function(path) {
+              if (path.node.id.name === 'g') {
+                expect(path.node.shellType).to.deep.equal({
+                  type: 'function',
+                  returnsPromise: false,
+                  returnType: types.Collection.attributes.find
+                });
+                done();
+              }
+            }
+          });
+        });
+      });
     });
-    describe('function keyword', () => {
-      describe('with no await', () => {
-        before(() => {
-          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
-          input = 'function fn() { return db; }';
-          const result = writer.getTransform(input);
-          ast = result.ast;
-          output = result.code;
-        });
-        it('compiles correctly', () => {
-          expect(output).to.equal('function fn() {\n' +
-            '  return db;\n' +
-            '}');
-        });
-        it('decorates Function', (done) => {
-          traverse(ast, {
-            Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
-              done();
-            }
-          });
-        });
-        it('updates symbol table', () => {
-          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
-          const calls = spy.updateFunctionScoped.getCall(0).args;
-          expect(calls[1]).to.equal('fn');
-          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
-        });
-      });
-      describe('with await within', () => {
-        before(() => {
-          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
-          input = 'function fn() { db.coll.insertOne({}); }';
-          const result = writer.getTransform(input);
-          ast = result.ast;
-          output = result.code;
-        });
-        it('compiles correctly', () => {
-          expect(output).to.equal('async function fn() {\n' +
-            '  await db.coll.insertOne({});\n' +
-            '}');
-        });
-        it('decorates Function', (done) => {
-          traverse(ast, {
-            Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
-              done();
-            }
-          });
-        });
-        it('updates symbol table', () => {
-          expect(spy.updateFunctionScoped.calledOnce).to.be.true;
-          const calls = spy.updateFunctionScoped.getCall(0).args;
-          expect(calls[1]).to.equal('fn');
-          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
-        });
-      });
-      describe('ensure function name is hoisted', () => {
+    describe('scoping', () => {
+      describe('ensure keyword function name is hoisted', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
           writer = new AsyncWriter({ db: types.Database }, types, spy);
@@ -1563,7 +1782,7 @@ describe('async-writer-babel', () => {
           expect(spy.scopeAt(1)).to.deep.equal({ f: { type: 'function', returnType: types.unknown, returnsPromise: false } });
         });
       });
-      describe('ensure assigned function name is not hoisted', () => { // TODO: start here
+      describe('ensure assigned keyword function name is not hoisted', () => {
         describe('VariableDeclarator', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
@@ -1595,6 +1814,23 @@ describe('async-writer-babel', () => {
             expect(spy.lookup('f')).to.deep.equal(types.unknown);
             expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
           });
+        });
+      });
+      describe('function definition does not update symbol table', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          input = `
+var a = db;
+function f() {
+  a = 1;
+}
+`;
+          const result = writer.getTransform(input);
+          output = result.code;
+        });
+        it('updates symbol table', () => {
+          expect(spy.lookup('a')).to.deep.equal(types.Database);
         });
       });
     });

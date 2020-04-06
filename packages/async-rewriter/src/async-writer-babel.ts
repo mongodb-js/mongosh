@@ -210,13 +210,13 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       debug('Function Enter');
       const returnTypes = [];
       const symbolCopy1 = this.symbols.deepCopy();
-      // TODO: add arguments to ST
+      // TODO: add arguments to ST in FuncCall
       path.skip();
       path.node.shellScope = symbolCopy1.pushScope();
       path.traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: returnTypes,
+        returnValues: returnTypes,
         symbols: symbolCopy1
       });
       symbolCopy1.popScope();
@@ -236,11 +236,11 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         rType = returnTypes[returnTypes.length - 1];
       } else {
         dbg = 'multi return stmt';
-        // Cannot predict what type, so warn the user if there are shell types that may be returned.
-        // TODO: move this into conditional block
+        // Cannot know if return statements are exhaustive, so turn off returning shell API for everything.
+        // TODO: this can be expanded with some effort so returning of the same type is allowed.
         const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
         if (someAsync) {
-          throw new Error('Error: conditional statement');
+          throw new Error('Error: function can return different types, must be the same type');
         }
         rType = this.symbols.types.unknown;
       }
@@ -258,7 +258,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     exit(path): void {
       const sType = path.node.argument === null ? this.symbols.types.unknown : path.node.argument.shellType;
       path.node.shellType = sType;
-      this.toRet.push(sType);
+      this.returnValues.push(sType);
       debug('ReturnStatement', sType.type);
     }
   },
@@ -282,7 +282,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('test').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: this.symbols
       });
 
@@ -294,7 +294,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('consequent').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: symbolCopyCons
       });
       symbolCopyCons.popScope();
@@ -307,7 +307,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('alternate').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: symbolCopyAlt
       });
       symbolCopyAlt.popScope();
@@ -351,7 +351,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('test').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: this.symbols
       });
       const symbolCopyBody = this.symbols.deepCopy();
@@ -361,7 +361,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('body').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: symbolCopyBody
       });
       symbolCopyBody.popScope();
@@ -377,7 +377,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       path.get('discriminant').traverse(TypeInferenceVisitor, {
         t: this.t,
         skip: this.skip,
-        toRet: this.toRet,
+        returnValues: this.returnValues,
         symbols: this.symbols
       });
 
@@ -389,7 +389,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         casePath.traverse(TypeInferenceVisitor, {
           t: this.t,
           skip: this.skip,
-          toRet: this.toRet,
+          returnValues: this.returnValues,
           symbols: symbolCopies[i]
         });
         symbolCopies[i].popScope();
@@ -440,7 +440,7 @@ export default class AsyncWriter {
               path.traverse(TypeInferenceVisitor, {
                 t: t,
                 skip: skips,
-                toRet: [],
+                returnValues: [],
                 symbols: symbols
               });
             }
