@@ -1563,20 +1563,38 @@ describe('async-writer-babel', () => {
           expect(spy.scopeAt(1)).to.deep.equal({ f: { type: 'function', returnType: types.unknown, returnsPromise: false } });
         });
       });
-      xdescribe('ensure assigned function name is not hoisted', () => { // TODO: start here
-        before(() => {
-          spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
-          input = 'const c = function f() {}';
-          const result = writer.getTransform(input);
-          output = result.code;
+      describe('ensure assigned function name is not hoisted', () => { // TODO: start here
+        describe('VariableDeclarator', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            input = 'const c = function f() {}';
+            const result = writer.getTransform(input);
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('const c = function f() {};');
+          });
+          it('updates symbol table', () => {
+            expect(spy.lookup('f')).to.deep.equal(types.unknown);
+            expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
+          });
         });
-        it('compiles correctly', () => {
-          expect(output).to.equal('const c = function f() {};');
-        });
-        it('updates symbol table', () => {
-          expect(spy.lookup('f')).to.deep.equal(types.unknown);
-          expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
+        describe('AssignmentExpression', () => {
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            input = 'c = function f() {}';
+            const result = writer.getTransform(input);
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('c = function f() {};');
+          });
+          it('updates symbol table', () => {
+            expect(spy.lookup('f')).to.deep.equal(types.unknown);
+            expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
+          });
         });
       });
     });
