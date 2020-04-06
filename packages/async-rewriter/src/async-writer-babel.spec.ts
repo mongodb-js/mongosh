@@ -7,6 +7,11 @@ import { types } from '@mongosh/shell-api';
 import AsyncWriter from './async-writer-babel';
 import SymbolTable from './symbol-table';
 
+const skipPath = (p) => {
+  expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
+  return { returnType: p.returnType, returnsPromise: p.returnsPromise, type: p.type };
+};
+
 describe('async-writer-babel', () => {
   let writer;
   let ast;
@@ -726,6 +731,42 @@ describe('async-writer-babel', () => {
         expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
       });
     });
+    describe('updates outer scope when called', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+        writer = new AsyncWriter({ db: types.Database }, types, spy);
+        const result = writer.getTransform(input);
+        output = result.code;
+      });
+      it('sets pre format', () => {
+        writer.compile(`
+var a = db;
+function f() {
+  a = 1;
+}`);
+        expect(spy.lookup('a')).to.deep.equal(types.Database);
+      });
+      it('updates symbol table when called', () => {
+        writer.compile('f()');
+        expect(spy.lookup('a')).to.deep.equal(types.unknown);
+      });
+    });
+    describe('LHS is function', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
+        writer = new AsyncWriter({
+          t: types.unknown
+        }, types, spy);
+        input = 'a = (() => (db))()';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('a = (() => db)();');
+      });
+      it('updates symbol table', () => {
+        expect(spy.lookup('a')).to.deep.equal(types.Database);
+      });
+    });
   });
   describe('VariableDeclarator', () => {
     describe('var', () => {
@@ -842,8 +883,8 @@ describe('async-writer-babel', () => {
           expect(spy.updateFunctionScoped.calledOnce).to.be.true;
           const calls = spy.updateFunctionScoped.getCall(0);
           expect(calls.args[1]).to.equal('f');
-          expect(calls.args[2]).to.deep.equal(type);
-          expect(spy.scopeAt(1)).to.deep.equal({ f: type }); // var hoisted only to function
+          expect(skipPath(calls.args[2])).to.deep.equal(type);
+          expect(Object.keys(spy.scopeAt(1))).to.deep.equal(['f']);
         });
       });
       describe('inside block scope', () => {
@@ -939,8 +980,8 @@ describe('async-writer-babel', () => {
         it('adds to symbol table', () => {
           const calls = spy.updateFunctionScoped.getCall(0);
           expect(calls.args[1]).to.equal('f');
-          expect(calls.args[2]).to.deep.equal(type);
-          expect(spy.scopeAt(1)).to.deep.equal({ f: type }); // var hoisted only to function
+          expect(skipPath(calls.args[2])).to.deep.equal(type);
+          expect(Object.keys(spy.scopeAt(1))).to.deep.equal(['f']); // var hoisted only to function
         });
       });
       describe('inside block scope', () => {
@@ -1056,7 +1097,7 @@ describe('async-writer-babel', () => {
           expect(spy.add.calledOnce).to.be.false;
           const calls = spy.updateFunctionScoped.getCall(0);
           expect(calls.args[1]).to.equal('f');
-          expect(calls.args[2]).to.deep.equal(type);
+          expect(skipPath(calls.args[2])).to.deep.equal(type);
           expect(spy.lookup('x')).to.deep.equal(types.unknown);
         });
       });
@@ -1352,7 +1393,7 @@ describe('async-writer-babel', () => {
           expect(output).to.equal('function x() {\n  a = db;\n}');
         });
         it('final symbol table state updated', () => {
-          expect(spy.scopeAt(1)).to.deep.equal({ x: { returnType: types.unknown, returnsPromise: false, type: 'function' } });
+          expect(skipPath(spy.scopeAt(1).x)).to.deep.equal( { returnType: types.unknown, returnsPromise: false, type: 'function' } );
         });
       });
       describe('existing symbol', () => {
@@ -1392,7 +1433,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
               done();
             }
           });
@@ -1401,7 +1442,7 @@ describe('async-writer-babel', () => {
           expect(spy.updateFunctionScoped.calledOnce).to.be.true;
           const calls = spy.updateFunctionScoped.getCall(0).args;
           expect(calls[1]).to.equal('fn');
-          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+          expect(skipPath(calls[2])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
         });
       });
       describe('arrow function', () => {
@@ -1421,7 +1462,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
               done();
             }
           });
@@ -1449,7 +1490,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
               done();
             }
           });
@@ -1472,7 +1513,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
               done();
             }
           });
@@ -1481,7 +1522,7 @@ describe('async-writer-babel', () => {
           expect(spy.updateFunctionScoped.calledOnce).to.be.true;
           const calls = spy.updateFunctionScoped.getCall(0).args;
           expect(calls[1]).to.equal('fn');
-          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+          expect(skipPath(calls[2])).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
         });
       });
       describe('already an async function', () => {
@@ -1501,7 +1542,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
               done();
             }
           });
@@ -1510,7 +1551,7 @@ describe('async-writer-babel', () => {
           expect(spy.updateFunctionScoped.calledOnce).to.be.true;
           const calls = spy.updateFunctionScoped.getCall(0).args;
           expect(calls[1]).to.equal('fn');
-          expect(calls[2]).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
+          expect(skipPath(calls[2])).to.deep.equal({ type: 'function', returnsPromise: true, returnType: types.unknown });
         });
       });
     });
@@ -1532,7 +1573,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
               done();
             }
           });
@@ -1555,7 +1596,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
               done();
             }
           });
@@ -1576,7 +1617,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.Database });
               done();
             }
           });
@@ -1597,7 +1638,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
               done();
             }
           });
@@ -1648,7 +1689,7 @@ describe('async-writer-babel', () => {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(path.node.shellType).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
+              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: types.unknown });
               done();
             }
           });
@@ -1696,13 +1737,12 @@ function f() {
           traverse(ast, {
             Function(path) {
               if (path.node.id.name === 'f') {
-                expect(path.node.shellType).to.deep.equal({
-                  type: 'function',
-                  returnsPromise: false,
-                  returnType: {
-                    type: 'function', returnsPromise: false, returnType: types.Database
-                  }
-                });
+                expect(Object.keys(path.node.shellType)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
+                expect(path.node.shellType.type).to.equal('function');
+                expect(path.node.shellType.returnsPromise).to.be.false;
+                expect(skipPath(path.node.shellType.returnType)).to.deep.equal(
+                  { type: 'function', returnsPromise: false, returnType: types.Database }
+                );
                 done();
               }
             }
@@ -1738,7 +1778,7 @@ function f() {
           traverse(ast, {
             Function(path) {
               if (path.node.id.name === 'f') {
-                expect(path.node.shellType).to.deep.equal({
+                expect(skipPath(path.node.shellType)).to.deep.equal({
                   type: 'function',
                   returnsPromise: false,
                   returnType: types.unknown
@@ -1752,7 +1792,7 @@ function f() {
           traverse(ast, {
             Function(path) {
               if (path.node.id.name === 'g') {
-                expect(path.node.shellType).to.deep.equal({
+                expect(skipPath(path.node.shellType)).to.deep.equal({
                   type: 'function',
                   returnsPromise: false,
                   returnType: types.Collection.attributes.find
@@ -1779,7 +1819,8 @@ function f() {
 }`);
         });
         it('updates symbol table', () => {
-          expect(spy.scopeAt(1)).to.deep.equal({ f: { type: 'function', returnType: types.unknown, returnsPromise: false } });
+          expect(Object.keys(spy.scopeAt(1))).to.deep.equal(['f']);
+          expect(skipPath(spy.scopeAt(1).f)).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false } );
         });
       });
       describe('ensure assigned keyword function name is not hoisted', () => {
@@ -1796,7 +1837,7 @@ function f() {
           });
           it('updates symbol table', () => {
             expect(spy.lookup('f')).to.deep.equal(types.unknown);
-            expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
+            expect(skipPath(spy.lookup('c'))).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
           });
         });
         describe('AssignmentExpression', () => {
@@ -1812,7 +1853,7 @@ function f() {
           });
           it('updates symbol table', () => {
             expect(spy.lookup('f')).to.deep.equal(types.unknown);
-            expect(spy.lookup('c')).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
+            expect(skipPath(spy.lookup('c'))).to.deep.equal({ type: 'function', returnType: types.unknown, returnsPromise: false });
           });
         });
       });
@@ -1873,12 +1914,16 @@ class Test {
 
 }
 
-;`); // TOOD: weird formatting
+;`);
       });
       it('decorates ClassDeclaration', (done) => {
         traverse(ast, {
           ClassDeclaration(path) {
-            expect(path.node.shellType).to.deep.equal(type);
+            const rt = path.node.shellType;
+            expect(rt.type).to.equal('classdef');
+            expect(rt.returnType.type).to.equal('Test');
+            expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+            expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
             done();
           }
         });
@@ -1886,10 +1931,12 @@ class Test {
       it('updates symbol table', () => {
         expect(spy.addToParent.calledOnce).to.be.true;
         const call = spy.addToParent.getCall(0);
-        expect(call.args).to.deep.equal([
-          'Test',
-          type
-        ]);
+        expect(call.args[0]).to.equal('Test');
+        const rt = call.args[1];
+        expect(rt.type).to.equal('classdef');
+        expect(rt.returnType.type).to.equal('Test');
+        expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+        expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
       });
     });
   });
@@ -1922,7 +1969,9 @@ class Test {
     it('decorates NewExpression', (done) => {
       traverse(ast, {
         NewExpression(path) {
-          expect(path.node.shellType).to.deep.equal(type.returnType);
+          expect(path.node.shellType.type).to.equal('Test');
+          expect(skipPath(path.node.shellType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+          expect(skipPath(path.node.shellType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
           done();
         }
       });
@@ -1930,10 +1979,10 @@ class Test {
     it('updates symbol table', () => {
       expect(spy.add.calledOnce).to.be.true;
       const call = spy.add.getCall(0);
-      expect(call.args).to.deep.equal([
-        'x',
-        type.returnType
-      ]);
+      expect(call.args[0]).to.equal('x');
+      expect(call.args[1].type).to.equal('Test');
+      expect(skipPath(call.args[1].attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+      expect(skipPath(call.args[1].attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
     });
   });
   describe('branching', () => {
@@ -2631,7 +2680,4 @@ switch(TEST) {
       });
     });
   });
-  // describe('multi-line input', () => {
-  //
-  // });
 });
