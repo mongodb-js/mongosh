@@ -71,6 +71,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       const lhsType = path.node.callee.shellType;
 
       // check that the user is not passing a type that has async children to a self-defined function
+      // TODO: this is possible for scripts but not for line-by-line shell execution. So turned off for everything.
       path.node.arguments.forEach((a) => {
         if (a.shellType.hasAsyncChild || a.shellType.returnsPromise) {
           throw new Error('Cannot pass Shell API object to user-defined function');
@@ -97,6 +98,30 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         }
       }
       path.node.shellType = sType;
+
+      if ('path' in lhsType && sType.type !== 'classdef') {
+        const funcPath = lhsType.path;
+        debug(`== visiting function definition for ${lhsType.type}`);
+        this.symbols.pushScope(); // manually push/pop scope because body doesn't get visited
+
+        // TODO: this will allow for passing shell types to functions in scripts, but turned off for now.
+        // path.node.arguments.forEach((a, i) => {
+        //   const argName = funcPath.node.params[i].name;
+        //   this.symbols.add(argName, a.shellType);
+        // });
+        path.skip();
+        funcPath.get('body').traverse(
+          TypeInferenceVisitor,
+          {
+            t: this.t,
+            skip: this.skip,
+            returnValues: this.returnValues,
+            symbols: this.symbols
+          }
+        );
+        this.symbols.popScope();
+        debug('== end visiting function definition');
+      }
       debug(`CallExpression: { ${dbg}, callee.shellType: ${lhsType.type} }`, path.node.shellType.type);
     }
   },
@@ -245,7 +270,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         rType = this.symbols.types.unknown;
       }
 
-      const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
+      const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType, path: path };
       if (path.node.id !== null && !this.t.isAssignmentExpression(path.parent) && !this.t.isVariableDeclarator(path.parent)) {
         this.symbols.updateFunctionScoped(path, path.node.id.name, sType, this.t);
       }
@@ -425,7 +450,7 @@ export default class AsyncWriter {
     this.symbols = symbols; // public so symbols can be read externally
 
     this.plugin = ({ types: t }): any => {
-      const skips = Object.keys(TypeInferenceVisitor).filter(s => /^[A-Z]/.test(s[0])).map(s => `is${s}`);
+      const skip = Object.keys(TypeInferenceVisitor).filter(s => /^[A-Z]/.test(s[0])).map(s => `is${s}`);
       return {
         // post(state): void {
         //   const printAST = require('ast-pretty-print');
@@ -439,7 +464,7 @@ export default class AsyncWriter {
               path.skip();
               path.traverse(TypeInferenceVisitor, {
                 t: t,
-                skip: skips,
+                skip: skip,
                 returnValues: [],
                 symbols: symbols
               });
