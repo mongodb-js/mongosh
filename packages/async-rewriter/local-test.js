@@ -17,7 +17,7 @@ const scope = [
 // const spy = sinon.spy(st);
 const writer = new AsyncWriter(scope[1], types);
 const input = [`
-  { const x = function () => {} }
+  function f () {}
 `,
 ];
 

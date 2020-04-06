@@ -246,7 +246,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       }
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType };
-      if (path.node.id !== null) {
+      if (path.node.id !== null && !this.t.isAssignmentExpression(path.parent) && !this.t.isVariableDeclarator(path.parent)) {
         this.symbols.updateFunctionScoped(path, path.node.id.name, sType, this.t);
       }
 
