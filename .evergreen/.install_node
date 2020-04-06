@@ -23,12 +23,12 @@ if [[ $OSTYPE == "cygwin" ]]; then
   npm run bootstrap
 else
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-  nvm install $NODE_JS_VERSION
-  nvm alias default $NODE_JS_VERSION
-  npm install -g npm@latest
-  npm run bootstrap
   export NVM_DIR="$HOME/.nvm"
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  nvm install $NODE_JS_VERSION
+  nvm alias default $NODE_JS_VERSION
+  npm install -g npm@latest
+  npm run bootstrap
 fi
