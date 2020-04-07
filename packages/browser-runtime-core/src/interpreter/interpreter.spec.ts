@@ -25,7 +25,7 @@ describe('Interpreter', () => {
         result = await interpreter.evaluate(code);
       }
 
-      return result.value;
+      return result;
     };
   });
 
@@ -208,12 +208,12 @@ describe('Interpreter', () => {
       expect(error.message).to.contain('Identifier \'sum\' has already been declared');
     });
 
-    it.skip('allows top level await', async() => {
+    it('allows top level await', async() => {
       expect(
         await testEvaluate(
           '1 + await Promise.resolve(1)'
         )
-      ).to.equal(1);
+      ).to.equal(2);
     });
 
     it('throws with top level return', async() => {
@@ -226,46 +226,6 @@ describe('Interpreter', () => {
 
       expect(error.message)
         .to.contain('\'return\' outside of function');
-    });
-
-    it('allows to invoke the help command', async() => {
-      testEnvironment.getContextObject().help = (): string => 'help invoked';
-
-      expect(
-        await testEvaluate(
-          'help'
-        )
-      ).to.equal('help invoked');
-    });
-
-    it('allows to invoke the it command', async() => {
-      testEnvironment.getContextObject().it = (): string => 'it invoked';
-
-      expect(
-        await testEvaluate(
-          'it'
-        )
-      ).to.equal('it invoked');
-    });
-
-    it('allows to invoke the show command', async() => {
-      testEnvironment.getContextObject().show = (): string => 'show invoked';
-
-      expect(
-        await testEvaluate(
-          'show'
-        )
-      ).to.equal('show invoked');
-    });
-
-    it('allows to invoke the use command', async() => {
-      testEnvironment.getContextObject().use = (): string => 'use invoked';
-
-      expect(
-        await testEvaluate(
-          'use'
-        )
-      ).to.equal('use invoked');
     });
   });
 });

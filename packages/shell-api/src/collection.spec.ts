@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import Mapper from '../../mapper';
 import { Collection, Database } from './shell-api';
-import * as types from './shell-types';
+import * as signatures from './shell-api-signatures';
 import { expect } from 'chai';
 
 /**
@@ -18,7 +18,7 @@ import { expect } from 'chai';
  * @param {String} name - the name of the method to invoke
  */
 function testWrappedMethod(name: string): void {
-  const attribute = types.Collection.attributes[name];
+  const attribute = signatures.Collection.attributes[name];
   expect(attribute).to.exist;
   expect(attribute.type).to.equal('function');
 

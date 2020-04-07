@@ -190,8 +190,10 @@ const loadAll = () => {
   const main = fs.readFileSync(path.join(yamlDir, 'main.yaml'));
   const mainLib = yaml.load(main);
   const FILES = fs.readdirSync(yamlDir).filter((s) => (/[A-Z]/.test( s[0])));
-  let exports = '\nexport default ShellApi;\n';
-  const types = ['const unknown = {\n  type: \'unknown\',\n  attributes: {}\n}'];
+  let exports = '';
+  const types = [
+    'const unknown = {\n  type: \'unknown\',\n  attributes: {}\n}',
+  ];
   const typeConsts = ['unknown'];
 
   const classes = FILES.reduce((str, fileName) => {
@@ -223,7 +225,7 @@ const loadAll = () => {
   );
 
   fs.writeFileSync(
-    path.join(__dirname, '..', 'src', 'shell-types.js'),
+    path.join(__dirname, '..', 'src', 'shell-api-signatures.js'),
     `${types.join(';\n')};\nexport {\n  ${typeConsts.join(',\n  ')}\n};`
   );
 };

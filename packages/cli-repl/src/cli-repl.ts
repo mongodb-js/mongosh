@@ -4,8 +4,7 @@ import formatOutput from './format-output';
 import { TELEMETRY } from './constants';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
-import Mapper from '@mongosh/mapper';
-import redactPwd from './redact-pwd';
+import ShellEvaluator from '@mongosh/shell-evaluator';
 import completer from './completer';
 import redact from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
@@ -29,9 +28,8 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  * The REPL used from the terminal.
  */
 class CliRepl {
-  readonly useAsync?: boolean;
   private serviceProvider: CliServiceProvider;
-  private mapper: Mapper;
+  private ShellEvaluator: ShellEvaluator;
   private mdbVersion: any;
   private repl: REPLServer;
   private bus: Nanobus;
@@ -51,7 +49,7 @@ class CliRepl {
     this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.mapper = new Mapper(this.serviceProvider, this.bus);
+    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.mdbVersion = await this.serviceProvider.getServerVersion();
     this.start();
   }
@@ -60,8 +58,6 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
-    this.useAsync = !!options.async;
-    console.log(`cli-repl async=${this.useAsync}`);
     this.options = options;
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
 
@@ -69,7 +65,7 @@ class CliRepl {
     this.generateOrReadTelemetryConfig();
 
     this.bus = new Nanobus('mongosh');
-    const log = logger(this.bus, this.mongoshDir);
+    logger(this.bus, this.mongoshDir);
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
@@ -85,7 +81,7 @@ class CliRepl {
     try {
       mkdirp.sync(this.mongoshDir);
     } catch(e) {
-      this.bus.emit('error', e)
+      this.bus.emit('error', e);
       throw e;
     }
   }
@@ -158,47 +154,6 @@ class CliRepl {
     }
   }
 
-
-  /**
-   * Returns true if a value is a shell api type
-   *
-   * @param {any} evaluationResult - The result of evaluation
-   */
-  private isShellApiType(evaluationResult: any): boolean {
-    return evaluationResult &&
-      typeof evaluationResult.shellApiType === 'function' &&
-      typeof evaluationResult.toReplString === 'function'
-  }
-
-  /**
-   * The custom evaluation function. Evaluates the provided input and further
-   * resolves the the result with
-   *
-   * @param {} originalEval - The original eval function.
-   * @param {} input - The input.
-   * @param {} context - The context.
-   * @param {} filename - The filename.
-   */
-  async evaluateAndResolveApiType(originalEval: any, input: string, context: any, filename: string) {
-    const evaluationResult = await this.evaluate(
-      originalEval,
-      input,
-      context,
-      filename
-    )
-
-    if (this.isShellApiType(evaluationResult)) {
-      return {
-        type: evaluationResult.shellApiType(),
-        value: await evaluationResult.toReplString()
-      };
-    }
-
-    return {
-      value: evaluationResult
-    };
-  }
-
   /**
    * Format the result to a string so it can be written to the output stream.
    */
@@ -212,34 +167,6 @@ class CliRepl {
     }
 
     return formatOutput(result);
-  }
-
-  /**
-   * Evaluates the provided input
-   */
-  async evaluate(originalEval: any, input: string, context: any, filename: string) {
-    const argv = input.trim().split(' ');
-    const cmd = argv[0];
-    argv.shift();
-    switch(cmd) {
-      case 'use':
-        return this.repl.context.use(argv[0]);
-      case 'show':
-        return this.repl.context.show(argv[0]);
-      case 'it':
-        return this.repl.context.it();
-      case 'enableTelemetry':
-        return this.toggleTelemetry(true);
-      case 'disableTelemetry':
-        return this.toggleTelemetry(false);
-      case 'help':
-        this.bus.emit('cmd:help')
-        return this.repl.context.help();
-      case 'var':
-        this.mapper.cursorAssigned = true;
-      default:
-        return originalEval(input, context, filename);
-    }
   }
 
   /**
@@ -288,7 +215,6 @@ class CliRepl {
     this.greet();
 
     const version = this.mdbVersion;
-    const bus = this.bus;
 
     this.repl = repl.start({
       prompt: `$ mongosh > `,
@@ -301,19 +227,10 @@ class CliRepl {
 
     const customEval = async(input, context, filename, callback) => {
       try {
-        let str;
-        if (this.useAsync) {
-          const syncStr = this.mapper.asyncWriter.compile(input);
-          console.log(`DEBUG: rewrote input "${input.trim()}" to "${syncStr.trim()}"`);
-          str = await this.evaluateAndResolveApiType(originalEval, syncStr, context, filename);
-        } else {
-          str = await this.evaluateAndResolveApiType(originalEval, input, context, filename);
-        }
-        callback(null, str);
+        const result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
+        callback(null, result);
       } catch (err) {
         callback(err, null);
-      } finally {
-        this.mapper.cursorAssigned = false;
       }
     };
 
@@ -340,7 +257,7 @@ class CliRepl {
       process.exit();
     });
 
-    this.mapper.setCtx(this.repl.context);
+    this.ShellEvaluator.setCtx(this.repl.context);
   }
 }
 

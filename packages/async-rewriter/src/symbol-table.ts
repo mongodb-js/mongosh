@@ -4,24 +4,24 @@
  */
 export default class SymbolTable {
   private scopeStack: object[];
-  public types: any;
+  public signatures: any;
 
   /**
    * Construct a new SymbolTable instance.
    * @param initialScope - usually empty, only set when deep copying SymbolTable.
-   * @param types - a type object that has at least the 'type' and 'attributes' keys. Will be one of:
+   * @param signatures - a type object that has at least the 'type' and 'attributes' keys. Will be one of:
    *     unknown: { type: 'unknown', attributes?: {} }
    *     function: { type: 'function', returnsPromise?: bool, returnType?: type name or obj, attributes?: {} }
    *     class instance: { type: classname, attributes?: {} }
    *     class definition: { type: 'classdef', returnType: type name or obj }
    */
-  constructor(initialScope: object[], types: object) {
-    this.types = { unknown: { type: 'unknown', attributes: {} } };
-    Object.assign(this.types, types);
+  constructor(initialScope: object[], signatures: object) {
+    this.signatures = { unknown: { type: 'unknown', attributes: {} } };
+    Object.assign(this.signatures, signatures);
     this.scopeStack = initialScope;
-    Object.keys(types).forEach(s => {
+    Object.keys(signatures).forEach(s => {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
-      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.types[s], lib: true };
+      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], lib: true };
     });
   }
 
@@ -78,7 +78,7 @@ export default class SymbolTable {
       });
       newStack.push(newScope);
     });
-    return new SymbolTable(newStack, this.types);
+    return new SymbolTable(newStack, this.signatures);
   }
 
   /**
@@ -92,7 +92,7 @@ export default class SymbolTable {
         return this.scopeStack[i][item];
       }
     }
-    return this.types.unknown;
+    return this.signatures.unknown;
   }
 
   /**
@@ -226,7 +226,7 @@ export default class SymbolTable {
             throw new Error(`Error: cannot conditionally assign Shell API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
           } else {
             // Types differ, but none are async, so can safely just call it unknown.
-            thisScope[k] = this.types.unknown;
+            thisScope[k] = this.signatures.unknown;
           }
         }
       });

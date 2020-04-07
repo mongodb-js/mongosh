@@ -27,6 +27,10 @@ class DemoServiceProvider {
       ok: 1
     };
   }
+
+  async stats(): Promise<any> {
+    return { size: 1000 };
+  }
 }
 
 const runtime = new IframeRuntime(new DemoServiceProvider() as any);

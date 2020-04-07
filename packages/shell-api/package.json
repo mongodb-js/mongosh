@@ -1,7 +1,7 @@
 {
   "name": "@mongosh/shell-api",
   "version": "0.0.1-alpha.10",
-  "description": "MongoDB Shell API Package",
+  "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "config": {
@@ -12,7 +12,7 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile-api": "node bin/compile-shell-api.js && eslint --fix src/shell-api.js && eslint --fix src/shell-types.js",
+    "compile-api": "node bin/compile-shell-api.js && eslint --fix src/shell-api.js && eslint --fix src/shell-api-signatures.js",
     "precompile-ts": "npm run compile-api",
     "compile-ts": "tsc -p tsconfig.json",
     "pretest": "npm run compile-api",

@@ -1174,54 +1174,6 @@ class Shard {
   }
 }
 
-
-class ShellApi {
-  constructor(_mapper) {
-    this._mapper = _mapper;
-
-    this.toReplString = () => {
-      return JSON.parse(JSON.stringify(this));
-    };
-
-    this.shellApiType = () => {
-      return 'ShellApi';
-    };
-    this.help = () => new Help({ 'help': 'shell-api.help.description', 'docs': 'shell-api.help.link', 'attr': [{ 'name': 'use', 'description': 'shell-api.help.help.use' }, { 'name': 'it', 'description': 'shell-api.help.help.it' }, { 'name': '.exit', 'description': 'shell-api.help.help.exit' }, { 'name': 'show', 'description': 'shell-api.help.help.show-dbs' }] });
-  }
-
-  use(...args) {
-    return this._mapper.use(this, ...args);
-  }
-
-  it(...args) {
-    return this._mapper.it(this, ...args);
-  }
-
-  show(...args) {
-    return this._mapper.show(this, ...args);
-  }
-}
-
-
-ShellApi.prototype.use.help = () => new Help({ 'help': '!! No help defined for this method' });
-ShellApi.prototype.use.serverVersions = ['0.0.0', '4.4.0'];
-ShellApi.prototype.use.topologies = [0, 1, 2];
-ShellApi.prototype.use.returnsPromise = false;
-ShellApi.prototype.use.returnType = 'unknown';
-
-ShellApi.prototype.it.help = () => new Help({ 'help': '!! No help defined for this method' });
-ShellApi.prototype.it.serverVersions = ['0.0.0', '4.4.0'];
-ShellApi.prototype.it.topologies = [0, 1, 2];
-ShellApi.prototype.it.returnsPromise = false;
-ShellApi.prototype.it.returnType = 'unknown';
-
-ShellApi.prototype.show.help = () => new Help({ 'help': '!! No help defined for this method' });
-ShellApi.prototype.show.serverVersions = ['0.0.0', '4.4.0'];
-ShellApi.prototype.show.topologies = [0, 1, 2];
-ShellApi.prototype.show.returnsPromise = false;
-ShellApi.prototype.show.returnType = 'unknown';
-
-
 class UpdateResult {
   constructor(acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId) {
     this.acknowleged = acknowleged;
@@ -1269,8 +1221,6 @@ const Topologies = Object.freeze({
   'Standalone': 1,
   'Shard': 2
 });
-
-export default ShellApi;
 export { AggregationCursor };
 export { BulkWriteResult };
 export { Collection };
@@ -1281,7 +1231,6 @@ export { InsertManyResult };
 export { InsertOneResult };
 export { ReplicaSet };
 export { Shard };
-export { ShellApi };
 export { UpdateResult };
 export { ReadPreference };
 export { DBQuery };

@@ -33,7 +33,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       const id = path.node.name;
       let sType = this.symbols.lookup(id);
       if (typeof sType === 'string') {
-        sType = this.symbols.types[sType];
+        sType = this.symbols.signatures[sType];
       }
       path.node.shellType = sType;
       debug(`Identifier: { name: ${path.node.name} }`, sType.type);
@@ -50,16 +50,16 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
             '';
           throw new Error(`Cannot access shell API attributes dynamically.${help}`);
         }
-        path.node.shellType = this.symbols.types.unknown;
+        path.node.shellType = this.symbols.signatures.unknown;
         return;
       }
-      let sType = this.symbols.types.unknown;
+      let sType = this.symbols.signatures.unknown;
       if (lhsType.attributes === undefined) {
-        sType = this.symbols.types.unknown;
+        sType = this.symbols.signatures.unknown;
       } else if (rhs in lhsType.attributes) {
         sType = lhsType.attributes[rhs];
       } else if (lhsType.type === 'Database') {
-        sType = this.symbols.types.Collection;
+        sType = this.symbols.signatures.Collection;
       }
       path.node.shellType = sType;
       debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, sType.type);
@@ -80,10 +80,10 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
 
       // determine return type
       const returnType = lhsType.returnType;
-      let sType = this.symbols.types.unknown;
+      let sType = this.symbols.signatures.unknown;
       if (lhsType.type === 'function') {
         if (typeof returnType === 'string') {
-          sType = this.symbols.types[returnType];
+          sType = this.symbols.signatures[returnType];
         } else if (returnType !== undefined) {
           sType = returnType;
         }
@@ -104,7 +104,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         debug(`== visiting function definition for ${lhsType.type}`);
         this.symbols.pushScope(); // manually push/pop scope because body doesn't get visited
 
-        // TODO: this will allow for passing shell types to functions in scripts, but turned off for now.
+        // TODO: this will allow for passing shell signatures to functions in scripts, but turned off for now.
         // path.node.arguments.forEach((a, i) => {
         //   const argName = funcPath.node.params[i].name;
         //   this.symbols.add(argName, a.shellType);
@@ -127,11 +127,11 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
   },
   VariableDeclarator: {
     exit(path): void {
-      let sType = this.symbols.types.unknown;
+      let sType = this.symbols.signatures.unknown;
       if (path.node.init !== null) {
         sType = path.node.init.shellType;
       }
-      path.node.shellType = this.symbols.types.unknown;
+      path.node.shellType = this.symbols.signatures.unknown;
       const kind = path.findParent(p => this.t.isVariableDeclaration(p));
       if (kind === null) {
         throw new Error('internal error');
@@ -148,7 +148,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
   },
   AssignmentExpression: {
     exit(path): void {
-      const sType = path.node.right.shellType === undefined ? this.symbols.types.unknown : path.node.right.shellType;
+      const sType = path.node.right.shellType === undefined ? this.symbols.signatures.unknown : path.node.right.shellType;
       if (!this.symbols.updateIfDefined(path.node.left.name, sType)) {
         this.symbols.updateFunctionScoped(path, path.node.left.name, sType, this.t);
       }
@@ -166,7 +166,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           throw new Error('Unreachable');
         }
         attributes[k] = n.value.shellType;
-        if ((attributes[k].type !== 'unknown' && attributes[k].type in this.symbols.types) || attributes[k].hasAsyncChild) {
+        if ((attributes[k].type !== 'unknown' && attributes[k].type in this.symbols.signatures) || attributes[k].hasAsyncChild) {
           hasAsyncChild = true;
         }
       });
@@ -180,7 +180,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       let hasAsyncChild = false;
       path.node.elements.forEach((n, i) => {
         attributes[i] = n.shellType;
-        if ((attributes[i].type !== 'unknown' && attributes[i].type in this.symbols.types) || attributes[i].hasAsyncChild) {
+        if ((attributes[i].type !== 'unknown' && attributes[i].type in this.symbols.signatures) || attributes[i].hasAsyncChild) {
           hasAsyncChild = true;
         }
       });
@@ -222,7 +222,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       // determine return type
       const lhsType = this.symbols.lookup(className);
 
-      path.node.shellType = lhsType.returnType || this.symbols.types.unknown;
+      path.node.shellType = lhsType.returnType || this.symbols.signatures.unknown;
       debug(`NewExpression: { ${dbg}, callee.shellType: ${lhsType.type} }`, path.node.shellType.type);
     }
   },
@@ -247,7 +247,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       });
       symbolCopy1.popScope();
 
-      let rType = this.symbols.types.unknown;
+      let rType = this.symbols.signatures.unknown;
       let dbg;
       if (returnTypes.length === 0) { // no return value, take last or unknown
         if (!this.t.isBlockStatement(path.node.body)) { // => (...);
@@ -255,7 +255,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           rType = path.node.body.shellType;
         } else { // => { ... }
           dbg = 'no return in block statement, undefined';
-          rType = this.symbols.types.unknown;
+          rType = this.symbols.signatures.unknown;
         }
       } else if (returnTypes.length === 1) {
         dbg = 'single return stmt';
@@ -268,7 +268,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         if (someAsync) {
           throw new Error('Error: function can return different types, must be the same type');
         }
-        rType = this.symbols.types.unknown;
+        rType = this.symbols.signatures.unknown;
       }
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType, path: path };
@@ -282,7 +282,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
   },
   ReturnStatement: {
     exit(path): void {
-      const sType = path.node.argument === null ? this.symbols.types.unknown : path.node.argument.shellType;
+      const sType = path.node.argument === null ? this.symbols.signatures.unknown : path.node.argument.shellType;
       path.node.shellType = sType;
       this.returnValues.push(sType);
       debug('ReturnStatement', sType.type);
@@ -342,7 +342,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
 
       // set type for ternary
       if (this.t.isConditionalExpression(path.node)) {
-        path.node.shellType = this.symbols.types.unknown;
+        path.node.shellType = this.symbols.signatures.unknown;
         if (this.t.isSequenceExpression(path.node.consequent) && this.t.isSequenceExpression(path.node.alternate)) {
           const consType = path.node.consequent.expressions[path.node.consequent.expressions.length - 1].shellType;
           const altType = path.node.alternate.expressions[path.node.alternate.expressions.length - 1].shellType;
@@ -355,7 +355,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
             if (cAsync || aAsync) {
               throw new Error('cannot conditionally assign shell API types');
             }
-            path.node.shellType = this.symbols.types.unknown;
+            path.node.shellType = this.symbols.signatures.unknown;
           }
         }
       }
@@ -432,7 +432,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   exit(path): void {
-    const type = path.node.shellType || this.symbols.types.unknown;
+    const type = path.node.shellType || this.symbols.signatures.unknown;
     if (this.skip.some((t) => (this.t[t](path.node)))) { // TODO: nicer?
       debug(`${path.node.type}`);
       return;
@@ -446,8 +446,8 @@ export default class AsyncWriter {
   public symbols: SymbolTable;
   private plugin: any;
 
-  constructor(types: object, st?: SymbolTable) {
-    const symbols = st ? st : new SymbolTable([{}], types);
+  constructor(signatures: object, st?: SymbolTable) {
+    const symbols = st ? st : new SymbolTable([{}], signatures);
     this.symbols = symbols; // public so symbols can be read externally
 
     this.plugin = ({ types: t }): any => {

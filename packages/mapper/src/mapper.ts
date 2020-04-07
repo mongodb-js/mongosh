@@ -1,6 +1,7 @@
 import {
   AggregationCursor,
   BulkWriteResult,
+  Collection,
   Cursor,
   Database,
   DeleteResult,
@@ -9,18 +10,13 @@ import {
   UpdateResult,
   CursorIterationResult,
   CommandResult,
-  ShowDbsResult,
-  ShellApi,
-  types,
-  Collection
+  ShowDbsResult
 } from '@mongosh/shell-api';
 
 import {
   ServiceProvider,
   Document
 } from '@mongosh/service-provider-core';
-
-import AsyncWriter from '@mongosh/async-rewriter';
 
 import { EventEmitter } from 'events';
 
@@ -30,60 +26,17 @@ export default class Mapper {
   private databases: any;
 	private messageBus: EventEmitter;
   public context: any;
-  public cursorAssigned: any;
-  public asyncWriter: AsyncWriter;
 
   constructor(serviceProvider, messageBus?) {
     this.serviceProvider = serviceProvider;
     /* Internal state gets stored in mapper, state that is visible to the user
      * is stored in ctx */
     this.currentCursor = null;
-    this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
     this.messageBus = messageBus || new EventEmitter();
-    this.asyncWriter = new AsyncWriter(types); // TODO: this will go in context object
-    this.asyncWriter.symbols.initializeApiObjects({ db: types.Database });
   }
 
-  /**
-   * Prepare a `contextObject` as global context and set it as context
-   * for the mapper.
-   *
-   * The `contextObject` is prepared so that it can be used as global object
-   * for the repl evaluation.
-   *
-   * @note The `contextObject` is mutated, it will retain all of its existing
-   * properties but also have the global shell api objects and functions.
-   *
-   * @param {Object} - contextObject an object used as global context.
-   */
-  setCtx(contextObject: any): void {
-    const shellApi = new ShellApi(this);
-
-    const attributes = Object.keys(types.ShellApi.attributes);
-    const ownProperties = Object.getOwnPropertyNames(shellApi);
-
-    const publicAttributes = [
-      ...attributes,
-      ...ownProperties
-    ]
-      .filter((name) => (!name.startsWith('_')));
-
-    publicAttributes.forEach((name) => {
-      const attribute = shellApi[name];
-      if (typeof(attribute) === 'function') {
-        contextObject[name] = attribute.bind(shellApi);
-      } else {
-        contextObject[name] = attribute;
-      }
-    });
-
-    contextObject.db = this.databases.test;
-    this.context = contextObject;
-    this.messageBus.emit('setCtx', this.context.db);
-  }
-
-  use(_, db): any {
+  use(db): any {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
@@ -93,7 +46,7 @@ export default class Mapper {
     return `switched to db ${db}`;
   }
 
-  async show(_, arg): Promise<any> {
+  async show(arg): Promise<any> {
     switch (arg) {
       case 'databases':
       case 'dbs':
@@ -122,13 +75,12 @@ export default class Mapper {
 
     if (
       !this.currentCursor ||
-      this.cursorAssigned ||
       this.currentCursor.isClosed()
     ) {
       return results;
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
       if (!await this.currentCursor.hasNext()) {
         this.messageBus.emit('cmd:it', 'no cursor');
         break;
