@@ -1,4 +1,5 @@
-import { types as shellTypes } from '@mongosh/shell-api';
+import { signatures as shellSignatures } from '@mongosh/shell-api';
+import { shellApiSignature } from '@mongosh/shell-evaluator';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,
@@ -14,12 +15,12 @@ const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
 
 const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
-const SHELL_COMPLETIONS = shellTypes.ShellApi.attributes;
-const COLL_COMPLETIONS = shellTypes.Collection.attributes;
-const AGG_CURSOR_COMPLETIONS = shellTypes.AggregationCursor.attributes;
-const COLL_CURSOR_COMPLETIONS = shellTypes.Cursor.attributes;
-const RS_COMPLETIONS = shellTypes.ReplicaSet.attributes;
-const SHARD_COMPLETE = shellTypes.Shard.attributes;
+const SHELL_COMPLETIONS = shellApiSignature.attributes;
+const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
+const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
+const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;
+const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes;
+const SHARD_COMPLETE = shellSignatures.Shard.attributes;
 
 /**
  * The proect stage operator.
@@ -62,7 +63,7 @@ function completer(mdbVersion: string, line: string): [string[], string] {
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length === 2) {
     // TODO: @lrlna suggest DATABASE commands (currently not available in
-    // shellTypes)
+    // shellSignatures)
     // TODO: @lrlna is there a way to suggest currently available collections?
     return [[], line];
   } else if (firstLineEl.includes('db') && splitLine.length > 2) {

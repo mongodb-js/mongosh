@@ -8,7 +8,6 @@ export type EvaluationResult = {
 };
 
 export interface Runtime {
-
   /**
    * Evaluates code
    *

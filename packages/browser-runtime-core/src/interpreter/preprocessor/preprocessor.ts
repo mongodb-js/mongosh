@@ -17,14 +17,6 @@ import {
   saveAndRestoreLexicalContext
 } from './save-and-restore-lexical-context';
 
-import {
-  transformCommandInvocation
-} from './transform-command-invocation';
-
-const SUPPORTED_COMMANDS = [
-  'help', 'use', 'it', 'show'
-];
-
 export class Preprocessor {
   private lexicalContext = {};
   private lastExpressionCallbackFunctionName: string;
@@ -41,7 +33,6 @@ export class Preprocessor {
   preprocess(code: string): string {
     let ast;
     code = wrapObjectLiteral(code);
-    code = transformCommandInvocation(code, SUPPORTED_COMMANDS);
     code = `;${code}`; // prevent literals from being parsed as directives
 
     ast = parse(code, { allowAwaitOutsideFunction: true });

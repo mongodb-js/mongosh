@@ -31,8 +31,7 @@
     "@babel/generator": "^7.9.4",
     "@babel/parser": "^7.9.4",
     "@mongosh/cli-repl": "^0.0.1-alpha.10",
-    "@mongosh/mapper": "^0.0.1-alpha.10",
     "@mongosh/service-provider-core": "^0.0.1-alpha.10",
-    "@mongosh/shell-api": "^0.0.1-alpha.10"
+    "@mongosh/shell-evaluator": "^0.0.1-alpha.10"
   }
 }

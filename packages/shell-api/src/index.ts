@@ -1,8 +1,5 @@
-import ShellApi from './shell-api';
-export default ShellApi;
-
-import * as types from './shell-types';
-export { types };
+import * as signatures from './shell-api-signatures';
+export { signatures };
 
 export { Help } from './help';
 export { ShowDbsResult } from './show-dbs';

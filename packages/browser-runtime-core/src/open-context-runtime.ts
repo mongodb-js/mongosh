@@ -3,8 +3,9 @@ import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
 import { Runtime } from './runtime';
+import { EventEmitter } from 'events';
 
-import Mapper from '@mongosh/mapper';
+import ShellEvaluator from '@mongosh/shell-evaluator';
 
 /**
  * This class is the core implementation for a runtime which is not isolated
@@ -17,17 +18,19 @@ import Mapper from '@mongosh/mapper';
 export class OpenContextRuntime implements Runtime {
   private serviceProvider: ServiceProvider;
   private interpreter: Interpreter;
+  private interpreterEnvironment: InterpreterEnvironment;
   private autocompleter: ShellApiAutocompleter;
+  private shellEvaluator: ShellEvaluator;
 
-  constructor(serviceProvider: ServiceProvider, interpreterEnvironment: InterpreterEnvironment) {
+  constructor(
+    serviceProvider: ServiceProvider,
+    interpreterEnvironment: InterpreterEnvironment
+  ) {
     this.serviceProvider = serviceProvider;
-
-    this.setupEvaluationContext(
-      interpreterEnvironment.getContextObject(),
-      serviceProvider
-    );
-
-    this.interpreter = new Interpreter(interpreterEnvironment);
+    this.interpreterEnvironment = interpreterEnvironment;
+    this.shellEvaluator = new ShellEvaluator(serviceProvider, new EventEmitter());
+    this.shellEvaluator.setCtx(this.interpreterEnvironment.getContextObject());
+    this.interpreter = new Interpreter(this.interpreterEnvironment);
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
@@ -40,11 +43,16 @@ export class OpenContextRuntime implements Runtime {
   }
 
   async evaluate(code: string): Promise<EvaluationResult> {
-    return await this.interpreter.evaluate(code);
-  }
-
-  private setupEvaluationContext(context: object, serviceProvider: object): void {
-    const mapper = new Mapper(serviceProvider);
-    mapper.setCtx(context);
+    const evalFn = this.interpreter.evaluate.bind(this.interpreter);
+    const result = await this.shellEvaluator.customEval(
+      evalFn,
+      code,
+      this.interpreterEnvironment.getContextObject(),
+      ''
+    );
+    return {
+      shellApiType: result.type,
+      value: result.value
+    };
   }
 }

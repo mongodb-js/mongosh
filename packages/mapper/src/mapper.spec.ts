@@ -24,29 +24,9 @@ describe('Mapper', () => {
     collection = new Collection(mapper, database, 'coll1');
   });
 
-  describe('setCtx', () => {
-    let ctx;
-    beforeEach(() => {
-      ctx = {};
-      mapper.setCtx(ctx);
-    });
-
-    it('sets shell api globals', () => {
-      expect(ctx).to.include.all.keys('it', 'help', 'show', 'use');
-    });
-
-    it('sets db', () => {
-      expect(ctx.db).to.be.instanceOf(Database);
-    });
-
-    it('sets the object as context for the mapper', () => {
-      expect((mapper as any).context).to.equal(ctx);
-    });
-  });
-
   describe('commands', () => {
     beforeEach(() => {
-      mapper.setCtx({});
+      mapper.context = { db: new Database(mapper, 'test') };
     });
 
     describe('show databases', () => {
@@ -68,11 +48,11 @@ describe('Mapper', () => {
         ];
 
         expect(
-          (await mapper.show(null, 'dbs')).toReplString()
+          (await mapper.show('dbs')).toReplString()
         ).to.deep.equal(expectedOutput);
 
         expect(
-          (await mapper.show(null, 'databases')).toReplString()
+          (await mapper.show('databases')).toReplString()
         ).to.deep.equal(expectedOutput);
       });
 
@@ -87,7 +67,7 @@ describe('Mapper', () => {
 coll2`;
 
           expect(
-            (await mapper.show(null, 'collections')).toReplString()
+            (await mapper.show('collections')).toReplString()
           ).to.equal(expectedOutput);
         });
       });

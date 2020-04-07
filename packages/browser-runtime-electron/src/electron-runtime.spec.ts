@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { ElectronRuntime } from './electron-runtime';
 
-describe('Mapper (integration)', function() {
+describe('Electron runtime', function() {
   let serviceProvider: CliServiceProvider;
   let electronRuntime: ElectronRuntime;
 

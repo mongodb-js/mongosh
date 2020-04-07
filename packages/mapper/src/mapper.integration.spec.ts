@@ -45,8 +45,8 @@ describe('Mapper (integration)', function() {
     collectionName = 'docs';
 
     mapper = new Mapper(serviceProvider);
-    mapper.setCtx({});
-    mapper.use({}, dbName);
+    mapper.context = { db: new Database(mapper, 'test') };
+    mapper.use(dbName);
     database = new Database(mapper, dbName);
 
     collection = new Collection(

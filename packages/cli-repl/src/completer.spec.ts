@@ -1,5 +1,5 @@
 import completer from './completer';
-import { types as shellTypes } from '@mongosh/shell-api';
+import { signatures as shellSignatures } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
 
@@ -45,7 +45,7 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.';
-      const collComplete = Object.keys(shellTypes.Collection.attributes)
+      const collComplete = Object.keys(shellSignatures.Collection.attributes)
       const adjusted = collComplete.map(c => `${i}${c}`)
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
@@ -76,7 +76,7 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).';
-      const aggCursorComplete = Object.keys(shellTypes.AggregationCursor.attributes)
+      const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes)
       const adjusted = aggCursorComplete.map(c => `${i}${c}`)
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);

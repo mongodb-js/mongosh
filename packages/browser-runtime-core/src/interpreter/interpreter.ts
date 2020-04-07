@@ -40,25 +40,6 @@ export class Interpreter {
     const preprocessedCode = this.preprocessor.preprocess(code);
     await this.environment.sloppyEval(preprocessedCode);
 
-    return await this.adaptResult(result);
-  }
-
-  async adaptResult(result: any): Promise<EvaluationResult> {
-    let value = await result;
-    let shellApiType;
-
-    if (value) {
-      if (typeof value.shellApiType === 'function') {
-        shellApiType = value.shellApiType();
-      }
-      if (typeof value.toReplString === 'function') {
-        value = await value.toReplString();
-      }
-    }
-
-    return {
-      shellApiType,
-      value
-    };
+    return await result;
   }
 }

@@ -1,15 +1,8 @@
 {
-  "name": "@mongosh/mapper",
+  "name": "@mongosh/shell-evaluator",
   "version": "0.0.1-alpha.10",
-  "description": "MongoDB Shell Mapper Package",
+  "description": "MongoDB Top Level API Package",
   "main": "./lib/index.js",
-  "config": {
-    "unsafe-perm": true
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/mongodb-js/mongosh.git"
-  },
   "scripts": {
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
@@ -17,6 +10,13 @@
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -26,15 +26,12 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@mongosh/service-provider-core": "^0.0.1-alpha.10",
+    "@mongosh/async-rewriter": "^0.0.1-alpha.10",
     "@mongosh/shell-api": "^0.0.1-alpha.10",
-    "pretty-bytes": "^5.3.0",
-    "text-table": "^0.2.0"
+    "@mongosh/mapper": "^0.0.1-alpha.10"
   },
   "devDependencies": {
-    "@mongosh/service-provider-server": "^0.0.1-alpha.10",
-    "@types/sinon": "^7.5.1",
-    "@types/sinon-chai": "^3.2.3",
-    "ts-sinon": "^1.0.25"
+    "mocha": "^7.1.0",
+    "sinon": "^9.0.1"
   }
 }
