@@ -1,1 +1,0 @@
-{"version":3,"file":"compile.js","sourceRoot":"","sources":["../src/compile.ts"],"names":[],"mappings":";;AAAA,6BAAiE;AAQjE,IAAM,OAAO,GAAG,UAAC,MAAmB;IAClC,OAAO,cAAiB,CAAC;QACvB,KAAK,EAAE,MAAM,CAAC,KAAK;QACnB,IAAI,EAAE,MAAM,CAAC,IAAI;QACjB,MAAM,EAAE,MAAM,CAAC,MAAM;KACtB,CAAC,CAAC;AACL,CAAC,CAAC;AAEF,kBAAe,OAAO,CAAC"}
