@@ -15,16 +15,44 @@ export default class SymbolTable {
   constructor(initialScope: object[], types: object) {
     this.types = types;
     this.scopeStack = initialScope;
-    Object.keys(this.types).forEach(s => {
+    Object.keys(types).forEach(s => {
+      console.log(`checkking ${s}`);
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
-      this.add(s, { type: 'classdef', returnType: this.types[s], lib: true });
+      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.types[s], lib: true };
     });
   }
+  public initializeApiObjects(apiObjects): void {
+    Object.keys(apiObjects).forEach(key => {
+      this.scopeAt(0)[key] = apiObjects[key];
+    });
+  }
+  elidePath(type): any {
+    if (typeof type !== 'object') {
+      return type;
+    }
+    return Object.keys(type).filter(t => t !== 'path').reduce((obj, key) => {
+      obj[key] = type[key];
+      return obj;
+    }, {});
+  }
+  compareTypes(t1, t2): boolean {
+    return (JSON.stringify(this.elidePath(t1)) === JSON.stringify(this.elidePath(t2)));
+  }
   deepCopy(): SymbolTable {
-    const newStack = JSON.parse(JSON.stringify(this.scopeStack));
+    const newStack = [];
+    this.scopeStack.forEach(oldScope => {
+      const newScope = {};
+      Object.keys(oldScope).forEach(key => {
+        newScope[key] = JSON.parse(JSON.stringify(this.elidePath(oldScope[key])));
+        if ('path' in oldScope[key]) {
+          newScope[key].path = oldScope[key].path;
+        }
+      });
+      newStack.push(newScope);
+    });
     return new SymbolTable(newStack, this.types);
   }
-  lookup(item): any {
+  public lookup(item): any {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         return this.scopeStack[i][item];
@@ -32,10 +60,10 @@ export default class SymbolTable {
     }
     return this.types.unknown;
   }
-  add(item, value): void {
+  public add(item, value): void {
     this.scopeStack[this.last][item] = value;
   }
-  addToParent(item, value): void {
+  public addToParent(item, value): void {
     const end = Math.max(this.last - 1, 0);
     for (let i = end; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
@@ -45,10 +73,10 @@ export default class SymbolTable {
     }
     this.scopeStack[end][item] = value;
   }
-  addToTopLevel(item, value): void {
+  public addToTopLevel(item, value): void {
     this.scopeAt(1)[item] = value;
   }
-  update(item, value): void {
+  public update(item, value): void {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         this.scopeStack[i][item] = value;
@@ -57,7 +85,7 @@ export default class SymbolTable {
     }
     return this.add(item, value);
   }
-  updateIfDefined(item, value): boolean {
+  public updateIfDefined(item, value): boolean {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         this.scopeStack[i][item] = value;
@@ -66,7 +94,7 @@ export default class SymbolTable {
     }
     return false;
   }
-  updateFunctionScoped(path, key, type, t): void {
+  public updateFunctionScoped(path, key, type, t): void {
     // Because it adds to scopes only via nodes, will add to actual ST regardless of branching
     let scopeParent = path.getFunctionParent();
     if (scopeParent === null) {
@@ -79,24 +107,24 @@ export default class SymbolTable {
     }
     this.scopeAt(shellScope)[key] = type;
   }
-  popScope(): object {
+  public popScope(): object {
     if (this.depth === 1) return;
     return this.scopeStack.pop();
   }
-  pushScope(): number {
+  public pushScope(): number {
     const scope = {};
     return this.scopeStack.push(scope) - 1;
   }
-  get depth(): number {
+  public get depth(): number {
     return this.scopeStack.length;
   }
-  get last(): number {
+  public get last(): number {
     return this.depth - 1;
   }
-  scopeAt(i): object {
+  public scopeAt(i): object {
     return this.scopeStack[i];
   }
-  compareSymbolTables(alternates): void {
+  public compareSymbolTables(alternates): void {
     this.scopeStack.forEach((thisScope, i) => {
       const keys = new Set();
       alternates.forEach((st) => {
@@ -106,7 +134,7 @@ export default class SymbolTable {
         Object.keys(st.scopeAt(i)).forEach(k => keys.add(k));
       });
       keys.forEach((k: number) => {
-        const equal = alternates.every((a) => JSON.stringify(a.scopeAt(i)[k]) === JSON.stringify(alternates[0].scopeAt(i)[k]));
+        const equal = alternates.every((a) => this.compareTypes(a.scopeAt(i)[k], alternates[0].scopeAt(i)[k]));
         if (equal) {
           thisScope[k] = alternates[0].scopeAt(i)[k];
         } else {
@@ -120,7 +148,7 @@ export default class SymbolTable {
       });
     });
   }
-  printSymbol(symbol, key): string {
+  public printSymbol(symbol, key): string {
     const type = symbol.type;
     let info = '';
     if (type === 'function') {
@@ -145,7 +173,7 @@ export default class SymbolTable {
     }
     return `  ${key}: { type: '${type}' ${info} }`;
   }
-  print(): void {
+  public print(): void {
     console.log('----Printing Symbol Table----');
     for (let scopeDepth = this.last; scopeDepth >= 0; scopeDepth--) {
       const scope = this.scopeStack[scopeDepth];
