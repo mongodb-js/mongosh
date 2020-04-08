@@ -10,7 +10,7 @@ class:
         firstArg: ''
     help:
         help: 'shell-api.aggregation-cursor.description'
-        docs: 'https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline'
+        docs: 'shell-api.aggregation-cursor.link'
         attr:
             - name: close
               description: 'shell-api.aggregation-cursor.help.close'
@@ -36,40 +36,70 @@ class:
     close:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.close'
+            help: 'shell-api.aggregation-cursor.help.close.example'
+            docs: 'shell-api.aggregation-cursor.help.close.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.close.description'
     forEach:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.for-each'
+            help: 'shell-api.aggregation-cursor.help.for-each.example'
+            docs: 'shell-api.aggregation-cursor.help.for-each.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.for-each.description'
     hasNext:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.has-next'
+            help: 'shell-api.aggregation-cursor.help.has-next.example'
+            docs: 'shell-api.aggregation-cursor.help.has-next.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.has-next.description'
     isClosed:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.is-closed'
+            help: 'shell-api.aggregation-cursor.help.is-closed.example'
+            docs: 'shell-api.aggregation-cursor.help.is-closed.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.is-closed.description'
     isExhausted:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.is-exhausted'
+            help: 'shell-api.aggregation-cursor.help.is-exhausted.example'
+            docs: 'shell-api.aggregation-cursor.help.is-exhausted.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.is-exhausted.description'
     itcount:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.itcount'
+            help: 'shell-api.aggregation-cursor.help.itcount.example'
+            docs: 'shell-api.aggregation-cursor.help.itcount.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.itcount.description'
     map:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.map'
+            help: 'shell-api.aggregation-cursor.help.map.example'
+            docs: 'shell-api.aggregation-cursor.help.map.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.map.description'
     next:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.next'
+            help: 'shell-api.aggregation-cursor.help.next.example'
+            docs: 'shell-api.aggregation-cursor.help.next.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.next.description'
     objsLeftInBatch:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
+            help: 'shell-api.aggregation-cursor.help.objs-left-in-batch.example'
+            docs: 'shell-api.aggregation-cursor.help.objs-left-in-batch.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.objs-left-in-batch.description'
     toArray:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.aggregation-cursor.help.to-array'
+            help: 'shell-api.aggregation-cursor.help.to-array.example'
+            docs: 'shell-api.aggregation-cursor.help.to-array.link'
+            attr:
+              - description: 'shell-api.aggregation-cursor.help.to-array.description'

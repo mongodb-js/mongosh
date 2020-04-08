@@ -2,4 +2,4 @@ class:
     <<: *__defaultClass
     help:
         help: 'shell-api.replica-set.description'
-        docs: 'https://docs.mongodb.com/manual/reference/method/js-replication'
+        docs: 'shell-api.replica-set.link'

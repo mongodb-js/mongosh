@@ -8,7 +8,7 @@ class:
     __hasAsyncChild: true
     help:
         help: 'shell-api.database.description'
-        docs: 'https://docs.mongodb.com/manual/reference/method/js-database/'
+        docs: 'shell-api.database.link'
         attr:
             - name: runCommand
               description: 'shell-api.database.help.run-command'
@@ -19,7 +19,10 @@ class:
     runCommand:
         <<: *__defaultMethod
         help:
-            help: 'shell-api.database.help.run-command'
+            help: 'shell-api.database.help.run-command.example'
+            docs: 'shell-api.database.help.run-command.link'
+            attr:
+                - description: 'shell-api.database.help.run-command.description'
     getCollectionNames:
         <<: *__defaultMethod
         returnsPromise: true
@@ -27,7 +30,10 @@ class:
             - *ServerVersions.earliest
             - *ServerVersions.latest
         help:
-            help: 'shell-api.collection.help.get-collection-names'
+            help: 'shell-api.database.help.get-collection-names.example'
+            docs: 'shell-api.database.help.get-collection-names.link'
+            attr:
+                - description: 'shell-api.database.help.get-collection-names.description'
     getCollectionInfos:
         <<: *__defaultMethod
         returnsPromise: true
@@ -35,4 +41,7 @@ class:
             - '3.0.0'
             - *ServerVersions.latest
         help:
-            help: 'shell-api.collection.help.get-collection-infos'
+            help: 'shell-api.database.help.get-collection-infos.example'
+            docs: 'shell-api.database.help.get-collection-infos.link'
+            attr:
+                - description: 'shell-api.database.help.get-collection-infos.description'
