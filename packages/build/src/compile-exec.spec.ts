@@ -1,5 +1,8 @@
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
 import { expect } from 'chai';
-import {
+import compileExec, {
   ExecName,
   Platform,
   Target,
@@ -113,6 +116,28 @@ describe('compile module', () => {
     context('when the platform is linux', () => {
       it('returns the path', () => {
         expect(executablePath('', Platform.Linux)).to.equal('mongosh');
+      });
+    });
+  });
+
+  describe('.compileExec', () => {
+    const platform = os.platform();
+    const expectedExecutable = executablePath(__dirname, platform);
+    const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+
+    before(() => {
+      return compileExec(inputFile, __dirname, platform);
+    });
+
+    after((done) => {
+      fs.unlink(expectedExecutable, done);
+    });
+
+    it('builds the executable', (done) => {
+      fs.stat(expectedExecutable, (error, stats) => {
+        expect(error).to.equal(null);
+        expect(stats.size).to.be.above(0);
+        done();
       });
     });
   });

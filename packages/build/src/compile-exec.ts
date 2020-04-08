@@ -88,6 +88,7 @@ const compileExec = async(input: string, outputDir: string, platform: string) =>
   ]);
 };
 
+export default compileExec;
 export {
   ExecName,
   Platform,
