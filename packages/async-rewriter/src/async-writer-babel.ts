@@ -476,10 +476,6 @@ export default class AsyncWriter {
     };
   }
 
-  initializeApiObjects(apiObjects): void {
-    this.symbols.initializeApiObjects(apiObjects);
-  }
-
   /**
    * Returns entire AST, separated for testing.
    *
