@@ -1,0 +1,31 @@
+{
+  "name": "@mongosh/build",
+  "version": "0.0.1-alpha.10",
+  "description": "MongoDB Shell Build Tools",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "scripts": {
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^12.4.0"
+  },
+  "dependency-check": {
+    "entries": [
+      "src/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "handlebars": "^4.7.6"
+  }
+}
