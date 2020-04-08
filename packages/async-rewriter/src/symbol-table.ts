@@ -13,10 +13,10 @@ export default class SymbolTable {
   private scopeStack: object[];
   public types: any;
   constructor(initialScope: object[], types: object) {
-    this.types = types;
+    this.types = { unknown: { type: 'unknown', attributes: {} } };
+    Object.assign(this.types, types);
     this.scopeStack = initialScope;
     Object.keys(types).forEach(s => {
-      console.log(`checkking ${s}`);
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
       this.scopeAt(0)[s] = { type: 'classdef', returnType: this.types[s], lib: true };
     });
