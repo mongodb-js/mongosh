@@ -203,8 +203,9 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           attributes: attributes
         }
       };
+      // TODO: double check Class names are *not* hoisted
       this.symbols.addToParent(className, path.node.shellType);
-      debug(`ClassDeclaration: { name: ${className}}`, path.node.shellType);
+      debug(`ClassDeclaration: { name: ${className} }`, path.node.shellType);
     }
   },
   NewExpression: {
@@ -312,7 +313,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       });
 
       const symbolCopyCons = this.symbols.deepCopy();
-      const symbolCopyAlt = this.symbols.deepCopy();
+      const symbolCopyAlt = path.node.alternate !== null ? this.symbols.deepCopy() : null;
 
       optionallyWrapNode(this.t, path, 'consequent');
       path.node.consequent.shellScope = symbolCopyCons.pushScope();
@@ -346,7 +347,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           const consType = path.node.consequent.expressions[path.node.consequent.expressions.length - 1].shellType;
           const altType = path.node.alternate.expressions[path.node.alternate.expressions.length - 1].shellType;
 
-          if (JSON.stringify(consType) === JSON.stringify(altType)) {
+          if (this.symbols.compareTypes(consType, altType)) {
             path.node.shellType = consType;
           } else {
             const cAsync = consType && (consType.hasAsyncChild || consType.returnsPromise);
@@ -445,8 +446,8 @@ export default class AsyncWriter {
   public symbols: SymbolTable;
   private plugin: any;
 
-  constructor(initialScope: object, types: object, st?: SymbolTable) {
-    const symbols = st ? st : new SymbolTable([ initialScope ], types);
+  constructor(types: object, st?: SymbolTable) {
+    const symbols = st ? st : new SymbolTable([{}], types);
     this.symbols = symbols; // public so symbols can be read externally
 
     this.plugin = ({ types: t }): any => {

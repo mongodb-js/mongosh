@@ -20,7 +20,8 @@ describe('async-writer-babel', () => {
   let output;
   describe('Identifier', () => {
     before(() => {
-      writer = new AsyncWriter({ db: types.Database }, types);
+      writer = new AsyncWriter(types);
+      writer.initializeApiObjects({ db: types.Database });
     });
     describe('with known type', () => {
       before(() => {
@@ -60,11 +61,12 @@ describe('async-writer-babel', () => {
   describe('MemberExpression', () => {
     describe('with Identifier lhs', () => {
       before(() => {
-        writer = new AsyncWriter({
+        writer = new AsyncWriter(types);
+        writer.initializeApiObjects({
           db: types.Database,
           c: types.Collection,
           t: types.unknown
-        }, types);
+        });
       });
       describe('dot notation', () => {
         describe('with Database lhs type', () => {
@@ -305,9 +307,10 @@ describe('async-writer-babel', () => {
     });
     describe('with Object lhs', () => {
       before(() => {
-        writer = new AsyncWriter({
+        writer = new AsyncWriter(types);
+        writer.initializeApiObjects({
           db: types.Database,
-        }, types);
+        });
         writer.compile('a = { d: db }');
       });
       describe('dot notation', () => {
@@ -388,9 +391,10 @@ describe('async-writer-babel', () => {
     });
     describe('with Array lhs', () => {
       before(() => {
-        writer = new AsyncWriter({
+        writer = new AsyncWriter(types);
+        writer.initializeApiObjects({
           db: types.Database,
-        }, types);
+        });
         writer.compile('a = [db]');
       });
       describe('with literal index', () => {
@@ -431,7 +435,10 @@ describe('async-writer-babel', () => {
   });
   describe('ObjectExpression', () => {
     before(() => {
-      writer = new AsyncWriter({ db: types.Database }, types);
+      writer = new AsyncWriter(types);
+      writer.initializeApiObjects({
+        db: types.Database,
+      });
     });
     describe('with known type', () => {
       before(() => {
@@ -494,7 +501,10 @@ describe('async-writer-babel', () => {
   });
   describe('ArrayExpression', () => {
     before(() => {
-      writer = new AsyncWriter({ db: types.Database }, types);
+      writer = new AsyncWriter(types);
+      writer.initializeApiObjects({
+        db: types.Database,
+      });
     });
     describe('with known type', () => {
       before(() => {
@@ -558,9 +568,10 @@ describe('async-writer-babel', () => {
   describe('CallExpression', () => {
     describe('with unknown callee', () => {
       before(() => {
-        writer = new AsyncWriter({
-          t: types.unknown
-        }, types);
+        writer = new AsyncWriter(types);
+        writer.initializeApiObjects({
+          t: types.unknown,
+        });
         input = 'x()';
         ast = writer.getTransform(input).ast;
       });
@@ -580,9 +591,10 @@ describe('async-writer-babel', () => {
       describe('that requires await', () => {
         describe('returnType undefined', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               reqAwait: { type: 'function', returnsPromise: true }
-            }, types);
+            });
             input = 'reqAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -600,9 +612,10 @@ describe('async-writer-babel', () => {
         });
         describe('returnType string', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               reqAwait: { type: 'function', returnsPromise: true, returnType: 'Collection' }
-            }, types);
+            });
             input = 'reqAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -620,9 +633,10 @@ describe('async-writer-babel', () => {
         });
         describe('returnType {}', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               reqAwait: { type: 'function', returnsPromise: true, returnType: { type: 'new' } }
-            }, types);
+            });
             input = 'reqAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -640,9 +654,10 @@ describe('async-writer-babel', () => {
         });
         describe('with call nested as argument', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               reqAwait: { type: 'function', returnsPromise: true, returnType: { type: 'new' } }
-            }, types);
+            });
             input = 'reqAwait(reqAwait())';
             ast = writer.getTransform(input).ast;
           });
@@ -654,9 +669,10 @@ describe('async-writer-babel', () => {
       describe('that does not require await', () => {
         describe('returnType undefined', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               noAwait: { type: 'function', returnsPromise: false }
-            }, types);
+            });
             input = 'noAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -674,9 +690,10 @@ describe('async-writer-babel', () => {
         });
         describe('returnType string', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               noAwait: { type: 'function', returnsPromise: false, returnType: 'Collection' }
-            }, types);
+            });
             input = 'noAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -694,9 +711,10 @@ describe('async-writer-babel', () => {
         });
         describe('returnType {}', () => {
           before(() => {
-            writer = new AsyncWriter({
+            writer = new AsyncWriter(types);
+            writer.initializeApiObjects({
               noAwait: { type: 'function', returnsPromise: false, returnType: { type: 'new' } }
-            }, types);
+            });
             input = 'noAwait()';
             ast = writer.getTransform(input).ast;
           });
@@ -716,7 +734,10 @@ describe('async-writer-babel', () => {
     });
     describe('with shell API type as argument', () => {
       before(() => {
-        writer = new AsyncWriter({ db: types.Database }, types);
+        writer = new AsyncWriter(types);
+        writer.initializeApiObjects({
+          db: types.Database
+        });
       });
       it('throws an error for db', () => {
         expect(() => writer.compile('fn(db)')).to.throw();
@@ -734,7 +755,7 @@ describe('async-writer-babel', () => {
     describe('updates outer scope when called', () => {
       before(() => {
         spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-        writer = new AsyncWriter({ db: types.Database }, types, spy);
+        writer = new AsyncWriter(types, spy);
         const result = writer.getTransform(input);
         output = result.code;
       });
@@ -754,9 +775,7 @@ function f() {
     describe('LHS is function', () => {
       before(() => {
         spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-        writer = new AsyncWriter({
-          t: types.unknown
-        }, types, spy);
+        writer = new AsyncWriter(types, spy);
         input = 'a = (() => (db))()';
         ast = writer.getTransform(input).ast;
       });
@@ -774,7 +793,7 @@ function f() {
         describe('without assignment', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{}], types));
-            writer = new AsyncWriter({}, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'var x';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -800,7 +819,7 @@ function f() {
           describe('rhs is unknown type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{}], types));
-              writer = new AsyncWriter({}, types, spy);
+              writer = new AsyncWriter(types, spy);
               input = 'var x = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -825,7 +844,7 @@ function f() {
           describe('rhs is known type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-              writer = new AsyncWriter({ db: types.Database }, types, spy);
+              writer = new AsyncWriter(types, spy);
               input = 'var x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -851,7 +870,7 @@ function f() {
         describe('redefine existing variable', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'var db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -870,7 +889,7 @@ function f() {
         const type = { returnType: types.unknown, returnsPromise: false, type: 'function' };
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'function f() { var x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -890,7 +909,7 @@ function f() {
       describe('inside block scope', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '{ var x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -911,7 +930,7 @@ function f() {
           describe('rhs is unknown type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{}], types));
-              writer = new AsyncWriter({}, types, spy);
+              writer = writer = new AsyncWriter(types, spy);
               input = 'const x = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -929,7 +948,7 @@ function f() {
           describe('rhs is known type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-              writer = new AsyncWriter({ db: types.Database }, types, spy);
+              writer = new AsyncWriter(types, spy);
               input = 'const x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -948,7 +967,7 @@ function f() {
         describe('redefine existing variable', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'const db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -968,7 +987,7 @@ function f() {
         const type = { returnType: types.unknown, returnsPromise: false, type: 'function' };
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'function f() { const x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -987,7 +1006,7 @@ function f() {
       describe('inside block scope', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '{ const x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1008,7 +1027,7 @@ function f() {
         describe('without assignment', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{}], types));
-            writer = new AsyncWriter({}, types, spy);
+            writer = writer = new AsyncWriter(types, spy);
             input = 'let x';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1027,7 +1046,7 @@ function f() {
           describe('rhs is unknown type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{}], types));
-              writer = new AsyncWriter({}, types, spy);
+              writer = writer = new AsyncWriter(types, spy);
               input = 'let x = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1045,7 +1064,7 @@ function f() {
           describe('rhs is known type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-              writer = new AsyncWriter({ db: types.Database }, types, spy);
+              writer = new AsyncWriter(types, spy);
               input = 'let x = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1064,7 +1083,7 @@ function f() {
         describe('redefine existing variable', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'let db = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1084,7 +1103,7 @@ function f() {
         const type = { returnType: types.unknown, returnsPromise: false, type: 'function' };
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'function f() { let x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1104,7 +1123,7 @@ function f() {
       describe('inside block scope', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([ { db: types.Database } ], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '{ let x = db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1127,7 +1146,7 @@ function f() {
         describe('rhs is known type', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'x = db';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1161,7 +1180,7 @@ function f() {
         describe('rhs is unknown type', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'x = 1';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1197,7 +1216,7 @@ function f() {
         describe('redef shell variable', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database, coll: types.Collection }], types));
-            writer = new AsyncWriter({ db: types.Database, coll: types.Collection }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'coll = db';
             const result = writer.getTransform(input);
             ast = result.ast;
@@ -1228,7 +1247,7 @@ function f() {
         describe('previously defined var', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('var a = 1');
             const result = writer.getTransform('a = db');
             ast = result.ast;
@@ -1250,7 +1269,7 @@ function f() {
         describe('previously defined let', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('let a = 1');
             const result = writer.getTransform('a = db');
             ast = result.ast;
@@ -1275,7 +1294,7 @@ function f() {
       describe('new symbol', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           const result = writer.getTransform('{ a = db }');
           ast = result.ast;
           output = result.code;
@@ -1301,7 +1320,7 @@ function f() {
         describe('declared as var in outer', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('var a;');
             output = writer.compile('{ a = db }');
           });
@@ -1327,7 +1346,7 @@ function f() {
         describe('declared with let in outer', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('let a;');
             output = writer.compile('{ a = db }');
           });
@@ -1352,7 +1371,7 @@ function f() {
         describe('assigned without declaration in outer', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('a = 1;');
             output = writer.compile('{ a = db }');
           });
@@ -1384,7 +1403,7 @@ function f() {
       describe('new symbol', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           const result = writer.getTransform('function x() { a = db }');
           ast = result.ast;
           output = result.code;
@@ -1400,7 +1419,7 @@ function f() {
         describe('declared as var in outer', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             writer.compile('var a;');
             output = writer.compile('function x() { a = db }');
           });
@@ -1419,7 +1438,7 @@ function f() {
       describe('function keyword', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'function fn() { return db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1448,7 +1467,7 @@ function f() {
       describe('arrow function', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => { return db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1476,7 +1495,7 @@ function f() {
       describe('arrow function with await within', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => { db.coll.insertOne({}); }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1499,7 +1518,7 @@ function f() {
       describe('function keyword with await within', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'function fn() { db.coll.insertOne({}); }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1528,7 +1547,7 @@ function f() {
       describe('already an async function', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = 'async function fn() { db.coll.insertOne({}); }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1559,7 +1578,7 @@ function f() {
       describe('with empty return statement', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => { return; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1582,7 +1601,7 @@ function f() {
       describe('with return value', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => { return db; }';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1605,7 +1624,7 @@ function f() {
       describe('with implicit return value', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => (db)';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1626,7 +1645,7 @@ function f() {
       describe('with {} and no return statement', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '() => {1; db}';
           const result = writer.getTransform(input);
           ast = result.ast;
@@ -1647,7 +1666,7 @@ function f() {
       describe('with multiple return values of different types', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 () => {
   if (TEST) {
@@ -1664,7 +1683,7 @@ function f() {
       describe('with multiple return values of the same non-async type', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 () => {
   if (TEST) {
@@ -1698,7 +1717,7 @@ function f() {
       describe('with multiple return values of the same async type', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 () => {
   if (TEST) {
@@ -1715,7 +1734,7 @@ function f() {
       describe('function returns a function', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 function f() {
   return () => {
@@ -1752,7 +1771,7 @@ function f() {
       describe('function defined inside a function', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 function f() {
   function g() {
@@ -1808,7 +1827,7 @@ function f() {
       describe('ensure keyword function name is hoisted', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = '{ function f() {} }';
           const result = writer.getTransform(input);
           output = result.code;
@@ -1827,7 +1846,7 @@ function f() {
         describe('VariableDeclarator', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'const c = function f() {}';
             const result = writer.getTransform(input);
             output = result.code;
@@ -1843,7 +1862,7 @@ function f() {
         describe('AssignmentExpression', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             input = 'c = function f() {}';
             const result = writer.getTransform(input);
             output = result.code;
@@ -1860,7 +1879,7 @@ function f() {
       describe('function definition does not update symbol table', () => {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           input = `
 var a = db;
 function f() {
@@ -1889,7 +1908,7 @@ function f() {
     };
     before(() => {
       spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-      writer = new AsyncWriter({ db: types.Database }, types, spy);
+      writer = new AsyncWriter(types, spy);
     });
     describe('adds methods to class', () => {
       before(() => {
@@ -1953,7 +1972,7 @@ class Test {
     };
     before(() => {
       spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-      writer = new AsyncWriter({ db: types.Database }, types, spy);
+      writer = new AsyncWriter(types, spy);
       writer.compile(`
 class Test {
   regularFn() { return db; }
@@ -1993,7 +2012,7 @@ class Test {
             describe('both async, same type', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
                 output = writer.compile(`
 a = db.coll1;
 if (TEST) {
@@ -2016,7 +2035,7 @@ if (TEST) {
           describe('both async, different type', () => {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-              writer = new AsyncWriter({ db: types.Database }, types, spy);
+              writer = new AsyncWriter(types, spy);
             });
             it('throws', () => {
               expect(() => writer.compile(`
@@ -2031,7 +2050,7 @@ if (TEST) {
             describe('top-level type async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
               });
               it('throws', () => {
                 expect(() => writer.compile(`
@@ -2048,7 +2067,7 @@ if (TEST) {
             describe('inner type async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
               });
               it('throws', () => {
                 expect(() => writer.compile(`
@@ -2065,7 +2084,7 @@ if (TEST) {
             describe('neither async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
                 output = writer.compile(`
 a = 2;
 if (TEST) {
@@ -2089,7 +2108,7 @@ if (TEST) {
         describe('const does not get hoisted', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(`
 if (TEST) {
   const a = db.coll2;
@@ -2108,7 +2127,7 @@ if (TEST) {
         describe('assignment to undecl var gets hoisted', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(`
 if (TEST) {
   a = 1;
@@ -2130,7 +2149,7 @@ if (TEST) {
         describe('vars get hoisted', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(`
 if (TEST) {
   var a = 1;
@@ -2156,7 +2175,7 @@ if (TEST) {
             describe('both async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
                 output = writer.compile(`
 if (TEST) {
   a = db.coll2;
@@ -2181,7 +2200,7 @@ if (TEST) {
             describe('alternate type async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
               });
               it('throws', () => {
                 expect(() => writer.compile(`
@@ -2199,7 +2218,7 @@ if (TEST) {
             describe('inner type async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
               });
               it('throws', () => {
                 expect(() => writer.compile(`
@@ -2217,7 +2236,7 @@ if (TEST) {
             describe('neither async', () => {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-                writer = new AsyncWriter({ db: types.Database }, types, spy);
+                writer = new AsyncWriter(types, spy);
                 output = writer.compile(`
 if (TEST) {
   a = db.coll.find;
@@ -2242,7 +2261,7 @@ if (TEST) {
         describe('else if', () => {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(`
 if (TEST) {
   a = db.coll.find;
@@ -2283,7 +2302,7 @@ while (TEST) {
 
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2307,7 +2326,7 @@ while (TEST) {
 }`;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2326,7 +2345,7 @@ while (TEST) {
 `;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
           });
           it('throws', () => {
             expect(() => writer.compile(inputLoop)).to.throw();
@@ -2349,7 +2368,7 @@ for (let t = 0; t < 100; t++) {
 
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2373,7 +2392,7 @@ for (let t = 0; t < 100; t++) {
 }`;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2392,7 +2411,7 @@ for (let t = 0; t < 100; t++) {
 `;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
           });
           it('throws', () => {
             expect(() => writer.compile(inputLoop)).to.throw();
@@ -2415,7 +2434,7 @@ do {
 
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2439,7 +2458,7 @@ do {
 } while ((TEST));`;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2458,7 +2477,7 @@ do {
 `;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
           });
           it('throws', () => {
             expect(() => writer.compile(inputLoop)).to.throw();
@@ -2474,7 +2493,7 @@ for (const x in [1, 2, 3]) {
 `;
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
         });
         it('throws', () => {
           expect(() => writer.compile(inputLoop)).to.throw();
@@ -2489,7 +2508,7 @@ for (const x of [1, 2, 3]) {
 `;
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
         });
         it('throws', () => {
           expect(() => writer.compile(inputLoop)).to.throw();
@@ -2522,7 +2541,7 @@ switch(TEST) {
 
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2555,7 +2574,7 @@ switch(TEST) {
 }`;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2578,7 +2597,7 @@ switch(TEST) {
 `;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
           });
           it('throws', () => {
             expect(() => writer.compile(inputLoop)).to.throw();
@@ -2608,7 +2627,7 @@ switch (TEST) {
 
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
             output = writer.compile(inputLoop);
           });
           it('compiles correctly', () => {
@@ -2629,7 +2648,7 @@ switch(TEST) {
 `;
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-            writer = new AsyncWriter({ db: types.Database }, types, spy);
+            writer = new AsyncWriter(types, spy);
           });
           it('throws', () => {
             expect(() => writer.compile(inputLoop)).to.throw();
@@ -2643,7 +2662,7 @@ switch(TEST) {
         const expected = 'a = (TEST) ? (db.coll1) : (db.coll2);';
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           output = writer.compile(inputLoop);
         });
         it('compiles correctly', () => {
@@ -2658,7 +2677,7 @@ switch(TEST) {
         const expected = 'a = (TEST) ? (1) : (db.coll.find);';
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
           output = writer.compile(inputLoop);
         });
         it('compiles correctly', () => {
@@ -2672,7 +2691,7 @@ switch(TEST) {
         const inputLoop = 'a = TEST ? 1 : db';
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: types.Database }], types));
-          writer = new AsyncWriter({ db: types.Database }, types, spy);
+          writer = new AsyncWriter(types, spy);
         });
         it('throws', () => {
           expect(() => writer.compile(inputLoop)).to.throw();

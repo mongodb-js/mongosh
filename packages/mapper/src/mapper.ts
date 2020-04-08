@@ -45,7 +45,8 @@ export default class Mapper {
     this.cursorAssigned = false;
     this.databases = { test: new Database(this, 'test') };
     this.messageBus = messageBus || new EventEmitter();
-    this.asyncWriter = new AsyncWriter({ db: types.Database }, types); // TODO: this will go in context object
+    this.asyncWriter = new AsyncWriter(types); // TODO: this will go in context object
+    this.asyncWriter.symbols.initializeApiObjects({ db: types.Database });
   }
 
   /**
