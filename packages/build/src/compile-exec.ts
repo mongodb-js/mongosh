@@ -16,6 +16,15 @@ enum Platform {
 }
 
 /**
+ * Target enum.
+ */
+enum Target {
+  Windows = 'win',
+  MacOs = 'macos',
+  Linux = 'linux'
+}
+
+/**
  * Determine the name of the executable based on the
  * provided platform.
  *
@@ -30,8 +39,13 @@ function determineExecName(platform: string): String {
   return ExecName.Posix;
 }
 
+function compileExec(location: string) {
+
+}
+
 export {
   ExecName,
   Platform,
+  Target,
   determineExecName
 };
