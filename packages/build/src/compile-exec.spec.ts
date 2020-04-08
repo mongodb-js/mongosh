@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import {
   ExecName,
   Platform,
+  Target,
   determineExecName
 } from './compile-exec';
 
@@ -36,6 +37,26 @@ describe('compile module', () => {
     describe('Platform.Linux', () => {
       it('returns linux', () => {
         expect(Platform.Linux).to.equal('linux');
+      });
+    });
+  });
+
+  describe('Target', () => {
+    describe('Target.Windows', () => {
+      it('returns win', () => {
+        expect(Target.Windows).to.equal('win');
+      });
+    });
+
+    describe('Target.MacOs', () => {
+      it('returns macos', () => {
+        expect(Target.MacOs).to.equal('macos');
+      });
+    });
+
+    describe('Target.Linux', () => {
+      it('returns linux', () => {
+        expect(Target.Linux).to.equal('linux');
       });
     });
   });
