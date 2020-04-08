@@ -203,8 +203,9 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           attributes: attributes
         }
       };
+      // TODO: double check Class names are *not* hoisted
       this.symbols.addToParent(className, path.node.shellType);
-      debug(`ClassDeclaration: { name: ${className}}`, path.node.shellType);
+      debug(`ClassDeclaration: { name: ${className} }`, path.node.shellType);
     }
   },
   NewExpression: {

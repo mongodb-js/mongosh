@@ -1,17 +1,20 @@
 /* eslint no-console:0 */
 /**
  * Symbol Table implementation, which is a stack of key-value maps.
- *
- * A single symbol has a name and type attribute.
- * The type attribute will be one of:
- *     unknown: { type: 'unknown', attributes?: {} }
- *     function: { type: 'function', returnsPromise?: bool, returnType?: type name or obj, attributes?: {} }
- *     class instance: { type: classname, attributes?: {} }
- *     class definition: { type: 'classdef', returnType: type name or obj }
  */
 export default class SymbolTable {
   private scopeStack: object[];
   public types: any;
+
+  /**
+   * Construct a new SymbolTable instance.
+   * @param initialScope - usually empty, only set when deep copying SymbolTable.
+   * @param types - a type object that has at least the 'type' and 'attributes' keys. Will be one of:
+   *     unknown: { type: 'unknown', attributes?: {} }
+   *     function: { type: 'function', returnsPromise?: bool, returnType?: type name or obj, attributes?: {} }
+   *     class instance: { type: classname, attributes?: {} }
+   *     class definition: { type: 'classdef', returnType: type name or obj }
+   */
   constructor(initialScope: object[], types: object) {
     this.types = { unknown: { type: 'unknown', attributes: {} } };
     Object.assign(this.types, types);
@@ -21,13 +24,26 @@ export default class SymbolTable {
       this.scopeAt(0)[s] = { type: 'classdef', returnType: this.types[s], lib: true };
     });
   }
-  public initializeApiObjects(apiObjects): void {
+
+  /**
+   * Initialize the shell API class instances like db, sh, rs, etc.
+   *
+   * @param apiObjects - set of class instance name and type.
+   */
+  public initializeApiObjects(apiObjects: object): void {
     Object.keys(apiObjects).forEach(key => {
       this.scopeAt(0)[key] = apiObjects[key];
     });
   }
-  elidePath(type): any {
-    if (typeof type !== 'object') {
+
+  /**
+   * Remove the 'path' attribute from a type. Required so that we can deep clone everything in the scope *except*
+   * path references.
+   *
+   * @param type - a type object.
+   */
+  public elidePath(type: object): object {
+    if (type === undefined) {
       return type;
     }
     return Object.keys(type).filter(t => t !== 'path').reduce((obj, key) => {
@@ -35,10 +51,22 @@ export default class SymbolTable {
       return obj;
     }, {});
   }
-  compareTypes(t1, t2): boolean {
+
+  /**
+   * Do a deep comparison of two type objects.
+   *
+   * @param t1
+   * @param t2
+   */
+  public compareTypes(t1: object, t2: object): boolean {
     return (JSON.stringify(this.elidePath(t1)) === JSON.stringify(this.elidePath(t2)));
   }
-  deepCopy(): SymbolTable {
+
+  /**
+   * Make a deep copy of the symbols and return a new instance of SymbolTable.
+   * Do not deep copy path attributes as they must stay as references to the AST.
+   */
+  public deepCopy(): SymbolTable {
     const newStack = [];
     this.scopeStack.forEach(oldScope => {
       const newScope = {};
@@ -52,7 +80,13 @@ export default class SymbolTable {
     });
     return new SymbolTable(newStack, this.types);
   }
-  public lookup(item): any {
+
+  /**
+   * Return the most recently scoped matching symbol.
+   *
+   * @param item
+   */
+  public lookup(item: string): any {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         return this.scopeStack[i][item];
@@ -60,32 +94,36 @@ export default class SymbolTable {
     }
     return this.types.unknown;
   }
-  public add(item, value): void {
+
+  /**
+   * Add item to the current scope.
+   *
+   * @param item
+   * @param value
+   */
+  public add(item: string, value: object): void {
     this.scopeStack[this.last][item] = value;
   }
-  public addToParent(item, value): void {
-    const end = Math.max(this.last - 1, 0);
-    for (let i = end; i >= 0; i--) {
-      if (this.scopeStack[i][item]) {
-        this.scopeStack[i][item] = value;
-        return;
-      }
-    }
-    this.scopeStack[end][item] = value;
+
+  /**
+   * Add item to the parent of the current scope. This is for class name declarations since babel's
+   * findFunctionParent will return self, and we need to add the classname to the parent scope.
+   * @param item
+   * @param value
+   */
+  public addToParent(item: string, value: object): void {
+    this.scopeStack[this.last - 1][item] = value;
   }
-  public addToTopLevel(item, value): void {
-    this.scopeAt(1)[item] = value;
-  }
-  public update(item, value): void {
-    for (let i = this.last; i >= 0; i--) {
-      if (this.scopeStack[i][item]) {
-        this.scopeStack[i][item] = value;
-        return;
-      }
-    }
-    return this.add(item, value);
-  }
-  public updateIfDefined(item, value): boolean {
+
+  /**
+   * If item exists in the symbol table, update it and return true. Otherwise return false. Used for assignment
+   * expressions because we first check if the LHS is a locally declared variable. If not then we need to treat it
+   * like a hoisted var declaration.
+   *
+   * @param item
+   * @param value
+   */
+  public updateIfDefined(item: string, value: object): boolean {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         this.scopeStack[i][item] = value;
@@ -94,7 +132,16 @@ export default class SymbolTable {
     }
     return false;
   }
-  public updateFunctionScoped(path, key, type, t): void {
+
+  /**
+   * Update a function-scoped variable. Get the correct scope from the AST and update enclosing scope.
+   *
+   * @param path - babel Path instance.
+   * @param key - the name of the symbol.
+   * @param type - the type of the object
+   * @param t - babel's types helper.
+   */
+  public updateFunctionScoped(path: any, key: string, type: object, t: any): void {
     // Because it adds to scopes only via nodes, will add to actual ST regardless of branching
     let scopeParent = path.getFunctionParent();
     if (scopeParent === null) {
@@ -107,25 +154,59 @@ export default class SymbolTable {
     }
     this.scopeAt(shellScope)[key] = type;
   }
+
+  /**
+   * Remove and return the most recent scope.
+   */
   public popScope(): object {
     if (this.depth === 1) return;
     return this.scopeStack.pop();
   }
+
+  /**
+   * Add a new scope and return it's index.
+   */
   public pushScope(): number {
     const scope = {};
     return this.scopeStack.push(scope) - 1;
   }
+
+  /**
+   * The depth of the symbol table.
+   */
   public get depth(): number {
     return this.scopeStack.length;
   }
+
+  /**
+   * The index of the most recent scope.
+   */
   public get last(): number {
     return this.depth - 1;
   }
-  public scopeAt(i): object {
+
+  /**
+   * Get the scope at a given index.
+   * @param i
+   */
+  public scopeAt(i: number): object {
     return this.scopeStack[i];
   }
-  public compareSymbolTables(alternates): void {
+
+  /**
+   * Compare a series of symbol tables. Used for comparing the results of branching expressions.
+   *
+   * Go through each scope and if any symbols differ, set type to unknown *unless* either is a Shell API type. If so,
+   * then error because we cannot infer types since we do not do any branch prediction.
+   *
+   * If any alternative symbol table has a variable defined that is not in the current symbol table, add it as it must
+   * have been a hoisted variable.
+   *
+   * @param alternates
+   */
+  public compareSymbolTables(alternates: SymbolTable[]): void {
     this.scopeStack.forEach((thisScope, i) => {
+      // Get all the possible keys at the current scope for each alternative
       const keys = new Set();
       alternates.forEach((st) => {
         if (this.depth !== st.depth) {
@@ -136,19 +217,29 @@ export default class SymbolTable {
       keys.forEach((k: number) => {
         const equal = alternates.every((a) => this.compareTypes(a.scopeAt(i)[k], alternates[0].scopeAt(i)[k]));
         if (equal) {
+          // If every alternative has the same type, then add it to the current symbol table.
           thisScope[k] = alternates[0].scopeAt(i)[k];
         } else {
+          // Otherwise, check if any of the alternatives has that key as a Shell API type.
           const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && (a.scopeAt(i)[k].hasAsyncChild || a.scopeAt(i)[k].returnsPromise));
           if (hasAsync) {
             throw new Error(`Error: cannot conditionally assign Shell API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
           } else {
+            // Types differ, but none are async, so can safely just call it unknown.
             thisScope[k] = this.types.unknown;
           }
         }
       });
     });
   }
-  public printSymbol(symbol, key): string {
+
+  /**
+   * Return a string representation of a given symbol for debugging.
+   *
+   * @param symbol
+   * @param key
+   */
+  public printSymbol(symbol: any, key: string): string {
     const type = symbol.type;
     let info = '';
     if (type === 'function') {
@@ -173,6 +264,10 @@ export default class SymbolTable {
     }
     return `  ${key}: { type: '${type}' ${info} }`;
   }
+
+  /**
+   * Print out the entire symbol table for debugging.
+   */
   public print(): void {
     console.log('----Printing Symbol Table----');
     for (let scopeDepth = this.last; scopeDepth >= 0; scopeDepth--) {
