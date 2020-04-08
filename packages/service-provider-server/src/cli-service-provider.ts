@@ -205,8 +205,8 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @param {boolean} force - Whether to force close the connection.
    */
-  close(force: boolean): void {
-    this.mongoClient.close(force);
+  close(force: boolean): Promise<void> {
+    return this.mongoClient.close(force);
   }
 
   /**
