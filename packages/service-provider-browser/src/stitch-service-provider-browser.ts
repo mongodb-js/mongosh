@@ -155,7 +155,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     throw new Error('Method not implemented.');
   }
 
-  close(boolean: any): void {
+  close(boolean: any): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

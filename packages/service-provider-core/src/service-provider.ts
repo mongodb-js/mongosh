@@ -10,7 +10,7 @@ interface ServiceProvider extends Readable, Writable {
    *
    * @param {boolean} force - Whether to force close.
    */
-  close(boolean): void;
+  close(boolean): Promise<void>;
 };
 
 export default ServiceProvider;
