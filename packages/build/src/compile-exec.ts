@@ -39,6 +39,21 @@ function determineExecName(platform: string): String {
   return ExecName.Posix;
 }
 
+/**
+ * Determine the target name.
+ *
+ * @param {string} platform - The platform.
+ *
+ * @returns {string} The target name.
+ */
+function determineTarget(platform: string): String {
+  switch(platform) {
+    case Platform.Windows: return Target.Windows;
+    case Platform.MacOs: return Target.MacOs;
+    default: return Target.Linux;
+  }
+}
+
 function compileExec(location: string) {
 
 }
@@ -47,5 +62,6 @@ export {
   ExecName,
   Platform,
   Target,
-  determineExecName
+  determineExecName,
+  determineTarget
 };
