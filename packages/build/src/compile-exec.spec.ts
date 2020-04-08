@@ -3,7 +3,8 @@ import {
   ExecName,
   Platform,
   Target,
-  determineExecName
+  determineExecName,
+  determineTarget
 } from './compile-exec';
 
 describe('compile module', () => {
@@ -71,6 +72,26 @@ describe('compile module', () => {
     context('when the platform is not windows', () => {
       it('returns mongosh', () => {
         expect(determineExecName(Platform.Linux)).to.equal(ExecName.Posix);
+      });
+    });
+  });
+
+  describe('.determineTarget', () => {
+    context('when the platform is windows', () => {
+      it('returns win', () => {
+        expect(determineTarget(Platform.Windows)).to.equal(Target.Windows);
+      });
+    });
+
+    context('when the platform is macos', () => {
+      it('returns macos', () => {
+        expect(determineTarget(Platform.MacOs)).to.equal(Target.MacOs);
+      });
+    });
+
+    context('when the platform is linux', () => {
+      it('returns linux', () => {
+        expect(determineTarget(Platform.Linux)).to.equal(Target.Linux);
       });
     });
   });
