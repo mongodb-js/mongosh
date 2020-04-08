@@ -1,5 +1,9 @@
 import { expect } from 'chai';
-import { ExecName, Platform } from './compile-exec';
+import {
+  ExecName,
+  Platform,
+  determineExecName
+} from './compile-exec';
 
 describe('compile module', () => {
   describe('ExecName', () => {
@@ -32,6 +36,20 @@ describe('compile module', () => {
     describe('Platform.Linux', () => {
       it('returns linux', () => {
         expect(Platform.Linux).to.equal('linux');
+      });
+    });
+  });
+
+  describe('.determineExecName', () => {
+    context('when the platform is windows', () => {
+      it('returns mongosh.exe', () => {
+        expect(determineExecName(Platform.Windows)).to.equal(ExecName.Windows);
+      });
+    });
+
+    context('when the platform is not windows', () => {
+      it('returns mongosh', () => {
+        expect(determineExecName(Platform.Linux)).to.equal(ExecName.Posix);
       });
     });
   });

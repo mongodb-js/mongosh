@@ -15,4 +15,23 @@ enum Platform {
   Linux = 'linux'
 }
 
-export { ExecName, Platform };
+/**
+ * Determine the name of the executable based on the
+ * provided platform.
+ *
+ * @param {string} platform - The platform.
+ *
+ * @returns {string} The name.
+ */
+function determineExecName(platform: string): String {
+  if (platform === Platform.Windows) {
+    return ExecName.Windows;
+  }
+  return ExecName.Posix;
+}
+
+export {
+  ExecName,
+  Platform,
+  determineExecName
+};
