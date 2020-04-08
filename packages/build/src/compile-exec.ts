@@ -6,4 +6,13 @@ enum ExecName {
   Posix = 'mongosh'
 };
 
-export { ExecName };
+/**
+ * Platform enum.
+ */
+enum Platform {
+  Windows = 'win32',
+  MacOs = 'darwin',
+  Linux = 'linux'
+}
+
+export { ExecName, Platform };
