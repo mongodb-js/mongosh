@@ -4,7 +4,8 @@ import {
   Platform,
   Target,
   determineExecName,
-  determineTarget
+  determineTarget,
+  executablePath
 } from './compile-exec';
 
 describe('compile module', () => {
@@ -92,6 +93,26 @@ describe('compile module', () => {
     context('when the platform is linux', () => {
       it('returns linux', () => {
         expect(determineTarget(Platform.Linux)).to.equal(Target.Linux);
+      });
+    });
+  });
+
+  describe('.executablePath', () => {
+    context('when the platform is windows', () => {
+      it('returns the path', () => {
+        expect(executablePath('', Platform.Windows)).to.equal('mongosh.exe');
+      });
+    });
+
+    context('when the platform is macos', () => {
+      it('returns the path', () => {
+        expect(executablePath('', Platform.MacOs)).to.equal('mongosh');
+      });
+    });
+
+    context('when the platform is linux', () => {
+      it('returns the path', () => {
+        expect(executablePath('', Platform.Linux)).to.equal('mongosh');
       });
     });
   });

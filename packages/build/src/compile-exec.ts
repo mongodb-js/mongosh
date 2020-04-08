@@ -1,3 +1,6 @@
+import path from 'path';
+import { exec as compile } from 'pkg';
+
 /**
  * The executable name enum.
  */
@@ -32,7 +35,7 @@ enum Target {
  *
  * @returns {string} The name.
  */
-function determineExecName(platform: string): String {
+function determineExecName(platform: string): string {
   if (platform === Platform.Windows) {
     return ExecName.Windows;
   }
@@ -46,22 +49,50 @@ function determineExecName(platform: string): String {
  *
  * @returns {string} The target name.
  */
-function determineTarget(platform: string): String {
+const determineTarget = (platform: string): string => {
   switch(platform) {
     case Platform.Windows: return Target.Windows;
     case Platform.MacOs: return Target.MacOs;
     default: return Target.Linux;
   }
-}
+};
 
-function compileExec(location: string) {
+/**
+ * Get the path to the executable itself.
+ *
+ * @param {string} outputDir - The directory to save in.
+ * @param {string} platform - The platform.
+ *
+ * @returns {string} The path.
+ */
+const executablePath = (outputDir: string, platform: string): string => {
+  return path.join(outputDir, determineExecName(platform));
+};
 
-}
+/**
+ * Compile the executable.
+ *
+ * @param {string} input - The root js of the app.
+ * @param {string} outputDir - The output directory for the executable.
+ * @param {string} platform - The platform.
+ */
+const compileExec = async(input: string, outputDir: string, platform: string) => {
+  const executable = executablePath(outputDir, platform);
+  console.log('mongosh: creating binary:', executable);
+  await compile([
+    input,
+    '-o',
+    executable,
+    '-t',
+    determineTarget(platform)
+  ]);
+};
 
 export {
   ExecName,
   Platform,
   Target,
   determineExecName,
-  determineTarget
+  determineTarget,
+  executablePath
 };
