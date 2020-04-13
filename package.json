@@ -23,7 +23,9 @@
     "start-compass": "lerna run start-compass --scope @mongodb-js/compass-shell",
     "start": "npm run start-cli",
     "precompile-exec": "npm run compile-cli",
-    "compile-exec": "node scripts/release.js",
+    "compile-exec": "node scripts/compile-exec.js",
+    "prerelease": "npm run compile-cli",
+    "release": "node scripts/release.js",
     "publish-npm": "lerna publish --force-publish",
     "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api"
@@ -52,6 +54,7 @@
   },
   "devDependencies": {
     "@babel/compat-data": "^7.9.0",
+    "@mongosh/build": "file:packages/build",
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
