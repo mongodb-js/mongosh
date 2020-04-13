@@ -18,7 +18,9 @@ const zipPath = (outputDir: string, platform: string, version: string): string =
 };
 
 /**
- * Create a zip archive for windows.
+ * Create a zip archive for posix.
+ *
+ * TODO: Durran: Not switching into local directory.
  *
  * @param {string} input - The file to zip.
  * @param {string} outputDir - The output directory.
