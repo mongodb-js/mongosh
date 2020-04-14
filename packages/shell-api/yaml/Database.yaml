@@ -22,7 +22,7 @@ class:
             help: 'shell-api.database.help.run-command.example'
             docs: 'shell-api.database.help.run-command.link'
             attr:
-                - description: 'shell-api.database.help.run-command.description'
+              - description: 'shell-api.database.help.run-command.description'
     getCollectionNames:
         <<: *__defaultMethod
         returnsPromise: true
@@ -33,7 +33,7 @@ class:
             help: 'shell-api.database.help.get-collection-names.example'
             docs: 'shell-api.database.help.get-collection-names.link'
             attr:
-                - description: 'shell-api.database.help.get-collection-names.description'
+              - description: 'shell-api.database.help.get-collection-names.description'
     getCollectionInfos:
         <<: *__defaultMethod
         returnsPromise: true
@@ -44,4 +44,4 @@ class:
             help: 'shell-api.database.help.get-collection-infos.example'
             docs: 'shell-api.database.help.get-collection-infos.link'
             attr:
-                - description: 'shell-api.database.help.get-collection-infos.description'
+              - description: 'shell-api.database.help.get-collection-infos.description'

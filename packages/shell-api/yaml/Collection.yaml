@@ -95,7 +95,7 @@ class:
             help: 'shell-api.collection.help.aggregate.example'
             docs: 'shell-api.collection.help.aggregate.link'
             attr:
-              - description: 'shell-api.collection.help.aggregate.description'
+                - description: 'shell-api.collection.help.aggregate.description'
     bulkWrite:
         <<: *__defaultMethod
         returnsPromise: true
@@ -106,7 +106,7 @@ class:
             help: 'shell-api.collection.help.bulk-write.example'
             docs: 'shell-api.collection.help.bulk-write.link'
             attr:
-              - description: 'shell-api.collection.help.bulk-write.description'
+                - description: 'shell-api.collection.help.bulk-write.description'
     countDocuments:
         <<: *__defaultMethod
         returnsPromise: true
@@ -117,7 +117,7 @@ class:
             help: 'shell-api.collection.help.count-documents.example'
             docs: 'shell-api.collection.help.count-documents.link'
             attr:
-              - description: 'shell-api.collection.help.count-documents.description'
+                - description: 'shell-api.collection.help.count-documents.description'
     count:
         <<: *__defaultMethod
         returnsPromise: true
@@ -126,7 +126,7 @@ class:
             help: 'shell-api.collection.help.count.example'
             docs: 'shell-api.collection.help.count.link'
             attr:
-              - description: 'shell-api.collection.help.count.description'
+                - description: 'shell-api.collection.help.count.description'
     deleteMany:
         <<: *__defaultMethod
         returnsPromise: true
@@ -135,7 +135,7 @@ class:
             help: 'shell-api.collection.help.delete-many.example'
             docs: 'shell-api.collection.help.delete-many.link'
             attr:
-              - description: 'shell-api.collection.help.delete-many.description'
+                - description: 'shell-api.collection.help.delete-many.description'
     deleteOne:
         <<: *__defaultMethod
         returnsPromise: true
@@ -144,7 +144,7 @@ class:
             help: 'shell-api.collection.help.delete-one.example'
             docs: 'shell-api.collection.help.delete-one.link'
             attr:
-              - description: 'shell-api.collection.help.delete-one.description'
+                - description: 'shell-api.collection.help.delete-one.description'
     distinct:
         <<: *__defaultMethod
         returnType: 'Cursor'
@@ -153,7 +153,7 @@ class:
             help: 'shell-api.collection.help.distinct.example'
             docs: 'shell-api.collection.help.distinct.link'
             attr:
-              - description: 'shell-api.collection.help.distinct.description'
+                - description: 'shell-api.collection.help.distinct.description'
     estimatedDocumentCount:
         <<: *__defaultMethod
         returnsPromise: true
@@ -164,7 +164,7 @@ class:
             help: 'shell-api.collection.help.estimated-document-count.example'
             docs: 'shell-api.collection.help.estimated-document-count.link'
             attr:
-              - description: 'shell-api.collection.help.estimated-document-count.description'
+                - description: 'shell-api.collection.help.estimated-document-count.description'
     find:
         <<: *__defaultMethod
         returnType: 'Cursor'
@@ -173,7 +173,7 @@ class:
             help: 'shell-api.collection.help.find.example'
             docs: 'shell-api.collection.help.find.link'
             attr:
-              - description: 'shell-api.collection.help.find.description'
+                - description: 'shell-api.collection.help.find.description'
     findAndModify:
         <<: *__defaultMethod
         serverVersions: *__all_server_versions
@@ -181,7 +181,7 @@ class:
             help: 'shell-api.collection.help.find-and-modify.example'
             docs: 'shell-api.collection.help.find-and-modify.link'
             attr:
-              - description: 'shell-api.collection.help.find-and-modify.description'
+                - description: 'shell-api.collection.help.find-and-modify.description'
     findOne:
         <<: *__defaultMethod
         serverVersions: *__all_server_versions
@@ -189,7 +189,7 @@ class:
             help: 'shell-api.collection.help.find-one.example'
             docs: 'shell-api.collection.help.find-one.link'
             attr:
-              - description: 'shell-api.collection.help.find-one.description'
+                - description: 'shell-api.collection.help.find-one.description'
     findOneAndDelete:
         <<: *__defaultMethod
         returnsPromise: true
@@ -200,7 +200,7 @@ class:
             help: 'shell-api.collection.help.find-one-and-delete.example'
             docs: 'shell-api.collection.help.find-one-and-delete.link'
             attr:
-              - description: 'shell-api.collection.help.find-one-and-delete.description'
+                - description: 'shell-api.collection.help.find-one-and-delete.description'
     findOneAndReplace:
         <<: *__defaultMethod
         returnsPromise: true
@@ -211,7 +211,7 @@ class:
             help: 'shell-api.collection.help.find-one-and-replace.example'
             docs: 'shell-api.collection.help.find-one-and-replace.link'
             attr:
-              - description: 'shell-api.collection.help.find-one-and-replace.description'
+                - description: 'shell-api.collection.help.find-one-and-replace.description'
     findOneAndUpdate:
         <<: *__defaultMethod
         returnsPromise: true
@@ -222,7 +222,7 @@ class:
             help: 'shell-api.collection.help.find-one-and-update.example'
             docs: 'shell-api.collection.help.find-one-and-update.link'
             attr:
-              - description: 'shell-api.collection.help.find-one-and-update.description'
+                - description: 'shell-api.collection.help.find-one-and-update.description'
     insert:
         <<: *__defaultMethod
         returnsPromise: true
@@ -231,7 +231,7 @@ class:
             help: 'shell-api.collection.help.insert.example'
             docs: 'shell-api.collection.help.insert.link'
             attr:
-              - description: 'shell-api.collection.help.insert.description'
+                - description: 'shell-api.collection.help.insert.description'
     insertMany:
         <<: *__defaultMethod
         returnsPromise: true
@@ -242,7 +242,7 @@ class:
             help: 'shell-api.collection.help.insert-many.example'
             docs: 'shell-api.collection.help.insert-many.link'
             attr:
-              - description: 'shell-api.collection.help.insert-many.description'
+                - description: 'shell-api.collection.help.insert-many.description'
     insertOne:
         <<: *__defaultMethod
         returnsPromise: true
@@ -253,7 +253,7 @@ class:
             help: 'shell-api.collection.help.insert-one.example'
             docs: 'shell-api.collection.help.insert-one.link'
             attr:
-              - description: 'shell-api.collection.help.insert-one.description'
+                - description: 'shell-api.collection.help.insert-one.description'
     isCapped:
         <<: *__defaultMethod
         returnsPromise: true
@@ -262,7 +262,7 @@ class:
             help: 'shell-api.collection.help.is-capped.example'
             docs: 'shell-api.collection.help.is-capped.link'
             attr:
-              - description: 'shell-api.collection.help.is-capped.description'
+                - description: 'shell-api.collection.help.is-capped.description'
     remove:
         <<: *__defaultMethod
         returnsPromise: true
@@ -271,7 +271,7 @@ class:
             help: 'shell-api.collection.help.remove.example'
             docs: 'shell-api.collection.help.remove.link'
             attr:
-              - description: 'shell-api.collection.help.remove.description'
+                - description: 'shell-api.collection.help.remove.description'
     save:
         <<: *__defaultMethod
         returnsPromise: true
@@ -280,7 +280,7 @@ class:
             help: 'shell-api.collection.help.save.example'
             docs: 'shell-api.collection.help.save.link'
             attr:
-              - description: 'shell-api.collection.help.save.description'
+                - description: 'shell-api.collection.help.save.description'
     replaceOne:
         <<: *__defaultMethod
         returnsPromise: true
@@ -291,7 +291,7 @@ class:
             help: 'shell-api.collection.help.replace-one.example'
             docs: 'shell-api.collection.help.replace-one.link'
             attr:
-              - description: 'shell-api.collection.help.replace-one.description'
+                - description: 'shell-api.collection.help.replace-one.description'
     update:
         <<: *__defaultMethod
         returnsPromise: true
@@ -300,7 +300,7 @@ class:
             help: 'shell-api.collection.help.update.example'
             docs: 'shell-api.collection.help.update.link'
             attr:
-              - description: 'shell-api.collection.help.update.description'
+                - description: 'shell-api.collection.help.update.description'
     updateMany:
         <<: *__defaultMethod
         returnsPromise: true
@@ -311,7 +311,7 @@ class:
             help: 'shell-api.collection.help.update-many.example'
             docs: 'shell-api.collection.help.update-many.link'
             attr:
-              - description: 'shell-api.collection.help.update-many.description'
+                - description: 'shell-api.collection.help.update-many.description'
     updateOne:
         <<: *__defaultMethod
         returnsPromise: true
@@ -322,7 +322,7 @@ class:
             help: 'shell-api.collection.help.update-one.example'
             docs: 'shell-api.collection.help.update-one.link'
             attr:
-              - description: 'shell-api.collection.help.update-one.description'
+                - description: 'shell-api.collection.help.update-one.description'
     convertToCapped:
         <<: *__defaultMethod
         returnsPromise: true
@@ -333,7 +333,7 @@ class:
             help: 'shell-api.collection.help.convert-to-capped.example'
             docs: 'shell-api.collection.help.convert-to-capped.link'
             attr:
-              - description: 'shell-api.collection.help.convert-to-capped.description'
+                - description: 'shell-api.collection.help.convert-to-capped.description'
     createIndexes:
         <<: *__defaultMethod
         returnsPromise: true
@@ -344,7 +344,7 @@ class:
             help: 'shell-api.collection.help.create-indexes.example'
             docs: 'shell-api.collection.help.create-indexes.link'
             attr:
-              - description: 'shell-api.collection.help.create-indexes.description'
+                - description: 'shell-api.collection.help.create-indexes.description'
     createIndex:
         <<: *__defaultMethod
         returnsPromise: true
@@ -355,7 +355,7 @@ class:
             help: 'shell-api.collection.help.create-index.example'
             docs: 'shell-api.collection.help.create-index.link'
             attr:
-              - description: 'shell-api.collection.help.create-index.description'
+                - description: 'shell-api.collection.help.create-index.description'
     ensureIndex:
         <<: *__defaultMethod
         returnsPromise: true
@@ -366,7 +366,7 @@ class:
             help: 'shell-api.collection.help.ensure-index.example'
             docs: 'shell-api.collection.help.ensure-index.link'
             attr:
-              - description: 'shell-api.collection.help.ensure-index.description'
+                - description: 'shell-api.collection.help.ensure-index.description'
     getIndexes:
         <<: *__defaultMethod
         returnsPromise: true
@@ -377,7 +377,7 @@ class:
             help: 'shell-api.collection.help.get-indexes.example'
             docs: 'shell-api.collection.help.get-indexes.link'
             attr:
-              - description: 'shell-api.collection.help.get-indexes.description'
+                - description: 'shell-api.collection.help.get-indexes.description'
     getIndexSpecs:
         <<: *__defaultMethod
         returnsPromise: true
@@ -388,7 +388,7 @@ class:
             help: 'shell-api.collection.help.get-index-specs.example'
             docs: 'shell-api.collection.help.get-index-specs.link'
             attr:
-              - description: 'shell-api.collection.help.get-index-specs.description'
+                - description: 'shell-api.collection.help.get-index-specs.description'
     getIndexKeys:
         <<: *__defaultMethod
         returnsPromise: true
@@ -399,7 +399,7 @@ class:
             help: 'shell-api.collection.help.get-index-keys.example'
             docs: 'shell-api.collection.help.get-index-keys.link'
             attr:
-              - description: 'shell-api.collection.help.get-index-keys.description'
+                - description: 'shell-api.collection.help.get-index-keys.description'
     getIndices:
         <<: *__defaultMethod
         returnsPromise: true
@@ -410,7 +410,7 @@ class:
             help: 'shell-api.collection.help.get-indices.example'
             docs: 'shell-api.collection.help.get-indices.link'
             attr:
-              - description: 'shell-api.collection.help.get-indices.description'
+                - description: 'shell-api.collection.help.get-indices.description'
     dropIndexes:
         <<: *__defaultMethod
         returnsPromise: true
@@ -421,7 +421,7 @@ class:
             help: 'shell-api.collection.help.drop-indexes.example'
             docs: 'shell-api.collection.help.drop-indexes.link'
             attr:
-              - description: 'shell-api.collection.help.drop-indexes.description'
+                - description: 'shell-api.collection.help.drop-indexes.description'
     dropIndex:
         <<: *__defaultMethod
         returnsPromise: true
@@ -432,7 +432,7 @@ class:
             help: 'shell-api.collection.help.drop-index.example'
             docs: 'shell-api.collection.help.drop-index.link'
             attr:
-              - description: 'shell-api.collection.help.drop-index.description'
+                - description: 'shell-api.collection.help.drop-index.description'
     reIndex:
         <<: *__defaultMethod
         returnsPromise: true
@@ -441,7 +441,7 @@ class:
             help: 'shell-api.collection.help.re-index.example'
             docs: 'shell-api.collection.help.re-index.link'
             attr:
-              - description: 'shell-api.collection.help.re-index.description'
+                - description: 'shell-api.collection.help.re-index.description'
     totalIndexSize:
         <<: *__defaultMethod
         returnsPromise: true
@@ -452,7 +452,7 @@ class:
             help: 'shell-api.collection.help.total-index-size.example'
             docs: 'shell-api.collection.help.total-index-size.link'
             attr:
-              - description: 'shell-api.collection.help.total-index-size.description'
+                - description: 'shell-api.collection.help.total-index-size.description'
     getDB:
         <<: *__defaultMethod
         returnsPromise: false
@@ -464,7 +464,7 @@ class:
             help: 'shell-api.collection.help.get-db.example'
             docs: 'shell-api.collection.help.get-db.link'
             attr:
-              - description: 'shell-api.collection.help.get-db.description'
+                - description: 'shell-api.collection.help.get-db.description'
     stats:
         <<: *__defaultMethod
         returnsPromise: true
@@ -475,7 +475,7 @@ class:
             help: 'shell-api.collection.help.stats.example'
             docs: 'shell-api.collection.help.stats.link'
             attr:
-              - description: 'shell-api.collection.help.stats.description'
+                - description: 'shell-api.collection.help.stats.description'
     dataSize:
         <<: *__defaultMethod
         returnsPromise: true
@@ -486,7 +486,7 @@ class:
             help: 'shell-api.collection.help.data-size.example'
             docs: 'shell-api.collection.help.data-size.link'
             attr:
-              - description: 'shell-api.collection.help.data-size.description'
+                - description: 'shell-api.collection.help.data-size.description'
     storageSize:
         <<: *__defaultMethod
         returnsPromise: true
@@ -497,7 +497,7 @@ class:
             help: 'shell-api.collection.help.storage-size.example'
             docs: 'shell-api.collection.help.storage-size.link'
             attr:
-              - description: 'shell-api.collection.help.storage-size.description'
+                - description: 'shell-api.collection.help.storage-size.description'
     totalSize:
         <<: *__defaultMethod
         returnsPromise: true
@@ -508,4 +508,4 @@ class:
             help: 'shell-api.collection.help.total-size.example'
             docs: 'shell-api.collection.help.total-size.link'
             attr:
-              - description: 'shell-api.collection.help.total-size.description'
+                - description: 'shell-api.collection.help.total-size.description'
