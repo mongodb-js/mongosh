@@ -11,7 +11,7 @@ describe('Help', () => {
 
   describe('#shellApiType', () => {
     it('returns Help', () => {
-      expect(new Help({ help: 'help' }).shellApiType()).to.equal('Help');
+      expect(new Help({ help: 'help' }, { translate }).shellApiType()).to.equal('Help');
     });
   });
 
@@ -48,7 +48,7 @@ describe('Help', () => {
         new Help(properties, { translate })
           .toReplString()
           .docs
-      ).to.equal('https://example.com');
+      ).to.equal('translated: https://example.com');
     });
 
     it('returns default attr', () => {

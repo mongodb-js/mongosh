@@ -69,61 +69,61 @@ AggregationCursor.prototype.bsonsize.topologies = [0, 1, 2];
 AggregationCursor.prototype.bsonsize.returnsPromise = false;
 AggregationCursor.prototype.bsonsize.returnType = 'unknown';
 
-AggregationCursor.prototype.close.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.close' });
+AggregationCursor.prototype.close.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.close.example', 'docs': 'shell-api.aggregation-cursor.help.close.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.close.description' }] });
 AggregationCursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.close.topologies = [0, 1, 2];
 AggregationCursor.prototype.close.returnsPromise = false;
 AggregationCursor.prototype.close.returnType = 'unknown';
 
-AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.for-each' });
+AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.for-each.example', 'docs': 'shell-api.aggregation-cursor.help.for-each.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.for-each.description' }] });
 AggregationCursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.forEach.topologies = [0, 1, 2];
 AggregationCursor.prototype.forEach.returnsPromise = false;
 AggregationCursor.prototype.forEach.returnType = 'unknown';
 
-AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.has-next' });
+AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.has-next.example', 'docs': 'shell-api.aggregation-cursor.help.has-next.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.has-next.description' }] });
 AggregationCursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.hasNext.topologies = [0, 1, 2];
 AggregationCursor.prototype.hasNext.returnsPromise = false;
 AggregationCursor.prototype.hasNext.returnType = 'unknown';
 
-AggregationCursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-closed' });
+AggregationCursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-closed.example', 'docs': 'shell-api.aggregation-cursor.help.is-closed.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.is-closed.description' }] });
 AggregationCursor.prototype.isClosed.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.isClosed.topologies = [0, 1, 2];
 AggregationCursor.prototype.isClosed.returnsPromise = false;
 AggregationCursor.prototype.isClosed.returnType = 'unknown';
 
-AggregationCursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-exhausted' });
+AggregationCursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-exhausted.example', 'docs': 'shell-api.aggregation-cursor.help.is-exhausted.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.is-exhausted.description' }] });
 AggregationCursor.prototype.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.isExhausted.topologies = [0, 1, 2];
 AggregationCursor.prototype.isExhausted.returnsPromise = false;
 AggregationCursor.prototype.isExhausted.returnType = 'unknown';
 
-AggregationCursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.itcount' });
+AggregationCursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.itcount.example', 'docs': 'shell-api.aggregation-cursor.help.itcount.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.itcount.description' }] });
 AggregationCursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.itcount.topologies = [0, 1, 2];
 AggregationCursor.prototype.itcount.returnsPromise = false;
 AggregationCursor.prototype.itcount.returnType = 'unknown';
 
-AggregationCursor.prototype.map.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.map' });
+AggregationCursor.prototype.map.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.map.example', 'docs': 'shell-api.aggregation-cursor.help.map.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.map.description' }] });
 AggregationCursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.map.topologies = [0, 1, 2];
 AggregationCursor.prototype.map.returnsPromise = false;
 AggregationCursor.prototype.map.returnType = 'unknown';
 
-AggregationCursor.prototype.next.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.next' });
+AggregationCursor.prototype.next.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.next.example', 'docs': 'shell-api.aggregation-cursor.help.next.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.next.description' }] });
 AggregationCursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.next.topologies = [0, 1, 2];
 AggregationCursor.prototype.next.returnsPromise = false;
 AggregationCursor.prototype.next.returnType = 'unknown';
 
-AggregationCursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.objs-left-in-batch' });
+AggregationCursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.objs-left-in-batch.example', 'docs': 'shell-api.aggregation-cursor.help.objs-left-in-batch.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.objs-left-in-batch.description' }] });
 AggregationCursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
 AggregationCursor.prototype.objsLeftInBatch.returnsPromise = false;
 AggregationCursor.prototype.objsLeftInBatch.returnType = 'unknown';
 
-AggregationCursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.to-array' });
+AggregationCursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.to-array.example', 'docs': 'shell-api.aggregation-cursor.help.to-array.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.to-array.description' }] });
 AggregationCursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.toArray.topologies = [0, 1, 2];
 AggregationCursor.prototype.toArray.returnsPromise = false;
@@ -335,49 +335,49 @@ class Collection {
 }
 
 
-Collection.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.collection.help.aggregate' });
+Collection.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.collection.help.aggregate.example', 'docs': 'shell-api.collection.help.aggregate.link', 'attr': [{ 'description': 'shell-api.collection.help.aggregate.description' }] });
 Collection.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.aggregate.topologies = [0, 1, 2];
 Collection.prototype.aggregate.returnsPromise = false;
 Collection.prototype.aggregate.returnType = 'AggregationCursor';
 
-Collection.prototype.bulkWrite.help = () => new Help({ 'help': 'shell-api.collection.help.bulk-write' });
+Collection.prototype.bulkWrite.help = () => new Help({ 'help': 'shell-api.collection.help.bulk-write.example', 'docs': 'shell-api.collection.help.bulk-write.link', 'attr': [{ 'description': 'shell-api.collection.help.bulk-write.description' }] });
 Collection.prototype.bulkWrite.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.bulkWrite.topologies = [0, 1, 2];
 Collection.prototype.bulkWrite.returnsPromise = true;
 Collection.prototype.bulkWrite.returnType = 'unknown';
 
-Collection.prototype.countDocuments.help = () => new Help({ 'help': 'shell-api.collection.help.count-documents' });
+Collection.prototype.countDocuments.help = () => new Help({ 'help': 'shell-api.collection.help.count-documents.example', 'docs': 'shell-api.collection.help.count-documents.link', 'attr': [{ 'description': 'shell-api.collection.help.count-documents.description' }] });
 Collection.prototype.countDocuments.serverVersions = ['4.0.3', '4.4.0'];
 Collection.prototype.countDocuments.topologies = [0, 1, 2];
 Collection.prototype.countDocuments.returnsPromise = true;
 Collection.prototype.countDocuments.returnType = 'unknown';
 
-Collection.prototype.count.help = () => new Help({ 'help': 'shell-api.collection.help.count' });
+Collection.prototype.count.help = () => new Help({ 'help': 'shell-api.collection.help.count.example', 'docs': 'shell-api.collection.help.count.link', 'attr': [{ 'description': 'shell-api.collection.help.count.description' }] });
 Collection.prototype.count.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.count.topologies = [0, 1, 2];
 Collection.prototype.count.returnsPromise = true;
 Collection.prototype.count.returnType = 'unknown';
 
-Collection.prototype.deleteMany.help = () => new Help({ 'help': 'shell-api.collection.help.delete-many' });
+Collection.prototype.deleteMany.help = () => new Help({ 'help': 'shell-api.collection.help.delete-many.example', 'docs': 'shell-api.collection.help.delete-many.link', 'attr': [{ 'description': 'shell-api.collection.help.delete-many.description' }] });
 Collection.prototype.deleteMany.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.deleteMany.topologies = [0, 1, 2];
 Collection.prototype.deleteMany.returnsPromise = true;
 Collection.prototype.deleteMany.returnType = 'unknown';
 
-Collection.prototype.deleteOne.help = () => new Help({ 'help': 'shell-api.collection.help.delete-one' });
+Collection.prototype.deleteOne.help = () => new Help({ 'help': 'shell-api.collection.help.delete-one.example', 'docs': 'shell-api.collection.help.delete-one.link', 'attr': [{ 'description': 'shell-api.collection.help.delete-one.description' }] });
 Collection.prototype.deleteOne.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.deleteOne.topologies = [0, 1, 2];
 Collection.prototype.deleteOne.returnsPromise = true;
 Collection.prototype.deleteOne.returnType = 'unknown';
 
-Collection.prototype.distinct.help = () => new Help({ 'help': 'shell-api.collection.help.distinct' });
+Collection.prototype.distinct.help = () => new Help({ 'help': 'shell-api.collection.help.distinct.example', 'docs': 'shell-api.collection.help.distinct.link', 'attr': [{ 'description': 'shell-api.collection.help.distinct.description' }] });
 Collection.prototype.distinct.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.distinct.topologies = [0, 1, 2];
 Collection.prototype.distinct.returnsPromise = false;
 Collection.prototype.distinct.returnType = 'Cursor';
 
-Collection.prototype.estimatedDocumentCount.help = () => new Help({ 'help': 'shell-api.collection.help.estimated-document-count.example', 'docs': 'shell-api.collection.help.estimated-document-count.link', 'attr': [{ 'name': 'estimatedDocumentCount', 'description': 'shell-api.collection.help.estimated-document-count.description' }] });
+Collection.prototype.estimatedDocumentCount.help = () => new Help({ 'help': 'shell-api.collection.help.estimated-document-count.example', 'docs': 'shell-api.collection.help.estimated-document-count.link', 'attr': [{ 'description': 'shell-api.collection.help.estimated-document-count.description' }] });
 Collection.prototype.estimatedDocumentCount.serverVersions = ['4.0.3', '4.4.0'];
 Collection.prototype.estimatedDocumentCount.topologies = [0, 1, 2];
 Collection.prototype.estimatedDocumentCount.returnsPromise = true;
@@ -389,193 +389,193 @@ Collection.prototype.find.topologies = [0, 1, 2];
 Collection.prototype.find.returnsPromise = false;
 Collection.prototype.find.returnType = 'Cursor';
 
-Collection.prototype.findAndModify.help = () => new Help({ 'help': 'shell-api.collection.help.find-and-modify' });
+Collection.prototype.findAndModify.help = () => new Help({ 'help': 'shell-api.collection.help.find-and-modify.example', 'docs': 'shell-api.collection.help.find-and-modify.link', 'attr': [{ 'description': 'shell-api.collection.help.find-and-modify.description' }] });
 Collection.prototype.findAndModify.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findAndModify.topologies = [0, 1, 2];
 Collection.prototype.findAndModify.returnsPromise = false;
 Collection.prototype.findAndModify.returnType = 'unknown';
 
-Collection.prototype.findOne.help = () => new Help({ 'help': 'shell-api.collection.help.find-one' });
+Collection.prototype.findOne.help = () => new Help({ 'help': 'shell-api.collection.help.find-one.example', 'docs': 'shell-api.collection.help.find-one.link', 'attr': [{ 'description': 'shell-api.collection.help.find-one.description' }] });
 Collection.prototype.findOne.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findOne.topologies = [0, 1, 2];
 Collection.prototype.findOne.returnsPromise = false;
 Collection.prototype.findOne.returnType = 'unknown';
 
-Collection.prototype.findOneAndDelete.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-delete' });
+Collection.prototype.findOneAndDelete.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-delete.example', 'docs': 'shell-api.collection.help.find-one-and-delete.link', 'attr': [{ 'description': 'shell-api.collection.help.find-one-and-delete.description' }] });
 Collection.prototype.findOneAndDelete.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndDelete.topologies = [0, 1, 2];
 Collection.prototype.findOneAndDelete.returnsPromise = true;
 Collection.prototype.findOneAndDelete.returnType = 'unknown';
 
-Collection.prototype.findOneAndReplace.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-replace' });
+Collection.prototype.findOneAndReplace.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-replace.example', 'docs': 'shell-api.collection.help.find-one-and-replace.link', 'attr': [{ 'description': 'shell-api.collection.help.find-one-and-replace.description' }] });
 Collection.prototype.findOneAndReplace.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndReplace.topologies = [0, 1, 2];
 Collection.prototype.findOneAndReplace.returnsPromise = true;
 Collection.prototype.findOneAndReplace.returnType = 'unknown';
 
-Collection.prototype.findOneAndUpdate.help = () => new Help({ 'help': 'shell-api-collection.help.find-one-and-update' });
+Collection.prototype.findOneAndUpdate.help = () => new Help({ 'help': 'shell-api.collection.help.find-one-and-update.example', 'docs': 'shell-api.collection.help.find-one-and-update.link', 'attr': [{ 'description': 'shell-api.collection.help.find-one-and-update.description' }] });
 Collection.prototype.findOneAndUpdate.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.findOneAndUpdate.topologies = [0, 1, 2];
 Collection.prototype.findOneAndUpdate.returnsPromise = true;
 Collection.prototype.findOneAndUpdate.returnType = 'unknown';
 
-Collection.prototype.insert.help = () => new Help({ 'help': 'shell-api.collection.help.insert' });
+Collection.prototype.insert.help = () => new Help({ 'help': 'shell-api.collection.help.insert.example', 'docs': 'shell-api.collection.help.insert.link', 'attr': [{ 'description': 'shell-api.collection.help.insert.description' }] });
 Collection.prototype.insert.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.insert.topologies = [0, 1, 2];
 Collection.prototype.insert.returnsPromise = true;
 Collection.prototype.insert.returnType = 'unknown';
 
-Collection.prototype.insertMany.help = () => new Help({ 'help': 'shell-api.collection.help.insert-many' });
+Collection.prototype.insertMany.help = () => new Help({ 'help': 'shell-api.collection.help.insert-many.example', 'docs': 'shell-api.collection.help.insert-many.link', 'attr': [{ 'description': 'shell-api.collection.help.insert-many.description' }] });
 Collection.prototype.insertMany.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.insertMany.topologies = [0, 1, 2];
 Collection.prototype.insertMany.returnsPromise = true;
 Collection.prototype.insertMany.returnType = 'unknown';
 
-Collection.prototype.insertOne.help = () => new Help({ 'help': 'shell-api.collection.help.insert-one' });
+Collection.prototype.insertOne.help = () => new Help({ 'help': 'shell-api.collection.help.insert-one.example', 'docs': 'shell-api.collection.help.insert-one.link', 'attr': [{ 'description': 'shell-api.collection.help.insert-one.description' }] });
 Collection.prototype.insertOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.insertOne.topologies = [0, 1, 2];
 Collection.prototype.insertOne.returnsPromise = true;
 Collection.prototype.insertOne.returnType = 'unknown';
 
-Collection.prototype.isCapped.help = () => new Help({ 'help': 'shell-api.collection.help.is-capped' });
+Collection.prototype.isCapped.help = () => new Help({ 'help': 'shell-api.collection.help.is-capped.example', 'docs': 'shell-api.collection.help.is-capped.link', 'attr': [{ 'description': 'shell-api.collection.help.is-capped.description' }] });
 Collection.prototype.isCapped.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.isCapped.topologies = [0, 1, 2];
 Collection.prototype.isCapped.returnsPromise = true;
 Collection.prototype.isCapped.returnType = 'unknown';
 
-Collection.prototype.remove.help = () => new Help({ 'help': 'shell-api.collection.help.remove' });
+Collection.prototype.remove.help = () => new Help({ 'help': 'shell-api.collection.help.remove.example', 'docs': 'shell-api.collection.help.remove.link', 'attr': [{ 'description': 'shell-api.collection.help.remove.description' }] });
 Collection.prototype.remove.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.remove.topologies = [0, 1, 2];
 Collection.prototype.remove.returnsPromise = true;
 Collection.prototype.remove.returnType = 'unknown';
 
-Collection.prototype.save.help = () => new Help({ 'help': 'shell-api.collection.help.save' });
+Collection.prototype.save.help = () => new Help({ 'help': 'shell-api.collection.help.save.example', 'docs': 'shell-api.collection.help.save.link', 'attr': [{ 'description': 'shell-api.collection.help.save.description' }] });
 Collection.prototype.save.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.save.topologies = [0, 1, 2];
 Collection.prototype.save.returnsPromise = true;
 Collection.prototype.save.returnType = 'unknown';
 
-Collection.prototype.replaceOne.help = () => new Help({ 'help': 'shell-api.collection.help.replace-one' });
+Collection.prototype.replaceOne.help = () => new Help({ 'help': 'shell-api.collection.help.replace-one.example', 'docs': 'shell-api.collection.help.replace-one.link', 'attr': [{ 'description': 'shell-api.collection.help.replace-one.description' }] });
 Collection.prototype.replaceOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.replaceOne.topologies = [0, 1, 2];
 Collection.prototype.replaceOne.returnsPromise = true;
 Collection.prototype.replaceOne.returnType = 'unknown';
 
-Collection.prototype.update.help = () => new Help({ 'help': 'shell-api.collection.help.update' });
+Collection.prototype.update.help = () => new Help({ 'help': 'shell-api.collection.help.update.example', 'docs': 'shell-api.collection.help.update.link', 'attr': [{ 'description': 'shell-api.collection.help.update.description' }] });
 Collection.prototype.update.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.update.topologies = [0, 1, 2];
 Collection.prototype.update.returnsPromise = true;
 Collection.prototype.update.returnType = 'unknown';
 
-Collection.prototype.updateMany.help = () => new Help({ 'help': 'shell-api.collection.help.update-many' });
+Collection.prototype.updateMany.help = () => new Help({ 'help': 'shell-api.collection.help.update-many.example', 'docs': 'shell-api.collection.help.update-many.link', 'attr': [{ 'description': 'shell-api.collection.help.update-many.description' }] });
 Collection.prototype.updateMany.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.updateMany.topologies = [0, 1, 2];
 Collection.prototype.updateMany.returnsPromise = true;
 Collection.prototype.updateMany.returnType = 'unknown';
 
-Collection.prototype.updateOne.help = () => new Help({ 'help': 'shell-api.collection.help.update-one' });
+Collection.prototype.updateOne.help = () => new Help({ 'help': 'shell-api.collection.help.update-one.example', 'docs': 'shell-api.collection.help.update-one.link', 'attr': [{ 'description': 'shell-api.collection.help.update-one.description' }] });
 Collection.prototype.updateOne.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.updateOne.topologies = [0, 1, 2];
 Collection.prototype.updateOne.returnsPromise = true;
 Collection.prototype.updateOne.returnType = 'unknown';
 
-Collection.prototype.convertToCapped.help = () => new Help({ 'help': 'shell-api.collection.help.convert-to-capped' });
+Collection.prototype.convertToCapped.help = () => new Help({ 'help': 'shell-api.collection.help.convert-to-capped.example', 'docs': 'shell-api.collection.help.convert-to-capped.link', 'attr': [{ 'description': 'shell-api.collection.help.convert-to-capped.description' }] });
 Collection.prototype.convertToCapped.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.convertToCapped.topologies = [0, 1, 2];
 Collection.prototype.convertToCapped.returnsPromise = true;
 Collection.prototype.convertToCapped.returnType = 'unknown';
 
-Collection.prototype.createIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.create-indexes' });
+Collection.prototype.createIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.create-indexes.example', 'docs': 'shell-api.collection.help.create-indexes.link', 'attr': [{ 'description': 'shell-api.collection.help.create-indexes.description' }] });
 Collection.prototype.createIndexes.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.createIndexes.topologies = [0, 1, 2];
 Collection.prototype.createIndexes.returnsPromise = true;
 Collection.prototype.createIndexes.returnType = 'unknown';
 
-Collection.prototype.createIndex.help = () => new Help({ 'help': 'shell-api.collection.help.create-index' });
+Collection.prototype.createIndex.help = () => new Help({ 'help': 'shell-api.collection.help.create-index.example', 'docs': 'shell-api.collection.help.create-index.link', 'attr': [{ 'description': 'shell-api.collection.help.create-index.description' }] });
 Collection.prototype.createIndex.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.createIndex.topologies = [0, 1, 2];
 Collection.prototype.createIndex.returnsPromise = true;
 Collection.prototype.createIndex.returnType = 'unknown';
 
-Collection.prototype.ensureIndex.help = () => new Help({ 'help': 'shell-api.collection.help.ensure-index' });
+Collection.prototype.ensureIndex.help = () => new Help({ 'help': 'shell-api.collection.help.ensure-index.example', 'docs': 'shell-api.collection.help.ensure-index.link', 'attr': [{ 'description': 'shell-api.collection.help.ensure-index.description' }] });
 Collection.prototype.ensureIndex.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.ensureIndex.topologies = [0, 1, 2];
 Collection.prototype.ensureIndex.returnsPromise = true;
 Collection.prototype.ensureIndex.returnType = 'unknown';
 
-Collection.prototype.getIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.get-indexes' });
+Collection.prototype.getIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.get-indexes.example', 'docs': 'shell-api.collection.help.get-indexes.link', 'attr': [{ 'description': 'shell-api.collection.help.get-indexes.description' }] });
 Collection.prototype.getIndexes.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.getIndexes.topologies = [0, 1, 2];
 Collection.prototype.getIndexes.returnsPromise = true;
 Collection.prototype.getIndexes.returnType = 'unknown';
 
-Collection.prototype.getIndexSpecs.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-specs' });
+Collection.prototype.getIndexSpecs.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-specs.example', 'docs': 'shell-api.collection.help.get-index-specs.link', 'attr': [{ 'description': 'shell-api.collection.help.get-index-specs.description' }] });
 Collection.prototype.getIndexSpecs.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.getIndexSpecs.topologies = [0, 1, 2];
 Collection.prototype.getIndexSpecs.returnsPromise = true;
 Collection.prototype.getIndexSpecs.returnType = 'unknown';
 
-Collection.prototype.getIndexKeys.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-keys' });
+Collection.prototype.getIndexKeys.help = () => new Help({ 'help': 'shell-api.collection.help.get-index-keys.example', 'docs': 'shell-api.collection.help.get-index-keys.link', 'attr': [{ 'description': 'shell-api.collection.help.get-index-keys.description' }] });
 Collection.prototype.getIndexKeys.serverVersions = ['3.2.0', '4.4.0'];
 Collection.prototype.getIndexKeys.topologies = [0, 1, 2];
 Collection.prototype.getIndexKeys.returnsPromise = true;
 Collection.prototype.getIndexKeys.returnType = 'unknown';
 
-Collection.prototype.getIndices.help = () => new Help({ 'help': 'shell-api.collection.help.get-indices' });
+Collection.prototype.getIndices.help = () => new Help({ 'help': 'shell-api.collection.help.get-indices.example', 'docs': 'shell-api.collection.help.get-indices.link', 'attr': [{ 'description': 'shell-api.collection.help.get-indices.description' }] });
 Collection.prototype.getIndices.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.getIndices.topologies = [0, 1, 2];
 Collection.prototype.getIndices.returnsPromise = true;
 Collection.prototype.getIndices.returnType = 'unknown';
 
-Collection.prototype.dropIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.drop-indexes' });
+Collection.prototype.dropIndexes.help = () => new Help({ 'help': 'shell-api.collection.help.drop-indexes.example', 'docs': 'shell-api.collection.help.drop-indexes.link', 'attr': [{ 'description': 'shell-api.collection.help.drop-indexes.description' }] });
 Collection.prototype.dropIndexes.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.dropIndexes.topologies = [0, 1, 2];
 Collection.prototype.dropIndexes.returnsPromise = true;
 Collection.prototype.dropIndexes.returnType = 'unknown';
 
-Collection.prototype.dropIndex.help = () => new Help({ 'help': 'shell-api.collection.help.drop-index' });
+Collection.prototype.dropIndex.help = () => new Help({ 'help': 'shell-api.collection.help.drop-index.example', 'docs': 'shell-api.collection.help.drop-index.link', 'attr': [{ 'description': 'shell-api.collection.help.drop-index.description' }] });
 Collection.prototype.dropIndex.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.dropIndex.topologies = [0, 1, 2];
 Collection.prototype.dropIndex.returnsPromise = true;
 Collection.prototype.dropIndex.returnType = 'unknown';
 
-Collection.prototype.reIndex.help = () => new Help({ 'help': 'shell-api.collection.help.re-index' });
+Collection.prototype.reIndex.help = () => new Help({ 'help': 'shell-api.collection.help.re-index.example', 'docs': 'shell-api.collection.help.re-index.link', 'attr': [{ 'description': 'shell-api.collection.help.re-index.description' }] });
 Collection.prototype.reIndex.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.reIndex.topologies = [0, 1, 2];
 Collection.prototype.reIndex.returnsPromise = true;
 Collection.prototype.reIndex.returnType = 'unknown';
 
-Collection.prototype.totalIndexSize.help = () => new Help({ 'help': 'shell-api.collection.help.total-index-size' });
+Collection.prototype.totalIndexSize.help = () => new Help({ 'help': 'shell-api.collection.help.total-index-size.example', 'docs': 'shell-api.collection.help.total-index-size.link', 'attr': [{ 'description': 'shell-api.collection.help.total-index-size.description' }] });
 Collection.prototype.totalIndexSize.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.totalIndexSize.topologies = [0, 1, 2];
 Collection.prototype.totalIndexSize.returnsPromise = true;
 Collection.prototype.totalIndexSize.returnType = 'unknown';
 
-Collection.prototype.getDB.help = () => new Help({ 'help': 'shell-api.collection.help.get-db' });
+Collection.prototype.getDB.help = () => new Help({ 'help': 'shell-api.collection.help.get-db.example', 'docs': 'shell-api.collection.help.get-db.link', 'attr': [{ 'description': 'shell-api.collection.help.get-db.description' }] });
 Collection.prototype.getDB.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.getDB.topologies = [0, 1, 2];
 Collection.prototype.getDB.returnsPromise = false;
 Collection.prototype.getDB.returnType = 'Database';
 
-Collection.prototype.stats.help = () => new Help({ 'help': 'shell-api.collection.help.stats' });
+Collection.prototype.stats.help = () => new Help({ 'help': 'shell-api.collection.help.stats.example', 'docs': 'shell-api.collection.help.stats.link', 'attr': [{ 'description': 'shell-api.collection.help.stats.description' }] });
 Collection.prototype.stats.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.stats.topologies = [0, 1, 2];
 Collection.prototype.stats.returnsPromise = true;
 Collection.prototype.stats.returnType = 'unknown';
 
-Collection.prototype.dataSize.help = () => new Help({ 'help': 'shell-api.collection.help.data-size' });
+Collection.prototype.dataSize.help = () => new Help({ 'help': 'shell-api.collection.help.data-size.example', 'docs': 'shell-api.collection.help.data-size.link', 'attr': [{ 'description': 'shell-api.collection.help.data-size.description' }] });
 Collection.prototype.dataSize.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.dataSize.topologies = [0, 1, 2];
 Collection.prototype.dataSize.returnsPromise = true;
 Collection.prototype.dataSize.returnType = 'unknown';
 
-Collection.prototype.storageSize.help = () => new Help({ 'help': 'shell-api.collection.help.storage-size' });
+Collection.prototype.storageSize.help = () => new Help({ 'help': 'shell-api.collection.help.storage-size.example', 'docs': 'shell-api.collection.help.storage-size.link', 'attr': [{ 'description': 'shell-api.collection.help.storage-size.description' }] });
 Collection.prototype.storageSize.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.storageSize.topologies = [0, 1, 2];
 Collection.prototype.storageSize.returnsPromise = true;
 Collection.prototype.storageSize.returnType = 'unknown';
 
-Collection.prototype.totalSize.help = () => new Help({ 'help': 'shell-api.collection.help.total-size' });
+Collection.prototype.totalSize.help = () => new Help({ 'help': 'shell-api.collection.help.total-size.example', 'docs': 'shell-api.collection.help.total-size.link', 'attr': [{ 'description': 'shell-api.collection.help.total-size.description' }] });
 Collection.prototype.totalSize.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.totalSize.topologies = [0, 1, 2];
 Collection.prototype.totalSize.returnsPromise = true;
@@ -773,13 +773,13 @@ class Cursor {
 }
 
 
-Cursor.prototype.addOption.help = () => new Help({ 'help': 'shell-api.cursor.help.add-option' });
+Cursor.prototype.addOption.help = () => new Help({ 'help': 'shell-api.cursor.help.add-option.example', 'docs': 'shell-api.cursor.help.add-option.link', 'attr': [{ 'description': 'shell-api.cursor.help.add-option.description' }] });
 Cursor.prototype.addOption.serverVersions = ['0.0.0', '3.2.0'];
 Cursor.prototype.addOption.topologies = [0, 1, 2];
 Cursor.prototype.addOption.returnsPromise = false;
 Cursor.prototype.addOption.returnType = 'unknown';
 
-Cursor.prototype.allowPartialResults.help = () => new Help({ 'help': 'shell-api.cursor.help.allow-partial-results' });
+Cursor.prototype.allowPartialResults.help = () => new Help({ 'help': 'shell-api.cursor.help.allow-partial-results.example', 'docs': 'shell-api.cursor.help.allow-partial-results.link', 'attr': [{ 'description': 'shell-api.cursor.help.allow-partial-results.description' }] });
 Cursor.prototype.allowPartialResults.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.allowPartialResults.topologies = [0, 1, 2];
 Cursor.prototype.allowPartialResults.returnsPromise = false;
@@ -791,242 +791,242 @@ Cursor.prototype.arrayAccess.topologies = [0, 1, 2];
 Cursor.prototype.arrayAccess.returnsPromise = false;
 Cursor.prototype.arrayAccess.returnType = 'unknown';
 
-Cursor.prototype.batchSize.help = () => new Help({ 'help': 'shell-api.cursor.help.batch-size' });
+Cursor.prototype.batchSize.help = () => new Help({ 'help': 'shell-api.cursor.help.batch-size.example', 'docs': 'shell-api.cursor.help.batch-size.link', 'attr': [{ 'description': 'shell-api.cursor.help.batch-size.description' }] });
 Cursor.prototype.batchSize.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.batchSize.topologies = [0, 1, 2];
 Cursor.prototype.batchSize.returnsPromise = false;
 Cursor.prototype.batchSize.returnType = 'unknown';
 
-Cursor.prototype.clone.help = () => new Help({ 'help': 'shell-api.cursor.help.clone' });
+Cursor.prototype.clone.help = () => new Help({ 'help': 'shell-api.cursor.help.clone.example', 'docs': 'shell-api.cursor.help.clone.link', 'attr': [{ 'description': 'shell-api.cursor.help.clone.description' }] });
 Cursor.prototype.clone.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.clone.topologies = [0, 1, 2];
 Cursor.prototype.clone.returnsPromise = false;
 Cursor.prototype.clone.returnType = 'unknown';
 
-Cursor.prototype.close.help = () => new Help({ 'help': 'shell-api.cursor.help.close' });
+Cursor.prototype.close.help = () => new Help({ 'help': 'shell-api.cursor.help.close.example', 'docs': 'shell-api.cursor.help.close.link', 'attr': [{ 'description': 'shell-api.cursor.help.close.description' }] });
 Cursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.close.topologies = [0, 1, 2];
 Cursor.prototype.close.returnsPromise = false;
 Cursor.prototype.close.returnType = 'unknown';
 
-Cursor.prototype.collation.help = () => new Help({ 'help': 'shell-api.cursor.help.collation' });
+Cursor.prototype.collation.help = () => new Help({ 'help': 'shell-api.cursor.help.collation.example', 'docs': 'shell-api.cursor.help.collation.link', 'attr': [{ 'description': 'shell-api.cursor.help.collation.description' }] });
 Cursor.prototype.collation.serverVersions = ['3.4.0', '4.4.0'];
 Cursor.prototype.collation.topologies = [0, 1, 2];
 Cursor.prototype.collation.returnsPromise = false;
 Cursor.prototype.collation.returnType = 'unknown';
 
-Cursor.prototype.comment.help = () => new Help({ 'help': 'shell-api.cursor.help.comment' });
+Cursor.prototype.comment.help = () => new Help({ 'help': 'shell-api.cursor.help.comment.example', 'docs': 'shell-api.cursor.help.comment.link', 'attr': [{ 'description': 'shell-api.cursor.help.comment.description' }] });
 Cursor.prototype.comment.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.comment.topologies = [0, 1, 2];
 Cursor.prototype.comment.returnsPromise = false;
 Cursor.prototype.comment.returnType = 'unknown';
 
-Cursor.prototype.count.help = () => new Help({ 'help': 'shell-api.cursor.help.count' });
+Cursor.prototype.count.help = () => new Help({ 'help': 'shell-api.cursor.help.count.example', 'docs': 'shell-api.cursor.help.count.link', 'attr': [{ 'description': 'shell-api.cursor.help.count.description' }] });
 Cursor.prototype.count.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.count.topologies = [0, 1, 2];
 Cursor.prototype.count.returnsPromise = false;
 Cursor.prototype.count.returnType = 'unknown';
 Cursor.prototype.count.serverVersion = ['0.0.0', '4.0.0'];
 
-Cursor.prototype.explain.help = () => new Help({ 'help': 'shell-api.cursor.help.explain' });
+Cursor.prototype.explain.help = () => new Help({ 'help': 'shell-api.cursor.help.explain.example', 'docs': 'shell-api.cursor.help.explain.link', 'attr': [{ 'description': 'shell-api.cursor.help.explain.description' }] });
 Cursor.prototype.explain.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.explain.topologies = [0, 1, 2];
 Cursor.prototype.explain.returnsPromise = false;
 Cursor.prototype.explain.returnType = 'unknown';
 
-Cursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.cursor.help.for-each' });
+Cursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.cursor.help.for-each.example', 'docs': 'shell-api.cursor.help.for-each.link', 'attr': [{ 'description': 'shell-api.cursor.help.for-each.description' }] });
 Cursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.forEach.topologies = [0, 1, 2];
 Cursor.prototype.forEach.returnsPromise = false;
 Cursor.prototype.forEach.returnType = 'unknown';
 
-Cursor.prototype.getQueryPlan.help = () => new Help({ 'help': 'shell-api.cursor.help.get-query-plan' });
+Cursor.prototype.getQueryPlan.help = () => new Help({ 'help': 'shell-api.cursor.help.get-query-plan.example', 'docs': 'shell-api.cursor.help.get-query-plan.link', 'attr': [{ 'description': 'shell-api.cursor.help.get-query-plan.description' }] });
 Cursor.prototype.getQueryPlan.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.getQueryPlan.topologies = [0, 1, 2];
 Cursor.prototype.getQueryPlan.returnsPromise = false;
 Cursor.prototype.getQueryPlan.returnType = 'unknown';
 
-Cursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.cursor.help.has-next' });
+Cursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.cursor.help.has-next.example', 'docs': 'shell-api.cursor.help.has-next.link', 'attr': [{ 'description': 'shell-api.cursor.help.has-next.description' }] });
 Cursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hasNext.topologies = [0, 1, 2];
 Cursor.prototype.hasNext.returnsPromise = false;
 Cursor.prototype.hasNext.returnType = 'unknown';
 
-Cursor.prototype.hint.help = () => new Help({ 'help': 'shell-api.cursor.help.hint' });
+Cursor.prototype.hint.help = () => new Help({ 'help': 'shell-api.cursor.help.hint.example', 'docs': 'shell-api.cursor.help.hint.link', 'attr': [{ 'description': 'shell-api.cursor.help.hint.description' }] });
 Cursor.prototype.hint.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hint.topologies = [0, 1, 2];
 Cursor.prototype.hint.returnsPromise = false;
 Cursor.prototype.hint.returnType = 'unknown';
 
-Cursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.cursor.help.is-closed' });
+Cursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.cursor.help.is-closed.example', 'docs': 'shell-api.cursor.help.is-closed.link', 'attr': [{ 'description': 'shell-api.cursor.help.is-closed.description' }] });
 Cursor.prototype.isClosed.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.isClosed.topologies = [0, 1, 2];
 Cursor.prototype.isClosed.returnsPromise = false;
 Cursor.prototype.isClosed.returnType = 'unknown';
 
-Cursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.cursor.help.is-exhausted' });
+Cursor.prototype.isExhausted.help = () => new Help({ 'help': 'shell-api.cursor.help.is-exhausted.example', 'docs': 'shell-api.cursor.help.is-exhausted.link', 'attr': [{ 'description': 'shell-api.cursor.help.is-exhausted.description' }] });
 Cursor.prototype.isExhausted.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.isExhausted.topologies = [0, 1, 2];
 Cursor.prototype.isExhausted.returnsPromise = false;
 Cursor.prototype.isExhausted.returnType = 'unknown';
 
-Cursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.cursor.help.itcount' });
+Cursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.cursor.help.itcount.example', 'docs': 'shell-api.cursor.help.itcount.link', 'attr': [{ 'description': 'shell-api.cursor.help.itcount.description' }] });
 Cursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.itcount.topologies = [0, 1, 2];
 Cursor.prototype.itcount.returnsPromise = false;
 Cursor.prototype.itcount.returnType = 'unknown';
 
-Cursor.prototype.length.help = () => new Help({ 'help': 'shell-api.cursor.help.length' });
+Cursor.prototype.length.help = () => new Help({ 'help': 'shell-api.cursor.help.length.example', 'docs': 'shell-api.cursor.help.length.link', 'attr': [{ 'description': 'shell-api.cursor.help.length.description' }] });
 Cursor.prototype.length.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.length.topologies = [0, 1, 2];
 Cursor.prototype.length.returnsPromise = false;
 Cursor.prototype.length.returnType = 'unknown';
 
-Cursor.prototype.limit.help = () => new Help({ 'help': 'shell-api.cursor.help.limit' });
+Cursor.prototype.limit.help = () => new Help({ 'help': 'shell-api.cursor.help.limit.example', 'docs': 'shell-api.cursor.help.limit.link', 'attr': [{ 'description': 'shell-api.cursor.help.limit.description' }] });
 Cursor.prototype.limit.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.limit.topologies = [0, 1, 2];
 Cursor.prototype.limit.returnsPromise = false;
 Cursor.prototype.limit.returnType = 'unknown';
 
-Cursor.prototype.map.help = () => new Help({ 'help': 'shell-api.cursor.help.map' });
+Cursor.prototype.map.help = () => new Help({ 'help': 'shell-api.cursor.help.map.example', 'docs': 'shell-api.cursor.help.map.link', 'attr': [{ 'description': 'shell-api.cursor.help.map.description' }] });
 Cursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.map.topologies = [0, 1, 2];
 Cursor.prototype.map.returnsPromise = false;
 Cursor.prototype.map.returnType = 'unknown';
 
-Cursor.prototype.max.help = () => new Help({ 'help': 'shell-api.cursor.help.max' });
+Cursor.prototype.max.help = () => new Help({ 'help': 'shell-api.cursor.help.max.example', 'docs': 'shell-api.cursor.help.max.link', 'attr': [{ 'description': 'shell-api.cursor.help.max.description' }] });
 Cursor.prototype.max.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.max.topologies = [0, 1, 2];
 Cursor.prototype.max.returnsPromise = false;
 Cursor.prototype.max.returnType = 'unknown';
 
-Cursor.prototype.maxScan.help = () => new Help({ 'help': 'shell-api.cursor.help.max-scan' });
+Cursor.prototype.maxScan.help = () => new Help({ 'help': 'shell-api.cursor.help.max-scan.example', 'docs': 'shell-api.cursor.help.max-scan.link', 'attr': [{ 'description': 'shell-api.cursor.help.max-scan.description' }] });
 Cursor.prototype.maxScan.serverVersions = ['0.0.0', '4.0.0'];
 Cursor.prototype.maxScan.topologies = [0, 1, 2];
 Cursor.prototype.maxScan.returnsPromise = false;
 Cursor.prototype.maxScan.returnType = 'unknown';
 
-Cursor.prototype.maxTimeMS.help = () => new Help({ 'help': 'shell-api.cursor.help.max-time-ms' });
+Cursor.prototype.maxTimeMS.help = () => new Help({ 'help': 'shell-api.cursor.help.max-time-ms.example', 'docs': 'shell-api.cursor.help.max-time-ms.link', 'attr': [{ 'description': 'shell-api.cursor.help.max-time-ms.description' }] });
 Cursor.prototype.maxTimeMS.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.maxTimeMS.topologies = [0, 1, 2];
 Cursor.prototype.maxTimeMS.returnsPromise = false;
 Cursor.prototype.maxTimeMS.returnType = 'unknown';
 
-Cursor.prototype.min.help = () => new Help({ 'help': 'shell-api.cursor.help.min' });
+Cursor.prototype.min.help = () => new Help({ 'help': 'shell-api.cursor.help.min.example', 'docs': 'shell-api.cursor.help.min.link', 'attr': [{ 'description': 'shell-api.cursor.help.min.description' }] });
 Cursor.prototype.min.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.min.topologies = [0, 1, 2];
 Cursor.prototype.min.returnsPromise = false;
 Cursor.prototype.min.returnType = 'unknown';
 
-Cursor.prototype.modifiers.help = () => new Help({ 'help': 'shell-api.cursor.help.modifiers' });
+Cursor.prototype.modifiers.help = () => new Help({ 'help': 'shell-api.cursor.help.modifiers.example', 'docs': 'shell-api.cursor.help.modifiers.link', 'attr': [{ 'description': 'shell-api.cursor.help.modifiers.description' }] });
 Cursor.prototype.modifiers.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.modifiers.topologies = [0, 1, 2];
 Cursor.prototype.modifiers.returnsPromise = false;
 Cursor.prototype.modifiers.returnType = 'unknown';
 
-Cursor.prototype.next.help = () => new Help({ 'help': 'shell-api.cursor.help.next' });
+Cursor.prototype.next.help = () => new Help({ 'help': 'shell-api.cursor.help.next.example', 'docs': 'shell-api.cursor.help.next.link', 'attr': [{ 'description': 'shell-api.cursor.help.next.description' }] });
 Cursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.next.topologies = [0, 1, 2];
 Cursor.prototype.next.returnsPromise = false;
 Cursor.prototype.next.returnType = 'unknown';
 
-Cursor.prototype.noCursorTimeout.help = () => new Help({ 'help': 'shell-api.cursor.help.no-cursor-timeout' });
+Cursor.prototype.noCursorTimeout.help = () => new Help({ 'help': 'shell-api.cursor.help.no-cursor-timeout.example', 'docs': 'shell-api.cursor.help.no-cursor-timeout.link', 'attr': [{ 'description': 'shell-api.cursor.help.no-cursor-timeout.description' }] });
 Cursor.prototype.noCursorTimeout.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.noCursorTimeout.topologies = [0, 1, 2];
 Cursor.prototype.noCursorTimeout.returnsPromise = false;
 Cursor.prototype.noCursorTimeout.returnType = 'unknown';
 
-Cursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.cursor.help.objs-left-in-batch' });
+Cursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.cursor.help.objs-left-in-batch.example', 'docs': 'shell-api.cursor.help.objs-left-in-batch.link', 'attr': [{ 'description': 'shell-api.cursor.help.objs-left-in-batch.description' }] });
 Cursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
 Cursor.prototype.objsLeftInBatch.returnsPromise = false;
 Cursor.prototype.objsLeftInBatch.returnType = 'unknown';
 
-Cursor.prototype.oplogReplay.help = () => new Help({ 'help': 'shell-api.cursor.help.oplog-replay' });
+Cursor.prototype.oplogReplay.help = () => new Help({ 'help': 'shell-api.cursor.help.oplog-replay.example', 'docs': 'shell-api.cursor.help.oplog-replay.link', 'attr': [{ 'description': 'shell-api.cursor.help.oplog-replay.description' }] });
 Cursor.prototype.oplogReplay.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.oplogReplay.topologies = [0, 1, 2];
 Cursor.prototype.oplogReplay.returnsPromise = false;
 Cursor.prototype.oplogReplay.returnType = 'unknown';
 
-Cursor.prototype.projection.help = () => new Help({ 'help': 'shell-api.cursor.help.projection' });
+Cursor.prototype.projection.help = () => new Help({ 'help': 'shell-api.cursor.help.projection.example', 'docs': 'shell-api.cursor.help.projection.link', 'attr': [{ 'description': 'shell-api.cursor.help.projection.description' }] });
 Cursor.prototype.projection.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.projection.topologies = [0, 1, 2];
 Cursor.prototype.projection.returnsPromise = false;
 Cursor.prototype.projection.returnType = 'unknown';
 
-Cursor.prototype.pretty.help = () => new Help({ 'help': 'shell-api.cursor.help.pretty' });
+Cursor.prototype.pretty.help = () => new Help({ 'help': 'shell-api.cursor.help.pretty.example', 'docs': 'shell-api.cursor.help.pretty.link', 'attr': [{ 'description': 'shell-api.cursor.help.pretty.description' }] });
 Cursor.prototype.pretty.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.pretty.topologies = [0, 1, 2];
 Cursor.prototype.pretty.returnsPromise = false;
 Cursor.prototype.pretty.returnType = 'unknown';
 
-Cursor.prototype.readConcern.help = () => new Help({ 'help': 'shell-api.cursor.help.read-concern' });
+Cursor.prototype.readConcern.help = () => new Help({ 'help': 'shell-api.cursor.help.read-concern.example', 'docs': 'shell-api.cursor.help.read-concern.link', 'attr': [{ 'description': 'shell-api.cursor.help.read-concern.description' }] });
 Cursor.prototype.readConcern.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.readConcern.topologies = [0, 1, 2];
 Cursor.prototype.readConcern.returnsPromise = false;
 Cursor.prototype.readConcern.returnType = 'unknown';
 
-Cursor.prototype.readOnly.help = () => new Help({ 'help': 'shell-api.cursor.help.readonly' });
+Cursor.prototype.readOnly.help = () => new Help({ 'help': 'shell-api.cursor.help.readonly.example', 'docs': 'shell-api.cursor.help.readonly.link', 'attr': [{ 'description': 'shell-api.cursor.help.readonly.description' }] });
 Cursor.prototype.readOnly.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.readOnly.topologies = [0, 1, 2];
 Cursor.prototype.readOnly.returnsPromise = false;
 Cursor.prototype.readOnly.returnType = 'unknown';
 
-Cursor.prototype.readPref.help = () => new Help({ 'help': 'shell-api.cursor.help.read-pref' });
+Cursor.prototype.readPref.help = () => new Help({ 'help': 'shell-api.cursor.help.read-pref.example', 'docs': 'shell-api.cursor.help.read-pref.link', 'attr': [{ 'description': 'shell-api.cursor.help.read-pref.description' }] });
 Cursor.prototype.readPref.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.readPref.topologies = [0, 1, 2];
 Cursor.prototype.readPref.returnsPromise = false;
 Cursor.prototype.readPref.returnType = 'unknown';
 
-Cursor.prototype.returnKey.help = () => new Help({ 'help': 'shell-api.cursor.help.return-key' });
+Cursor.prototype.returnKey.help = () => new Help({ 'help': 'shell-api.cursor.help.return-key.example', 'docs': 'shell-api.cursor.help.return-key.link', 'attr': [{ 'description': 'shell-api.cursor.help.return-key.description' }] });
 Cursor.prototype.returnKey.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.returnKey.topologies = [0, 1, 2];
 Cursor.prototype.returnKey.returnsPromise = false;
 Cursor.prototype.returnKey.returnType = 'unknown';
 
-Cursor.prototype.showDiskLoc.help = () => new Help({ 'help': 'shell-api.cursor.help.show-disk-loc' });
+Cursor.prototype.showDiskLoc.help = () => new Help({ 'help': 'shell-api.cursor.help.show-disk-loc.example', 'docs': 'shell-api.cursor.help.show-disk-loc.link', 'attr': [{ 'description': 'shell-api.cursor.help.show-disk-loc.description' }] });
 Cursor.prototype.showDiskLoc.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.showDiskLoc.topologies = [0, 1, 2];
 Cursor.prototype.showDiskLoc.returnsPromise = false;
 Cursor.prototype.showDiskLoc.returnType = 'unknown';
 
-Cursor.prototype.showRecordId.help = () => new Help({ 'help': 'shell-api.cursor.help.show-record-id' });
+Cursor.prototype.showRecordId.help = () => new Help({ 'help': 'shell-api.cursor.help.show-record-id.example', 'docs': 'shell-api.cursor.help.show-record-id.link', 'attr': [{ 'description': 'shell-api.cursor.help.show-record-id.description' }] });
 Cursor.prototype.showRecordId.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.showRecordId.topologies = [0, 1, 2];
 Cursor.prototype.showRecordId.returnsPromise = false;
 Cursor.prototype.showRecordId.returnType = 'unknown';
 
-Cursor.prototype.size.help = () => new Help({ 'help': 'shell-api.cursor.help.size' });
+Cursor.prototype.size.help = () => new Help({ 'help': 'shell-api.cursor.help.size.example', 'docs': 'shell-api.cursor.help.size.link', 'attr': [{ 'description': 'shell-api.cursor.help.size.description' }] });
 Cursor.prototype.size.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.size.topologies = [0, 1, 2];
 Cursor.prototype.size.returnsPromise = false;
 Cursor.prototype.size.returnType = 'unknown';
 
-Cursor.prototype.skip.help = () => new Help({ 'help': 'shell-api.cursor.help.skip' });
+Cursor.prototype.skip.help = () => new Help({ 'help': 'shell-api.cursor.help.skip.example', 'docs': 'shell-api.cursor.help.skip.link', 'attr': [{ 'description': 'shell-api.cursor.help.skip.description' }] });
 Cursor.prototype.skip.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.skip.topologies = [0, 1, 2];
 Cursor.prototype.skip.returnsPromise = false;
 Cursor.prototype.skip.returnType = 'unknown';
 
-Cursor.prototype.snapshot.help = () => new Help({ 'help': 'shell-api.cursor.help.snapshot' });
+Cursor.prototype.snapshot.help = () => new Help({ 'help': 'shell-api.cursor.help.snapshot.example', 'docs': 'shell-api.cursor.help.snapshot.link', 'attr': [{ 'description': 'shell-api.cursor.help.snapshot.description' }] });
 Cursor.prototype.snapshot.serverVersions = ['0.0.0', '4.0.0'];
 Cursor.prototype.snapshot.topologies = [0, 1, 2];
 Cursor.prototype.snapshot.returnsPromise = false;
 Cursor.prototype.snapshot.returnType = 'unknown';
 
-Cursor.prototype.sort.help = () => new Help({ 'help': 'shell-api.cursor.help.sort' });
+Cursor.prototype.sort.help = () => new Help({ 'help': 'shell-api.cursor.help.sort.example', 'docs': 'shell-api.cursor.help.sort.link', 'attr': [{ 'description': 'shell-api.cursor.help.sort.description' }] });
 Cursor.prototype.sort.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.sort.topologies = [0, 1, 2];
 Cursor.prototype.sort.returnsPromise = false;
 Cursor.prototype.sort.returnType = 'unknown';
 
-Cursor.prototype.tailable.help = () => new Help({ 'help': 'shell-api.cursor.help.tailable' });
+Cursor.prototype.tailable.help = () => new Help({ 'help': 'shell-api.cursor.help.tailable.example', 'docs': 'shell-api.cursor.help.tailable.link', 'attr': [{ 'description': 'shell-api.cursor.help.tailable.description' }] });
 Cursor.prototype.tailable.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.tailable.topologies = [0, 1, 2];
 Cursor.prototype.tailable.returnsPromise = false;
 Cursor.prototype.tailable.returnType = 'unknown';
 
-Cursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.cursor.help.to-array' });
+Cursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.cursor.help.to-array.example', 'docs': 'shell-api.cursor.help.to-array.link', 'attr': [{ 'description': 'shell-api.cursor.help.to-array.description' }] });
 Cursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.toArray.topologies = [0, 1, 2];
 Cursor.prototype.toArray.returnsPromise = false;
@@ -1073,19 +1073,19 @@ class Database {
 }
 
 
-Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.database.help.run-command' });
+Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.database.help.run-command.example', 'docs': 'shell-api.database.help.run-command.link', 'attr': [{ 'description': 'shell-api.database.help.run-command.description' }] });
 Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.runCommand.topologies = [0, 1, 2];
 Database.prototype.runCommand.returnsPromise = false;
 Database.prototype.runCommand.returnType = 'unknown';
 
-Database.prototype.getCollectionNames.help = () => new Help({ 'help': 'shell-api.collection.help.get-collection-names' });
+Database.prototype.getCollectionNames.help = () => new Help({ 'help': 'shell-api.database.help.get-collection-names.example', 'docs': 'shell-api.database.help.get-collection-names.link', 'attr': [{ 'description': 'shell-api.database.help.get-collection-names.description' }] });
 Database.prototype.getCollectionNames.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.getCollectionNames.topologies = [0, 1, 2];
 Database.prototype.getCollectionNames.returnsPromise = true;
 Database.prototype.getCollectionNames.returnType = 'unknown';
 
-Database.prototype.getCollectionInfos.help = () => new Help({ 'help': 'shell-api.collection.help.get-collection-infos' });
+Database.prototype.getCollectionInfos.help = () => new Help({ 'help': 'shell-api.database.help.get-collection-infos.example', 'docs': 'shell-api.database.help.get-collection-infos.link', 'attr': [{ 'description': 'shell-api.database.help.get-collection-infos.description' }] });
 Database.prototype.getCollectionInfos.serverVersions = ['3.0.0', '4.4.0'];
 Database.prototype.getCollectionInfos.topologies = [0, 1, 2];
 Database.prototype.getCollectionInfos.returnsPromise = true;

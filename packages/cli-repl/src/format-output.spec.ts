@@ -100,46 +100,48 @@ describe('formatOutput', () => {
       const output = stripAnsiColors(format({
         value: {
           help: 'Shell API',
-          docs: 'https://docs.mongodb.com'
-          attr: {
+          docs: 'https://docs.mongodb.com',
+          attr: [{
             name: "show dbs",
             description: "list available databases"
-          }
+          }]
         },
         type: 'Help'
       }));
 
-      expect(output).to.contain('Shell API');
+      expect(output).to.contain('list available databases');
     });
 
     it('does not show name, if none is defined', () => {
       const output = stripAnsiColors(format({
         value: {
           help: 'Shell API',
-          docs: 'https://docs.mongodb.com'
-          attr: {
+          docs: 'https://docs.mongodb.com',
+          attr: [{
             description: "list available databases"
-          }
+          }]
         },
         type: 'Help'
       }));
 
-      expect(output).to.contain('Shell API');
+      expect(output).to.not.contain('show dbs');
+      expect(output).to.contain('list available databases');
     });
 
     it('does not show docs, if none are defined', () => {
       const output = stripAnsiColors(format({
         value: {
           help: 'Shell API',
-          attr: {
+          attr: [{
             name: "show dbs",
             description: "list available databases"
-          }
+          }]
         },
         type: 'Help'
       }));
 
-      expect(output).to.contain('Shell API');
+      expect(output).to.not.contain('https://docs.mongodb.com');
+      expect(output).to.contain('list available databases');
     });
   });
 });
