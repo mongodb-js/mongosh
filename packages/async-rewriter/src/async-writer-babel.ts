@@ -648,6 +648,13 @@ export default class AsyncWriter {
    * @param {string} code - string to compile.
    */
   compile(code): string {
-    return this.getTransform(code).code;
+    try {
+      return this.getTransform(code).code;
+    } catch (e) {
+      if (e.code === 'BABEL_TRANSFORM_ERROR') {
+        e.code = 'MONGOSH_RUNTIME_ERROR';
+        throw e;
+      }
+    }
   }
 }
