@@ -84,17 +84,64 @@ describe('formatOutput', () => {
       expect(output).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
     });
   });
-
-  context('when the result is help', () => {
-    it('returns the help text', () => {
+  context('when the result is Help', () => {
+    it('returns help text', () => {
       const output = stripAnsiColors(format({
         value: {
-          help: 'some help text'
+          help: 'Shell API'
         },
         type: 'Help'
       }));
 
-      expect(output).to.contain('some help text');
+      expect(output).to.contain('Shell API');
+    });
+
+    it('returns help text, docs, name and description', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          help: 'Shell API',
+          docs: 'https://docs.mongodb.com',
+          attr: [{
+            name: "show dbs",
+            description: "list available databases"
+          }]
+        },
+        type: 'Help'
+      }));
+
+      expect(output).to.contain('list available databases');
+    });
+
+    it('does not show name, if none is defined', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          help: 'Shell API',
+          docs: 'https://docs.mongodb.com',
+          attr: [{
+            description: "list available databases"
+          }]
+        },
+        type: 'Help'
+      }));
+
+      expect(output).to.not.contain('show dbs');
+      expect(output).to.contain('list available databases');
+    });
+
+    it('does not show docs, if none are defined', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          help: 'Shell API',
+          attr: [{
+            name: "show dbs",
+            description: "list available databases"
+          }]
+        },
+        type: 'Help'
+      }));
+
+      expect(output).to.not.contain('https://docs.mongodb.com');
+      expect(output).to.contain('list available databases');
     });
   });
 });

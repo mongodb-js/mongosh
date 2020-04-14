@@ -899,6 +899,7 @@ const translations = {
     },
     "cursor": {
       "description": "The cursor class.",
+      "link": "https://docs.mongodb.com/manual/reference/method/js-cursor/",
       "help": {
         "add-option": "Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.",
         "allow-partial-results": "Sets the 'partial' option to true.",
@@ -949,9 +950,22 @@ const translations = {
       }
     },
     "database": {
-      "description": "The database class.",
+      "description": "Database Class",
+      "link": "https://docs.mongodb.com/manual/reference/command/",
       "help": {
-        "run-command": "Runs an arbitrary command on the database."
+        "run-command": "Runs an arbitrary command on the database.",
+        "get-collection-infos": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.getCollectionInfos",
+          "description": "Returns an array of documents with collection information, i.e. collection name and options, for the current database.",
+          "example": "db.getCollectionInfos()",
+          "parameters": {}
+        },
+        "get-collection-names": {
+          "link": "https://docs.mongodb.com/manual/reference/method/db.getCollectionNames",
+          "description": "Returns an array containing the names of all collections in the current database.",
+          "example": "db.getCollectionNames",
+          "parameters": {}
+        }
       }
     },
     "replica-set": {

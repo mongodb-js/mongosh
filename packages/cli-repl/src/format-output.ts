@@ -100,12 +100,16 @@ function formatHelp(value) {
   }
 
   (value.attr || []).forEach((method) => {
+    let formatted = '';
     if (method.name && method.description) {
-      let formatted = `    ${method.name}`;
+      formatted = `    ${method.name}`;
       const extraSpaces = 47 - formatted.length;
       formatted += `${' '.repeat(extraSpaces)}${method.description}`;
-      helpMenu += `${formatted}\n`;
     }
+    if (!method.name && method.description) {
+      formatted = `  ${method.description}`
+    }
+    helpMenu += `${formatted}\n`;
   })
 
   if (value.docs) {

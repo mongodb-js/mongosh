@@ -7,7 +7,7 @@ type HelpProperties = {
 };
 
 type HelpPropertiesAttr = {
-  name: string;
+  name?: string;
   description: string;
 };
 
@@ -24,10 +24,10 @@ export class Help {
 
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
     this.help = options.translate(properties.help);
-    this.docs = properties.docs;
+    this.docs = options.translate(properties.docs);
     this.attr = (properties.attr || []).map((attr) => ({
       name: attr.name,
-      description: options.translate(attr.description)
+      description: options.translate(attr.description),
     }));
   }
 
