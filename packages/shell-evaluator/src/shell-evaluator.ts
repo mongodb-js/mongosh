@@ -1,13 +1,31 @@
 import AsyncWriter from '@mongosh/async-rewriter';
 import Mapper from '@mongosh/mapper';
 import { signatures, Help } from '@mongosh/shell-api';
+import { ServiceProvider } from '@mongosh/service-provider-core';
+
+interface Bus {
+  emit(...args: any[]): void;
+}
+
+interface Container {
+  toggleTelemetry(boolean): void;
+}
+
+interface Result {
+  type: string;
+  value: any;
+}
 
 class ShellEvaluator {
-  public mapper: any;
+  private mapper: Mapper;
   private asyncWriter: AsyncWriter;
-  private bus: any;
-  private container: any;
-  constructor(serviceProvider, bus, container?) {
+  private bus: Bus;
+  private container: Container;
+  constructor(
+    serviceProvider: ServiceProvider,
+    bus: Bus,
+    container?: Container
+  ) {
     this.mapper = new Mapper(serviceProvider, bus);
     this.asyncWriter = new AsyncWriter(signatures);
     this.bus = bus;
@@ -45,7 +63,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  private async innerEval(originalEval: any, input: string, context: any, filename: string) {
+  private async innerEval(originalEval: any, input: string, context: any, filename: string): Promise<any> {
     const argv = input.trim().split(' ');
     const cmd = argv[0];
     argv.shift();
@@ -82,7 +100,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  public async customEval(originalEval, input, context, filename) {
+  public async customEval(originalEval, input, context, filename): Promise<Result> {
     const evaluationResult = await this.innerEval(
       originalEval,
       input,
@@ -113,7 +131,7 @@ class ShellEvaluator {
    * @param {Object} - contextObject an object used as global context.
    */
   setCtx(contextObject: any): void {
-    // Add API methods for VSCode
+    // Add API methods for VSCode and scripts
     contextObject.use = this.mapper.use.bind(this.mapper);
     contextObject.show = this.mapper.show.bind(this.mapper);
     contextObject.it = this.mapper.it.bind(this.mapper);
@@ -125,7 +143,7 @@ class ShellEvaluator {
 
     // Update mapper and log
     this.mapper.context = contextObject;
-    this.mapper.messageBus.emit('setCtx', this.mapper.context.db);
+    this.bus.emit('setCtx', this.mapper.context.db);
   }
 }
 

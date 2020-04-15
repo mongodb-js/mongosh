@@ -23,7 +23,7 @@ import { EventEmitter } from 'events';
 export default class Mapper {
   private serviceProvider: ServiceProvider;
   private currentCursor: Cursor | AggregationCursor;
-  private databases: any;
+  public databases: any;
 	private messageBus: EventEmitter;
   public context: any;
 
