@@ -70,7 +70,6 @@ class ShellEvaluator {
         return;
       default:
         const rewrittenInput = this.asyncWriter.compile(input);
-        console.log('\x1b[36m%s\x1b[0m', `rewrote "${input.trim()}" to "${rewrittenInput.trim()}"`);
         return originalEval(rewrittenInput, context, filename);
     }
   }
