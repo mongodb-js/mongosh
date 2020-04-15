@@ -6,7 +6,6 @@ import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import ShellEvaluator from '@mongosh/shell-evaluator';
 import completer from './completer';
-import redact from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import Nanobus from 'nanobus';
@@ -18,6 +17,7 @@ import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
+import { redactPwd } from '.';
 
 /**
  * Connecting text key.
