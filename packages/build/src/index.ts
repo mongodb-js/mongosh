@@ -3,4 +3,4 @@ import release from './release';
 import zip from './zip';
 
 export default release;
-export { compileExec, zip };
+export { compileExec, zip, release };
