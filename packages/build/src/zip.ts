@@ -18,17 +18,25 @@ const zipPath = (outputDir: string, platform: string, version: string): string =
 };
 
 /**
+ * Filter out the archive itself when creating the tarball.
+ *
+ * @param {string} path - The path.
+ *
+ * @returns {boolean} If the file should be filtered out.
+ */
+const filterOut = (path) => {
+  return !path.match(/tgz/g)
+};
+
+/**
  * Create a zip archive for posix.
  *
- * TODO: Durran: Not switching into local directory.
- *
- * @param {string} input - The file to zip.
  * @param {string} outputDir - The output directory.
  * @param {string} filename - the zip filename.
  */
-const zipPosix = async(input: string, outputDir: string, filename: string) => {
-  const options = { gzip: true, file: filename, cwd: outputDir };
-  await tar.c(options, [ input ]);
+const zipPosix = async(outputDir: string, filename: string) => {
+  const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
+  await tar.c(options, [ '.' ]);
 };
 
 /**
@@ -57,7 +65,7 @@ const zip = async(input: string, outputDir: string, platform: string, version: s
   if (platform === Platform.Windows) {
     zipWindows(input, filename);
   } else {
-    zipPosix(input, outputDir, filename);
+    zipPosix(outputDir, filename);
   }
 };
 
