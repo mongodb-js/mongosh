@@ -5,7 +5,9 @@ import { TELEMETRY } from './constants';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import Mapper from '@mongosh/mapper';
+import redactPwd from './redact-pwd';
 import completer from './completer';
+import redact from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import Nanobus from 'nanobus';
@@ -45,7 +47,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
-    console.log(i18n.__(CONNECTING), clr(driverUri, 'bold'));
+    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), 'bold'));
     this.bus.emit('connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
