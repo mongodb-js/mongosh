@@ -41,7 +41,7 @@ class ShellEvaluator {
   }
 
   public help(): Help {
-    this.bus.emit('cmd:help');
+    this.bus.emit('mongosh:help');
     return new Help({ 'help': 'shell-api.help.description', 'docs': 'https://docs.mongodb.com/manual/reference/method', 'attr': [{ 'name': 'use', 'description': 'shell-api.help.help.use' }, { 'name': 'it', 'description': 'shell-api.help.help.it' }, { 'name': '.exit', 'description': 'shell-api.help.help.exit' }, { 'name': 'show', 'description': 'shell-api.help.help.show-dbs' }] });
   }
   /**
@@ -88,6 +88,10 @@ class ShellEvaluator {
         return;
       default:
         const rewrittenInput = this.asyncWriter.compile(input);
+        this.bus.emit(
+          'mongosh:rewrittenAsyncInput',
+          { original: input.trim(), rewritten: rewrittenInput.trim() }
+        );
         return originalEval(rewrittenInput, context, filename);
     }
   }
@@ -143,7 +147,7 @@ class ShellEvaluator {
 
     // Update mapper and log
     this.mapper.context = contextObject;
-    this.bus.emit('setCtx', this.mapper.context.db);
+    this.bus.emit('mongosh:setCtx', this.mapper.context.db);
   }
 }
 

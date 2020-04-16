@@ -13,244 +13,248 @@ function logger(bus: any, logDir: string) {
 
   bus.on('*', function() {});
 
-  bus.on('connect', function(info) {
+  bus.on('mongosh:connect', function(info) {
     const params = { sessionID, info: redactPwd(info) };
     log.info('connect', params);
   });
 
-  bus.on('error', function(error) {
+  bus.on('mongosh:error', function(error) {
     log.error(error);
   });
 
-  bus.on('cmd:help', function() {
-    log.info('cmd:help');
+  bus.on('mongosh:help', function() {
+    log.info('mongosh:help');
   });
 
-  bus.on('cmd:use', function(database) {
-    log.info('cmd:use', database);
+  bus.on('mongosh:rewrittenAsyncInput', function(inputInfo) {
+    log.info('mongosh:rewrittenAsyncInput', redactInfo(inputInfo));
   });
 
-  bus.on('cmd:show', function(databases) {
-    log.info('cmd:show', databases);
+  bus.on('mongosh:use', function(database) {
+    log.info('mongosh:use', database);
   });
 
-  bus.on('cmd:it', function(info) {
-    log.info('cmd:it', info);
+  bus.on('mongosh:show', function(databases) {
+    log.info('mongosh:show', databases);
   });
 
-  bus.on('method:aggregate', function(collection, pipeline) {
+  bus.on('mongosh:it', function(info) {
+    log.info('mongosh:it', info);
+  });
+
+  bus.on('mongosh:db.coll.aggregate', function(collection, pipeline) {
     const params = { collection, pipeline };
-    log.info('method:aggregate', redactInfo(params));
+    log.info('mongosh:db.coll.aggregate', redactInfo(params));
   });
 
-  bus.on('method:bulkWrite', function(collection, operations) {
+  bus.on('mongosh:db.coll.bulkWrite', function(collection, operations) {
     const params = { collection, operations };
-    log.info('method:bulkWrite', redactInfo(params));
+    log.info('mongosh:db.coll.bulkWrite', redactInfo(params));
   });
 
-  bus.on('method:count', function(collection, query = {}) {
+  bus.on('mongosh:db.coll.count', function(collection, query = {}) {
     const params = { collection, query };
-    log.info('method:count', redactInfo(params));
+    log.info('mongosh:db.coll.count', redactInfo(params));
   });
 
-  bus.on('method:countDocuments', function(collection, query = {}, options) {
+  bus.on('mongosh:db.coll.countDocuments', function(collection, query = {}, options) {
     const params = { collection, query, options };
-    log.info('method:countDocument', redactInfo(params));
+    log.info('mongosh:db.coll.countDocument', redactInfo(params));
   });
 
-  bus.on('method:deleteMany', function(collection, filter) {
+  bus.on('mongosh:db.coll.deleteMany', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:deleteMany', redactInfo(params));
+    log.info('mongosh:db.coll.deleteMany', redactInfo(params));
   });
 
-  bus.on('method:deleteOne', function(collection, filter) {
+  bus.on('mongosh:db.coll.deleteOne', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:deleteOne', redactInfo(params));
+    log.info('mongosh:db.coll.deleteOne', redactInfo(params));
   });
 
-  bus.on('method:distinct', function(collection, field, query = {}) {
+  bus.on('mongosh:db.coll.distinct', function(collection, field, query = {}) {
     const params = { collection, field, query };
-    log.info('method:distinct', redactInfo(params));
+    log.info('mongosh:db.coll.distinct', redactInfo(params));
   });
 
-  bus.on('method:estimatedDocumentCount', function(collection) {
+  bus.on('mongosh:db.coll.estimatedDocumentCount', function(collection) {
     const params = { collection };
-    log.info('method:estimatedDocumentCount', redactInfo(params));
+    log.info('mongosh:db.coll.estimatedDocumentCount', redactInfo(params));
   });
 
-  bus.on('method:find', function(collection, query = {}, projection = {}) {
+  bus.on('mongosh:db.coll.find', function(collection, query = {}, projection = {}) {
     const params = { collection, query, projection };
-    log.info('method:find', redactInfo(params));
+    log.info('mongosh:db.coll.find', redactInfo(params));
   });
 
-  bus.on('method:findOne', function(collection, query = {}, projection = {}) {
+  bus.on('mongosh:db.coll.findOne', function(collection, query = {}, projection = {}) {
     const params = { collection, query, projection };
-    log.info('method:findOne', redactInfo(params));
+    log.info('mongosh:db.coll.findOne', redactInfo(params));
   });
 
-  bus.on('method:findOneAndDelete', function(collection, filter = {}) {
+  bus.on('mongosh:db.coll.findOneAndDelete', function(collection, filter = {}) {
     const params = { collection, filter };
-    log.info('method:findOneAndDelete', redactInfo(params));
+    log.info('mongosh:db.coll.findOneAndDelete', redactInfo(params));
   });
 
-  bus.on('method:findOneAndReplace', function(collection, filter) {
+  bus.on('mongosh:db.coll.findOneAndReplace', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:findOneAndReplace', redactInfo(params));
+    log.info('mongosh:db.coll.findOneAndReplace', redactInfo(params));
   });
 
-  bus.on('method:findOneAndUpdate', function(collection, filter) {
+  bus.on('mongosh:db.coll.findOneAndUpdate', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:findOneAndUpdate', redactInfo(params));
+    log.info('mongosh:db.coll.findOneAndUpdate', redactInfo(params));
   });
 
-  bus.on('method:insert', function(collection, docs) {
+  bus.on('mongosh:db.coll.insert', function(collection, docs) {
     const params = { collection, docs };
-    log.info('method:insert', redactInfo(params));
+    log.info('mongosh:db.coll.insert', redactInfo(params));
   });
 
-  bus.on('method:insertMany', function(collection, docs) {
+  bus.on('mongosh:db.coll.insertMany', function(collection, docs) {
     const params = { collection, docs };
-    log.info('method:insertMany', redactInfo(params));
+    log.info('mongosh:db.coll.insertMany', redactInfo(params));
   });
 
-  bus.on('method:insertOne', function(collection, doc) {
+  bus.on('mongosh:db.coll.insertOne', function(collection, doc) {
     const params = { collection, doc };
-    log.info('method:insertOne', redactInfo(params));
+    log.info('mongosh:db.coll.insertOne', redactInfo(params));
   });
 
-  bus.on('method:isCapped', function(collection) {
+  bus.on('mongosh:db.coll.isCapped', function(collection) {
     const params = { collection };
-    log.info('method:isCapped', redactInfo(params));
+    log.info('mongosh:db.coll.isCapped', redactInfo(params));
   });
 
-  bus.on('method:remove', function(collection, query = {}) {
+  bus.on('mongosh:db.coll.remove', function(collection, query = {}) {
     const params = { collection, query };
-    log.info('method:remove', redactInfo(params));
+    log.info('mongosh:db.coll.remove', redactInfo(params));
   });
 
-  bus.on('method:save', function(collection, doc) {
+  bus.on('mongosh:db.coll.save', function(collection, doc) {
     const params = { collection, doc };
-    log.info('method:save', redactInfo(params));
+    log.info('mongosh:db.coll.save', redactInfo(params));
   });
 
-  bus.on('method:replaceOne', function(collection, filter) {
+  bus.on('mongosh:db.coll.replaceOne', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:replaceOne', redactInfo(params));
+    log.info('mongosh:db.coll.replaceOne', redactInfo(params));
   });
 
-  bus.on('method:runCommand', function(database, cmd) {
+  bus.on('mongosh:db.runCommand', function(database, cmd) {
     const params = { database, cmd };
-    log.info('method:runCommand', redactInfo(params));
+    log.info('mongosh:db.runCommand', redactInfo(params));
   });
 
-  bus.on('method:update', function(collection, filter) {
+  bus.on('mongosh:db.coll.update', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:update', redactInfo(params));
+    log.info('mongosh:db.coll.update', redactInfo(params));
   });
 
-  bus.on('method:updateMany', function(collection, filter) {
+  bus.on('mongosh:db.coll.updateMany', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:updateMany', redactInfo(params));
+    log.info('mongosh:db.coll.updateMany', redactInfo(params));
   });
 
-  bus.on('method:updateOne', function(collection, filter) {
+  bus.on('mongosh:db.coll.updateOne', function(collection, filter) {
     const params = { collection, filter };
-    log.info('method:updateOne', redactInfo(params));
+    log.info('mongosh:db.coll.updateOne', redactInfo(params));
   });
 
-  bus.on('method:convertToCapped', function(collection, size) {
+  bus.on('mongosh:db.coll.convertToCapped', function(collection, size) {
     const params = { collection, size };
-    log.info('method:convertToCapped', redactInfo(params));
+    log.info('mongosh:db.coll.convertToCapped', redactInfo(params));
   });
 
-  bus.on('method:createIndexes', function(collection, keyPatterns, options) {
+  bus.on('mongosh:db.coll.createIndexes', function(collection, keyPatterns, options) {
     const params = { collection, keyPatterns, options };
-    log.info('method:createIndexes', redactInfo(params));
+    log.info('mongosh:db.coll.createIndexes', redactInfo(params));
   });
 
-  bus.on('method:createIndex', function(collection, keys, options) {
+  bus.on('mongosh:db.coll.createIndex', function(collection, keys, options) {
     const params = { collection, keys, options };
-    log.info('method:createIndex', redactInfo(params));
+    log.info('mongosh:db.coll.createIndex', redactInfo(params));
   });
 
-  bus.on('method:ensureIndex', function(collection, keys, options) {
+  bus.on('mongosh:db.coll.ensureIndex', function(collection, keys, options) {
     const params = { collection, keys, options };
-    log.info('method:ensureIndex', redactInfo(params));
+    log.info('mongosh:db.coll.ensureIndex', redactInfo(params));
   });
 
-  bus.on('method:getIndexes', function(collection) {
+  bus.on('mongosh:db.coll.getIndexes', function(collection) {
     const params = { collection };
-    log.info('method:getIndexes', redactInfo(params));
+    log.info('mongosh:db.coll.getIndexes', redactInfo(params));
   });
 
-  bus.on('method:getIndexSpecs', function(collection) {
+  bus.on('mongosh:db.coll.getIndexSpecs', function(collection) {
     const params = { collection };
-    log.info('method:getIndexSpecs', redactInfo(params));
+    log.info('mongosh:db.coll.getIndexSpecs', redactInfo(params));
   });
 
-  bus.on('method:getIndices', function(collection) {
+  bus.on('mongosh:db.coll.getIndices', function(collection) {
     const params = { collection };
-    log.info('method:getIndices', redactInfo(params));
+    log.info('mongosh:db.coll.getIndices', redactInfo(params));
   });
 
-  bus.on('method:getIndexKeys', function(collection) {
+  bus.on('mongosh:db.coll.getIndexKeys', function(collection) {
     const params = { collection };
-    log.info('method:getIndexKeys', redactInfo(params));
+    log.info('mongosh:db.coll.getIndexKeys', redactInfo(params));
   });
 
-  bus.on('method:dropIndexes', function(collection, indexes) {
+  bus.on('mongosh:db.coll.dropIndexes', function(collection, indexes) {
     const params = { collection, indexes };
-    log.info('method:dropIndexes', redactInfo(params));
+    log.info('mongosh:db.coll.dropIndexes', redactInfo(params));
   });
 
-  bus.on('method:dropIndex', function(collection, index) {
+  bus.on('mongosh:db.coll.dropIndex', function(collection, index) {
     const params = { collection, index };
-    log.info('method:dropIndex', redactInfo(params));
+    log.info('mongosh:db.coll.dropIndex', redactInfo(params));
   });
 
-  bus.on('method:getCollectionInfos', function(database, filter, options) {
+  bus.on('mongosh:db.coll.getCollectionInfos', function(database, filter, options) {
     const params = { database, filter, options };
-    log.info('method:getCollectionInfos', redactInfo(params));
+    log.info('mongosh:db.coll.getCollectionInfos', redactInfo(params));
   });
 
-  bus.on('method:getCollectionNames', function(database) {
+  bus.on('mongosh:db.coll.getCollectionNames', function(database) {
     const params = { database };
-    log.info('method:getCollectionNames', redactInfo(params));
+    log.info('mongosh:db.coll.getCollectionNames', redactInfo(params));
   });
 
-  bus.on('method:totalIndexSize', function(collection) {
+  bus.on('mongosh:db.coll.totalIndexSize', function(collection) {
     const params = { collection };
-    log.info('method:totalIndexSize', redactInfo(params));
+    log.info('mongosh:db.coll.totalIndexSize', redactInfo(params));
   });
 
-  bus.on('method:reIndex', function(collection) {
+  bus.on('mongosh:db.coll.reIndex', function(collection) {
     const params = { collection };
-    log.info('method:reIndex', redactInfo(params));
+    log.info('mongosh:db.coll.reIndex', redactInfo(params));
   });
 
-  bus.on('method:getDB', function(collection) {
+  bus.on('mongosh:db.coll.getDB', function(collection) {
     const params = { collection };
-    log.info('method:getDB', redactInfo(params));
+    log.info('mongosh:db.coll.getDB', redactInfo(params));
   });
 
-  bus.on('method:stats', function(collection, options) {
+  bus.on('mongosh:db.coll.stats', function(collection, options) {
     const params = { collection, options };
-    log.info('method:stats', redactInfo(params));
+    log.info('mongosh:db.coll.stats', redactInfo(params));
   });
 
-  bus.on('method:dataSize', function(collection) {
+  bus.on('mongosh:db.coll.dataSize', function(collection) {
     const params = { collection };
-    log.info('method:dataSize', redactInfo(params));
+    log.info('mongosh:db.coll.dataSize', redactInfo(params));
   });
 
-  bus.on('method:storageSize', function(collection) {
+  bus.on('mongosh:db.coll.storageSize', function(collection) {
     const params = { collection };
-    log.info('method:storageSize', redactInfo(params));
+    log.info('mongosh:db.coll.storageSize', redactInfo(params));
   });
 
-  bus.on('method:totalSize', function(collection) {
+  bus.on('mongosh:db.coll.totalSize', function(collection) {
     const params = { collection };
-    log.info('method:totalSize', redactInfo(params));
+    log.info('mongosh:db.coll.totalSize', redactInfo(params));
   });
 }
 

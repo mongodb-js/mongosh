@@ -46,7 +46,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), 'bold'));
-    this.bus.emit('connect', driverUri);
+    this.bus.emit('mongosh:connect', driverUri);
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
@@ -81,7 +81,7 @@ class CliRepl {
     try {
       mkdirp.sync(this.mongoshDir);
     } catch(e) {
-      this.bus.emit('error', e);
+      this.bus.emit('mongosh:error', e);
       throw e;
     }
   }
@@ -110,7 +110,7 @@ class CliRepl {
         this.enableTelemetry = config.enableTelemetry;
         return;
       }
-      this.bus.emit('error', err)
+      this.bus.emit('mongosh:error', err)
       throw err;
 
     } finally {
@@ -149,7 +149,7 @@ class CliRepl {
     try {
       fs.writeFileSync(path, JSON.stringify(config));
     } catch(err) {
-      this.bus.emit('error', err)
+      this.bus.emit('mongosh:error', err)
       throw err;
     }
   }
@@ -162,7 +162,7 @@ class CliRepl {
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
-      this.bus.emit('error', result);
+      this.bus.emit('mongosh:error', result);
       return formatOutput({type: 'Error', value: result});
     }
 
