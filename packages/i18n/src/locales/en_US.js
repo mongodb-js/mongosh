@@ -73,6 +73,17 @@ const translations = {
   'service-provider-core': {},
   'service-provider-server': {},
   'shell-api': {
+    help: {
+      description: 'Shell Help',
+      link: 'https://docs.mongodb.com/manual/reference/method',
+      help: {
+        use: 'Set current database',
+        it: 'result of the last line evaluated; use to further iterate',
+        exit: 'Quit the MongoDB shell',
+        'show-databases': 'Print a list of all available databases',
+        'show-collections': 'Print a list of all collections for current database',
+      }
+    },
     classes: {
       AggregationCursor: {
         help: {
@@ -1066,17 +1077,6 @@ const translations = {
       Shard: {
         help: {
           description: 'The Shard Class'
-        }
-      },
-      Help: {
-        help: {
-          description: 'Shell Help',
-          attributes: {
-            use: 'Set current database',
-            it: 'Result of the last line evaluated; use to further iterate',
-            exit: 'Quit the MongoDB shell',
-            showDbs: 'Show database names'
-          }
         }
       }
     }
