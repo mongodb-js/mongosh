@@ -42,7 +42,7 @@ describe('Translator', () => {
 
     context('when the result is an object', () => {
       it('returns the api formatted template', () => {
-        expect(translator.translateApiHelp('shell-api.collection.help.aggregate')).
+        expect(translator.translateApiHelp('shell-api.classes.Collection.help.attributes.aggregate')).
           to.include('Calculates');
       });
     });
