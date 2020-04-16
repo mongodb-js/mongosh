@@ -1,0 +1,8 @@
+class:
+    <<: *__defaultClass
+    help:
+        help: 'The CommandResult class.'
+    __constructorArgs:
+        - value
+    __stringRep:
+        - this.value

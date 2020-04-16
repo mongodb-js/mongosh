@@ -1,0 +1,8 @@
+class:
+    <<: *__defaultClass
+    help:
+        help: 'The ShowDbsResult class.'
+    __constructorArgs:
+        - value
+    __stringRep:
+        - this.value

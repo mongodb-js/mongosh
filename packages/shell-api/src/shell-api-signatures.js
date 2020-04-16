@@ -71,6 +71,13 @@ const Collection = {
     totalSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
+const CommandResult = {
+  type: 'CommandResult',
+  hasAsyncChild: false,
+  attributes: {
+
+  }
+};
 const Cursor = {
   type: 'Cursor',
   hasAsyncChild: false,
@@ -153,6 +160,13 @@ const Shard = {
 
   }
 };
+const ShowDbsResult = {
+  type: 'ShowDbsResult',
+  hasAsyncChild: false,
+  attributes: {
+
+  }
+};
 const UpdateResult = {
   type: 'UpdateResult',
   hasAsyncChild: false,
@@ -165,6 +179,7 @@ export {
   AggregationCursor,
   BulkWriteResult,
   Collection,
+  CommandResult,
   Cursor,
   Database,
   DeleteResult,
@@ -172,5 +187,6 @@ export {
   InsertOneResult,
   ReplicaSet,
   Shard,
+  ShowDbsResult,
   UpdateResult
 };
