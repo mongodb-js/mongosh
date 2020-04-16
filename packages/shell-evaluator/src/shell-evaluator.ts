@@ -42,7 +42,32 @@ class ShellEvaluator {
 
   public help(): Help {
     this.bus.emit('mongosh:help');
-    return new Help({ 'help': 'shell-api.help.description', 'docs': 'https://docs.mongodb.com/manual/reference/method', 'attr': [{ 'name': 'use', 'description': 'shell-api.help.help.use' }, { 'name': 'it', 'description': 'shell-api.help.help.it' }, { 'name': '.exit', 'description': 'shell-api.help.help.exit' }, { 'name': 'show', 'description': 'shell-api.help.help.show-dbs' }] });
+    return new Help({
+      help: 'shell-api.help.description',
+      docs: 'https://docs.mongodb.com/manual/reference/method',
+      attr: [
+        {
+          name: 'use',
+          description: 'shell-api.help.help.use'
+        },
+        {
+          name: 'it',
+          description: 'shell-api.help.help.it'
+        },
+        {
+          name: 'show databases',
+          description: 'shell-api.help.help.show-databases'
+        },
+        {
+          name: 'show collections',
+          description: 'shell-api.help.help.show-collections'
+        },
+        {
+          name: '.exit',
+          description: 'shell-api.help.help.exit'
+        }
+      ]
+    });
   }
   /**
   * Returns true if a value is a shell api type
