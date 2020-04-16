@@ -117,7 +117,7 @@ class NodeCursor implements Cursor {
    *
    * @returns {NodeCursor} The cursor.
    */
-  comment(cmt: string): Cursor {
+  comment(cmt: string): NodeCursor {
     this.cursor.comment(cmt);
     return this;
   }
@@ -131,9 +131,8 @@ class NodeCursor implements Cursor {
     return this.cursor.count();
   }
 
-  forEach(f): NodeCursor {
-    this.cursor.forEach(f);
-    return this;
+  async forEach(f): Promise<void> {
+    await this.cursor.forEach(f);
   }
 
   /**
