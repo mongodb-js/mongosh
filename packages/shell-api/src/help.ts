@@ -25,10 +25,13 @@ export class Help {
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
     this.help = options.translate(properties.help);
     this.docs = options.translate(properties.docs);
-    this.attr = (properties.attr || []).map((attr) => ({
-      name: attr.name,
-      description: options.translate(attr.description),
-    }));
+    this.attr = (properties.attr || [])
+      .map((attr) => ({
+        name: attr.name,
+        description: options.translate(attr.description),
+      })).filter(
+        attr => attr.description // at least the description should be there
+      );
   }
 
   shellApiType(): string {
