@@ -14,7 +14,7 @@ class AggregationCursor {
     this.shellApiType = () => {
       return 'AggregationCursor';
     };
-    this.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.description', 'docs': 'shell-api.aggregation-cursor.link', 'attr': [{ 'name': 'close', 'description': 'shell-api.aggregation-cursor.help.close' }, { 'name': 'forEeach', 'description': 'shell-api.aggregation-cursor.help.for-each' }, { 'name': 'hasNext', 'description': 'shell-api.aggregation-cursor.help.has-next' }, { 'name': 'isClosed', 'description': 'shell-api.aggregation-cursor.help.isClosed' }, { 'name': 'isExhausted', 'description': 'shell-api.aggregation-cursor.help.isExhausted' }, { 'name': 'itcount', 'description': 'shell-api.aggregation-cursor.help.itcount' }, { 'name': 'map', 'description': 'shell-api.aggregation-cursor.help.map' }, { 'name': 'next', 'description': 'shell-api.aggregation-cursor.help.next' }, { 'name': 'objsLeftInBatch', 'description': 'shell-api.aggregation-cursor.help.objs-left-in-batch' }, { 'name': 'toArray', 'description': 'shell-api.aggregation-cursor.help.to-array' }] });
+    this.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.description', 'docs': 'shell-api.aggregation-cursor.link', 'attr': [{ 'name': 'close', 'description': 'shell-api.aggregation-cursor.help.close' }, { 'name': 'forEeach', 'description': 'shell-api.aggregation-cursor.help.for-each' }, { 'name': 'hasNext', 'description': 'shell-api.aggregation-cursor.help.has-next' }, { 'name': 'isClosed', 'description': 'shell-api.aggregation-cursor.help.isClosed' }, { 'name': 'isExhausted', 'description': 'shell-api.aggregation-cursor.help.isExhausted' }, { 'name': 'itcount', 'description': 'shell-api.aggregation-cursor.help.itcount' }, { 'name': 'map', 'description': 'shell-api.aggregation-cursor.help.map' }, { 'name': 'next', 'description': 'shell-api.aggregation-cursor.help.next' }, { 'name': 'toArray', 'description': 'shell-api.aggregation-cursor.help.to-array' }] });
   }
 
   bsonsize(...args) {
@@ -46,15 +46,12 @@ class AggregationCursor {
   }
 
   map(...args) {
-    return this._cursor.map(...args);
+    this._cursor.map(...args);
+    return this;
   }
 
   next(...args) {
     return this._cursor.next(...args);
-  }
-
-  objsLeftInBatch(...args) {
-    return this._cursor.objsLeftInBatch(...args);
   }
 
   toArray(...args) {
@@ -78,13 +75,13 @@ AggregationCursor.prototype.close.returnType = 'unknown';
 AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.for-each.example', 'docs': 'shell-api.aggregation-cursor.help.for-each.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.for-each.description' }] });
 AggregationCursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.forEach.topologies = [0, 1, 2];
-AggregationCursor.prototype.forEach.returnsPromise = false;
+AggregationCursor.prototype.forEach.returnsPromise = true;
 AggregationCursor.prototype.forEach.returnType = 'unknown';
 
 AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.has-next.example', 'docs': 'shell-api.aggregation-cursor.help.has-next.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.has-next.description' }] });
 AggregationCursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.hasNext.topologies = [0, 1, 2];
-AggregationCursor.prototype.hasNext.returnsPromise = false;
+AggregationCursor.prototype.hasNext.returnsPromise = true;
 AggregationCursor.prototype.hasNext.returnType = 'unknown';
 
 AggregationCursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.is-closed.example', 'docs': 'shell-api.aggregation-cursor.help.is-closed.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.is-closed.description' }] });
@@ -102,31 +99,25 @@ AggregationCursor.prototype.isExhausted.returnType = 'unknown';
 AggregationCursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.itcount.example', 'docs': 'shell-api.aggregation-cursor.help.itcount.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.itcount.description' }] });
 AggregationCursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.itcount.topologies = [0, 1, 2];
-AggregationCursor.prototype.itcount.returnsPromise = false;
+AggregationCursor.prototype.itcount.returnsPromise = true;
 AggregationCursor.prototype.itcount.returnType = 'unknown';
 
 AggregationCursor.prototype.map.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.map.example', 'docs': 'shell-api.aggregation-cursor.help.map.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.map.description' }] });
 AggregationCursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.map.topologies = [0, 1, 2];
 AggregationCursor.prototype.map.returnsPromise = false;
-AggregationCursor.prototype.map.returnType = 'unknown';
+AggregationCursor.prototype.map.returnType = 'Cursor';
 
 AggregationCursor.prototype.next.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.next.example', 'docs': 'shell-api.aggregation-cursor.help.next.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.next.description' }] });
 AggregationCursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.next.topologies = [0, 1, 2];
-AggregationCursor.prototype.next.returnsPromise = false;
+AggregationCursor.prototype.next.returnsPromise = true;
 AggregationCursor.prototype.next.returnType = 'unknown';
-
-AggregationCursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.objs-left-in-batch.example', 'docs': 'shell-api.aggregation-cursor.help.objs-left-in-batch.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.objs-left-in-batch.description' }] });
-AggregationCursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
-AggregationCursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
-AggregationCursor.prototype.objsLeftInBatch.returnsPromise = false;
-AggregationCursor.prototype.objsLeftInBatch.returnType = 'unknown';
 
 AggregationCursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.to-array.example', 'docs': 'shell-api.aggregation-cursor.help.to-array.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.to-array.description' }] });
 AggregationCursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.toArray.topologies = [0, 1, 2];
-AggregationCursor.prototype.toArray.returnsPromise = false;
+AggregationCursor.prototype.toArray.returnsPromise = true;
 AggregationCursor.prototype.toArray.returnType = 'unknown';
 
 
