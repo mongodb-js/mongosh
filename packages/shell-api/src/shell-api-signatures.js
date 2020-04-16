@@ -81,7 +81,7 @@ const Cursor = {
     allowPartialResults: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
     arrayAccess: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     batchSize: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    clone: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    clone: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
     close: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     collation: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.4.0', '4.4.0'] },
     comment: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.2.0', '4.4.0'] },
