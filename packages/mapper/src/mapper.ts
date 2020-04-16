@@ -579,7 +579,7 @@ export default class Mapper {
         class: 'Collection',
         db,
         coll,
-        arguments: { filter, replacement, findOneAndReplaceOptions }
+        arguments: { filter, findOneAndReplaceOptions }
       }
     );
 
@@ -624,7 +624,7 @@ export default class Mapper {
         class: 'Collection',
         db,
         coll,
-        arguments: { filter, update, findOneAndUpdateOptions }
+        arguments: { filter, findOneAndUpdateOptions }
       }
     );
 
@@ -665,7 +665,7 @@ export default class Mapper {
       {
         method: 'insert',
         class: 'Collection',
-        db, coll, arguments: { d, options }
+        db, coll, arguments: { options }
       }
     );
 
@@ -711,7 +711,7 @@ export default class Mapper {
       {
         method: 'insertMany',
         class: 'Collection',
-        db, coll, arguments: { docs, options }
+        db, coll, arguments: { options }
       }
     );
 
@@ -757,7 +757,7 @@ export default class Mapper {
       {
         method: 'insertOne',
         class: 'Collection',
-        db, coll, arguments: { doc, options }
+        db, coll, arguments: { options }
       }
     );
 
@@ -849,7 +849,7 @@ export default class Mapper {
       {
         method: 'save',
         class: 'Collection',
-        db, coll, arguments: { doc, options }
+        db, coll, arguments: { options }
       }
     );
 
@@ -885,7 +885,7 @@ export default class Mapper {
       {
         method: 'replaceOne',
         class: 'Collection',
-        db, coll, arguments: { filter, replacement, options }
+        db, coll, arguments: { filter, options }
       }
     );
 
@@ -936,7 +936,7 @@ export default class Mapper {
       {
         method: 'update',
         class: 'Collection',
-        db, coll, arguments: { filter, update, options }
+        db, coll, arguments: { filter, options }
       }
     );
 
@@ -991,7 +991,7 @@ export default class Mapper {
       {
         method: 'updateMany',
         class: 'Collection',
-        db, coll, arguments: { filter, update, options }
+        db, coll, arguments: { filter, options }
       }
     );
 
@@ -1039,7 +1039,7 @@ export default class Mapper {
       {
         method: 'updateMany',
         class: 'Collection',
-        db, coll, arguments: { filter, update, options }
+        db, coll, arguments: { filter, options }
       }
     );
 
