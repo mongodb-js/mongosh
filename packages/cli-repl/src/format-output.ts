@@ -109,7 +109,10 @@ function formatHelp(value) {
     if (!method.name && method.description) {
       formatted = `  ${method.description}`
     }
-    helpMenu += `${formatted}\n`;
+
+    if (formatted != '') {
+      helpMenu += `${formatted}\n`;
+    }
   })
 
   if (value.docs) {
