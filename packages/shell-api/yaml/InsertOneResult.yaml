@@ -1,7 +1,5 @@
 class:
     <<: *__defaultClass
-    help:
-        help: 'The InsertManyResult class.'
     __constructorArgs:
         - acknowleged
         - insertedId

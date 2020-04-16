@@ -22,7 +22,7 @@ export class CursorOutput extends Component<CursorOutputProps> {
     }
 
     const more = this.props.value.length < MAX_DOCUMENT_PER_ITERATION ? '' :
-      (<pre>{i18n.__('shell-api.cursor.iteration.type-it-for-more')}</pre>);
+      (<pre>{i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more')}</pre>);
 
     return (<div>
       <CursorIterationResultOutput value={this.props.value} />
