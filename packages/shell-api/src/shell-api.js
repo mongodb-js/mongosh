@@ -17,10 +17,6 @@ class AggregationCursor {
     this.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.description', 'docs': 'shell-api.aggregation-cursor.link', 'attr': [{ 'name': 'close', 'description': 'shell-api.aggregation-cursor.help.close' }, { 'name': 'forEeach', 'description': 'shell-api.aggregation-cursor.help.for-each' }, { 'name': 'hasNext', 'description': 'shell-api.aggregation-cursor.help.has-next' }, { 'name': 'isClosed', 'description': 'shell-api.aggregation-cursor.help.isClosed' }, { 'name': 'isExhausted', 'description': 'shell-api.aggregation-cursor.help.isExhausted' }, { 'name': 'itcount', 'description': 'shell-api.aggregation-cursor.help.itcount' }, { 'name': 'map', 'description': 'shell-api.aggregation-cursor.help.map' }, { 'name': 'next', 'description': 'shell-api.aggregation-cursor.help.next' }, { 'name': 'toArray', 'description': 'shell-api.aggregation-cursor.help.to-array' }] });
   }
 
-  bsonsize(...args) {
-    return this._cursor.bsonsize(...args);
-  }
-
   close(...args) {
     return this._cursor.close(...args);
   }
@@ -59,12 +55,6 @@ class AggregationCursor {
   }
 }
 
-
-AggregationCursor.prototype.bsonsize.help = () => new Help({ 'help': '!! No help defined for this method' });
-AggregationCursor.prototype.bsonsize.serverVersions = ['0.0.0', '4.4.0'];
-AggregationCursor.prototype.bsonsize.topologies = [0, 1, 2];
-AggregationCursor.prototype.bsonsize.returnsPromise = false;
-AggregationCursor.prototype.bsonsize.returnType = 'unknown';
 
 AggregationCursor.prototype.close.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.close.example', 'docs': 'shell-api.aggregation-cursor.help.close.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.close.description' }] });
 AggregationCursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
@@ -106,7 +96,7 @@ AggregationCursor.prototype.map.help = () => new Help({ 'help': 'shell-api.aggre
 AggregationCursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.map.topologies = [0, 1, 2];
 AggregationCursor.prototype.map.returnsPromise = false;
-AggregationCursor.prototype.map.returnType = 'Cursor';
+AggregationCursor.prototype.map.returnType = 'AggregationCursor';
 
 AggregationCursor.prototype.next.help = () => new Help({ 'help': 'shell-api.aggregation-cursor.help.next.example', 'docs': 'shell-api.aggregation-cursor.help.next.link', 'attr': [{ 'description': 'shell-api.aggregation-cursor.help.next.description' }] });
 AggregationCursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];

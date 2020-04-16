@@ -6,14 +6,13 @@ const AggregationCursor = {
   type: 'AggregationCursor',
   hasAsyncChild: false,
   attributes: {
-    bsonsize: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     close: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     forEach: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     hasNext: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     isClosed: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     isExhausted: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     itcount: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    map: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
+    map: { type: 'function', returnsPromise: false, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
     next: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     toArray: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
