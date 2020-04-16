@@ -131,6 +131,7 @@ class:
                 - description: 'shell-api.cursor.help.batch-size.description'
     clone:  # not documented
         <<: *__defaultMethod
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.clone.example'
             docs: 'shell-api.cursor.help.clone.link'
