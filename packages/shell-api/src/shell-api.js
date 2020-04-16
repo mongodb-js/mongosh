@@ -774,7 +774,7 @@ Cursor.prototype.clone.help = () => new Help({ 'help': 'shell-api.cursor.help.cl
 Cursor.prototype.clone.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.clone.topologies = [0, 1, 2];
 Cursor.prototype.clone.returnsPromise = false;
-Cursor.prototype.clone.returnType = 'unknown';
+Cursor.prototype.clone.returnType = 'Cursor';
 
 Cursor.prototype.close.help = () => new Help({ 'help': 'shell-api.cursor.help.close.example', 'docs': 'shell-api.cursor.help.close.link', 'attr': [{ 'description': 'shell-api.cursor.help.close.description' }] });
 Cursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
