@@ -27,7 +27,7 @@ function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:rewrittenAsyncInput', function(inputInfo) {
-    log.info('mongosh:rewrittenAsyncInput', redactInfo(inputInfo));
+    log.info('mongosh:rewrittenAsyncInput', inputInfo);
   });
 
   bus.on('mongosh:use', function(database) {
@@ -43,7 +43,8 @@ function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:api-call', function(args) {
-    log.info(args);
+    log.info(redactInfo(args));
   });
+}
 
 export default logger;

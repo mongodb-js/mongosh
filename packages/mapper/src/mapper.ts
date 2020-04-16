@@ -145,7 +145,14 @@ export default class Mapper {
       );
     }
 
-    this.messageBus.emit('mongosh:db.coll.aggregate', coll, cmd);
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'aggregate',
+        class: 'Collection',
+        db, coll, arguments: { options, pipeline } }
+    );
+
     const cursor = new AggregationCursor(this, cmd);
 
     this.currentCursor = cursor;
@@ -172,15 +179,24 @@ export default class Mapper {
     options: Document = {}
   ): Promise<BulkWriteResult> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.bulkWrite', collection._name, operations);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'bulkWrite',
+        class: 'Collection',
+        db, coll, arguments: { operations, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
     const result = await this.serviceProvider.bulkWrite(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       operations,
       options,
       dbOptions
@@ -212,18 +228,22 @@ export default class Mapper {
    */
   count(collection, query = {}, options: any = {}): any {
     const dbOpts: any = {};
-    this.messageBus.emit('mongosh:db.coll.count', collection._name, query);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'count',
+        class: 'Collection',
+        db, coll, arguments: { query, options }
+      }
+    );
 
     if ('readConcern' in options) {
       dbOpts.readConcern = options.readConcern;
     }
-    return this.serviceProvider.count(
-      collection._database._name,
-      collection._name,
-      query,
-      options,
-      dbOpts
-    );
+
+    return this.serviceProvider.count(db, coll, query, options, dbOpts);
   }
 
   /**
@@ -237,14 +257,18 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   countDocuments(collection, query, options: any = {}): any {
-    this.messageBus.emit('mongosh:db.coll.countDocuments', collection._name, query, options);
-
-    return this.serviceProvider.countDocuments(
-      collection._database._name,
-      collection._name,
-      query,
-      options
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'countDocuments',
+        class: 'Collection',
+        db, coll, arguments: { query, options }
+      }
     );
+
+    return this.serviceProvider.countDocuments(db, coll, query, options);
   }
 
   /**
@@ -262,19 +286,29 @@ export default class Mapper {
    */
   async deleteMany(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.deleteMany', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'deleteMany',
+        class: 'Collection',
+        db, coll, arguments: { filter, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
     const result = await this.serviceProvider.deleteMany(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       options,
       dbOptions
     );
+
     return new DeleteResult(
       result.result.ok,
       result.deletedCount
@@ -296,18 +330,28 @@ export default class Mapper {
    */
   async deleteOne(collection, filter, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.deleteOne', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'deleteOne',
+        class: 'Collection',
+        db, coll, arguments: { filter, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.deleteOne(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       options,
       dbOptions
     );
+
     return new DeleteResult(
       result.result.ok,
       result.deletedCount
@@ -328,14 +372,18 @@ export default class Mapper {
    * @returns {Array} The promise of the result. TODO: make sure returned type is the same
    */
   distinct(collection, field, query, options: any = {}): any {
-    this.messageBus.emit('mongosh:db.coll.distinct', collection._name, field, query);
-    return this.serviceProvider.distinct(
-      collection._database._name,
-      collection._name,
-      field,
-      query,
-      options
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'distinct',
+        class: 'Collection',
+        db, coll, arguments: { field, query, options }
+      }
     );
+
+    return this.serviceProvider.distinct(db, coll, field, query, options);
   }
 
   /**
@@ -348,12 +396,18 @@ export default class Mapper {
    * @returns {Integer} The promise of the count.
    */
   estimatedDocumentCount(collection, options = {}): Promise<any> {
-    this.messageBus.emit('mongosh:db.coll.estimatedDocumentCount', collection._name);
-    return this.serviceProvider.estimatedDocumentCount(
-      collection._database._name,
-      collection._name,
-      options,
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'estimatedDocumentCount',
+        class: 'Collection',
+        db, coll, arguments: { options }
+      }
     );
+
+    return this.serviceProvider.estimatedDocumentCount(db, coll, options,);
   }
 
   /**
@@ -370,20 +424,25 @@ export default class Mapper {
    */
   find(collection, query, projection): any {
     const options: any = {};
-    this.messageBus.emit('mongosh:db.coll.find', collection._name, query, projection);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if (projection) {
       options.projection = projection;
     }
 
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'find',
+        class: 'Collection',
+        db, coll, arguments: { query, options }
+      }
+    );
+
     this.currentCursor = new Cursor(
       this,
-      this.serviceProvider.find(
-        collection._database._name,
-        collection._name,
-        query,
-        options
-      )
+      this.serviceProvider.find(db, coll, query, options)
     );
 
     return this.currentCursor;
@@ -402,19 +461,25 @@ export default class Mapper {
    */
   findOne(collection, query, projection): Promise<any> {
     const options: any = {};
-    this.messageBus.emit('mongosh:db.coll.findOne', collection._name, query, projection);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if (projection) {
       options.projection = projection;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'findOne',
+        class: 'Collection',
+        db, coll, arguments: { query, options }
+      }
+    );
+
     return new Cursor(
       this,
-      this.serviceProvider.find(
-        collection._database._name,
-        collection._name,
-        query,
-        options
-      )
+      this.serviceProvider.find(db, coll, query, options)
     ).limit(1).next();
   }
 
@@ -437,13 +502,24 @@ export default class Mapper {
    * @returns {Document} The promise of the result.
    */
   async findOneAndDelete(collection, filter, options = {}): Promise<any> {
-    this.messageBus.emit('mongosh:db.coll.findOneAndDelete', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'findOneAndDelete',
+        class: 'Collection',
+        db, coll, arguments: { filter, options }
+      }
+    );
+
     const result = await this.serviceProvider.findOneAndDelete(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       options,
     );
+
     return result.value;
   }
 
@@ -464,15 +540,28 @@ export default class Mapper {
    */
   async findOneAndReplace(collection, filter, replacement, options = {}): Promise<any> {
     const findOneAndReplaceOptions: any = { ...options };
-    this.messageBus.emit('mongosh:db.coll.findOneAndReplace', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
       delete findOneAndReplaceOptions.returnNewDocument;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'findOneAndReplace',
+        class: 'Collection',
+        db,
+        coll,
+        arguments: { filter, replacement, findOneAndReplaceOptions }
+      }
+    );
+
     const result = await this.serviceProvider.findOneAndReplace(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       replacement,
       findOneAndReplaceOptions
@@ -496,18 +585,31 @@ export default class Mapper {
    */
   async findOneAndUpdate(collection, filter, update, options = {}): Promise<any> {
     const findOneAndUpdateOptions: any = { ...options };
-    this.messageBus.emit('mongosh:db.coll.findOneAndUpdate', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
       delete findOneAndUpdateOptions.returnNewDocument;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'findOneAndUpdate',
+        class: 'Collection',
+        db,
+        coll,
+        arguments: { filter, update, findOneAndUpdateOptions }
+      }
+    );
+
     const result = await this.serviceProvider.findOneAndUpdate(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       update,
-      options,
+      findOneAndUpdateOptions,
     );
     return result.value;
   }
@@ -527,18 +629,30 @@ export default class Mapper {
   async insert(collection, docs, options: any = {}): Promise<any> {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.insert', collection._name, docs);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'insert',
+        class: 'Collection',
+        db, coll, arguments: { d, options }
+      }
+    );
+
     const result = await this.serviceProvider.insertMany(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       d,
       options,
       dbOptions
     );
+
     return new InsertManyResult(
       result.result.ok,
       result.insertedIds
@@ -561,19 +675,30 @@ export default class Mapper {
    */
   async insertMany(collection, docs, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.insertMany', collection._name, docs);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
 
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'insertMany',
+        class: 'Collection',
+        db, coll, arguments: { docs, options }
+      }
+    );
+
     const result = await this.serviceProvider.insertMany(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       docs,
       options,
       dbOptions
     );
+
     return new InsertManyResult(
       result.result.ok,
       result.insertedIds
@@ -596,18 +721,30 @@ export default class Mapper {
    */
   async insertOne(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.insertOne');
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'insertOne',
+        class: 'Collection',
+        db, coll, arguments: { doc, options }
+      }
+    );
+
     const result = await this.serviceProvider.insertOne(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       doc,
       options,
       dbOptions
     );
+
     return new InsertOneResult(
       result.result.ok,
       result.insertedId
@@ -621,11 +758,14 @@ export default class Mapper {
    * @return {Boolean}
    */
   isCapped(collection): Promise<any> {
-    this.messageBus.emit('mongosh:db.coll.isCapped', collection._name);
-    return this.serviceProvider.isCapped(
-      collection._database._name,
-      collection._name,
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      { method: 'isCapped', class: 'Collection', db, coll }
     );
+
+    return this.serviceProvider.isCapped(db, coll);
   }
 
   /**
@@ -643,20 +783,32 @@ export default class Mapper {
    */
   remove(collection, query, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.remove', collection._name, query);
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
+
     let removeOptions: any = {};
     if (typeof options === 'boolean') {
       removeOptions.justOne = options;
     } else {
       removeOptions = options;
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'remove',
+        class: 'Collection',
+        db, coll, arguments: { query, removeOptions }
+      }
+    );
+
     return this.serviceProvider.remove(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       query,
       removeOptions,
       dbOptions
@@ -666,18 +818,22 @@ export default class Mapper {
   // TODO
   save(collection, doc, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.save', collection._name, doc);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'save',
+        class: 'Collection',
+        db, coll, arguments: { doc, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
-    return this.serviceProvider.save(
-      collection._database._name,
-      collection._name,
-      doc,
-      options,
-      dbOptions
-    );
+
+    return this.serviceProvider.save(db, coll, doc, options, dbOptions);
   }
 
   /**
@@ -698,14 +854,24 @@ export default class Mapper {
    */
   async replaceOne(collection, filter, replacement, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.replaceOne', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'replaceOne',
+        class: 'Collection',
+        db, coll, arguments: { filter, replacement, options }
+      }
+    );
+
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.replaceOne(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       replacement,
       options,
@@ -729,25 +895,41 @@ export default class Mapper {
    * @returns {Promise} The promise of command results. TODO: command result object
    */
   runCommand(database, cmd): Promise<any> {
-    this.messageBus.emit('mongosh:db.runCommand', database._name, cmd);
-    return this.serviceProvider.runCommand(database._name, cmd);
+    const db = database._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      { method: 'runCommand', class: 'Database', db, arguments: { cmd } }
+    );
+
+    return this.serviceProvider.runCommand(db, cmd);
   }
 
   async update(collection, filter, update, options: any = {}): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'update',
+        class: 'Collection',
+        db, coll, arguments: { filter, update, options }
+      }
+    );
+
     let result;
-    this.messageBus.emit('mongosh:update', collection._name, filter);
+
     if (options.multi) {
       result = await this.serviceProvider.updateMany(
-        collection._name,
-        collection._database._name,
+        db,
+        coll,
         filter,
         update,
         options,
       );
     } else {
       result = await this.serviceProvider.updateOne(
-        collection._name,
-        collection._database._name,
+        db,
+        coll,
         filter,
         update,
         options,
@@ -778,19 +960,29 @@ export default class Mapper {
    */
   async updateMany(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.updateMany', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'updateMany',
+        class: 'Collection',
+        db, coll, arguments: { filter, update, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       update,
       options,
       dbOptions
     );
+
     return new UpdateResult(
       result.result.ok,
       result.matchedCount,
@@ -816,19 +1008,29 @@ export default class Mapper {
    */
   async updateOne(collection, filter, update, options: any = {}): Promise<any> {
     const dbOptions: any = {};
-    this.messageBus.emit('mongosh:db.coll.updateOne', collection._name, filter);
+    const db = collection._database._name;
+    const coll = collection._name;
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'updateMany',
+        class: 'Collection',
+        db, coll, arguments: { filter, update, options }
+      }
+    );
 
     if ('writeConcern' in options) {
       dbOptions.writeConcern = options.writeConcern;
     }
     const result = await this.serviceProvider.updateMany(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       filter,
       update,
       options,
       dbOptions
     );
+
     return new UpdateResult(
       result.result.ok,
       result.matchedCount,
@@ -847,15 +1049,20 @@ export default class Mapper {
    * @return {Promise}
    */
   async convertToCapped(collection: Collection, size: number): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
     this.messageBus.emit(
-      'mongosh:db.coll.convertToCapped',
-      collection._name,
-      size
+      'mongosh:api-call',
+      {
+        method: 'convertToCapped',
+        class: 'Collection',
+        db, coll, arguments: { size }
+      }
     );
 
     return await this.serviceProvider.convertToCapped(
-      collection._database._name,
-      collection._name,
+      db,
+      coll,
       size
     );
   }
@@ -876,12 +1083,8 @@ export default class Mapper {
     keyPatterns: Document[],
     options: Document = {}
   ): Promise<any> {
-    this.messageBus.emit(
-      'mongosh:db.coll.createIndexes',
-      collection._name,
-      keyPatterns,
-      options
-    );
+    const db = collection._database._name;
+    const coll = collection._name;
 
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new Error('options must be an object');
@@ -891,11 +1094,16 @@ export default class Mapper {
       ...options, key: pattern
     }));
 
-    return await this.serviceProvider.createIndexes(
-      collection._database._name,
-      collection._name,
-      specs
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'createIndexes',
+        class: 'Collection',
+        db, coll, arguments: { specs }
+      }
     );
+
+    return await this.serviceProvider.createIndexes(db, coll, specs);
   }
 
   /**
@@ -916,10 +1124,14 @@ export default class Mapper {
     options: Document = {}
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.createIndex',
-      collection._name,
-      keys,
-      options
+      'mongosh:api-call',
+      {
+        method: 'createIndex',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { keys, options }
+      }
     );
 
     return await this.createIndexes(
@@ -947,10 +1159,14 @@ export default class Mapper {
     options: Document
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.ensureIndex',
-      collection._name,
-      keys,
-      options
+      'mongosh:api-call',
+      {
+        method: 'ensureIndex',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { keys, options }
+      }
     );
 
     return await this.createIndex(
@@ -971,15 +1187,15 @@ export default class Mapper {
   async getIndexes(
     collection: Collection,
   ): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
+
     this.messageBus.emit(
-      'mongosh:db.coll.getIndexes',
-      collection._name
+      'mongosh:api-call',
+      { method: 'getIndexes', class: 'Collection', db, coll }
     );
 
-    return await this.serviceProvider.getIndexes(
-      collection._database._name,
-      collection._name
-    );
+    return await this.serviceProvider.getIndexes(db, coll);
   }
 
   /**
@@ -994,8 +1210,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.getIndexSpecs',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'getIndexSpecs',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     return await this.getIndexes(collection);
@@ -1013,8 +1234,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.getIndices',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'getIndices',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     return await this.getIndexes(collection);
@@ -1031,8 +1257,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.getIndexKeys',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'getIndexKeys',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     return (await this.getIndexes(collection)).map(i => i.key);
@@ -1050,18 +1281,19 @@ export default class Mapper {
     collection: Collection,
     indexes: string|string[]|Document|Document[]
   ): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
     this.messageBus.emit(
-      'mongosh:db.coll.dropIndexes',
-      collection._name,
-      indexes
+      'mongosh:api-call',
+      {
+        method: 'dropIndexes',
+        class: 'Collection',
+        db, coll, arguments: { indexes }
+      }
     );
 
     try {
-      return await this.serviceProvider.dropIndexes(
-        collection._database._name,
-        collection._name,
-        indexes
-      );
+      return await this.serviceProvider.dropIndexes(db, coll, indexes);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
         return {
@@ -1088,9 +1320,14 @@ export default class Mapper {
     index: string|Document
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.dropIndex',
-      collection._name,
-      index
+      'mongosh:api-call',
+      {
+        method: 'dropIndex',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { index }
+      }
     );
 
     if (index === '*') {
@@ -1117,15 +1354,18 @@ export default class Mapper {
     database: Database,
     filter: Document = {},
     options: Document = {}): Promise<any> {
+    const db = database._name;
     this.messageBus.emit(
-      'mongosh:db.coll.getCollectionInfos',
-      database._name,
-      filter,
-      options
+      'mongosh:api-call',
+      {
+        method: 'getCollectionInfos',
+        class: 'Database',
+        db, arguments: { filter, options }
+      }
     );
 
     return await this.serviceProvider.listCollections(
-      database._name,
+      db,
       filter,
       options
     );
@@ -1144,8 +1384,8 @@ export default class Mapper {
     database: Database
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.getCollectionNames',
-      database._name
+      'mongosh:api-call',
+      { method: 'getCollectionNames', class: 'Database', db: database._name }
     );
 
     const infos = await this.getCollectionInfos(
@@ -1168,8 +1408,13 @@ export default class Mapper {
     ...args: any[]
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.totalIndexSize',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'totalIndexSize',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     if (args.length) {
@@ -1192,15 +1437,14 @@ export default class Mapper {
   async reIndex(
     collection: Collection
   ): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
     this.messageBus.emit(
-      'mongosh:db.coll.reIndex',
-      collection._name
+      'mongosh:api-call',
+      { method: 'reIndex', class: 'Collection', db, coll }
     );
 
-    return await this.serviceProvider.reIndex(
-      collection._database._name,
-      collection._name
-    );
+    return await this.serviceProvider.reIndex(db, coll);
   }
 
   /**
@@ -1212,7 +1456,15 @@ export default class Mapper {
   getDB(
     collection: Collection
   ): Database {
-    this.messageBus.emit('mongosh:db.coll.getDB', collection._name);
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'getDB',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
+    );
 
     return collection._database;
   }
@@ -1220,25 +1472,25 @@ export default class Mapper {
   /**
    * Get all the collection statistics.
    *
-   * @param {Collection} collection - The collection name.
-   * @param {Object} options - The stats options.
+   * @param {Collection} collection - The collection name.  * @param {Object} options - The stats options.
    * @return {Promise} returns Promise
    */
   async stats(
     collection: Collection,
     options: Document = {}
   ): Promise<any> {
+    const db = collection._database._name;
+    const coll = collection._name;
     this.messageBus.emit(
-      'mongosh:db.coll.stats',
-      collection._name,
-      options
+      'mongosh:api-call',
+      {
+        method: 'stats',
+        class: 'Collection',
+        db, coll, arguments: { options }
+      }
     );
 
-    return await this.serviceProvider.stats(
-      collection._database._name,
-      collection._name,
-      options
-    );
+    return await this.serviceProvider.stats(db, coll, options);
   }
 
   /**
@@ -1251,8 +1503,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.dataSize',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'dataSize',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     return (await this.stats(collection)).size;
@@ -1268,8 +1525,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.storageSize',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'storageSize',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     return (await this.stats(collection)).storageSize;
@@ -1285,8 +1547,13 @@ export default class Mapper {
     collection: Collection,
   ): Promise<any> {
     this.messageBus.emit(
-      'mongosh:db.coll.totalSize',
-      collection._name
+      'mongosh:api-call',
+      {
+        method: 'totalSize',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
     );
 
     const stats = await this.stats(collection);
