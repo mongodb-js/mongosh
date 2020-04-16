@@ -1,7 +1,7 @@
 {
 	"name": "@mongodb-js/compass-shell",
 	"productName": "Compass Shell plugin",
-	"version": "0.0.1-alpha.10",
+	"version": "0.0.1-alpha.11",
 	"apiVersion": "3.0.0",
 	"description": "Compass Shell Plugin",
 	"main": "lib/index.js",
