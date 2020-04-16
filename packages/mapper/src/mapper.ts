@@ -40,7 +40,10 @@ export default class Mapper {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
-    this.messageBus.emit('mongosh:use', db);
+    this.messageBus.emit(
+      'mongosh:use',
+      { method: 'use', arguments: { db: db } }
+    );
     this.context.db = this.databases[db];
 
     return `switched to db ${db}`;
@@ -57,12 +60,26 @@ export default class Mapper {
           throw err;
         }
 
-        this.messageBus.emit('mongosh:show:dbs', result.databases);
+        this.messageBus.emit(
+          'mongosh:show',
+          {
+            method: 'show',
+            class: 'Database',
+            arguments: { result: result.databases }
+          }
+        );
         return new ShowDbsResult({ value: result.databases });
       case 'collections':
         const collectionNames = await this.getCollectionNames(this.context.db);
 
-        this.messageBus.emit('mongosh:show:collections', collectionNames);
+        this.messageBus.emit(
+          'mongosh:show',
+          {
+            method: 'show',
+            class: 'Collection',
+            arguments: { result: collectionNames }
+          }
+        );
         return new CommandResult({ value: collectionNames.join('\n') });
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
@@ -83,14 +100,20 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
       if (!await this.currentCursor.hasNext()) {
-        this.messageBus.emit('mongosh:it', 'no cursor');
+        this.messageBus.emit(
+          'mongosh:it',
+          { method: 'it', arguments: { result: 'no cursor' } }
+        );
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
-    this.messageBus.emit('mongosh:it', results.length);
+    this.messageBus.emit(
+      'mongosh:it',
+      { method: 'it', arguments: { result: results.length } }
+    );
     return results;
   }
 
@@ -150,7 +173,8 @@ export default class Mapper {
       {
         method: 'aggregate',
         class: 'Collection',
-        db, coll, arguments: { options, pipeline } }
+        db, coll, arguments: { options, pipeline }
+      }
     );
 
     const cursor = new AggregationCursor(this, cmd);
@@ -1472,7 +1496,8 @@ export default class Mapper {
   /**
    * Get all the collection statistics.
    *
-   * @param {Collection} collection - The collection name.  * @param {Object} options - The stats options.
+   * @param {Collection} collection - The collection name.
+   * @param {Object} options - The stats options.
    * @return {Promise} returns Promise
    */
   async stats(

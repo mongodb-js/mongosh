@@ -147,7 +147,10 @@ class ShellEvaluator {
 
     // Update mapper and log
     this.mapper.context = contextObject;
-    this.bus.emit('mongosh:setCtx', this.mapper.context.db);
+    this.bus.emit(
+      'mongosh:setCtx',
+      { method: 'setCtx', arguments: { db: this.mapper.context.db } }
+    );
   }
 }
 

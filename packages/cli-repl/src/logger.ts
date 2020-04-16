@@ -30,17 +30,21 @@ function logger(bus: any, logDir: string) {
     log.info('mongosh:rewrittenAsyncInput', inputInfo);
   });
 
-  bus.on('mongosh:use', function(database) {
-    log.info('mongosh:use', database);
+  bus.on('mongosh:use', function(args) {
+    log.info(args);
   });
 
-  bus.on('mongosh:show', function(databases) {
-    log.info('mongosh:show', databases);
+  bus.on('mongosh:show', function(args) {
+    log.info(args);
   });
 
-  bus.on('mongosh:it', function(info) {
-    log.info('mongosh:it', info);
+  bus.on('mongosh:it', function(args) {
+    log.info(args);
   });
+
+  bus.on('mongosh:setCtx', function(args) {
+    log.info(args)
+  })
 
   bus.on('mongosh:api-call', function(args) {
     log.info(redactInfo(args));
