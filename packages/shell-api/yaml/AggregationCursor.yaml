@@ -8,105 +8,31 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
-    help:
-        help: 'shell-api.aggregation-cursor.description'
-        docs: 'shell-api.aggregation-cursor.link'
-        attr:
-            - name: close
-              description: 'shell-api.aggregation-cursor.help.close'
-            - name: forEeach
-              description: 'shell-api.aggregation-cursor.help.for-each'
-            - name: hasNext
-              description: 'shell-api.aggregation-cursor.help.has-next'
-            - name: isClosed
-              description: 'shell-api.aggregation-cursor.help.isClosed'
-            - name: isExhausted
-              description: 'shell-api.aggregation-cursor.help.isExhausted'
-            - name: itcount
-              description: 'shell-api.aggregation-cursor.help.itcount'
-            - name: map
-              description: 'shell-api.aggregation-cursor.help.map'
-            - name: next
-              description: 'shell-api.aggregation-cursor.help.next'
-            # - name: objsLeftInBatch
-            #   description: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
-            - name: toArray
-              description: 'shell-api.aggregation-cursor.help.to-array'
     # bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.aggregation-cursor.help.close.example'
-            docs: 'shell-api.aggregation-cursor.help.close.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.close.description'
     forEach:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.aggregation-cursor.help.for-each.example'
-            docs: 'shell-api.aggregation-cursor.help.for-each.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.for-each.description'
     hasNext:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.aggregation-cursor.help.has-next.example'
-            docs: 'shell-api.aggregation-cursor.help.has-next.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.has-next.description'
     isClosed:
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.aggregation-cursor.help.is-closed.example'
-            docs: 'shell-api.aggregation-cursor.help.is-closed.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.is-closed.description'
     isExhausted:
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.aggregation-cursor.help.is-exhausted.example'
-            docs: 'shell-api.aggregation-cursor.help.is-exhausted.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.is-exhausted.description'
     itcount:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.aggregation-cursor.help.itcount.example'
-            docs: 'shell-api.aggregation-cursor.help.itcount.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.itcount.description'
     map:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'AggregationCursor'
-        help:
-            help: 'shell-api.aggregation-cursor.help.map.example'
-            docs: 'shell-api.aggregation-cursor.help.map.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.map.description'
     next:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.aggregation-cursor.help.next.example'
-            docs: 'shell-api.aggregation-cursor.help.next.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.next.description'
     # objsLeftInBatch:
     #     <<: *__defaultMethod
-    #     help:
-    #         help: 'shell-api.aggregation-cursor.help.objs-left-in-batch.example'
-    #         docs: 'shell-api.aggregation-cursor.help.objs-left-in-batch.link'
-    #         attr:
-    #           - description: 'shell-api.aggregation-cursor.help.objs-left-in-batch.description'
     toArray:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.aggregation-cursor.help.to-array.example'
-            docs: 'shell-api.aggregation-cursor.help.to-array.link'
-            attr:
-              - description: 'shell-api.aggregation-cursor.help.to-array.description'

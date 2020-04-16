@@ -8,96 +8,6 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
-    help:
-        help: 'shell-api.cursor.description'
-        docs: 'shell-api.cursor.link'
-        attr:
-          - name: addOption
-            description: 'shell-api.cursor.help.add-option'
-          - name: allowPartialResults
-            description: 'shell-api.cursor.help.allow-partial-results'
-          - name: arrayAccess
-            description: 'shell-api.cursor.help.array-access'
-          - name: batchSize
-            description: 'shell-api.cursor.help.batch-size'
-          - name: clone
-            description: 'shell-api.cursor.help.clone'
-          - name: close
-            description: 'shell-api.cursor.help.close'
-          - name: collation
-            description: 'shell-api.cursor.help.collation'
-          - name: comment
-            description: 'shell-api.cursor.help.comment'
-          - name: count
-            description: 'shell-api.cursor.help.count'
-          - name: explain
-            description: 'shell-api.cursor.help.explain'
-          - name: forEach
-            description: 'shell-api.cursor.help.for-each'
-          - name: getQueryPlan
-            description: 'shell-api.cursor.help.get-query-plan'
-          - name: hasNext
-            description: 'shell-api.cursor.help.has-next'
-          - name: hint
-            description: 'shell-api.cursor.help.hint'
-          - name: isClosed
-            description: 'shell-api.cursor.help.is-closed'
-          - name: isExhausted
-            description: 'shell-api.cursor.help.is-exhausted'
-          - name: itcount
-            description: 'shell-api.cursor.help.itcount'
-          - name: length
-            description: 'shell-api.cursor.help.length'
-          - name: limit
-            description: 'shell-api.cursor.help.limit'
-          - name: map
-            description: 'shell-api.cursor.help.map'
-          - name: max
-            description: 'shell-api.cursor.help.max'
-          - name: maxScan
-            description: 'shell-api.cursor.help.max-scan'
-          - name: maxTimeMS
-            description: 'shell-api.cursor.help.max-time-ms'
-          - name: min
-            description: 'shell-api.cursor.help.min'
-          - name: modifiers
-            description: 'shell-api.cursor.help.modifiers'
-          - name: next
-            description: 'shell-api.cursor.help.next'
-          - name: noCursorTimeout
-            description: 'shell-api.cursor.help.no-cursor-timeout'
-          - name: objsLeftInBatch
-            description: 'shell-api.cursor.help.objs-left-in-batch'
-          - name: oplog
-            description: 'shell-api.cursor.help.oplog-replay'
-          - name: projection
-            description: 'shell-api.cursor.help.projection'
-          - name: pretty
-            description: 'shell-api.cursor.help.pretty'
-          - name: readConcern
-            description: 'shell-api.cursor.help.read-concern'
-          - name: readOnly
-            description: 'shell-api.cursor.help.read-only'
-          - name: readPref
-            description: 'shell-api.cursor.help.read-pref'
-          - name: returnKey
-            description: 'shell-api.cursor.help.return-key'
-          - name: showDiskLoc
-            description: 'shell-api.cursor.help.show-disk-loc'
-          - name: showRecordId
-            description: 'shell-api.cursor.help.show-record-id'
-          - name: size
-            description: 'shell-api.cursor.help.size'
-          - name: skip
-            description: 'shell-api.cursor.help.skip'
-          - name: snapshot
-            description: 'shell-api.cursor.help.snapshot'
-          - name: sort
-            description: 'shell-api.cursor.help.sort'
-          - name: tailable
-            description: 'shell-api.cursor.help.tailable'
-          - name: toArray
-            description: 'shell-api.cursor.help.to-array'
     addOption:
         <<: *__defaultMethod
         __fluent: true
@@ -105,54 +15,24 @@ class:
         serverVersions:
             - *ServerVersions.earliest
             - '3.2.0'
-        help:
-            help: 'shell-api.cursor.help.add-option.example'
-            docs: 'shell-api.cursor.help.add-option.link'
-            attr:
-                - description: 'shell-api.cursor.help.add-option.description'
     allowPartialResults: # not documented
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.allow-partial-results.example'
-            docs: 'shell-api.cursor.help.allow-partial-results.link'
-            attr:
-                - description: 'shell-api.cursor.help.allow-partial-results.description'
     arrayAccess: *__defaultMethod # TODO: not documented
     batchSize:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.batch-size.example'
-            docs: 'shell-api.cursor.help.batch-size.link'
-            attr:
-                - description: 'shell-api.cursor.help.batch-size.description'
     clone:  # not documented
         <<: *__defaultMethod
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.clone.example'
-            docs: 'shell-api.cursor.help.clone.link'
-            attr:
-                - description: 'shell-api.cursor.help.clone.description'
     close:
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.close.example'
-            docs: 'shell-api.cursor.help.close.link'
-            attr:
-                - description: 'shell-api.cursor.help.close.description'
     collation:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.collation.example'
-            docs: 'shell-api.cursor.help.collation.link'
-            attr:
-                - description: 'shell-api.cursor.help.collation.description'
         serverVersions:
             - '3.4.0'
             - *ServerVersions.latest
@@ -160,131 +40,56 @@ class:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.comment.example'
-            docs: 'shell-api.cursor.help.comment.link'
-            attr:
-                - description: 'shell-api.cursor.help.comment.description'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     count:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.count.example'
-            docs: 'shell-api.cursor.help.count.link'
-            attr:
-                - description: 'shell-api.cursor.help.count.description'
         serverVersion:
             - *ServerVersions.earliest
             - '4.0.0'
     explain:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.explain.example'
-            docs: 'shell-api.cursor.help.explain.link'
-            attr:
-                - description: 'shell-api.cursor.help.explain.description'
     forEach:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.for-each.example'
-            docs: 'shell-api.cursor.help.for-each.link'
-            attr:
-                - description: 'shell-api.cursor.help.for-each.description'
     # getQueryPlan:  # TODO: not implemented
     #     <<: *__defaultMethod
-    #     help:
-    #         help: 'shell-api.cursor.help.get-query-plan.example'
-    #         docs: 'shell-api.cursor.help.get-query-plan.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.get-query-plan.description'
     hasNext:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.has-next.example'
-            docs: 'shell-api.cursor.help.has-next.link'
-            attr:
-                - description: 'shell-api.cursor.help.has-next.description'
     hint:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.hint.example'
-            docs: 'shell-api.cursor.help.hint.link'
-            attr:
-                - description: 'shell-api.cursor.help.hint.description'
     isClosed: # not documented
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.is-closed.example'
-            docs: 'shell-api.cursor.help.is-closed.link'
-            attr:
-                - description: 'shell-api.cursor.help.is-closed.description'
     isExhausted:
         <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.is-exhausted.example'
-            docs: 'shell-api.cursor.help.is-exhausted.link'
-            attr:
-                - description: 'shell-api.cursor.help.is-exhausted.description'
     itcount:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.itcount.example'
-            docs: 'shell-api.cursor.help.itcount.link'
-            attr:
-                - description: 'shell-api.cursor.help.itcount.description'
     # length: # Not implemented / not documented
     #     <<: *__defaultMethod
     #     returnsPromise: true
-    #     help:
-    #         help: 'shell-api.cursor.help.length.example'
-    #         docs: 'shell-api.cursor.help.length.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.length.description'
     limit:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.limit.example'
-            docs: 'shell-api.cursor.help.limit.link'
-            attr:
-                - description: 'shell-api.cursor.help.limit.description'
     map:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.map.example'
-            docs: 'shell-api.cursor.help.map.link'
-            attr:
-                - description: 'shell-api.cursor.help.map.description'
     max:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.max.example'
-            docs: 'shell-api.cursor.help.max.link'
-            attr:
-                - description: 'shell-api.cursor.help.max.description'
     # maxScan: # Not implemented / not documented
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.max-scan.example'
-    #         docs: 'shell-api.cursor.help.max-scan.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.max-scan.description'
     #     serverVersions:
     #         - *ServerVersions.earliest
     #         - '4.0.0'
@@ -292,115 +97,50 @@ class:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.max-time-ms.example'
-            docs: 'shell-api.cursor.help.max-time-ms.link'
-            attr:
-                - description: 'shell-api.cursor.help.max-time-ms.description'
     min:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.min.example'
-            docs: 'shell-api.cursor.help.min.link'
-            attr:
-                - description: 'shell-api.cursor.help.min.description'
     # modifiers: # not implemented / not documented
     #     <<: *__defaultMethod
-    #     help:
-    #         help: 'shell-api.cursor.help.modifiers.example'
-    #         docs: 'shell-api.cursor.help.modifiers.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.modifiers.description'
     next:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.next.example'
-            docs: 'shell-api.cursor.help.next.link'
-            attr:
-                - description: 'shell-api.cursor.help.next.description'
     noCursorTimeout:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.no-cursor-timeout.example'
-            docs: 'shell-api.cursor.help.no-cursor-timeout.link'
-            attr:
-                - description: 'shell-api.cursor.help.no-cursor-timeout.description'
     # objsLeftInBatch: # not implemented
     #     <<: *__defaultMethod
-    #     help:
-    #         help: 'shell-api.cursor.help.objs-left-in-batch.example'
-    #         docs: 'shell-api.cursor.help.objs-left-in-batch.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.objs-left-in-batch.description'
     oplogReplay: # not documented
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.oplog-replay.example'
-            docs: 'shell-api.cursor.help.oplog-replay.link'
-            attr:
-                - description: 'shell-api.cursor.help.oplog-replay.description'
     projection:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.projection.example'
-            docs: 'shell-api.cursor.help.projection.link'
-            attr:
-                - description: 'shell-api.cursor.help.projection.description'
     # pretty:
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.pretty.example'
-    #         docs: 'shell-api.cursor.help.pretty.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.pretty.description'
     # readConcern:
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.read-concern.example'
-    #         docs: 'shell-api.cursor.help.read-concern.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.read-concern.description'
     #     serverVersions:
     #         - '3.2.0'
     #         - *ServerVersions.latest
     # readOnly: # not documented
     #     <<: *__defaultMethod
-    #     help:
-    #         help: 'shell-api.cursor.help.readonly.example'
-    #         docs: 'shell-api.cursor.help.readonly.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.readonly.description'
     readPref:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.read-pref.example'
-            docs: 'shell-api.cursor.help.read-pref.link'
-            attr:
-                - description: 'shell-api.cursor.help.read-pref.description'
     returnKey:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.return-key.example'
-            docs: 'shell-api.cursor.help.return-key.link'
-            attr:
-                - description: 'shell-api.cursor.help.return-key.description'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
@@ -408,46 +148,21 @@ class:
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.show-disk-loc.example'
-    #         docs: 'shell-api.cursor.help.show-disk-loc.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.show-disk-loc.description'
     # showRecordId:
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.show-record-id.example'
-    #         docs: 'shell-api.cursor.help.show-record-id.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.show-record-id.description'
     size:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.size.example'
-            docs: 'shell-api.cursor.help.size.link'
-            attr:
-                - description: 'shell-api.cursor.help.size.description'
     skip:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.skip.example'
-            docs: 'shell-api.cursor.help.skip.link'
-            attr:
-                - description: 'shell-api.cursor.help.skip.description'
     # snapshot: # not implemented / not documented
     #     <<: *__defaultMethod
     #     __fluent: true
     #     returnType: 'Cursor'
-    #     help:
-    #         help: 'shell-api.cursor.help.snapshot.example'
-    #         docs: 'shell-api.cursor.help.snapshot.link'
-    #         attr:
-    #             - description: 'shell-api.cursor.help.snapshot.description'
     #     serverVersions:
     #         - *ServerVersions.earliest
     #         - '4.0.0'
@@ -455,28 +170,13 @@ class:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.sort.example'
-            docs: 'shell-api.cursor.help.sort.link'
-            attr:
-                - description: 'shell-api.cursor.help.sort.description'
     tailable:
         <<: *__defaultMethod
         __fluent: true
         returnType: 'Cursor'
-        help:
-            help: 'shell-api.cursor.help.tailable.example'
-            docs: 'shell-api.cursor.help.tailable.link'
-            attr:
-                - description: 'shell-api.cursor.help.tailable.description'
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
     toArray:
         <<: *__defaultMethod
         returnsPromise: true
-        help:
-            help: 'shell-api.cursor.help.to-array.example'
-            docs: 'shell-api.cursor.help.to-array.link'
-            attr:
-                - description: 'shell-api.cursor.help.to-array.description'

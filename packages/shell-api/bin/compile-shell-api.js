@@ -182,6 +182,37 @@ const symbolTemplate = (className, lib) => {
     }).join(',\n');
 };
 
+function addHelpKeys(className, lib) {
+  const classHelp = {};
+
+  const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
+  classHelp.help = `${classHelpKeyPrefix}.description`;
+  classHelp.docs = `${classHelpKeyPrefix}.link`;
+  classHelp.attr = [];
+
+  for (const [attributeName, attributeSpec] of Object.entries(lib.class)) {
+    if (attributeName.startsWith('__') || attributeName === 'help') {
+      continue;
+    }
+
+    const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${attributeName}`;
+    attributeSpec.help = {
+      help: `${attributeHelpKeyPrefix}.example`,
+      docs: `${attributeHelpKeyPrefix}.link`,
+      attr: [
+        { description: `${attributeHelpKeyPrefix}.description` }
+      ]
+    };
+
+    classHelp.attr.push({
+      name: attributeName,
+      description: `${attributeHelpKeyPrefix}.description`
+    });
+  }
+
+  lib.class.help = classHelp;
+}
+
 /**
  * Load all the YAML specs and generate the Shell API.
  */
@@ -202,6 +233,8 @@ const loadAll = () => {
     /* load YAML into memory */
     const fileContents = fs.readFileSync(path.join(yamlDir, fileName));
     const lib = yaml.load(`${main}${fileContents}`);
+
+    addHelpKeys(className, lib);
 
     /* append class to exports */
     exports = `${exports}export { ${className}  };\n`;

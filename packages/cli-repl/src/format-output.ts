@@ -83,7 +83,7 @@ function formatCursor(value) {
 
 function formatCursorIterationResult(value) {
   if (!value.length) {
-    return i18n.__('shell-api.cursor.iteration.no-cursor');
+    return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
 
   return inspect(value);
