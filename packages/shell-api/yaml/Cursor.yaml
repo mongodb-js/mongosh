@@ -100,6 +100,8 @@ class:
             description: 'shell-api.cursor.help.to-array'
     addOption:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         serverVersions:
             - *ServerVersions.earliest
             - '3.2.0'
@@ -110,6 +112,8 @@ class:
                 - description: 'shell-api.cursor.help.add-option.description'
     allowPartialResults: # not documented
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.allow-partial-results.example'
             docs: 'shell-api.cursor.help.allow-partial-results.link'
@@ -118,6 +122,8 @@ class:
     arrayAccess: *__defaultMethod # TODO: not documented
     batchSize:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.batch-size.example'
             docs: 'shell-api.cursor.help.batch-size.link'
@@ -139,6 +145,8 @@ class:
                 - description: 'shell-api.cursor.help.close.description'
     collation:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.collation.example'
             docs: 'shell-api.cursor.help.collation.link'
@@ -149,6 +157,8 @@ class:
             - *ServerVersions.latest
     comment:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.comment.example'
             docs: 'shell-api.cursor.help.comment.link'
@@ -159,6 +169,7 @@ class:
             - *ServerVersions.latest
     count:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.count.example'
             docs: 'shell-api.cursor.help.count.link'
@@ -169,6 +180,7 @@ class:
             - '4.0.0'
     explain:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.explain.example'
             docs: 'shell-api.cursor.help.explain.link'
@@ -176,20 +188,22 @@ class:
                 - description: 'shell-api.cursor.help.explain.description'
     forEach:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.for-each.example'
             docs: 'shell-api.cursor.help.for-each.link'
             attr:
                 - description: 'shell-api.cursor.help.for-each.description'
-    getQueryPlan:  # TODO: not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.get-query-plan.example'
-            docs: 'shell-api.cursor.help.get-query-plan.link'
-            attr:
-                - description: 'shell-api.cursor.help.get-query-plan.description'
+    # getQueryPlan:  # TODO: not implemented
+    #     <<: *__defaultMethod
+    #     help:
+    #         help: 'shell-api.cursor.help.get-query-plan.example'
+    #         docs: 'shell-api.cursor.help.get-query-plan.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.get-query-plan.description'
     hasNext:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.has-next.example'
             docs: 'shell-api.cursor.help.has-next.link'
@@ -197,6 +211,8 @@ class:
                 - description: 'shell-api.cursor.help.has-next.description'
     hint:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.hint.example'
             docs: 'shell-api.cursor.help.hint.link'
@@ -218,21 +234,24 @@ class:
                 - description: 'shell-api.cursor.help.is-exhausted.description'
     itcount:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.itcount.example'
             docs: 'shell-api.cursor.help.itcount.link'
             attr:
                 - description: 'shell-api.cursor.help.itcount.description'
-    length: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.length.example'
-            docs: 'shell-api.cursor.help.length.link'
-            attr:
-                - description: 'shell-api.cursor.help.length.description'
+    # length: # Not implemented / not documented
+    #     <<: *__defaultMethod
+    #     returnsPromise: true
+    #     help:
+    #         help: 'shell-api.cursor.help.length.example'
+    #         docs: 'shell-api.cursor.help.length.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.length.description'
     limit:
         <<: *__defaultMethod
         __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.limit.example'
             docs: 'shell-api.cursor.help.limit.link'
@@ -240,6 +259,8 @@ class:
                 - description: 'shell-api.cursor.help.limit.description'
     map:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.map.example'
             docs: 'shell-api.cursor.help.map.link'
@@ -247,23 +268,29 @@ class:
                 - description: 'shell-api.cursor.help.map.description'
     max:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.max.example'
             docs: 'shell-api.cursor.help.max.link'
             attr:
                 - description: 'shell-api.cursor.help.max.description'
-    maxScan: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.max-scan.example'
-            docs: 'shell-api.cursor.help.max-scan.link'
-            attr:
-                - description: 'shell-api.cursor.help.max-scan.description'
-        serverVersions:
-            - *ServerVersions.earliest
-            - '4.0.0'
+    # maxScan: # Not implemented / not documented
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.max-scan.example'
+    #         docs: 'shell-api.cursor.help.max-scan.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.max-scan.description'
+    #     serverVersions:
+    #         - *ServerVersions.earliest
+    #         - '4.0.0'
     maxTimeMS:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.max-time-ms.example'
             docs: 'shell-api.cursor.help.max-time-ms.link'
@@ -271,20 +298,23 @@ class:
                 - description: 'shell-api.cursor.help.max-time-ms.description'
     min:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.min.example'
             docs: 'shell-api.cursor.help.min.link'
             attr:
                 - description: 'shell-api.cursor.help.min.description'
-    modifiers: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.modifiers.example'
-            docs: 'shell-api.cursor.help.modifiers.link'
-            attr:
-                - description: 'shell-api.cursor.help.modifiers.description'
+    # modifiers: # not implemented / not documented
+    #     <<: *__defaultMethod
+    #     help:
+    #         help: 'shell-api.cursor.help.modifiers.example'
+    #         docs: 'shell-api.cursor.help.modifiers.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.modifiers.description'
     next:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.next.example'
             docs: 'shell-api.cursor.help.next.link'
@@ -292,20 +322,24 @@ class:
                 - description: 'shell-api.cursor.help.next.description'
     noCursorTimeout:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.no-cursor-timeout.example'
             docs: 'shell-api.cursor.help.no-cursor-timeout.link'
             attr:
                 - description: 'shell-api.cursor.help.no-cursor-timeout.description'
-    objsLeftInBatch:
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.objs-left-in-batch.example'
-            docs: 'shell-api.cursor.help.objs-left-in-batch.link'
-            attr:
-                - description: 'shell-api.cursor.help.objs-left-in-batch.description'
+    # objsLeftInBatch: # not implemented
+    #     <<: *__defaultMethod
+    #     help:
+    #         help: 'shell-api.cursor.help.objs-left-in-batch.example'
+    #         docs: 'shell-api.cursor.help.objs-left-in-batch.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.objs-left-in-batch.description'
     oplogReplay: # not documented
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.oplog-replay.example'
             docs: 'shell-api.cursor.help.oplog-replay.link'
@@ -313,37 +347,45 @@ class:
                 - description: 'shell-api.cursor.help.oplog-replay.description'
     projection:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.projection.example'
             docs: 'shell-api.cursor.help.projection.link'
             attr:
                 - description: 'shell-api.cursor.help.projection.description'
-    pretty:
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.pretty.example'
-            docs: 'shell-api.cursor.help.pretty.link'
-            attr:
-                - description: 'shell-api.cursor.help.pretty.description'
-    readConcern:
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.read-concern.example'
-            docs: 'shell-api.cursor.help.read-concern.link'
-            attr:
-                - description: 'shell-api.cursor.help.read-concern.description'
-        serverVersions:
-            - '3.2.0'
-            - *ServerVersions.latest
-    readOnly: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.readonly.example'
-            docs: 'shell-api.cursor.help.readonly.link'
-            attr:
-                - description: 'shell-api.cursor.help.readonly.description'
+    # pretty:
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.pretty.example'
+    #         docs: 'shell-api.cursor.help.pretty.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.pretty.description'
+    # readConcern:
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.read-concern.example'
+    #         docs: 'shell-api.cursor.help.read-concern.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.read-concern.description'
+    #     serverVersions:
+    #         - '3.2.0'
+    #         - *ServerVersions.latest
+    # readOnly: # not documented
+    #     <<: *__defaultMethod
+    #     help:
+    #         help: 'shell-api.cursor.help.readonly.example'
+    #         docs: 'shell-api.cursor.help.readonly.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.readonly.description'
     readPref:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.read-pref.example'
             docs: 'shell-api.cursor.help.read-pref.link'
@@ -351,6 +393,8 @@ class:
                 - description: 'shell-api.cursor.help.read-pref.description'
     returnKey:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.return-key.example'
             docs: 'shell-api.cursor.help.return-key.link'
@@ -359,22 +403,27 @@ class:
         serverVersions:
             - '3.2.0'
             - *ServerVersions.latest
-    showDiskLoc: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.show-disk-loc.example'
-            docs: 'shell-api.cursor.help.show-disk-loc.link'
-            attr:
-                - description: 'shell-api.cursor.help.show-disk-loc.description'
-    showRecordId:
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.show-record-id.example'
-            docs: 'shell-api.cursor.help.show-record-id.link'
-            attr:
-                - description: 'shell-api.cursor.help.show-record-id.description'
+    # showDiskLoc: # not documented
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.show-disk-loc.example'
+    #         docs: 'shell-api.cursor.help.show-disk-loc.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.show-disk-loc.description'
+    # showRecordId:
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.show-record-id.example'
+    #         docs: 'shell-api.cursor.help.show-record-id.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.show-record-id.description'
     size:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.size.example'
             docs: 'shell-api.cursor.help.size.link'
@@ -383,23 +432,28 @@ class:
     skip:
         <<: *__defaultMethod
         __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.skip.example'
             docs: 'shell-api.cursor.help.skip.link'
             attr:
                 - description: 'shell-api.cursor.help.skip.description'
-    snapshot: # not documented
-        <<: *__defaultMethod
-        help:
-            help: 'shell-api.cursor.help.snapshot.example'
-            docs: 'shell-api.cursor.help.snapshot.link'
-            attr:
-                - description: 'shell-api.cursor.help.snapshot.description'
-        serverVersions:
-            - *ServerVersions.earliest
-            - '4.0.0'
+    # snapshot: # not implemented / not documented
+    #     <<: *__defaultMethod
+    #     __fluent: true
+    #     returnType: 'Cursor'
+    #     help:
+    #         help: 'shell-api.cursor.help.snapshot.example'
+    #         docs: 'shell-api.cursor.help.snapshot.link'
+    #         attr:
+    #             - description: 'shell-api.cursor.help.snapshot.description'
+    #     serverVersions:
+    #         - *ServerVersions.earliest
+    #         - '4.0.0'
     sort:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.sort.example'
             docs: 'shell-api.cursor.help.sort.link'
@@ -407,6 +461,8 @@ class:
                 - description: 'shell-api.cursor.help.sort.description'
     tailable:
         <<: *__defaultMethod
+        __fluent: true
+        returnType: 'Cursor'
         help:
             help: 'shell-api.cursor.help.tailable.example'
             docs: 'shell-api.cursor.help.tailable.link'
@@ -417,6 +473,7 @@ class:
             - *ServerVersions.latest
     toArray:
         <<: *__defaultMethod
+        returnsPromise: true
         help:
             help: 'shell-api.cursor.help.to-array.example'
             docs: 'shell-api.cursor.help.to-array.link'

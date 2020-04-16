@@ -598,11 +598,13 @@ class Cursor {
   }
 
   addOption(...args) {
-    return this._cursor.addOption(...args);
+    this._cursor.addOption(...args);
+    return this;
   }
 
   allowPartialResults(...args) {
-    return this._cursor.allowPartialResults(...args);
+    this._cursor.allowPartialResults(...args);
+    return this;
   }
 
   arrayAccess(...args) {
@@ -610,7 +612,8 @@ class Cursor {
   }
 
   batchSize(...args) {
-    return this._cursor.batchSize(...args);
+    this._cursor.batchSize(...args);
+    return this;
   }
 
   clone(...args) {
@@ -622,11 +625,13 @@ class Cursor {
   }
 
   collation(...args) {
-    return this._cursor.collation(...args);
+    this._cursor.collation(...args);
+    return this;
   }
 
   comment(...args) {
-    return this._cursor.comment(...args);
+    this._cursor.comment(...args);
+    return this;
   }
 
   count(...args) {
@@ -641,16 +646,13 @@ class Cursor {
     return this._cursor.forEach(...args);
   }
 
-  getQueryPlan(...args) {
-    return this._cursor.getQueryPlan(...args);
-  }
-
   hasNext(...args) {
     return this._cursor.hasNext(...args);
   }
 
   hint(...args) {
-    return this._cursor.hint(...args);
+    this._cursor.hint(...args);
+    return this;
   }
 
   isClosed(...args) {
@@ -665,37 +667,29 @@ class Cursor {
     return this._cursor.itcount(...args);
   }
 
-  length(...args) {
-    return this._cursor.length(...args);
-  }
-
   limit(...args) {
     this._cursor.limit(...args);
     return this;
   }
 
   map(...args) {
-    return this._cursor.map(...args);
+    this._cursor.map(...args);
+    return this;
   }
 
   max(...args) {
-    return this._cursor.max(...args);
-  }
-
-  maxScan(...args) {
-    return this._cursor.maxScan(...args);
+    this._cursor.max(...args);
+    return this;
   }
 
   maxTimeMS(...args) {
-    return this._cursor.maxTimeMS(...args);
+    this._cursor.maxTimeMS(...args);
+    return this;
   }
 
   min(...args) {
-    return this._cursor.min(...args);
-  }
-
-  modifiers(...args) {
-    return this._cursor.modifiers(...args);
+    this._cursor.min(...args);
+    return this;
   }
 
   next(...args) {
@@ -703,47 +697,28 @@ class Cursor {
   }
 
   noCursorTimeout(...args) {
-    return this._cursor.noCursorTimeout(...args);
-  }
-
-  objsLeftInBatch(...args) {
-    return this._cursor.objsLeftInBatch(...args);
+    this._cursor.noCursorTimeout(...args);
+    return this;
   }
 
   oplogReplay(...args) {
-    return this._cursor.oplogReplay(...args);
+    this._cursor.oplogReplay(...args);
+    return this;
   }
 
   projection(...args) {
-    return this._cursor.projection(...args);
-  }
-
-  pretty(...args) {
-    return this._cursor.pretty(...args);
-  }
-
-  readConcern(...args) {
-    return this._cursor.readConcern(...args);
-  }
-
-  readOnly(...args) {
-    return this._cursor.readOnly(...args);
+    this._cursor.projection(...args);
+    return this;
   }
 
   readPref(...args) {
-    return this._cursor.readPref(...args);
+    this._cursor.readPref(...args);
+    return this;
   }
 
   returnKey(...args) {
-    return this._cursor.returnKey(...args);
-  }
-
-  showDiskLoc(...args) {
-    return this._cursor.showDiskLoc(...args);
-  }
-
-  showRecordId(...args) {
-    return this._cursor.showRecordId(...args);
+    this._cursor.returnKey(...args);
+    return this;
   }
 
   size(...args) {
@@ -755,16 +730,14 @@ class Cursor {
     return this;
   }
 
-  snapshot(...args) {
-    return this._cursor.snapshot(...args);
-  }
-
   sort(...args) {
-    return this._cursor.sort(...args);
+    this._cursor.sort(...args);
+    return this;
   }
 
   tailable(...args) {
-    return this._cursor.tailable(...args);
+    this._cursor.tailable(...args);
+    return this;
   }
 
   toArray(...args) {
@@ -777,13 +750,13 @@ Cursor.prototype.addOption.help = () => new Help({ 'help': 'shell-api.cursor.hel
 Cursor.prototype.addOption.serverVersions = ['0.0.0', '3.2.0'];
 Cursor.prototype.addOption.topologies = [0, 1, 2];
 Cursor.prototype.addOption.returnsPromise = false;
-Cursor.prototype.addOption.returnType = 'unknown';
+Cursor.prototype.addOption.returnType = 'Cursor';
 
 Cursor.prototype.allowPartialResults.help = () => new Help({ 'help': 'shell-api.cursor.help.allow-partial-results.example', 'docs': 'shell-api.cursor.help.allow-partial-results.link', 'attr': [{ 'description': 'shell-api.cursor.help.allow-partial-results.description' }] });
 Cursor.prototype.allowPartialResults.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.allowPartialResults.topologies = [0, 1, 2];
 Cursor.prototype.allowPartialResults.returnsPromise = false;
-Cursor.prototype.allowPartialResults.returnType = 'unknown';
+Cursor.prototype.allowPartialResults.returnType = 'Cursor';
 
 Cursor.prototype.arrayAccess.help = () => new Help({ 'help': '!! No help defined for this method' });
 Cursor.prototype.arrayAccess.serverVersions = ['0.0.0', '4.4.0'];
@@ -795,7 +768,7 @@ Cursor.prototype.batchSize.help = () => new Help({ 'help': 'shell-api.cursor.hel
 Cursor.prototype.batchSize.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.batchSize.topologies = [0, 1, 2];
 Cursor.prototype.batchSize.returnsPromise = false;
-Cursor.prototype.batchSize.returnType = 'unknown';
+Cursor.prototype.batchSize.returnType = 'Cursor';
 
 Cursor.prototype.clone.help = () => new Help({ 'help': 'shell-api.cursor.help.clone.example', 'docs': 'shell-api.cursor.help.clone.link', 'attr': [{ 'description': 'shell-api.cursor.help.clone.description' }] });
 Cursor.prototype.clone.serverVersions = ['0.0.0', '4.4.0'];
@@ -813,50 +786,44 @@ Cursor.prototype.collation.help = () => new Help({ 'help': 'shell-api.cursor.hel
 Cursor.prototype.collation.serverVersions = ['3.4.0', '4.4.0'];
 Cursor.prototype.collation.topologies = [0, 1, 2];
 Cursor.prototype.collation.returnsPromise = false;
-Cursor.prototype.collation.returnType = 'unknown';
+Cursor.prototype.collation.returnType = 'Cursor';
 
 Cursor.prototype.comment.help = () => new Help({ 'help': 'shell-api.cursor.help.comment.example', 'docs': 'shell-api.cursor.help.comment.link', 'attr': [{ 'description': 'shell-api.cursor.help.comment.description' }] });
 Cursor.prototype.comment.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.comment.topologies = [0, 1, 2];
 Cursor.prototype.comment.returnsPromise = false;
-Cursor.prototype.comment.returnType = 'unknown';
+Cursor.prototype.comment.returnType = 'Cursor';
 
 Cursor.prototype.count.help = () => new Help({ 'help': 'shell-api.cursor.help.count.example', 'docs': 'shell-api.cursor.help.count.link', 'attr': [{ 'description': 'shell-api.cursor.help.count.description' }] });
 Cursor.prototype.count.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.count.topologies = [0, 1, 2];
-Cursor.prototype.count.returnsPromise = false;
+Cursor.prototype.count.returnsPromise = true;
 Cursor.prototype.count.returnType = 'unknown';
 Cursor.prototype.count.serverVersion = ['0.0.0', '4.0.0'];
 
 Cursor.prototype.explain.help = () => new Help({ 'help': 'shell-api.cursor.help.explain.example', 'docs': 'shell-api.cursor.help.explain.link', 'attr': [{ 'description': 'shell-api.cursor.help.explain.description' }] });
 Cursor.prototype.explain.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.explain.topologies = [0, 1, 2];
-Cursor.prototype.explain.returnsPromise = false;
+Cursor.prototype.explain.returnsPromise = true;
 Cursor.prototype.explain.returnType = 'unknown';
 
 Cursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.cursor.help.for-each.example', 'docs': 'shell-api.cursor.help.for-each.link', 'attr': [{ 'description': 'shell-api.cursor.help.for-each.description' }] });
 Cursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.forEach.topologies = [0, 1, 2];
-Cursor.prototype.forEach.returnsPromise = false;
+Cursor.prototype.forEach.returnsPromise = true;
 Cursor.prototype.forEach.returnType = 'unknown';
-
-Cursor.prototype.getQueryPlan.help = () => new Help({ 'help': 'shell-api.cursor.help.get-query-plan.example', 'docs': 'shell-api.cursor.help.get-query-plan.link', 'attr': [{ 'description': 'shell-api.cursor.help.get-query-plan.description' }] });
-Cursor.prototype.getQueryPlan.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.getQueryPlan.topologies = [0, 1, 2];
-Cursor.prototype.getQueryPlan.returnsPromise = false;
-Cursor.prototype.getQueryPlan.returnType = 'unknown';
 
 Cursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.cursor.help.has-next.example', 'docs': 'shell-api.cursor.help.has-next.link', 'attr': [{ 'description': 'shell-api.cursor.help.has-next.description' }] });
 Cursor.prototype.hasNext.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hasNext.topologies = [0, 1, 2];
-Cursor.prototype.hasNext.returnsPromise = false;
+Cursor.prototype.hasNext.returnsPromise = true;
 Cursor.prototype.hasNext.returnType = 'unknown';
 
 Cursor.prototype.hint.help = () => new Help({ 'help': 'shell-api.cursor.help.hint.example', 'docs': 'shell-api.cursor.help.hint.link', 'attr': [{ 'description': 'shell-api.cursor.help.hint.description' }] });
 Cursor.prototype.hint.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.hint.topologies = [0, 1, 2];
 Cursor.prototype.hint.returnsPromise = false;
-Cursor.prototype.hint.returnType = 'unknown';
+Cursor.prototype.hint.returnType = 'Cursor';
 
 Cursor.prototype.isClosed.help = () => new Help({ 'help': 'shell-api.cursor.help.is-closed.example', 'docs': 'shell-api.cursor.help.is-closed.link', 'attr': [{ 'description': 'shell-api.cursor.help.is-closed.description' }] });
 Cursor.prototype.isClosed.serverVersions = ['0.0.0', '4.4.0'];
@@ -873,163 +840,103 @@ Cursor.prototype.isExhausted.returnType = 'unknown';
 Cursor.prototype.itcount.help = () => new Help({ 'help': 'shell-api.cursor.help.itcount.example', 'docs': 'shell-api.cursor.help.itcount.link', 'attr': [{ 'description': 'shell-api.cursor.help.itcount.description' }] });
 Cursor.prototype.itcount.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.itcount.topologies = [0, 1, 2];
-Cursor.prototype.itcount.returnsPromise = false;
+Cursor.prototype.itcount.returnsPromise = true;
 Cursor.prototype.itcount.returnType = 'unknown';
-
-Cursor.prototype.length.help = () => new Help({ 'help': 'shell-api.cursor.help.length.example', 'docs': 'shell-api.cursor.help.length.link', 'attr': [{ 'description': 'shell-api.cursor.help.length.description' }] });
-Cursor.prototype.length.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.length.topologies = [0, 1, 2];
-Cursor.prototype.length.returnsPromise = false;
-Cursor.prototype.length.returnType = 'unknown';
 
 Cursor.prototype.limit.help = () => new Help({ 'help': 'shell-api.cursor.help.limit.example', 'docs': 'shell-api.cursor.help.limit.link', 'attr': [{ 'description': 'shell-api.cursor.help.limit.description' }] });
 Cursor.prototype.limit.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.limit.topologies = [0, 1, 2];
 Cursor.prototype.limit.returnsPromise = false;
-Cursor.prototype.limit.returnType = 'unknown';
+Cursor.prototype.limit.returnType = 'Cursor';
 
 Cursor.prototype.map.help = () => new Help({ 'help': 'shell-api.cursor.help.map.example', 'docs': 'shell-api.cursor.help.map.link', 'attr': [{ 'description': 'shell-api.cursor.help.map.description' }] });
 Cursor.prototype.map.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.map.topologies = [0, 1, 2];
 Cursor.prototype.map.returnsPromise = false;
-Cursor.prototype.map.returnType = 'unknown';
+Cursor.prototype.map.returnType = 'Cursor';
 
 Cursor.prototype.max.help = () => new Help({ 'help': 'shell-api.cursor.help.max.example', 'docs': 'shell-api.cursor.help.max.link', 'attr': [{ 'description': 'shell-api.cursor.help.max.description' }] });
 Cursor.prototype.max.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.max.topologies = [0, 1, 2];
 Cursor.prototype.max.returnsPromise = false;
-Cursor.prototype.max.returnType = 'unknown';
-
-Cursor.prototype.maxScan.help = () => new Help({ 'help': 'shell-api.cursor.help.max-scan.example', 'docs': 'shell-api.cursor.help.max-scan.link', 'attr': [{ 'description': 'shell-api.cursor.help.max-scan.description' }] });
-Cursor.prototype.maxScan.serverVersions = ['0.0.0', '4.0.0'];
-Cursor.prototype.maxScan.topologies = [0, 1, 2];
-Cursor.prototype.maxScan.returnsPromise = false;
-Cursor.prototype.maxScan.returnType = 'unknown';
+Cursor.prototype.max.returnType = 'Cursor';
 
 Cursor.prototype.maxTimeMS.help = () => new Help({ 'help': 'shell-api.cursor.help.max-time-ms.example', 'docs': 'shell-api.cursor.help.max-time-ms.link', 'attr': [{ 'description': 'shell-api.cursor.help.max-time-ms.description' }] });
 Cursor.prototype.maxTimeMS.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.maxTimeMS.topologies = [0, 1, 2];
 Cursor.prototype.maxTimeMS.returnsPromise = false;
-Cursor.prototype.maxTimeMS.returnType = 'unknown';
+Cursor.prototype.maxTimeMS.returnType = 'Cursor';
 
 Cursor.prototype.min.help = () => new Help({ 'help': 'shell-api.cursor.help.min.example', 'docs': 'shell-api.cursor.help.min.link', 'attr': [{ 'description': 'shell-api.cursor.help.min.description' }] });
 Cursor.prototype.min.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.min.topologies = [0, 1, 2];
 Cursor.prototype.min.returnsPromise = false;
-Cursor.prototype.min.returnType = 'unknown';
-
-Cursor.prototype.modifiers.help = () => new Help({ 'help': 'shell-api.cursor.help.modifiers.example', 'docs': 'shell-api.cursor.help.modifiers.link', 'attr': [{ 'description': 'shell-api.cursor.help.modifiers.description' }] });
-Cursor.prototype.modifiers.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.modifiers.topologies = [0, 1, 2];
-Cursor.prototype.modifiers.returnsPromise = false;
-Cursor.prototype.modifiers.returnType = 'unknown';
+Cursor.prototype.min.returnType = 'Cursor';
 
 Cursor.prototype.next.help = () => new Help({ 'help': 'shell-api.cursor.help.next.example', 'docs': 'shell-api.cursor.help.next.link', 'attr': [{ 'description': 'shell-api.cursor.help.next.description' }] });
 Cursor.prototype.next.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.next.topologies = [0, 1, 2];
-Cursor.prototype.next.returnsPromise = false;
+Cursor.prototype.next.returnsPromise = true;
 Cursor.prototype.next.returnType = 'unknown';
 
 Cursor.prototype.noCursorTimeout.help = () => new Help({ 'help': 'shell-api.cursor.help.no-cursor-timeout.example', 'docs': 'shell-api.cursor.help.no-cursor-timeout.link', 'attr': [{ 'description': 'shell-api.cursor.help.no-cursor-timeout.description' }] });
 Cursor.prototype.noCursorTimeout.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.noCursorTimeout.topologies = [0, 1, 2];
 Cursor.prototype.noCursorTimeout.returnsPromise = false;
-Cursor.prototype.noCursorTimeout.returnType = 'unknown';
-
-Cursor.prototype.objsLeftInBatch.help = () => new Help({ 'help': 'shell-api.cursor.help.objs-left-in-batch.example', 'docs': 'shell-api.cursor.help.objs-left-in-batch.link', 'attr': [{ 'description': 'shell-api.cursor.help.objs-left-in-batch.description' }] });
-Cursor.prototype.objsLeftInBatch.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.objsLeftInBatch.topologies = [0, 1, 2];
-Cursor.prototype.objsLeftInBatch.returnsPromise = false;
-Cursor.prototype.objsLeftInBatch.returnType = 'unknown';
+Cursor.prototype.noCursorTimeout.returnType = 'Cursor';
 
 Cursor.prototype.oplogReplay.help = () => new Help({ 'help': 'shell-api.cursor.help.oplog-replay.example', 'docs': 'shell-api.cursor.help.oplog-replay.link', 'attr': [{ 'description': 'shell-api.cursor.help.oplog-replay.description' }] });
 Cursor.prototype.oplogReplay.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.oplogReplay.topologies = [0, 1, 2];
 Cursor.prototype.oplogReplay.returnsPromise = false;
-Cursor.prototype.oplogReplay.returnType = 'unknown';
+Cursor.prototype.oplogReplay.returnType = 'Cursor';
 
 Cursor.prototype.projection.help = () => new Help({ 'help': 'shell-api.cursor.help.projection.example', 'docs': 'shell-api.cursor.help.projection.link', 'attr': [{ 'description': 'shell-api.cursor.help.projection.description' }] });
 Cursor.prototype.projection.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.projection.topologies = [0, 1, 2];
 Cursor.prototype.projection.returnsPromise = false;
-Cursor.prototype.projection.returnType = 'unknown';
-
-Cursor.prototype.pretty.help = () => new Help({ 'help': 'shell-api.cursor.help.pretty.example', 'docs': 'shell-api.cursor.help.pretty.link', 'attr': [{ 'description': 'shell-api.cursor.help.pretty.description' }] });
-Cursor.prototype.pretty.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.pretty.topologies = [0, 1, 2];
-Cursor.prototype.pretty.returnsPromise = false;
-Cursor.prototype.pretty.returnType = 'unknown';
-
-Cursor.prototype.readConcern.help = () => new Help({ 'help': 'shell-api.cursor.help.read-concern.example', 'docs': 'shell-api.cursor.help.read-concern.link', 'attr': [{ 'description': 'shell-api.cursor.help.read-concern.description' }] });
-Cursor.prototype.readConcern.serverVersions = ['3.2.0', '4.4.0'];
-Cursor.prototype.readConcern.topologies = [0, 1, 2];
-Cursor.prototype.readConcern.returnsPromise = false;
-Cursor.prototype.readConcern.returnType = 'unknown';
-
-Cursor.prototype.readOnly.help = () => new Help({ 'help': 'shell-api.cursor.help.readonly.example', 'docs': 'shell-api.cursor.help.readonly.link', 'attr': [{ 'description': 'shell-api.cursor.help.readonly.description' }] });
-Cursor.prototype.readOnly.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.readOnly.topologies = [0, 1, 2];
-Cursor.prototype.readOnly.returnsPromise = false;
-Cursor.prototype.readOnly.returnType = 'unknown';
+Cursor.prototype.projection.returnType = 'Cursor';
 
 Cursor.prototype.readPref.help = () => new Help({ 'help': 'shell-api.cursor.help.read-pref.example', 'docs': 'shell-api.cursor.help.read-pref.link', 'attr': [{ 'description': 'shell-api.cursor.help.read-pref.description' }] });
 Cursor.prototype.readPref.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.readPref.topologies = [0, 1, 2];
 Cursor.prototype.readPref.returnsPromise = false;
-Cursor.prototype.readPref.returnType = 'unknown';
+Cursor.prototype.readPref.returnType = 'Cursor';
 
 Cursor.prototype.returnKey.help = () => new Help({ 'help': 'shell-api.cursor.help.return-key.example', 'docs': 'shell-api.cursor.help.return-key.link', 'attr': [{ 'description': 'shell-api.cursor.help.return-key.description' }] });
 Cursor.prototype.returnKey.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.returnKey.topologies = [0, 1, 2];
 Cursor.prototype.returnKey.returnsPromise = false;
-Cursor.prototype.returnKey.returnType = 'unknown';
-
-Cursor.prototype.showDiskLoc.help = () => new Help({ 'help': 'shell-api.cursor.help.show-disk-loc.example', 'docs': 'shell-api.cursor.help.show-disk-loc.link', 'attr': [{ 'description': 'shell-api.cursor.help.show-disk-loc.description' }] });
-Cursor.prototype.showDiskLoc.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.showDiskLoc.topologies = [0, 1, 2];
-Cursor.prototype.showDiskLoc.returnsPromise = false;
-Cursor.prototype.showDiskLoc.returnType = 'unknown';
-
-Cursor.prototype.showRecordId.help = () => new Help({ 'help': 'shell-api.cursor.help.show-record-id.example', 'docs': 'shell-api.cursor.help.show-record-id.link', 'attr': [{ 'description': 'shell-api.cursor.help.show-record-id.description' }] });
-Cursor.prototype.showRecordId.serverVersions = ['0.0.0', '4.4.0'];
-Cursor.prototype.showRecordId.topologies = [0, 1, 2];
-Cursor.prototype.showRecordId.returnsPromise = false;
-Cursor.prototype.showRecordId.returnType = 'unknown';
+Cursor.prototype.returnKey.returnType = 'Cursor';
 
 Cursor.prototype.size.help = () => new Help({ 'help': 'shell-api.cursor.help.size.example', 'docs': 'shell-api.cursor.help.size.link', 'attr': [{ 'description': 'shell-api.cursor.help.size.description' }] });
 Cursor.prototype.size.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.size.topologies = [0, 1, 2];
-Cursor.prototype.size.returnsPromise = false;
+Cursor.prototype.size.returnsPromise = true;
 Cursor.prototype.size.returnType = 'unknown';
 
 Cursor.prototype.skip.help = () => new Help({ 'help': 'shell-api.cursor.help.skip.example', 'docs': 'shell-api.cursor.help.skip.link', 'attr': [{ 'description': 'shell-api.cursor.help.skip.description' }] });
 Cursor.prototype.skip.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.skip.topologies = [0, 1, 2];
 Cursor.prototype.skip.returnsPromise = false;
-Cursor.prototype.skip.returnType = 'unknown';
-
-Cursor.prototype.snapshot.help = () => new Help({ 'help': 'shell-api.cursor.help.snapshot.example', 'docs': 'shell-api.cursor.help.snapshot.link', 'attr': [{ 'description': 'shell-api.cursor.help.snapshot.description' }] });
-Cursor.prototype.snapshot.serverVersions = ['0.0.0', '4.0.0'];
-Cursor.prototype.snapshot.topologies = [0, 1, 2];
-Cursor.prototype.snapshot.returnsPromise = false;
-Cursor.prototype.snapshot.returnType = 'unknown';
+Cursor.prototype.skip.returnType = 'Cursor';
 
 Cursor.prototype.sort.help = () => new Help({ 'help': 'shell-api.cursor.help.sort.example', 'docs': 'shell-api.cursor.help.sort.link', 'attr': [{ 'description': 'shell-api.cursor.help.sort.description' }] });
 Cursor.prototype.sort.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.sort.topologies = [0, 1, 2];
 Cursor.prototype.sort.returnsPromise = false;
-Cursor.prototype.sort.returnType = 'unknown';
+Cursor.prototype.sort.returnType = 'Cursor';
 
 Cursor.prototype.tailable.help = () => new Help({ 'help': 'shell-api.cursor.help.tailable.example', 'docs': 'shell-api.cursor.help.tailable.link', 'attr': [{ 'description': 'shell-api.cursor.help.tailable.description' }] });
 Cursor.prototype.tailable.serverVersions = ['3.2.0', '4.4.0'];
 Cursor.prototype.tailable.topologies = [0, 1, 2];
 Cursor.prototype.tailable.returnsPromise = false;
-Cursor.prototype.tailable.returnType = 'unknown';
+Cursor.prototype.tailable.returnType = 'Cursor';
 
 Cursor.prototype.toArray.help = () => new Help({ 'help': 'shell-api.cursor.help.to-array.example', 'docs': 'shell-api.cursor.help.to-array.link', 'attr': [{ 'description': 'shell-api.cursor.help.to-array.description' }] });
 Cursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.toArray.topologies = [0, 1, 2];
-Cursor.prototype.toArray.returnsPromise = false;
+Cursor.prototype.toArray.returnsPromise = true;
 Cursor.prototype.toArray.returnType = 'unknown';
 
 
