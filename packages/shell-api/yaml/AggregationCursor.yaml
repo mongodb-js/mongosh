@@ -32,7 +32,7 @@ class:
             #   description: 'shell-api.aggregation-cursor.help.objs-left-in-batch'
             - name: toArray
               description: 'shell-api.aggregation-cursor.help.to-array'
-    bsonsize: *__defaultMethod # TODO
+    # bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
         help:
@@ -81,7 +81,7 @@ class:
     map:
         <<: *__defaultMethod
         __fluent: true
-        returnType: 'Cursor'
+        returnType: 'AggregationCursor'
         help:
             help: 'shell-api.aggregation-cursor.help.map.example'
             docs: 'shell-api.aggregation-cursor.help.map.link'
