@@ -101,20 +101,20 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('value string');
   });
 
-  it('renders CommandResult', () => {
+  it('renders ShowCollectionsResult', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       type: 'output',
-      shellApiType: 'CommandResult',
+      shellApiType: 'ShowCollectionsResult',
       value: 'value string'
     }} />);
 
     expect(wrapper.text()).to.contain('value string');
   });
 
-  it('renders ShowDbsResult', () => {
+  it('renders ShowDatabasesResult', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       type: 'output',
-      shellApiType: 'ShowDbsResult',
+      shellApiType: 'ShowDatabasesResult',
       value: [
         { name: 'admin', sizeOnDisk: 45056, empty: false },
         { name: 'dxl', sizeOnDisk: 8192, empty: false },

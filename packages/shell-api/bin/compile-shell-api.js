@@ -114,7 +114,7 @@ function constructorTemplate(args, lib, className) {
   /* string the shell api type of the object */
   constructorBody = `${constructorBody}
   this.shellApiType = () => {
-    return '${className}';
+    return ${lib.__shellApiType || `'${className}'`};
   };\n`;
 
   /* attributes */
