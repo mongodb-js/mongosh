@@ -564,7 +564,8 @@ Collection.prototype.totalSize.returnType = 'unknown';
 
 
 class CommandResult {
-  constructor(value) {
+  constructor(type, value) {
+    this.type = type;
     this.value = value;
 
     this.toReplString = () => {
@@ -572,7 +573,7 @@ class CommandResult {
     };
 
     this.shellApiType = () => {
-      return 'CommandResult';
+      return this.type;
     };
     this.help = () => new Help({ 'help': 'shell-api.classes.CommandResult.help.description', 'docs': 'shell-api.classes.CommandResult.help.link', 'attr': [] });
   }
@@ -1078,23 +1079,6 @@ class Shard {
   }
 }
 
-
-class ShowDbsResult {
-  constructor(value) {
-    this.value = value;
-
-    this.toReplString = () => {
-      return this.value;
-    };
-
-    this.shellApiType = () => {
-      return 'ShowDbsResult';
-    };
-    this.help = () => new Help({ 'help': 'shell-api.classes.ShowDbsResult.help.description', 'docs': 'shell-api.classes.ShowDbsResult.help.link', 'attr': [] });
-  }
-}
-
-
 class UpdateResult {
   constructor(acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId) {
     this.acknowleged = acknowleged;
@@ -1153,7 +1137,6 @@ export { InsertManyResult };
 export { InsertOneResult };
 export { ReplicaSet };
 export { Shard };
-export { ShowDbsResult };
 export { UpdateResult };
 export { ReadPreference };
 export { DBQuery };

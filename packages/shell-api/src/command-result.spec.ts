@@ -3,15 +3,16 @@ import { expect } from 'chai';
 
 describe('CommandResult', () => {
   describe('#shellApiType', () => {
-    it('returns CommandResult', () => {
-      expect(new CommandResult('...' ).shellApiType()).to.equal('CommandResult');
+    it('returns the type', () => {
+      const commandResult = new CommandResult('ResultType', 'value');
+      expect(commandResult.shellApiType()).to.equal('ResultType');
     });
   });
 
   describe('#toReplString', () => {
     it('returns the value', () => {
-      const commandResult = new CommandResult('some text' );
-      expect(commandResult.toReplString()).to.equal('some text');
+      const commandResult = new CommandResult('ResultType', 'value');
+      expect(commandResult.toReplString()).to.equal('value');
     });
   });
 });

@@ -35,7 +35,7 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatHelp(value);
   }
 
-  if (type === 'ShowDbsResult') {
+  if (type === 'ShowDatabasesResult') {
     return formatDatabases(value)
   }
 

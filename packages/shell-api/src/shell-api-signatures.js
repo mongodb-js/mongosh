@@ -160,13 +160,6 @@ const Shard = {
 
   }
 };
-const ShowDbsResult = {
-  type: 'ShowDbsResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
 const UpdateResult = {
   type: 'UpdateResult',
   hasAsyncChild: false,
@@ -187,6 +180,5 @@ export {
   InsertOneResult,
   ReplicaSet,
   Shard,
-  ShowDbsResult,
   UpdateResult
 };

@@ -68,7 +68,7 @@ describe('formatOutput', () => {
     });
   });
 
-  context('when the result is ShowDbsResult', () => {
+  context('when the result is ShowDatabasesResult', () => {
     it('returns the help text', () => {
       const output = stripAnsiColors(format({
         value: [
@@ -78,7 +78,7 @@ describe('formatOutput', () => {
           { name: 'test', sizeOnDisk: 5664768, empty: false  },
           { name: 'test', sizeOnDisk: 599999768000, empty: false  }
         ],
-        type: 'ShowDbsResult'
+        type: 'ShowDatabasesResult'
       }));
 
       expect(output).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');

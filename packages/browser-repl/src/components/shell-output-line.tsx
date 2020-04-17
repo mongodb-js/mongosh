@@ -37,7 +37,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     const { shellApiType, value, type } = this.props.entry;
 
     if (type === 'input' ||
-      this.isCommandResult(value, shellApiType)) {
+      this.isPreformattedResult(value, shellApiType)) {
       return <pre>{value}</pre>;
     }
 
@@ -49,7 +49,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <HelpOutput value={value} />;
     }
 
-    if (shellApiType === 'ShowDbsResult') {
+    if (shellApiType === 'ShowDatabasesResult') {
       return <ShowDbsOutput value={value} />;
     }
 
@@ -72,10 +72,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     return typeof value.message === 'string' && typeof value.stack === 'string';
   }
 
-  private isCommandResult(value: any, shellApiType: string): boolean {
+  private isPreformattedResult(value: any, shellApiType: string): boolean {
     return typeof value === 'string' &&
     shellApiType === 'Database' ||
-    shellApiType === 'CommandResult' ||
+    shellApiType === 'ShowCollectionsResult' ||
     shellApiType === 'Collection';
   }
 

@@ -29,7 +29,7 @@ describe('Electron runtime', function() {
     });
 
     const result = await electronRuntime.evaluate('show dbs');
-    expect(result.shellApiType).to.equal('ShowDbsResult');
+    expect(result.shellApiType).to.equal('ShowDatabasesResult');
   });
 
   it('can switch database', async() => {

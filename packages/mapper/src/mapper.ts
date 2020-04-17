@@ -9,8 +9,7 @@ import {
   InsertOneResult,
   UpdateResult,
   CursorIterationResult,
-  CommandResult,
-  ShowDbsResult
+  CommandResult
 } from '@mongosh/shell-api';
 
 import {
@@ -49,43 +48,40 @@ export default class Mapper {
     return `switched to db ${db}`;
   }
 
-  async show(arg): Promise<any> {
+  async show(arg): Promise<CommandResult> {
+    this.messageBus.emit(
+      'mongosh:show',
+      {
+        arguments: { arg }
+      }
+    );
+
     switch (arg) {
       case 'databases':
       case 'dbs':
-        const result = await this.serviceProvider.listDatabases('admin');
-        if (!('databases' in result)) {
-          const err = new Error('Error: invalid result from listDatabases');
-          this.messageBus.emit('mongosh:error', err);
-          throw err;
-        }
-
-        this.messageBus.emit(
-          'mongosh:show',
-          {
-            method: 'show',
-            class: 'Database',
-            arguments: { result: result.databases }
-          }
-        );
-        return new ShowDbsResult({ value: result.databases });
+        return await this.showDatabases();
       case 'collections':
-        const collectionNames = await this.getCollectionNames(this.context.db);
-
-        this.messageBus.emit(
-          'mongosh:show',
-          {
-            method: 'show',
-            class: 'Collection',
-            arguments: { result: collectionNames }
-          }
-        );
-        return new CommandResult({ value: collectionNames.join('\n') });
+        return await this.showCollections();
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
         this.messageBus.emit('mongosh:error', err);
         throw err;
     }
+  }
+
+  private async showCollections(): Promise<CommandResult> {
+    const collectionNames = await this.getCollectionNames(this.context.db);
+    return new CommandResult('ShowCollectionsResult', collectionNames.join('\n'));
+  }
+
+  private async showDatabases(): Promise<CommandResult> {
+    const result = await this.serviceProvider.listDatabases('admin');
+    if (!('databases' in result)) {
+      const err = new Error('Error: invalid result from listDatabases');
+      this.messageBus.emit('mongosh:error', err);
+      throw err;
+    }
+    return new CommandResult('ShowDatabasesResult', result.databases);
   }
 
   async it(): Promise<any> {
