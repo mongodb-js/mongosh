@@ -103,12 +103,12 @@ class ShellEvaluator {
         return this.help();
       case 'enableTelemetry':
         if (this.container) {
-          this.container.toggleTelemetry(true);
+          return this.container.toggleTelemetry(true);
         }
         return;
       case 'disableTelemetry':
         if (this.container) {
-          this.container.toggleTelemetry(false);
+          return this.container.toggleTelemetry(false);
         }
         return;
       default:

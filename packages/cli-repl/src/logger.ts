@@ -1,17 +1,16 @@
 import redactInfo from 'mongodb-redact';
 import redactPwd from './redact-pwd';
-import { uuid } from 'uuidv4';
+import { ObjectId } from 'bson';
 import pino from 'pino';
+import clr from './clr';
 import path from 'path';
 import os from 'os';
 
 function logger(bus: any, logDir: string) {
-  const time = Date.now();
-  const logDest = path.join(logDir, `${time}_log`);
+  const sessionID = new ObjectId(Date.now());
+  const logDest = path.join(logDir, `${sessionID}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
-  const sessionID = uuid();
-
-  bus.on('*', function() {});
+  console.log(`Current sessionID: ${sessionID}`);
 
   bus.on('mongosh:connect', function(info) {
     const params = { sessionID, info: redactPwd(info) };

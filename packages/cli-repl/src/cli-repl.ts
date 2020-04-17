@@ -129,7 +129,7 @@ class CliRepl {
   *
   * @returns {string} Status of telemetry logging: disabled/enabled
   */
-  toggleTelemetry(enabled: boolean): void {
+  toggleTelemetry(enabled: boolean): string {
     this.enableTelemetry = enabled;
     this.disableGreetingMessage = true;
 
@@ -137,9 +137,9 @@ class CliRepl {
     this.writeConfigFileSync(configPath);
 
     if (enabled) {
-      console.log(i18n.__('cli-repl.cli-repl.enabledTelemetry'));
+      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
     } else {
-      console.log(i18n.__('cli-repl.cli-repl.disabledTelemetry'));
+      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
     }
   }
 
