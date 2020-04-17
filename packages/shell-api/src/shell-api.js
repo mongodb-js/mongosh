@@ -574,7 +574,7 @@ class CommandResult {
     this.shellApiType = () => {
       return 'CommandResult';
     };
-    this.help = () => new Help({ 'help': 'shell-api.command-result.description' });
+    this.help = () => new Help({ 'help': 'shell-api.classes.CommandResult.help.description', 'docs': 'shell-api.classes.CommandResult.help.link', 'attr': [] });
   }
 }
 
@@ -1090,7 +1090,7 @@ class ShowDbsResult {
     this.shellApiType = () => {
       return 'ShowDbsResult';
     };
-    this.help = () => new Help({ 'help': 'shell-api.show-dbs-result.description' });
+    this.help = () => new Help({ 'help': 'shell-api.classes.ShowDbsResult.help.description', 'docs': 'shell-api.classes.ShowDbsResult.help.link', 'attr': [] });
   }
 }
 
