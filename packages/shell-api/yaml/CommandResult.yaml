@@ -1,0 +1,8 @@
+class:
+    <<: *__defaultClass
+    help:
+        help: 'shell-api.command-result.description'
+    __constructorArgs:
+        - value
+    __stringRep:
+        - this.value

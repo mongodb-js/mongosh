@@ -121,7 +121,7 @@ describe('completer.completer', () => {
   context('when context is a collection query', () => {
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.find({ ';
-      expect(completer('4.4.0', i)).to.deep.equal([
+      expect(completer('4.4.0', i)[0]).to.include.members(
       [ 'db.shipwrecks.find({ $all',
         'db.shipwrecks.find({ $and',
         'db.shipwrecks.find({ $bitsAllClear',
@@ -166,7 +166,7 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({ MaxKey',
         'db.shipwrecks.find({ MinKey',
         'db.shipwrecks.find({ ISODate',
-        'db.shipwrecks.find({ RegExp' ], i]);
+        'db.shipwrecks.find({ RegExp' ]);
     });
 
     it('has several matches', () => {
@@ -236,7 +236,7 @@ describe('completer.completer', () => {
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
       ]
 
-      expect(completer('4.4.0', i)).to.deep.equal([result, i]);
+      expect(completer('4.4.0', i)[0]).to.include.members(result);
     });
 
     it('returns all suggestions matching 3.0.0 version', () => {
@@ -273,7 +273,7 @@ describe('completer.completer', () => {
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
       ]
 
-      expect(completer('3.0.0', i)).to.deep.equal([result, i]);
+      expect(completer('3.0.0', i)[0]).to.include.members(result);
     });
 
     it('does not have a match', () => {

@@ -563,6 +563,22 @@ Collection.prototype.totalSize.returnsPromise = true;
 Collection.prototype.totalSize.returnType = 'unknown';
 
 
+class CommandResult {
+  constructor(value) {
+    this.value = value;
+
+    this.toReplString = () => {
+      return this.value;
+    };
+
+    this.shellApiType = () => {
+      return 'CommandResult';
+    };
+    this.help = () => new Help({ 'help': 'shell-api.command-result.description' });
+  }
+}
+
+
 class Cursor {
   constructor(_mapper, _cursor) {
     this._mapper = _mapper;
@@ -1063,6 +1079,22 @@ class Shard {
 }
 
 
+class ShowDbsResult {
+  constructor(value) {
+    this.value = value;
+
+    this.toReplString = () => {
+      return this.value;
+    };
+
+    this.shellApiType = () => {
+      return 'ShowDbsResult';
+    };
+    this.help = () => new Help({ 'help': 'shell-api.show-dbs-result.description' });
+  }
+}
+
+
 class UpdateResult {
   constructor(acknowleged, matchedCount, modifiedCount, upsertedCount, insertedId) {
     this.acknowleged = acknowleged;
@@ -1113,6 +1145,7 @@ const Topologies = Object.freeze({
 export { AggregationCursor };
 export { BulkWriteResult };
 export { Collection };
+export { CommandResult };
 export { Cursor };
 export { Database };
 export { DeleteResult };
@@ -1120,6 +1153,7 @@ export { InsertManyResult };
 export { InsertOneResult };
 export { ReplicaSet };
 export { Shard };
+export { ShowDbsResult };
 export { UpdateResult };
 export { ReadPreference };
 export { DBQuery };
