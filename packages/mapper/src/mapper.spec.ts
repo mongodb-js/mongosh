@@ -48,11 +48,11 @@ describe('Mapper', () => {
         ];
 
         expect(
-          (await mapper.show('dbs')).toReplString().value
+          (await mapper.show('dbs')).toReplString()
         ).to.deep.equal(expectedOutput);
 
         expect(
-          (await mapper.show('databases')).toReplString().value
+          (await mapper.show('databases')).toReplString()
         ).to.deep.equal(expectedOutput);
       });
 
@@ -67,7 +67,7 @@ describe('Mapper', () => {
 coll2`;
 
           expect(
-            (await mapper.show('collections')).toReplString().value
+            (await mapper.show('collections')).toReplString()
           ).to.equal(expectedOutput);
         });
       });
