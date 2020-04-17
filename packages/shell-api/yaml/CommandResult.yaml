@@ -1,7 +1,7 @@
 class:
     <<: *__defaultClass
     help:
-        help: 'The CommandResult class.'
+        help: 'shell-api.command-result.description'
     __constructorArgs:
         - value
     __stringRep:

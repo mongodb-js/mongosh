@@ -103,6 +103,12 @@ const translations = {
     "bulk-write-result": {
       "description": "The BulkWriteResult class."
     },
+    "command-result": {
+      "description": "The Command Result Class"
+    },
+    "show-dbs-result": {
+      "description": "The Show Databases Result Class"
+    },
     "collection": {
       "description": "Collection Class",
       "link": "https://docs.mongodb.com/manual/reference/method/js-collection/",

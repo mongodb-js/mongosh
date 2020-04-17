@@ -1,7 +1,7 @@
 class:
     <<: *__defaultClass
     help:
-        help: 'The ShowDbsResult class.'
+        help: 'shell-api.show-dbs-result.description'
     __constructorArgs:
         - value
     __stringRep:
