@@ -3,8 +3,8 @@ import clr from './clr';
 
 export const TELEMETRY = `
 ${i18n.__('cli-repl.cli-repl.telemetry')}
-${i18n.__('cli-repl.cli-repl.enableTelemetry')}${clr('enableTelemetry()', 'bold')}.
-${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr('disableTelemetry()', 'bold')}.
+${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr('disableTelemetry', 'bold')}.
+${i18n.__('cli-repl.cli-repl.enableTelemetry')}${clr('enableTelemetry', 'bold')}.
 `
 
 export const USAGE = `

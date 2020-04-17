@@ -58,7 +58,7 @@ const translations = {
     },
     'cli-repl': {
       connecting: 'Connecting to:',
-      telemetry: 'Telemetry is off by default.',
+      telemetry: 'Telemetry is on by default.',
       enableTelemetry: 'To enable telemetry, run the following command: ',
       disableTelemetry: 'To disable telemetry at any time, run: ',
       enabledTelemetry: 'Telemetry is now enabled',
