@@ -19,13 +19,17 @@
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
-    "prepublish": "rm -rf ./lib && npm run compile-ts",
+    "preprepublish": "rimraf ./lib",
+    "prepublish": "npm run compile-ts",
     "compile-ts": "tsc -p tsconfig.json"
   },
   "author": "",
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "@babel/generator": "^7.9.4",

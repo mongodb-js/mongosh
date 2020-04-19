@@ -19,7 +19,8 @@
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
-    "prepublish": "rm -rf ./lib && npm run compile-ts",
+    "preprepublish": "rimraf ./lib",
+    "prepublish": "npm run compile-ts",
     "compile-ts": "tsc -p tsconfig.json"
   },
   "author": "",
@@ -32,6 +33,7 @@
     "@mongosh/service-provider-core": "^0.0.1-alpha.11"
   },
   "devDependencies": {
-    "@mongosh/service-provider-server": "^0.0.1-alpha.11"
+    "@mongosh/service-provider-server": "^0.0.1-alpha.11",
+    "rimraf": "^3.0.2"
   }
 }

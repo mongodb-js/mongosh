@@ -9,7 +9,8 @@
   "scripts": {
     "build": "webpack --config ./config/webpack.config.prod.js",
     "build:stats": "webpack --config ./config/webpack.config.stats.js",
-    "prepublish": "rm -rf ./lib && npm run build",
+    "preprepublish": "rimraf ./lib",
+    "prepublish": "npm run build",
     "start": "npm run storybook",
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
@@ -72,6 +73,7 @@
     "react": "^16.12.0",
     "react-ace": "^6.6.0",
     "react-dom": "^16.12.0",
+    "rimraf": "^3.0.2",
     "style-loader": "^1.1.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
