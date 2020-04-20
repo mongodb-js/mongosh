@@ -1,6 +1,6 @@
 {
   "env": {
-    "production": {
+    "__TODO_re_enable_minification__production": {
       "presets": [
         "minify"
       ]
