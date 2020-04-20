@@ -78,10 +78,11 @@ class CliRepl {
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
 
     this.createMongoshDir();
-    this.generateOrReadTelemetryConfig();
 
     this.bus = new Nanobus('mongosh');
     logger(this.bus, this.mongoshDir);
+
+    this.generateOrReadTelemetryConfig();
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
@@ -132,6 +133,7 @@ class CliRepl {
       this.userId = new ObjectId(Date.now());
       this.enableTelemetry = true ;
       this.disableGreetingMessage = false;
+      this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);
       this.writeConfigFileSync(configPath);
     } catch (err) {
       if (err.code === 'EEXIST') {
@@ -139,6 +141,7 @@ class CliRepl {
         this.userId = config.userId;
         this.disableGreetingMessage = true;
         this.enableTelemetry = config.enableTelemetry;
+        this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
         return;
       }
       this.bus.emit('mongosh:error', err)
@@ -161,6 +164,7 @@ class CliRepl {
     this.enableTelemetry = enabled;
     this.disableGreetingMessage = true;
 
+    this.bus.emit('mongosh:toggleTelemetry', this.enableTelemetry);
     const configPath = path.join(this.mongoshDir, 'config');
     this.writeConfigFileSync(configPath);
 

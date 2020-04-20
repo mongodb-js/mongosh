@@ -372,7 +372,7 @@ export default class Mapper {
       {
         method: 'bulkWrite',
         class: 'Collection',
-        db, coll, arguments: { operations, options }
+        db, coll, arguments: { options }
       }
     );
 
