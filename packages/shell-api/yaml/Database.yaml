@@ -8,6 +8,7 @@ class:
     __hasAsyncChild: true
     runCommand:
         <<: *__defaultMethod
+        returnsPromise: true
     getCollectionNames:
         <<: *__defaultMethod
         returnsPromise: true

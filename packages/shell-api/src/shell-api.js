@@ -59,13 +59,13 @@ class AggregationCursor {
 AggregationCursor.prototype.close.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.close.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.close.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.close.description' }] });
 AggregationCursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.close.topologies = [0, 1, 2];
-AggregationCursor.prototype.close.returnsPromise = false;
+AggregationCursor.prototype.close.returnsPromise = true;
 AggregationCursor.prototype.close.returnType = 'unknown';
 
 AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.forEach.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.forEach.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.forEach.description' }] });
 AggregationCursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.forEach.topologies = [0, 1, 2];
-AggregationCursor.prototype.forEach.returnsPromise = true;
+AggregationCursor.prototype.forEach.returnsPromise = false;
 AggregationCursor.prototype.forEach.returnType = 'unknown';
 
 AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.description' }] });
@@ -355,8 +355,8 @@ Collection.prototype.deleteOne.returnType = 'unknown';
 Collection.prototype.distinct.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.distinct.example', 'docs': 'shell-api.classes.Collection.help.attributes.distinct.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.distinct.description' }] });
 Collection.prototype.distinct.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.distinct.topologies = [0, 1, 2];
-Collection.prototype.distinct.returnsPromise = false;
-Collection.prototype.distinct.returnType = 'Cursor';
+Collection.prototype.distinct.returnsPromise = true;
+Collection.prototype.distinct.returnType = 'unknown';
 
 Collection.prototype.estimatedDocumentCount.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.estimatedDocumentCount.example', 'docs': 'shell-api.classes.Collection.help.attributes.estimatedDocumentCount.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.estimatedDocumentCount.description' }] });
 Collection.prototype.estimatedDocumentCount.serverVersions = ['4.0.3', '4.4.0'];
@@ -373,13 +373,13 @@ Collection.prototype.find.returnType = 'Cursor';
 Collection.prototype.findAndModify.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.findAndModify.example', 'docs': 'shell-api.classes.Collection.help.attributes.findAndModify.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.findAndModify.description' }] });
 Collection.prototype.findAndModify.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findAndModify.topologies = [0, 1, 2];
-Collection.prototype.findAndModify.returnsPromise = false;
+Collection.prototype.findAndModify.returnsPromise = true;
 Collection.prototype.findAndModify.returnType = 'unknown';
 
 Collection.prototype.findOne.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.findOne.example', 'docs': 'shell-api.classes.Collection.help.attributes.findOne.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.findOne.description' }] });
 Collection.prototype.findOne.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.findOne.topologies = [0, 1, 2];
-Collection.prototype.findOne.returnsPromise = false;
+Collection.prototype.findOne.returnsPromise = true;
 Collection.prototype.findOne.returnType = 'unknown';
 
 Collection.prototype.findOneAndDelete.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.findOneAndDelete.example', 'docs': 'shell-api.classes.Collection.help.attributes.findOneAndDelete.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.findOneAndDelete.description' }] });
@@ -779,6 +779,7 @@ Cursor.prototype.close.serverVersions = ['0.0.0', '4.4.0'];
 Cursor.prototype.close.topologies = [0, 1, 2];
 Cursor.prototype.close.returnsPromise = false;
 Cursor.prototype.close.returnType = 'unknown';
+Cursor.prototype.close.returnPromise = true;
 
 Cursor.prototype.collation.help = () => new Help({ 'help': 'shell-api.classes.Cursor.help.attributes.collation.example', 'docs': 'shell-api.classes.Cursor.help.attributes.collation.link', 'attr': [{ 'description': 'shell-api.classes.Cursor.help.attributes.collation.description' }] });
 Cursor.prototype.collation.serverVersions = ['3.4.0', '4.4.0'];
@@ -981,7 +982,7 @@ class Database {
 Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.runCommand.example', 'docs': 'shell-api.classes.Database.help.attributes.runCommand.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }] });
 Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.runCommand.topologies = [0, 1, 2];
-Database.prototype.runCommand.returnsPromise = false;
+Database.prototype.runCommand.returnsPromise = true;
 Database.prototype.runCommand.returnType = 'unknown';
 
 Database.prototype.getCollectionNames.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.getCollectionNames.example', 'docs': 'shell-api.classes.Database.help.attributes.getCollectionNames.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }] });

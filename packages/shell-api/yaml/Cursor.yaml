@@ -30,6 +30,7 @@ class:
         returnType: 'Cursor'
     close:
         <<: *__defaultMethod
+        returnPromise: true
     collation:
         <<: *__defaultMethod
         __fluent: true
