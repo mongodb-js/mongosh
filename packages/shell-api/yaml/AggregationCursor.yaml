@@ -15,6 +15,7 @@ class:
         returnsPromise: true
     forEach:
         <<: *__defaultMethod
+        returnsPromise: true
     hasNext:
         <<: *__defaultMethod
         returnsPromise: true
