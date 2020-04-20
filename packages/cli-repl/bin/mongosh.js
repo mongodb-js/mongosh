@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+#!/bin/sh
+':' //; node --experimental-repl-await "$0" "$@"
+
 const { CliRepl, parseCliArgs, mapCliToDriver, generateUri, USAGE } = require('../lib');
 
 process.title = 'mongosh';
