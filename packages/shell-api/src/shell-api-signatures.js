@@ -4,7 +4,7 @@ const unknown = {
 };
 const AggregationCursor = {
   type: 'AggregationCursor',
-  hasAsyncChild: false,
+  hasAsyncChild: true,
   attributes: {
     close: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     forEach: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -80,7 +80,7 @@ const CommandResult = {
 };
 const Cursor = {
   type: 'Cursor',
-  hasAsyncChild: false,
+  hasAsyncChild: true,
   attributes: {
     addOption: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '3.2.0'] },
     allowPartialResults: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
