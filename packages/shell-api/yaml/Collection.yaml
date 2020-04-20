@@ -33,7 +33,7 @@ class:
         returnsPromise: true
     distinct:
         <<: *__defaultMethod
-        returnType: 'Cursor'
+        returnsPromise: true
     estimatedDocumentCount:
         <<: *__defaultMethod
         returnsPromise: true
@@ -45,8 +45,10 @@ class:
         returnType: 'Cursor'
     findAndModify:
         <<: *__defaultMethod
+        returnsPromise: true
     findOne:
         <<: *__defaultMethod
+        returnsPromise: true
     findOneAndDelete:
         <<: *__defaultMethod
         returnsPromise: true

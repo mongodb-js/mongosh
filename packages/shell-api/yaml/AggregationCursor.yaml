@@ -12,9 +12,9 @@ class:
     # bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
+        returnsPromise: true
     forEach:
         <<: *__defaultMethod
-        returnsPromise: true
     hasNext:
         <<: *__defaultMethod
         returnsPromise: true
