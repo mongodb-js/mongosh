@@ -23,6 +23,10 @@ const config = {
     library: 'CompassShellPlugin',
     libraryTarget: 'umd'
   },
+  optimization: {
+    // TODO: re-enable minification
+    minimize: false
+  },
   module: {
     rules: [
       {
