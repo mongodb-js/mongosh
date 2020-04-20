@@ -1,3 +1,4 @@
+/* eslint dot-notation: 0*/
 import { expect } from 'chai';
 import sinon from 'sinon';
 import traverse from '@babel/traverse';
@@ -34,7 +35,7 @@ describe('async-writer-babel', () => {
       it('decorates Identifier', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node.shellType).to.deep.equal(signatures.Database);
+            expect(path.node['shellType']).to.deep.equal(signatures.Database);
             done();
           }
         });
@@ -51,7 +52,7 @@ describe('async-writer-babel', () => {
       it('decorates Identifier', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node.shellType).to.deep.equal(signatures.unknown);
+            expect(path.node['shellType']).to.deep.equal(signatures.unknown);
             done();
           }
         });
@@ -81,7 +82,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'db') {
-                  expect(path.node.shellType).to.deep.equal(signatures.Database);
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
                   done();
                 }
               }
@@ -91,7 +92,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'coll') {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               }
@@ -100,7 +101,7 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                 done();
               }
             });
@@ -119,7 +120,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                     done();
                   }
                 }
@@ -129,7 +130,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'insertOne') {
-                    expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                    expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                     done();
                   }
                 }
@@ -138,7 +139,7 @@ describe('async-writer-babel', () => {
             it('decorates MemberExpression', (done) => {
               traverse(ast, {
                 MemberExpression(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.Collection.attributes.insertOne);
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection.attributes.insertOne);
                   done();
                 }
               });
@@ -156,7 +157,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                     done();
                   }
                 }
@@ -166,7 +167,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'x') {
-                    expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                    expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                     done();
                   }
                 }
@@ -175,7 +176,7 @@ describe('async-writer-babel', () => {
             it('decorates MemberExpression', (done) => {
               traverse(ast, {
                 MemberExpression(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               });
@@ -194,7 +195,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'x') {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               }
@@ -204,7 +205,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'coll') {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               }
@@ -213,7 +214,7 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             });
@@ -233,7 +234,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'c') {
-                  expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                   done();
                 }
               }
@@ -241,9 +242,9 @@ describe('async-writer-babel', () => {
           });
           it('decorates node.key Literal', (done) => {
             traverse(ast, {
-              Literal(path) {
+              StringLiteral(path) {
                 if (path.node.value === 'insertOne') {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               }
@@ -252,7 +253,7 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Collection.attributes.insertOne);
+                expect(path.node['shellType']).to.deep.equal(signatures.Collection.attributes.insertOne);
                 done();
               }
             });
@@ -279,7 +280,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 't') {
-                    expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                    expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                     done();
                   }
                 }
@@ -288,7 +289,7 @@ describe('async-writer-babel', () => {
             it('decorates node.key CallExpression', (done) => {
               traverse(ast, {
                 CallExpression(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               });
@@ -296,7 +297,7 @@ describe('async-writer-babel', () => {
             it('decorates MemberExpression', (done) => {
               traverse(ast, {
                 MemberExpression(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               });
@@ -324,7 +325,7 @@ describe('async-writer-babel', () => {
         it('decorates node.object Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
-              expect(path.node.shellType).to.deep.equal({
+              expect(path.node['shellType']).to.deep.equal({
                 type: 'object',
                 attributes: { d: signatures.Database },
                 hasAsyncChild: true
@@ -337,7 +338,7 @@ describe('async-writer-babel', () => {
           traverse(ast, {
             Identifier(path) {
               if (path.node.name === 'd') {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             }
@@ -346,7 +347,7 @@ describe('async-writer-babel', () => {
         it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(signatures.Database);
+              expect(path.node['shellType']).to.deep.equal(signatures.Database);
               done();
             }
           });
@@ -364,7 +365,7 @@ describe('async-writer-babel', () => {
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
               Identifier(path) {
-                expect(path.node.shellType).to.deep.equal({
+                expect(path.node['shellType']).to.deep.equal({
                   type: 'object',
                   attributes: { d: signatures.Database },
                   hasAsyncChild: true
@@ -376,7 +377,7 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Database);
+                expect(path.node['shellType']).to.deep.equal(signatures.Database);
                 done();
               }
             });
@@ -408,7 +409,7 @@ describe('async-writer-babel', () => {
         it('decorates node.object Identifier', (done) => {
           traverse(ast, {
             Identifier(path) {
-              expect(path.node.shellType).to.deep.equal({
+              expect(path.node['shellType']).to.deep.equal({
                 type: 'array',
                 attributes: { '0': signatures.Database },
                 hasAsyncChild: true
@@ -420,7 +421,7 @@ describe('async-writer-babel', () => {
         it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
-              expect(path.node.shellType).to.deep.equal(signatures.Database);
+              expect(path.node['shellType']).to.deep.equal(signatures.Database);
               done();
             }
           });
@@ -451,7 +452,7 @@ describe('async-writer-babel', () => {
       it('decorates object', (done) => {
         traverse(ast, {
           ObjectExpression(path) {
-            expect(path.node.shellType).to.deep.equal({
+            expect(path.node['shellType']).to.deep.equal({
               type: 'object',
               attributes: { x: signatures.Database },
               hasAsyncChild: true
@@ -463,7 +464,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Property(path) {
-            expect(path.node.value.shellType).to.deep.equal(signatures.Database);
+            expect(path.node.value['shellType']).to.deep.equal(signatures.Database);
             done();
           }
         });
@@ -480,7 +481,7 @@ describe('async-writer-babel', () => {
       it('decorates object', (done) => {
         traverse(ast, {
           ObjectExpression(path) {
-            expect(path.node.shellType).to.deep.equal({
+            expect(path.node['shellType']).to.deep.equal({
               type: 'object',
               attributes: { x: signatures.unknown },
               hasAsyncChild: false
@@ -492,7 +493,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Property(path) {
-            expect(path.node.value.shellType).to.deep.equal(signatures.unknown);
+            expect(path.node.value['shellType']).to.deep.equal(signatures.unknown);
             done();
           }
         });
@@ -517,7 +518,7 @@ describe('async-writer-babel', () => {
       it('decorates array', (done) => {
         traverse(ast, {
           ArrayExpression(path) {
-            expect(path.node.shellType).to.deep.equal({
+            expect(path.node['shellType']).to.deep.equal({
               type: 'array',
               attributes: { '0': signatures.Database },
               hasAsyncChild: true
@@ -529,7 +530,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node.shellType).to.deep.equal(signatures.Database);
+            expect(path.node['shellType']).to.deep.equal(signatures.Database);
             done();
           }
         });
@@ -546,7 +547,7 @@ describe('async-writer-babel', () => {
       it('decorates array', (done) => {
         traverse(ast, {
           ArrayExpression(path) {
-            expect(path.node.shellType).to.deep.equal({
+            expect(path.node['shellType']).to.deep.equal({
               type: 'array',
               attributes: { '0': signatures.unknown },
               hasAsyncChild: false
@@ -558,7 +559,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node.shellType).to.deep.equal(signatures.unknown);
+            expect(path.node['shellType']).to.deep.equal(signatures.unknown);
             done();
           }
         });
@@ -581,7 +582,7 @@ describe('async-writer-babel', () => {
       it('decorates CallExpression', (done) => {
         traverse(ast, {
           CallExpression(path) {
-            expect(path.node.shellType).to.deep.equal(signatures.unknown);
+            expect(path.node['shellType']).to.deep.equal(signatures.unknown);
             done();
           }
         });
@@ -604,7 +605,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             });
@@ -625,7 +626,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                 done();
               }
             });
@@ -646,7 +647,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal({ type: 'new' });
+                expect(path.node['shellType']).to.deep.equal({ type: 'new' });
                 done();
               }
             });
@@ -682,7 +683,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             });
@@ -703,7 +704,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Collection);
+                expect(path.node['shellType']).to.deep.equal(signatures.Collection);
                 done();
               }
             });
@@ -724,7 +725,7 @@ describe('async-writer-babel', () => {
           it('decorates CallExpression', (done) => {
             traverse(ast, {
               CallExpression(path) {
-                expect(path.node.shellType).to.deep.equal({ type: 'new' });
+                expect(path.node['shellType']).to.deep.equal({ type: 'new' });
                 done();
               }
             });
@@ -805,7 +806,7 @@ function f() {
           it('decorates VariableDeclarator', (done) => {
             traverse(ast, {
               VariableDeclarator(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             });
@@ -831,7 +832,7 @@ function f() {
             it('decorates VariableDeclarator', (done) => {
               traverse(ast, {
                 VariableDeclarator(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               });
@@ -856,7 +857,7 @@ function f() {
             it('decorates VariableDeclarator', (done) => {
               traverse(ast, {
                 VariableDeclarator(path) {
-                  expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                   done();
                 }
               });
@@ -1158,7 +1159,7 @@ function f() {
           it('decorates AssignmentExpression', (done) => {
             traverse(ast, {
               AssignmentExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Database);
+                expect(path.node['shellType']).to.deep.equal(signatures.Database);
                 done();
               }
             });
@@ -1192,7 +1193,7 @@ function f() {
           it('decorates AssignmentExpression', (done) => {
             traverse(ast, {
               AssignmentExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.unknown);
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
                 done();
               }
             });
@@ -1228,7 +1229,7 @@ function f() {
           it('decorates AssignmentExpression', (done) => {
             traverse(ast, {
               AssignmentExpression(path) {
-                expect(path.node.shellType).to.deep.equal(signatures.Database);
+                expect(path.node['shellType']).to.deep.equal(signatures.Database);
                 done();
               }
             });
@@ -1452,7 +1453,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
               done();
             }
           });
@@ -1481,7 +1482,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
               done();
             }
           });
@@ -1509,7 +1510,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
               done();
             }
           });
@@ -1532,7 +1533,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
               done();
             }
           });
@@ -1561,7 +1562,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: true, returnType: signatures.unknown });
               done();
             }
           });
@@ -1592,7 +1593,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
               done();
             }
           });
@@ -1615,7 +1616,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
               done();
             }
           });
@@ -1636,7 +1637,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.Database });
               done();
             }
           });
@@ -1657,7 +1658,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
               done();
             }
           });
@@ -1708,7 +1709,7 @@ function f() {
         it('decorates Function', (done) => {
           traverse(ast, {
             Function(path) {
-              expect(skipPath(path.node.shellType)).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
+              expect(skipPath(path.node['shellType'])).to.deep.equal({ type: 'function', returnsPromise: false, returnType: signatures.unknown });
               done();
             }
           });
@@ -1754,16 +1755,14 @@ function f() {
         });
         it('decorates Function', (done) => {
           traverse(ast, {
-            Function(path) {
-              if (path.node.id.name === 'f') {
-                expect(Object.keys(path.node.shellType)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
-                expect(path.node.shellType.type).to.equal('function');
-                expect(path.node.shellType.returnsPromise).to.be.false;
-                expect(skipPath(path.node.shellType.returnType)).to.deep.equal(
-                  { type: 'function', returnsPromise: false, returnType: signatures.Database }
-                );
-                done();
-              }
+            FunctionDeclaration(path) {
+              expect(Object.keys(path.node['shellType'])).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
+              expect(path.node['shellType'].type).to.equal('function');
+              expect(path.node['shellType'].returnsPromise).to.be.false;
+              expect(skipPath(path.node['shellType'].returnType)).to.deep.equal(
+                { type: 'function', returnsPromise: false, returnType: signatures.Database }
+              );
+              done();
             }
           });
         });
@@ -1795,9 +1794,9 @@ function f() {
         });
         it('decorates outer Function', (done) => {
           traverse(ast, {
-            Function(path) {
+            FunctionDeclaration(path) {
               if (path.node.id.name === 'f') {
-                expect(skipPath(path.node.shellType)).to.deep.equal({
+                expect(skipPath(path.node['shellType'])).to.deep.equal({
                   type: 'function',
                   returnsPromise: false,
                   returnType: signatures.unknown
@@ -1809,9 +1808,9 @@ function f() {
         });
         it('decorates inner Function', (done) => {
           traverse(ast, {
-            Function(path) {
+            FunctionDeclaration(path) {
               if (path.node.id.name === 'g') {
-                expect(skipPath(path.node.shellType)).to.deep.equal({
+                expect(skipPath(path.node['shellType'])).to.deep.equal({
                   type: 'function',
                   returnsPromise: false,
                   returnType: signatures.Collection.attributes.find
@@ -1938,7 +1937,7 @@ class Test {
       it('decorates ClassDeclaration', (done) => {
         traverse(ast, {
           ClassDeclaration(path) {
-            const rt = path.node.shellType;
+            const rt = path.node['shellType'];
             expect(rt.type).to.equal('classdef');
             expect(rt.returnType.type).to.equal('Test');
             expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
@@ -1988,9 +1987,9 @@ class Test {
     it('decorates NewExpression', (done) => {
       traverse(ast, {
         NewExpression(path) {
-          expect(path.node.shellType.type).to.equal('Test');
-          expect(skipPath(path.node.shellType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
-          expect(skipPath(path.node.shellType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
+          expect(path.node['shellType'].type).to.equal('Test');
+          expect(skipPath(path.node['shellType'].attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+          expect(skipPath(path.node['shellType'].attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
           done();
         }
       });
