@@ -68,7 +68,9 @@ const release = async() => {
     '-o',
     artifact,
     '-t',
-    getTarget()
+    getTarget(),
+    '--options',
+    'experimental-repl-await'
   ]);
   archive();
 };
