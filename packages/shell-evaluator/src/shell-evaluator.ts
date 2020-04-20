@@ -101,12 +101,12 @@ class ShellEvaluator {
         return this.mapper.it();
       case 'help':
         return this.help();
-      case 'enableTelemetry':
+      case 'enableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(true);
         }
         return;
-      case 'disableTelemetry':
+      case 'disableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(false);
         }

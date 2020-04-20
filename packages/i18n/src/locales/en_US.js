@@ -58,11 +58,11 @@ const translations = {
     },
     'cli-repl': {
       connecting: 'Connecting to:',
-      telemetry: 'Telemetry is on by default.',
-      enableTelemetry: 'To enable telemetry, run the following command: ',
-      disableTelemetry: 'To disable telemetry at any time, run: ',
-      enabledTelemetry: 'Telemetry is now enabled',
-      disabledTelemetry: 'Telemetry is now disabled'
+      telemetry: 'To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).',
+      disableTelemetry: 'You can opt-out by running the ',
+      command: 'command.',
+      enabledTelemetry: 'Telemetry is now enabled.',
+      disabledTelemetry: 'Telemetry is now disabled.'
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port'
