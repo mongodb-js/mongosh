@@ -8,6 +8,7 @@ class:
     __methods:
         wrappee: _cursor
         firstArg: ''
+    __hasAsyncChild: true
     # bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
