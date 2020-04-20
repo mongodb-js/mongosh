@@ -92,7 +92,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           path.replaceWith(state.t.awaitExpression(path.node));
           const parent = path.findParent(p => state.t.isFunction(p));
           if (parent !== null) {
-            parent.node.async = true;
+            parent.node['async'] = true;
           } // TODO: if need to convert top-level await into async func can do it here.
           path.skip();
         }
@@ -238,7 +238,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       const symbolCopy1 = state.symbols.deepCopy();
       // TODO: add arguments to ST in FuncCall
       path.skip();
-      path.node.shellScope = symbolCopy1.pushScope();
+      path.node['shellScope'] = symbolCopy1.pushScope();
       path.traverse(TypeInferenceVisitor, {
         t: state.t,
         skip: state.skip,
@@ -291,7 +291,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
   Scopable: {
     enter(path, state): void {
       debug(`---new scope at i=${state.symbols.depth}`, path.node.type, true);
-      path.node.shellScope = state.symbols.pushScope();
+      path.node['shellScope'] = state.symbols.pushScope();
     },
     exit(path, state): void {
       state.symbols.popScope();
@@ -316,7 +316,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       const symbolCopyAlt = path.node.alternate !== null ? state.symbols.deepCopy() : null;
 
       optionallyWrapNode(state.t, path, 'consequent');
-      path.node.consequent.shellScope = symbolCopyCons.pushScope();
+      path.node.consequent['shellScope'] = symbolCopyCons.pushScope();
       path.get('consequent').traverse(TypeInferenceVisitor, {
         t: state.t,
         skip: state.skip,
@@ -329,7 +329,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       }
 
       optionallyWrapNode(state.t, path, 'alternate');
-      path.node.alternate.shellScope = symbolCopyAlt.pushScope();
+      path.node.alternate['shellScope'] = symbolCopyAlt.pushScope();
       path.get('alternate').traverse(TypeInferenceVisitor, {
         t: state.t,
         skip: state.skip,
@@ -383,7 +383,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       const symbolCopyBody = state.symbols.deepCopy();
 
       optionallyWrapNode(state.t, path, 'body');
-      path.node.body.shellScope = symbolCopyBody.pushScope();
+      path.node.body['shellScope'] = symbolCopyBody.pushScope();
       path.get('body').traverse(TypeInferenceVisitor, {
         t: state.t,
         skip: state.skip,
@@ -410,7 +410,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       let exhaustive = false;
       const symbolCopies = path.node.cases.map(() => state.symbols.deepCopy());
       path.node.cases.forEach((consNode, i) => {
-        path.node.cases[i].shellScope = symbolCopies[i].pushScope();
+        path.node.cases[i]['shellScope'] = symbolCopies[i].pushScope();
         const casePath = path.get(`cases.${i}`);
         casePath.traverse(TypeInferenceVisitor, {
           t: state.t,
@@ -461,7 +461,7 @@ export default class AsyncWriter {
         visitor: {
           Program: {
             enter(path): void {
-              path.node.shellScope = symbols.pushScope();
+              path.node['shellScope'] = symbols.pushScope();
               path.skip();
               path.traverse(TypeInferenceVisitor, {
                 t: t,
