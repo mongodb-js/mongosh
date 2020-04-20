@@ -1,4 +1,4 @@
-/* eslint no-console:0, complexity:0, dot-notation: 0*/
+/* eslint no-console:0, complexity:0, dot-notation: 0 */
 import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
 

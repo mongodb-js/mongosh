@@ -1,4 +1,4 @@
-/* eslint dot-notation: 0*/
+/* eslint dot-notation: 0 */
 import { expect } from 'chai';
 import sinon from 'sinon';
 import traverse from '@babel/traverse';
