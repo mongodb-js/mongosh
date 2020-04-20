@@ -46,7 +46,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">= 12.4.0"
+    "node": ">= 13.13.0"
   },
   "devDependencies": {
     "@babel/compat-data": "^7.9.0",

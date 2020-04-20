@@ -65,7 +65,7 @@ AggregationCursor.prototype.close.returnType = 'unknown';
 AggregationCursor.prototype.forEach.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.forEach.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.forEach.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.forEach.description' }] });
 AggregationCursor.prototype.forEach.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.forEach.topologies = [0, 1, 2];
-AggregationCursor.prototype.forEach.returnsPromise = false;
+AggregationCursor.prototype.forEach.returnsPromise = true;
 AggregationCursor.prototype.forEach.returnType = 'unknown';
 
 AggregationCursor.prototype.hasNext.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.description' }] });
