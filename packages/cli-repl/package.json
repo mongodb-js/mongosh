@@ -47,7 +47,6 @@
     "pretty-bytes": "^5.3.0",
     "read": "^1.0.7",
     "semver": "^7.1.2",
-    "text-table": "^0.2.0",
-    "uuidv4": "^6.0.6"
+    "text-table": "^0.2.0"
   }
 }

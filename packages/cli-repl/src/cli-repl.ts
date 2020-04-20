@@ -34,6 +34,7 @@ class CliRepl {
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
+  private disableGreetingMessage: boolean;
   private userId: ObjectId;
   private options: CliOptions;
   private mongoshDir: string;
@@ -101,12 +102,14 @@ class CliRepl {
     try {
       fd = fs.openSync(configPath, 'wx');
       this.userId = new ObjectId(Date.now());
-      this.enableTelemetry = false;
+      this.enableTelemetry = true ;
+      this.disableGreetingMessage = false;
       this.writeConfigFileSync(configPath);
     } catch (err) {
       if (err.code === 'EEXIST') {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         this.userId = config.userId;
+        this.disableGreetingMessage = config.disableGreetingMessage;
         this.enableTelemetry = config.enableTelemetry;
         return;
       }
@@ -128,6 +131,7 @@ class CliRepl {
   */
   toggleTelemetry(enabled: boolean): string {
     this.enableTelemetry = enabled;
+    this.disableGreetingMessage = true;
 
     const configPath = path.join(this.mongoshDir, 'config');
     this.writeConfigFileSync(configPath);
@@ -144,7 +148,11 @@ class CliRepl {
   * @param {string} path - path to file
   */
   writeConfigFileSync(path: string): void {
-    const config = { userId: this.userId, enableTelemetry: this.enableTelemetry };
+    const config = {
+      userId: this.userId,
+      enableTelemetry: this.enableTelemetry,
+      disableGreetingMessage: this.disableGreetingMessage
+    };
 
     try {
       fs.writeFileSync(path, JSON.stringify(config));
@@ -174,7 +182,7 @@ class CliRepl {
    */
   greet(): void {
     console.log(`Using MongoDB: ${this.mdbVersion} \n`);
-    console.log(TELEMETRY);
+    if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
   /**
