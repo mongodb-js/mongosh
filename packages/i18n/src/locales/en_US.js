@@ -956,6 +956,12 @@ const translations = {
               description: 'Removes a collection or view from the database.',
               example: 'db.students.drop()'
             },
+            exists: {
+              link: '',
+              description: 'Returns collection infos if the collection exists or null otherwise.',
+              example: 'db.coll.exists()',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',

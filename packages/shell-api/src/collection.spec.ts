@@ -69,7 +69,8 @@ describe('Collection', () => {
     'dataSize',
     'storageSize',
     'totalSize',
-    'drop'
+    'drop',
+    'exists'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
       it(`wraps mapper.${methodName}`, () => {

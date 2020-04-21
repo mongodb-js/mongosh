@@ -1622,4 +1622,31 @@ export default class Mapper {
       throw error;
     }
   }
+
+  /**
+   * Collection exists.
+   *
+   * @param {Collection} collection - The collection name.
+   * @return {Promise} returns Promise
+   */
+  async exists(collection: Collection): Promise<any> {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'exists',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
+    );
+
+    const collectionInfos = await this.serviceProvider.listCollections(
+      collection._database._name,
+      {
+        name: collection._name
+      }
+    );
+
+    return collectionInfos[0] || null;
+  }
 }
