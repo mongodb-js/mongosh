@@ -952,10 +952,9 @@ const translations = {
               parameters: {}
             },
             drop: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.drop',
+              description: 'Removes a collection or view from the database.',
+              example: 'db.students.drop()'
             },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',

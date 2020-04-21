@@ -1607,6 +1607,15 @@ export default class Mapper {
       );
     } catch (error) {
       if (error.codeName === 'NamespaceNotFound') {
+        this.messageBus.emit(
+          'mongosh:warn',
+          {
+            method: 'drop',
+            class: 'Collection',
+            message: `Namespace not found: ${collection._name}`
+          }
+        );
+
         return false;
       }
 
