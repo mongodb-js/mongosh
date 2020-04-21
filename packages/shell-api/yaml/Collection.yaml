@@ -181,3 +181,6 @@ class:
     drop:
         <<: *__defaultMethod
         returnsPromise: true
+    exists:
+        <<: *__defaultMethod
+        returnsPromise: true

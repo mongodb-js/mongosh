@@ -396,6 +396,24 @@ describe('Mapper (integration)', function() {
         });
       });
     });
+
+    describe('exists', () => {
+      context('when a collection exists', () => {
+        beforeEach(async() => {
+          await createCollection(dbName, collectionName);
+        });
+
+        it('returns the collection object', async() => {
+          expect((await mapper.exists(collection)).name).to.equal(collectionName);
+        });
+      });
+
+      context('when a collection does not exist', () => {
+        it('returns false', async() => {
+          expect(await mapper.drop(collection)).to.be.false;
+        });
+      });
+    });
   });
 
   describe('db', () => {

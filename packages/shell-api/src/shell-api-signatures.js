@@ -69,7 +69,8 @@ const Collection = {
     dataSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     storageSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     totalSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    drop: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    drop: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    exists: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const CommandResult = {
