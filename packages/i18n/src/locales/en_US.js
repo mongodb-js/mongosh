@@ -951,6 +951,12 @@ const translations = {
               example: '',
               parameters: {}
             },
+            drop: {
+              link: '',
+              description: '',
+              example: '',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',

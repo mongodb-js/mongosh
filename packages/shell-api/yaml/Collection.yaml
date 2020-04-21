@@ -178,3 +178,6 @@ class:
     totalSize:
         <<: *__defaultMethod
         returnsPromise: true
+    drop:
+        <<: *__defaultMethod
+        returnsPromise: true

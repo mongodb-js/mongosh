@@ -50,87 +50,31 @@ describe('Collection', () => {
     });
   });
 
-  describe('#convertToCapped', () => {
-    it('wraps mapper.convertToCapped', () => {
-      testWrappedMethod('convertToCapped');
-    });
-  });
-
-  describe('#find', () => {
-    it('wraps mapper.find', () => {
-      testWrappedMethod('find');
-    });
-  });
-
-  describe('#findOne', () => {
-    it('wraps mapper.findOne', () => {
-      testWrappedMethod('findOne');
-    });
-  });
-
-  describe('#createIndexes', () => {
-    it('wraps mapper.createIndexes', () => {
-      testWrappedMethod('createIndexes');
-    });
-  });
-
-  describe('#createIndex', () => {
-    it('wraps mapper.createIndex', () => {
-      testWrappedMethod('createIndex');
-    });
-  });
-
-  describe('#ensureIndex', () => {
-    it('wraps mapper.ensureIndex', () => {
-      testWrappedMethod('ensureIndex');
-    });
-  });
-
-  describe('#getIndexes', () => {
-    it('wraps mapper.getIndexes', () => {
-      testWrappedMethod('getIndexes');
-    });
-  });
-
-  describe('#getIndexSpecs', () => {
-    it('wraps mapper.getIndexSpecs', () => {
-      testWrappedMethod('getIndexSpecs');
-    });
-  });
-
-  describe('#getIndices', () => {
-    it('wraps mapper.getIndices', () => {
-      testWrappedMethod('getIndices');
-    });
-  });
-
-  describe('#getIndexKeys', () => {
-    it('wraps mapper.getIndexKeys', () => {
-      testWrappedMethod('getIndexKeys');
-    });
-  });
-
-  describe('#dropIndexes', () => {
-    it('wraps mapper.dropIndexes', () => {
-      testWrappedMethod('dropIndexes');
-    });
-  });
-
-  describe('#totalIndexSize', () => {
-    it('wraps mapper.totalIndexSize', () => {
-      testWrappedMethod('totalIndexSize');
-    });
-  });
-
-  describe('#dropIndex', () => {
-    it('wraps mapper.dropIndex', () => {
-      testWrappedMethod('dropIndex');
-    });
-  });
-
-  describe('#reIndex', () => {
-    it('wraps mapper.reIndex', () => {
-      testWrappedMethod('reIndex');
+  [
+    'convertToCapped',
+    'find',
+    'findOne',
+    'createIndexes',
+    'createIndex',
+    'ensureIndex',
+    'getIndexes',
+    'getIndexSpecs',
+    'getIndices',
+    'getIndexKeys',
+    'dropIndexes',
+    'totalIndexSize',
+    'dropIndex',
+    'reIndex',
+    'stats',
+    'dataSize',
+    'storageSize',
+    'totalSize',
+    'drop'
+  ].forEach((methodName) => {
+    describe(`#${methodName}`, () => {
+      it(`wraps mapper.${methodName}`, () => {
+        testWrappedMethod(methodName);
+      });
     });
   });
 
@@ -140,30 +84,6 @@ describe('Collection', () => {
       const collection = new Collection(new Mapper({}), database, 'coll1');
 
       expect(collection.getDB()).to.equal(database);
-    });
-  });
-
-  describe('#stats', () => {
-    it('wraps mapper.stats', () => {
-      testWrappedMethod('stats');
-    });
-  });
-
-  describe('#dataSize', () => {
-    it('wraps mapper.dataSize', () => {
-      testWrappedMethod('dataSize');
-    });
-  });
-
-  describe('#storageSize', () => {
-    it('wraps mapper.storageSize', () => {
-      testWrappedMethod('storageSize');
-    });
-  });
-
-  describe('#totalSize', () => {
-    it('wraps mapper.totalSize', () => {
-      testWrappedMethod('totalSize');
     });
   });
 });
