@@ -1561,7 +1561,7 @@ export default class Mapper {
   /**
    * Get the collection totalSize.
    *
-   * @param {Collection} collection - The collection name.
+   * @param {Collection} collection - The collection.
    * @return {Promise} returns Promise
    */
   async totalSize(
@@ -1579,5 +1579,38 @@ export default class Mapper {
 
     const stats = await this.stats(collection);
     return (stats.storageSize || 0) + (stats.totalIndexSize || 0);
+  }
+
+  /**
+   * Drop a collection.
+   *
+   * @param {Collection} collection - The collection.
+   * @return {Promise} returns Promise
+   */
+  async drop(
+    collection: Collection,
+  ): Promise<boolean> {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'drop',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
+    );
+
+    try {
+      return await this.serviceProvider.dropCollection(
+        collection._database._name,
+        collection._name
+      );
+    } catch (error) {
+      if (error.codeName === 'NamespaceNotFound') {
+        return false;
+      }
+
+      throw error;
+    }
   }
 }

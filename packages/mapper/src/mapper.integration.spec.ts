@@ -3,11 +3,21 @@ import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
 import { Collection, Cursor, Database } from '@mongosh/shell-api';
 
-describe('Mapper (integration)', function() {
-  this.timeout(10000);
+const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
+const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
 
-  before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port: 27018 }));
+describe('Mapper (integration)', function() {
+  this.timeout(60000);
+
+  before(function(done) {
+    try {
+      mongodbRunnerBefore({ port: 27018, timeout: 60000 }).call(this, done);
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  after(mongodbRunnerAfter({ port: 27018 }));
 
   let serviceProvider: CliServiceProvider;
 
@@ -356,6 +366,34 @@ describe('Mapper (integration)', function() {
           'totalIndexSize',
           'wiredTiger'
         );
+      });
+    });
+
+    describe('drop', () => {
+      context('when a collection exists', () => {
+        let result;
+        beforeEach(async() => {
+          await createCollection(dbName, collectionName);
+          result = await mapper.drop(collection);
+        });
+
+        it('returns true', async() => {
+          expect(result).to.be.true;
+        });
+
+        it('deletes the collection', async() => {
+          const collectionNames = (
+            await serviceProvider.listCollections(dbName)
+          ).map(({ name }) => name);
+
+          expect(collectionNames).to.not.include(collectionName);
+        });
+      });
+
+      context('when a collection does not exist', () => {
+        it('returns false', async() => {
+          expect(await mapper.drop(collection)).to.be.false;
+        });
       });
     });
   });
