@@ -82,22 +82,14 @@ export default class Mapper {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
     }
-    this.messageBus.emit(
-      'mongosh:use',
-      { method: 'use', arguments: { db: db } }
-    );
+    this.messageBus.emit( 'mongosh:use', { db });
     this.context.db = this.databases[db];
 
     return `switched to db ${db}`;
   }
 
   async show(arg): Promise<CommandResult> {
-    this.messageBus.emit(
-      'mongosh:show',
-      {
-        arguments: { arg }
-      }
-    );
+    this.messageBus.emit( 'mongosh:show', { method: `show ${arg}` });
 
     switch (arg) {
       case 'databases':
@@ -153,20 +145,14 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
       if (!await this.currentCursor.hasNext()) {
-        this.messageBus.emit(
-          'mongosh:it',
-          { method: 'it', arguments: { result: 'no cursor' } }
-        );
+        this.messageBus.emit('mongosh:it');
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
-    this.messageBus.emit(
-      'mongosh:it',
-      { method: 'it', arguments: { result: results.length } }
-    );
+    this.messageBus.emit('mongosh:it');
     return results;
   }
 

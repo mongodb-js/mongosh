@@ -3,23 +3,38 @@ import Analytics from 'analytics-node';
 import redactPwd from './redact-pwd';
 import { ObjectId } from 'bson';
 import pino from 'pino';
-import clr from './clr';
 import path from 'path';
 import os from 'os';
 
-interface ApiCallArguments {
+interface ApiEventArguments {
   pipeline?: any[];
   query?: object;
   options?: object;
   filter?: object; 
 }
 
-interface ApiCall {
+interface ApiEvent {
   method?: string; 
   class?: string;
-  db?: any;
-  coll?: any;
-  arguments?: ApiCallArguments;
+  db?: string;
+  coll?: string;
+  arguments?: ApiEventArguments;
+}
+
+interface UseEvent {
+  db: string;
+}
+
+interface ShowEvent {
+  method: string;
+}
+
+interface ErrorEvent {
+  error: object;
+}
+
+interface ConnectEvent {
+  driverUri: string;
 }
 
 function logger(bus: any, logDir: string) {
@@ -37,7 +52,7 @@ function logger(bus: any, logDir: string) {
     bus.emit('mongosh:error', e)
   }
 
-  bus.on('mongosh:connect', function(info) {
+  bus.on('mongosh:connect', function(info: ConnectEvent) {
     const params = { sessionID, userId, info: redactPwd(info) };
     log.info('connect', params);
 
@@ -66,7 +81,7 @@ function logger(bus: any, logDir: string) {
     log.info('mongosh:toggleTelemetry', { enableTelemetry })
   })
 
-  bus.on('mongosh:error', function(error) {
+  bus.on('mongosh:error', function(error: ErrorEvent) {
     log.error(error);
 
     if (telemetry) {
@@ -93,7 +108,7 @@ function logger(bus: any, logDir: string) {
     log.info('mongosh:rewrittenAsyncInput', inputInfo);
   });
 
-  bus.on('mongosh:use', function(args) {
+  bus.on('mongosh:use', function(args: UseEvent) {
     log.info(args);
 
     if (telemetry) {
@@ -104,19 +119,20 @@ function logger(bus: any, logDir: string) {
     }
   });
 
-  bus.on('mongosh:show', function(args) {
+  bus.on('mongosh:show', function(args: ShowEvent) {
     log.info(args);
 
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:show'
+        event: 'mongosh:show',
+        properties: { method: args.method }
       });
     }
   });
 
-  bus.on('mongosh:it', function(args) {
-    log.info(args);
+  bus.on('mongosh:it', function() {
+    log.info('mongosh:it');
 
     if (telemetry) {
       analytics.track({
@@ -130,11 +146,11 @@ function logger(bus: any, logDir: string) {
     log.info(args)
   })
 
-  bus.on('mongosh:api-call', function(args: ApiCall) {
+  bus.on('mongosh:api-call', function(args: ApiEvent) {
     log.info(redactInfo(args));
 
     // analytics properties to include if they are present in an api-call
-    let properties: ApiCall = {};
+    let properties: ApiEvent = {};
     properties.arguments = {};
     if (args.method) properties.method = args.method;
     if (args.class) properties.class = args.class;
