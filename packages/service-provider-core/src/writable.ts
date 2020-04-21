@@ -322,6 +322,22 @@ interface Writable {
     collection: string,
     options?: Document,
     dbOptions?: Document): Promise<Result>;
+
+
+  /**
+   * Drops a collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  dropCollection(
+    database: string,
+    collection: string,
+    dbOptions?: Document
+  ): Promise<boolean>;
 }
 
 export default Writable;

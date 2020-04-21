@@ -808,6 +808,28 @@ class CliServiceProvider implements ServiceProvider {
       reIndex: collection
     }, options, dbOptions);
   }
+
+  /**
+   * Drops a the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   *
+   * @return {Promise}
+   */
+  async dropCollection(
+    database: string,
+    collection: string,
+    dbOptions?: Document
+  ): Promise<boolean> {
+    return this.db(
+      database,
+      dbOptions
+    ).collection(
+      collection
+    ).drop();
+  }
 }
 
 export default CliServiceProvider;

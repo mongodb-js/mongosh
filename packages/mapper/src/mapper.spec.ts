@@ -543,5 +543,13 @@ coll2`;
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
     });
   });
+
+  describe('drop', () => { // collection.drop
+    it('re-throws an error that is not NamespaceNotFound', async() => {
+      const error = new Error();
+      serviceProvider.dropCollection.rejects(error);
+      expect(await (mapper.drop(collection).catch((e) => e))).to.equal(error);
+    });
+  });
 });
 
