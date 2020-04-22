@@ -181,6 +181,10 @@ class:
     drop:
         <<: *__defaultMethod
         returnsPromise: true
+    getFullName:
+        <<: *__defaultMethod
+    getName:
+        <<: *__defaultMethod
     exists:
         <<: *__defaultMethod
         returnsPromise: true

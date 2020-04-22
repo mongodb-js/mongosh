@@ -1649,4 +1649,12 @@ export default class Mapper {
 
     return collectionInfos[0] || null;
   }
+
+  getFullName(collection: Collection): string {
+    return `${collection._database._name}.${collection._name}`;
+  }
+
+  getName(collection: Collection): string {
+    return `${collection._name}`;
+  }
 }

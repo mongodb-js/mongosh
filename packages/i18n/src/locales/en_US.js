@@ -962,6 +962,18 @@ const translations = {
               example: 'db.coll.exists()',
               parameters: {}
             },
+            getFullName: {
+              link: '',
+              description: 'Returns the name of the collection prefixed with the database name.',
+              example: 'db.coll.getFullName()',
+              parameters: {}
+            },
+            getName: {
+              link: '',
+              description: 'Returns the name of the collection.',
+              example: 'db.coll.getName()',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',
