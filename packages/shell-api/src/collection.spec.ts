@@ -1,8 +1,9 @@
 import sinon from 'sinon';
-import Mapper from '../../mapper';
 import { Collection, Database } from './shell-api';
 import * as signatures from './shell-api-signatures';
 import { expect } from 'chai';
+import { CollectionMapper } from '../../mapper/src/collection-mapper';
+import { DatabaseMapper } from '../../mapper/src/database-mapper';
 
 /**
  * Test that a collection method proxies the respective Mapper method correctly,
@@ -23,17 +24,19 @@ function testWrappedMethod(name: string): void {
   expect(attribute.type).to.equal('function');
 
   const mock = sinon.mock();
-  const collectionMapper = {
-    collectionMapper: {
-      [name]: mock
-    }
-  };
+  const mapper: CollectionMapper = sinon.createStubInstance(CollectionMapper, {
+    [name]: mock
+  });
 
   const args = [1, 2, 3];
   const retVal = {};
 
-  const database = new Database('db1');
-  const collection = new Collection(collectionMapper, database, 'coll1');
+  const database = new Database(sinon.createStubInstance(DatabaseMapper), 'db1');
+  const collection = new Collection(
+    mapper,
+    database,
+    'coll1'
+  );
 
   mock.withArgs(collection, ...args).returns(retVal);
 

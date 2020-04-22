@@ -9,18 +9,48 @@ import {
   DeleteResult,
   InsertManyResult,
   InsertOneResult,
-  UpdateResult
+  UpdateResult,
+  CursorIterationResult
 } from '@mongosh/shell-api';
 
 export class CollectionMapper {
   private serviceProvider: ServiceProvider;
   private messageBus: EventEmitter;
-  public currentCursor: Cursor | AggregationCursor;
+  private currentCursor: Cursor | AggregationCursor;
 
   constructor(serviceProvider: ServiceProvider, messageBus: EventEmitter) {
     this.serviceProvider = serviceProvider;
     this.messageBus = messageBus;
     this.currentCursor = null;
+  }
+
+  async it(): Promise<any> {
+    const results = new CursorIterationResult();
+
+    if (
+      !this.currentCursor ||
+      this.currentCursor.isClosed()
+    ) {
+      return results;
+    }
+
+    for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
+      if (!await this.currentCursor.hasNext()) {
+        this.messageBus.emit(
+          'mongosh:it',
+          { method: 'it', arguments: { result: 'no cursor' } }
+        );
+        break;
+      }
+
+      results.push(await this.currentCursor.next());
+    }
+
+    this.messageBus.emit(
+      'mongosh:it',
+      { method: 'it', arguments: { result: results.length } }
+    );
+    return results;
   }
 
   /**

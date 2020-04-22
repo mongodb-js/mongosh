@@ -3,7 +3,7 @@ import { Collection, Database } from '@mongosh/shell-api';
 import { CollectionMapper } from './collection-mapper';
 import { EventEmitter } from 'events';
 
-export default class DatabaseMapper {
+export class DatabaseMapper {
   private serviceProvider: ServiceProvider;
   private messageBus: EventEmitter;
   private collections: {[collectionName: string]: Collection};

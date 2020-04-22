@@ -1,8 +1,8 @@
 import sinon from 'sinon';
-import Mapper from '../../mapper/lib';
 import { Database } from './shell-api';
 import * as signatures from './shell-api-signatures';
 import { expect } from 'chai';
+import { DatabaseMapper } from '../../mapper/src/database-mapper';
 
 /**
  * Test that a database method proxies the respective Mapper method correctly,
@@ -23,7 +23,7 @@ function testWrappedMethod(name: string): void {
   expect(attribute.type).to.equal('function');
 
   const mock = sinon.mock();
-  const mapper: Mapper = sinon.createStubInstance(Mapper, {
+  const mapper: DatabaseMapper = sinon.createStubInstance(DatabaseMapper, {
     [name]: mock
   });
 

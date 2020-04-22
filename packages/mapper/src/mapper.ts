@@ -1,6 +1,5 @@
 import {
   Database,
-  CursorIterationResult,
   CommandResult
 } from '@mongosh/shell-api';
 
@@ -9,7 +8,7 @@ import {
 } from '@mongosh/service-provider-core';
 
 import { EventEmitter } from 'events';
-import DatabaseMapper from './database-mapper';
+import { DatabaseMapper } from './database-mapper';
 import { CollectionMapper } from './collection-mapper';
 
 export default class Mapper {
@@ -26,13 +25,13 @@ export default class Mapper {
 
     this.collectionMapper = new CollectionMapper(
       serviceProvider,
-      messageBus
+      this.messageBus
     );
 
     this.databaseMapper = new DatabaseMapper(
       this.collectionMapper,
       serviceProvider,
-      messageBus
+      this.messageBus
     );
 
     this.databases = { test: new Database(this.databaseMapper, 'test') };
@@ -90,31 +89,6 @@ export default class Mapper {
   }
 
   async it(): Promise<any> {
-    const results = new CursorIterationResult();
-
-    if (
-      !this.collectionMapper.currentCursor ||
-      this.collectionMapper.currentCursor.isClosed()
-    ) {
-      return results;
-    }
-
-    for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
-      if (!await this.collectionMapper.currentCursor.hasNext()) {
-        this.messageBus.emit(
-          'mongosh:it',
-          { method: 'it', arguments: { result: 'no cursor' } }
-        );
-        break;
-      }
-
-      results.push(await this.collectionMapper.currentCursor.next());
-    }
-
-    this.messageBus.emit(
-      'mongosh:it',
-      { method: 'it', arguments: { result: results.length } }
-    );
-    return results;
+    return this.collectionMapper.it();
   }
 }
