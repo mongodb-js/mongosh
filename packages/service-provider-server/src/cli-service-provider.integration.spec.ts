@@ -2,14 +2,24 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 
+const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
+const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
+
 describe('CliServiceProvider [integration]', function() {
   this.timeout(5000);
 
-  const port = 27018;
+  const port = 27019;
   const connectionString = `mongodb://localhost:${port}`;
 
-  before(require('mongodb-runner/mocha/before')({ port, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port }));
+  before(function(done) {
+    try {
+      mongodbRunnerBefore({ port: 27019, timeout: 60000 }).call(this, done);
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  after(mongodbRunnerAfter({ port: 27019 }));
 
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;
