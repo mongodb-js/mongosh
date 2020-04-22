@@ -45,4 +45,23 @@ describe('ShellEvaluator', () => {
       expect((shellEvaluator as any).mapper.context).to.equal(ctx);
     });
   });
+
+  describe('customEval', () => {
+    it('strips trailing spaces and ; before calling commands', async() => {
+      const use = sinon.spy();
+      (shellEvaluator as any).mapper.use = use;
+      await shellEvaluator.customEval(null, 'use somedb;  ', {}, '');
+      expect(use).to.have.been.calledWith('somedb');
+    });
+
+    it('calls original eval for plain javascript', async() => {
+      const originalEval = sinon.spy();
+      await shellEvaluator.customEval(originalEval, 'doSomething();', {}, '');
+      expect(originalEval).to.have.been.calledWith(
+        'doSomething();',
+        {},
+        ''
+      );
+    });
+  });
 });
