@@ -94,7 +94,7 @@ coll2`;
           };
 
           serviceProvider.find.returns(cursor);
-          await mapper.find(collection, {}, {});
+          await mapper.collectionMapper.find(collection, {}, {});
         });
 
         it('returns CursorIterationResult', async() => {
@@ -148,7 +148,7 @@ coll2`;
             result: { ok: 1 }
           })) as any;
 
-          await mapper.bulkWrite(collection, requests);
+          await mapper.collectionMapper.bulkWrite(collection, requests);
 
           expect(serviceProvider.bulkWrite).to.have.been.calledWith(
             'db1',
@@ -169,7 +169,7 @@ coll2`;
             upsertedIds: [ 7 ]
           });
 
-          const result = await mapper.bulkWrite(collection, requests);
+          const result = await mapper.collectionMapper.bulkWrite(collection, requests);
 
           expect(await result.toReplString()).to.be.deep.equal({
             ackowledged: true,
@@ -189,7 +189,7 @@ coll2`;
       it('calls service provider convertToCapped', async() => {
         serviceProvider.convertToCapped.resolves({ ok: 1 });
 
-        const result = await mapper.convertToCapped(collection, 1000);
+        const result = await mapper.collectionMapper.convertToCapped(collection, 1000);
 
         expect(serviceProvider.convertToCapped).to.have.been.calledWith(
           'db1',
@@ -208,7 +208,7 @@ coll2`;
 
       context('when options is not passed', () => {
         it('calls serviceProvider.createIndexes using keyPatterns as keys', async() => {
-          await mapper.createIndexes(collection, [{ x: 1 }]);
+          await mapper.collectionMapper.createIndexes(collection, [{ x: 1 }]);
 
           expect(serviceProvider.createIndexes).to.have.been.calledWith(
             'db1',
@@ -220,7 +220,7 @@ coll2`;
 
       context('when options is an object', () => {
         it('calls serviceProvider.createIndexes merging options', async() => {
-          await mapper.createIndexes(collection, [{ x: 1 }], { name: 'index-1' });
+          await mapper.collectionMapper.createIndexes(collection, [{ x: 1 }], { name: 'index-1' });
 
           expect(serviceProvider.createIndexes).to.have.been.calledWith(
             'db1',
@@ -232,7 +232,7 @@ coll2`;
 
       context('when options is not an object', () => {
         it('throws an error', async() => {
-          const error = await mapper.createIndexes(
+          const error = await mapper.collectionMapper.createIndexes(
             collection, [{ x: 1 }], 'unsupported' as any
           ).catch(e => e);
 
@@ -330,7 +330,7 @@ coll2`;
     });
 
     it('returns only indexes keys', async() => {
-      expect(await mapper.getIndexKeys(collection)).to.deep.equal([
+      expect(await mapper.collectionMapper.getIndexKeys(collection)).to.deep.equal([
         { _id: 1 },
         { name: 1 }
       ]);
@@ -346,7 +346,7 @@ coll2`;
       });
 
       it('returns the result of serviceProvider.dropIndexes', async() => {
-        expect(await mapper.dropIndexes(collection, 'index_1')).to.deep.equal(result);
+        expect(await mapper.collectionMapper.dropIndexes(collection, 'index_1')).to.deep.equal(result);
       });
     });
 
@@ -365,7 +365,7 @@ coll2`;
       });
 
       it('returns the error as object', async() => {
-        expect(await mapper.dropIndexes(collection, 'index_1')).to.deep.equal({
+        expect(await mapper.collectionMapper.dropIndexes(collection, 'index_1')).to.deep.equal({
           ok: 0,
           errmsg: 'index not found with name [index_1]',
           code: 27,
@@ -383,7 +383,7 @@ coll2`;
 
       it('rejects with error', async() => {
         let catched;
-        await mapper.dropIndexes(collection, 'index_1').catch(err => { catched = err; });
+        await mapper.collectionMapper.dropIndexes(collection, 'index_1').catch(err => { catched = err; });
         expect(catched.message).to.equal(error.message);
       });
     });
@@ -394,16 +394,16 @@ coll2`;
       let result;
       beforeEach(async() => {
         result = { nIndexesWas: 3, ok: 1 };
-        mapper.dropIndexes = sinon.mock().resolves(result);
+        mapper.collectionMapper.dropIndexes = sinon.mock().resolves(result);
       });
 
       it('returns the result of serviceProvider.dropIndexes', async() => {
-        expect(await mapper.dropIndex(collection, 'index_1')).to.deep.equal(result);
+        expect(await mapper.collectionMapper.dropIndex(collection, 'index_1')).to.deep.equal(result);
       });
 
       it('throws if index is "*"', async() => {
         let catched;
-        await mapper.dropIndex(collection, '*').catch(err => { catched = err; });
+        await mapper.collectionMapper.dropIndex(collection, '*').catch(err => { catched = err; });
 
         expect(catched.message).to.equal(
           'To drop indexes in the collection using \'*\', use db.collection.dropIndexes()'
@@ -412,7 +412,7 @@ coll2`;
 
       it('throws if index is an array', async() => {
         let catched;
-        await mapper.dropIndex(collection, ['index-1']).catch(err => { catched = err; });
+        await mapper.collectionMapper.dropIndex(collection, ['index-1']).catch(err => { catched = err; });
 
         expect(catched.message).to.equal(
           'The index to drop must be either the index name or the index specification document'
@@ -429,7 +429,7 @@ coll2`;
 
       serviceProvider.listCollections.resolves(result);
 
-      expect(await mapper.getCollectionInfos(
+      expect(await mapper.databaseMapper.getCollectionInfos(
         database,
         filter,
         options)).to.deep.equal(result);
@@ -444,7 +444,7 @@ coll2`;
 
       serviceProvider.listCollections.resolves(result);
 
-      expect(await mapper.getCollectionNames(
+      expect(await mapper.databaseMapper.getCollectionNames(
         database)).to.deep.equal(['coll1']);
 
       expect(serviceProvider.listCollections).to.have.been.calledOnceWith(
@@ -460,13 +460,13 @@ coll2`;
     });
 
     it('returns totalIndexSize', async() => {
-      expect(await mapper.totalIndexSize(collection)).to.equal(1000);
+      expect(await mapper.collectionMapper.totalIndexSize(collection)).to.equal(1000);
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
     });
 
     it('throws an error if called with verbose', async() => {
       let catched;
-      await mapper.totalIndexSize(collection, true)
+      await mapper.collectionMapper.totalIndexSize(collection, true)
         .catch(err => { catched = err; });
 
       expect(catched.message).to.equal(
@@ -484,7 +484,7 @@ coll2`;
     });
 
     it('returns the result of serviceProvider.dropIndexes', async() => {
-      expect(await mapper.reIndex(collection)).to.deep.equal(result);
+      expect(await mapper.collectionMapper.reIndex(collection)).to.deep.equal(result);
       expect(serviceProvider.reIndex).to.have.been.calledWith('db1', 'coll1');
     });
   });
@@ -498,7 +498,7 @@ coll2`;
     });
 
     it('returns stats', async() => {
-      expect(await mapper.stats(collection, { scale: 1 })).to.equal(result);
+      expect(await mapper.collectionMapper.stats(collection, { scale: 1 })).to.equal(result);
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1', { scale: 1 });
     });
   });
@@ -512,7 +512,7 @@ coll2`;
     });
 
     it('returns stats.size', async() => {
-      expect(await mapper.dataSize(collection)).to.equal(1000);
+      expect(await mapper.collectionMapper.dataSize(collection)).to.equal(1000);
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
     });
   });
@@ -526,7 +526,7 @@ coll2`;
     });
 
     it('returns stats.storageSize', async() => {
-      expect(await mapper.storageSize(collection)).to.equal(1000);
+      expect(await mapper.collectionMapper.storageSize(collection)).to.equal(1000);
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
     });
   });
@@ -540,7 +540,7 @@ coll2`;
     });
 
     it('returns sum of storageSize and totalIndexSize', async() => {
-      expect(await mapper.totalSize(collection)).to.equal(2000);
+      expect(await mapper.collectionMapper.totalSize(collection)).to.equal(2000);
       expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
     });
   });
@@ -549,19 +549,19 @@ coll2`;
     it('re-throws an error that is not NamespaceNotFound', async() => {
       const error = new Error();
       serviceProvider.dropCollection.rejects(error);
-      expect(await (mapper.drop(collection).catch((e) => e))).to.equal(error);
+      expect(await (mapper.collectionMapper.drop(collection).catch((e) => e))).to.equal(error);
     });
   });
 
   describe('getFullName', () => { // collection.getFullName
     it('returns the namespaced collection name', async() => {
-      expect(mapper.getFullName(collection)).to.equal('db1.coll1');
+      expect(mapper.collectionMapper.getFullName(collection)).to.equal('db1.coll1');
     });
   });
 
   describe('getName', () => { // collection.getFullName
     it('returns the namespaced collection name', async() => {
-      expect(mapper.getName(collection)).to.equal('coll1');
+      expect(mapper.collectionMapper.getName(collection)).to.equal('coll1');
     });
   });
 });

@@ -984,7 +984,7 @@ class Database {
     const proxy = new Proxy(this, {
       get: (obj, prop) => {
         if (!(prop in obj)) {
-          obj[prop] = new Collection(_mapper, proxy, prop);
+          return _mapper.getCollection(proxy, prop);
         }
 
         return obj[prop];
@@ -1000,9 +1000,13 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getName', 'description': 'shell-api.classes.Database.help.attributes.getName.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }] });
 
     return proxy;
+  }
+
+  getName(...args) {
+    return this._mapper.getName(this, ...args);
   }
 
   runCommand(...args) {
@@ -1018,6 +1022,12 @@ class Database {
   }
 }
 
+
+Database.prototype.getName.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.getName.example', 'docs': 'shell-api.classes.Database.help.attributes.getName.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.getName.description' }] });
+Database.prototype.getName.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.getName.topologies = [0, 1, 2];
+Database.prototype.getName.returnsPromise = false;
+Database.prototype.getName.returnType = 'unknown';
 
 Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.runCommand.example', 'docs': 'shell-api.classes.Database.help.attributes.runCommand.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }] });
 Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];

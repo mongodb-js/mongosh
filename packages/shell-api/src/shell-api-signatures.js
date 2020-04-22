@@ -124,6 +124,7 @@ const Database = {
   type: 'Database',
   hasAsyncChild: true,
   attributes: {
+    getName: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     getCollectionNames: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] }

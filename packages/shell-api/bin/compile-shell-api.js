@@ -8,7 +8,7 @@ const databaseConstructorTemplate = (contents) => (`
     const proxy = new Proxy(this, {
       get: (obj, prop) => {
         if (!(prop in obj)) {
-          obj[prop] = new Collection(_mapper, proxy, prop);
+          return _mapper.getCollection(proxy, prop);
         }
 
         return obj[prop];

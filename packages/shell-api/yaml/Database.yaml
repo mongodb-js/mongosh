@@ -6,6 +6,8 @@ class:
     __stringRep:
         - this._name
     __hasAsyncChild: true
+    getName:
+        <<: *__defaultMethod
     runCommand:
         <<: *__defaultMethod
         returnsPromise: true

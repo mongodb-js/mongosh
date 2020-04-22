@@ -23,15 +23,17 @@ function testWrappedMethod(name: string): void {
   expect(attribute.type).to.equal('function');
 
   const mock = sinon.mock();
-  const mapper: Mapper = sinon.createStubInstance(Mapper, {
-    [name]: mock
-  });
+  const collectionMapper = {
+    collectionMapper: {
+      [name]: mock
+    }
+  };
 
   const args = [1, 2, 3];
   const retVal = {};
 
   const database = new Database('db1');
-  const collection = new Collection(mapper, database, 'coll1');
+  const collection = new Collection(collectionMapper, database, 'coll1');
 
   mock.withArgs(collection, ...args).returns(retVal);
 
@@ -72,21 +74,13 @@ describe('Collection', () => {
     'drop',
     'exists',
     'getFullName',
-    'getName'
+    'getName',
+    'getDB'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
       it(`wraps mapper.${methodName}`, () => {
         testWrappedMethod(methodName);
       });
-    });
-  });
-
-  describe('#getDB', () => {
-    it('returns the db', () => {
-      const database = new Database('db1');
-      const collection = new Collection(new Mapper({}), database, 'coll1');
-
-      expect(collection.getDB()).to.equal(database);
     });
   });
 });

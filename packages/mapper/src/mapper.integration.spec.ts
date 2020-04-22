@@ -86,7 +86,7 @@ describe('Mapper (integration)', function() {
 
       describe('when calling it after find', () => {
         it('returns next batch of docs', async() => {
-          mapper.find(collection, {}, { _id: 0 });
+          mapper.collectionMapper.find(collection, {}, { _id: 0 });
           await mapper.it();
           expect(await mapper.it()).to.deep.equal([{
             doc: 21
@@ -99,6 +99,7 @@ describe('Mapper (integration)', function() {
 
         beforeEach(() => {
           cursor = mapper
+            .collectionMapper
             .find(collection, {}, { _id: 0 })
             .skip(1)
             .limit(1);
@@ -136,7 +137,7 @@ describe('Mapper (integration)', function() {
             }
           ];
 
-          result = await mapper.bulkWrite(
+          result = await mapper.collectionMapper.bulkWrite(
             collection,
             requests
           );
@@ -180,7 +181,7 @@ describe('Mapper (integration)', function() {
           collectionName
         )).to.be.false;
 
-        result = await mapper.convertToCapped(
+        result = await mapper.collectionMapper.convertToCapped(
           collection,
           1000
         );
@@ -205,7 +206,7 @@ describe('Mapper (integration)', function() {
         await createCollection(dbName, collectionName);
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
 
-        result = await mapper.createIndexes(collection, [{ x: 1 }], {
+        result = await mapper.collectionMapper.createIndexes(collection, [{ x: 1 }], {
           name: 'index-1'
         });
       });
@@ -233,7 +234,7 @@ describe('Mapper (integration)', function() {
           { key: { x: 1 } }
         ]);
 
-        result = await mapper.getIndexes(collection);
+        result = await mapper.collectionMapper.getIndexes(collection);
       });
 
       it('returns indexes for the collection', () => {
@@ -269,7 +270,7 @@ describe('Mapper (integration)', function() {
       it('removes indexes', async() => {
         expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
 
-        await mapper.dropIndexes(collection, '*');
+        await mapper.collectionMapper.dropIndexes(collection, '*');
 
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
       });
@@ -281,7 +282,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('runs against the db', async() => {
-        const result = await mapper.reIndex(collection);
+        const result = await mapper.collectionMapper.reIndex(collection);
 
         expect(
           result
@@ -309,7 +310,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('returns total index size', async() => {
-        expect(typeof await mapper.totalIndexSize(collection)).to.equal('number');
+        expect(typeof await mapper.collectionMapper.totalIndexSize(collection)).to.equal('number');
       });
     });
 
@@ -319,7 +320,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('returns total index size', async() => {
-        expect(typeof await mapper.dataSize(collection)).to.equal('number');
+        expect(typeof await mapper.collectionMapper.dataSize(collection)).to.equal('number');
       });
     });
 
@@ -329,7 +330,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('returns total index size', async() => {
-        expect(typeof await mapper.storageSize(collection)).to.equal('number');
+        expect(typeof await mapper.collectionMapper.storageSize(collection)).to.equal('number');
       });
     });
 
@@ -339,7 +340,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('returns total index size', async() => {
-        expect(typeof await mapper.totalSize(collection)).to.equal('number');
+        expect(typeof await mapper.collectionMapper.totalSize(collection)).to.equal('number');
       });
     });
 
@@ -349,7 +350,7 @@ describe('Mapper (integration)', function() {
       });
 
       it('returns stats', async() => {
-        const stats = await mapper.stats(collection);
+        const stats = await mapper.collectionMapper.stats(collection);
         expect(stats).to.contain.keys(
           'avgObjSize',
           'capped',
@@ -374,7 +375,7 @@ describe('Mapper (integration)', function() {
         let result;
         beforeEach(async() => {
           await createCollection(dbName, collectionName);
-          result = await mapper.drop(collection);
+          result = await mapper.collectionMapper.drop(collection);
         });
 
         it('returns true', async() => {
@@ -392,7 +393,7 @@ describe('Mapper (integration)', function() {
 
       context('when a collection does not exist', () => {
         it('returns false', async() => {
-          expect(await mapper.drop(collection)).to.be.false;
+          expect(await mapper.collectionMapper.drop(collection)).to.be.false;
         });
       });
     });
@@ -404,13 +405,13 @@ describe('Mapper (integration)', function() {
         });
 
         it('returns the collection object', async() => {
-          expect((await mapper.exists(collection)).name).to.equal(collectionName);
+          expect((await mapper.collectionMapper.exists(collection)).name).to.equal(collectionName);
         });
       });
 
       context('when a collection does not exist', () => {
         it('returns false', async() => {
-          expect(await mapper.drop(collection)).to.be.false;
+          expect(await mapper.collectionMapper.drop(collection)).to.be.false;
         });
       });
     });
@@ -421,7 +422,7 @@ describe('Mapper (integration)', function() {
       it('returns an array with collection infos', async() => {
         await createCollection(dbName, collectionName);
 
-        expect(await mapper.getCollectionInfos(database, {}, { nameOnly: true })).to.deep.equal([{
+        expect(await mapper.databaseMapper.getCollectionInfos(database, {}, { nameOnly: true })).to.deep.equal([{
           name: collectionName,
           type: 'collection'
         }]);
@@ -432,7 +433,7 @@ describe('Mapper (integration)', function() {
       it('returns an array with collection names', async() => {
         await createCollection(dbName, collectionName);
 
-        expect(await mapper.getCollectionNames(database)).to.deep.equal([collectionName]);
+        expect(await mapper.databaseMapper.getCollectionNames(database)).to.deep.equal([collectionName]);
       });
     });
   });
