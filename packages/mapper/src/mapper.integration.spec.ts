@@ -9,7 +9,7 @@ const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
 describe('Mapper (integration)', function() {
   before(function(done) {
     try {
-      mongodbRunnerBefore({ port: 27018, timeout: 10000 }).call(this, done);
+      mongodbRunnerBefore({ port: 27018, timeout: 30000 }).call(this, done);
     } catch (e) {
       done(e);
     }

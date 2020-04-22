@@ -11,7 +11,7 @@ describe('CliServiceProvider [integration]', function() {
 
   before(function(done) {
     try {
-      mongodbRunnerBefore({ port: 27019, timeout: 10000 }).call(this, done);
+      mongodbRunnerBefore({ port: 27019, timeout: 30000 }).call(this, done);
     } catch (e) {
       done(e);
     }
