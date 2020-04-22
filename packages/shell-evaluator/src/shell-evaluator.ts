@@ -123,7 +123,7 @@ class ShellEvaluator {
         this.saveState();
         const rewrittenInput = this.asyncWriter.compile(input);
         this.bus.emit(
-          'mongosh:rewrittenAsyncInput',
+          'mongosh:rewritten-async-input',
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
         try {

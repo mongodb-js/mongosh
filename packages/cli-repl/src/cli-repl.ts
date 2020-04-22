@@ -51,7 +51,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), 'bold'));
-    this.bus.emit('mongosh:connect', driverUri);
+    this.bus.emit('mongosh:connect', { driverUri });
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
@@ -164,7 +164,7 @@ class CliRepl {
     this.enableTelemetry = enabled;
     this.disableGreetingMessage = true;
 
-    this.bus.emit('mongosh:toggleTelemetry', this.enableTelemetry);
+    this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
     const configPath = path.join(this.mongoshDir, 'config');
     this.writeConfigFileSync(configPath);
 

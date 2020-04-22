@@ -25,6 +25,11 @@ interface UseEvent {
   db: string;
 }
 
+interface AsyncRewriterEvent {
+  original: string;
+  rewritten: string;
+}
+
 interface ShowEvent {
   method: string;
 }
@@ -37,7 +42,7 @@ interface ConnectEvent {
   driverUri: string;
 }
 
-function logger(bus: any, logDir: string) {
+export default function logger(bus: any, logDir: string) {
   const sessionID = new ObjectId(Date.now());
   const logDest = path.join(logDir, `${sessionID}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
@@ -52,15 +57,16 @@ function logger(bus: any, logDir: string) {
     bus.emit('mongosh:error', e)
   }
 
-  bus.on('mongosh:connect', function(info: ConnectEvent) {
-    const params = { sessionID, userId, info: redactPwd(info) };
+  bus.on('mongosh:connect', function(args: ConnectEvent) {
+    const connectionUri = redactPwd(args.driverUri);
+    const params = { sessionID, userId, connectionUri };
     log.info('connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
         event: 'mongosh:connect',
-        properties: { sessionID, info: redactPwd(info) }
+        properties: { sessionID, connectionUri }
       });
     }
   });
@@ -74,12 +80,9 @@ function logger(bus: any, logDir: string) {
   bus.on('mongosh:update-user', function(id, enableTelemetry) {
     userId = id;
     telemetry = enableTelemetry;
+    log.info('mongosh:update-user', { enableTelemetry })
   })
 
-  bus.on('mongosh:toggleTelemetry', function(enableTelemetry) {
-    telemetry = enableTelemetry;
-    log.info('mongosh:toggleTelemetry', { enableTelemetry })
-  })
 
   bus.on('mongosh:error', function(error: ErrorEvent) {
     log.error(error);
@@ -104,8 +107,8 @@ function logger(bus: any, logDir: string) {
     }
   });
 
-  bus.on('mongosh:rewrittenAsyncInput', function(inputInfo) {
-    log.info('mongosh:rewrittenAsyncInput', inputInfo);
+  bus.on('mongosh:rewritten-async-input', function(args: AsyncRewriterEvent) {
+    log.info('mongosh:rewritten-async-input', args);
   });
 
   bus.on('mongosh:use', function(args: UseEvent) {
@@ -154,10 +157,7 @@ function logger(bus: any, logDir: string) {
     properties.arguments = {};
     if (args.method) properties.method = args.method;
     if (args.class) properties.class = args.class;
-    if (args.arguments.pipeline) properties.arguments.pipeline = args.arguments.pipeline;
-    if (args.arguments.query) properties.arguments.query = args.arguments.query;
-    if (args.arguments.options) properties.arguments.options = args.arguments.options;
-    if (args.arguments.filter) properties.arguments.filter= args.arguments.filter;
+    if (args.arguments) properties.arguments = properties.arguments;
 
     if (telemetry) {
       analytics.track({
@@ -174,5 +174,3 @@ function NoopAnalytics() {}
 
 NoopAnalytics.prototype.identify = function() {}
 NoopAnalytics.prototype.track = function() {}
-
-export default logger;
