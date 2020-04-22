@@ -89,7 +89,7 @@ class ShellEvaluator {
    * @param {String} filename
    */
   private async innerEval(originalEval: any, input: string, context: any, filename: string): Promise<any> {
-    const argv = input.trim().split(' ');
+    const argv = input.trim().replace(/;$/, '').split(' ');
     const cmd = argv[0];
     argv.shift();
     switch (cmd) {
