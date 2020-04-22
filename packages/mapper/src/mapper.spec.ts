@@ -551,5 +551,17 @@ coll2`;
       expect(await (mapper.drop(collection).catch((e) => e))).to.equal(error);
     });
   });
+
+  describe('getFullName', () => { // collection.getFullName
+    it('returns the namespaced collection name', async() => {
+      expect(mapper.getFullName(collection)).to.equal('db1.coll1');
+    });
+  });
+
+  describe('getName', () => { // collection.getFullName
+    it('returns the namespaced collection name', async() => {
+      expect(mapper.getName(collection)).to.equal('coll1');
+    });
+  });
 });
 
