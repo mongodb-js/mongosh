@@ -6,14 +6,12 @@ const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
 
 describe('CliServiceProvider [integration]', function() {
-  this.timeout(5000);
-
   const port = 27019;
   const connectionString = `mongodb://localhost:${port}`;
 
   before(function(done) {
     try {
-      mongodbRunnerBefore({ port: 27019, timeout: 60000 }).call(this, done);
+      mongodbRunnerBefore({ port: 27019, timeout: 10000 }).call(this, done);
     } catch (e) {
       done(e);
     }

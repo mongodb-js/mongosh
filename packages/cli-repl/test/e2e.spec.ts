@@ -3,9 +3,19 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually, startShell, killOpenShells } from './helpers';
 
+const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
+const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
+
 describe('e2e', function() {
-  before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port: 27018 }));
+  before(function(done) {
+    try {
+      mongodbRunnerBefore({ port: 27020, timeout: 10000 }).call(this, done);
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  after(mongodbRunnerAfter({ port: 27020 }));
 
   afterEach(() => killOpenShells());
 
@@ -29,7 +39,7 @@ describe('e2e', function() {
 
     beforeEach(async () => {
       dbName = `test-${Date.now()}`;
-      const connectionString = `mongodb://localhost:27018/${dbName}`;
+      const connectionString = `mongodb://localhost:27020/${dbName}`;
 
       shell = startShell(connectionString);
       client = await (MongoClient as any).connect(
