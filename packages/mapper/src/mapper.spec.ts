@@ -56,19 +56,20 @@ describe('Mapper', () => {
         ).to.deep.equal(expectedOutput);
       });
 
-      describe('show collections', () => {
-        it('lists collection names', async() => {
-          serviceProvider.listCollections.resolves([
-            { name: 'coll1' },
-            { name: 'coll2' }
-          ]);
+      ['collections', 'tables'].forEach((showArgument) => {
+        describe(`show ${showArgument}`, () => {
+          it('lists collection names', async() => {
+            serviceProvider.listCollections.resolves([
+              { name: 'coll1' },
+              { name: 'coll2' }
+            ]);
 
-          const expectedOutput = `coll1
+            const expectedOutput = `coll1
 coll2`;
-
-          expect(
-            (await mapper.show('collections')).toReplString()
-          ).to.equal(expectedOutput);
+            expect(
+              (await mapper.show(showArgument)).toReplString()
+            ).to.equal(expectedOutput);
+          });
         });
       });
     });

@@ -61,6 +61,7 @@ export default class Mapper {
       case 'dbs':
         return await this.showDatabases();
       case 'collections':
+      case 'tables':
         return await this.showCollections();
       default:
         const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
