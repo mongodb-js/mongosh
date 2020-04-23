@@ -101,7 +101,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         default:
           if (lhsType.hasAsyncChild) {
             const help = lhsType.type === 'Database' ?
-              '\rIf you are accessing a collection try Database.get(\'collection\').' :
+              '\nIf you are accessing a collection try Database.get(\'collection\').' :
               '';
             throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`);
           }
