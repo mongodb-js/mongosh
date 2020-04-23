@@ -191,6 +191,35 @@ describe('CliServiceProvider', () => {
     });
   });
 
+  describe('#findAndModify', () => {
+    const commandResult = { result: { n: 1, ok: 1 } };
+    const findMock = sinon.mock().once().withArgs(
+      { query: 1 },
+      { sort: 1 },
+      { update: 1 },
+      { options: 1 }
+    ).resolves(commandResult);
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        findAndModify: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.findAndModify(
+        'music', 'bands',
+        { query: 1 },
+        { sort: 1 },
+        { update: 1 },
+        { options: 1 }
+      );
+      expect(result).to.deep.equal(commandResult);
+      findMock.verify();
+    });
+  });
+
   describe('#findOneAndDelete', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
     const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
