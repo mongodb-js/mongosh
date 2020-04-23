@@ -1,12 +1,34 @@
 /* eslint no-console:0, complexity:0, dot-notation: 0 */
 import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
+import * as BabelTypes from '@babel/types';
+import { Visitor } from '@babel/traverse';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
-  str = `${indent}${str}${type === undefined ? '' : ` ==> ${type}`}`;
+  str = `${indent}${str}${type === undefined ? '' : ` ==> ${JSON.stringify(type, (k, v) => (k === 'path' || k === 'returnType' ? undefined : v))}`}`;
   // console.log(str);
 };
+
+function assertUnreachable(type?: never): never {
+  throw new Error(`Internal Error: type ${type} unhandled`);
+}
+
+export interface Babel {
+  types: typeof BabelTypes;
+}
+
+export interface MyVisitor {
+  visitor: Visitor;
+  post?: any;
+}
+
+interface State {
+  symbols: SymbolTable;
+  t: typeof BabelTypes;
+  skip: Array<string>;
+  returnValues: Array<any>;
+}
 
 const getNameOrValue = (t, node): any => {
   if (t.isIdentifier(node)) {
@@ -26,10 +48,24 @@ const optionallyWrapNode = (t, path, nodeName): void => {
   }
 };
 
-// var required so visitor can self-reference
-var TypeInferenceVisitor = { /* eslint no-var:0 */
+export const checkHasAsyncChild = (type): boolean => {
+  if (type.hasAsyncChild || type.returnsPromise) {
+    return true;
+  }
+  for (let i = 0; i < Object.keys(type).length; i++) {
+    if (checkHasAsyncChild(type[Object.keys(type)[i]])) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/* NOTE: var required so visitor can self-reference.
+   Most of the work happens in a sub-visitor so we can pass custom state to traverse.
+   Unfortunately babel only exports types for Node() functions, not exit/enter, so need to set by hand. */
+var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
   Identifier: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.Identifier>, state: State): void {
       const id = path.node.name;
       let sType = state.symbols.lookup(id);
       if (typeof sType === 'string') {
@@ -40,18 +76,32 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   MemberExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.MemberExpression>, state: State): void {
       const lhsType = path.node.object['shellType'];
-      const rhs = getNameOrValue(state.t, path.node.property);
-      if (rhs === false || (path.node.computed && !state.t.isLiteral(path.node.property))) {
-        if (lhsType.hasAsyncChild) {
-          const help = lhsType.type === 'Database' ?
-            ' If you are accessing a collection try Database.get(\'collection\').' :
-            '';
-          throw new Error(`Cannot access shell API attributes dynamically.${help}`);
-        }
-        path.node['shellType'] = state.symbols.signatures.unknown;
-        return;
+      const rhsType = path.node.property.type;
+      let rhs;
+      switch (rhsType) {
+        case 'StringLiteral':
+          rhs = path.node.property.value;
+          break;
+        case 'NumericLiteral':
+          rhs = path.node.property.value;
+          break;
+        case 'Identifier':
+          rhs = path.node.property.name;
+          if (!path.node.computed) {
+            break;
+          }
+        // eslint-disable-next-line no-fallthrough
+        default:
+          if (lhsType.hasAsyncChild) {
+            const help = lhsType.type === 'Database' ?
+              ' If you are accessing a collection try Database.get(\'collection\').' :
+              '';
+            throw new Error(`Cannot access shell API attributes dynamically.${help}`);
+          }
+          path.node['shellType'] = state.symbols.signatures.unknown;
+          return;
       }
       let sType = state.symbols.signatures.unknown;
       if (lhsType.attributes === undefined) {
@@ -66,15 +116,15 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   CallExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.CallExpression>, state: State): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
       const lhsType = path.node.callee['shellType'];
 
-      // check that the user is not passing a type that has async children to a self-defined function
-      // TODO: this is possible for scripts but not for line-by-line shell execution. So turned off for everything.
+      /* Check that the user is not passing a type that has async children to a self-defined function.
+         This is possible for scripts but not for line-by-line execution, so turned off for everything. */
       path.node.arguments.forEach((a) => {
         if (a['shellType'].hasAsyncChild || a['shellType'].returnsPromise) {
-          throw new Error('Cannot pass Shell API object to user-defined function');
+          throw new Error('Cannot pass Shell API object to non-API function');
         }
       });
 
@@ -88,12 +138,13 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           sType = returnType;
         }
         if (lhsType.returnsPromise) {
+          // NOTE: if need to convert top-level await into async func can do it here.
           path.node['shellType'] = sType;
           path.replaceWith(state.t.awaitExpression(path.node));
-          const parent = path.findParent(p => state.t.isFunction(p));
+          const parent = path.getFunctionParent();
           if (parent !== null) {
-            parent.node['async'] = true;
-          } // TODO: if need to convert top-level await into async func can do it here.
+            parent.node.async = true;
+          }
           path.skip();
         }
       }
@@ -104,20 +155,16 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         debug(`== visiting function definition for ${lhsType.type}`);
         state.symbols.pushScope(); // manually push/pop scope because body doesn't get visited
 
-        // TODO: this will allow for passing shell signatures to functions in scripts, but turned off for now.
+        // NOTE: this will allow for passing shell types to non-api functions in scripts, but turned off for now.
         // path.node.arguments.forEach((a, i) => {
         //   const argName = funcPath.node.params[i].name;
         //   state.symbols.add(argName, a['shellType']);
         // });
+
         path.skip();
         funcPath.get('body').traverse(
           TypeInferenceVisitor,
-          {
-            t: state.t,
-            skip: state.skip,
-            returnValues: state.returnValues,
-            symbols: state.symbols
-          }
+          state
         );
         state.symbols.popScope();
         debug('== end visiting function definition');
@@ -126,48 +173,139 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   VariableDeclarator: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.VariableDeclarator>, state: State): void {
       let sType = state.symbols.signatures.unknown;
       if (path.node.init !== null) {
         sType = path.node.init['shellType'];
       }
-      path.node['shellType'] = state.symbols.signatures.unknown;
-      const kind = path.findParent(p => state.t.isVariableDeclaration(p));
+      path.node['shellType'] = state.symbols.signatures.unknown; // always undefined
+      const kind = path.findParent(p => state.t.isVariableDeclaration(p)) as babel.NodePath<babel.types.VariableDeclaration>;
       if (kind === null) {
-        throw new Error('internal error');
+        assertUnreachable();
       }
-      if (kind.node.kind === 'const' || kind.node.kind === 'let') { // block scoped
-        state.symbols.add(path.node.id.name, sType);
-      } else {
-        state.symbols.updateFunctionScoped(path, path.node.id.name, sType, state.t);
+      switch (path.node.id.type) {
+        case 'Identifier':
+          if (kind.node.kind === 'const' || kind.node.kind === 'let') { // block scoped
+            state.symbols.add(path.node.id.name, sType);
+          } else {
+            state.symbols.updateFunctionScoped(path, path.node.id.name, sType, state.t);
+          }
+          debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init['shellType']: ${
+            path.node.init === null ? 'null' : sType.type
+          }`, 'unknown'); // id must be a identifier
+          break;
+        case 'ArrayPattern':
+        case 'MemberExpression':
+        case 'ObjectPattern':
+        case 'AssignmentPattern':
+        case 'RestElement':
+        case 'TSParameterProperty':
+          if (sType.hasAsyncChild || sType.returnsPromise) {
+            throw new Error('Unimplemented: destructured variable declarations of Shell API types not supported at this time');
+          }
+          break;
+        default:
+          assertUnreachable(path.node.id);
       }
-      debug(`VariableDeclarator: { id.name: ${path.node.id.name}, init['shellType']: ${
-        path.node.init === null ? 'null' : sType.type
-      }`, 'unknown'); // id must be a identifier
     }
   },
   AssignmentExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.AssignmentExpression>, state: State): void {
       const sType = path.node.right['shellType'] === undefined ? state.symbols.signatures.unknown : path.node.right['shellType'];
-      if (!state.symbols.updateIfDefined(path.node.left.name, sType)) {
-        state.symbols.updateFunctionScoped(path, path.node.left.name, sType, state.t);
-      }
+      path.node.left['shellType'] = sType;
       path.node['shellType'] = sType; // assignment returns value unlike decl
-      debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
+      switch (path.node.left.type) {
+        case 'Identifier':
+          if (!state.symbols.updateIfDefined(path.node.left.name, sType)) {
+            state.symbols.updateFunctionScoped(path, path.node.left.name, sType, state.t);
+          }
+          debug(`AssignmentExpression: { left.name: ${path.node.left.name}, right.type: ${path.node.right.type} }`, sType.type); // id must be a identifier
+          break;
+        case 'MemberExpression':
+          let lhsNode = path.node.left;
+          const attrs = [];
+          while (lhsNode.type === 'MemberExpression') {
+            switch (lhsNode.property.type) {
+              case 'StringLiteral':
+                attrs.unshift(lhsNode.property.value);
+                break;
+              case 'NumericLiteral':
+                attrs.unshift(lhsNode.property.value);
+                break;
+              case 'Identifier':
+                attrs.unshift(lhsNode.property.name);
+                if (!lhsNode.computed) {
+                  break;
+                }
+              // eslint-disable-next-line no-fallthrough
+              default:
+                if (sType.hasAsyncChild || sType.returnsPromise) {
+                  throw new Error('Cannot assign shell API attributes dynamically');
+                }
+            }
+            lhsNode = lhsNode.object as babel.types.MemberExpression;
+          }
+          if (lhsNode.type === 'Identifier') {
+            // update symbol table
+            const tyTS = lhsNode as unknown;
+            const id = tyTS as babel.types.Identifier;
+            state.symbols.updateAttribute(id.name, attrs, sType);
+          }
+          break;
+        case 'RestElement':
+        case 'AssignmentPattern':
+        case 'ArrayPattern':
+        case 'ObjectPattern':
+        case 'TSParameterProperty':
+          if (sType.hasAsyncChild || sType.returnsPromise) {
+            throw new Error('Unimplemented: destructured variable declarations of Shell API types not supported at this time');
+          }
+          break;
+        default:
+          assertUnreachable(path.node.left);
+      }
     }
   },
   ObjectExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.ObjectExpression>, state: State): void {
       const attributes = {};
       let hasAsyncChild = false;
-      path.node.properties.forEach((n) => {
-        const k = getNameOrValue(state.t, n.key);
+
+      const getAttr = (k, value): void => {
         if (k === false) {
           throw new Error('Unreachable');
         }
-        attributes[k] = n.value['shellType'];
-        if ((attributes[k].type !== 'unknown' && attributes[k].type in state.symbols.signatures) || attributes[k].hasAsyncChild) {
+        if (value === undefined) {
+          value = state.symbols.signatures.unknown;
+        }
+        attributes[k] = value;
+        if (attributes[k].hasAsyncChild || attributes[k].returnsPromise) {
           hasAsyncChild = true;
+        }
+        if (attributes[k].type === 'function') {
+          if (attributes[k].returnType.hasAsyncChild || attributes[k].returnType.returnsPromise) {
+            hasAsyncChild = true;
+          }
+        }
+      };
+      path.node.properties.forEach((n) => {
+        switch (n.type) {
+          case 'ObjectMethod':
+            getAttr(getNameOrValue(state.t, n.key), n['shellType']);
+            break;
+          case 'ObjectProperty':
+            getAttr(getNameOrValue(state.t, n.key), n.value['shellType']);
+            break;
+          case 'SpreadElement':
+            const arg = n.argument['shellType'];
+            if (arg) {
+              Object.keys(arg.attributes).forEach((k) => {
+                getAttr(k, arg.attributes[k]);
+              });
+            }
+            break;
+          default:
+            assertUnreachable(n);
         }
       });
       path.node['shellType'] = { type: 'object', attributes: attributes, hasAsyncChild: hasAsyncChild };
@@ -175,13 +313,18 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   ArrayExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.ArrayExpression>): void {
       const attributes = {};
       let hasAsyncChild = false;
       path.node.elements.forEach((n, i) => {
         attributes[i] = n['shellType'];
-        if ((attributes[i].type !== 'unknown' && attributes[i].type in state.symbols.signatures) || attributes[i].hasAsyncChild) {
+        if (attributes[i].hasAsyncChild || attributes[i].returnsPromise) {
           hasAsyncChild = true;
+        }
+        if (attributes[i].type === 'function') {
+          if (attributes[i].returnType.hasAsyncChild || attributes[i].returnType.returnsPromise) {
+            hasAsyncChild = true;
+          }
         }
       });
       path.node['shellType'] = { type: 'array', attributes: attributes, hasAsyncChild };
@@ -189,8 +332,8 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   ClassDeclaration: {
-    exit(path, state): void {
-      const className = path.node.id === null ? 'TODO' : path.node.id.name;
+    exit(path: babel.NodePath<babel.types.ClassDeclaration>, state: State): void {
+      const className = path.node.id === null ? Date.now().toString() : path.node.id.name;
       const attributes = {};
       path.node.body.body.forEach((attr) => {
         const fnName = attr.key.name;
@@ -203,15 +346,13 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
           attributes: attributes
         }
       };
-      // TODO: double check Class names are *not* hoisted
       state.symbols.addToParent(className, path.node['shellType']);
       debug(`ClassDeclaration: { name: ${className} }`, path.node['shellType']);
     }
   },
   NewExpression: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.NewExpression>, state: State): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
-      const className = path.node.callee.name; // TODO: computed classes
       // check that the user is not passing a type that has async children to a self-defined function
       path.node.arguments.forEach((a) => {
         if (a['shellType'].hasAsyncChild || a['shellType'].returnsPromise) {
@@ -219,9 +360,7 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         }
       });
 
-      // determine return type
-      const lhsType = state.symbols.lookup(className);
-
+      const lhsType = path.node.callee['shellType'];
       path.node['shellType'] = lhsType.returnType || state.symbols.signatures.unknown;
       debug(`NewExpression: { ${dbg}, callee['shellType']: ${lhsType.type} }`, path.node['shellType'].type);
     }
@@ -232,11 +371,11 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   Function: {
-    enter(path, state): void {
+    enter(path: babel.NodePath<babel.types.Function>, state: State): void {
       debug('Function Enter');
       const returnTypes = [];
       const symbolCopy1 = state.symbols.deepCopy();
-      // TODO: add arguments to ST in FuncCall
+      // NOTE: this is where adding arguments to ST will happen when allowing API args to funcs is turned on.
       path.skip();
       path.node['shellScope'] = symbolCopy1.pushScope();
       path.traverse(TypeInferenceVisitor, {
@@ -262,8 +401,8 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
         rType = returnTypes[returnTypes.length - 1];
       } else {
         dbg = 'multi return stmt';
-        // Cannot know if return statements are exhaustive, so turn off returning shell API for everything.
-        // TODO: this can be expanded with some effort so returning of the same type is allowed.
+        /* Cannot know if return statements are exhaustive, so turn off returning shell API for everything.
+           NOTE: this can be expanded with some effort so returning of the same type is allowed. */
         const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
         if (someAsync) {
           throw new Error('Error: function can return different types, must be the same type');
@@ -272,16 +411,20 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       }
 
       const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType, path: path };
-      if (path.node.id !== null && !state.t.isAssignmentExpression(path.parent) && !state.t.isVariableDeclarator(path.parent)) {
-        state.symbols.updateFunctionScoped(path, path.node.id.name, sType, state.t);
+      let debugName = 'lambda';
+      if (path.node.type === 'FunctionDeclaration' || path.node.type === 'FunctionExpression') {
+        if (path.node.id !== null && !state.t.isAssignmentExpression(path.parent) && !state.t.isVariableDeclarator(path.parent)) {
+          state.symbols.updateFunctionScoped(path, path.node.id.name, sType, state.t);
+          debugName = path.node.id.name;
+        }
       }
 
       path.node['shellType'] = sType;
-      debug(`Function: { id: ${path.node.id === null ? '<lambda>' : path.node.id.name} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
+      debug(`Function: { id: ${debugName} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
     }
   },
   ReturnStatement: {
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.ReturnStatement>, state: State): void {
       const sType = path.node.argument === null ? state.symbols.signatures.unknown : path.node.argument['shellType'];
       path.node['shellType'] = sType;
       state.returnValues.push(sType);
@@ -289,17 +432,17 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   Scopable: {
-    enter(path, state): void {
+    enter(path: babel.NodePath<babel.types.Scopable>, state: State): void {
       debug(`---new scope at i=${state.symbols.depth}`, path.node.type, true);
       path.node['shellScope'] = state.symbols.pushScope();
     },
-    exit(path, state): void {
+    exit(path: babel.NodePath<babel.types.Scopable>, state: State): void {
       state.symbols.popScope();
       debug(`---pop scope at i=${state.symbols.depth}`, path.node.type, true);
     }
   },
   Conditional: {
-    enter(path, state): void {
+    enter(path: babel.NodePath<babel.types.Conditional>, state: State): void {
       debug('Conditional');
       path.skip();
 
@@ -363,39 +506,48 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
     }
   },
   Loop: {
-    enter(path, state): void {
+    enter(path: babel.NodePath<babel.types.Loop>, state: State): void {
       debug('Loop', path.node.type);
 
-      if (state.t.isForXStatement(path)) {
-        // TODO: this can be implemented, but it's tedious. Save for future work?
-        throw new Error('for in and for of statements are not supported at this time.');
+      switch (path.node.type) {
+        case 'ForInStatement':
+        case 'ForOfStatement':
+          // TODO: this can be implemented, but it's tedious. Save for future work?
+          throw new Error('for in and for of statements are not supported at this time.');
+        case 'DoWhileStatement':
+        case 'WhileStatement':
+        case 'ForStatement':
+          path.skip();
+
+          // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
+          const testPath = path.get('test') as babel.NodePath<babel.types.Node>;
+          testPath.replaceWith(state.t.sequenceExpression([path.node.test]));
+          testPath.traverse(TypeInferenceVisitor, {
+            t: state.t,
+            skip: state.skip,
+            returnValues: state.returnValues,
+            symbols: state.symbols
+          });
+          const symbolCopyBody = state.symbols.deepCopy();
+
+          optionallyWrapNode(state.t, path, 'body');
+          path.node.body['shellScope'] = symbolCopyBody.pushScope();
+          path.get('body').traverse(TypeInferenceVisitor, {
+            t: state.t,
+            skip: state.skip,
+            returnValues: state.returnValues,
+            symbols: symbolCopyBody
+          });
+          symbolCopyBody.popScope();
+          state.symbols.compareSymbolTables( [state.symbols, symbolCopyBody]);
+          break;
+        default:
+          assertUnreachable(path.node);
       }
-      path.skip();
-
-      // NOTE: this is a workaround for path.get(...).traverse skipping the root node. Replace child node with block.
-      path.get('test').replaceWith(state.t.sequenceExpression([path.node.test]));
-      path.get('test').traverse(TypeInferenceVisitor, {
-        t: state.t,
-        skip: state.skip,
-        returnValues: state.returnValues,
-        symbols: state.symbols
-      });
-      const symbolCopyBody = state.symbols.deepCopy();
-
-      optionallyWrapNode(state.t, path, 'body');
-      path.node.body['shellScope'] = symbolCopyBody.pushScope();
-      path.get('body').traverse(TypeInferenceVisitor, {
-        t: state.t,
-        skip: state.skip,
-        returnValues: state.returnValues,
-        symbols: symbolCopyBody
-      });
-      symbolCopyBody.popScope();
-      state.symbols.compareSymbolTables( [state.symbols, symbolCopyBody]);
     }
   },
   SwitchStatement: {
-    enter(path, state): void {
+    enter(path: babel.NodePath<babel.types.SwitchStatement>, state: State): void {
       debug('SwitchStatement');
       path.skip();
 
@@ -409,9 +561,10 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
 
       let exhaustive = false;
       const symbolCopies = path.node.cases.map(() => state.symbols.deepCopy());
+      const casesPath = path.get('cases');
       path.node.cases.forEach((consNode, i) => {
         path.node.cases[i]['shellScope'] = symbolCopies[i].pushScope();
-        const casePath = path.get(`cases.${i}`);
+        const casePath = casesPath[i];
         casePath.traverse(TypeInferenceVisitor, {
           t: state.t,
           skip: state.skip,
@@ -431,13 +584,13 @@ var TypeInferenceVisitor = { /* eslint no-var:0 */
       state.symbols.compareSymbolTables(symbolCopies);
     }
   },
-  exit(path, state): void {
+  exit(path: babel.NodePath, state: State): void {
     const type = path.node['shellType'] || state.symbols.signatures.unknown;
-    if (state.skip.some((t) => (state.t[t](path.node)))) { // TODO: nicer?
+    if (state.skip.some((t) => (state.t[t](path.node)))) {
       debug(`${path.node.type}`);
       return;
     }
-    path.node['shellType'] = type; // TODO: set all types?
+    path.node['shellType'] = type;
     debug(`*${path.node.type}`, type.type);
   }
 };
@@ -450,7 +603,7 @@ export default class AsyncWriter {
     const symbols = st ? st : new SymbolTable([{}], signatures);
     this.symbols = symbols; // public so symbols can be read externally
 
-    this.plugin = ({ types: t }): any => {
+    this.plugin = ({ types: t }: Babel): MyVisitor => {
       const skip = Object.keys(TypeInferenceVisitor).filter(s => /^[A-Z]/.test(s[0])).map(s => `is${s}`);
       return {
         // post(state): void {

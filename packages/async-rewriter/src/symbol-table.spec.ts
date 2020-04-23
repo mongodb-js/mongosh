@@ -39,24 +39,21 @@ describe('SymbolTable', () => {
       });
     });
   });
-  describe('#elidePath', () => {
+  describe('#remover', () => {
     const st = new SymbolTable([{}], {});
     it('removes the path attribute if present', () => {
-      expect(st.elidePath(
-        { type: 'a', attributes: { b: { type: 'b' } }, path: 'PATH' }
-      )).to.deep.equal(
-        { type: 'a', attributes: { b: { type: 'b' } } }
-      );
-    });
-    it('removes the path attribute if not present', () => {
-      expect(st.elidePath(
-        { type: 'a', attributes: { b: { type: 'b' } } }
-      )).to.deep.equal(
-        { type: 'a', attributes: { b: { type: 'b' } } }
-      );
-    });
-    it('handles undefined', () => {
-      expect(st.elidePath(undefined)).to.deep.equal(undefined);
+      expect(JSON.stringify({
+        type: 'a', attributes: {
+          b: { type: 'b' },
+          c: { type: 'func', attributes: { e: { f: 1, path: 'PATH' } } }
+        },
+        path: 'PATH'
+      }, st.replacer)).to.equal(JSON.stringify({
+        type: 'a', attributes: {
+          b: { type: 'b' },
+          c: { type: 'func', attributes: { e: { f: 1 } } }
+        }
+      }));
     });
   });
   describe('#compareTypes', () => {
@@ -156,7 +153,7 @@ describe('SymbolTable', () => {
     st.pushScope();
     st.pushScope();
     const path = {
-      getFunctionParent: () => ({
+      getFunctionParent: (): any => ({
         node: { shellScope: 2 }
       })
     };
@@ -313,6 +310,40 @@ describe('SymbolTable', () => {
           expect(() => st.compareSymbolTables(alternatives)).to.throw;
           expect(st.scopeAt(0)).to.deep.equal({});
         });
+      });
+    });
+  });
+  describe('#updateAttribute', () => {
+    describe('all sub types exist', () => {
+      const st = new SymbolTable([{
+        a: { type: 'object', attributes: { b: { type: 'object', attributes: { c: { type: 'object', attributes: {} } } } } },
+        a1: { type: 'object', attributes: { b: { type: 'object', attributes: { c: { type: 'object', attributes: {} } } } } }
+      }], {});
+      it('updates for no hasAsyncChild', () => {
+        st.updateAttribute('a', ['b', 'c'], myType);
+        const act = { hasAsyncChild: false, type: 'object', attributes: { b: { hasAsyncChild: false, type: 'object', attributes: { c: myType } } } };
+        expect(st.scopeAt(0).a).to.deep.equal(act);
+      });
+      it('updates for yes hasAsyncChild', () => {
+        st.updateAttribute('a1', ['b', 'c'], { hasAsyncChild: true });
+        const act = { hasAsyncChild: true, type: 'object', attributes: { b: { hasAsyncChild: true, type: 'object', attributes: { c: { hasAsyncChild: true } } } } };
+        expect(st.scopeAt(0).a1).to.deep.equal(act);
+      });
+    });
+    describe('new objects need to be created', () => {
+      const st = new SymbolTable([{
+        a: { type: 'object', attributes: {} },
+        a1: { type: 'object', attributes: {} },
+      }], {});
+      it('updates for no hasAsyncChild', () => {
+        st.updateAttribute('a', ['b', 'c'], myType);
+        const act = { hasAsyncChild: false, type: 'object', attributes: { b: { hasAsyncChild: false, type: 'object', attributes: { c: myType } } } };
+        expect(st.scopeAt(0).a).to.deep.equal(act);
+      });
+      it('updates for yes hasAsyncChild', () => {
+        st.updateAttribute('a1', ['b', 'c'], { hasAsyncChild: true });
+        const act = { hasAsyncChild: true, type: 'object', attributes: { b: { hasAsyncChild: true, type: 'object', attributes: { c: { hasAsyncChild: true } } } } };
+        expect(st.scopeAt(0).a1).to.deep.equal(act);
       });
     });
   });

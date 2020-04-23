@@ -5,14 +5,70 @@ import traverse from '@babel/traverse';
 
 import { signatures } from '@mongosh/shell-api';
 
-import AsyncWriter from './async-writer-babel';
+import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
 
-const skipPath = (p) => {
+const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
   return { returnType: p.returnType, returnsPromise: p.returnsPromise, type: p.type };
 };
 
+describe('checkHasAsyncChild', () => {
+  ['hasAsyncChild', 'returnsPromise'].forEach((key) => {
+    it(`true deeply nested ${key}`, () => {
+      const k = {
+        inner: {
+          inner2: {
+            inner3: {
+              inner4: {
+              }
+            }
+          }
+        }
+      };
+      k.inner.inner2.inner3.inner4[key] = true;
+      expect(checkHasAsyncChild(k)).to.equal(true);
+    });
+    it(`false deeply nested ${key}`, () => {
+      const k = {
+        inner: {
+          inner2: {
+            inner3: {
+              inner4: {
+              }
+            }
+          }
+        }
+      };
+      k.inner.inner2.inner3.inner4[key] = false;
+      expect(checkHasAsyncChild(k)).to.equal(false);
+    });
+    it(`true top-level ${key}`, () => {
+      const k = {};
+      k[key] = true;
+      expect(checkHasAsyncChild(k)).to.equal(true);
+    });
+    it(`false top-level ${key}`, () => {
+      const k = {};
+      k[key] = false;
+      expect(checkHasAsyncChild(k)).to.equal(false);
+    });
+  });
+  it('returns false when none', () => {
+    expect(checkHasAsyncChild({})).to.equal(false);
+    expect(checkHasAsyncChild({
+      inner: {
+        inner2: {
+          inner3: {
+            inner4: {
+              notReturnsPromise: true
+            }
+          }
+        }
+      }
+    })).to.equal(false);
+  });
+});
 describe('async-writer-babel', () => {
   let writer;
   let ast;
@@ -383,9 +439,12 @@ describe('async-writer-babel', () => {
             });
           });
         });
-        describe('with variable', () => {
-          it('throws an error with suggestion for db', () => {
+        describe('with other rhs', () => {
+          it('throws an error with suggestion for db and var', () => {
             expect(() => writer.compile('a[d]')).to.throw();
+          });
+          it('throws an error with suggestion for db and null', () => {
+            expect(() => writer.compile('a[null]')).to.throw();
           });
         });
       });
@@ -496,6 +555,114 @@ describe('async-writer-babel', () => {
             expect(path.node.value['shellType']).to.deep.equal(signatures.unknown);
             done();
           }
+        });
+      });
+    });
+    describe('with methods', () => {
+      describe('no async', () => {
+        before(() => {
+          input = 'a = { method() { return 1; }}';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('a = {\n  method() {\n    return 1;\n  }\n\n};');
+        });
+        it('decorates object', (done) => {
+          traverse(ast, {
+            ObjectExpression(path) {
+              expect(path.node['shellType'].type).to.equal('object');
+              expect(path.node['shellType'].hasAsyncChild).to.equal(false);
+              expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal(['method']);
+              expect(skipPath(path.node['shellType'].attributes.method)).to.deep.equal({
+                type: 'function', returnType: signatures.unknown, returnsPromise: false
+              });
+              done();
+            }
+          });
+        });
+      });
+      describe('with async', () => {
+        before(() => {
+          input = 'a = { method() { return db; }}';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('a = {\n  method() {\n    return db;\n  }\n\n};');
+        });
+        it('decorates object', (done) => {
+          traverse(ast, {
+            ObjectExpression(path) {
+              expect(path.node['shellType'].type).to.equal('object');
+              expect(path.node['shellType'].hasAsyncChild).to.equal(true);
+              expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal(['method']);
+              expect(skipPath(path.node['shellType'].attributes.method)).to.deep.equal({
+                type: 'function', returnType: signatures.Database, returnsPromise: false
+              });
+              done();
+            }
+          });
+        });
+      });
+    });
+    describe('with spread', () => {
+      describe('with known identifier', () => {
+        before(() => {
+          writer.compile('oldObj = { method() { return db; }}');
+          input = 'newObj = {...oldObj}';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('newObj = { ...oldObj\n};');
+        });
+        it('decorates object', (done) => {
+          traverse(ast, {
+            ObjectExpression(path) {
+              expect(path.node['shellType'].type).to.equal('object');
+              expect(path.node['shellType'].hasAsyncChild).to.equal(true);
+              expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal(['method']);
+              expect(skipPath(path.node['shellType'].attributes.method)).to.deep.equal({
+                type: 'function', returnType: signatures.Database, returnsPromise: false
+              });
+              done();
+            }
+          });
+        });
+      });
+      describe('with unknown identifier', () => {
+        before(() => {
+          input = 'newObj = {...unknownObj}';
+          ast = writer.getTransform(input).ast;
+        });
+        it('compiles correctly', () => {
+          expect(writer.compile(input)).to.equal('newObj = { ...unknownObj\n};');
+        });
+        it('decorates object', (done) => {
+          traverse(ast, {
+            ObjectExpression(path) {
+              expect(path.node['shellType'].type).to.equal('object');
+              expect(path.node['shellType'].hasAsyncChild).to.equal(false);
+              expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal([]);
+              done();
+            }
+          });
+        });
+      });
+    });
+    describe('with literal', () => {
+      before(() => {
+        input = 'newObj = {...{ method() { return db; }}}';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(writer.compile(input)).to.equal('newObj = { ...{\n    method() {\n      return db;\n    }\n\n  }\n};');
+      });
+      it('decorates object', () => {
+        const node = ast.program.body[0].expression.right;
+        expect(node['shellType'].type).to.equal('object');
+        expect(node['shellType'].hasAsyncChild).to.equal(true);
+        expect(Object.keys(node['shellType'].attributes)).to.deep.equal(['method']);
+        expect(skipPath(node['shellType'].attributes.method)).to.deep.equal({
+          type: 'function', returnType: signatures.Database, returnsPromise: false
         });
       });
     });
@@ -789,6 +956,20 @@ function f() {
     });
   });
   describe('VariableDeclarator', () => {
+    describe('non-symbol lval', () => {
+      it('array pattern throws for async type', () => {
+        expect(() => writer.compile('let [a, b] = [1, db]')).to.throw();
+      });
+      it('array pattern ignored for non-async', () => {
+        expect(writer.compile('let [a, b] = [1, 2]')).to.equal('let [a, b] = [1, 2];');
+      });
+      it('object pattern throws for async type', () => {
+        expect(() => writer.compile('let {a} = {a: db}')).to.throw();
+      });
+      it('object pattern ignored for non-async', () => {
+        expect(writer.compile('let {a} = {a: 1, b: 2}')).to.equal('let {\n  a\n} = {\n  a: 1,\n  b: 2\n};');
+      });
+    });
     describe('var', () => {
       describe('top-level', () => {
         describe('without assignment', () => {
@@ -1142,6 +1323,264 @@ function f() {
     });
   });
   describe('AssignmentExpression', () => {
+    describe('non-symbol lval', () => {
+      describe('Array/Object Pattern', () => {
+        it('array pattern throws for async type', () => {
+          expect(() => writer.compile('[a, b] = [1, db]')).to.throw();
+        });
+        it('array pattern ignored for non-async', () => {
+          expect(writer.compile('[a, b] = [1, 2]')).to.equal('[a, b] = [1, 2];');
+        });
+        // NOTE: babel parser doesn't like this syntax.
+        // it('object pattern throws for async type', () => {
+        //   expect(() => writer.compile('{a} = {a: db}')).to.throw();
+        // });
+        // it('object pattern ignored for non-async', () => {
+        //   expect(writer.compile('{a, b} = {a: 1, b: 2}')).to.equal('{a, b} = {\n  a: 1,\n  b: 2\n};');
+        // });
+      });
+      describe('MemberExpression', () => {
+        describe('with non-async type', () => {
+          describe('with identifiers', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x.y = 1';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x.y = 1;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: false, attributes: { y: signatures.unknown } });
+            });
+          });
+          describe('with string index', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x[\'y\'] = 1';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x[\'y\'] = 1;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: false, attributes: { y: signatures.unknown } });
+            });
+          });
+          describe('with number index', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x[0] = 1';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x[0] = 1;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: false, attributes: { 0: signatures.unknown } });
+            });
+          });
+          describe('with non-symbol LHS', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              input = '[1,2][0] = 1';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('[1, 2][0] = 1;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                  done();
+                }
+              });
+            });
+          });
+        });
+        describe('assigning to hasAsyncChild type', () => {
+          describe('with identifiers', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {db: db}');
+              input = 'x.y = 1';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x.y = 1;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { db: signatures.Database, y: signatures.unknown } });
+            });
+          });
+          describe('with computed index', () => {
+            it('throws', () => {
+              writer = new AsyncWriter(signatures);
+              writer.symbols.initializeApiObjects({ db: signatures.Database });
+              writer.compile('x = {db: db}');
+              expect(() => writer.compile('x[a] = 1')).to.throw();
+            });
+          });
+        });
+        describe('assigning async type', () => {
+          describe('with identifiers', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x.y = db';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x.y = db;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { y: signatures.Database } });
+            });
+          });
+          describe('with numeric indexes', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x[1] = db';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x[1] = db;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { 1: signatures.Database } });
+            });
+          });
+          describe('with string index', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = {}');
+              input = 'x[\'y\'] = db';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('x[\'y\'] = db;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  done();
+                }
+              });
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { y: signatures.Database } });
+            });
+          });
+          describe('with computed index', () => {
+            before(() => {
+              writer = new AsyncWriter(signatures);
+              writer.symbols.initializeApiObjects({ db: signatures.Database });
+              writer.compile('x = {}');
+              expect(() => writer.compile('x[a] = db')).to.throw();
+            });
+          });
+          describe('with non-symbol LHS', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              input = '[1, 2][0] = db';
+              const result = writer.getTransform(input);
+              ast = result.ast;
+              output = result.code;
+            });
+            it('compiles correctly', () => {
+              expect(output).to.equal('[1, 2][0] = db;');
+            });
+            it('decorates AssignmentExpression', (done) => {
+              traverse(ast, {
+                AssignmentExpression(path) {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  done();
+                }
+              });
+            });
+          });
+        });
+      });
+    });
     describe('top-level scope', () => {
       describe('new symbol', () => {
         describe('rhs is known type', () => {

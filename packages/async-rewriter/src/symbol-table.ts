@@ -36,20 +36,9 @@ export default class SymbolTable {
     });
   }
 
-  /**
-   * Remove the 'path' attribute from a type. Required so that we can deep clone everything in the scope *except*
-   * path references.
-   *
-   * @param type - a type object.
-   */
-  public elidePath(type: object): object {
-    if (type === undefined) {
-      return type;
-    }
-    return Object.keys(type).filter(t => t !== 'path').reduce((obj, key) => {
-      obj[key] = type[key];
-      return obj;
-    }, {});
+  public replacer(k, v): any {
+    if (k === 'path') return undefined;
+    return v;
   }
 
   /**
@@ -59,7 +48,7 @@ export default class SymbolTable {
    * @param t2
    */
   public compareTypes(t1: object, t2: object): boolean {
-    return (JSON.stringify(this.elidePath(t1)) === JSON.stringify(this.elidePath(t2)));
+    return (JSON.stringify(t1, this.replacer) === JSON.stringify(t2, this.replacer));
   }
 
   /**
@@ -71,7 +60,7 @@ export default class SymbolTable {
     this.scopeStack.forEach(oldScope => {
       const newScope = {};
       Object.keys(oldScope).forEach(key => {
-        newScope[key] = JSON.parse(JSON.stringify(this.elidePath(oldScope[key])));
+        newScope[key] = JSON.parse(JSON.stringify(oldScope[key], this.replacer));
         if ('path' in oldScope[key]) {
           newScope[key].path = oldScope[key].path;
         }
@@ -134,6 +123,30 @@ export default class SymbolTable {
   }
 
   /**
+   * Update a variable's attributes via a set of keys
+   *
+   * @param lhs
+   * @param keys
+   * @param value
+   */
+  public updateAttribute(lhs, keys: string[], value: any): void {
+    const item = this.lookup(lhs);
+    keys.reduce((sym, key, i) => {
+      sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;
+      if (sym.attributes === undefined) {
+        sym.attributes = {};
+      }
+      if (i < keys.length - 1) {
+        if (sym.attributes[key] === undefined) {
+          sym.attributes[key] = { type: 'object', attributes: {}, hasAsyncChild: !!value.hasAsyncChild };
+        }
+        return sym.attributes[key];
+      }
+      sym.attributes[key] = value;
+    }, item);
+  }
+
+  /**
    * Update a function-scoped variable. Get the correct scope from the AST and update enclosing scope.
    *
    * @param path - babel Path instance.
@@ -189,7 +202,7 @@ export default class SymbolTable {
    * Get the scope at a given index.
    * @param i
    */
-  public scopeAt(i: number): object {
+  public scopeAt(i: number): any {
     return this.scopeStack[i];
   }
 
@@ -240,29 +253,11 @@ export default class SymbolTable {
    * @param key
    */
   public printSymbol(symbol: any, key: string): string {
-    const type = symbol.type;
-    let info = '';
-    if (type === 'function') {
-      let rt = symbol.returnType;
-      if (typeof symbol.returnType === 'undefined') {
-        rt = '?';
-      } else if (typeof symbol.returnType === 'object') {
-        rt = rt.type;
-      }
-      const rp = symbol.returnsPromise === undefined ? '?' : symbol.returnsPromise;
-      info = `returnType: ${rt} returnsPromise: ${rp}`;
-    } else if (type === 'classdef') {
-      info = this.printSymbol(symbol.returnType, 'returnType');
-    } else {
-      info = '[]';
-      if (symbol.attributes !== undefined) {
-        info = Object.keys(symbol.attributes).map((v) => {
-          return `${v}: <${symbol.attributes[v].type}>`;
-        }).join(', ');
-      }
-      info = ` attributes: { ${info} }`;
-    }
-    return `  ${key}: { type: '${type}' ${info} }`;
+    return `  ${key}: ${JSON.stringify(symbol, (k, v) => {
+      if (k === 'path') return undefined;
+      if (k === 'returnType') return v.type;
+      return v;
+    }, 2)}`;
   }
 
   /**
