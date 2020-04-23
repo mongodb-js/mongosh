@@ -47,7 +47,7 @@ const attrTemplate = (attrName, lib, base = '') => {
 const methodTemplate = (methodName, lib) => {
   const method = lib[methodName];
   const firstArg = lib.__methods.firstArg !== '' ? `${lib.__methods.firstArg}, ` : '';
-  const wrappeeCall = `this.${lib.__methods.wrappee}.${methodName}(${firstArg}...args)`;
+  const wrappeeCall = `this.${lib.__methods.wrappee}.${lib.__methods.wrappeePrefix || ''}${methodName}(${firstArg}...args)`;
 
   return method.__fluent ?
     `${methodName}(...args) {

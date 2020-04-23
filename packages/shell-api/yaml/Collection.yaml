@@ -1,5 +1,9 @@
 class:
     <<: *__defaultClass
+    __methods:
+        wrappee: '_mapper'
+        firstArg: 'this'
+        wrappeePrefix: 'collection_'
     __constructorArgs:
         - _mapper
         - _database

@@ -151,183 +151,183 @@ class Collection {
   }
 
   aggregate(...args) {
-    return this._mapper.aggregate(this, ...args);
+    return this._mapper.collection_aggregate(this, ...args);
   }
 
   bulkWrite(...args) {
-    return this._mapper.bulkWrite(this, ...args);
+    return this._mapper.collection_bulkWrite(this, ...args);
   }
 
   countDocuments(...args) {
-    return this._mapper.countDocuments(this, ...args);
+    return this._mapper.collection_countDocuments(this, ...args);
   }
 
   count(...args) {
-    return this._mapper.count(this, ...args);
+    return this._mapper.collection_count(this, ...args);
   }
 
   deleteMany(...args) {
-    return this._mapper.deleteMany(this, ...args);
+    return this._mapper.collection_deleteMany(this, ...args);
   }
 
   deleteOne(...args) {
-    return this._mapper.deleteOne(this, ...args);
+    return this._mapper.collection_deleteOne(this, ...args);
   }
 
   distinct(...args) {
-    return this._mapper.distinct(this, ...args);
+    return this._mapper.collection_distinct(this, ...args);
   }
 
   estimatedDocumentCount(...args) {
-    return this._mapper.estimatedDocumentCount(this, ...args);
+    return this._mapper.collection_estimatedDocumentCount(this, ...args);
   }
 
   find(...args) {
-    return this._mapper.find(this, ...args);
+    return this._mapper.collection_find(this, ...args);
   }
 
   findAndModify(...args) {
-    return this._mapper.findAndModify(this, ...args);
+    return this._mapper.collection_findAndModify(this, ...args);
   }
 
   findOne(...args) {
-    return this._mapper.findOne(this, ...args);
+    return this._mapper.collection_findOne(this, ...args);
   }
 
   findOneAndDelete(...args) {
-    return this._mapper.findOneAndDelete(this, ...args);
+    return this._mapper.collection_findOneAndDelete(this, ...args);
   }
 
   findOneAndReplace(...args) {
-    return this._mapper.findOneAndReplace(this, ...args);
+    return this._mapper.collection_findOneAndReplace(this, ...args);
   }
 
   findOneAndUpdate(...args) {
-    return this._mapper.findOneAndUpdate(this, ...args);
+    return this._mapper.collection_findOneAndUpdate(this, ...args);
   }
 
   insert(...args) {
-    return this._mapper.insert(this, ...args);
+    return this._mapper.collection_insert(this, ...args);
   }
 
   insertMany(...args) {
-    return this._mapper.insertMany(this, ...args);
+    return this._mapper.collection_insertMany(this, ...args);
   }
 
   insertOne(...args) {
-    return this._mapper.insertOne(this, ...args);
+    return this._mapper.collection_insertOne(this, ...args);
   }
 
   isCapped(...args) {
-    return this._mapper.isCapped(this, ...args);
+    return this._mapper.collection_isCapped(this, ...args);
   }
 
   remove(...args) {
-    return this._mapper.remove(this, ...args);
+    return this._mapper.collection_remove(this, ...args);
   }
 
   save(...args) {
-    return this._mapper.save(this, ...args);
+    return this._mapper.collection_save(this, ...args);
   }
 
   replaceOne(...args) {
-    return this._mapper.replaceOne(this, ...args);
+    return this._mapper.collection_replaceOne(this, ...args);
   }
 
   update(...args) {
-    return this._mapper.update(this, ...args);
+    return this._mapper.collection_update(this, ...args);
   }
 
   updateMany(...args) {
-    return this._mapper.updateMany(this, ...args);
+    return this._mapper.collection_updateMany(this, ...args);
   }
 
   updateOne(...args) {
-    return this._mapper.updateOne(this, ...args);
+    return this._mapper.collection_updateOne(this, ...args);
   }
 
   convertToCapped(...args) {
-    return this._mapper.convertToCapped(this, ...args);
+    return this._mapper.collection_convertToCapped(this, ...args);
   }
 
   createIndexes(...args) {
-    return this._mapper.createIndexes(this, ...args);
+    return this._mapper.collection_createIndexes(this, ...args);
   }
 
   createIndex(...args) {
-    return this._mapper.createIndex(this, ...args);
+    return this._mapper.collection_createIndex(this, ...args);
   }
 
   ensureIndex(...args) {
-    return this._mapper.ensureIndex(this, ...args);
+    return this._mapper.collection_ensureIndex(this, ...args);
   }
 
   getIndexes(...args) {
-    return this._mapper.getIndexes(this, ...args);
+    return this._mapper.collection_getIndexes(this, ...args);
   }
 
   getIndexSpecs(...args) {
-    return this._mapper.getIndexSpecs(this, ...args);
+    return this._mapper.collection_getIndexSpecs(this, ...args);
   }
 
   getIndexKeys(...args) {
-    return this._mapper.getIndexKeys(this, ...args);
+    return this._mapper.collection_getIndexKeys(this, ...args);
   }
 
   getIndices(...args) {
-    return this._mapper.getIndices(this, ...args);
+    return this._mapper.collection_getIndices(this, ...args);
   }
 
   dropIndexes(...args) {
-    return this._mapper.dropIndexes(this, ...args);
+    return this._mapper.collection_dropIndexes(this, ...args);
   }
 
   dropIndex(...args) {
-    return this._mapper.dropIndex(this, ...args);
+    return this._mapper.collection_dropIndex(this, ...args);
   }
 
   reIndex(...args) {
-    return this._mapper.reIndex(this, ...args);
+    return this._mapper.collection_reIndex(this, ...args);
   }
 
   totalIndexSize(...args) {
-    return this._mapper.totalIndexSize(this, ...args);
+    return this._mapper.collection_totalIndexSize(this, ...args);
   }
 
   getDB(...args) {
-    return this._mapper.getDB(this, ...args);
+    return this._mapper.collection_getDB(this, ...args);
   }
 
   stats(...args) {
-    return this._mapper.stats(this, ...args);
+    return this._mapper.collection_stats(this, ...args);
   }
 
   dataSize(...args) {
-    return this._mapper.dataSize(this, ...args);
+    return this._mapper.collection_dataSize(this, ...args);
   }
 
   storageSize(...args) {
-    return this._mapper.storageSize(this, ...args);
+    return this._mapper.collection_storageSize(this, ...args);
   }
 
   totalSize(...args) {
-    return this._mapper.totalSize(this, ...args);
+    return this._mapper.collection_totalSize(this, ...args);
   }
 
   drop(...args) {
-    return this._mapper.drop(this, ...args);
+    return this._mapper.collection_drop(this, ...args);
   }
 
   getFullName(...args) {
-    return this._mapper.getFullName(this, ...args);
+    return this._mapper.collection_getFullName(this, ...args);
   }
 
   getName(...args) {
-    return this._mapper.getName(this, ...args);
+    return this._mapper.collection_getName(this, ...args);
   }
 
   exists(...args) {
-    return this._mapper.exists(this, ...args);
+    return this._mapper.collection_exists(this, ...args);
   }
 }
 
@@ -1006,15 +1006,15 @@ class Database {
   }
 
   runCommand(...args) {
-    return this._mapper.runCommand(this, ...args);
+    return this._mapper.db_runCommand(this, ...args);
   }
 
   getCollectionNames(...args) {
-    return this._mapper.getCollectionNames(this, ...args);
+    return this._mapper.db_getCollectionNames(this, ...args);
   }
 
   getCollectionInfos(...args) {
-    return this._mapper.getCollectionInfos(this, ...args);
+    return this._mapper.db_getCollectionInfos(this, ...args);
   }
 }
 
