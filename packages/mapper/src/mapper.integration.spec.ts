@@ -34,6 +34,7 @@ describe('Mapper (integration)', function() {
   const createCollection = async(dbName: string, collectionName: string): Promise<any> => {
     const now = Date.now();
     await serviceProvider.insertOne(dbName, collectionName, { _id: now });
+    await serviceProvider.deleteOne(dbName, collectionName, { _id: now });
   };
 
   before(async() => {
@@ -346,6 +347,7 @@ describe('Mapper (integration)', function() {
     describe('stats', () => {
       beforeEach(async() => {
         await createCollection(dbName, collectionName);
+        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
       });
 
       it('returns stats', async() => {
@@ -412,6 +414,99 @@ describe('Mapper (integration)', function() {
         it('returns false', async() => {
           expect(await mapper.collection_drop(collection)).to.be.false;
         });
+      });
+    });
+
+    describe('findAndModify', () => {
+      const findAll = (): any => serviceProvider.find(
+        dbName,
+        collectionName,
+        {},
+        { projection: { _id: 0 } }
+      ).toArray();
+
+      beforeEach(async() => {
+        await serviceProvider.insertMany(
+          dbName,
+          collectionName,
+          [
+            { doc: 1, foo: 1 },
+            { doc: 2, foo: 1 }
+          ]
+        );
+      });
+
+      it('changes only a matching document', async() => {
+        await mapper.collection_findAndModify(
+          collection,
+          {
+            query: { doc: 1 },
+            update: { foo: 'bar' }
+          }
+        );
+
+        expect(await findAll()).to.deep.equal([
+          { foo: 'bar' },
+          { doc: 2, foo: 1 }
+        ]);
+      });
+
+      it('removes only a matching document', async() => {
+        await mapper.collection_findAndModify(
+          collection,
+          {
+            query: { doc: 1 },
+            remove: true
+          }
+        );
+
+        expect(await findAll()).to.deep.equal([
+          { doc: 2, foo: 1 }
+        ]);
+      });
+
+      it('changes the first matching document with sort', async() => {
+        await mapper.collection_findAndModify(
+          collection,
+          {
+            query: { foo: 1 },
+            sort: { doc: -1 },
+            update: { changed: true }
+          }
+        );
+
+        expect(await findAll()).to.deep.equal([
+          { doc: 1, foo: 1 },
+          { changed: true }
+        ]);
+      });
+
+      it('returns the old document if new is not passed', async() => {
+        expect(
+          await mapper.collection_findAndModify(collection, { query: { doc: 1 }, update: { changed: true } })
+        ).to.deep.include({ doc: 1 });
+
+        expect(
+          await mapper.collection_findAndModify(collection, { query: { doc: 2 }, remove: true })
+        ).to.deep.include({ doc: 2 });
+      });
+
+      it('returns the new document if new is passed', async() => {
+        expect(
+          await mapper.collection_findAndModify(collection, {
+            query: { doc: 1 }, new: true, update: { changed: true }
+          })
+        ).to.deep.include({ changed: true });
+      });
+
+      it('allows upserts', async() => {
+        await mapper.collection_findAndModify(collection, {
+          query: { doc: 3 }, new: true, update: { doc: 3 }, upsert: true
+        });
+
+        expect(
+          await findAll()
+        ).to.deep.include({ doc: 3 });
       });
     });
   });
