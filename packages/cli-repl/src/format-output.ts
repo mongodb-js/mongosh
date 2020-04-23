@@ -63,7 +63,15 @@ function formatDatabases(output) {
 }
 
 function formatError(error) {
-  return inspect(error)
+  let result = '';
+  if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `
+  if (error.message) {
+    // const unknown = error.message.split('unknown: ');
+    // if (unknown[0] === 'unknown: ') unknown.
+    result += error.message;
+  }
+
+  return result;
 }
 
 function inspect(output) {

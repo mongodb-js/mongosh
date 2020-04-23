@@ -3,6 +3,7 @@ import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
 import * as BabelTypes from '@babel/types';
 import { Visitor } from '@babel/traverse';
+import MongoshRuntimeError from './error';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
@@ -98,7 +99,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const help = lhsType.type === 'Database' ?
               ' If you are accessing a collection try Database.get(\'collection\').' :
               '';
-            throw new Error(`Cannot access shell API attributes dynamically.${help}`);
+          throw new MongoshRuntimeError(`Cannot access shell API attributes dynamically.${help}`);
           }
           path.node['shellType'] = state.symbols.signatures.unknown;
           return;
@@ -648,13 +649,6 @@ export default class AsyncWriter {
    * @param {string} code - string to compile.
    */
   compile(code): string {
-    try {
-      return this.getTransform(code).code;
-    } catch (e) {
-      if (e.code === 'BABEL_TRANSFORM_ERROR') {
-        e.code = 'MONGOSH_RUNTIME_ERROR';
-        throw e;
-      }
-    }
+    return this.getTransform(code).code;
   }
 }
