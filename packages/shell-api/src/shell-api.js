@@ -1006,15 +1006,15 @@ class Database {
   }
 
   runCommand(...args) {
-    return this._mapper.db_runCommand(this, ...args);
+    return this._mapper.database_runCommand(this, ...args);
   }
 
   getCollectionNames(...args) {
-    return this._mapper.db_getCollectionNames(this, ...args);
+    return this._mapper.database_getCollectionNames(this, ...args);
   }
 
   getCollectionInfos(...args) {
-    return this._mapper.db_getCollectionInfos(this, ...args);
+    return this._mapper.database_getCollectionInfos(this, ...args);
   }
 }
 

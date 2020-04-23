@@ -1417,7 +1417,7 @@ export default class Mapper {
       { nameOnly: true }
     );
 
-    return infos.collection_map(collection => collection.name);
+    return infos.map(collection => collection.name);
   }
 
   /**
