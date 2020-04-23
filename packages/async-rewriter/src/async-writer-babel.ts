@@ -1,9 +1,13 @@
-/* eslint no-console:0, complexity:0, dot-notation: 0 */
+/* eslint no-sync: 0, no-console:0, complexity:0, dot-notation: 0 */
 import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
 import * as BabelTypes from '@babel/types';
 import { Visitor } from '@babel/traverse';
-import MongoshRuntimeError from './error';
+import {
+  MongoshInternalError,
+  MongoshInvalidInputError,
+  MongoshUnimplementedError
+} from '@mongosh/errors';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
@@ -12,7 +16,7 @@ const debug = (str, type?, indent?): void => {
 };
 
 function assertUnreachable(type?: never): never {
-  throw new Error(`Internal Error: type ${type} unhandled`);
+  throw new MongoshInternalError(`type ${type} unhandled`);
 }
 
 export interface Babel {
@@ -97,9 +101,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         default:
           if (lhsType.hasAsyncChild) {
             const help = lhsType.type === 'Database' ?
-              ' If you are accessing a collection try Database.get(\'collection\').' :
+              '\rIf you are accessing a collection try Database.get(\'collection\').' :
               '';
-          throw new MongoshRuntimeError(`Cannot access shell API attributes dynamically.${help}`);
+            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`);
           }
           path.node['shellType'] = state.symbols.signatures.unknown;
           return;
@@ -123,9 +127,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
 
       /* Check that the user is not passing a type that has async children to a self-defined function.
          This is possible for scripts but not for line-by-line execution, so turned off for everything. */
-      path.node.arguments.forEach((a) => {
+      path.node.arguments.forEach((a, index) => {
         if (a['shellType'].hasAsyncChild || a['shellType'].returnsPromise) {
-          throw new Error('Cannot pass Shell API object to non-API function');
+          // TODO: this may need to be a warning
+          // TODO: get argument from path.node
+          throw new MongoshInvalidInputError(`Argument in position ${index} is now an asynchronous function and may not behave as expected`);
         }
       });
 
@@ -202,7 +208,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'RestElement':
         case 'TSParameterProperty':
           if (sType.hasAsyncChild || sType.returnsPromise) {
-            throw new Error('Unimplemented: destructured variable declarations of Shell API types not supported at this time');
+            throw new MongoshUnimplementedError('Destructured assignment is not supported for Mongosh API types.');
           }
           break;
         default:
@@ -241,7 +247,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               // eslint-disable-next-line no-fallthrough
               default:
                 if (sType.hasAsyncChild || sType.returnsPromise) {
-                  throw new Error('Cannot assign shell API attributes dynamically');
+                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically');
                 }
             }
             lhsNode = lhsNode.object as babel.types.MemberExpression;
@@ -259,7 +265,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'ObjectPattern':
         case 'TSParameterProperty':
           if (sType.hasAsyncChild || sType.returnsPromise) {
-            throw new Error('Unimplemented: destructured variable declarations of Shell API types not supported at this time');
+            throw new MongoshUnimplementedError('Destructured assignment of Mongosh API types is not supported at this time.');
           }
           break;
         default:
@@ -274,7 +280,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
 
       const getAttr = (k, value): void => {
         if (k === false) {
-          throw new Error('Unreachable');
+          throw new MongoshInternalError('Unexpected AST format.');
         }
         if (value === undefined) {
           value = state.symbols.signatures.unknown;
@@ -355,9 +361,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     exit(path: babel.NodePath<babel.types.NewExpression>, state: State): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
       // check that the user is not passing a type that has async children to a self-defined function
-      path.node.arguments.forEach((a) => {
+      path.node.arguments.forEach((a, index) => {
         if (a['shellType'].hasAsyncChild || a['shellType'].returnsPromise) {
-          throw new Error('Cannot pass Shell API object to class');
+          // TODO: this may need to be a warning
+          // TODO: get argument from path.node
+          throw new MongoshInvalidInputError(`Argument in position ${index} is now an asynchronous function and may not behave as expected`);
         }
       });
 
@@ -406,7 +414,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
            NOTE: this can be expanded with some effort so returning of the same type is allowed. */
         const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
         if (someAsync) {
-          throw new Error('Error: function can return different types, must be the same type');
+          throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.');
         }
         rType = state.symbols.signatures.unknown;
       }
@@ -497,7 +505,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const cAsync = consType && (consType.hasAsyncChild || consType.returnsPromise);
             const aAsync = altType && (altType.hasAsyncChild || altType.returnsPromise);
             if (cAsync || aAsync) {
-              throw new Error('cannot conditionally assign shell API types');
+              throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.');
             }
             path.node['shellType'] = state.symbols.signatures.unknown;
           }
@@ -514,7 +522,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'ForInStatement':
         case 'ForOfStatement':
           // TODO: this can be implemented, but it's tedious. Save for future work?
-          throw new Error('for in and for of statements are not supported at this time.');
+          throw new MongoshUnimplementedError('\'for in\' and \'for of\' statements are not supported at this time.');
         case 'DoWhileStatement':
         case 'WhileStatement':
         case 'ForStatement':
@@ -637,11 +645,16 @@ export default class AsyncWriter {
    * @returns {Object} - { ast, code }
    */
   getTransform(code): any {
-    return babel.transformSync(code, {
-      plugins: [this.plugin],
-      code: true,
-      ast: true
-    });
+    try {
+      return babel.transformSync(code, {
+        plugins: [this.plugin],
+        code: true,
+        ast: true
+      });
+    } catch (e) {
+      e.message = e.message.replace('unknown: ', '');
+      throw e;
+    }
   }
 
   /**

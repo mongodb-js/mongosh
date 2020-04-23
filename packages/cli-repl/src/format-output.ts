@@ -66,8 +66,6 @@ function formatError(error) {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `
   if (error.message) {
-    // const unknown = error.message.split('unknown: ');
-    // if (unknown[0] === 'unknown: ') unknown.
     result += error.message;
   }
 

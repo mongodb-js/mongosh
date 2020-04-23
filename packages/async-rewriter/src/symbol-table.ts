@@ -1,3 +1,7 @@
+import {
+  MongoshInternalError,
+  MongoshInvalidInputError
+} from '@mongosh/errors';
 /* eslint no-console:0 */
 /**
  * Symbol Table implementation, which is a stack of key-value maps.
@@ -163,7 +167,7 @@ export default class SymbolTable {
     const shellScope = scopeParent.node.shellScope;
     if (shellScope === undefined) {
       // scope of the parent is out of scope?
-      throw new Error('internal error');
+      throw new MongoshInternalError('Unable to track parent scope.');
     }
     this.scopeAt(shellScope)[key] = type;
   }
@@ -223,7 +227,7 @@ export default class SymbolTable {
       const keys = new Set();
       alternates.forEach((st) => {
         if (this.depth !== st.depth) {
-          throw new Error('Internal Error: scope tracking errored');
+          throw new MongoshInternalError('Could not compare scopes. ');
         }
         Object.keys(st.scopeAt(i)).forEach(k => keys.add(k));
       });
@@ -236,7 +240,7 @@ export default class SymbolTable {
           // Otherwise, check if any of the alternatives has that key as a Shell API type.
           const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && (a.scopeAt(i)[k].hasAsyncChild || a.scopeAt(i)[k].returnsPromise));
           if (hasAsync) {
-            throw new Error(`Error: cannot conditionally assign Shell API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
+            throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
           } else {
             // Types differ, but none are async, so can safely just call it unknown.
             thisScope[k] = this.signatures.unknown;

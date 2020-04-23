@@ -318,10 +318,19 @@ describe('async-writer-babel', () => {
         describe('computed property', () => {
           describe('when lhs has async child', () => {
             it('throws an error', () => {
-              expect(() => writer.compile('c[x()]')).to.throw();
+              try {
+                writer.compile('c[(x)]');
+              } catch (e) {
+                expect(e.name).to.be.equal('MongoshInvalidInputError');
+              }
             });
             it('throws an error with suggestion for db', () => {
-              expect(() => writer.compile('db[x()]')).to.throw();
+              try {
+                writer.compile('db[x()]');
+              } catch (e) {
+                expect(e.name).to.be.equal('MongoshInvalidInputError');
+                expect(e.message).to.contain('Database');
+              }
             });
           });
           describe('when lhs has no async child', () => {
@@ -441,10 +450,18 @@ describe('async-writer-babel', () => {
         });
         describe('with other rhs', () => {
           it('throws an error with suggestion for db and var', () => {
-            expect(() => writer.compile('a[d]')).to.throw();
+            try {
+              writer.compile('a[d]');
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
           it('throws an error with suggestion for db and null', () => {
-            expect(() => writer.compile('a[null]')).to.throw();
+            try {
+              writer.compile('a[null]');
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -488,7 +505,11 @@ describe('async-writer-babel', () => {
       });
       describe('with variable', () => {
         it('throws an error with suggestion for db', () => {
-          expect(() => writer.compile('a[d]')).to.throw();
+          try {
+            writer.compile('a[d]');
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshInvalidInputError');
+          }
         });
       });
     });
@@ -908,13 +929,25 @@ describe('async-writer-babel', () => {
         });
       });
       it('throws an error for db', () => {
-        expect(() => writer.compile('fn(db)')).to.throw();
+        try {
+          writer.compile('fn(db)');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshInvalidInputError');
+        }
       });
       it('throws an error for db.coll', () => {
-        expect(() => writer.compile('fn(db.coll)')).to.throw();
+        try {
+          writer.compile('fn(db.coll)');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshInvalidInputError');
+        }
       });
       it('throws an error for db.coll.insertOne', () => {
-        expect(() => writer.compile('fb(db.coll.insertOne)')).to.throw();
+        try {
+          writer.compile('fn(db.coll.insertOne)');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshInvalidInputError');
+        }
       });
       it('does not throw error for regular arg', () => {
         expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
@@ -957,14 +990,28 @@ function f() {
   });
   describe('VariableDeclarator', () => {
     describe('non-symbol lval', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+        writer = new AsyncWriter(signatures, spy);
+        input = 'a = (() => (db))()';
+        ast = writer.getTransform(input).ast;
+      });
       it('array pattern throws for async type', () => {
-        expect(() => writer.compile('let [a, b] = [1, db]')).to.throw();
+        try {
+          writer.compile('let [a, b] = [1, db]');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshUnimplementedError');
+        }
       });
       it('array pattern ignored for non-async', () => {
         expect(writer.compile('let [a, b] = [1, 2]')).to.equal('let [a, b] = [1, 2];');
       });
       it('object pattern throws for async type', () => {
-        expect(() => writer.compile('let {a} = {a: db}')).to.throw();
+        try {
+          writer.compile('let {a} = {a: db}');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshUnimplementedError');
+        }
       });
       it('object pattern ignored for non-async', () => {
         expect(writer.compile('let {a} = {a: 1, b: 2}')).to.equal('let {\n  a\n} = {\n  a: 1,\n  b: 2\n};');
@@ -1325,8 +1372,16 @@ function f() {
   describe('AssignmentExpression', () => {
     describe('non-symbol lval', () => {
       describe('Array/Object Pattern', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+          writer = new AsyncWriter(signatures, spy);
+        });
         it('array pattern throws for async type', () => {
-          expect(() => writer.compile('[a, b] = [1, db]')).to.throw();
+          try {
+            writer.compile('[a, b] = [1, db]');
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshUnimplementedError');
+          }
         });
         it('array pattern ignored for non-async', () => {
           expect(writer.compile('[a, b] = [1, 2]')).to.equal('[a, b] = [1, 2];');
@@ -1469,7 +1524,11 @@ function f() {
               writer = new AsyncWriter(signatures);
               writer.symbols.initializeApiObjects({ db: signatures.Database });
               writer.compile('x = {db: db}');
-              expect(() => writer.compile('x[a] = 1')).to.throw();
+              try {
+                writer.compile('x[a] = 1');
+              } catch (e) {
+                expect(e.name).to.be.equal('MongoshInvalidInputError');
+              }
             });
           });
         });
@@ -1554,7 +1613,11 @@ function f() {
               writer = new AsyncWriter(signatures);
               writer.symbols.initializeApiObjects({ db: signatures.Database });
               writer.compile('x = {}');
-              expect(() => writer.compile('x[a] = db')).to.throw();
+              try {
+                writer.compile('x[a] = db');
+              } catch (e) {
+                expect(e.name).to.be.equal('MongoshUnimplementedError');
+              }
             });
           });
           describe('with non-symbol LHS', () => {
@@ -2117,7 +2180,11 @@ function f() {
 }`;
         });
         it('throws', () => {
-          expect(() => writer.compile(input)).to.throw();
+          try {
+            writer.compile(input);
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshInvalidInputError');
+          }
         });
       });
       describe('with multiple return values of the same non-async type', () => {
@@ -2168,7 +2235,11 @@ function f() {
 }`;
         });
         it('throws', () => {
-          expect(() => writer.compile(input)).to.throw();
+          try {
+            writer.compile(input);
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshInvalidInputError');
+          }
         });
       });
       describe('function returns a function', () => {
@@ -2475,13 +2546,18 @@ if (TEST) {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
               writer = new AsyncWriter(signatures, spy);
             });
-            it('throws', () => {
-              expect(() => writer.compile(`
+            it('throws MongoshInvalidInputError', () => {
+              const throwInput = `
 a = db;
 if (TEST) {
   a = db.coll2;
 }
-`)).to.throw();
+`;
+              try {
+                writer.compile(throwInput);
+              } catch (e) {
+                expect(e.name).to.be.equal('MongoshInvalidInputError');
+              }
             });
           });
           describe('signatures are not the same', () => {
@@ -2490,13 +2566,18 @@ if (TEST) {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
                 writer = new AsyncWriter(signatures, spy);
               });
-              it('throws', () => {
-                expect(() => writer.compile(`
+              it('throws MongoshInvalidInputError', () => {
+                const throwInput = `
 a = db.coll1;
 if (TEST) {
   a = 1;
 }
-`)).to.throw();
+`;
+                try {
+                  writer.compile(throwInput);
+                } catch (e) {
+                  expect(e.name).to.be.equal('MongoshInvalidInputError');
+                }
               });
               it('symbol table final state is correct', () => {
                 expect(spy.lookup('a')).to.deep.equal(signatures.Collection);
@@ -2507,13 +2588,18 @@ if (TEST) {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
                 writer = new AsyncWriter(signatures, spy);
               });
-              it('throws', () => {
-                expect(() => writer.compile(`
+              it('throws MongoshInvalidInputError', () => {
+                const throwInput = `
 a = 1;
 if (TEST) {
   a = db.coll;
 }
-`)).to.throw();
+`;
+                try {
+                  writer.compile(throwInput);
+                } catch (e) {
+                  expect(e.name).to.be.equal('MongoshInvalidInputError');
+                }
               });
               it('symbol table final state is correct', () => {
                 expect(spy.lookup('a')).to.deep.equal(signatures.unknown);
@@ -2581,7 +2667,11 @@ if (TEST) {
             expect(spy.scopeAt(1)).to.deep.equal({ a: signatures.unknown }); // TODO: ensure cond is like block
           });
           it('throws for shell type', () => {
-            expect(() => writer.compile('if (TEST) { a = db }')).to.throw();
+            try {
+              writer.compile('if (TEST) { a = db }');
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
         describe('vars get hoisted', () => {
@@ -2603,7 +2693,11 @@ if (TEST) {
             expect(spy.lookup('a')).to.deep.equal(signatures.unknown);
           });
           it('throws for shell type', () => {
-            expect(() => writer.compile('if (TEST) { var a = db }')).to.throw();
+            try {
+              writer.compile('if (TEST) { var a = db }');
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -2640,14 +2734,19 @@ if (TEST) {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
                 writer = new AsyncWriter(signatures, spy);
               });
-              it('throws', () => {
-                expect(() => writer.compile(`
+              it('throws MongoshInvalidInputError', () => {
+                const throwInput = `
 if (TEST) {
   a = 1;
 } else {
   a = db;
 }
-`)).to.throw();
+`;
+                try {
+                  writer.compile(throwInput);
+                } catch (e) {
+                  expect(e.name).to.be.equal('MongoshInvalidInputError');
+                }
               });
               it('symbol table final state is correct', () => {
                 expect(spy.lookup('a')).to.deep.equal(signatures.unknown);
@@ -2658,14 +2757,19 @@ if (TEST) {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
                 writer = new AsyncWriter(signatures, spy);
               });
-              it('throws', () => {
-                expect(() => writer.compile(`
+              it('throws MongoshInvalidInputError', () => {
+                const throwInput = `
 if (TEST) {
   a = db;
 } else {
   a = 1;
 }
-`)).to.throw();
+`;
+                try {
+                  writer.compile(throwInput);
+                } catch (e) {
+                  expect(e.name).to.be.equal('MongoshInvalidInputError');
+                }
               });
               it('symbol table final state is correct', () => {
                 expect(spy.lookup('a')).to.deep.equal(signatures.unknown);
@@ -2786,7 +2890,11 @@ while (TEST) {
             writer = new AsyncWriter(signatures, spy);
           });
           it('throws', () => {
-            expect(() => writer.compile(inputLoop)).to.throw();
+            try {
+              writer.compile(inputLoop);
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -2852,7 +2960,11 @@ for (let t = 0; t < 100; t++) {
             writer = new AsyncWriter(signatures, spy);
           });
           it('throws', () => {
-            expect(() => writer.compile(inputLoop)).to.throw();
+            try {
+              writer.compile(inputLoop);
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -2918,7 +3030,11 @@ do {
             writer = new AsyncWriter(signatures, spy);
           });
           it('throws', () => {
-            expect(() => writer.compile(inputLoop)).to.throw();
+            try {
+              writer.compile(inputLoop);
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -2933,8 +3049,12 @@ for (const x in [1, 2, 3]) {
           spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
           writer = new AsyncWriter(signatures, spy);
         });
-        it('throws', () => {
-          expect(() => writer.compile(inputLoop)).to.throw();
+        it('throws MongoshUnimplementedError', () => {
+          try {
+            writer.compile(inputLoop);
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshUnimplementedError');
+          }
         });
       });
       describe('for of', () => {
@@ -2948,8 +3068,12 @@ for (const x of [1, 2, 3]) {
           spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
           writer = new AsyncWriter(signatures, spy);
         });
-        it('throws', () => {
-          expect(() => writer.compile(inputLoop)).to.throw();
+        it('throws MongoshUnimplementedError', () => {
+          try {
+            writer.compile(inputLoop);
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshUnimplementedError');
+          }
         });
       });
     });
@@ -3038,7 +3162,11 @@ switch(TEST) {
             writer = new AsyncWriter(signatures, spy);
           });
           it('throws', () => {
-            expect(() => writer.compile(inputLoop)).to.throw();
+            try {
+              writer.compile(inputLoop);
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -3089,7 +3217,11 @@ switch(TEST) {
             writer = new AsyncWriter(signatures, spy);
           });
           it('throws', () => {
-            expect(() => writer.compile(inputLoop)).to.throw();
+            try {
+              writer.compile(inputLoop);
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+            }
           });
         });
       });
@@ -3132,7 +3264,11 @@ switch(TEST) {
           writer = new AsyncWriter(signatures, spy);
         });
         it('throws', () => {
-          expect(() => writer.compile(inputLoop)).to.throw();
+          try {
+            writer.compile(inputLoop);
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshInvalidInputError');
+          }
         });
       });
     });
