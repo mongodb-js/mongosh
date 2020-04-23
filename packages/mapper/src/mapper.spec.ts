@@ -252,7 +252,7 @@ coll2`;
 
       context('when options is not passed', () => {
         it('calls serviceProvider.createIndexes using keys', async() => {
-          await mapper[method](collection, { x: 1 });
+          await mapper[`collection_${method}`](collection, { x: 1 });
 
           expect(serviceProvider.createIndexes).to.have.been.calledWith(
             'db1',
@@ -264,7 +264,7 @@ coll2`;
 
       context('when options is an object', () => {
         it('calls serviceProvider.createIndexes merging options', async() => {
-          await mapper[method](collection, { x: 1 }, { name: 'index-1' });
+          await mapper[`collection_${method}`](collection, { x: 1 }, { name: 'index-1' });
 
           expect(serviceProvider.createIndexes).to.have.been.calledWith(
             'db1',
@@ -276,7 +276,7 @@ coll2`;
 
       context('when options is not an object', () => {
         it('throws an error', async() => {
-          const error = await mapper[method](
+          const error = await mapper[`collection_${method}`](
             collection, { x: 1 }, 'unsupported' as any
           ).catch(e => e);
 
@@ -303,7 +303,7 @@ coll2`;
       });
 
       it('returns serviceProvider.getIndexes using keys', async() => {
-        expect(await mapper[method](collection)).to.deep.equal(result);
+        expect(await mapper[`collection_${method}`](collection)).to.deep.equal(result);
       });
     });
   });
