@@ -65,6 +65,20 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
   }
 
+  async findAndModify(
+    database: string,
+    collection: string,
+    query: Document,
+    sort: any[] | Document,
+    update: Document,
+    options?: Document,
+    dbOptions?: Document
+  ): Promise<any> {
+    return await this.db(database, dbOptions)
+      .collection(collection)
+      .findAndModify(query, sort, update, options);
+  }
+
   /**
    * Converts an existing, non-capped collection to
    * a capped collection within the same database.

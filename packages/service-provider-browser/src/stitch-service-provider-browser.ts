@@ -111,6 +111,10 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
+  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, dbOptions?: Document) {
+    throw new Error("Method not implemented.");
+  }
+
   dropCollection(database: string, collection: string, dbOptions?: Document): Promise<boolean> {
     throw new Error("Method not implemented.");
   }

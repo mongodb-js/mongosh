@@ -506,13 +506,41 @@ export default class Mapper {
     ).limit(1).next();
   }
 
-  // collection_findAndModify(collection, document) {
-  //   return this._serviceProvider.findAndModify(
-  //     collection._database._name,
-  //     collection._name,
-  //     document,
-  //   );
-  // };
+  async collection_findAndModify(
+    collection: Collection,
+    options: {
+      query?: Document;
+      sort?: Document | Document[];
+      remove?: boolean;
+      update?: Document | Document[];
+      new?: boolean;
+      fields?: Document;
+      upsert?: boolean;
+      bypassDocumentValidation?: boolean;
+      writeConcern?: Document;
+      collation?: Document;
+      arrayFilters?: Document[];
+    } = {}
+  ): Promise<any> {
+    const providerOptions = {
+      ...options
+    };
+
+    delete providerOptions.query;
+    delete providerOptions.sort;
+    delete providerOptions.update;
+
+    const result = await this.serviceProvider.findAndModify(
+      collection._database._name,
+      collection._name,
+      options.query || {},
+      options.sort,
+      options.update,
+      providerOptions
+    );
+
+    return result.value;
+  }
 
   /**
    * Find one document and delete it.
