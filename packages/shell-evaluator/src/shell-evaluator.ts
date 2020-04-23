@@ -1,6 +1,6 @@
 import AsyncWriter from '@mongosh/async-rewriter';
 import Mapper from '@mongosh/mapper';
-import { signatures, Help } from '@mongosh/shell-api';
+import { signatures, Help, ShellBson } from '@mongosh/shell-api';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 
 interface Bus {
@@ -165,6 +165,7 @@ class ShellEvaluator {
     contextObject.show = this.mapper.show.bind(this.mapper);
     contextObject.it = this.mapper.it.bind(this.mapper);
     contextObject.help = this.help.bind(this);
+    Object.assign(contextObject, ShellBson);
 
     // Add global shell objects
     contextObject.db = this.mapper.databases.test;
