@@ -24,7 +24,7 @@ function testWrappedMethod(name: string): void {
 
   const mock = sinon.mock();
   const mapper: Mapper = sinon.createStubInstance(Mapper, {
-    [name]: mock
+    [`collection_${name}`]: mock
   });
 
   const args = [1, 2, 3];
@@ -75,7 +75,7 @@ describe('Collection', () => {
     'getName'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
-      it(`wraps mapper.${methodName}`, () => {
+      it(`wraps mapper.collection_${methodName}`, () => {
         testWrappedMethod(methodName);
       });
     });

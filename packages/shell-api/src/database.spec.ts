@@ -24,7 +24,7 @@ function testWrappedMethod(name: string): void {
 
   const mock = sinon.mock();
   const mapper: Mapper = sinon.createStubInstance(Mapper, {
-    [name]: mock
+    [`database_${name}`]: mock
   });
 
   const args = [1, 2, 3];
@@ -42,15 +42,15 @@ function testWrappedMethod(name: string): void {
 }
 
 describe('Database', () => {
-  describe('#getCollectionInfos', () => {
-    it('wraps mapper.getCollectionInfos', () => {
-      testWrappedMethod('getCollectionInfos');
-    });
-  });
-
-  describe('#getCollectionNames', () => {
-    it('wraps mapper.getCollectionNames', () => {
-      testWrappedMethod('getCollectionNames');
+  [
+    'getCollectionInfos',
+    'getCollectionNames',
+    'runCommand'
+  ].forEach((methodName) => {
+    describe(`#${methodName}`, () => {
+      it(`wraps mapper.database_${methodName}`, () => {
+        testWrappedMethod(methodName);
+      });
     });
   });
 });
