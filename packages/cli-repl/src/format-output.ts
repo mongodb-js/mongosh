@@ -66,6 +66,8 @@ function formatError(error) {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `;
   if (error.message) result += error.message;
+  // leave a bit of breathing room after the syntax error message output
+  if (error.name === 'SyntaxError') result += '\n\n';
 
   return result;
 }
