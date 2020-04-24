@@ -42,7 +42,6 @@ var MongoshRuntimeError = (function (_super) {
         }
         var _this = _super.apply(this, __spread(args)) || this;
         _this.name = 'MongoshRuntimeError';
-        Error.captureStackTrace(MongoshRuntimeError);
         return _this;
     }
     return MongoshRuntimeError;
@@ -56,7 +55,6 @@ var MongoshInternalError = (function (_super) {
         _this.message =
             msg + '\nThis is an error inside Mongosh. Please file a bug report. '
                 + 'Please include a log file from this session.';
-        Error.captureStackTrace(MongoshInternalError);
         return _this;
     }
     return MongoshInternalError;
@@ -71,7 +69,6 @@ var MongoshUnimplementedError = (function (_super) {
         }
         var _this = _super.apply(this, __spread(args)) || this;
         _this.name = 'MongoshUnimplementedError';
-        Error.captureStackTrace(MongoshUnimplementedError);
         return _this;
     }
     return MongoshUnimplementedError;
@@ -86,7 +83,6 @@ var MongoshInvalidInputError = (function (_super) {
         }
         var _this = _super.apply(this, __spread(args)) || this;
         _this.name = 'MongoshInvalidInputError';
-        Error.captureStackTrace(MongoshInvalidInputError);
         return _this;
     }
     return MongoshInvalidInputError;
