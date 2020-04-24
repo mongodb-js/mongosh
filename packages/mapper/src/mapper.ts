@@ -542,6 +542,40 @@ export default class Mapper {
     return result.value;
   }
 
+  async collection_renameCollection(
+    collection: Collection,
+    newName: string,
+    dropTarget?: boolean
+  ): Promise<any> {
+    if (typeof newName !== 'string') {
+      throw new Error('newName must be a string');
+    }
+
+    try {
+      await this.serviceProvider.renameCollection(
+        collection._database._name,
+        collection._name,
+        newName,
+        { dropTarget: !!dropTarget }
+      );
+
+      return {
+        ok: 1
+      };
+    } catch (e) {
+      if (e.name === 'MongoError') {
+        return {
+          ok: 0,
+          errmsg: e.errmsg,
+          code: e.code,
+          codeName: e.codeName
+        };
+      }
+
+      throw e;
+    }
+  }
+
   /**
    * Find one document and delete it.
    *

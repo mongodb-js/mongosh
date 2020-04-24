@@ -192,3 +192,6 @@ class:
     exists:
         <<: *__defaultMethod
         returnsPromise: true
+    renameCollection:
+        <<: *__defaultMethod
+        returnsPromise: true
