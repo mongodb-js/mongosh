@@ -117,7 +117,11 @@ class ShellEvaluator {
           'mongosh:rewrittenAsyncInput',
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
-        return originalEval(rewrittenInput, context, filename);
+        try {
+          return await originalEval(rewrittenInput, context, filename);
+        } catch (err) {
+          console.log('why is this never called for js errors');
+        }
     }
   }
 
