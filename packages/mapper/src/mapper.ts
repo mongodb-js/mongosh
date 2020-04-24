@@ -1727,10 +1727,30 @@ export default class Mapper {
   }
 
   collection_getFullName(collection: Collection): string {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'getFullName',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
+    );
+
     return `${collection._database._name}.${collection._name}`;
   }
 
   collection_getName(collection: Collection): string {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'getName',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name
+      }
+    );
+
     return `${collection._name}`;
   }
 
@@ -1746,6 +1766,17 @@ export default class Mapper {
     if (options && commandName in options) {
       throw new Error('commandName cannot be passed as an option');
     }
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'runCommand',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { commandName }
+      }
+    );
 
     return await this.database_runCommand(
       collection._database,
