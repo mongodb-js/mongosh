@@ -360,6 +360,20 @@ interface Writable {
     collection: string,
     dbOptions?: Document
   ): Promise<boolean>;
+
+  /**
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {String} newName - The new collection name.
+   * @param {String} options - The options.
+   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   */
+  renameCollection(
+    database: string,
+    collection: string,
+    newName: string,
+    options?: Document,
+    dbOptions?: Document): Promise<Result>;
 }
 
 export default Writable;
