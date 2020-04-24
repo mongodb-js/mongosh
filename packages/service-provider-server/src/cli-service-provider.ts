@@ -65,6 +65,16 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
   }
 
+  async renameCollection(
+    database: string,
+    collection: string,
+    newName: string,
+    options?: Document,
+    dbOptions?: Document): Promise<any> {
+    return await this.db(database, dbOptions)
+      .renameCollection(collection, newName, options);
+  }
+
   async findAndModify(
     database: string,
     collection: string,

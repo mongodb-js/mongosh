@@ -741,4 +741,48 @@ describe('CliServiceProvider', () => {
       commandMock.verify();
     });
   });
+
+  describe('#renameCollection', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs(
+          'coll1',
+          'newName',
+          {
+            dropTarget: true,
+            session: 1
+          })
+        .resolves({ ok: 1 });
+
+      const dbStub = sinon.createStubInstance(Db, {
+        renameCollection: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('db1')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.renameCollection(
+        'db1',
+        'coll1',
+        'newName',
+        { dropTarget: true, session: 1 }
+      );
+      expect(result).to.deep.equal({ ok: 1 });
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
 });
