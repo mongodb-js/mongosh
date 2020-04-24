@@ -430,6 +430,20 @@ describe('Mapper (integration)', function() {
       });
     });
 
+    describe('runCommand', () => {
+      beforeEach(async() => {
+        await createCollection(dbName, collectionName);
+      });
+
+
+      it('runs a command with the collection as parameter and returns the result', async() => {
+        expect(await mapper.collection_runCommand(collection, 'collStats')).to.include({
+          ok: 1,
+          ns: `${dbName}.${collectionName}`
+        });
+      });
+    });
+
     describe('findAndModify', () => {
       beforeEach(async() => {
         await serviceProvider.insertMany(

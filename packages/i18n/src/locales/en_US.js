@@ -980,6 +980,12 @@ const translations = {
               example: 'db.coll.renameCollection("newName")',
               parameters: {}
             },
+            runCommand: {
+              link: '',
+              description: 'Runs a db command with the given name where the first param is the collection name.',
+              example: '',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',
