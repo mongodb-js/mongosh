@@ -30,6 +30,23 @@ describe('Mapper (integration)', function() {
     return specs.map(spec => spec.name);
   };
 
+  const findAllWithoutId = (dbName: string, collectionName: string): any => serviceProvider.find(
+    dbName,
+    collectionName,
+    {},
+    { projection: { _id: 0 } }
+  ).toArray();
+
+  const expectCollectionToExist = async(dbName: any, collectionName: any): Promise<void> => {
+    const collectionNames = (await serviceProvider.listCollections(dbName)).map(({ name }) => name);
+    expect(collectionNames).to.include(collectionName);
+  };
+
+  const expectCollectionNotToExist = async(dbName: any, collectionName: any): Promise<void> => {
+    const collectionNames = (await serviceProvider.listCollections(dbName)).map(({ name }) => name);
+    expect(collectionNames).to.not.include(collectionName);
+  };
+
   // TODO: replace with serviceProvider.createCollection()
   const createCollection = async(dbName: string, collectionName: string): Promise<any> => {
     const now = Date.now();
@@ -384,11 +401,7 @@ describe('Mapper (integration)', function() {
         });
 
         it('deletes the collection', async() => {
-          const collectionNames = (
-            await serviceProvider.listCollections(dbName)
-          ).map(({ name }) => name);
-
-          expect(collectionNames).to.not.include(collectionName);
+          await expectCollectionNotToExist(dbName, collectionName);
         });
       });
 
@@ -418,13 +431,6 @@ describe('Mapper (integration)', function() {
     });
 
     describe('findAndModify', () => {
-      const findAll = (): any => serviceProvider.find(
-        dbName,
-        collectionName,
-        {},
-        { projection: { _id: 0 } }
-      ).toArray();
-
       beforeEach(async() => {
         await serviceProvider.insertMany(
           dbName,
@@ -445,7 +451,7 @@ describe('Mapper (integration)', function() {
           }
         );
 
-        expect(await findAll()).to.deep.equal([
+        expect(await findAllWithoutId(dbName, collectionName)).to.deep.equal([
           { foo: 'bar' },
           { doc: 2, foo: 1 }
         ]);
@@ -460,7 +466,7 @@ describe('Mapper (integration)', function() {
           }
         );
 
-        expect(await findAll()).to.deep.equal([
+        expect(await findAllWithoutId(dbName, collectionName)).to.deep.equal([
           { doc: 2, foo: 1 }
         ]);
       });
@@ -475,7 +481,7 @@ describe('Mapper (integration)', function() {
           }
         );
 
-        expect(await findAll()).to.deep.equal([
+        expect(await findAllWithoutId(dbName, collectionName)).to.deep.equal([
           { doc: 1, foo: 1 },
           { changed: true }
         ]);
@@ -505,8 +511,65 @@ describe('Mapper (integration)', function() {
         });
 
         expect(
-          await findAll()
+          await findAllWithoutId(dbName, collectionName)
         ).to.deep.include({ doc: 3 });
+      });
+    });
+
+    describe('renameCollection', () => {
+      context('without dropTarget', () => {
+        beforeEach(async() => {
+          await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+          await mapper.collection_renameCollection(
+            collection,
+            'newName'
+          );
+        });
+
+        it('renames a collection', async() => {
+          await expectCollectionToExist(dbName, 'newName');
+          await new Promise((resolve) => { setTimeout(resolve, 2000); });
+          await expectCollectionNotToExist(dbName, collectionName);
+        });
+
+        it('does not drop documents', async() => {
+          expect(
+            await findAllWithoutId(
+              dbName,
+              'newName'
+            )
+          ).to.deep.include({
+            doc: 1
+          });
+        });
+      });
+
+      context('with dropTarget = true', () => {
+        beforeEach(async() => {
+          await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
+          await mapper.collection_renameCollection(
+            collection,
+            'newName',
+            true
+          );
+        });
+
+        it('renames a collection', async() => {
+          await expectCollectionToExist(dbName, 'newName');
+          await new Promise((resolve) => { setTimeout(resolve, 2000); });
+          await expectCollectionNotToExist(dbName, collectionName);
+        });
+
+        it('drops documents', async() => {
+          expect(
+            await findAllWithoutId(
+              dbName,
+              'newName'
+            )
+          ).to.deep.include({
+            doc: 1
+          });
+        });
       });
     });
   });
@@ -532,4 +595,3 @@ describe('Mapper (integration)', function() {
     });
   });
 });
-

@@ -974,6 +974,12 @@ const translations = {
               example: 'db.coll.getName()',
               parameters: {}
             },
+            renameCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.renameCollection/',
+              description: 'Renames a collection.',
+              example: 'db.coll.renameCollection("newName")',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',

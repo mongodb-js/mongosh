@@ -586,6 +586,86 @@ coll2`;
         );
       });
     });
+
+    describe('renameCollection', () => {
+      let mockResult;
+
+      beforeEach(() => {
+        mockResult = {};
+        serviceProvider.renameCollection.resolves(mockResult);
+      });
+
+      it('returns { ok: 1 } if the operation is successful', async() => {
+        expect(
+          await mapper.collection_renameCollection(
+            collection, 'newName'
+          )
+        ).to.deep.equal({ ok: 1 });
+      });
+
+      it('calls the service provider with dropTarget=false if none is provided', async() => {
+        await mapper.collection_renameCollection(collection, 'newName');
+
+        expect(serviceProvider.renameCollection).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          'newName',
+          { dropTarget: false }
+        );
+      });
+
+      it('calls the service provider with the correct options', async() => {
+        await mapper.collection_renameCollection(collection, 'newName', true);
+
+        expect(serviceProvider.renameCollection).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          'newName',
+          { dropTarget: true }
+        );
+      });
+
+      it('rethrows a generic error', async() => {
+        const error: any = new Error();
+
+        serviceProvider.renameCollection.rejects(error);
+
+        expect(
+          await mapper.collection_renameCollection(
+            collection, 'newName'
+          ).catch(e => e)
+        ).to.equal(error);
+      });
+
+      it('returns a MongoError with { ok: 0 } instead of throwing', async() => {
+        const error: any = new Error();
+        error.name = 'MongoError';
+        error.code = 123;
+        error.errmsg = 'msg';
+        error.codeName = 'NamespaceNotFound';
+
+        serviceProvider.renameCollection.rejects(error);
+
+        expect(
+          await mapper.collection_renameCollection(
+            collection, 'newName'
+          )
+        ).to.deep.equal({
+          code: error.code,
+          errmsg: error.errmsg,
+          codeName: error.codeName,
+          ok: 0
+        });
+      });
+
+      it('throws an error if newName is not a string', async() => {
+        expect(
+          (await mapper.collection_renameCollection(
+            collection, {} as any
+          ).catch(e => e)).message
+        ).to.equal('newName must be a string');
+      });
+    });
   });
 
   describe('database', () => {
