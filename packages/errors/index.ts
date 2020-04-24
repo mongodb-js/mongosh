@@ -6,8 +6,8 @@ class MongoshRuntimeError extends Error {
 }
 
 class MongoshInternalError extends Error {
-  constructor(msg, opts?) {
-    super(opts);
+  constructor(msg) {
+    super(msg);
     this.name = 'MongoshInternalError';
     this.message =
       msg + '\nThis is an error inside Mongosh. Please file a bug report. '
