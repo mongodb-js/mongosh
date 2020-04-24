@@ -195,3 +195,6 @@ class:
     renameCollection:
         <<: *__defaultMethod
         returnsPromise: true
+    runCommand:
+        <<: *__defaultMethod
+        returnsPromise: true

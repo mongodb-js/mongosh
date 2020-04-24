@@ -666,6 +666,49 @@ coll2`;
         ).to.equal('newName must be a string');
       });
     });
+
+    describe('runCommand', () => {
+      it('calls serviceProvider.runCommand with the collection set', async() => {
+        await mapper.collection_runCommand(collection, 'someCommand', {
+          someOption: 1
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          collection._database._name,
+          {
+            someCommand: collection._name,
+            someOption: 1
+          }
+        );
+      });
+
+      it('can be called without options', async() => {
+        await mapper.collection_runCommand(collection, 'someCommand');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          collection._database._name,
+          {
+            someCommand: collection._name
+          }
+        );
+      });
+
+      it('throws an error if commandName is not a string', async() => {
+        expect(
+          (await mapper.collection_runCommand(
+            collection, {} as any
+          ).catch(e => e)).message
+        ).to.equal('commandName must be a string');
+      });
+
+      it('throws an error if commandName is passed as option', async() => {
+        expect(
+          (await mapper.collection_runCommand(
+            collection, 'commandName', { commandName: 1 } as any
+          ).catch(e => e)).message
+        ).to.equal('commandName cannot be passed as an option');
+      });
+    });
   });
 
   describe('database', () => {

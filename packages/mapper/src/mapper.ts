@@ -522,6 +522,17 @@ export default class Mapper {
       arrayFilters?: Document[];
     } = {}
   ): Promise<any> {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'findAndModify',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { options: { ...options, update: !!options.update } }
+      }
+    );
+
     const providerOptions = {
       ...options
     };
@@ -1721,5 +1732,27 @@ export default class Mapper {
 
   collection_getName(collection: Collection): string {
     return `${collection._name}`;
+  }
+
+  async collection_runCommand(
+    collection: Collection,
+    commandName: string,
+    options?: Record<string, any>
+  ): Promise<any> {
+    if (typeof commandName !== 'string') {
+      throw new Error('commandName must be a string');
+    }
+
+    if (options && commandName in options) {
+      throw new Error('commandName cannot be passed as an option');
+    }
+
+    return await this.database_runCommand(
+      collection._database,
+      {
+        ...options,
+        [commandName]: collection._name
+      }
+    );
   }
 }
