@@ -779,6 +779,30 @@ describe('async-writer-babel', () => {
     });
     describe('with known callee', () => {
       describe('that requires await', () => {
+        describe('is async and is rewritten', () => {
+          before(() => {
+            writer = new AsyncWriter(signatures);
+            writer.symbols.initializeApiObjects({
+              reqAwait: { type: 'function', returnsPromise: true }
+            });
+            expect(writer.compile('async function yesAwait() { reqAwait(); }')).to.equal(
+              'async function yesAwait() {\n  await reqAwait();\n}'
+            );
+            input = 'yesAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await yesAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                done();
+              }
+            });
+          });
+        });
         describe('returnType undefined', () => {
           before(() => {
             writer = new AsyncWriter(signatures);
@@ -857,6 +881,26 @@ describe('async-writer-babel', () => {
         });
       });
       describe('that does not require await', () => {
+        describe('is async and not rewritten', () => {
+          before(() => {
+            writer = new AsyncWriter(signatures);
+            writer.symbols.initializeApiObjects({});
+            writer.compile('async function noAwait() { return 1; }');
+            input = 'noAwait()';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('noAwait();');
+          });
+          it('decorates CallExpression', (done) => {
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node['shellType']).to.deep.equal(signatures.unknown);
+                done();
+              }
+            });
+          });
+        });
         describe('returnType undefined', () => {
           before(() => {
             writer = new AsyncWriter(signatures);
@@ -949,6 +993,10 @@ describe('async-writer-babel', () => {
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
         }
+      });
+      it('throws an error for async method', () => {
+        writer.compile('function f() { db.coll.insertOne({}) }');
+        expect(() => writer.compile('fb(f)')).to.throw();
       });
       it('does not throw error for regular arg', () => {
         expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
@@ -3613,6 +3661,49 @@ function f(arg) {
           expect(e.name).to.equal('MongoshInvalidInputError');
           done();
         }
+      });
+    });
+  });
+  describe('forEach', () => {
+    beforeEach(() => {
+      writer = new AsyncWriter(signatures);
+      writer.symbols.initializeApiObjects({db: signatures.Database});
+    });
+    describe('no async arguments', () => {
+      it('forEach does not get translated', () => {
+        input = 'arr.forEach((s) => (1))';
+        expect(writer.compile(input)).to.equal('arr.forEach(s => 1);');
+      });
+      it('other function does not get translated', () => {
+        input = 'arr.notForEach((s) => (1))';
+        expect(writer.compile(input)).to.equal('arr.notForEach(s => 1);');
+      });
+    });
+    describe('originally async arguments', () => {
+      it('forEach does not get translated', () => {
+        input = 'arr.forEach(async (s) => (1))';
+        expect(writer.compile(input)).to.equal('arr.forEach(async s => 1);');
+      });
+      it('other function does not get translated', () => {
+        input = 'arr.notForEach(async (s) => (1))';
+        expect(writer.compile(input)).to.equal('arr.notForEach(async s => 1);');
+      });
+    });
+    describe('transformed async arguments', () => {
+      it('forEach with func arg does get translated', () => {
+        input = 'arr.forEach((s) => ( db.coll.insertOne({}) ))';
+        expect(writer.compile(input)).to.equal('await to_iterator(arr).forEach(async s => await db.coll.insertOne({}));');
+      });
+      it('forEach with symbol arg does get translated', () => {
+        expect(writer.compile('function f(s) { db.coll.insertOne(s) }')).to.equal(
+          'async function f(s) {\n  await db.coll.insertOne(s);\n}'
+        );
+        input = 'arr.forEach(f)';
+        expect(writer.compile(input)).to.equal('await to_iterator(arr).forEach(f);');
+      });
+      it('other function throws', () => {
+        input = 'arr.notForEach((s) => ( db.coll.insertOne({}) )';
+        expect(() => writer.compile(input)).to.throw();
       });
     });
   });
