@@ -1,6 +1,9 @@
 import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
 
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
@@ -9,9 +12,15 @@ describe('CliServiceProvider [integration]', function() {
   const port = 27019;
   const connectionString = `mongodb://localhost:${port}`;
 
+  //@ts-ignore
+  fs.access(path.join(os.homedir(), process.cwd(), './node_modules/mongodb-version-manager/bin'), fs.F_OK, function (err) {
+    console.log('ACCESS VERSION DIR')
+    console.log(err)
+  })
+  
   before(function(done) {
     try {
-      mongodbRunnerBefore({ port: 27019, timeout: 30000 }).call(this, done);
+      mongodbRunnerBefore({ port: 27019, timeout: 60000 }).call(this, done);
     } catch (e) {
       done(e);
     }
