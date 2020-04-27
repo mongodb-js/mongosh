@@ -91,7 +91,7 @@ describe('async-writer-babel', () => {
       it('decorates Identifier', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node['shellType']).to.deep.equal(signatures.Database);
+            expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
             done();
           }
         });
@@ -122,8 +122,8 @@ describe('async-writer-babel', () => {
         writer.symbols.initializeApiObjects({
           db: signatures.Database,
           c: signatures.Collection,
-          t: signatures.unknown
         });
+        writer.symbols.add('t', signatures.unknown);
       });
       describe('dot notation', () => {
         describe('with Database lhs type', () => {
@@ -138,7 +138,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'db') {
-                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
                   done();
                 }
               }
@@ -176,7 +176,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Collection });
                     done();
                   }
                 }
@@ -213,7 +213,7 @@ describe('async-writer-babel', () => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Collection });
                     done();
                   }
                 }
@@ -290,7 +290,7 @@ describe('async-writer-babel', () => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'c') {
-                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Collection });
                   done();
                 }
               }
@@ -392,7 +392,7 @@ describe('async-writer-babel', () => {
             Identifier(path) {
               expect(path.node['shellType']).to.deep.equal({
                 type: 'object',
-                attributes: { d: signatures.Database },
+                attributes: { d: { api: true, ...signatures.Database } },
                 hasAsyncChild: true
               });
               done();
@@ -412,7 +412,7 @@ describe('async-writer-babel', () => {
         it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
-              expect(path.node['shellType']).to.deep.equal(signatures.Database);
+              expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
               done();
             }
           });
@@ -432,7 +432,7 @@ describe('async-writer-babel', () => {
               Identifier(path) {
                 expect(path.node['shellType']).to.deep.equal({
                   type: 'object',
-                  attributes: { d: signatures.Database },
+                  attributes: { d: { api: true, ...signatures.Database } },
                   hasAsyncChild: true
                 });
                 done();
@@ -442,7 +442,7 @@ describe('async-writer-babel', () => {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
                 done();
               }
             });
@@ -487,7 +487,7 @@ describe('async-writer-babel', () => {
             Identifier(path) {
               expect(path.node['shellType']).to.deep.equal({
                 type: 'array',
-                attributes: { '0': signatures.Database },
+                attributes: { '0': { api: true, ...signatures.Database } },
                 hasAsyncChild: true
               });
               done();
@@ -497,7 +497,7 @@ describe('async-writer-babel', () => {
         it('decorates MemberExpression', (done) => {
           traverse(ast, {
             MemberExpression(path) {
-              expect(path.node['shellType']).to.deep.equal(signatures.Database);
+              expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
               done();
             }
           });
@@ -534,7 +534,7 @@ describe('async-writer-babel', () => {
           ObjectExpression(path) {
             expect(path.node['shellType']).to.deep.equal({
               type: 'object',
-              attributes: { x: signatures.Database },
+              attributes: { x: { api: true, ...signatures.Database } },
               hasAsyncChild: true
             });
             done();
@@ -544,7 +544,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Property(path) {
-            expect(path.node.value['shellType']).to.deep.equal(signatures.Database);
+            expect(path.node.value['shellType']).to.deep.equal({ api: true, ...signatures.Database });
             done();
           }
         });
@@ -617,7 +617,7 @@ describe('async-writer-babel', () => {
               expect(path.node['shellType'].hasAsyncChild).to.equal(true);
               expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal(['method']);
               expect(skipPath(path.node['shellType'].attributes.method)).to.deep.equal({
-                type: 'function', returnType: signatures.Database, returnsPromise: false
+                type: 'function', returnType: { api: true, ...signatures.Database }, returnsPromise: false
               });
               done();
             }
@@ -642,7 +642,7 @@ describe('async-writer-babel', () => {
               expect(path.node['shellType'].hasAsyncChild).to.equal(true);
               expect(Object.keys(path.node['shellType'].attributes)).to.deep.equal(['method']);
               expect(skipPath(path.node['shellType'].attributes.method)).to.deep.equal({
-                type: 'function', returnType: signatures.Database, returnsPromise: false
+                type: 'function', returnType: { api: true, ...signatures.Database }, returnsPromise: false
               });
               done();
             }
@@ -683,7 +683,7 @@ describe('async-writer-babel', () => {
         expect(node['shellType'].hasAsyncChild).to.equal(true);
         expect(Object.keys(node['shellType'].attributes)).to.deep.equal(['method']);
         expect(skipPath(node['shellType'].attributes.method)).to.deep.equal({
-          type: 'function', returnType: signatures.Database, returnsPromise: false
+          type: 'function', returnType: { api: true, ...signatures.Database }, returnsPromise: false
         });
       });
     });
@@ -708,7 +708,7 @@ describe('async-writer-babel', () => {
           ArrayExpression(path) {
             expect(path.node['shellType']).to.deep.equal({
               type: 'array',
-              attributes: { '0': signatures.Database },
+              attributes: { '0': { api: true, ...signatures.Database } },
               hasAsyncChild: true
             });
             done();
@@ -718,7 +718,7 @@ describe('async-writer-babel', () => {
       it('decorates element', (done) => {
         traverse(ast, {
           Identifier(path) {
-            expect(path.node['shellType']).to.deep.equal(signatures.Database);
+            expect(path.node['shellType']).to.deep.equal({ api: true, ...signatures.Database });
             done();
           }
         });
@@ -3270,6 +3270,67 @@ switch(TEST) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
         });
+      });
+    });
+  });
+  describe('Assign API type', () => {
+    before(() => {
+      writer = new AsyncWriter(signatures);
+      writer.symbols.initializeApiObjects({ db: signatures.Database });
+    });
+    it('init', () => {
+      expect(writer.symbols.scopeAt(0).db).to.deep.equal({
+        api: true, ...signatures.Database
+      });
+    });
+    it('regular add', (done) => {
+      input = 'const db = 1';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
+    it('addToParent', (done) => {
+      input = 'class db {}';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
+    it('updateIfDefined', (done) => {
+      input = 'db = 1';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
+    it('updateAttribute', (done) => {
+      input = 'db.coll = 1';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
+    describe('updateFunctionScoped', () => {
+      it('var', (done) => {
+        input = 'var db = 1';
+        try {
+          writer.compile(input);
+        } catch (err) {
+          done();
+        }
+      });
+      it('func', (done) => {
+        input = 'function db() { return 1; }';
+        try {
+          writer.compile(input);
+        } catch (err) {
+          done();
+        }
       });
     });
   });

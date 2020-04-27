@@ -33,8 +33,8 @@ describe('SymbolTable', () => {
         coll: signatures.Collection
       });
       expect(st.scopeAt(0)).to.deep.equal({
-        db: signatures.Database,
-        coll: signatures.Collection,
+        db: { api: true, ...signatures.Database },
+        coll: { api: true, ...signatures.Collection },
         testClass: { lib: true, type: 'classdef', returnType: { type: 'testClass' } }
       });
     });
@@ -96,9 +96,7 @@ describe('SymbolTable', () => {
   });
   describe('#lookup', () => {
     const st = new SymbolTable([{}], {});
-    st.initializeApiObjects({
-      db: signatures.Database,
-    });
+    st.add('db', signatures.Database);
     st.pushScope();
     st.add('db', signatures.Collection);
     it('returns unknown when undefined', () => {

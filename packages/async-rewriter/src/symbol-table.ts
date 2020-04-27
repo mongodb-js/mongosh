@@ -38,7 +38,8 @@ export default class SymbolTable {
    */
   public initializeApiObjects(apiObjects: object): void {
     Object.keys(apiObjects).forEach(key => {
-      this.scopeAt(0)[key] = apiObjects[key];
+      this.scopeAt(0)[key] = { ...apiObjects[key] };
+      this.scopeAt(0)[key].api = true;
     });
   }
 
@@ -109,6 +110,16 @@ export default class SymbolTable {
     return this.signatures.unknown;
   }
 
+  private checkIfApi(key, item?): void {
+    if (item === undefined) {
+      item = this.lookup(key);
+    }
+    if (item.api) {
+      // waiting on new error types
+      throw new Error(`InvalidInput - cannot reassign API type ${key}`);
+    }
+  }
+
   /**
    * Add item to the current scope.
    *
@@ -116,6 +127,7 @@ export default class SymbolTable {
    * @param value
    */
   public add(item: string, value: object): void {
+    this.checkIfApi(item);
     this.scopeStack[this.last][item] = value;
   }
 
@@ -126,6 +138,7 @@ export default class SymbolTable {
    * @param value
    */
   public addToParent(item: string, value: object): void {
+    this.checkIfApi(item);
     this.scopeStack[this.last - 1][item] = value;
   }
 
@@ -140,6 +153,7 @@ export default class SymbolTable {
   public updateIfDefined(item: string, value: object): boolean {
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
+        this.checkIfApi(item, this.scopeStack[i][item]);
         this.scopeStack[i][item] = value;
         return true;
       }
@@ -156,6 +170,7 @@ export default class SymbolTable {
    */
   public updateAttribute(lhs, keys: string[], value: any): void {
     const item = this.lookup(lhs);
+    this.checkIfApi(lhs, item);
     keys.reduce((sym, key, i) => {
       sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;
       if (sym.attributes === undefined) {
@@ -181,6 +196,7 @@ export default class SymbolTable {
    */
   public updateFunctionScoped(path: any, key: string, type: object, t: any): void {
     // Because it adds to scopes only via nodes, will add to actual ST regardless of branching
+    this.checkIfApi(key);
     let scopeParent = path.getFunctionParent();
     if (scopeParent === null) {
       scopeParent = path.findParent(p => t.isProgram(p));
