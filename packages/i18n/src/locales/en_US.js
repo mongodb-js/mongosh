@@ -983,7 +983,7 @@ const translations = {
             runCommand: {
               link: '',
               description: 'Runs a db command with the given name where the first param is the collection name.',
-              example: '',
+              example: 'db.collection.runCommand("text", { search: "searchKeywords" })',
               parameters: {}
             },
             updateOne: {
