@@ -15,7 +15,7 @@ interface Readable {
    * @param {String} collection - The collection name.
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Document} options - The pipeline options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    * @returns {Cursor} A cursor.
    */
   aggregate(
@@ -23,7 +23,7 @@ interface Readable {
     collection: string,
     pipeline: Document[],
     options?: Document,
-    databaseOptions?: DatabaseOptions) : Cursor;
+    dbOptions?: DatabaseOptions) : Cursor;
 
   /**
    * Run an aggregation pipeline on the DB.
@@ -38,7 +38,7 @@ interface Readable {
     database: string,
     pipeline: Document[],
     options?: Document,
-    databaseOptions?: DatabaseOptions
+    dbOptions?: DatabaseOptions
   ) : Cursor;
 
   /**
@@ -51,7 +51,7 @@ interface Readable {
    * @param {String} coll - the collection name
    * @param query
    * @param options
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise} A promise of the result.
    */
@@ -60,7 +60,7 @@ interface Readable {
     coll: string,
     query?: Document,
     options?: Document,
-    databaseOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Get an exact document count from the collection.
@@ -69,7 +69,7 @@ interface Readable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The count options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise} A promise of the result.
    */
@@ -78,7 +78,7 @@ interface Readable {
     collection: string,
     filter?: Document,
     options?: Document,
-    databaseOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Get distinct values for the field.
@@ -88,7 +88,7 @@ interface Readable {
    * @param {String} fieldName - The field name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The distinct options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Cursor} The cursor.
    */
@@ -98,7 +98,7 @@ interface Readable {
     fieldName: string,
     filter?: Document,
     options?: Document,
-    databaseOptions?: DatabaseOptions) : Promise<Result>;
+    dbOptions?: DatabaseOptions) : Promise<Result>;
 
   /**
    * Get an estimated document count from the collection.
@@ -106,7 +106,7 @@ interface Readable {
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Document} options - The count options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -114,7 +114,7 @@ interface Readable {
     database: string,
     collection: string,
     options?: Document,
-    databaseOptions?: DatabaseOptions) : Promise<Result>;
+    dbOptions?: DatabaseOptions) : Promise<Result>;
 
   /**
    * Find documents in the collection.
@@ -123,7 +123,7 @@ interface Readable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The find options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the cursor.
    */
@@ -132,21 +132,21 @@ interface Readable {
     collection: string,
     filter?: Document,
     options?: Document,
-    databaseOptions?: DatabaseOptions) : Cursor;
+    dbOptions?: DatabaseOptions) : Cursor;
 
   /**
    * Is the collection capped?
    *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
   isCapped(
     database: string,
     collection: string,
-    databaseOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Returns an array that holds a list of documents that identify and
@@ -154,14 +154,14 @@ interface Readable {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
   getIndexes(
     database: string,
     collection: string,
-    databaseOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Returns an array of collection infos
@@ -169,7 +169,7 @@ interface Readable {
    * @param {String} database - The db name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The command options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
@@ -177,7 +177,7 @@ interface Readable {
     database: string,
     filter?: Document,
     options?: Document,
-    databaseOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Get all the collection statistics.
@@ -185,7 +185,7 @@ interface Readable {
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
    * @param {Object} options - The count options.
-   * @param {DatabaseOptions} databaseOptions - The collection options
+   * @param {DatabaseOptions} dbOptions - The database options
    *
    * @return {Promise} returns Promise
    */
@@ -193,7 +193,7 @@ interface Readable {
     database: string,
     collection: string,
     options?: Document,
-    databaseOptions?: DatabaseOptions
+    dbOptions?: DatabaseOptions
   ): Promise<Result>
 }
 
