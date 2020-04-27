@@ -11,13 +11,18 @@ import java.io.Closeable
 internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable {
 
     @HostAccess.Export
-    fun runCommand(database: String, spec: String): Any {
-        return client.getDatabase(database).runCommand(Document(spec, null))
+    fun runCommand(database: String, spec: Map<*, *>?): Any {
+        return runCommand(database, spec, null)
     }
 
     @HostAccess.Export
-    fun runCommand(database: String, spec: Map<*, *>): Any {
-        throw UnsupportedOperationException()
+    fun runCommand(database: String, spec: Map<*, *>?, options: Map<*, *>?): Any {
+        return runCommand(database, spec, options, null)
+    }
+
+    @HostAccess.Export
+    fun runCommand(database: String, spec: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Any {
+        return client.getDatabase(database).runCommand(toBson(spec))
     }
 
     @HostAccess.Export
@@ -58,13 +63,15 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     override fun close() = client.close()
+}
 
-    private fun toBson(options: Map<*, *>?): Document {
-        val doc = Document()
-        options?.entries?.forEach { (key, value) ->
-            if (key !is String) return@forEach
-            doc[key] = if (value is Map<*, *>) toBson(value) else value
-        }
-        return doc
+private fun map() = emptyMap<String, Any>()
+
+private fun toBson(options: Map<*, *>?): Document {
+    val doc = Document()
+    options?.entries?.forEach { (key, value) ->
+        if (key !is String) return@forEach
+        doc[key] = if (value is Map<*, *>) toBson(value) else value
     }
+    return doc
 }
