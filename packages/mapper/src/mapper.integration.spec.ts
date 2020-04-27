@@ -291,7 +291,7 @@ describe('Mapper (integration)', function() {
 
         expect(
           result
-        ).to.deep.equal({
+        ).to.deep.include({
           nIndexesWas: 1,
           nIndexes: 1,
           indexes: [
