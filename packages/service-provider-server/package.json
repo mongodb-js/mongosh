@@ -12,8 +12,8 @@
   },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint"
