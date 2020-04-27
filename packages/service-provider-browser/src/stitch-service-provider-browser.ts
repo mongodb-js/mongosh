@@ -1,4 +1,14 @@
-import { ServiceProvider, Result, BulkWriteResult, Document, Cursor } from '@mongosh/service-provider-core';
+import {
+  ServiceProvider,
+  Result,
+  BulkWriteResult,
+  Document,
+  Cursor,
+  DatabaseOptions,
+  CommandOptions,
+  WriteConcern
+} from '@mongosh/service-provider-core';
+
 import StitchTransport from './stitch-transport';
 
 import i18n from '@mongosh/i18n';
@@ -111,80 +121,80 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
-  renameCollection(database: string, collection: string, newName: string, options?: Document, dbOptions?: Document): Promise<any> {
+  aggregateDb(database: string, pipeline: Document[], options?: Document, databaseOptions?: DatabaseOptions): Cursor {
     throw new Error("Method not implemented.");
   }
 
-  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, dbOptions?: Document) {
+  count(db: string, coll: string, query?: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  dropCollection(database: string, collection: string, dbOptions?: Document): Promise<boolean> {
+  isCapped(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  listCollections(database: string, filter?: Document, options?: Document, dbOptions?: Document): Promise<any> {
+  getIndexes(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  stats(database: string, collection: string, options?: Document, dbOptions?: Document): Promise<any> {
+  listCollections(database: string, filter?: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  reIndex(database: string, collection: string, options?: Document, dbOptions?: Document): Promise<any> {
+  stats(database: string, collection: string, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  dropIndexes(database: string, collection: string, indexes: string|string[]|Document|Document[], options?: Document, dbOptions?: Document): Promise<any> {
+  dropDatabase(database: string, writeConcern?: WriteConcern, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  getIndexes(database: string, collection: string, dbOptions?: Document): Promise<any> {
+  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, databaseOptions?: DatabaseOptions) {
     throw new Error("Method not implemented.");
   }
 
-  createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, dbOptions?: Document): Promise<any> {
+  save(database: string, collection: string, doc: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  convertToCapped(database: string, collection: string, size: number): Promise<any> {
+  remove(database: string, collection: string, query: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  convertToCapped(database: string, collection: string, size: number, options?: CommandOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  dropIndexes(database: string, collection: string, indexes: string | Document | Document[] | string[], commandOptions?: CommandOptions, databaseOptions?: DatabaseOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  reIndex(database: string, collection: string, options?: CommandOptions, databaseOptions?: DatabaseOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  dropCollection(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+
+  renameCollection(database: string, oldName: string, newName: string, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+    throw new Error("Method not implemented.");
+  }
+
+  close(boolean: any): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  getServerVersion(): Promise<string> {
     throw new Error("Method not implemented.");
   }
 
   listDatabases(database: string): Promise<any> {
     throw new Error("Method not implemented.");
-  }
-
-  isCapped(database: string, collection: string): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-
-  remove(database: string, collection: string, query: Document, options?: Document, dbOptions?: Document): Promise<any> {
-    throw new Error("Method not implemented.");
-  }
-
-  save(database: string, collection: string, doc: Document, options?: Document, dbOptions?: Document): Promise<any> {
-    throw new Error('Method not implemented.');
-  }
-
-  close(boolean: any): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  aggregateDb(database: string, pipeline: Document[], options?: any, dbOptions?: any): Cursor {
-    throw new Error('Method not implemented.');
-  }
-
-  count(db: string, coll: string, query?: any, options?: any, dbOptions?: any): Promise<any> {
-    throw new Error('Method not implemented.');
-  }
-
-  getServerVersion(): Promise<string> {
-    throw new Error('Method not implemented.');
-  }
-
-  dropDatabase(database: string, writeConcern?: any): Promise<any> {
-    throw new Error('Method not implemented.');
   }
 
   /**

@@ -1,11 +1,17 @@
-import { MongoClient, Db } from 'mongodb';
+import {
+  MongoClient,
+  Db
+} from 'mongodb';
 
 import {
   ServiceProvider,
   Document,
   Cursor,
   Result,
-  BulkWriteResult
+  BulkWriteResult,
+  DatabaseOptions,
+  WriteConcern,
+  CommandOptions
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -67,12 +73,12 @@ class CliServiceProvider implements ServiceProvider {
 
   async renameCollection(
     database: string,
-    collection: string,
+    oldName: string,
     newName: string,
     options?: Document,
-    dbOptions?: Document): Promise<any> {
+    dbOptions?: DatabaseOptions): Promise<any> {
     return await this.db(database, dbOptions)
-      .renameCollection(collection, newName, options);
+      .renameCollection(oldName, newName, options);
   }
 
   async findAndModify(
@@ -82,7 +88,7 @@ class CliServiceProvider implements ServiceProvider {
     sort: any[] | Document,
     update: Document,
     options?: Document,
-    dbOptions?: Document
+    dbOptions?: DatabaseOptions
   ): Promise<any> {
     return await this.db(database, dbOptions)
       .collection(collection)
@@ -99,14 +105,21 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @return {Promise}
    */
-  async convertToCapped(database: string, collection: string, size: number): Promise<any> {
+  async convertToCapped(
+    database: string,
+    collection: string,
+    size: number,
+    options?: CommandOptions,
+    dbOptions?: DatabaseOptions
+  ): Promise<any> {
     const result: any = await this.runCommand(
       database,
       {
         convertToCapped: collection,
         size: size
       },
-      {}
+      options,
+      dbOptions
     );
 
     if (!result) {
@@ -124,11 +137,19 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @returns {Db} The database.
    */
-  private db(name: string, options: Document = {}): Db {
-    if (Object.keys(options).length !== 0) {
-      return this.mongoClient.db(name, options);
-    }
-    return this.mongoClient.db(name);
+  private db(name: string, options?: DatabaseOptions): Db {
+    const optionsWithForceNewInstace: DatabaseOptions = {
+      ...options,
+
+      // Without this option any read/write concerns
+      // and read preferences, as well as other db options
+      // will only affect one (the first) method call per db.
+      // Each subsequent calls would use the same options as
+      // the previous one.
+      returnNonCachedInstance: true
+    };
+
+    return this.mongoClient.db(name, optionsWithForceNewInstace);
   }
 
   /**
@@ -147,12 +168,7 @@ class CliServiceProvider implements ServiceProvider {
    *    comment: Optional<String>;
    *    hint: Optional<(String | Document = {})>;
    * @param dbOptions
-   *    readConcern:
-   *        level: <String local|majority|linearizable|available>
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
+
    * @returns {Cursor} The aggregation cursor.
    */
   aggregate(
@@ -160,10 +176,9 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     pipeline: Document[] = [],
     options: Document = {},
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    dbOptions: Document = {}): Cursor {
+    dbOptions?: DatabaseOptions): Cursor {
     return new NodeCursor(
-      this.db(database)
+      this.db(database, dbOptions)
         .collection(collection)
         .aggregate(pipeline, options)
     );
@@ -182,19 +197,16 @@ class CliServiceProvider implements ServiceProvider {
    *    comment: Optional<String>;
    *    hint: Optional<(String | Document = {})>;
    * @param dbOptions
-   *    readConcern:
-   *        level: <String local|majority|linearizable|available>
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
+   *      j: Optional<Boolean>
+   *      w: Optional<Int32 | String>
+   *      wtimeoutMS: Optional<Int64>
    * @return {any}
    */
   aggregateDb(
     database: string,
     pipeline: Document[] = [],
     options: Document = {},
-    dbOptions: Document = {}): Cursor {
+    dbOptions?: DatabaseOptions): Cursor {
     const db: any = (this.db(database, dbOptions) as any);
     return new NodeCursor(db.aggregate(pipeline, options));
   }
@@ -207,10 +219,11 @@ class CliServiceProvider implements ServiceProvider {
    *      ordered: Boolean;
    *      bypassDocumentValidation: Optional<Boolean>;
    * @param dbOptions
-   *    writeConcern:
-   *        j: Optional<Boolean>
-   *        w: Optional<Int32 | String>
-   *        wtimeoutMS: Optional<Int64>
+   *      j: Optional<Boolean>
+   *      w: Optional<Int32 | String>
+   *      wtimeoutMS: Optional<Int64>
+   *    readConcern:
+   *        level: <String local|majority|linearizable|available>
    * @return {any}
    */
   bulkWrite(
@@ -218,7 +231,7 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     requests,
     options: Document = {},
-    dbOptions: Document = {}): Promise<BulkWriteResult> {
+    dbOptions?: DatabaseOptions): Promise<BulkWriteResult> {
     return this.db(database, dbOptions)
       .collection(collection)
       .bulkWrite(requests as any[], options);
@@ -254,10 +267,11 @@ class CliServiceProvider implements ServiceProvider {
     database: string,
     collection: string,
     query: Document = {},
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).count(query);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .count(query, options);
   }
 
   /**
@@ -278,9 +292,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      countDocuments(filter, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .countDocuments(filter, options);
   }
 
   /**
@@ -299,9 +314,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      deleteMany(filter, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .deleteMany(filter, options);
   }
 
   /**
@@ -320,9 +336,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      deleteOne(filter, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .deleteOne(filter, options);
   }
 
   /**
@@ -343,7 +360,7 @@ class CliServiceProvider implements ServiceProvider {
     fieldName: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<any> {
+    dbOptions?: DatabaseOptions): Promise<any> {
     return this.db(database, dbOptions)
       .collection(collection)
       .distinct(fieldName, filter, options);
@@ -363,9 +380,10 @@ class CliServiceProvider implements ServiceProvider {
     database: string,
     collection: string,
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      estimatedDocumentCount(options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .estimatedDocumentCount(options);
   }
 
   /**
@@ -382,7 +400,8 @@ class CliServiceProvider implements ServiceProvider {
     database: string,
     collection: string,
     filter: Document = {},
-    options: Document = {}): Cursor {
+    options: Document = {},
+    dbOptions?: DatabaseOptions): Cursor {
     const findOptions: any = { ...options };
     if ('allowPartialResults' in findOptions) {
       findOptions.partial = findOptions.allowPartialResults;
@@ -394,7 +413,9 @@ class CliServiceProvider implements ServiceProvider {
       findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
     }
     return new NodeCursor(
-      this.db(database).collection(collection).find(filter, options)
+      this.db(database, dbOptions)
+        .collection(collection)
+        .find(filter, options)
     );
   }
 
@@ -414,8 +435,9 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection).
       findOneAndDelete(filter, options);
   }
 
@@ -435,14 +457,17 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     replacement: Document = {},
-    options: Document = {}): Promise<Result> {
+    options: Document = {},
+    dbOptions?: DatabaseOptions): Promise<Result> {
     const findOneAndReplaceOptions: any = { ...options };
     if ('returnDocument' in options) {
       findOneAndReplaceOptions.returnOriginal = options.returnDocument;
       delete findOneAndReplaceOptions.returnDocument;
     }
-    return (this.db(database).collection(collection) as any).
-      findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
+
+    return (
+      this.db(database, dbOptions).collection(collection) as any
+    ).findOneAndReplace(filter, replacement, findOneAndReplaceOptions);
   }
 
   /**
@@ -461,35 +486,43 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     filter: Document = {},
     update: Document = {},
-    options: Document = {}): Promise<Result> {
+    options: Document = {},
+    dbOptions?: DatabaseOptions): Promise<Result> {
     const findOneAndUpdateOptions: any = { ...options };
     if ('returnDocument' in options) {
       findOneAndUpdateOptions.returnOriginal = options.returnDocument;
       delete findOneAndUpdateOptions.returnDocument;
     }
-    return (this.db(database).collection(collection) as any).
-      findOneAndUpdate(filter, update, findOneAndUpdateOptions);
+
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .findOneAndUpdate(
+        filter,
+        update,
+        findOneAndUpdateOptions
+      );
   }
 
   /**
    * Insert many documents into the collection.
    *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Array} docs - The documents.
-   * @param {Object} options - The insert many options.
-   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
+   * @param {string} database - The database name.
+   * @param {string} collection - The collection name.
+   * @param {Document[]} [docs=[]] - The documents.
+   * @param {Document} [options={}] - options - The insert many options.
+   * @param {DatabaseOptions} [dbOptions] - The database options.
    *
-   * @returns {Promise} The promise of the result.
+   * @returns {Promise<Result>}
    */
   insertMany(
     database: string,
     collection: string,
     docs: Document[] = [],
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      insertMany(docs, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .insertMany(docs, options);
   }
 
   /**
@@ -508,9 +541,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     doc: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      insertOne(doc, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .insertOne(doc, options);
   }
 
   /**
@@ -522,8 +556,9 @@ class CliServiceProvider implements ServiceProvider {
    */
   isCapped(
     database: string,
-    collection: string): Promise<Result> {
-    return this.db(database).collection(collection).isCapped();
+    collection: string,
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions).collection(collection).isCapped();
   }
 
   /**
@@ -540,9 +575,10 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     query: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      remove(query, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .remove(query, options);
   }
 
   /**
@@ -563,7 +599,7 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     doc: Document,
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<Result> {
     return this.db(database, dbOptions).collection(collection).
       save(doc, options);
   }
@@ -586,9 +622,11 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     replacement: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      replaceOne(filter, replacement, options);
+    dbOptions?: DatabaseOptions
+  ): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .replaceOne(filter, replacement, options);
   }
 
   /**
@@ -603,9 +641,14 @@ class CliServiceProvider implements ServiceProvider {
   runCommand(
     database: string,
     spec: Document = {},
-    options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return (this.db(database, dbOptions) as any).command(spec, options as any);
+    options?: CommandOptions,
+    dbOptions?: DatabaseOptions
+  ): Promise<Result> {
+    const db: any = this.db(database, dbOptions);
+    return db.command(
+      spec,
+      options
+    );
   }
 
   /**
@@ -637,11 +680,10 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     update: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    const result = await this.db(database, dbOptions).collection(collection).
-      updateMany(filter, update, options);
-
-    return result;
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return await this.db(database, dbOptions)
+      .collection(collection)
+      .updateMany(filter, update, options);
   }
 
   /**
@@ -662,9 +704,10 @@ class CliServiceProvider implements ServiceProvider {
     filter: Document = {},
     update: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
-    return this.db(database, dbOptions).collection(collection).
-      updateOne(filter, update, options);
+    dbOptions?: DatabaseOptions): Promise<Result> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .updateOne(filter, update, options);
   }
 
   /**
@@ -698,7 +741,7 @@ class CliServiceProvider implements ServiceProvider {
    */
   async dropDatabase(
     db: string,
-    writeConcern: Document = {}
+    writeConcern: WriteConcern = {}
   ): Promise<DropDatabaseResult> {
     const nativeResult = await (this.db(db) as any)
       .dropDatabase(writeConcern);
@@ -725,7 +768,7 @@ class CliServiceProvider implements ServiceProvider {
     collection: string,
     indexSpecs: Document[],
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<Result> {
     return this.db(database, dbOptions)
       .collection(collection)
       .createIndexes(indexSpecs, options);
@@ -745,7 +788,7 @@ class CliServiceProvider implements ServiceProvider {
   async getIndexes(
     database: string,
     collection: string,
-    dbOptions: Document = {}): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<Result> {
     return this.db(database, dbOptions)
       .collection(collection)
       .listIndexes()
@@ -753,21 +796,22 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   /**
-   * Drop indexes for a collection.
+   * Drop indexes for a collection
    *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {string|string[]|Object|Object[]} indexes the indexes to be removed.
-   * @param {Object} options - The command options.
-   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
-   * @return {Promise}
+   * @param {string} database - the db name.
+   * @param {string} collection - the collection name.
+   * @param {(string|string[]|Document|Document[])} indexes - the indexes to be removed.
+   * @param {CommandOptions} [options] - The command options.
+   * @param {DatabaseOptions} [dbOptions] - The database options.
+   *
+   * @returns {Promise<Result>}
    */
   async dropIndexes(
     database: string,
     collection: string,
     indexes: string|string[]|Document|Document[],
-    options?: Document,
-    dbOptions?: Document): Promise<Result> {
+    options?: CommandOptions,
+    dbOptions?: DatabaseOptions): Promise<Result> {
     return await this.runCommand(database, {
       dropIndexes: collection,
       index: indexes,
@@ -789,7 +833,7 @@ class CliServiceProvider implements ServiceProvider {
     database: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions: Document = {}): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<Result> {
     return await this.db(database, dbOptions).listCollections(
       filter, options
     ).toArray();
@@ -808,13 +852,16 @@ class CliServiceProvider implements ServiceProvider {
     database: string,
     collection: string,
     options: Document = {},
-    dbOptions: Document = {}): Promise<any> {
+    dbOptions?: DatabaseOptions): Promise<any> {
     return await this.db(database, dbOptions)
       .collection(collection)
       .stats(options);
   }
 
   /**
+   * TODO: - To keep this as close to driver, since we use runCommand here,
+   * we should move it to the mapper layer.
+   *
    * Reindex all indexes on the collection.
    *
    * @param {String} database - The db name.
@@ -826,8 +873,9 @@ class CliServiceProvider implements ServiceProvider {
   async reIndex(
     database: string,
     collection: string,
-    options?: Document,
-    dbOptions?: Document): Promise<Result> {
+    options?: CommandOptions,
+    dbOptions?: DatabaseOptions
+  ): Promise<Result> {
     return await this.runCommand(database, {
       reIndex: collection
     }, options, dbOptions);
@@ -845,14 +893,11 @@ class CliServiceProvider implements ServiceProvider {
   async dropCollection(
     database: string,
     collection: string,
-    dbOptions?: Document
+    dbOptions?: DatabaseOptions
   ): Promise<boolean> {
-    return this.db(
-      database,
-      dbOptions
-    ).collection(
-      collection
-    ).drop();
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .drop();
   }
 }
 
