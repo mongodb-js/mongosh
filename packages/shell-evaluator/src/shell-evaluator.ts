@@ -80,6 +80,14 @@ class ShellEvaluator {
       typeof evaluationResult.toReplString === 'function';
   }
 
+  public revertState(): void {
+    this.asyncWriter.symbols.revertState();
+  }
+
+  public saveState(): void {
+    this.asyncWriter.symbols.saveState();
+  }
+
   /**
    * Checks for linux-style commands then evaluates input using originalEval.
    *
@@ -112,6 +120,7 @@ class ShellEvaluator {
         }
         return;
       default:
+        this.saveState();
         const rewrittenInput = this.asyncWriter.compile(input);
         this.bus.emit(
           'mongosh:rewrittenAsyncInput',
@@ -120,7 +129,9 @@ class ShellEvaluator {
         try {
           return await originalEval(rewrittenInput, context, filename);
         } catch (err) {
-          console.log('why is this never called for js errors');
+          // This is for browser/Compass
+          this.revertState();
+          throw err;
         }
     }
   }

@@ -18,6 +18,7 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
+import vm from 'vm';
 
 /**
  * Connecting text key.
@@ -171,6 +172,8 @@ class CliRepl {
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
+      this.ShellEvaluator.revertState();
+
       return formatOutput({type: 'Error', value: result});
     }
 

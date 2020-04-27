@@ -29,7 +29,8 @@
     "@mongosh/async-rewriter": "^0.0.1-alpha.12",
     "@mongosh/mapper": "^0.0.1-alpha.12",
     "@mongosh/service-provider-core": "^0.0.1-alpha.12",
-    "@mongosh/shell-api": "^0.0.1-alpha.12"
+    "@mongosh/shell-api": "^0.0.1-alpha.12",
+    "mocha": "^7.1.2"
   },
   "devDependencies": {
     "@types/sinon": "^7.5.1",
