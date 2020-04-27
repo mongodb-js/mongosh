@@ -15,7 +15,8 @@ import {
 
 import {
   ServiceProvider,
-  Document
+  Document,
+  DatabaseOptions
 } from '@mongosh/service-provider-core';
 
 import { EventEmitter } from 'events';
@@ -140,32 +141,22 @@ export default class Mapper {
     const db = collection._database._name;
     const coll = collection._name;
 
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
 
     if ('readConcern' in options) {
       dbOptions.readConcern = options.readConcern;
     }
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
-    let cmd;
-    if (coll === null) {
-      cmd = this.serviceProvider.aggregateDb(
-        db,
-        pipeline,
-        options,
-        dbOptions
-      );
-    } else {
-      cmd = this.serviceProvider.aggregate(
-        db,
-        coll,
-        pipeline,
-        options,
-        dbOptions
-      );
-    }
+    const cmd = this.serviceProvider.aggregate(
+      db,
+      coll,
+      pipeline,
+      options,
+      dbOptions
+    );
 
     this.messageBus.emit(
       'mongosh:api-call',
@@ -201,7 +192,7 @@ export default class Mapper {
     operations: Document,
     options: Document = {}
   ): Promise<BulkWriteResult> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -214,7 +205,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     const result = await this.serviceProvider.bulkWrite(
@@ -308,7 +299,7 @@ export default class Mapper {
    * @returns {DeleteResult} The promise of the result.
    */
   async collection_deleteMany(collection, filter, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -321,7 +312,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     const result = await this.serviceProvider.deleteMany(
@@ -352,7 +343,7 @@ export default class Mapper {
    * @returns {DeleteResult} The promise of the result.
    */
   async collection_deleteOne(collection, filter, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -365,7 +356,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
     const result = await this.serviceProvider.deleteOne(
       db,
@@ -724,12 +715,12 @@ export default class Mapper {
    */
   async collection_insert(collection, docs, options: any = {}): Promise<any> {
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     this.messageBus.emit(
@@ -770,12 +761,12 @@ export default class Mapper {
    * @return {InsertManyResult}
    */
   async collection_insertMany(collection, docs, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     this.messageBus.emit(
@@ -816,12 +807,12 @@ export default class Mapper {
    * @return {InsertOneResult}
    */
   async collection_insertOne(collection, doc, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     this.messageBus.emit(
@@ -878,12 +869,12 @@ export default class Mapper {
    * @return {Promise}
    */
   collection_remove(collection, query, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     let removeOptions: any = {};
@@ -913,7 +904,7 @@ export default class Mapper {
 
   // TODO
   collection_save(collection, doc, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -926,7 +917,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
 
     return this.serviceProvider.save(db, coll, doc, options, dbOptions);
@@ -949,7 +940,7 @@ export default class Mapper {
    * @returns {UpdateResult} The promise of the result.
    */
   async collection_replaceOne(collection, filter, replacement, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -963,7 +954,7 @@ export default class Mapper {
 
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
     const result = await this.serviceProvider.replaceOne(
       db,
@@ -1055,7 +1046,7 @@ export default class Mapper {
    * @returns {UpdateResult} The promise of the result.
    */
   async collection_updateMany(collection, filter, update, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -1068,7 +1059,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
     const result = await this.serviceProvider.updateMany(
       db,
@@ -1103,7 +1094,7 @@ export default class Mapper {
    * @returns {UpdateResult} The promise of the result.
    */
   async collection_updateOne(collection, filter, update, options: any = {}): Promise<any> {
-    const dbOptions: any = {};
+    const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
@@ -1116,7 +1107,7 @@ export default class Mapper {
     );
 
     if ('writeConcern' in options) {
-      dbOptions.writeConcern = options.writeConcern;
+      Object.assign(dbOptions, options.writeConcern);
     }
     const result = await this.serviceProvider.updateMany(
       db,
