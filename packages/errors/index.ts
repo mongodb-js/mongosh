@@ -10,7 +10,7 @@ class MongoshInternalError extends Error {
     super(msg);
     this.name = 'MongoshInternalError';
     this.message =
-      msg + '\nThis is an error inside Mongosh. Please file a bug report. '
+      this.message + '\nThis is an error inside Mongosh. Please file a bug report. '
       + 'Please include a log file from this session.';
   }
 }
