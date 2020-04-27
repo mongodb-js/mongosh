@@ -28,6 +28,7 @@ export default class SymbolTable {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
       this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], lib: true };
     });
+    this.savedState = this.scopeStack;
   }
 
   /**
