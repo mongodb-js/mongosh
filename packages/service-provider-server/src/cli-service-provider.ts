@@ -710,16 +710,12 @@ class CliServiceProvider implements ServiceProvider {
       .updateOne(filter, update, options);
   }
 
-  getTopology(): any {
-    return this.mongoClient.topology;
-  }
-
   /**
-   * Returns the server version.
+   * Return buildInfo.
    *
-   * @returns {Promise} The server version.
+   * @returns {Promise} buildInfo.
    */
-  async getServerVersion(): Promise<string> {
+  async buildInfo(): Promise<string> {
     const result: any = await this.runCommand(
       'admin',
       {
@@ -728,11 +724,9 @@ class CliServiceProvider implements ServiceProvider {
       {}
     );
 
-    if (!result) {
-      return;
-    }
+    if (!result) return;
 
-    return result.version;
+    return result;
   }
 
   /**

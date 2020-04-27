@@ -24,13 +24,17 @@ import { redactPwd } from '.';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
+function x () {
+  console.log('cats')
+}
+
 /**
  * The REPL used from the terminal.
  */
 class CliRepl {
   private serviceProvider: CliServiceProvider;
   private ShellEvaluator: ShellEvaluator;
-  private mdbVersion: any;
+  private buildInfo: any;
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
@@ -51,7 +55,7 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    this.mdbVersion = await this.serviceProvider.getServerVersion();
+    // this.buildInfo = await this.serviceProvider.buildInfo();
     const connectionInfo = this.getConnectionInfo(driverUri, driverOptions);
     this.bus.emit('connect', connectionInfo);
     this.start();
@@ -86,10 +90,13 @@ class CliRepl {
   // if it's an enterprise service
   // auth type (SCRAM, Kerberos, LDAP, X.509)
   getConnectionInfo(uri: string, options: NodeOptions) {
-    const topology = this.serviceProvider.getTopology();
-    console.log(topology)
+    console.log(this.buildInfo)
     const ATLAS_REGEX = /mongodb.net[:/]/i;
-    const LOCALHOST_REGEX = /localhost/i; 
+    const LOCALHOST_REGEX = /(localhost|127\.0\.0\.1)/i;
+    return {
+      isAtlas: !!uri.match(ATLAS_REGEX),
+      isLocalhost: !!uri.match(LOCALHOST_REGEX) 
+    }
   }
 
   /**
@@ -198,8 +205,8 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.mdbVersion} \n`);
-    if (!this.disableGreetingMessage) console.log(TELEMETRY);
+    console.log(`Using MongoDB: ${this.buildInfo.version} \n`);
+    console.log(TELEMETRY);
   }
 
   /**
@@ -239,7 +246,7 @@ class CliRepl {
   start(): void {
     this.greet();
 
-    const version = this.mdbVersion;
+    const version = this.buildInfo.version;
 
     this.repl = repl.start({
       prompt: `$ mongosh > `,

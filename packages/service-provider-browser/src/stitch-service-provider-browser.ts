@@ -189,8 +189,8 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     throw new Error("Method not implemented.");
   }
 
-  getServerVersion(): Promise<string> {
-    throw new Error("Method not implemented.");
+  buildInfo(): Promise<string> {
+    throw new Error('Method not implemented.');
   }
 
   listDatabases(database: string): Promise<any> {

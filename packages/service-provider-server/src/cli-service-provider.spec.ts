@@ -468,7 +468,7 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#getServerVersion', () => {
+  describe('#buildInfo', () => {
     let commandMock;
     let dbMock;
     let clientStub: MongoClient;
@@ -494,8 +494,8 @@ describe('CliServiceProvider', () => {
     });
 
     it('executes the command against the admin database', async() => {
-      const result = await serviceProvider.getServerVersion();
-      expect(result).to.deep.equal('4.0.0');
+      const result = await serviceProvider.buildInfo();
+      expect(result.version).to.deep.equal('4.0.0');
       dbMock.verify();
       commandMock.verify();
     });

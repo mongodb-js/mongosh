@@ -336,16 +336,16 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#getServerVersion', () => {
+  describe('#buildInfo', () => {
     context('when the filter is empty', () => {
       let result;
 
       beforeEach(async() => {
-        result = await serviceProvider.getServerVersion();
+        result = await serviceProvider.buildInfo();
       });
 
       it('returns a semver', () => {
-        expect(result).to.match(/^\d+.\d+/);
+        expect(result.version).to.match(/^\d+.\d+/);
       });
     });
   });
