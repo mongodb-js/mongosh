@@ -1,15 +1,10 @@
 import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
+import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('CliServiceProvider [integration]', function() {
-  this.timeout(5000);
-
-  const port = 27018;
-  const connectionString = `mongodb://localhost:${port}`;
-
-  before(require('mongodb-runner/mocha/before')({ port, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port }));
+  const connectionString = startTestServer();
 
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;

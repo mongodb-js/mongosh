@@ -2,10 +2,10 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually, startShell, killOpenShells } from './helpers';
+import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('e2e', function() {
-  before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
-  after(require('mongodb-runner/mocha/after')({ port: 27018 }));
+  const connectionString = startTestServer();
 
   afterEach(() => killOpenShells());
 
@@ -29,8 +29,6 @@ describe('e2e', function() {
 
     beforeEach(async () => {
       dbName = `test-${Date.now()}`;
-      const connectionString = `mongodb://localhost:27018/${dbName}`;
-
       shell = startShell(connectionString);
       client = await (MongoClient as any).connect(
         connectionString,
