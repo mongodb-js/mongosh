@@ -2,13 +2,13 @@ package com.mongodb.mongosh
 
 import com.mongodb.client.MongoClient
 import com.mongodb.mongosh.result.*
+import com.mongodb.mongosh.result.Collection
 import com.mongodb.mongosh.service.CliServiceProvider
 import org.bson.Document
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
-import org.graalvm.polyglot.proxy.ProxyObject
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.util.concurrent.CompletableFuture
@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture
 internal class MongoShellContext(client: MongoClient) : Closeable {
     private val ctx: Context = Context.create()
     private val cliServiceProvider = CliServiceProvider(client, this)
-    private val mapperContext = HashMap<String, Any?>()
     private val databaseClass: Value
     private val collectionClass: Value
     private val cursorClass: Value
@@ -25,15 +24,24 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
 
     init {
         eval(MongoShell::class.java.getResource("/js/all-standalone.js").readText())
-        val global = ctx.getBindings("js").getMember("_global")
+        val context = ctx.getBindings("js")
+        val global = context.getMember("_global")
+        context.removeMember("_global")
         val mapper = global.getMember("Mapper").newInstance(cliServiceProvider)
-        mapper.getMember("setCtx").execute(ProxyObject.fromMap(mapperContext))
+        initContext(context, mapper)
+        mapper.putMember("context", context)
         databaseClass = global.getMember("Database")
         collectionClass = global.getMember("Collection")
         cursorClass = global.getMember("Cursor")
         insertOneResultClass = global.getMember("InsertOneResult")
         deleteResultClass = global.getMember("DeleteResult")
-        ctx.getBindings("js").removeMember("_global")
+    }
+
+    private fun initContext(context: Value, mapper: Value) {
+        context.putMember("use", mapper.getMember("use").invokeMember("bind", mapper))
+        context.putMember("show", mapper.getMember("show").invokeMember("bind", mapper))
+        context.putMember("it", mapper.getMember("it").invokeMember("bind", mapper))
+        context.putMember("db", mapper.getMember("databases").getMember("test"))
     }
 
     internal operator fun get(value: String): Value? {
@@ -75,13 +83,6 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
 
     internal fun eval(@Language("js") script: String): Value {
         return ctx.eval(Source.create("js", script))
-    }
-
-    internal fun updateContext() {
-        val bindings = ctx.getBindings("js")
-        for ((key, value) in mapperContext.entries) {
-            bindings.putMember(key, value)
-        }
     }
 
     override fun close() = cliServiceProvider.close()

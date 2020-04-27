@@ -16,7 +16,6 @@ class MongoShell(client: MongoClient) : Closeable {
             val help = requireNotNull(context["help"], { "Context should contain 'help' function" })
             return CompletableFuture.completedFuture(context.extract(help.execute()))
         }
-        context.updateContext()
         val res = USE_COMMAND.matchEntire(s)
         if (res != null) {
             val use = requireNotNull(context["use"], { "Context should contain 'use' function" })
