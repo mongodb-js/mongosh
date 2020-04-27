@@ -67,6 +67,16 @@ describe('formatOutput', () => {
       });
     });
   });
+  context('when the result is an Error', () => {
+    it('returns only name and message', () => {
+      const output = stripAnsiColors(format({
+        value: new Error('Something went wrong.'),
+        type: 'Error'
+      }));
+
+      expect(output).to.equal('\rError: Something went wrong.');
+    });
+  });
 
   context('when the result is ShowDatabasesResult', () => {
     it('returns the help text', () => {
