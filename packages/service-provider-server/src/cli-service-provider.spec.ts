@@ -508,7 +508,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({ convertToCapped: 'coll1', size: 1000 }, {})
+        .withArgs({ convertToCapped: 'coll1', size: 1000 })
         .resolves({ ok: 1 });
 
       const dbStub = sinon.createStubInstance(Db, {
@@ -613,7 +613,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({ dropIndexes: 'coll1', index: ['index-1'] }, {})
+        .withArgs({ dropIndexes: 'coll1', index: ['index-1'] })
         .resolves({ ok: 1 });
 
       const dbStub = sinon.createStubInstance(Db, {
@@ -716,7 +716,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({ reIndex: 'coll1' }, {})
+        .withArgs({ reIndex: 'coll1' })
         .resolves({ ok: 1 });
 
       const dbStub = sinon.createStubInstance(Db, {
