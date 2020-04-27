@@ -18,7 +18,6 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
-import vm from 'vm';
 
 /**
  * Connecting text key.
