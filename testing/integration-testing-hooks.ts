@@ -18,9 +18,15 @@ const LOCAL_INSTANCE_PORT = 27018;
  */
 export function startTestServer(): string {
   const envConnectionString = process.env.MONGOSH_TEST_SERVER_URL;
-  const connectionString = envConnectionString || `mongodb://localhost:${LOCAL_INSTANCE_PORT}`;
+  const localConnectionString = `mongodb://localhost:${LOCAL_INSTANCE_PORT}`;
+  const connectionString = envConnectionString || localConnectionString;
 
   if (!envConnectionString) {
+    console.info(
+      'MONGOSH_TEST_SERVER_URL not provided. A local server will be started on',
+      localConnectionString
+    );
+
     before(function(done: Function) {
       try {
         mongodbRunnerBefore({
