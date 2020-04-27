@@ -1,2 +1,2 @@
-// command
+// command checkResultClass
 null

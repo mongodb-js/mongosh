@@ -1,4 +1,4 @@
 // before
 const o = {};
-// command
+// command checkResultClass
 o

@@ -4,6 +4,7 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
 import com.mongodb.mongosh.result.DatabaseResult
+import com.mongodb.mongosh.result.MongoShellResult
 import org.junit.Assert.*
 import java.io.File
 import java.io.IOException
@@ -31,15 +32,15 @@ fun getTestNames(testDataPath: String): List<String> {
             .map { it.name.substring(0, it.name.length - ".js".length) }
 }
 
-fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResultClass: Boolean = false, db: String? = null) {
+fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
     val test: String = File("$testDataPath/$testName.js").readText()
     var before: String? = null
-    val commands = mutableListOf<String>()
+    val commands = mutableListOf<Command>()
     var clear: String? = null
     read(test, listOf(
-            SectionHandler("before") { before = it },
-            SectionHandler("command") { commands.add(it) },
-            SectionHandler("clear") { clear = it }
+            SectionHandler("before") { value, _ -> before = value },
+            SectionHandler("command") { value, properties -> commands.add(Command(value, CompareOptions(properties["checkResultClass"] == "true"))) },
+            SectionHandler("clear") { value, _ -> clear = value }
     ))
 
     assertFalse("No command found", commands.isEmpty())
@@ -51,9 +52,8 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResult
             commands.forEach { cmd ->
                 if (sb.isNotEmpty()) sb.append("\n")
                 try {
-                    val result = shell.eval(cmd).get()
-                    if (testResultClass) sb.append(result.javaClass.simpleName).append(": ")
-                    sb.append(result.toReplString())
+                    val result = shell.eval(cmd.command).get()
+                    sb.append(getExpectedValue(result, cmd.options))
                 } catch (e: Exception) {
                     System.err.println("IGNORED:")
                     e.printStackTrace()
@@ -66,6 +66,16 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResult
         }
     }
 }
+
+private fun getExpectedValue(result: MongoShellResult, options: CompareOptions): String {
+    val sb = StringBuilder()
+    if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
+    sb.append(result.toReplString())
+    return sb.toString()
+}
+
+private class Command(val command: String, val options: CompareOptions)
+private class CompareOptions(val checkResultClass: Boolean)
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db").get() as DatabaseResult).value.name() else null
@@ -95,25 +105,35 @@ private fun replaceId(value: String): String {
     return MONGO_ID_PATTERN.matcher(value).replaceAll("<ObjectID>")
 }
 
-private val HEADER_PATTERN = Pattern.compile("//\\s*(.*)")
+private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 
-class SectionHandler(val sectionName: String, val valueConsumer: (String) -> Unit)
+class SectionHandler(val sectionName: String, val valueConsumer: (String, Map<String, String>) -> Unit)
 
 private fun read(text: String, handlers: List<SectionHandler>) {
     var currentHandler: SectionHandler? = null
+    var currentProperties = mapOf<String, String>()
     val currentSection = StringBuilder()
     text.split("\n").forEach { line ->
         val matcher = HEADER_PATTERN.matcher(line.trim())
         if (matcher.matches()) {
-            currentHandler?.valueConsumer?.invoke(currentSection.toString())
+            currentHandler?.valueConsumer?.invoke(currentSection.toString(), currentProperties)
             currentSection.setLength(0)
-            val headerName = matcher.group(1)
+            val headerName = matcher.group("name")
             currentHandler = handlers.find { it.sectionName == headerName }
+            val props = matcher.group("properties")
+            currentProperties = props?.trim()?.split(Pattern.compile("\\s+"))
+                    ?.associate { property ->
+                        val eq = property.indexOf('=')
+
+                        if (eq == -1) property to "true"
+                        else property.substring(0, eq) to property.substring(eq + 1)
+                    }
+                    ?: mapOf()
         } else {
             if (currentSection.isNotEmpty()) currentSection.append("\n")
             currentSection.append(line)
         }
     }
-    currentHandler?.valueConsumer?.invoke(currentSection.toString())
+    currentHandler?.valueConsumer?.invoke(currentSection.toString(), currentProperties)
 }
 

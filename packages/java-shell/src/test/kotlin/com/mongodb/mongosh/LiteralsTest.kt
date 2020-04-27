@@ -20,7 +20,7 @@ class LiteralsTest(private val testName: String) : ShellTestCase() {
     @Test
     fun test() {
         withShell { shell ->
-            doTest(testName, shell, TEST_DATA_PATH, true)
+            doTest(testName, shell, TEST_DATA_PATH)
         }
     }
 }
