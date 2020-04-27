@@ -121,43 +121,43 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
   }
 
-  aggregateDb(database: string, pipeline: Document[], options?: Document, databaseOptions?: DatabaseOptions): Cursor {
+  aggregateDb(database: string, pipeline: Document[], options?: Document, dbOptions?: DatabaseOptions): Cursor {
     throw new Error("Method not implemented.");
   }
 
-  count(db: string, coll: string, query?: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  count(db: string, coll: string, query?: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  isCapped(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<any> {
+  isCapped(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  getIndexes(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<any> {
+  getIndexes(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  listCollections(database: string, filter?: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  listCollections(database: string, filter?: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  stats(database: string, collection: string, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  stats(database: string, collection: string, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  dropDatabase(database: string, writeConcern?: WriteConcern, databaseOptions?: DatabaseOptions): Promise<any> {
+  dropDatabase(database: string, writeConcern?: WriteConcern, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, databaseOptions?: DatabaseOptions) {
+  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, dbOptions?: DatabaseOptions) {
     throw new Error("Method not implemented.");
   }
 
-  save(database: string, collection: string, doc: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  save(database: string, collection: string, doc: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  remove(database: string, collection: string, query: Document, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  remove(database: string, collection: string, query: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
@@ -165,23 +165,23 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     throw new Error("Method not implemented.");
   }
 
-  createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  dropIndexes(database: string, collection: string, indexes: string | Document | Document[] | string[], commandOptions?: CommandOptions, databaseOptions?: DatabaseOptions): Promise<any> {
+  dropIndexes(database: string, collection: string, indexes: string | Document | Document[] | string[], commandOptions?: CommandOptions, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  reIndex(database: string, collection: string, options?: CommandOptions, databaseOptions?: DatabaseOptions): Promise<any> {
+  reIndex(database: string, collection: string, options?: CommandOptions, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
-  dropCollection(database: string, collection: string, databaseOptions?: DatabaseOptions): Promise<boolean> {
+  dropCollection(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
 
-  renameCollection(database: string, oldName: string, newName: string, options?: Document, databaseOptions?: DatabaseOptions): Promise<any> {
+  renameCollection(database: string, oldName: string, newName: string, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
     throw new Error("Method not implemented.");
   }
 
