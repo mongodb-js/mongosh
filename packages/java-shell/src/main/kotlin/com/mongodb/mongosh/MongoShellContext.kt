@@ -97,7 +97,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return ctx.eval(Source.create("js", script))
     }
 
-    fun <E : Throwable, T> toJsPromise(promise: Promise<E, T>): Value {
+    fun <T> toJsPromise(promise: Promise<T>): Value {
         return when (promise) {
             is Resolved -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
             is Rejected -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)

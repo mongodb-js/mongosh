@@ -7,10 +7,10 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.result.WriteCommandException
 import java.util.concurrent.TimeUnit
 
-internal fun <E : Throwable, T> convert(o: T,
-                                        converters: Map<String, (T, Any?) -> Promise<E, T>>,
-                                        defaultConverter: (T, String, Any?) -> Promise<E, T>,
-                                        map: Map<*, *>): Promise<E, T> {
+internal fun <T> convert(o: T,
+                         converters: Map<String, (T, Any?) -> Promise<T>>,
+                         defaultConverter: (T, String, Any?) -> Promise<T>,
+                         map: Map<*, *>): Promise<T> {
     var accumulator = o
     for ((key, value) in map.entries) {
         if (key !is String) continue
@@ -24,7 +24,7 @@ internal fun <E : Throwable, T> convert(o: T,
     return Resolved(accumulator)
 }
 
-internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<Exception, MongoDatabase>> = mapOf(
+internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "writeConcern" to { db, value ->
             if (value is Map<*, *>) convert(db, writeConcernConverters, writeConcernDefaultConverter, value)
             else Rejected(WriteCommandException("invalid parameter: expected an object (writeConcern)", "FailedToParse"))
@@ -39,7 +39,7 @@ internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<Exceptio
         }
 )
 
-internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<WriteCommandException, MongoDatabase>> = mapOf(
+internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "w" to { db, value ->
             when (value) {
                 is Number -> Resolved(db.withWriteConcern(db.writeConcern.withW(value.toInt())))
@@ -62,11 +62,11 @@ internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promis
         }
 )
 
-internal val writeConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
+internal val writeConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoDatabase> = { _, key, _ ->
     Rejected(WriteCommandException("unrecognized write concern field: $key", "FailedToParse"))
 }
 
-internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<WriteCommandException, MongoDatabase>> = mapOf(
+internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "level" to { db, value ->
             when (value) {
                 is String -> Resolved(db.withReadConcern(ReadConcern(ReadConcernLevel.valueOf(value))))
@@ -75,11 +75,11 @@ internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise
         }
 )
 
-internal val readConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
+internal val readConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoDatabase> = { _, key, _ ->
     Rejected(WriteCommandException("unrecognized read concern field: $key", "FailedToParse"))
 }
 
-internal val readPreferenceConverters: Map<String, (MongoDatabase, Any?) -> Promise<Exception, MongoDatabase>> = mapOf(
+internal val readPreferenceConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "mode" to { db, value ->
             when (value) {
                 is String -> {
@@ -99,6 +99,6 @@ internal val readPreferenceConverters: Map<String, (MongoDatabase, Any?) -> Prom
         }
 )
 
-internal val readPreferenceDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
+internal val readPreferenceDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoDatabase> = { _, key, _ ->
     Rejected(WriteCommandException("unrecognized read preference field: $key", "FailedToParse"))
 }
