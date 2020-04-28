@@ -52,7 +52,7 @@ internal class Cursor(private val findIterable: FindIterable<Document>, private 
     @JvmField
     @HostAccess.Export
     val readPref = jsFun<Cursor> {
-        throw UnsupportedOperationException()
+        throw UnsupportedOperationException("readPref is not supported")
     }
 
     @JvmField

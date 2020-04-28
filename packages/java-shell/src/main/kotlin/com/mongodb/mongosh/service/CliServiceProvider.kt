@@ -40,25 +40,31 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         return context.toJsPromise(promise)
     }
 
-    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<WriteCommandException, MongoDatabase> {
+    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<Exception, MongoDatabase> {
         val db = client.getDatabase(database)
         return if (dbOptions == null) Resolved(db) else convert(db, dbConverters, writeConcernDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
-    fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Any {
-        val result = client.getDatabase(database).getCollection(coll).deleteMany(toBson(filter))
-        return fromMap(mapOf(
-                "result" to fromMap(mapOf("ok" to result.wasAcknowledged())),
-                "deletedCount" to result.deletedCount))
+    fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        val promise = getDatabase(database, dbOptions).then { db ->
+            val result = db.getCollection(coll).deleteMany(toBson(filter))
+            fromMap(mapOf(
+                    "result" to fromMap(mapOf("ok" to result.wasAcknowledged())),
+                    "deletedCount" to result.deletedCount))
+        }
+        return context.toJsPromise(promise)
     }
 
     @HostAccess.Export
-    fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Any {
-        client.getDatabase(database).getCollection(coll).insertMany(docs.map { toBson(it as Map<*, *>?) })
-        return fromMap(mapOf(
-                "result" to fromMap(mapOf("ok" to true)),
-                "insertedId" to emptyList<String>()))
+    fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        val promise = getDatabase(database, dbOptions).then { db ->
+            db.getCollection(coll).insertMany(docs.map { toBson(it as Map<*, *>?) })
+            fromMap(mapOf(
+                    "result" to fromMap(mapOf("ok" to true)),
+                    "insertedId" to emptyList<String>()))
+        }
+        return context.toJsPromise(promise)
     }
 
     @HostAccess.Export
@@ -69,9 +75,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun remove(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Any {
-        val result = client.getDatabase(db).getCollection(coll).deleteMany(toBson(query))
-        return DeleteResult(result.wasAcknowledged(), result.deletedCount)
+    fun remove(database: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        val promise = getDatabase(database, dbOptions).then { db ->
+            val result = db.getCollection(coll).deleteMany(toBson(query))
+            DeleteResult(result.wasAcknowledged(), result.deletedCount)
+        }
+        return context.toJsPromise(promise)
     }
 
     override fun close() = client.close()

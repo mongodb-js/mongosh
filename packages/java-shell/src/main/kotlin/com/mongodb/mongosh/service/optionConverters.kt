@@ -1,5 +1,8 @@
 package com.mongodb.mongosh.service
 
+import com.mongodb.ReadConcern
+import com.mongodb.ReadConcernLevel
+import com.mongodb.ReadPreference
 import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.result.WriteCommandException
 import java.util.concurrent.TimeUnit
@@ -21,11 +24,18 @@ internal fun <E : Throwable, T> convert(o: T,
     return Resolved(accumulator)
 }
 
-internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<WriteCommandException, MongoDatabase>> = mapOf(
+internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<Exception, MongoDatabase>> = mapOf(
         "writeConcern" to { db, value ->
-            if (value is Map<*, *>) {
-                convert(db, writeConcernConverters, writeConcernDefaultConverter, value)
-            } else Rejected(WriteCommandException("invalid parameter: expected an object (writeConcern)", "FailedToParse"))
+            if (value is Map<*, *>) convert(db, writeConcernConverters, writeConcernDefaultConverter, value)
+            else Rejected(WriteCommandException("invalid parameter: expected an object (writeConcern)", "FailedToParse"))
+        },
+        "readConcern" to { db, value ->
+            if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
+            else Rejected(WriteCommandException("invalid parameter: expected an object (readConcern)", "FailedToParse"))
+        },
+        "readPreference" to { db, value ->
+            if (value is Map<*, *>) convert(db, readPreferenceConverters, readPreferenceDefaultConverter, value)
+            else Rejected(WriteCommandException("invalid parameter: expected an object (readPreference)", "FailedToParse"))
         }
 )
 
@@ -54,4 +64,41 @@ internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promis
 
 internal val writeConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
     Rejected(WriteCommandException("unrecognized write concern field: $key", "FailedToParse"))
+}
+
+internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<WriteCommandException, MongoDatabase>> = mapOf(
+        "level" to { db, value ->
+            when (value) {
+                is String -> Resolved(db.withReadConcern(ReadConcern(ReadConcernLevel.valueOf(value))))
+                else -> Rejected(WriteCommandException("level has to be a string", "FailedToParse"))
+            }
+        }
+)
+
+internal val readConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
+    Rejected(WriteCommandException("unrecognized read concern field: $key", "FailedToParse"))
+}
+
+internal val readPreferenceConverters: Map<String, (MongoDatabase, Any?) -> Promise<Exception, MongoDatabase>> = mapOf(
+        "mode" to { db, value ->
+            when (value) {
+                is String -> {
+                    val pref = when (value) {
+                        "primary" -> ReadPreference.primary()
+                        "primaryPreferred" -> ReadPreference.primaryPreferred()
+                        "secondary" -> ReadPreference.secondary()
+                        "secondaryPreferred" -> ReadPreference.secondaryPreferred()
+                        "nearest" -> ReadPreference.nearest()
+                        else -> null
+                    }
+                    if (pref == null) Rejected(IllegalArgumentException("Unknown read preference mode: $value"))
+                    else Resolved(db.withReadPreference(pref))
+                }
+                else -> Rejected(WriteCommandException("mode has to be a string", "FailedToParse"))
+            }
+        }
+)
+
+internal val readPreferenceDefaultConverter: (MongoDatabase, String, Any?) -> Promise<WriteCommandException, MongoDatabase> = { _, key, _ ->
+    Rejected(WriteCommandException("unrecognized read preference field: $key", "FailedToParse"))
 }
