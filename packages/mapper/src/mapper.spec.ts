@@ -10,7 +10,7 @@ const { expect } = chai;
 import Mapper from './mapper';
 import sinon from 'sinon';
 import { ServiceProvider } from '@mongosh/service-provider-core';
-import { Collection, Database } from '@mongosh/shell-api';
+import { Collection, Database, Explainable } from '@mongosh/shell-api';
 
 describe('Mapper', () => {
   let mapper: Mapper;
@@ -709,6 +709,37 @@ coll2`;
         ).to.equal('commandName cannot be passed as an option');
       });
     });
+
+    describe('explain', () => {
+      it('returns an Explainable object', () => {
+        expect(mapper.collection_explain(collection)).to.have.instanceOf(Explainable);
+      });
+
+      it('accepts valid verbosity', () => {
+        expect(
+          mapper.collection_explain(collection, 'queryPlanner')._verbosity
+        ).to.equal('queryPlanner');
+
+        expect(
+          mapper.collection_explain(collection, 'executionStats')._verbosity
+        ).to.equal('executionStats');
+
+        expect(
+          mapper.collection_explain(collection, 'allPlansExecution')._verbosity
+        ).to.equal('allPlansExecution');
+      });
+
+      it('throws in case of non valid verbosity', () => {
+        expect(() => {
+          mapper.collection_explain(collection, 'badVerbosityArgument');
+        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution');
+      });
+
+      it('sets the right default verbosity', () => {
+        const explainable = mapper.collection_explain(collection);
+        expect(explainable._verbosity).to.equal('queryPlanner');
+      });
+    });
   });
 
   describe('database', () => {
@@ -743,5 +774,42 @@ coll2`;
       });
     });
   });
-});
 
+  describe('explainable', () => {
+    let explainable: Explainable;
+
+    beforeEach(() => {
+      explainable = new Explainable(mapper, collection, 'queryPlanner');
+    });
+
+    describe('getCollection', () => {
+      it('returns the explainable collection', () => {
+        expect(
+          explainable.getCollection(explainable)
+        ).to.equal(collection);
+      });
+    });
+
+    describe('getVerbosity', () => {
+      it('returns the explainable verbosity', () => {
+        expect(
+          mapper.explainable_getVerbosity(explainable)
+        ).to.equal('queryPlanner');
+      });
+    });
+
+    describe('setVerbosity', () => {
+      it('sets the explainable verbosity', () => {
+        expect(explainable._verbosity).not.to.equal('allPlansExecution');
+        mapper.explainable_setVerbosity(explainable, 'allPlansExecution');
+        expect(explainable._verbosity).to.equal('allPlansExecution');
+      });
+
+      it('validates the verbosity', () => {
+        expect(() => {
+          mapper.explainable_setVerbosity(explainable, 'badVerbosityArgument');
+        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution');
+      });
+    });
+  });
+});

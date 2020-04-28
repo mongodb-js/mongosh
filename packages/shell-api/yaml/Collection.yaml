@@ -198,3 +198,6 @@ class:
     runCommand:
         <<: *__defaultMethod
         returnsPromise: true
+    explain:
+        <<: *__defaultMethod
+        returnType: 'Explainable'

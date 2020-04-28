@@ -72,7 +72,8 @@ describe('Collection', () => {
     'drop',
     'exists',
     'getFullName',
-    'getName'
+    'getName',
+    'explain'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
       it(`wraps mapper.collection_${methodName}`, () => {

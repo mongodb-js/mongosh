@@ -147,7 +147,7 @@ class Collection {
     this.shellApiType = () => {
       return 'Collection';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.description', 'docs': 'shell-api.classes.Collection.help.link', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.classes.Collection.help.attributes.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.classes.Collection.help.attributes.bulkWrite.description' }, { 'name': 'countDocuments', 'description': 'shell-api.classes.Collection.help.attributes.countDocuments.description' }, { 'name': 'count', 'description': 'shell-api.classes.Collection.help.attributes.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.classes.Collection.help.attributes.deleteMany.description' }, { 'name': 'deleteOne', 'description': 'shell-api.classes.Collection.help.attributes.deleteOne.description' }, { 'name': 'distinct', 'description': 'shell-api.classes.Collection.help.attributes.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.classes.Collection.help.attributes.estimatedDocumentCount.description' }, { 'name': 'find', 'description': 'shell-api.classes.Collection.help.attributes.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.classes.Collection.help.attributes.findAndModify.description' }, { 'name': 'findOne', 'description': 'shell-api.classes.Collection.help.attributes.findOne.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndDelete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndReplace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndUpdate.description' }, { 'name': 'insert', 'description': 'shell-api.classes.Collection.help.attributes.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.classes.Collection.help.attributes.insertMany.description' }, { 'name': 'insertOne', 'description': 'shell-api.classes.Collection.help.attributes.insertOne.description' }, { 'name': 'isCapped', 'description': 'shell-api.classes.Collection.help.attributes.isCapped.description' }, { 'name': 'remove', 'description': 'shell-api.classes.Collection.help.attributes.remove.description' }, { 'name': 'save', 'description': 'shell-api.classes.Collection.help.attributes.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.classes.Collection.help.attributes.replaceOne.description' }, { 'name': 'update', 'description': 'shell-api.classes.Collection.help.attributes.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.classes.Collection.help.attributes.updateMany.description' }, { 'name': 'updateOne', 'description': 'shell-api.classes.Collection.help.attributes.updateOne.description' }, { 'name': 'convertToCapped', 'description': 'shell-api.classes.Collection.help.attributes.convertToCapped.description' }, { 'name': 'createIndexes', 'description': 'shell-api.classes.Collection.help.attributes.createIndexes.description' }, { 'name': 'createIndex', 'description': 'shell-api.classes.Collection.help.attributes.createIndex.description' }, { 'name': 'ensureIndex', 'description': 'shell-api.classes.Collection.help.attributes.ensureIndex.description' }, { 'name': 'getIndexes', 'description': 'shell-api.classes.Collection.help.attributes.getIndexes.description' }, { 'name': 'getIndexSpecs', 'description': 'shell-api.classes.Collection.help.attributes.getIndexSpecs.description' }, { 'name': 'getIndexKeys', 'description': 'shell-api.classes.Collection.help.attributes.getIndexKeys.description' }, { 'name': 'getIndices', 'description': 'shell-api.classes.Collection.help.attributes.getIndices.description' }, { 'name': 'dropIndexes', 'description': 'shell-api.classes.Collection.help.attributes.dropIndexes.description' }, { 'name': 'dropIndex', 'description': 'shell-api.classes.Collection.help.attributes.dropIndex.description' }, { 'name': 'reIndex', 'description': 'shell-api.classes.Collection.help.attributes.reIndex.description' }, { 'name': 'totalIndexSize', 'description': 'shell-api.classes.Collection.help.attributes.totalIndexSize.description' }, { 'name': 'getDB', 'description': 'shell-api.classes.Collection.help.attributes.getDB.description' }, { 'name': 'stats', 'description': 'shell-api.classes.Collection.help.attributes.stats.description' }, { 'name': 'dataSize', 'description': 'shell-api.classes.Collection.help.attributes.dataSize.description' }, { 'name': 'storageSize', 'description': 'shell-api.classes.Collection.help.attributes.storageSize.description' }, { 'name': 'totalSize', 'description': 'shell-api.classes.Collection.help.attributes.totalSize.description' }, { 'name': 'drop', 'description': 'shell-api.classes.Collection.help.attributes.drop.description' }, { 'name': 'getFullName', 'description': 'shell-api.classes.Collection.help.attributes.getFullName.description' }, { 'name': 'getName', 'description': 'shell-api.classes.Collection.help.attributes.getName.description' }, { 'name': 'exists', 'description': 'shell-api.classes.Collection.help.attributes.exists.description' }, { 'name': 'renameCollection', 'description': 'shell-api.classes.Collection.help.attributes.renameCollection.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Collection.help.attributes.runCommand.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.description', 'docs': 'shell-api.classes.Collection.help.link', 'attr': [{ 'name': 'aggregate', 'description': 'shell-api.classes.Collection.help.attributes.aggregate.description' }, { 'name': 'bulkWrite', 'description': 'shell-api.classes.Collection.help.attributes.bulkWrite.description' }, { 'name': 'countDocuments', 'description': 'shell-api.classes.Collection.help.attributes.countDocuments.description' }, { 'name': 'count', 'description': 'shell-api.classes.Collection.help.attributes.count.description' }, { 'name': 'deleteMany', 'description': 'shell-api.classes.Collection.help.attributes.deleteMany.description' }, { 'name': 'deleteOne', 'description': 'shell-api.classes.Collection.help.attributes.deleteOne.description' }, { 'name': 'distinct', 'description': 'shell-api.classes.Collection.help.attributes.distinct.description' }, { 'name': 'estimatedDocumentCount', 'description': 'shell-api.classes.Collection.help.attributes.estimatedDocumentCount.description' }, { 'name': 'find', 'description': 'shell-api.classes.Collection.help.attributes.find.description' }, { 'name': 'findAndModify', 'description': 'shell-api.classes.Collection.help.attributes.findAndModify.description' }, { 'name': 'findOne', 'description': 'shell-api.classes.Collection.help.attributes.findOne.description' }, { 'name': 'findOneAndDelete', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndDelete.description' }, { 'name': 'findOneAndReplace', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndReplace.description' }, { 'name': 'findOneAndUpdate', 'description': 'shell-api.classes.Collection.help.attributes.findOneAndUpdate.description' }, { 'name': 'insert', 'description': 'shell-api.classes.Collection.help.attributes.insert.description' }, { 'name': 'insertMany', 'description': 'shell-api.classes.Collection.help.attributes.insertMany.description' }, { 'name': 'insertOne', 'description': 'shell-api.classes.Collection.help.attributes.insertOne.description' }, { 'name': 'isCapped', 'description': 'shell-api.classes.Collection.help.attributes.isCapped.description' }, { 'name': 'remove', 'description': 'shell-api.classes.Collection.help.attributes.remove.description' }, { 'name': 'save', 'description': 'shell-api.classes.Collection.help.attributes.save.description' }, { 'name': 'replaceOne', 'description': 'shell-api.classes.Collection.help.attributes.replaceOne.description' }, { 'name': 'update', 'description': 'shell-api.classes.Collection.help.attributes.update.description' }, { 'name': 'updateMany', 'description': 'shell-api.classes.Collection.help.attributes.updateMany.description' }, { 'name': 'updateOne', 'description': 'shell-api.classes.Collection.help.attributes.updateOne.description' }, { 'name': 'convertToCapped', 'description': 'shell-api.classes.Collection.help.attributes.convertToCapped.description' }, { 'name': 'createIndexes', 'description': 'shell-api.classes.Collection.help.attributes.createIndexes.description' }, { 'name': 'createIndex', 'description': 'shell-api.classes.Collection.help.attributes.createIndex.description' }, { 'name': 'ensureIndex', 'description': 'shell-api.classes.Collection.help.attributes.ensureIndex.description' }, { 'name': 'getIndexes', 'description': 'shell-api.classes.Collection.help.attributes.getIndexes.description' }, { 'name': 'getIndexSpecs', 'description': 'shell-api.classes.Collection.help.attributes.getIndexSpecs.description' }, { 'name': 'getIndexKeys', 'description': 'shell-api.classes.Collection.help.attributes.getIndexKeys.description' }, { 'name': 'getIndices', 'description': 'shell-api.classes.Collection.help.attributes.getIndices.description' }, { 'name': 'dropIndexes', 'description': 'shell-api.classes.Collection.help.attributes.dropIndexes.description' }, { 'name': 'dropIndex', 'description': 'shell-api.classes.Collection.help.attributes.dropIndex.description' }, { 'name': 'reIndex', 'description': 'shell-api.classes.Collection.help.attributes.reIndex.description' }, { 'name': 'totalIndexSize', 'description': 'shell-api.classes.Collection.help.attributes.totalIndexSize.description' }, { 'name': 'getDB', 'description': 'shell-api.classes.Collection.help.attributes.getDB.description' }, { 'name': 'stats', 'description': 'shell-api.classes.Collection.help.attributes.stats.description' }, { 'name': 'dataSize', 'description': 'shell-api.classes.Collection.help.attributes.dataSize.description' }, { 'name': 'storageSize', 'description': 'shell-api.classes.Collection.help.attributes.storageSize.description' }, { 'name': 'totalSize', 'description': 'shell-api.classes.Collection.help.attributes.totalSize.description' }, { 'name': 'drop', 'description': 'shell-api.classes.Collection.help.attributes.drop.description' }, { 'name': 'getFullName', 'description': 'shell-api.classes.Collection.help.attributes.getFullName.description' }, { 'name': 'getName', 'description': 'shell-api.classes.Collection.help.attributes.getName.description' }, { 'name': 'exists', 'description': 'shell-api.classes.Collection.help.attributes.exists.description' }, { 'name': 'renameCollection', 'description': 'shell-api.classes.Collection.help.attributes.renameCollection.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Collection.help.attributes.runCommand.description' }, { 'name': 'explain', 'description': 'shell-api.classes.Collection.help.attributes.explain.description' }] });
   }
 
   aggregate(...args) {
@@ -336,6 +336,10 @@ class Collection {
 
   runCommand(...args) {
     return this._mapper.collection_runCommand(this, ...args);
+  }
+
+  explain(...args) {
+    return this._mapper.collection_explain(this, ...args);
   }
 }
 
@@ -621,6 +625,12 @@ Collection.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.runCommand.topologies = [0, 1, 2];
 Collection.prototype.runCommand.returnsPromise = true;
 Collection.prototype.runCommand.returnType = 'unknown';
+
+Collection.prototype.explain.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.explain.example', 'docs': 'shell-api.classes.Collection.help.attributes.explain.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.explain.description' }] });
+Collection.prototype.explain.serverVersions = ['0.0.0', '4.4.0'];
+Collection.prototype.explain.topologies = [0, 1, 2];
+Collection.prototype.explain.returnsPromise = false;
+Collection.prototype.explain.returnType = 'Explainable';
 
 
 class CommandResult {
@@ -1075,6 +1085,55 @@ class DeleteResult {
 }
 
 
+class Explainable {
+  constructor(_mapper, _collection, _verbosity) {
+    this._mapper = _mapper;
+    this._collection = _collection;
+    this._verbosity = _verbosity;
+
+    this.toReplString = () => {
+      return `Explainable(${this._collection.getFullName()})`;
+    };
+
+    this.shellApiType = () => {
+      return 'Explainable';
+    };
+    this.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.description', 'docs': 'shell-api.classes.Explainable.help.link', 'attr': [{ 'name': 'getCollection', 'description': 'shell-api.classes.Explainable.help.attributes.getCollection.description' }, { 'name': 'getVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.getVerbosity.description' }, { 'name': 'setVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.setVerbosity.description' }] });
+  }
+
+  getCollection(...args) {
+    return this._mapper.explainable_getCollection(this, ...args);
+  }
+
+  getVerbosity(...args) {
+    return this._mapper.explainable_getVerbosity(this, ...args);
+  }
+
+  setVerbosity(...args) {
+    return this._mapper.explainable_setVerbosity(this, ...args);
+  }
+}
+
+
+Explainable.prototype.getCollection.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.getCollection.example', 'docs': 'shell-api.classes.Explainable.help.attributes.getCollection.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.getCollection.description' }] });
+Explainable.prototype.getCollection.serverVersions = ['0.0.0', '4.4.0'];
+Explainable.prototype.getCollection.topologies = [0, 1, 2];
+Explainable.prototype.getCollection.returnsPromise = false;
+Explainable.prototype.getCollection.returnType = 'Collection';
+
+Explainable.prototype.getVerbosity.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.getVerbosity.example', 'docs': 'shell-api.classes.Explainable.help.attributes.getVerbosity.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.getVerbosity.description' }] });
+Explainable.prototype.getVerbosity.serverVersions = ['0.0.0', '4.4.0'];
+Explainable.prototype.getVerbosity.topologies = [0, 1, 2];
+Explainable.prototype.getVerbosity.returnsPromise = false;
+Explainable.prototype.getVerbosity.returnType = 'unknown';
+
+Explainable.prototype.setVerbosity.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.setVerbosity.example', 'docs': 'shell-api.classes.Explainable.help.attributes.setVerbosity.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.setVerbosity.description' }] });
+Explainable.prototype.setVerbosity.serverVersions = ['0.0.0', '4.4.0'];
+Explainable.prototype.setVerbosity.topologies = [0, 1, 2];
+Explainable.prototype.setVerbosity.returnsPromise = false;
+Explainable.prototype.setVerbosity.returnType = 'unknown';
+
+
 class InsertManyResult {
   constructor(acknowleged, insertedIds) {
     this.acknowleged = acknowleged;
@@ -1195,6 +1254,7 @@ export { CommandResult };
 export { Cursor };
 export { Database };
 export { DeleteResult };
+export { Explainable };
 export { InsertManyResult };
 export { InsertOneResult };
 export { ReplicaSet };

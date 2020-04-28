@@ -10,7 +10,8 @@ import {
   InsertOneResult,
   UpdateResult,
   CursorIterationResult,
-  CommandResult
+  CommandResult,
+  Explainable
 } from '@mongosh/shell-api';
 
 import {
@@ -20,6 +21,7 @@ import {
 } from '@mongosh/service-provider-core';
 
 import { EventEmitter } from 'events';
+import { MongoshInvalidInputError, MongoshInternalError } from '@mongosh/errors';
 
 export default class Mapper {
   private serviceProvider: ServiceProvider;
@@ -66,7 +68,17 @@ export default class Mapper {
       case 'tables':
         return await this.showCollections();
       default:
-        const err = new Error(`Error: don't know how to show ${arg}`); // TODO: which error obj
+        const validArguments = [
+          'databases',
+          'dbs',
+          'collections',
+          'tables'
+        ];
+
+        const err = new MongoshInvalidInputError(
+          `'${arg}' is not a valid argument for show. Valid arguments are: ${validArguments.join(', ')}`
+        );
+
         this.messageBus.emit('mongosh:error', err);
         throw err;
     }
@@ -80,11 +92,13 @@ export default class Mapper {
 
   private async showDatabases(): Promise<CommandResult> {
     const result = await this.serviceProvider.listDatabases('admin');
+
     if (!('databases' in result)) {
-      const err = new Error('Error: invalid result from listDatabases');
+      const err = new MongoshInternalError('invalid result from listDatabases');
       this.messageBus.emit('mongosh:error', err);
       throw err;
     }
+
     return new CommandResult('ShowDatabasesResult', result.databases);
   }
 
@@ -550,7 +564,7 @@ export default class Mapper {
     dropTarget?: boolean
   ): Promise<any> {
     if (typeof newName !== 'string') {
-      throw new Error('newName must be a string');
+      throw new MongoshInvalidInputError('newName must be a string');
     }
 
     try {
@@ -1174,7 +1188,7 @@ export default class Mapper {
     const coll = collection._name;
 
     if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new Error('options must be an object');
+      throw new MongoshInvalidInputError('options must be an object');
     }
 
     const specs = keyPatterns.map((pattern) => ({
@@ -1418,11 +1432,11 @@ export default class Mapper {
     );
 
     if (index === '*') {
-      throw new Error('To drop indexes in the collection using \'*\', use db.collection.dropIndexes()');
+      throw new MongoshInvalidInputError('To drop indexes in the collection using \'*\', use db.collection.dropIndexes()');
     }
 
     if (Array.isArray(index)) {
-      throw new Error('The index to drop must be either the index name or the index specification document');
+      throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document');
     }
 
     return await this.collection_dropIndexes(collection, index);
@@ -1505,7 +1519,7 @@ export default class Mapper {
     );
 
     if (args.length) {
-      throw new Error(
+      throw new MongoshInvalidInputError(
         'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
       );
     }
@@ -1751,11 +1765,11 @@ export default class Mapper {
     options?: Record<string, any>
   ): Promise<any> {
     if (typeof commandName !== 'string') {
-      throw new Error('commandName must be a string');
+      throw new MongoshInvalidInputError('commandName must be a string');
     }
 
     if (options && commandName in options) {
-      throw new Error('commandName cannot be passed as an option');
+      throw new MongoshInvalidInputError('commandName cannot be passed as an option');
     }
 
     this.messageBus.emit(
@@ -1776,5 +1790,37 @@ export default class Mapper {
         [commandName]: collection._name
       }
     );
+  }
+
+  private _validateExplainableVerbosity(verbosity: string): void {
+    const allowedVerbosity = [
+      'queryPlanner',
+      'executionStats',
+      'allPlansExecution'
+    ];
+
+    if (!allowedVerbosity.includes(verbosity)) {
+      throw new MongoshInvalidInputError(
+        `verbosity can only be one of ${allowedVerbosity.join(', ')}`
+      );
+    }
+  }
+
+  collection_explain(collection: Collection, verbosity = 'queryPlanner'): Explainable {
+    this._validateExplainableVerbosity(verbosity);
+    return new Explainable(this, collection, verbosity);
+  }
+
+  explainable_getCollection(explainable: Explainable): Collection {
+    return explainable._collection;
+  }
+
+  explainable_getVerbosity(explainable: Explainable): string {
+    return explainable._verbosity;
+  }
+
+  explainable_setVerbosity(explainable: Explainable, verbosity: string): void {
+    this._validateExplainableVerbosity(verbosity);
+    explainable._verbosity = verbosity;
   }
 }
