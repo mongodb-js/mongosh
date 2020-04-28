@@ -15,6 +15,7 @@ import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
@@ -55,13 +56,22 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     fun extract(v: Value): MongoShellResult {
         return when {
             v.isPromise() -> {
-                CompletableFuture<MongoShellResult>().also { future ->
-                    v.invokeMember("then", ProxyExecutable { args ->
-                        future.complete(extract(args[0]))
-                    }).invokeMember("catch", ProxyExecutable { args ->
-                        future.completeExceptionally(Exception(args[0].toString()))
-                    })
-                }.get(1, TimeUnit.SECONDS)
+                try {
+                    CompletableFuture<MongoShellResult>().also { future ->
+                        v.invokeMember("then", ProxyExecutable { args ->
+                            future.complete(extract(args[0]))
+                        }).invokeMember("catch", ProxyExecutable { args ->
+                            val error = args[0]
+                            if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
+                                future.completeExceptionally(error.asHostObject<Any>() as Throwable)
+                            } else {
+                                future.completeExceptionally(Exception(error.toString()))
+                            }
+                        })
+                    }.get(1, TimeUnit.SECONDS)
+                } catch (e: ExecutionException) {
+                    throw e.cause ?: e
+                }
             }
             v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
@@ -87,7 +97,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return ctx.eval(Source.create("js", script))
     }
 
-    fun <E, T> toJsPromise(promise: Promise<E, T>): Value {
+    fun <E : Throwable, T> toJsPromise(promise: Promise<E, T>): Value {
         return when (promise) {
             is Resolved -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
             is Rejected -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)

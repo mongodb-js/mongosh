@@ -1,10 +1,10 @@
 package com.mongodb.mongosh.service
 
-internal sealed class Promise<out E, out T> {
+internal sealed class Promise<out E : Throwable, out T> {
     abstract fun <T1> then(transform: (T) -> T1): Promise<E, T1>
 }
 
-internal class Rejected<E>(val value: E) : Promise<E, Nothing>() {
+internal class Rejected<E : Throwable>(val value: E) : Promise<E, Nothing>() {
     override fun <T1> then(transform: (Nothing) -> T1): Promise<E, T1> {
         return this
     }

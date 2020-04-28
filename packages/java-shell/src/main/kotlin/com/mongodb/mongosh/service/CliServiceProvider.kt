@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DeleteResult
+import com.mongodb.mongosh.result.WriteCommandException
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
@@ -39,8 +40,9 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         return context.toJsPromise(promise)
     }
 
-    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<Any, MongoDatabase> {
-        return Resolved(client.getDatabase(database))
+    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<WriteCommandException, MongoDatabase> {
+        val db = client.getDatabase(database)
+        return if (dbOptions == null) Resolved(db) else convert(db, dbConverters, writeConcernDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
