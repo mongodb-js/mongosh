@@ -3,9 +3,7 @@ package com.mongodb.mongosh
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
-import com.mongodb.mongosh.result.DatabaseResult
-import com.mongodb.mongosh.result.DocumentResult
-import com.mongodb.mongosh.result.MongoShellResult
+import com.mongodb.mongosh.result.*
 import org.junit.Assert.*
 import java.io.File
 import java.io.IOException
@@ -40,7 +38,10 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
     var clear: String? = null
     read(test, listOf(
             SectionHandler("before") { value, _ -> before = value },
-            SectionHandler("command") { value, properties -> commands.add(Command(value, CompareOptions(properties["checkResultClass"] == "true", properties["extractProperty"]))) },
+            SectionHandler("command") { value, properties ->
+                val options = CompareOptions(properties["checkResultClass"] == "true", properties["getArrayItem"]?.toInt(), properties["extractProperty"])
+                commands.add(Command(value, options))
+            },
             SectionHandler("clear") { value, _ -> clear = value }
     ))
 
@@ -69,13 +70,24 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
 }
 
 private fun getExpectedValue(result: MongoShellResult, options: CompareOptions): String {
+    var result = result
+    if (result is CommandResult) result = result.value
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
+    if (options.arrayItem != null) {
+        assertTrue("To extract array item result must be an instance of ${ArrayResult::class.java}. Actual: ${result.javaClass}", result is ArrayResult)
+        result = (result as ArrayResult).value[options.arrayItem]
+    }
     if (options.extractProperty != null) {
-        assertTrue("To extract property result must be an instance of ${DocumentResult::class.java}. Actual: ${result.javaClass}", result is DocumentResult)
-        val value = (result as DocumentResult).value[options.extractProperty]
+        assertTrue("To extract property result must be an instance of ${DocumentResult::class.java} or ${ObjectResult::class.java}. Actual: ${result.javaClass}",
+                result is DocumentResult || result is ObjectResult)
+        val value = when (result) {
+            is DocumentResult -> result.value[options.extractProperty]
+            is ObjectResult -> result.value[options.extractProperty]
+            else -> throw AssertionError()
+        }
         assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${result.toReplString()}", value)
-        sb.append(value)
+        sb.append((value as? MongoShellResult)?.toReplString() ?: value.toString())
     } else {
         sb.append(result.toReplString())
     }
@@ -83,7 +95,7 @@ private fun getExpectedValue(result: MongoShellResult, options: CompareOptions):
 }
 
 private class Command(val command: String, val options: CompareOptions)
-private class CompareOptions(val checkResultClass: Boolean, val extractProperty: String?)
+private class CompareOptions(val checkResultClass: Boolean, val arrayItem: Int?, val extractProperty: String?)
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null

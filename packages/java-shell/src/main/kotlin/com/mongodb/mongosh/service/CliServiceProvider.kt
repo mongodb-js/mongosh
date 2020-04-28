@@ -14,8 +14,11 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     fun runCommand(database: String, spec: Map<*, *>?): Value {
-        val promise = getDatabase(database, null).then { db -> db.runCommand(toBson(spec)) }
-        return context.toJsPromise(promise)
+        return context.toJsPromise(runCommandInner(database, spec))
+    }
+
+    private fun runCommandInner(database: String, spec: Map<*, *>?): Promise<Document> {
+        return getDatabase(database, null).then { db -> db.runCommand(toBson(spec)) }
     }
 
     @HostAccess.Export
@@ -90,12 +93,14 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         return Cursor(iterable, context)
     }
 
-    override fun getServerVersion(): Promise<String> {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun getServerVersion(): Value = promise {
+        runCommandInner("admin", Document("buildInfo", 1)).then { doc -> doc["version"] }
     }
 
-    override fun listDatabases(database: String): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun listDatabases(database: String): Value = promise {
+        Resolved(context.toJs(mapOf("databases" to client.listDatabases())))
     }
 
     override fun isCapped(database: String, collection: String): Value {
@@ -124,6 +129,10 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     override fun close() = client.close()
+
+    private fun <T> promise(block: () -> Promise<T>): Value {
+        return context.toJsPromise(block())
+    }
 }
 
 private fun toBson(options: Map<*, *>?): Document {

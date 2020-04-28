@@ -10,7 +10,7 @@ internal interface ReadableServiceProvider {
     fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value
     fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Cursor
-    fun getServerVersion(): Promise<String>
+    fun getServerVersion(): Value
     fun listDatabases(database: String): Value
     fun isCapped(database: String, collection: String): Value
     fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value

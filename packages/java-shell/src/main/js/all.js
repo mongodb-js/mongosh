@@ -8,5 +8,6 @@ _global = {
     Collection: ShellApiSignatures.Collection,
     Cursor: ShellApiSignatures.Cursor,
     InsertOneResult: ShellApiSignatures.InsertOneResult,
-    DeleteResult: ShellApiSignatures.DeleteResult
+    DeleteResult: ShellApiSignatures.DeleteResult,
+    CommandResult: ShellApiSignatures.CommandResult
 };

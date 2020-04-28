@@ -12,6 +12,8 @@ import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
+import org.graalvm.polyglot.proxy.ProxyObject
+import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.util.concurrent.CompletableFuture
@@ -25,6 +27,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val collectionClass: Value
     private val cursorClass: Value
     private val insertOneResultClass: Value
+    private val commandResultClass: Value
     private val deleteResultClass: Value
 
     init {
@@ -39,6 +42,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         collectionClass = global.getMember("Collection")
         cursorClass = global.getMember("Cursor")
         insertOneResultClass = global.getMember("InsertOneResult")
+        commandResultClass = global.getMember("CommandResult")
         deleteResultClass = global.getMember("DeleteResult")
     }
 
@@ -77,6 +81,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
             v.instanceOf(cursorClass) -> CursorResult(Cursor(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
+            v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")))
             v.instanceOf(deleteResultClass) -> DeleteResult(v.getMember("acknowleged").asBoolean(), v.getMember("deletedCount").asLong())
             v.isString -> StringResult(v.asString())
             v.isBoolean -> BooleanResult(v.asBoolean())
@@ -111,4 +116,27 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     }
 
     private fun Value.isPromise(): Boolean = eval("(x) => x instanceof Promise").execute(this).asBoolean()
+
+    fun toJs(o: Any?): Any? {
+        return when (o) {
+            is Iterable<*> -> toJs(o)
+            is Map<*, *> -> toJs(o)
+            else -> o
+        }
+    }
+
+    private fun toJs(map: Map<*, *>): ProxyObject {
+        val convertedMap: Map<String, Any?> = map.entries.asSequence()
+                .filter { (key, _) -> key is String }
+                .associate { e -> e.key as String to toJs(e.value) }
+        return fromMap(convertedMap)
+    }
+
+    private fun toJs(list: Iterable<Any?>): Value {
+        val array = eval("[]")
+        list.forEachIndexed { index, v ->
+            array.setArrayElement(index.toLong(), toJs(v))
+        }
+        return array
+    }
 }
