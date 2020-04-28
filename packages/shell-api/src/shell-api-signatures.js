@@ -74,7 +74,8 @@ const Collection = {
     getName: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     exists: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     renameCollection: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    explain: { type: 'function', returnsPromise: false, returnType: 'Explainable', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const CommandResult = {
@@ -138,6 +139,15 @@ const DeleteResult = {
 
   }
 };
+const Explainable = {
+  type: 'Explainable',
+  hasAsyncChild: false,
+  attributes: {
+    getCollection: { type: 'function', returnsPromise: false, returnType: 'Collection', serverVersions: ['0.0.0', '4.4.0'] },
+    getVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    setVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+  }
+};
 const InsertManyResult = {
   type: 'InsertManyResult',
   hasAsyncChild: false,
@@ -182,6 +192,7 @@ export {
   Cursor,
   Database,
   DeleteResult,
+  Explainable,
   InsertManyResult,
   InsertOneResult,
   ReplicaSet,

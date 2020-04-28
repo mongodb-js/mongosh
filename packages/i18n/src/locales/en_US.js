@@ -986,6 +986,12 @@ const translations = {
               example: 'db.collection.runCommand("text", { search: "searchKeywords" })',
               parameters: {}
             },
+            explain: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan.',
+              example: 'db.collection.explain().<method(...)>',
+              parameters: {}
+            },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',
@@ -1099,6 +1105,31 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getCollectionNames',
               description: 'Returns an array containing the names of all collections in the current database.',
               example: 'db.getCollectionNames',
+              parameters: {}
+            }
+          }
+        }
+      },
+      Explainable: {
+        help: {
+          description: 'Explainable Class',
+          attributes: {
+            getCollection: {
+              link: '',
+              description: 'Returns the explainable collection.',
+              example: 'db.coll.explain().getCollection()',
+              parameters: {}
+            },
+            getVerbosity: {
+              link: '',
+              description: 'Returns the explainable verbosity.',
+              example: 'db.coll.explain().getVerbosity()',
+              parameters: {}
+            },
+            setVerbosity: {
+              link: '',
+              description: 'Sets the explainable verbosity.',
+              example: 'db.coll.explain().setVerbosity("queryPlanner")',
               parameters: {}
             }
           }
