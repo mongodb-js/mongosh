@@ -123,7 +123,7 @@ export default class SymbolTable {
 
   private checkIfApi(key): void {
     if (key in this.scopeAt(0)) {
-      throw new Error('api key');
+      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
     }
   }
 
@@ -179,7 +179,7 @@ export default class SymbolTable {
     this.checkIfApi(lhs);
     const item = this.lookup(lhs);
     if (item.api) {
-      throw new Error('cannot change attribute of api type');
+      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`);
     }
     keys.reduce((sym, key, i) => {
       sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;

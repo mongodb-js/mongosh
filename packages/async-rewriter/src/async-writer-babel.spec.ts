@@ -992,7 +992,7 @@ function f() {
   describe('VariableDeclarator', () => {
     describe('non-symbol lval', () => {
       before(() => {
-        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
         writer = new AsyncWriter(signatures, spy);
         input = 'a = (() => (db))()';
         ast = writer.getTransform(input).ast;
@@ -1375,7 +1375,7 @@ function f() {
     describe('non-symbol lval', () => {
       describe('Array/Object Pattern', () => {
         before(() => {
-          spy = sinon.spy(new SymbolTable([{ db: signatures.Database }], signatures));
+          spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
           writer = new AsyncWriter(signatures, spy);
         });
         it('array pattern throws for async type', () => {
@@ -3291,6 +3291,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3300,6 +3301,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3314,6 +3316,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3322,6 +3325,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3330,6 +3334,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3338,6 +3343,7 @@ switch(TEST) {
       try {
         writer.compile(input);
       } catch (err) {
+        expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
@@ -3347,6 +3353,7 @@ switch(TEST) {
         try {
           writer.compile(input);
         } catch (err) {
+          expect(err.name).to.be.equal('MongoshInvalidInputError');
           done();
         }
       });
@@ -3355,6 +3362,7 @@ switch(TEST) {
         try {
           writer.compile(input);
         } catch (err) {
+          expect(err.name).to.be.equal('MongoshInvalidInputError');
           done();
         }
       });
