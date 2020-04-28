@@ -84,6 +84,9 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     override fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Cursor {
         val coll = client.getDatabase(database).getCollection(collection)
         val iterable = if (filter == null) coll.find() else coll.find(toBson(filter))
+        if (options != null && options["projection"] is Map<*, *>) {
+            iterable.projection(toBson(options["projection"] as Map<*, *>))
+        }
         return Cursor(iterable, context)
     }
 
