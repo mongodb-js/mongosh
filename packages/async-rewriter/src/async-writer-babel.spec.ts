@@ -3279,7 +3279,7 @@ switch(TEST) {
   describe('Assign API type', () => {
     before(() => {
       writer = new AsyncWriter(signatures);
-      writer.symbols.initializeApiObjects({db: signatures.Database});
+      writer.symbols.initializeApiObjects({ db: signatures.Database });
     });
     it('init', () => {
       expect(writer.symbols.scopeAt(0).db).to.deep.equal({
