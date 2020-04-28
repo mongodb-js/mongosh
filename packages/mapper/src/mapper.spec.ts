@@ -238,7 +238,7 @@ coll2`;
           ).catch(e => e);
 
           expect(error).to.be.instanceOf(Error);
-          expect(error.message).to.equal('options must be an object');
+          expect(error.message).to.equal('The "options" argument must be an object.');
         });
       });
     });
@@ -281,7 +281,7 @@ coll2`;
             ).catch(e => e);
 
             expect(error).to.be.instanceOf(Error);
-            expect(error.message).to.equal('options must be an object');
+            expect(error.message).to.equal('The "options" argument must be an object.');
           });
         });
       });
@@ -407,7 +407,7 @@ coll2`;
           await mapper.collection_dropIndex(collection, '*').catch(err => { catched = err; });
 
           expect(catched.message).to.equal(
-            'To drop indexes in the collection using \'*\', use db.collection.dropIndexes()'
+            'To drop indexes in the collection using \'*\', use db.collection.dropIndexes().'
           );
         });
 
@@ -416,7 +416,7 @@ coll2`;
           await mapper.collection_dropIndex(collection, ['index-1']).catch(err => { catched = err; });
 
           expect(catched.message).to.equal(
-            'The index to drop must be either the index name or the index specification document'
+            'The index to drop must be either the index name or the index specification document.'
           );
         });
       });
@@ -440,7 +440,7 @@ coll2`;
           .catch(err => { catched = err; });
 
         expect(catched.message).to.equal(
-          'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
+          '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
         );
       });
     });
@@ -663,7 +663,7 @@ coll2`;
           (await mapper.collection_renameCollection(
             collection, {} as any
           ).catch(e => e)).message
-        ).to.equal('newName must be a string');
+        ).to.equal('The "newName" argument must be a string.');
       });
     });
 
@@ -698,7 +698,7 @@ coll2`;
           (await mapper.collection_runCommand(
             collection, {} as any
           ).catch(e => e)).message
-        ).to.equal('commandName must be a string');
+        ).to.equal('The "commandName" argument must be a string.');
       });
 
       it('throws an error if commandName is passed as option', async() => {
@@ -706,7 +706,7 @@ coll2`;
           (await mapper.collection_runCommand(
             collection, 'commandName', { commandName: 1 } as any
           ).catch(e => e)).message
-        ).to.equal('commandName cannot be passed as an option');
+        ).to.equal('The "commandName" argument cannot be passed as an option to "runCommand".');
       });
     });
 
@@ -732,7 +732,7 @@ coll2`;
       it('throws in case of non valid verbosity', () => {
         expect(() => {
           mapper.collection_explain(collection, 'badVerbosityArgument');
-        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution');
+        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
       });
 
       it('sets the right default verbosity', () => {
@@ -808,7 +808,7 @@ coll2`;
       it('validates the verbosity', () => {
         expect(() => {
           mapper.explainable_setVerbosity(explainable, 'badVerbosityArgument');
-        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution');
+        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
       });
     });
   });
