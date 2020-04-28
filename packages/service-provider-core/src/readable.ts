@@ -142,20 +142,6 @@ interface Readable {
   getTopology(): any;
 
   /**
-   * Returns the server version.
-   *
-   * @returns {Promise} The server version.
-   */
-  buildInfo(): Promise<Result>;
-
-  /**
-   * Returns the cmdLineOpts.
-   *
-   * @returns {Promise} The server version.
-   */
-  getCmdLineOpts(): Promise<Result>;
-
-  /**
    * list databases.
    *
    * @param {String} database - The database name.
