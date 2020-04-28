@@ -4,6 +4,9 @@ import com.mongodb.client.MongoClient
 import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.result.Collection
 import com.mongodb.mongosh.service.CliServiceProvider
+import com.mongodb.mongosh.service.Promise
+import com.mongodb.mongosh.service.Rejected
+import com.mongodb.mongosh.service.Resolved
 import org.bson.Document
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
@@ -44,11 +47,11 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         context.putMember("db", mapper.getMember("databases").getMember("test"))
     }
 
-    internal operator fun get(value: String): Value? {
+    operator fun get(value: String): Value? {
         return ctx.getBindings("js").getMember(value)
     }
 
-    internal fun toCompletableFuture(v: Value): CompletableFuture<out MongoShellResult> {
+    fun toCompletableFuture(v: Value): CompletableFuture<out MongoShellResult> {
         return if (!v.isPromise()) CompletableFuture.completedFuture(extract(v))
         else CompletableFuture<MongoShellResult>().also { future ->
             v.invokeMember("then", ProxyExecutable { args ->
@@ -59,7 +62,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    internal fun extract(v: Value): MongoShellResult {
+    fun extract(v: Value): MongoShellResult {
         return when {
             v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
@@ -81,8 +84,15 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    internal fun eval(@Language("js") script: String): Value {
+    fun eval(@Language("js") script: String): Value {
         return ctx.eval(Source.create("js", script))
+    }
+
+    fun <E, T> toJsPromise(promise: Promise<E, T>): Value {
+        return when (promise) {
+            is Resolved -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
+            is Rejected -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)
+        }
     }
 
     override fun close() = cliServiceProvider.close()
