@@ -54,7 +54,26 @@ class CliRepl {
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
-    const connectInfo = await getConnectInfo(driverUri, this.serviceProvider, this.bus);
+
+    let cmdLineOpts = null;
+    try {
+      cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
+    } catch (e) {
+      // error is thrown here for atlas and DataLake connections.
+      // don't actually throw, as this is only used to log out non-genuine
+      // mongodb connections
+      this.bus.emit('mongodb:error', e)
+    }
+
+    const topology = this.serviceProvider.getTopology();
+
+    const connectInfo = getConnectInfo(
+      driverUri,
+      this.buildInfo,
+      this.cmdLineOpts,
+      topology
+    );
+
     this.bus.emit('connect', connectInfo);
     this.start();
   }

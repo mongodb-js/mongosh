@@ -139,6 +139,13 @@ interface Readable {
    *
    * @returns {Promise} The server version.
    */
+  getTopology(): any;
+
+  /**
+   * Returns the server version.
+   *
+   * @returns {Promise} The server version.
+   */
   buildInfo(): Promise<Result>;
 
   /**

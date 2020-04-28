@@ -1,24 +1,12 @@
-import { CliServiceProvider } from '@mongosh/service-provider-server';
-import getBuildInfo from '../../../../mongodb-build-info';
-import Nanobus from 'nanobus';
+import getBuildInfo from 'mongodb-build-info';
 
-export default async function getConnectInfo(uri: string, serviceProvider: CliServiceProvider, bus: Nanobus) {
-  const buildInfo = await serviceProvider.buildInfo();
-  // wrap in a try/catch since for some connections with no authentication,
-  // cmdLineOpts cannot be run.
-  let cmdLineOpts = undefined;
-  try {
-    cmdLineOpts = await serviceProvider.getCmdLineOpts();
-  } catch (e) {
-    // don't throw this one, as this command is just used for logging
-    // non-genuine mongodb connections.
-    bus.emit('mongodb:error', e)
-  }
-  const topology = serviceProvider.getTopology();
+export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts: any, topology: any) {
   const { isGenuine, serverName } =
-    getBuildInfo.isGenuineMongoDB(buildInfo, cmdLineOpts);
-  const { isDataLake, dlVersion } = getBuildInfo.isDataLake(buildInfo);
+    getBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
+  const { isDataLake, dlVersion } = getBuildInfo.getDataLake(buildInfo);
 
+  // get this information from topology rather than cmdLineOpts, since not all
+  // connections are able to run getCmdLineOpts command
   const authType = topology.s.credentials
     ? topology.s.credentials.mechanism : null;
 

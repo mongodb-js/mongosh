@@ -710,6 +710,11 @@ class CliServiceProvider implements ServiceProvider {
       .updateOne(filter, update, options);
   }
 
+  /**
+   * Return current topology.
+   *
+   * @returns {Promise} topology.
+   */
   getTopology(): any {
     return this.mongoClient.topology;
   }

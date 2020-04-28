@@ -473,10 +473,17 @@ describe('CliServiceProvider', () => {
     let dbMock;
     let clientStub: MongoClient;
 
+    const buildInfoResult = {
+      version: '4.0.0',
+      gitVersion: 'a4b751dcf51dd249c5865812b390cfd1c0129c30',
+      javascriptEngine: 'mozjs',
+      versionArray: [4, 0, 0, 0],
+    };
+
     beforeEach(() => {
       commandMock = sinon.mock()
         .withArgs({ buildInfo: 1 }, {})
-        .resolves({ version: '4.0.0' });
+        .resolves(buildInfoResult);
 
       const dbStub = sinon.createStubInstance(Db, {
         command: commandMock
@@ -495,7 +502,53 @@ describe('CliServiceProvider', () => {
 
     it('executes the command against the admin database', async() => {
       const result = await serviceProvider.buildInfo();
-      expect(result.version).to.deep.equal('4.0.0');
+      expect(result).to.deep.equal(buildInfoResult);
+      dbMock.verify();
+      commandMock.verify();
+    });
+  });
+
+  describe('#getCmdLineOpts', () => {
+    let commandMock;
+    let dbMock;
+    let clientStub: MongoClient;
+
+    const cmdLineOptsResult = {
+      argv: [
+        '/opt/mongodb-osx-x86_64-enterprise-3.6.3/bin/mongod',
+        '--dbpath=/Users/user/testdata'
+      ],
+      parsed: {
+        storage: {
+          dbPath: '/Users/user/testdata'
+        }
+      },
+      ok: 1
+    };
+
+    beforeEach(() => {
+      commandMock = sinon.mock()
+        .withArgs({ getCmdLineOpts: 1 }, {})
+        .resolves(cmdLineOptsResult);
+
+      const dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+
+      dbMock = sinon.mock()
+        .withArgs('admin')
+        .returns(dbStub);
+
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: dbMock
+      });
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes getCmdLineOpts against an admin db', async() => {
+      const result = await serviceProvider.getCmdLineOpts();
+      expect(result).to.deep.equal(cmdLineOptsResult);
       dbMock.verify();
       commandMock.verify();
     });
