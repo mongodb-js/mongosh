@@ -205,7 +205,7 @@ class CliRepl {
    */
   greet(): void {
     console.log(`Using MongoDB: ${this.buildInfo.version} \n`);
-    console.log(TELEMETRY);
+    if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
   /**
