@@ -4,28 +4,17 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DeleteResult
-import com.mongodb.mongosh.result.WriteCommandException
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import java.io.Closeable
 
-internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable {
+internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider {
 
     @HostAccess.Export
     fun runCommand(database: String, spec: Map<*, *>?): Value {
-        return runCommand(database, spec, null)
-    }
-
-    @HostAccess.Export
-    fun runCommand(database: String, spec: Map<*, *>?, options: Map<*, *>?): Value {
-        return runCommand(database, spec, options, null)
-    }
-
-    @HostAccess.Export
-    fun runCommand(database: String, spec: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        val promise = getDatabase(database, dbOptions).then { db -> db.runCommand(toBson(spec)) }
+        val promise = getDatabase(database, null).then { db -> db.runCommand(toBson(spec)) }
         return context.toJsPromise(promise)
     }
 
@@ -67,11 +56,59 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         return context.toJsPromise(promise)
     }
 
+    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
+        TODO("not implemented")
+    }
+
+    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
+        TODO("not implemented")
+    }
+
+    override fun count(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
+    override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
+    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
+    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
     @HostAccess.Export
-    fun find(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?): Cursor {
-        val collection = client.getDatabase(db).getCollection(coll)
-        val iterable = if (query == null) collection.find() else collection.find(toBson(query))
+    override fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Cursor {
+        val coll = client.getDatabase(database).getCollection(collection)
+        val iterable = if (filter == null) coll.find() else coll.find(toBson(filter))
         return Cursor(iterable, context)
+    }
+
+    override fun getServerVersion(): Promise<String> {
+        TODO("not implemented")
+    }
+
+    override fun listDatabases(database: String): Value {
+        TODO("not implemented")
+    }
+
+    override fun isCapped(database: String, collection: String): Value {
+        TODO("not implemented")
+    }
+
+    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
+    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        TODO("not implemented")
+    }
+
+    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+        TODO("not implemented")
     }
 
     @HostAccess.Export
