@@ -2408,33 +2408,34 @@ function f() {
     });
   });
   describe('ClassDeclaration', () => {
-    const type = {
-      type: 'classdef',
-      returnType: {
-        type: 'Test',
-        attributes: {
-          regularFn: { type: 'function', returnType: signatures.Database, returnsPromise: false },
-          awaitFn: { type: 'function', returnType: signatures.unknown, returnsPromise: true }
+    describe('without this', () => {
+      const type = {
+        type: 'classdef',
+        returnType: {
+          type: 'Test',
+          attributes: {
+            regularFn: { type: 'function', returnType: signatures.Database, returnsPromise: false },
+            awaitFn: { type: 'function', returnType: signatures.unknown, returnsPromise: true }
+          }
         }
-      }
-    };
-    before(() => {
-      spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
-      writer = new AsyncWriter(signatures, spy);
-    });
-    describe('adds methods to class', () => {
+      };
       before(() => {
-        input = `
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+        writer = new AsyncWriter(signatures, spy);
+      });
+      describe('adds methods to class', () => {
+        before(() => {
+          input = `
 class Test {
   regularFn() { return db; }
   awaitFn() { db.coll.insertOne({}) }
 };`;
-        const result = writer.getTransform(input);
-        ast = result.ast;
-        output = result.code;
-      });
-      it('compiles correctly', () => {
-        expect(output).to.equal(`class Test {
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`class Test {
   regularFn() {
     return db;
   }
@@ -2446,28 +2447,61 @@ class Test {
 }
 
 ;`);
-      });
-      it('decorates ClassDeclaration', (done) => {
-        traverse(ast, {
-          ClassDeclaration(path) {
-            const rt = path.node['shellType'];
-            expect(rt.type).to.equal('classdef');
-            expect(rt.returnType.type).to.equal('Test');
-            expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
-            expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
-            done();
-          }
+        });
+        it('decorates ClassDeclaration', (done) => {
+          traverse(ast, {
+            ClassDeclaration(path) {
+              const rt = path.node['shellType'];
+              expect(rt.type).to.equal('classdef');
+              expect(rt.returnType.type).to.equal('Test');
+              expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+              expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
+              done();
+            }
+          });
+        });
+        it('updates symbol table', () => {
+          expect(spy.addToParent.calledOnce).to.be.true;
+          const call = spy.addToParent.getCall(0);
+          expect(call.args[0]).to.equal('Test');
+          const rt = call.args[1];
+          expect(rt.type).to.equal('classdef');
+          expect(rt.returnType.type).to.equal('Test');
+          expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
+          expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
         });
       });
-      it('updates symbol table', () => {
-        expect(spy.addToParent.calledOnce).to.be.true;
-        const call = spy.addToParent.getCall(0);
-        expect(call.args[0]).to.equal('Test');
-        const rt = call.args[1];
-        expect(rt.type).to.equal('classdef');
-        expect(rt.returnType.type).to.equal('Test');
-        expect(skipPath(rt.returnType.attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
-        expect(skipPath(rt.returnType.attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
+    });
+    describe('with this', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+        writer = new AsyncWriter(signatures, spy);
+      });
+      describe('adds methods to class', () => {
+        before(() => {
+          input = `
+class Test {
+  awaitFn() { db.coll.insertOne({}) }
+  regularFn() { this.awaitFn(); }
+};`;
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`class Test {
+  regularFn() {
+    return db;
+  }
+
+  async awaitFn() {
+    await db.coll.insertOne({});
+  }
+
+}
+
+;`);
+        });
       });
     });
   });

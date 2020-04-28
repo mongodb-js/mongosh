@@ -108,6 +108,20 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           path.node['shellType'] = state.symbols.signatures.unknown;
           return;
       }
+      if (path.node.object.type === 'ThisExpression') {
+        const classPath = path.findParent((p) => p.isClassDeclaration());
+        if (!classPath) {
+          throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+        }
+        const methodPath = path.findParent((p) => p.isMethod()) as babel.NodePath<babel.types.ClassMethod>;
+        if (!methodPath) {
+          throw new MongoshUnimplementedError('Unable to handle this outside of method definition');
+        }
+        // if not within constructor
+        if (methodPath.node.kind !== 'constructor' && classPath.node['shellType'].returnType.attributes[rhs] === 'unset') {
+          throw new MongoshInvalidInputError(`Unable to use attribute ${rhs} because it's not defined yet`);
+        }
+      }
       let sType = state.symbols.signatures.unknown;
       if (lhsType.attributes === undefined) {
         sType = state.symbols.signatures.unknown;
@@ -257,6 +271,15 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const tyTS = lhsNode as unknown;
             const id = tyTS as babel.types.Identifier;
             state.symbols.updateAttribute(id.name, attrs, sType);
+          } else if (lhsNode.type === 'ThisExpression') {
+            const classPath = path.findParent((p) => p.isClassDeclaration());
+            if (!classPath) {
+              throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+            }
+            if (attrs.length > 1) {
+              throw new MongoshUnimplementedError('Unable to handle multi-layered assignment to \'this\'');
+            }
+            classPath.node['shellType'].returnType.attributes[attrs[0]] = sType;
           }
           break;
         case 'RestElement':
@@ -339,20 +362,23 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     }
   },
   ClassDeclaration: {
-    exit(path: babel.NodePath<babel.types.ClassDeclaration>, state: State): void {
+    enter(path: babel.NodePath<babel.types.ClassDeclaration> ): void {
       const className = path.node.id === null ? Date.now().toString() : path.node.id.name;
-      const attributes = {};
-      path.node.body.body.forEach((attr) => {
-        const fnName = attr.key.name;
-        attributes[fnName] = attr['shellType'];
-      });
       path.node['shellType'] = {
         type: 'classdef',
         returnType: {
           type: className,
-          attributes: attributes
+          attributes: {}
         }
       };
+      // collect names of methods and set in attributes
+      path.node.body.body.forEach((attr) => {
+        const fnName = attr.key.name;
+        path.node['shellType'].returnType.attributes[fnName] = 'unset';
+      });
+    },
+    exit(path: babel.NodePath<babel.types.ClassDeclaration>, state: State): void {
+      const className = path.node.id === null ? Date.now().toString() : path.node.id.name;
       state.symbols.addToParent(className, path.node['shellType']);
       debug(`ClassDeclaration: { name: ${className} }`, path.node['shellType']);
     }
@@ -375,8 +401,16 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     }
   },
   ThisExpression: {
-    enter(): void {
-      // TODO: find best way to determine parent scope
+    enter(path: babel.NodePath<babel.types.ThisExpression>): void {
+      const methodPath = path.findParent((p) => p.isMethod());
+      if (!methodPath) {
+        throw new MongoshUnimplementedError('Unable to handle this outside of method definition');
+      }
+      const classPath = path.findParent((p) => p.isClassDeclaration());
+      if (!classPath) {
+        throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+      }
+      path.node['shellType'] = classPath.node['shellType'].returnType;
     }
   },
   Function: {
@@ -429,6 +463,13 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       }
 
       path.node['shellType'] = sType;
+      if (path.isClassMethod()) {
+        const classPath = path.findParent((p) => p.isClassDeclaration());
+        if (!classPath) {
+          throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+        }
+        classPath.node['shellType'].returnType.attributes[path.node.key.name] = path.node['shellType'];
+      }
       debug(`Function: { id: ${debugName} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
     }
   },
