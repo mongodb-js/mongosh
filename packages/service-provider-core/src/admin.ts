@@ -2,11 +2,18 @@ import Result from "./result";
 
 export default interface Admin {
    /**
-   * Returns the server version.
+   * Returns buildInfo.
+   *
+   * @returns {Promise} buildInfo object.
+   */
+  buildInfo(): Promise<Result>;
+
+  /**
+   * Returns the cmdLineOpts.
    *
    * @returns {Promise} The server version.
    */
-  getServerVersion(): Promise<string>;
+  getCmdLineOpts(): Promise<Result>;
 
   /**
    * list databases.

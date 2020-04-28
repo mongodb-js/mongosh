@@ -11,8 +11,8 @@ export default {
 };
 
 class DemoServiceProvider {
-  async getServerVersion(): Promise<string> {
-    return '4.0.0';
+  async buildInfo(): Promise<object> {
+    return { version: '4.0.0' };
   }
 
   async listDatabases(): Promise<any> {

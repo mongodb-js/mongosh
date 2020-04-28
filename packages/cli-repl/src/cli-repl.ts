@@ -1,10 +1,11 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import ShellEvaluator from '@mongosh/shell-evaluator';
 import { changeHistory } from '@mongosh/history';
+import getConnectInfo from './connect-info';
 import formatOutput from './format-output';
 import { TELEMETRY } from './constants';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
-import ShellEvaluator from '@mongosh/shell-evaluator';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
@@ -30,7 +31,7 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
 class CliRepl {
   private serviceProvider: CliServiceProvider;
   private ShellEvaluator: ShellEvaluator;
-  private mdbVersion: any;
+  private buildInfo: any;
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
@@ -51,7 +52,18 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    this.mdbVersion = await this.serviceProvider.getServerVersion();
+    this.buildInfo = await this.serviceProvider.buildInfo();
+    const cmdLineOpts = await this.getCmdLineOpts();
+    const topology = this.serviceProvider.getTopology();
+
+    const connectInfo = getConnectInfo(
+      driverUri,
+      this.buildInfo,
+      cmdLineOpts,
+      topology
+    );
+
+    this.bus.emit('connect', connectInfo);
     this.start();
   }
 
@@ -72,6 +84,19 @@ class CliRepl {
       this.requirePassword(driverUri, driverOptions);
     } else {
       this.connect(driverUri, driverOptions);
+    }
+  }
+
+  async getCmdLineOpts(): Promise<any> {
+    try {
+      const cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
+      return cmdLineOpts;
+    } catch (e) {
+      // error is thrown here for atlas and DataLake connections.
+      // don't actually throw, as this is only used to log out non-genuine
+      // mongodb connections
+      this.bus.emit('mongodb:error', e)
+      return null;
     }
   }
 
@@ -181,7 +206,7 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.mdbVersion} \n`);
+    console.log(`Using MongoDB: ${this.buildInfo.version} \n`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
@@ -222,7 +247,7 @@ class CliRepl {
   start(): void {
     this.greet();
 
-    const version = this.mdbVersion;
+    const version = this.buildInfo.version;
 
     this.repl = repl.start({
       prompt: `$ mongosh > `,

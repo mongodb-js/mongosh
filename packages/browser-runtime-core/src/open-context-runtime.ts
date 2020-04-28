@@ -35,7 +35,8 @@ export class OpenContextRuntime implements Runtime {
 
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
-      const serverVersion = await this.serviceProvider.getServerVersion();
+      const buildInfo = await this.serviceProvider.buildInfo();
+      const serverVersion = buildInfo.version;
       this.autocompleter = new ShellApiAutocompleter(serverVersion);
     }
 
