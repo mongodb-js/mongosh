@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import traverse from '@babel/traverse';
 
-import { signatures as s, signatures } from '@mongosh/shell-api';
+import { signatures } from '@mongosh/shell-api';
 
 import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
@@ -12,7 +12,7 @@ const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
   return { returnType: p.returnType, returnsPromise: p.returnsPromise, type: p.type };
 };
-const myType = { type: 'myType', attributes: { myAttr: s.unknown } };
+const myType = { type: 'myType', attributes: { myAttr: signatures.unknown } };
 
 describe('checkHasAsyncChild', () => {
   ['hasAsyncChild', 'returnsPromise'].forEach((key) => {
@@ -1098,22 +1098,20 @@ function f() {
           });
         });
         describe('redefine existing variable', () => {
-          describe('var', () => {
-            before(() => {
-              spy = sinon.spy(new SymbolTable([{}, { v: myType }, {}], signatures));
-              writer = new AsyncWriter(signatures, spy);
-              input = 'var v = 1';
-              const result = writer.getTransform(input);
-              ast = result.ast;
-              output = result.code;
-            });
-            it('compiles correctly', () => {
-              expect(output).to.equal('var v = 1;');
-            });
-            it('adds to symbol table', () => {
-              expect(spy.add.calledOnce).to.be.false;
-              expect(spy.scopeAt(1)).to.deep.equal({ v: signatures.unknown });
-            });
+          before(() => {
+            spy = sinon.spy(new SymbolTable([{}, { v: myType }, {}], signatures));
+            writer = new AsyncWriter(signatures, spy);
+            input = 'var v = 1';
+            const result = writer.getTransform(input);
+            ast = result.ast;
+            output = result.code;
+          });
+          it('compiles correctly', () => {
+            expect(output).to.equal('var v = 1;');
+          });
+          it('adds to symbol table', () => {
+            expect(spy.add.calledOnce).to.be.false;
+            expect(spy.scopeAt(1)).to.deep.equal({ v: signatures.unknown });
           });
         });
       });
