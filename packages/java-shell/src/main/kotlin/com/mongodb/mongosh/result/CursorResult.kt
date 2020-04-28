@@ -23,6 +23,6 @@ class Cursor internal constructor(private val cursor: Value, private val context
     }
 
     fun toReplString(): String {
-        return context.toCompletableFuture(cursor.invokeMember("toReplString")).get().toReplString()
+        return context.extract(cursor.invokeMember("toReplString")).toReplString()
     }
 }

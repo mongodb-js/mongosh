@@ -53,7 +53,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
             commands.forEach { cmd ->
                 if (sb.isNotEmpty()) sb.append("\n")
                 try {
-                    val result = shell.eval(cmd.command).get()
+                    val result = shell.eval(cmd.command)
                     sb.append(getExpectedValue(result, cmd.options))
                 } catch (e: Exception) {
                     System.err.println("IGNORED:")
@@ -86,7 +86,7 @@ private class Command(val command: String, val options: CompareOptions)
 private class CompareOptions(val checkResultClass: Boolean, val extractProperty: String?)
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
-    val oldDb = if (name != null) (shell.eval("db").get() as DatabaseResult).value.name() else null
+    val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null
     if (name != null) shell.eval("use $name")
 
     block()

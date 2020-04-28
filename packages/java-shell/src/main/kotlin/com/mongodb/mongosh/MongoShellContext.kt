@@ -15,6 +15,7 @@ import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
     private val ctx: Context = Context.create()
@@ -51,19 +52,17 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return ctx.getBindings("js").getMember(value)
     }
 
-    fun toCompletableFuture(v: Value): CompletableFuture<out MongoShellResult> {
-        return if (!v.isPromise()) CompletableFuture.completedFuture(extract(v))
-        else CompletableFuture<MongoShellResult>().also { future ->
-            v.invokeMember("then", ProxyExecutable { args ->
-                future.complete(extract(args[0]))
-            }).invokeMember("catch", ProxyExecutable { args ->
-                future.completeExceptionally(Exception(args[0].toString()))
-            })
-        }
-    }
-
     fun extract(v: Value): MongoShellResult {
         return when {
+            v.isPromise() -> {
+                CompletableFuture<MongoShellResult>().also { future ->
+                    v.invokeMember("then", ProxyExecutable { args ->
+                        future.complete(extract(args[0]))
+                    }).invokeMember("catch", ProxyExecutable { args ->
+                        future.completeExceptionally(Exception(args[0].toString()))
+                    })
+                }.get(1, TimeUnit.SECONDS)
+            }
             v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
             v.instanceOf(cursorClass) -> CursorResult(Cursor(v, this))
