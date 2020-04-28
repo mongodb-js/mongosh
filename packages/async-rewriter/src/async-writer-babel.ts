@@ -623,7 +623,6 @@ export default class AsyncWriter {
         visitor: {
           Program: {
             enter(path): void {
-              path.node['shellScope'] = symbols.pushScope();
               path.skip();
               path.traverse(TypeInferenceVisitor, {
                 t: t,

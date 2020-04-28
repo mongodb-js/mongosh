@@ -3,6 +3,16 @@ import {
   MongoshInvalidInputError
 } from '@mongosh/errors';
 /* eslint no-console:0 */
+
+export function addApi(newobj): any {
+  newobj.api = true;
+  if (newobj.attributes) {
+    Object.keys(newobj.attributes).forEach((k) => {
+      addApi(newobj.attributes[k]);
+    });
+  }
+  return newobj;
+}
 /**
  * Symbol Table implementation, which is a stack of key-value maps.
  */
@@ -26,7 +36,7 @@ export default class SymbolTable {
     this.scopeStack = initialScope;
     Object.keys(signatures).forEach(s => {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
-      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], lib: true };
+      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], api: true };
     });
     this.savedState = this.scopeStack;
   }
@@ -38,8 +48,10 @@ export default class SymbolTable {
    */
   public initializeApiObjects(apiObjects: object): void {
     Object.keys(apiObjects).forEach(key => {
-      this.scopeAt(0)[key] = apiObjects[key];
+      const copy = JSON.parse(JSON.stringify(apiObjects[key]));
+      this.scopeAt(0)[key] = addApi(copy);
     });
+    this.pushScope();
   }
 
   public replacer(k, v): any {
@@ -109,6 +121,12 @@ export default class SymbolTable {
     return this.signatures.unknown;
   }
 
+  private checkIfApi(key): void {
+    if (key in this.scopeAt(0)) {
+      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
+    }
+  }
+
   /**
    * Add item to the current scope.
    *
@@ -116,6 +134,7 @@ export default class SymbolTable {
    * @param value
    */
   public add(item: string, value: object): void {
+    this.checkIfApi(item);
     this.scopeStack[this.last][item] = value;
   }
 
@@ -126,6 +145,7 @@ export default class SymbolTable {
    * @param value
    */
   public addToParent(item: string, value: object): void {
+    this.checkIfApi(item);
     this.scopeStack[this.last - 1][item] = value;
   }
 
@@ -138,6 +158,7 @@ export default class SymbolTable {
    * @param value
    */
   public updateIfDefined(item: string, value: object): boolean {
+    this.checkIfApi(item);
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
         this.scopeStack[i][item] = value;
@@ -155,7 +176,11 @@ export default class SymbolTable {
    * @param value
    */
   public updateAttribute(lhs, keys: string[], value: any): void {
+    this.checkIfApi(lhs);
     const item = this.lookup(lhs);
+    if (item.api) {
+      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`);
+    }
     keys.reduce((sym, key, i) => {
       sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;
       if (sym.attributes === undefined) {
@@ -181,15 +206,12 @@ export default class SymbolTable {
    */
   public updateFunctionScoped(path: any, key: string, type: object, t: any): void {
     // Because it adds to scopes only via nodes, will add to actual ST regardless of branching
+    this.checkIfApi(key);
     let scopeParent = path.getFunctionParent();
     if (scopeParent === null) {
       scopeParent = path.findParent(p => t.isProgram(p));
     }
-    const shellScope = scopeParent.node.shellScope;
-    if (shellScope === undefined) {
-      // scope of the parent is out of scope?
-      throw new MongoshInternalError('Unable to track parent scope.');
-    }
+    const shellScope = scopeParent.node.shellScope || 1;
     this.scopeAt(shellScope)[key] = type;
   }
 
@@ -293,7 +315,7 @@ export default class SymbolTable {
     for (let scopeDepth = this.last; scopeDepth >= 0; scopeDepth--) {
       const scope = this.scopeStack[scopeDepth];
       console.log(`scope@${scopeDepth}:`);
-      Object.keys(scope).filter((s) => (!scope[s].lib)).forEach((k) => {
+      Object.keys(scope).filter((s) => (!scope[s].api)).forEach((k) => {
         console.log(this.printSymbol(scope[k], k));
       });
     }
