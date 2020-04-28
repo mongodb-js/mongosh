@@ -63,5 +63,30 @@ describe('ShellEvaluator', () => {
         ''
       );
     });
+
+    it('reverts state if error thrown', async() => {
+      const originalEval = () => { throw new Error(); };
+      const revertSpy = sinon.spy();
+      const saveSpy = sinon.spy();
+      shellEvaluator.revertState = revertSpy;
+      shellEvaluator.saveState = saveSpy;
+      try {
+        await shellEvaluator.customEval(originalEval, 'anything()', {}, '');
+        // eslint-disable-next-line no-empty
+      } catch (e) {
+      }
+      expect(revertSpy.calledOnce).to.be.true;
+      expect(saveSpy.calledOnce).to.be.true;
+    });
+    it('does not revert state with no error', async() => {
+      const originalEval = () => { return 1; };
+      const revertSpy = sinon.spy();
+      const saveSpy = sinon.spy();
+      shellEvaluator.revertState = revertSpy;
+      shellEvaluator.saveState = saveSpy;
+      await shellEvaluator.customEval(originalEval, 'anything()', {}, '');
+      expect(revertSpy.calledOnce).to.be.false;
+      expect(saveSpy.calledOnce).to.be.true;
+    });
   });
 });

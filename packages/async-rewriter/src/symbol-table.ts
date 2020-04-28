@@ -9,6 +9,7 @@ import {
 export default class SymbolTable {
   private scopeStack: object[];
   public signatures: any;
+  public savedState: any;
 
   /**
    * Construct a new SymbolTable instance.
@@ -27,6 +28,7 @@ export default class SymbolTable {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
       this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], lib: true };
     });
+    this.savedState = this.scopeStack;
   }
 
   /**
@@ -72,6 +74,25 @@ export default class SymbolTable {
       newStack.push(newScope);
     });
     return new SymbolTable(newStack, this.signatures);
+  }
+
+  public saveState(): void {
+    const newStack = [];
+    this.scopeStack.forEach(oldScope => {
+      const newScope = {};
+      Object.keys(oldScope).forEach(key => {
+        newScope[key] = JSON.parse(JSON.stringify(oldScope[key], this.replacer));
+        if ('path' in oldScope[key]) {
+          newScope[key].path = oldScope[key].path;
+        }
+      });
+      newStack.push(newScope);
+    });
+    this.savedState = newStack;
+  }
+
+  public revertState(): void {
+    this.scopeStack = this.savedState;
   }
 
   /**

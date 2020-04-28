@@ -347,4 +347,26 @@ describe('SymbolTable', () => {
       });
     });
   });
+  describe('#saveState/#revertState', () => {
+    let st;
+    before(() => {
+      st = new SymbolTable([{
+        a: { type: 'object', attributes: {} },
+        a1: { type: 'object', attributes: {} },
+      }], {});
+      st.pushScope();
+    });
+    describe('copies state and reverts after change', () => {
+      it('initializes correctly', () => {
+        expect(st.scopeAt(1)).deep.equals({});
+      });
+      it('adds item', () => {
+        st.saveState();
+        st.add('newItem', myType);
+        expect(st.scopeAt(1)).to.deep.equal({ newItem: myType });
+        st.revertState();
+        expect(st.scopeAt(1)).to.deep.equal({});
+      });
+    });
+  });
 });
