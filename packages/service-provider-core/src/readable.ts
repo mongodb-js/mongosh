@@ -139,7 +139,14 @@ interface Readable {
    *
    * @returns {Promise} The server version.
    */
-  buildInfo(): Promise<string>;
+  buildInfo(): Promise<Result>;
+
+  /**
+   * Returns the cmdLineOpts.
+   *
+   * @returns {Promise} The server version.
+   */
+  getCmdLineOpts(): Promise<Result>;
 
   /**
    * list databases.

@@ -189,7 +189,11 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     throw new Error("Method not implemented.");
   }
 
-  buildInfo(): Promise<string> {
+  getCmdLineOpts(): Promise<Result> {
+    throw new Error('Method not implemented.');
+  }
+
+  buildInfo(): Promise<Result> {
     throw new Error('Method not implemented.');
   }
 

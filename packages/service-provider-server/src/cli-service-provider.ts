@@ -710,18 +710,37 @@ class CliServiceProvider implements ServiceProvider {
       .updateOne(filter, update, options);
   }
 
+  getTopology(): any {
+    return this.mongoClient.topology;
+  }
+
   /**
    * Return buildInfo.
    *
    * @returns {Promise} buildInfo.
    */
-  async buildInfo(): Promise<string> {
+  async buildInfo(): Promise<Result> {
     const result: any = await this.runCommand(
       'admin',
       {
         buildInfo: 1
       },
       {}
+    );
+
+    if (!result) return;
+
+    return result;
+  }
+
+  /**
+   * Return cmdLineOpts.
+   *
+   * @returns {Promise} buildInfo.
+   */
+  async getCmdLineOpts(): Promise<Result> {
+    const result: any = await this.runCommand(
+      'admin', { getCmdLineOpts: 1 }, {}
     );
 
     if (!result) return;

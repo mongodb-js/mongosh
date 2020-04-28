@@ -11,7 +11,7 @@ export default {
 };
 
 class DemoServiceProvider {
-  async buildInfo(): Promise<string> {
+  async buildInfo(): Promise<object> {
     return { version: '4.0.0' };
   }
 

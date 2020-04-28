@@ -1,10 +1,11 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import ShellEvaluator from '@mongosh/shell-evaluator';
 import { changeHistory } from '@mongosh/history';
+import getConnectInfo from './connect-info';
 import formatOutput from './format-output';
 import { TELEMETRY } from './constants';
 import repl, { REPLServer } from 'repl';
 import CliOptions from './cli-options';
-import ShellEvaluator from '@mongosh/shell-evaluator';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
@@ -24,10 +25,6 @@ import { redactPwd } from '.';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
-function x () {
-  console.log('cats')
-}
-
 /**
  * The REPL used from the terminal.
  */
@@ -35,6 +32,7 @@ class CliRepl {
   private serviceProvider: CliServiceProvider;
   private ShellEvaluator: ShellEvaluator;
   private buildInfo: any;
+  private cmdLineOpts: any;
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
@@ -55,9 +53,9 @@ class CliRepl {
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    // this.buildInfo = await this.serviceProvider.buildInfo();
-    const connectionInfo = this.getConnectionInfo(driverUri, driverOptions);
-    this.bus.emit('connect', connectionInfo);
+    this.buildInfo = await this.serviceProvider.buildInfo();
+    const connectInfo = await getConnectInfo(driverUri, this.serviceProvider, this.bus);
+    this.bus.emit('connect', connectInfo);
     this.start();
   }
 
@@ -78,24 +76,6 @@ class CliRepl {
       this.requirePassword(driverUri, driverOptions);
     } else {
       this.connect(driverUri, driverOptions);
-    }
-  }
-
-  // if it's an Atlas connection
-  // if it's a localhost connection
-  // if it's a Data Lake connection
-  // if it's a connection to a server running in one of the public clouds
-  // if it's a connection to a non-genuine MDB
-  // server version
-  // if it's an enterprise service
-  // auth type (SCRAM, Kerberos, LDAP, X.509)
-  getConnectionInfo(uri: string, options: NodeOptions) {
-    console.log(this.buildInfo)
-    const ATLAS_REGEX = /mongodb.net[:/]/i;
-    const LOCALHOST_REGEX = /(localhost|127\.0\.0\.1)/i;
-    return {
-      isAtlas: !!uri.match(ATLAS_REGEX),
-      isLocalhost: !!uri.match(LOCALHOST_REGEX) 
     }
   }
 
