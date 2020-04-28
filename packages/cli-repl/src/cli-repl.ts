@@ -32,7 +32,6 @@ class CliRepl {
   private serviceProvider: CliServiceProvider;
   private ShellEvaluator: ShellEvaluator;
   private buildInfo: any;
-  private cmdLineOpts: any;
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
@@ -54,23 +53,13 @@ class CliRepl {
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
-
-    let cmdLineOpts = null;
-    try {
-      cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
-    } catch (e) {
-      // error is thrown here for atlas and DataLake connections.
-      // don't actually throw, as this is only used to log out non-genuine
-      // mongodb connections
-      this.bus.emit('mongodb:error', e)
-    }
-
+    const cmdLineOpts = await this.getCmdLineOpts();
     const topology = this.serviceProvider.getTopology();
 
     const connectInfo = getConnectInfo(
       driverUri,
       this.buildInfo,
-      this.cmdLineOpts,
+      cmdLineOpts,
       topology
     );
 
@@ -95,6 +84,19 @@ class CliRepl {
       this.requirePassword(driverUri, driverOptions);
     } else {
       this.connect(driverUri, driverOptions);
+    }
+  }
+
+  async getCmdLineOpts(): Promise<any> {
+    try {
+      const cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
+      return cmdLineOpts;
+    } catch (e) {
+      // error is thrown here for atlas and DataLake connections.
+      // don't actually throw, as this is only used to log out non-genuine
+      // mongodb connections
+      this.bus.emit('mongodb:error', e)
+      return null;
     }
   }
 
