@@ -76,7 +76,7 @@ export default class Mapper {
         ];
 
         const err = new MongoshInvalidInputError(
-          `'${arg}' is not a valid argument for show. Valid arguments are: ${validArguments.join(', ')}`
+          `'${arg}' is not a valid argument for "show".\nValid arguments are: ${validArguments.join(', ')}`
         );
 
         this.messageBus.emit('mongosh:error', err);
@@ -94,7 +94,7 @@ export default class Mapper {
     const result = await this.serviceProvider.listDatabases('admin');
 
     if (!('databases' in result)) {
-      const err = new MongoshInternalError('invalid result from listDatabases');
+      const err = new MongoshInternalError('Got invalid result from "listDatabases"');
       this.messageBus.emit('mongosh:error', err);
       throw err;
     }
@@ -564,7 +564,7 @@ export default class Mapper {
     dropTarget?: boolean
   ): Promise<any> {
     if (typeof newName !== 'string') {
-      throw new MongoshInvalidInputError('newName must be a string');
+      throw new MongoshInvalidInputError('The "newName" argument must be a string.');
     }
 
     try {
@@ -1188,7 +1188,7 @@ export default class Mapper {
     const coll = collection._name;
 
     if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError('options must be an object');
+      throw new MongoshInvalidInputError('The "options" argument must be an object.');
     }
 
     const specs = keyPatterns.map((pattern) => ({
@@ -1432,11 +1432,11 @@ export default class Mapper {
     );
 
     if (index === '*') {
-      throw new MongoshInvalidInputError('To drop indexes in the collection using \'*\', use db.collection.dropIndexes()');
+      throw new MongoshInvalidInputError('To drop indexes in the collection using \'*\', use db.collection.dropIndexes().');
     }
 
     if (Array.isArray(index)) {
-      throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document');
+      throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document.');
     }
 
     return await this.collection_dropIndexes(collection, index);
@@ -1520,7 +1520,7 @@ export default class Mapper {
 
     if (args.length) {
       throw new MongoshInvalidInputError(
-        'totalIndexSize takes no argument. Use db.collection.stats to get detailed information.'
+        '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
       );
     }
 
@@ -1765,11 +1765,11 @@ export default class Mapper {
     options?: Record<string, any>
   ): Promise<any> {
     if (typeof commandName !== 'string') {
-      throw new MongoshInvalidInputError('commandName must be a string');
+      throw new MongoshInvalidInputError('The "commandName" argument must be a string.');
     }
 
     if (options && commandName in options) {
-      throw new MongoshInvalidInputError('commandName cannot be passed as an option');
+      throw new MongoshInvalidInputError('The "commandName" argument cannot be passed as an option to "runCommand".');
     }
 
     this.messageBus.emit(
@@ -1801,7 +1801,7 @@ export default class Mapper {
 
     if (!allowedVerbosity.includes(verbosity)) {
       throw new MongoshInvalidInputError(
-        `verbosity can only be one of ${allowedVerbosity.join(', ')}`
+        `verbosity can only be one of ${allowedVerbosity.join(', ')}. Received ${verbosity}.`
       );
     }
   }
