@@ -3291,6 +3291,29 @@ switch(TEST) {
         done();
       }
     });
+    it('ok with assigning db to other var, but not attr', (done) => {
+      expect(writer.compile('other = db')).to.equal('other = db;');
+      input = 'other.key = 1';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
+    it('ok to reassign', () => {
+      expect(writer.compile('other = db')).to.equal('other = db;');
+      expect(writer.compile('other = 1')).to.equal('other = 1;');
+      expect(writer.compile('other = db.coll')).to.equal('other = db.coll;');
+    });
+    it('not ok to reassign attribute', (done) => {
+      expect(writer.compile('other = db.coll')).to.equal('other = db.coll;');
+      input = 'other.insertOne = 1';
+      try {
+        writer.compile(input);
+      } catch (err) {
+        done();
+      }
+    });
     it('addToParent', (done) => {
       input = 'class db {}';
       try {

@@ -31,6 +31,16 @@ export default class SymbolTable {
     this.savedState = this.scopeStack;
   }
 
+  private addApi(newobj): any {
+    newobj.api = true;
+    if (newobj.attributes) {
+      Object.keys(newobj.attributes).forEach((k) => {
+        this.addApi(newobj.attributes[k]);
+      });
+    }
+    return newobj;
+  }
+
   /**
    * Initialize the shell API class instances like db, sh, rs, etc.
    *
@@ -38,8 +48,8 @@ export default class SymbolTable {
    */
   public initializeApiObjects(apiObjects: object): void {
     Object.keys(apiObjects).forEach(key => {
-      this.scopeAt(0)[key] = { ...apiObjects[key] };
-      this.scopeAt(0)[key].api = true;
+      const copy = JSON.parse(JSON.stringify(apiObjects[key]));
+      this.scopeAt(0)[key] = this.addApi(copy);
     });
   }
 
@@ -110,13 +120,9 @@ export default class SymbolTable {
     return this.signatures.unknown;
   }
 
-  private checkIfApi(key, item?): void {
-    if (item === undefined) {
-      item = this.lookup(key);
-    }
-    if (item.api) {
-      // waiting on new error types
-      throw new Error(`InvalidInput - cannot reassign API type ${key}`);
+  private checkIfApi(key): void {
+    if (key in this.scopeAt(0)) {
+      throw new Error('api key');
     }
   }
 
@@ -127,6 +133,7 @@ export default class SymbolTable {
    * @param value
    */
   public add(item: string, value: object): void {
+    if (this.depth < 1) this.pushScope();
     this.checkIfApi(item);
     this.scopeStack[this.last][item] = value;
   }
@@ -151,9 +158,9 @@ export default class SymbolTable {
    * @param value
    */
   public updateIfDefined(item: string, value: object): boolean {
+    this.checkIfApi(item);
     for (let i = this.last; i >= 0; i--) {
       if (this.scopeStack[i][item]) {
-        this.checkIfApi(item, this.scopeStack[i][item]);
         this.scopeStack[i][item] = value;
         return true;
       }
@@ -169,8 +176,11 @@ export default class SymbolTable {
    * @param value
    */
   public updateAttribute(lhs, keys: string[], value: any): void {
+    this.checkIfApi(lhs);
     const item = this.lookup(lhs);
-    this.checkIfApi(lhs, item);
+    if (item.api) {
+      throw new Error('cannot change attribute of api type');
+    }
     keys.reduce((sym, key, i) => {
       sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;
       if (sym.attributes === undefined) {
