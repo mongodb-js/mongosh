@@ -491,4 +491,86 @@ describe('NodeCursor', () => {
       mock.verify();
     });
   });
+
+  describe('#explain', () => {
+    let nativeCursorStub;
+    let nodeCursor;
+    let mock;
+
+    beforeEach(() => {
+      mock = sinon.mock().resolves({
+        queryPlanner: { },
+        executionStats: {
+          allPlansExecution: [ ]
+        },
+        serverInfo: { },
+        ok: 1
+      });
+
+      nativeCursorStub = sinon.createStubInstance(Cursor, {
+        explain: mock
+      });
+
+      nodeCursor = new NodeCursor(nativeCursorStub);
+    });
+
+    it('calls explain on the native cursor', async() => {
+      await nodeCursor.explain();
+      mock.verify();
+    });
+
+    it('does not throw if executionStats is missing', async() => {
+      mock.resolves({
+        queryPlanner: { },
+        serverInfo: { },
+        ok: 1
+      });
+
+      await nodeCursor.explain();
+    });
+
+    context('with empty verbosity', () => {
+      it('filters out executionStats', async() => {
+        expect(await nodeCursor.explain()).to.deep.equal({
+          queryPlanner: { },
+          serverInfo: { },
+          ok: 1
+        });
+      });
+    });
+
+    context('with verbosity = queryPlanner', () => {
+      it('filters out executionStats', async() => {
+        expect(await nodeCursor.explain('queryPlanner')).to.deep.equal({
+          queryPlanner: { },
+          serverInfo: { },
+          ok: 1
+        });
+      });
+    });
+
+    context('with verbosity = executionStats', () => {
+      it('filters out allPlansExecution', async() => {
+        expect(await nodeCursor.explain('executionStats')).to.deep.equal({
+          queryPlanner: { },
+          executionStats: { },
+          serverInfo: { },
+          ok: 1
+        });
+      });
+    });
+
+    context('with verbosity = allPlansExecution', () => {
+      it('returns everything', async() => {
+        expect(await nodeCursor.explain('allPlansExecution')).to.deep.equal({
+          queryPlanner: { },
+          executionStats: {
+            allPlansExecution: [ ]
+          },
+          serverInfo: { },
+          ok: 1
+        });
+      });
+    });
+  });
 });

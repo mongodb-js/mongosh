@@ -811,5 +811,93 @@ coll2`;
         }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
       });
     });
+
+    describe('find', () => {
+      let cursorStub;
+      let explainResult;
+      beforeEach(() => {
+        explainResult = { ok: 1 };
+
+        collection.find = sinon.spy(() => ({
+          explain: sinon.spy(() => explainResult)
+        }));
+
+        cursorStub = mapper.explainable_find(
+          explainable,
+          { query: 1 },
+          { projection: 1 }
+        );
+      });
+
+      it('calls collection.find with arguments', () => {
+        expect(collection.find).to.have.been.calledOnceWithExactly(
+          { query: 1 },
+          { projection: 1 }
+        );
+      });
+
+      it('returns an ExplainableCursor', () => {
+        expect(cursorStub.shellApiType()).to.equal('ExplainableCursor');
+      });
+
+      context('when calling toReplString on the result', () => {
+        it('calls explain with verbosity', async() => {
+          await cursorStub.toReplString();
+          expect(
+            cursorStub.explain
+          ).to.have.been.calledOnceWithExactly('queryPlanner');
+        });
+
+        it('returns the explain result', async() => {
+          expect(
+            await cursorStub.toReplString()
+          ).to.equal(explainResult);
+        });
+      });
+    });
+
+    describe('aggregate', () => {
+      let cursorStub;
+      let explainResult;
+      beforeEach(() => {
+        explainResult = { ok: 1 };
+
+        collection.aggregate = sinon.spy(() => ({
+          explain: sinon.spy(() => explainResult)
+        }));
+
+        cursorStub = mapper.explainable_aggregate(
+          explainable,
+          { pipeline: 1 },
+          { aggregate: 1 }
+        );
+      });
+
+      it('calls collection.aggregate with arguments', () => {
+        expect(collection.aggregate).to.have.been.calledOnceWithExactly(
+          { pipeline: 1 },
+          { aggregate: 1 }
+        );
+      });
+
+      it('returns an ExplainableCursor', () => {
+        expect(cursorStub.shellApiType()).to.equal('ExplainableAggregationCursor');
+      });
+
+      context('when calling toReplString on the result', () => {
+        it('calls explain with verbosity', async() => {
+          await cursorStub.toReplString();
+          expect(
+            cursorStub.explain
+          ).to.have.been.calledOnceWithExactly('queryPlanner');
+        });
+
+        it('returns the explain result', async() => {
+          expect(
+            await cursorStub.toReplString()
+          ).to.equal(explainResult);
+        });
+      });
+    });
   });
 });

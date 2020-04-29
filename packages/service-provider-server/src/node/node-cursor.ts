@@ -377,6 +377,30 @@ class NodeCursor implements Cursor {
     this.cursor.addCursorFlag(flag, true);
     return this;
   }
+
+  async explain(verbosity: string): Promise<any> {
+    const fullExplain = await this.cursor.explain();
+
+    const explain: any = {
+      ...fullExplain
+    };
+
+    if (
+      verbosity !== 'executionStats' &&
+      verbosity !== 'allPlansExecution' &&
+      explain.executionStats
+    ) {
+      delete explain.executionStats;
+    }
+
+    if (verbosity === 'executionStats' &&
+      explain.executionStats &&
+      explain.executionStats.allPlansExecution) {
+      delete explain.executionStats.allPlansExecution;
+    }
+
+    return explain;
+  }
 }
 
 export default NodeCursor;

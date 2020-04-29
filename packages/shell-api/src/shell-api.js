@@ -14,7 +14,7 @@ class AggregationCursor {
     this.shellApiType = () => {
       return 'AggregationCursor';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.description', 'docs': 'shell-api.classes.AggregationCursor.help.link', 'attr': [{ 'name': 'close', 'description': 'shell-api.classes.AggregationCursor.help.attributes.close.description' }, { 'name': 'forEach', 'description': 'shell-api.classes.AggregationCursor.help.attributes.forEach.description' }, { 'name': 'hasNext', 'description': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.description' }, { 'name': 'isClosed', 'description': 'shell-api.classes.AggregationCursor.help.attributes.isClosed.description' }, { 'name': 'isExhausted', 'description': 'shell-api.classes.AggregationCursor.help.attributes.isExhausted.description' }, { 'name': 'itcount', 'description': 'shell-api.classes.AggregationCursor.help.attributes.itcount.description' }, { 'name': 'map', 'description': 'shell-api.classes.AggregationCursor.help.attributes.map.description' }, { 'name': 'next', 'description': 'shell-api.classes.AggregationCursor.help.attributes.next.description' }, { 'name': 'toArray', 'description': 'shell-api.classes.AggregationCursor.help.attributes.toArray.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.description', 'docs': 'shell-api.classes.AggregationCursor.help.link', 'attr': [{ 'name': 'close', 'description': 'shell-api.classes.AggregationCursor.help.attributes.close.description' }, { 'name': 'forEach', 'description': 'shell-api.classes.AggregationCursor.help.attributes.forEach.description' }, { 'name': 'hasNext', 'description': 'shell-api.classes.AggregationCursor.help.attributes.hasNext.description' }, { 'name': 'isClosed', 'description': 'shell-api.classes.AggregationCursor.help.attributes.isClosed.description' }, { 'name': 'isExhausted', 'description': 'shell-api.classes.AggregationCursor.help.attributes.isExhausted.description' }, { 'name': 'itcount', 'description': 'shell-api.classes.AggregationCursor.help.attributes.itcount.description' }, { 'name': 'map', 'description': 'shell-api.classes.AggregationCursor.help.attributes.map.description' }, { 'name': 'next', 'description': 'shell-api.classes.AggregationCursor.help.attributes.next.description' }, { 'name': 'toArray', 'description': 'shell-api.classes.AggregationCursor.help.attributes.toArray.description' }, { 'name': 'explain', 'description': 'shell-api.classes.AggregationCursor.help.attributes.explain.description' }] });
   }
 
   close(...args) {
@@ -52,6 +52,10 @@ class AggregationCursor {
 
   toArray(...args) {
     return this._cursor.toArray(...args);
+  }
+
+  explain(...args) {
+    return this._cursor.explain(...args);
   }
 }
 
@@ -109,6 +113,12 @@ AggregationCursor.prototype.toArray.serverVersions = ['0.0.0', '4.4.0'];
 AggregationCursor.prototype.toArray.topologies = [0, 1, 2];
 AggregationCursor.prototype.toArray.returnsPromise = true;
 AggregationCursor.prototype.toArray.returnType = 'unknown';
+
+AggregationCursor.prototype.explain.help = () => new Help({ 'help': 'shell-api.classes.AggregationCursor.help.attributes.explain.example', 'docs': 'shell-api.classes.AggregationCursor.help.attributes.explain.link', 'attr': [{ 'description': 'shell-api.classes.AggregationCursor.help.attributes.explain.description' }] });
+AggregationCursor.prototype.explain.serverVersions = ['0.0.0', '4.4.0'];
+AggregationCursor.prototype.explain.topologies = [0, 1, 2];
+AggregationCursor.prototype.explain.returnsPromise = true;
+AggregationCursor.prototype.explain.returnType = 'unknown';
 
 
 class BulkWriteResult {
@@ -1098,7 +1108,7 @@ class Explainable {
     this.shellApiType = () => {
       return 'Explainable';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.description', 'docs': 'shell-api.classes.Explainable.help.link', 'attr': [{ 'name': 'getCollection', 'description': 'shell-api.classes.Explainable.help.attributes.getCollection.description' }, { 'name': 'getVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.getVerbosity.description' }, { 'name': 'setVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.setVerbosity.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.description', 'docs': 'shell-api.classes.Explainable.help.link', 'attr': [{ 'name': 'getCollection', 'description': 'shell-api.classes.Explainable.help.attributes.getCollection.description' }, { 'name': 'getVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.getVerbosity.description' }, { 'name': 'setVerbosity', 'description': 'shell-api.classes.Explainable.help.attributes.setVerbosity.description' }, { 'name': 'find', 'description': 'shell-api.classes.Explainable.help.attributes.find.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Explainable.help.attributes.aggregate.description' }] });
   }
 
   getCollection(...args) {
@@ -1111,6 +1121,14 @@ class Explainable {
 
   setVerbosity(...args) {
     return this._mapper.explainable_setVerbosity(this, ...args);
+  }
+
+  find(...args) {
+    return this._mapper.explainable_find(this, ...args);
+  }
+
+  aggregate(...args) {
+    return this._mapper.explainable_aggregate(this, ...args);
   }
 }
 
@@ -1132,6 +1150,18 @@ Explainable.prototype.setVerbosity.serverVersions = ['0.0.0', '4.4.0'];
 Explainable.prototype.setVerbosity.topologies = [0, 1, 2];
 Explainable.prototype.setVerbosity.returnsPromise = false;
 Explainable.prototype.setVerbosity.returnType = 'unknown';
+
+Explainable.prototype.find.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.find.example', 'docs': 'shell-api.classes.Explainable.help.attributes.find.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.find.description' }] });
+Explainable.prototype.find.serverVersions = ['0.0.0', '4.4.0'];
+Explainable.prototype.find.topologies = [0, 1, 2];
+Explainable.prototype.find.returnsPromise = false;
+Explainable.prototype.find.returnType = 'Cursor';
+
+Explainable.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.aggregate.example', 'docs': 'shell-api.classes.Explainable.help.attributes.aggregate.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.aggregate.description' }] });
+Explainable.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
+Explainable.prototype.aggregate.topologies = [0, 1, 2];
+Explainable.prototype.aggregate.returnsPromise = false;
+Explainable.prototype.aggregate.returnType = 'Cursor';
 
 
 class InsertManyResult {

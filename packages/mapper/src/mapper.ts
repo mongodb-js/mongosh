@@ -450,7 +450,7 @@ export default class Mapper {
    *
    * @returns {Cursor} The promise of the cursor.
    */
-  collection_find(collection, query, projection): any {
+  collection_find(collection, query, projection): Cursor {
     const options: any = {};
     const db = collection._database._name;
     const coll = collection._name;
@@ -468,12 +468,14 @@ export default class Mapper {
       }
     );
 
-    this.currentCursor = new Cursor(
+    const cursor = new Cursor(
       this,
       this.serviceProvider.find(db, coll, query, options)
     );
 
-    return this.currentCursor;
+    this.currentCursor = cursor;
+
+    return cursor;
   }
 
   /**
@@ -1808,19 +1810,75 @@ export default class Mapper {
 
   collection_explain(collection: Collection, verbosity = 'queryPlanner'): Explainable {
     this._validateExplainableVerbosity(verbosity);
+
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: 'explain',
+        class: 'Collection',
+        db: collection._database._name,
+        coll: collection._name,
+        arguments: { verbosity }
+      }
+    );
+
     return new Explainable(this, collection, verbosity);
   }
 
+  private _emitExplainableApiCall(explainable: Explainable, methodName: string, methodArguments: any = {}): void {
+    this.messageBus.emit(
+      'mongosh:api-call',
+      {
+        method: methodName,
+        class: 'Explainable',
+        db: explainable._collection._database._name,
+        coll: explainable._collection._name,
+        arguments: methodArguments
+      }
+    );
+  }
+
   explainable_getCollection(explainable: Explainable): Collection {
+    this._emitExplainableApiCall(explainable, 'getCollection');
+
     return explainable._collection;
   }
 
   explainable_getVerbosity(explainable: Explainable): string {
+    this._emitExplainableApiCall(explainable, 'getVerbosity');
+
     return explainable._verbosity;
   }
 
   explainable_setVerbosity(explainable: Explainable, verbosity: string): void {
     this._validateExplainableVerbosity(verbosity);
+
+    this._emitExplainableApiCall(explainable, 'setVerbosity', { verbosity });
+
     explainable._verbosity = verbosity;
+  }
+
+  explainable_find(explainable: Explainable, query?: any, projection?: any): any {
+    this._emitExplainableApiCall(explainable, 'find', { query, projection });
+
+    const cursor = explainable._collection.find(query, projection);
+    cursor.shellApiType = (): string => 'ExplainableCursor';
+    cursor.toReplString = (): Promise<any> => {
+      return cursor.explain(explainable._verbosity);
+    };
+
+    return cursor;
+  }
+
+  explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): any {
+    this._emitExplainableApiCall(explainable, 'aggregate', { pipeline, options });
+
+    const cursor = explainable._collection.aggregate(pipeline, options);
+    cursor.shellApiType = (): string => 'ExplainableAggregationCursor';
+    cursor.toReplString = (): Promise<any> => {
+      return cursor.explain(explainable._verbosity);
+    };
+
+    return cursor;
   }
 }

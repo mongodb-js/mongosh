@@ -38,3 +38,6 @@ class:
     toArray:
         <<: *__defaultMethod
         returnsPromise: true
+    explain:
+        <<: *__defaultMethod
+        returnsPromise: true
