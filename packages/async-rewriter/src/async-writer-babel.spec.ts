@@ -3533,4 +3533,87 @@ switch(TEST) {
       });
     });
   });
+  describe('recursion', () => {
+    describe('non-async', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+        writer = new AsyncWriter(signatures, spy);
+        output = writer.compile(`
+function f(arg) {
+  if (arg === 'basecase') {
+    return 1;
+  }
+  return f();
+}
+  `);
+      });
+      it('compiles correctly', () => {
+        expect(output).to.equal(`function f(arg) {
+  if (arg === 'basecase') {
+    return 1;
+  }
+
+  return f();
+}`);
+      });
+      it('symbol table final state is correct', () => {
+        expect(skipPath(spy.lookup('f'))).to.deep.equal({
+          type: 'function',
+          returnsPromise: false,
+          returnType: signatures.unknown
+        });
+      });
+    });
+    describe('async', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+        writer = new AsyncWriter(signatures, spy);
+        output = writer.compile(`
+function f(arg) {
+  if (arg === 'basecase') {
+    return db.coll.insertOne({});
+  }
+  return f();
+}
+  `);
+      });
+      it('compiles correctly', () => {
+        expect(output).to.equal(`async function f(arg) {
+  if (arg === 'basecase') {
+    return await db.coll.insertOne({});
+  }
+
+  return f();
+}`);
+      });
+      it('symbol table final state is correct', () => {
+        expect(skipPath(spy.lookup('f'))).to.deep.equal({
+          type: 'function',
+          returnsPromise: true,
+          returnType: signatures.unknown
+        });
+      });
+    });
+    describe('hasAsyncChild', () => {
+      before(() => {
+        spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+        writer = new AsyncWriter(signatures, spy);
+      });
+      it('throws', (done) => {
+        try {
+          writer.compile(`
+function f(arg) {
+  if (arg === 'basecase') {
+    return db;
+  }
+  return f();
+}
+  `);
+        } catch (e) {
+          expect(e.name).to.equal('MongoshInvalidInputError');
+          done();
+        }
+      });
+    });
+  });
 });
