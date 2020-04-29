@@ -12,11 +12,12 @@ variables:
       permissions: public-read
       content_type: application/octet-stream
   - &save_segment_key
-      command: expansions.update
+      command: shell.exec
       params:
-        file: src/segment.yml
-        updates:
-          segment: ${segment_key}
+        working_dir: src
+        shell: bash
+        script: |
+          export SEGMENT_API_KEY=${segment_key}
   - &compile_exec
     command: shell.exec
     params:
