@@ -1,6 +1,12 @@
+import {
+  MongoshInvalidInputError,
+} from '@mongosh/errors';
 class Iterator {
   constructor(array) {
     this.array = array;
+    if (!Array.isArray(this.array)) {
+      throw new MongoshInvalidInputError('Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.');
+    }
     const proxy = new Proxy(this, {
       get: (obj, prop) => {
         if ((prop in obj)) {
