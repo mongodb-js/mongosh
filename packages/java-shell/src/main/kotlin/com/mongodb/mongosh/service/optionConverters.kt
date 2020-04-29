@@ -25,21 +25,6 @@ internal fun <T> convert(o: T,
 }
 
 internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
-        "writeConcern" to { db, value ->
-            if (value is Map<*, *>) convert(db, writeConcernConverters, writeConcernDefaultConverter, value)
-            else Rejected(WriteCommandException("invalid parameter: expected an object (writeConcern)", "FailedToParse"))
-        },
-        "readConcern" to { db, value ->
-            if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
-            else Rejected(WriteCommandException("invalid parameter: expected an object (readConcern)", "FailedToParse"))
-        },
-        "readPreference" to { db, value ->
-            if (value is Map<*, *>) convert(db, readPreferenceConverters, readPreferenceDefaultConverter, value)
-            else Rejected(WriteCommandException("invalid parameter: expected an object (readPreference)", "FailedToParse"))
-        }
-)
-
-internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "w" to { db, value ->
             when (value) {
                 is Number -> Resolved(db.withWriteConcern(db.writeConcern.withW(value.toInt())))
@@ -59,10 +44,18 @@ internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Promis
                 is Number -> Resolved(db.withWriteConcern(db.writeConcern.withWTimeout(value.toLong(), TimeUnit.MILLISECONDS)))
                 else -> Resolved(db.withWriteConcern(db.writeConcern.withWTimeout(0, TimeUnit.MILLISECONDS)))
             }
+        },
+        "readConcern" to { db, value ->
+            if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
+            else Rejected(WriteCommandException("invalid parameter: expected an object (readConcern)", "FailedToParse"))
+        },
+        "readPreference" to { db, value ->
+            if (value is Map<*, *>) convert(db, readPreferenceConverters, readPreferenceDefaultConverter, value)
+            else Rejected(WriteCommandException("invalid parameter: expected an object (readPreference)", "FailedToParse"))
         }
 )
 
-internal val writeConcernDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoDatabase> = { _, key, _ ->
+internal val dbDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoDatabase> = { _, key, _ ->
     Rejected(WriteCommandException("unrecognized write concern field: $key", "FailedToParse"))
 }
 

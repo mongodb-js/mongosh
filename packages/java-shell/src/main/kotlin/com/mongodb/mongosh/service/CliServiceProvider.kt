@@ -34,7 +34,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<MongoDatabase> {
         val db = client.getDatabase(database)
-        return if (dbOptions == null) Resolved(db) else convert(db, dbConverters, writeConcernDefaultConverter, dbOptions)
+        return if (dbOptions == null) Resolved(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
