@@ -18,6 +18,7 @@ variables:
       shell: bash
       script: |
         source .evergreen/.setup_env
+        export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         npm run compile-exec
 # Functions are any command that can be run.
@@ -79,12 +80,6 @@ functions:
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   release_macos:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
@@ -98,12 +93,6 @@ functions:
           - src/dist/*.tgz
         remote_file: ${project}/${revision}/
   release_linux:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
@@ -117,12 +106,6 @@ functions:
           - src/dist/*.tgz
         remote_file: ${project}/${revision}/
   release_win:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
