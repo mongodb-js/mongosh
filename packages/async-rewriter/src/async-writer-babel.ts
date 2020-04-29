@@ -112,11 +112,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       if (path.node.object.type === 'ThisExpression') {
         const classPath = path.findParent((p) => p.isClassDeclaration());
         if (!classPath) {
-          throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
         }
         const methodPath = path.findParent((p) => p.isMethod()) as babel.NodePath<babel.types.ClassMethod>;
         if (!methodPath) {
-          throw new MongoshUnimplementedError('Unable to handle this outside of method definition');
+          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition');
         }
         // if not within constructor
         if (methodPath.node.kind !== 'constructor' && classPath.node['shellType'].returnType.attributes[rhs] === 'unset') {
@@ -277,10 +277,10 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           } else if (lhsNode.type === 'ThisExpression') {
             const classPath = path.findParent((p) => p.isClassDeclaration());
             if (!classPath) {
-              throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+              throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
             }
             if (attrs.length > 1) {
-              throw new MongoshUnimplementedError('Unable to handle multi-layered assignment to \'this\'');
+              throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword');
             }
             classPath.node['shellType'].returnType.attributes[attrs[0]] = sType;
           }
@@ -407,11 +407,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     enter(path: babel.NodePath<babel.types.ThisExpression>): void {
       const methodPath = path.findParent((p) => p.isMethod());
       if (!methodPath) {
-        throw new MongoshUnimplementedError('Unable to handle this outside of method definition');
+        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition');
       }
       const classPath = path.findParent((p) => p.isClassDeclaration());
       if (!classPath) {
-        throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
       }
       path.node['shellType'] = classPath.node['shellType'].returnType;
     }
@@ -469,7 +469,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       if (path.isClassMethod()) {
         const classPath = path.findParent((p) => p.isClassDeclaration());
         if (!classPath) {
-          throw new MongoshUnimplementedError('Unable to handle this outside of method definition of class declaration');
+          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
         }
         classPath.node['shellType'].returnType.attributes[path.node.key.name] = path.node['shellType'];
       }
