@@ -1,5 +1,6 @@
 package com.mongodb.mongosh.service
 
+import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.MongoShellContext
@@ -56,12 +57,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
+    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>> {
         TODO("not implemented")
     }
 
     @HostAccess.Export
-    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
+    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>> {
         TODO("not implemented")
     }
 
@@ -86,13 +87,13 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Cursor {
+    override fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): FindCursor {
         val coll = client.getDatabase(database).getCollection(collection)
         val iterable = if (filter == null) coll.find() else coll.find(toBson(filter))
         if (options != null && options["projection"] is Map<*, *>) {
             iterable.projection(toBson(options["projection"] as Map<*, *>))
         }
-        return Cursor(iterable, context)
+        return FindCursor(iterable, context)
     }
 
     @HostAccess.Export
