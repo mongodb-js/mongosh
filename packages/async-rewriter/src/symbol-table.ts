@@ -302,7 +302,7 @@ export default class SymbolTable {
   public printSymbol(symbol: any, key: string): string {
     return `  ${key}: ${JSON.stringify(symbol, (k, v) => {
       if (k === 'path') return undefined;
-      if (k === 'returnType') return v.type;
+      // if (k === 'returnType') return v.type;
       return v;
     }, 2)}`;
   }
