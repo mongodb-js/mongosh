@@ -24,7 +24,9 @@
     "start": "npm run start-cli",
     "precompile-exec": "npm run compile-cli",
     "compile-exec": "node scripts/release.js",
-    "publish-npm": "lerna publish --force-publish"
+    "publish-npm": "lerna publish --force-publish",
+    "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
+    "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api"
   },
   "config": {
     "unsafe-perm": true

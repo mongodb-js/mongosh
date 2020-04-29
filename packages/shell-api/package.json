@@ -18,6 +18,8 @@
     "pretest": "npm run compile-api",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
+    "report-missing-help": "ts-node bin/report-missing-help.ts",
+    "report-supported-api": "ts-node bin/report-supported-api.ts",
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts"
