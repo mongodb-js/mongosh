@@ -17,7 +17,7 @@
     "test-ci": "npm run lint && npm run test",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
-    "compile-ts": "npm run build"
+    "compile-ts": "DEBUG=* npm run build"
   },
   "config": {
     "unsafe-perm": true
