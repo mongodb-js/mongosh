@@ -135,7 +135,7 @@ class CliRepl {
       if (err.code === 'EEXIST') {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         this.userId = config.userId;
-        this.disableGreetingMessage = config.disableGreetingMessage;
+        this.disableGreetingMessage = true;
         this.enableTelemetry = config.enableTelemetry;
         return;
       }
