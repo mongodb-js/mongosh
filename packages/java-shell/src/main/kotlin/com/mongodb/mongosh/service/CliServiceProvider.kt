@@ -7,14 +7,13 @@ import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
-import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import java.io.Closeable
 
 internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider {
 
     @HostAccess.Export
-    fun runCommand(database: String, spec: Map<*, *>?): Value {
-        return context.toJsPromise(runCommandInner(database, spec))
+    fun runCommand(database: String, spec: Map<*, *>?): Value = promise {
+        runCommandInner(database, spec)
     }
 
     private fun runCommandInner(database: String, spec: Map<*, *>?): Promise<Document> {
@@ -22,14 +21,13 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun insertOne(database: String, coll: String, doc: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        val promise = getDatabase(database, dbOptions).then { db ->
+    fun insertOne(database: String, coll: String, doc: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        getDatabase(database, dbOptions).then { db ->
             db.getCollection(coll).insertOne(toBson(doc))
-            fromMap(mapOf(
-                    "result" to fromMap(mapOf("ok" to true)),
+            context.toJs(mapOf(
+                    "result" to mapOf("ok" to true),
                     "insertedId" to "UNKNOWN"))
         }
-        return context.toJsPromise(promise)
     }
 
     private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<MongoDatabase> {
@@ -38,49 +36,53 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        val promise = getDatabase(database, dbOptions).then { db ->
+    fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        getDatabase(database, dbOptions).then { db ->
             val result = db.getCollection(coll).deleteMany(toBson(filter))
-            fromMap(mapOf(
-                    "result" to fromMap(mapOf("ok" to result.wasAcknowledged())),
+            context.toJs(mapOf(
+                    "result" to mapOf("ok" to result.wasAcknowledged()),
                     "deletedCount" to result.deletedCount))
         }
-        return context.toJsPromise(promise)
     }
 
     @HostAccess.Export
-    fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        val promise = getDatabase(database, dbOptions).then { db ->
+    fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        getDatabase(database, dbOptions).then { db ->
             db.getCollection(coll).insertMany(docs.map { toBson(it as Map<*, *>?) })
-            fromMap(mapOf(
-                    "result" to fromMap(mapOf("ok" to true)),
+            context.toJs(mapOf(
+                    "result" to mapOf("ok" to true),
                     "insertedId" to emptyList<String>()))
         }
-        return context.toJsPromise(promise)
     }
 
+    @HostAccess.Export
     override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
         TODO("not implemented")
     }
 
+    @HostAccess.Export
     override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor {
         TODO("not implemented")
     }
 
-    override fun count(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun count(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
     @HostAccess.Export
@@ -103,20 +105,24 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         Resolved(context.toJs(mapOf("databases" to client.listDatabases())))
     }
 
-    override fun isCapped(database: String, collection: String): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun isCapped(database: String, collection: String): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
-    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        TODO("not implemented")
+    @HostAccess.Export
+    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        Rejected(NotImplementedError())
     }
 
     @HostAccess.Export
