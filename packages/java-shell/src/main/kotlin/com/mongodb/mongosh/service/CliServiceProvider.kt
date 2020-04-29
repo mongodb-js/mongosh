@@ -116,8 +116,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        Rejected(NotImplementedError())
+    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
+        getDatabase(database, null).then { db ->
+            val list = db.listCollections()
+            if (filter != null) list.filter(toBson(filter))
+            context.toJs(list)
+        }
     }
 
     @HostAccess.Export
