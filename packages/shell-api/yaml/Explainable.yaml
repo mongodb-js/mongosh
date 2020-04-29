@@ -17,8 +17,13 @@ class:
     <<: *__defaultMethod
   setVerbosity:
     <<: *__defaultMethod
-#   # find:
-#   # aggregate:
+  find:
+    <<: *__defaultMethod
+    returnType: 'Cursor'
+  aggregate:
+    <<: *__defaultMethod
+    returnType: 'Cursor'
+
 #   # bsonsize:
 #   # count:
 #   # distinct:

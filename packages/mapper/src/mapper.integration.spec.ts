@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
-import { Collection, Cursor, Database } from '@mongosh/shell-api';
+import { Collection, Cursor, Database, Explainable } from '@mongosh/shell-api';
 
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
@@ -604,7 +604,49 @@ describe('Mapper (integration)', function() {
       it('returns an array with collection names', async() => {
         await createCollection(dbName, collectionName);
 
-        expect(await mapper.database_getCollectionNames(database)).to.deep.equal([collectionName]);
+        expect(
+          await mapper.database_getCollectionNames(database)
+        ).to.deep.equal([collectionName]);
+      });
+    });
+  });
+
+  describe('explainable', () => {
+    let explainable;
+
+    beforeEach(() => {
+      explainable = new Explainable(
+        mapper,
+        collection,
+        'queryPlanner'
+      );
+    });
+
+    describe('find', () => {
+      it('returns a cursor that has the explain as result of toReplString', async() => {
+        const cursor = await mapper.explainable_find(explainable)
+          .skip(1)
+          .limit(1);
+        const result = await cursor.toReplString();
+        expect(result).to.have.keys([
+          'ok',
+          'queryPlanner',
+          'serverInfo'
+        ]);
+      });
+    });
+
+    describe('aggregate', () => {
+      it('returns a cursor that has the explain as result of toReplString', async() => {
+        const cursor = await mapper.explainable_find(explainable)
+          .skip(1)
+          .limit(1);
+        const result = await cursor.toReplString();
+        expect(result).to.have.keys([
+          'ok',
+          'queryPlanner',
+          'serverInfo'
+        ]);
       });
     });
   });
