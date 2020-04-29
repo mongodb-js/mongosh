@@ -106,6 +106,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`);
           }
           path.node['shellType'] = state.symbols.signatures.unknown;
+          debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, path.node['shellType']);
           return;
       }
       if (path.node.object.type === 'ThisExpression') {
@@ -161,7 +162,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         if (lhsType.returnsPromise) {
           // NOTE: if need to convert top-level await into async func can do it here.
           path.node['shellType'] = sType;
-          path.replaceWith(state.t.awaitExpression(path.node));
+          if (path.parent.type !== 'AwaitExpression') {
+            path.replaceWith(state.t.awaitExpression(path.node));
+          }
           const parent = path.getFunctionParent();
           if (parent !== null) {
             parent.node.async = true;
