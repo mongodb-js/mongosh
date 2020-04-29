@@ -11,13 +11,6 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
-  - &save_segment_key
-      command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          export SEGMENT_API_KEY=${segment_key}
   - &compile_exec
     command: shell.exec
     params:
@@ -86,6 +79,12 @@ functions:
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   release_macos:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
@@ -93,13 +92,18 @@ functions:
         shell: bash
         script: |
           echo "################# Sign, notarise, and release MacOS artifacts ################"
-    - <<: *save_segment_key
     - <<: *upload_file
       params:
         local_files_include_filter:
           - src/dist/*.tgz
         remote_file: ${project}/${revision}/
   release_linux:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
@@ -107,13 +111,18 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Linux artifacts ################"
-    - <<: *save_segment_key
     - <<: *upload_file
       params:
         local_files_include_filter:
           - src/dist/*.tgz
         remote_file: ${project}/${revision}/
   release_win:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export SEGMENT_API_KEY=${segment_key}
     - <<: *compile_exec
     - command: shell.exec
       params:
@@ -121,7 +130,6 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Windows artifacts ################"
-    - <<: *save_segment_key
     - <<: *upload_file
       params:
         local_files_include_filter:
