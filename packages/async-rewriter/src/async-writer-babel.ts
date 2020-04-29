@@ -146,15 +146,18 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             !path.node.callee.computed) {
           switch (path.node.callee.property.type) {
             case 'Identifier':
-              // Replace forEach with to_iterator(...).forEach
+              // Replace forEach with toIterator(...).forEach
               if (path.node.callee.property.name === 'forEach') {
-                const array = path.get('callee').get('object') as babel.NodePath;
-                array.replaceWith(
-                  state.t.callExpression(
-                    state.t.identifier('to_iterator'),
-                    [path.node.callee.object]
-                  )
-                );
+                if (!path.node.callee.property['replaced']) {
+                  const array = path.get('callee').get('object') as babel.NodePath;
+                  array.replaceWith(
+                    state.t.callExpression(
+                      state.t.identifier('toIterator'),
+                      [path.node.callee.object]
+                    )
+                  );
+                  path.node.callee.property['replaced'] = true;
+                }
                 lhsType = { type: 'function', returnsPromise: true, returnType: state.symbols.signatures.unknown };
                 break;
               }

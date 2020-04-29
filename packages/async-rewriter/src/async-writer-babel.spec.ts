@@ -3700,14 +3700,14 @@ function f(arg) {
     describe('transformed async arguments', () => {
       it('forEach with func arg does get translated', () => {
         input = 'arr.forEach((s) => ( db.coll.insertOne({}) ))';
-        expect(writer.compile(input)).to.equal('await to_iterator(arr).forEach(async s => await db.coll.insertOne({}));');
+        expect(writer.compile(input)).to.equal('await toIterator(arr).forEach(async s => await db.coll.insertOne({}));');
       });
       it('forEach with symbol arg does get translated', () => {
         expect(writer.compile('function f(s) { db.coll.insertOne(s) }')).to.equal(
           'async function f(s) {\n  await db.coll.insertOne(s);\n}'
         );
         input = 'arr.forEach(f)';
-        expect(writer.compile(input)).to.equal('await to_iterator(arr).forEach(f);');
+        expect(writer.compile(input)).to.equal('await toIterator(arr).forEach(f);');
       });
       it('other function throws', (done) => {
         input = 'arr.notForEach((s) => ( db.coll.insertOne({}) ) )';
