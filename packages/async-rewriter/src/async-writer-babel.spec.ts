@@ -881,7 +881,7 @@ describe('async-writer-babel', () => {
         });
       });
       describe('that does not require await', () => {
-        describe('is async and not rewritten', () => {
+        describe('is originally async and so not rewritten', () => {
           before(() => {
             writer = new AsyncWriter(signatures);
             writer.symbols.initializeApiObjects({});
@@ -973,30 +973,38 @@ describe('async-writer-babel', () => {
           db: signatures.Database
         });
       });
-      it('throws an error for db', () => {
+      it('throws an error for db', (done) => {
         try {
           writer.compile('fn(db)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          done();
         }
       });
-      it('throws an error for db.coll', () => {
+      it('throws an error for db.coll', (done) => {
         try {
           writer.compile('fn(db.coll)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          done();
         }
       });
-      it('throws an error for db.coll.insertOne', () => {
+      it('throws an error for db.coll.insertOne', (done) => {
         try {
           writer.compile('fn(db.coll.insertOne)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          done();
         }
       });
-      it('throws an error for async method', () => {
+      it('throws an error for async method', (done) => {
         writer.compile('function f() { db.coll.insertOne({}) }');
-        expect(() => writer.compile('fb(f)')).to.throw();
+        try {
+          writer.compile('fb(f)');
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshInvalidInputError');
+          done();
+        }
       });
       it('does not throw error for regular arg', () => {
         expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
@@ -3667,7 +3675,7 @@ function f(arg) {
   describe('forEach', () => {
     beforeEach(() => {
       writer = new AsyncWriter(signatures);
-      writer.symbols.initializeApiObjects({db: signatures.Database});
+      writer.symbols.initializeApiObjects({ db: signatures.Database });
     });
     describe('no async arguments', () => {
       it('forEach does not get translated', () => {
@@ -3701,9 +3709,14 @@ function f(arg) {
         input = 'arr.forEach(f)';
         expect(writer.compile(input)).to.equal('await to_iterator(arr).forEach(f);');
       });
-      it('other function throws', () => {
-        input = 'arr.notForEach((s) => ( db.coll.insertOne({}) )';
-        expect(() => writer.compile(input)).to.throw();
+      it('other function throws', (done) => {
+        input = 'arr.notForEach((s) => ( db.coll.insertOne({}) ) )';
+        try {
+          writer.compile(input);
+        } catch (e) {
+          expect(e.name).to.be.equal('MongoshInvalidInputError');
+          done();
+        }
       });
     });
   });
