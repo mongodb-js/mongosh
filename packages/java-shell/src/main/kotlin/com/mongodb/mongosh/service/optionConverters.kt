@@ -137,10 +137,43 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
                     .getOrThrow()
                     .build()
             iterable.collation(collation)
+        },
+        typed("allowDiskUse", Boolean::class.java) { iterable, value ->
+            iterable.allowDiskUse(value)
+        },
+        typed("cursor", Map::class.java) { iterable, value ->
+            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow()
+        },
+        typed("maxTimeMS", Number::class.java) { iterable, value ->
+            iterable.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { iterable, value ->
+            iterable.bypassDocumentValidation(value)
+        },
+        "readConcern" to { iterable, _ -> Resolved(iterable) }, // the value is copied to dbOptions
+        "writeConcern" to { iterable, _ -> Resolved(iterable) }, // the value is copied to dbOptions
+        "hint" to { iterable, value ->
+            val v = if (value is Value) unwrap(value) else value
+            when (v) {
+                is String -> Resolved(iterable.hint(Document(v, 1)))
+                is Map<*, *> -> Resolved(iterable.hint(Document(v as Map<String, Any?>)))
+                else -> Rejected(CommandException("hint must be string or object value", "TypeMismatch"))
+            }
+        },
+        typed("comment", String::class.java) { iterable, value ->
+            iterable.comment(value)
         }
 )
 
 internal val aggregateDefaultConverter = unrecognizedField<AggregateIterable<Document>>("aggregate options")
+
+internal val cursorConverters: Map<String, (AggregateIterable<Document>, Any?) -> Promise<AggregateIterable<Document>>> = mapOf(
+        typed("batchSize", Int::class.java) { iterable, v ->
+            iterable.batchSize(v)
+        }
+)
+
+internal val cursorDefaultConverter = unrecognizedField<AggregateIterable<Document>>("cursor")
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Promise<T>> =
         name to { o, value ->
