@@ -1,6 +1,5 @@
 package com.mongodb.mongosh.service
 
-import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.mongosh.MongoShellContext
@@ -57,12 +56,14 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>> {
-        TODO("not implemented")
+    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): AggregateCursor {
+        val db = getDatabase(database, dbOptions).getOrThrow()
+        val iterable = db.getCollection(collection).aggregate(pipeline.map { toBson(it) })
+        return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
-    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>> {
+    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): AggregateCursor {
         TODO("not implemented")
     }
 

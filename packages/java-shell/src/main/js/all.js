@@ -7,6 +7,7 @@ _global = {
     Database: ShellApiSignatures.Database,
     Collection: ShellApiSignatures.Collection,
     Cursor: ShellApiSignatures.Cursor,
+    AggregationCursor: ShellApiSignatures.AggregationCursor,
     InsertOneResult: ShellApiSignatures.InsertOneResult,
     DeleteResult: ShellApiSignatures.DeleteResult,
     CommandResult: ShellApiSignatures.CommandResult

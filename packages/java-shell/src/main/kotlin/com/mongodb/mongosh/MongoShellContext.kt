@@ -26,6 +26,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val databaseClass: Value
     private val collectionClass: Value
     private val cursorClass: Value
+    private val aggregationCursorClass: Value
     private val insertOneResultClass: Value
     private val commandResultClass: Value
     private val deleteResultClass: Value
@@ -41,6 +42,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         databaseClass = global.getMember("Database")
         collectionClass = global.getMember("Collection")
         cursorClass = global.getMember("Cursor")
+        aggregationCursorClass = global.getMember("AggregationCursor")
         insertOneResultClass = global.getMember("InsertOneResult")
         commandResultClass = global.getMember("CommandResult")
         deleteResultClass = global.getMember("DeleteResult")
@@ -80,6 +82,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
             v.instanceOf(cursorClass) -> CursorResult(Cursor(v, this))
+            v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
             v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")))
             v.instanceOf(deleteResultClass) -> DeleteResult(v.getMember("acknowleged").asBoolean(), v.getMember("deletedCount").asLong())
@@ -93,7 +96,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
             v.hasArrayElements() -> ArrayResult(Array(v.arraySize.toInt()) { extract(v.getArrayElement(it.toLong())) })
             v.canExecute() -> FunctionResult()
-            v.hasMembers() -> ObjectResult(v.memberKeys.associateWith { key -> extract(v.getMember(key)) })
+            v.hasMembers() -> ObjectResult(v.memberKeys.associateWith { key -> extract(v.getMember(key)) }) // todo: handle recursion
             else -> throw IllegalArgumentException("unknown result: $v")
         }
     }

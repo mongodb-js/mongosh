@@ -62,7 +62,7 @@ internal val dbDefaultConverter: (MongoDatabase, String, Any?) -> Promise<MongoD
 internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Promise<MongoDatabase>> = mapOf(
         "level" to { db, value ->
             when (value) {
-                is String -> Resolved(db.withReadConcern(ReadConcern(ReadConcernLevel.valueOf(value))))
+                is String -> Resolved(db.withReadConcern(ReadConcern(ReadConcernLevel.fromString(value))))
                 else -> Rejected(WriteCommandException("level has to be a string", "FailedToParse"))
             }
         }
