@@ -1861,6 +1861,7 @@ export default class Mapper {
   explainable_find(explainable: Explainable, query?: any, projection?: any): any {
     this._emitExplainableApiCall(explainable, 'find', { query, projection });
 
+    // TODO: turn ExplainableCursor in a proper type.
     const cursor = explainable._collection.find(query, projection);
     cursor.shellApiType = (): string => 'ExplainableCursor';
     cursor.toReplString = (): Promise<any> => {
@@ -1873,6 +1874,7 @@ export default class Mapper {
   explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): any {
     this._emitExplainableApiCall(explainable, 'aggregate', { pipeline, options });
 
+    // TODO: turn ExplainableAggregationCursor in a proper type.
     const cursor = explainable._collection.aggregate(pipeline, options);
     cursor.shellApiType = (): string => 'ExplainableAggregationCursor';
     cursor.toReplString = (): Promise<any> => {

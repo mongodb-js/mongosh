@@ -378,7 +378,12 @@ class NodeCursor implements Cursor {
     return this;
   }
 
+  // TODO: we should probably move this in the mapper
+  // layer
   async explain(verbosity: string): Promise<any> {
+    // NOTE: the node driver always returns the full explain plan
+    // for Cursor and the queryPlanner explain for AggregationCursor.
+
     const fullExplain = await this.cursor.explain();
 
     const explain: any = {
