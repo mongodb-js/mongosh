@@ -1,7 +1,6 @@
 /* eslint no-sync: 0, no-console:0, complexity:0, dot-notation: 0 */
 import * as babel from '@babel/core';
 import SymbolTable from './symbol-table';
-import * as BabelTypes from '@babel/types';
 import { Visitor } from '@babel/traverse';
 import {
   MongoshInternalError,
@@ -20,7 +19,7 @@ function assertUnreachable(type?: never): never {
 }
 
 export interface Babel {
-  types: typeof BabelTypes;
+  types: typeof babel.types;
 }
 
 export interface MyVisitor {
@@ -30,7 +29,7 @@ export interface MyVisitor {
 
 interface State {
   symbols: SymbolTable;
-  t: typeof BabelTypes;
+  t: typeof babel.types;
   skip: Array<string>;
   returnValues: Array<any>;
 }
@@ -689,7 +688,16 @@ export default class AsyncWriter {
    */
   getTransform(code): any {
     try {
-      return babel.transformSync(code, {
+      // return babel.transformSync(code, {
+      //   plugins: [this.plugin],
+      //   code: true,
+      //   ast: true
+      // });
+      // @ts-ignore
+      const ast = babel.parse(code, {
+        parserOpts: { errorRecovery: true }
+      });
+      return babel.transformFromAstSync(ast, code, {
         plugins: [this.plugin],
         code: true,
         ast: true
