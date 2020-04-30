@@ -7,7 +7,7 @@ import org.graalvm.polyglot.Value
 internal interface ReadableServiceProvider {
     fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>>
     fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>>
-    fun count(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value
     fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value

@@ -2,6 +2,7 @@ package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.CountOptions
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
@@ -69,22 +70,30 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun count(db: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        Rejected(NotImplementedError())
+    override fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).then { countOptions ->
+                db.getCollection(collection).count(toBson(query), countOptions)
+            }
+        }
     }
 
     @HostAccess.Export
     override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
+        getDatabase(database, null).flatMap { db ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).then { countOptions ->
+                db.getCollection(collection).countDocuments(toBson(filter), countOptions)
+            }
+        }
+    }
+
+    @HostAccess.Export
+    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
         Rejected(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        Rejected(NotImplementedError())
-    }
-
-    @HostAccess.Export
-    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise {
+    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
         Rejected(NotImplementedError())
     }
 
@@ -109,12 +118,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun isCapped(database: String, collection: String): Value = promise {
+    override fun isCapped(database: String, collection: String): Value = promise<Any?> {
         Rejected(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise {
+    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise<Any?> {
         Rejected(NotImplementedError())
     }
 
@@ -128,7 +137,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
         Rejected(NotImplementedError())
     }
 

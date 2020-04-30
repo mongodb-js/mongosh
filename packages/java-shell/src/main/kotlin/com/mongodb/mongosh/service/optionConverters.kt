@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit
 internal fun <T> convert(o: T,
                          converters: Map<String, (T, Any?) -> Promise<T>>,
                          defaultConverter: (T, String, Any?) -> Promise<T>,
-                         map: Map<*, *>): Promise<T> {
+                         map: Map<*, *>?): Promise<T> {
+    if (map == null) return Resolved(o)
     var accumulator = o
     for ((key, value) in map.entries) {
         if (key !is String) continue
@@ -175,6 +176,35 @@ internal val cursorConverters: Map<String, (AggregateIterable<Document>, Any?) -
 
 internal val cursorDefaultConverter = unrecognizedField<AggregateIterable<Document>>("cursor")
 
+internal val countOptionsConverters: Map<String, (CountOptions, Any?) -> Promise<CountOptions>> = mapOf(
+        typed("limit", Number::class.java) { opt, value ->
+            opt.limit(value.toInt())
+        },
+        typed("skip", Number::class.java) { opt, value ->
+            opt.skip(value.toInt())
+        },
+        "hint" to { opt, value ->
+            val v = if (value is Value) unwrap(value) else value
+            when (v) {
+                is String -> Resolved(opt.hint(Document(v, 1)))
+                is Map<*, *> -> Resolved(opt.hint(Document(v as Map<String, Any?>)))
+                else -> Rejected(CommandException("hint must be string or object value", "TypeMismatch"))
+            }
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        "readConcern" to { opt, _ -> Resolved(opt) }, // the value is copied to dbOptions
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        }
+)
+
+internal val countOptionsDefaultConverter = unrecognizedField<CountOptions>("count options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Promise<T>> =
         name to { o, value ->
             val v = if (value is Value) unwrap(value) else value
@@ -183,7 +213,7 @@ internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pa
                 try {
                     Resolved(apply(o, casted))
                 } catch (t: Throwable) {
-                    Rejected(t)
+                    Rejected<T>(t)
                 }
             } else Rejected(CommandException("$name has to be a ${clazz.simpleName}", "TypeMismatch"))
         }
