@@ -15,6 +15,7 @@ export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts:
     isLocalhost: getBuildInfo.isLocalhost(uri),
     serverVersion: buildInfo.version,
     isEnterprise: getBuildInfo.isEnterprise(buildInfo),
+    uri,
     authType,
     isDataLake,
     dlVersion,

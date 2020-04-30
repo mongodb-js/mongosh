@@ -51,7 +51,6 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), 'bold'));
-    this.bus.emit('mongosh:connect', { driverUri });
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
@@ -66,7 +65,7 @@ class CliRepl {
       topology
     );
 
-    this.bus.emit('connect', connectInfo);
+    this.bus.emit('mongosh:connect', connectInfo);
     this.start();
   }
 

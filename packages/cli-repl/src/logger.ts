@@ -39,7 +39,16 @@ interface ErrorEvent {
 }
 
 interface ConnectEvent {
-  driverUri: string;
+  uri: string;
+  isAtlas: boolean;
+  isLocalhost: boolean;
+  serverVersion: string;
+  isEnterprise: boolean;
+  authType: string;
+  isDataLake: boolean;
+  dlVersion?: string;
+  isGenuine: boolean;
+  serverName: string;
 }
 
 export default function logger(bus: any, logDir: string) {
@@ -58,15 +67,16 @@ export default function logger(bus: any, logDir: string) {
   }
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
-    const connectionUri = redactPwd(args.driverUri);
-    const params = { sessionID, userId, connectionUri };
-    log.info('connect', params);
+    const connectionUri = redactPwd(args.uri);
+    delete args.uri;
+    const params = { sessionID, userId, connectionUri, ...args };
+    log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
         event: 'mongosh:connect',
-        properties: { sessionID, connectionUri }
+        properties: { sessionID, connectionUri, ...args }
       });
     }
   });
@@ -112,7 +122,7 @@ export default function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:use', function(args: UseEvent) {
-    log.info(args);
+    log.info('mongosh:use', args);
 
     if (telemetry) {
       analytics.track({
@@ -123,7 +133,7 @@ export default function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:show', function(args: ShowEvent) {
-    log.info(args);
+    log.info('mongosh:show', args);
 
     if (telemetry) {
       analytics.track({
@@ -146,11 +156,11 @@ export default function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:setCtx', function(args) {
-    log.info(args)
+    log.info('mongosh:setCtx')
   })
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
-    log.info(redactInfo(args));
+    log.info('mongosh:api-call', redactInfo(args));
 
     // analytics properties to include if they are present in an api-call
     let properties: ApiEvent = {};
