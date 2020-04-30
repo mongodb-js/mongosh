@@ -1,7 +1,7 @@
 import * as signatures from './shell-api-signatures';
 import ShellBson from './shell-bson';
-export { signatures };
-export { ShellBson };
+import toIterator from './toIterator';
+export { signatures, ShellBson, toIterator };
 
 export { Help } from './help';
 export { CursorIterationResult } from './cursor-iteration-result';

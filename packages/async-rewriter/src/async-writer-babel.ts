@@ -138,17 +138,42 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
   CallExpression: {
     exit(path: babel.NodePath<babel.types.CallExpression>, state: State): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
-      const lhsType = path.node.callee['shellType'];
+      let lhsType = path.node.callee['shellType'];
 
+      // If any of the arguments are a function that returns a promise
+      if (path.node.arguments.some(a => a['shellType'].returnsPromise)) {
+        if (path.node.callee.type === 'MemberExpression' &&
+            !path.node.callee.computed) {
+          switch (path.node.callee.property.type) {
+            case 'Identifier':
+              // Replace forEach with toIterator(...).forEach
+              if (path.node.callee.property.name === 'forEach') {
+                if (!path.node.callee.property['replaced']) {
+                  const array = path.get('callee').get('object') as babel.NodePath;
+                  array.replaceWith(
+                    state.t.callExpression(
+                      state.t.identifier('toIterator'),
+                      [path.node.callee.object]
+                    )
+                  );
+                  path.node.callee.property['replaced'] = true;
+                }
+                lhsType = { type: 'function', returnsPromise: true, returnType: state.symbols.signatures.unknown };
+                break;
+              }
+            // eslint-disable-next-line no-fallthrough
+            default:
+              throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument');
+          }
+        } else {
+          throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument');
+        }
+      }
       /* Check that the user is not passing a type that has async children to a self-defined function.
          This is possible for scripts but not for line-by-line execution, so turned off for everything. */
-      path.node.arguments.forEach((a, index) => {
-        if (a['shellType'].hasAsyncChild || a['shellType'].returnsPromise) {
-          // TODO: this may need to be a warning
-          // TODO: get argument from path.node
-          throw new MongoshInvalidInputError(`Argument in position ${index} is now an asynchronous function and may not behave as expected`);
-        }
-      });
+      if (path.node.arguments.some(a => a['shellType'].hasAsyncChild)) {
+        throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function');
+      }
 
       // determine return type
       const returnType = lhsType.returnType;
@@ -168,6 +193,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           const parent = path.getFunctionParent();
           if (parent !== null) {
             parent.node.async = true;
+            parent.node['toAsync'] = true;
           }
           path.skip();
         }
@@ -456,7 +482,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         rType = state.symbols.signatures.unknown;
       }
 
-      const sType = { type: 'function', returnsPromise: path.node.async, returnType: rType, path: path };
+      const sType = { type: 'function', returnsPromise: path.node.async && !!path.node['toAsync'], returnType: rType, path: path };
       let debugName = 'lambda';
       if (path.node.type === 'FunctionDeclaration' || path.node.type === 'FunctionExpression') {
         if (path.node.id !== null && !state.t.isAssignmentExpression(path.parent) && !state.t.isVariableDeclarator(path.parent)) {
