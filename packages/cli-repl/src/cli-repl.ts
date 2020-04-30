@@ -1,5 +1,6 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import ShellEvaluator from '@mongosh/shell-evaluator';
+import isRecoverableError from './recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import getConnectInfo from './connect-info';
@@ -196,6 +197,7 @@ class CliRepl {
     // This checks for error instances.
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
+    // console.log('result', result)
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
       this.ShellEvaluator.revertState();
@@ -263,22 +265,27 @@ class CliRepl {
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback) => {
-      let result
+      let result;
+      let err = null;
+
       try {
         result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
-        if (isRecoverableError(err)) return callback(new repl.Recoverable(callback));
+        if (isRecoverableError(err, input)) {
+          return callback(new repl.Recoverable(err));
+        } else {
+          result = err;
+        }
       }
-
-      callback(null, result);
+      callback (null, result)
     };
 
-    function isRecoverableError(error) {
-      if (error.name === 'SyntaxError') {
-        return /^(Unexpected end of input|Unexpected token)/.test(error.message);
-      }
-      return false;
-    }
+    // function isRecoverableError(error) {
+    //   if (error.name === 'SyntaxError') {
+    //     return /^(Unexpected end of input|Unexpected token)/.test(error.message);
+    //   }
+    //   return false;
+    // }
 
     // @ts-ignore
     this.repl.eval = customEval;
