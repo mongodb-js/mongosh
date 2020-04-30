@@ -1,2 +1,2 @@
-com.mongodb.mongosh.result.WriteCommandException: unrecognized write concern field: error
+com.mongodb.mongosh.result.CommandException: unrecognized write concern field: error
 [ ]
