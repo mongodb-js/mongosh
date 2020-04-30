@@ -29,7 +29,15 @@ class MongoshInvalidInputError extends Error {
   }
 }
 
+class MongoshWarning extends Error {
+  constructor(...args) {
+    super(...args);
+    this.name = 'MongoshWarning';
+  }
+}
+
 export {
+  MongoshWarning,
   MongoshRuntimeError,
   MongoshInternalError,
   MongoshInvalidInputError,

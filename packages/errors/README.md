@@ -18,6 +18,11 @@ evaluate('some input')
 ```
 ### API
 
+#### MongoshWarning(msg)
+This error is used to give user a warning about the current execution.
+__args:__
+- __msg:__ type string. Describes the warning.
+
 #### MongoshUnimplementedError(msg)
 This error is used to API endpoints that are not yet implemented. 
 __args:__
