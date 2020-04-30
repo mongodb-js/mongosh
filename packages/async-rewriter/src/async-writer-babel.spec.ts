@@ -116,7 +116,7 @@ describe('async-writer-babel', () => {
       });
     });
   });
-  describe('MemberExpression', () => {
+  describe.only('MemberExpression', () => {
     describe('with Identifier lhs', () => {
       before(() => {
         writer = new AsyncWriter(signatures);

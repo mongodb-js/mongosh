@@ -8,6 +8,15 @@ import {
   MongoshUnimplementedError
 } from '@mongosh/errors';
 
+const { Parser } = require('acorn');
+
+const recoverableParser = Parser.extend(
+  require('acorn-private-methods'),
+  require('acorn-class-fields'),
+  require('acorn-numeric-separator'),
+  require('acorn-static-class-features')
+);
+
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
   str = `${indent}${str}${type === undefined ? '' : ` ==> ${JSON.stringify(type, (k, v) => (k === 'path' || k === 'returnType' ? undefined : v))}`}`;
@@ -693,10 +702,11 @@ export default class AsyncWriter {
       //   code: true,
       //   ast: true
       // });
-      // @ts-ignore
-      const ast = babel.parse(code, {
-        parserOpts: { errorRecovery: true }
-      });
+      // x@ts-ignore
+      // const ast = babel.parse(code, {
+      //   parserOpts: { errorRecovery: true }
+      // });
+      const ast = recoverableParser.parse(code);
       return babel.transformFromAstSync(ast, code, {
         plugins: [this.plugin],
         code: true,

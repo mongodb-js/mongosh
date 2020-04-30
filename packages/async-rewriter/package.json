@@ -30,7 +30,13 @@
     "@babel/preset-typescript": "^7.9.0",
     "@babel/traverse": "^7.9.0",
     "@mongosh/errors": "^0.0.1-alpha.13",
-    "@types/babel__core": "^7.1.7"
+    "@types/babel__core": "^7.1.7",
+    "acorn": "^7.1.1",
+    "acorn-class-fields": "^0.3.2",
+    "acorn-loose": "^7.0.0",
+    "acorn-numeric-separator": "^0.3.0",
+    "acorn-private-methods": "^0.3.1",
+    "acorn-static-class-features": "^0.2.1"
   },
   "devDependencies": {
     "@mongosh/shell-api": "^0.0.1-alpha.13",
