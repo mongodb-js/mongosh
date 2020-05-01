@@ -108,6 +108,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.fitsInFloat() -> FloatResult(v.asFloat())
             v.fitsInDouble() -> DoubleResult(v.asDouble())
             v.isNull -> NullResult
+            v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult()
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
             v.hasArrayElements() -> ArrayResult(Array(v.arraySize.toInt()) { extract(v.getArrayElement(it.toLong())) })
             v.canExecute() -> FunctionResult()

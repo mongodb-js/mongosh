@@ -279,8 +279,10 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropCollection(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise<Any?> { 
-        Left(NotImplementedError())
+    override fun dropCollection(database: String, collection: String): Value = promise {
+        getDatabase(database, null).map { db ->
+            db.getCollection(collection).drop()
+        }
     }
 
     @HostAccess.Export

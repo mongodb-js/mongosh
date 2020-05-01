@@ -26,6 +26,6 @@ internal interface WritableServiceProvider {
     fun dropIndexes(database: String, collection: String, indexes: List<*>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun dropIndexes(database: String, collection: String, indexes: Map<*, *>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun reIndex(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun dropCollection(database: String, collection: String, dbOptions: Map<*, *>?): Value
+    fun dropCollection(database: String, collection: String): Value
     fun renameCollection(database: String, oldName: String, newName: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
 }
