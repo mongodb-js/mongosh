@@ -205,6 +205,14 @@ internal val countOptionsConverters: Map<String, (CountOptions, Any?) -> Either<
 
 internal val countOptionsDefaultConverter = unrecognizedField<CountOptions>("count options")
 
+internal val estimatedCountOptionsConverters: Map<String, (EstimatedDocumentCountOptions, Any?) -> Either<EstimatedDocumentCountOptions>> = mapOf(
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        }
+)
+
+internal val estimatedCountOptionsDefaultConverter = unrecognizedField<EstimatedDocumentCountOptions>("estimate count options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val v = if (value is Value) unwrap(value) else value

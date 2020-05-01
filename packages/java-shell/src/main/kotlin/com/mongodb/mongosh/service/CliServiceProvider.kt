@@ -3,6 +3,7 @@ package com.mongodb.mongosh.service
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.EstimatedDocumentCountOptions
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
@@ -94,7 +95,11 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
-        Left(NotImplementedError())
+        getDatabase(database, null).flatMap { db ->
+            convert(EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
+                db.getCollection(collection).estimatedDocumentCount(countOptions)
+            }
+        }
     }
 
     @HostAccess.Export
