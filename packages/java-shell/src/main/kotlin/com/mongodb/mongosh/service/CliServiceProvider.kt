@@ -12,10 +12,10 @@ import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 import java.io.Closeable
 
-internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider {
+internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
 
     @HostAccess.Export
-    fun runCommand(database: String, spec: Map<*, *>?): Value = promise {
+    override fun runCommand(database: String, spec: Map<*, *>): Value = promise {
         runCommandInner(database, spec)
     }
 
@@ -24,24 +24,65 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun insertOne(database: String, coll: String, doc: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun insertOne(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(coll).insertOne(toBson(doc))
+            db.getCollection(collection).insertOne(toBson(doc))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to "UNKNOWN"))
         }
     }
 
+    @HostAccess.Export
+    override fun replaceOne(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun updateMany(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: List<*>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?) {
+        throw NotImplementedError()
+    }
+
+    @HostAccess.Export
+    override fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?) {
+        throw NotImplementedError()
+    }
+
+    @HostAccess.Export
+    override fun updateOne(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun save(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
     private fun getDatabase(database: String, dbOptions: Map<*, *>?): Either<MongoDatabase> {
         val db = client.getDatabase(database)
         return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
-    fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun dropDatabase(database: String, writeConcern: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun bulkWrite(database: String, collection: String, requests: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun deleteMany(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
         getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(coll).deleteMany(toBson(filter))
+            val result = db.getCollection(collection).deleteMany(toBson(filter))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to result.wasAcknowledged()),
                     "deletedCount" to result.deletedCount))
@@ -49,9 +90,29 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun deleteOne(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun findOneAndDelete(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun findOneAndUpdate(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun insertMany(database: String, collection: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(coll).insertMany(docs.map { toBson(it as Map<*, *>?) })
+            db.getCollection(collection).insertMany(docs.map { toBson(it as Map<*, *>?) })
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to emptyList<String>()))
@@ -78,6 +139,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     override fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
         getDatabase(database, dbOptions).flatMap { db ->
             convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+                @Suppress("DEPRECATION")
                 db.getCollection(collection).count(toBson(query), countOptions)
             }
         }
@@ -159,12 +221,52 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    fun remove(database: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+    override fun remove(database: String, collection: String, query: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
         val promise = getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(coll).deleteMany(toBson(query))
+            val result = db.getCollection(collection).deleteMany(toBson(query))
             DeleteResult(result.wasAcknowledged(), result.deletedCount)
         }
         return context.toJsPromise(promise)
+    }
+
+    @HostAccess.Export
+    override fun convertToCapped(database: String, collection: String, size: Number, options: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun createIndexes(database: String, collection: String, indexSpecs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun dropIndexes(database: String, collection: String, indexes: String, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun dropIndexes(database: String, collection: String, indexes: List<*>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun dropIndexes(database: String, collection: String, indexes: Map<*, *>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun reIndex(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun dropCollection(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun renameCollection(database: String, oldName: String, newName: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+        Left(NotImplementedError())
     }
 
     override fun close() = client.close()
