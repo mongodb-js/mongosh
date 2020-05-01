@@ -9,7 +9,7 @@ internal interface WritableServiceProvider {
     fun deleteMany(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun deleteOne(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun findOneAndDelete(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?): Value
     fun findOneAndUpdate(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun insertMany(database: String, collection: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun insertOne(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value

@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.EstimatedDocumentCountOptions
+import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
@@ -11,6 +12,7 @@ import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
+import org.graalvm.polyglot.proxy.ProxyObject
 import java.io.Closeable
 
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
@@ -112,8 +114,13 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
-        Left(NotImplementedError())
+    override fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?): Value = promise {
+        getDatabase(database, null).flatMap { db ->
+            convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options).map { options ->
+                val res = db.getCollection(collection).findOneAndReplace(toBson(filter), toBson(replacement), options)
+                ProxyObject.fromMap(mapOf("value" to res))
+            }
+        }
     }
 
     @HostAccess.Export
@@ -286,13 +293,4 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     private fun <T> promise(block: () -> Either<T>): Value {
         return context.toJsPromise(block())
     }
-}
-
-private fun toBson(options: Map<*, *>?): Document {
-    val doc = Document()
-    options?.entries?.forEach { (key, value) ->
-        if (key !is String) return@forEach
-        doc[key] = if (value is Map<*, *>) toBson(value) else value
-    }
-    return doc
 }

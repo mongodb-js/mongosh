@@ -229,7 +229,33 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
         }
 )
 
-internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("update options")
+internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("replace options")
+
+internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceOptions, Any?) -> Either<FindOneAndReplaceOptions>> = mapOf(
+        typed("projection", Map::class.java) { opt, value ->
+            opt.projection(toBson(value))
+        },
+        typed("sort", Map::class.java) { opt, value ->
+            opt.sort(toBson(value))
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("returnDocument", Boolean::class.java) { opt, value ->
+            opt.returnDocument(if (value) ReturnDocument.AFTER else ReturnDocument.BEFORE)
+        },
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        }
+)
+
+internal val findOneAndReplaceOptionsDefaultConverters = unrecognizedField<FindOneAndReplaceOptions>("find and replace options")
 
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
@@ -256,4 +282,13 @@ private fun unwrap(value: Value): Any? {
         value.hasMembers() -> value.memberKeys.associateWith { key -> value.getMember(key) }
         else -> value
     }
+}
+
+internal fun toBson(options: Map<*, *>?): Document {
+    val doc = Document()
+    options?.entries?.forEach { (key, value) ->
+        if (key !is String) return@forEach
+        doc[key] = if (value is Map<*, *>) toBson(value) else value
+    }
+    return doc
 }
