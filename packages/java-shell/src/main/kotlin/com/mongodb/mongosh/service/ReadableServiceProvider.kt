@@ -17,5 +17,5 @@ internal interface ReadableServiceProvider {
     fun isCapped(database: String, collection: String): Value
     fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value
     fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?): Value
-    fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun stats(database: String, collection: String, options: Map<*, *>?): Value
 }

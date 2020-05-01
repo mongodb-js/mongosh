@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.EstimatedDocumentCountOptions
 import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DeleteResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
@@ -123,8 +124,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun isCapped(database: String, collection: String): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun isCapped(database: String, collection: String): Value = promise {
+        getDatabase(database, null).flatMap { db ->
+            val doc = db.runCommand(Document("collStats", collection))
+            if (doc.containsKey("capped") && doc["capped"] is Boolean) Right<Boolean>(doc["capped"] as Boolean)
+            else Left<Boolean>(CommandException("Cannot find boolean property 'capped'. Response $doc", ""))
+        }
     }
 
     @HostAccess.Export
@@ -142,8 +147,10 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun stats(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
+        getDatabase(database, null).map { db ->
+            db.runCommand(Document("collStats", collection))
+        }
     }
 
     @HostAccess.Export
