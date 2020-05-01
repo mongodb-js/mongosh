@@ -3,7 +3,7 @@ package com.mongodb.mongosh
 import com.mongodb.client.MongoClient
 import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.result.Collection
-import com.mongodb.mongosh.service.CliServiceProvider
+import com.mongodb.mongosh.service.JavaServiceProvider
 import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
     private val ctx: Context = Context.create()
-    private val cliServiceProvider = CliServiceProvider(client, this)
+    private val serviceProvider = JavaServiceProvider(client, this)
     private val databaseClass: Value
     private val collectionClass: Value
     private val cursorClass: Value
@@ -36,7 +36,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         val context = ctx.getBindings("js")
         val global = context.getMember("_global")
         context.removeMember("_global")
-        val mapper = global.getMember("Mapper").newInstance(cliServiceProvider)
+        val mapper = global.getMember("Mapper").newInstance(serviceProvider)
         initContext(context, mapper)
         mapper.putMember("context", context)
         databaseClass = global.getMember("Database")
@@ -112,7 +112,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    override fun close() = cliServiceProvider.close()
+    override fun close() = serviceProvider.close()
 
     private fun Value.instanceOf(clazz: Value): Boolean {
         return eval("(o, clazz) => o instanceof clazz").execute(this, clazz).asBoolean()

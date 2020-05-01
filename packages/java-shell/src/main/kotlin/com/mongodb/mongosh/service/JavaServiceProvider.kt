@@ -12,7 +12,7 @@ import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 import java.io.Closeable
 
-internal class CliServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Map<*, *>): Value = promise {
