@@ -1,12 +1,14 @@
 package com.mongodb.mongosh
 
 import com.mongodb.client.MongoClient
+import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.result.Collection
-import com.mongodb.mongosh.service.JavaServiceProvider
 import com.mongodb.mongosh.service.Either
+import com.mongodb.mongosh.service.JavaServiceProvider
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
+import org.bson.BsonValue
 import org.bson.Document
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
@@ -29,6 +31,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val aggregationCursorClass: Value
     private val insertOneResultClass: Value
     private val commandResultClass: Value
+    private val updateResultClass: Value
     private val deleteResultClass: Value
 
     init {
@@ -45,6 +48,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         aggregationCursorClass = global.getMember("AggregationCursor")
         insertOneResultClass = global.getMember("InsertOneResult")
         commandResultClass = global.getMember("CommandResult")
+        updateResultClass = global.getMember("UpdateResult")
         deleteResultClass = global.getMember("DeleteResult")
     }
 
@@ -86,6 +90,17 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
             v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")))
             v.instanceOf(deleteResultClass) -> DeleteResult(v.getMember("acknowleged").asBoolean(), v.getMember("deletedCount").asLong())
+            v.instanceOf(updateResultClass) -> {
+                val res = if (v.getMember("acknowleged").asBoolean()) {
+                    val insertedId = v.getMember("insertedId")
+                    UpdateResult.acknowledged(
+                            v.getMember("matchedCount").asLong(),
+                            v.getMember("modifiedCount").asLong(),
+                            if (insertedId == null || insertedId.isNull) null else insertedId.asHostObject<BsonValue>()
+                    )
+                } else UpdateResult.unacknowledged()
+                MongoShellUpdateResult(res)
+            }
             v.isString -> StringResult(v.asString())
             v.isBoolean -> BooleanResult(v.asBoolean())
             v.fitsInInt() -> IntResult(v.asInt())

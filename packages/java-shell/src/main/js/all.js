@@ -10,5 +10,6 @@ _global = {
     AggregationCursor: ShellApiSignatures.AggregationCursor,
     InsertOneResult: ShellApiSignatures.InsertOneResult,
     DeleteResult: ShellApiSignatures.DeleteResult,
+    UpdateResult: ShellApiSignatures.UpdateResult,
     CommandResult: ShellApiSignatures.CommandResult
 };

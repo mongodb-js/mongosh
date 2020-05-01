@@ -213,6 +213,25 @@ internal val estimatedCountOptionsConverters: Map<String, (EstimatedDocumentCoun
 
 internal val estimatedCountOptionsDefaultConverter = unrecognizedField<EstimatedDocumentCountOptions>("estimate count options")
 
+internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Either<ReplaceOptions>> = mapOf(
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        "writeConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        }
+)
+
+internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("update options")
+
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val v = if (value is Value) unwrap(value) else value

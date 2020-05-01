@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.EstimatedDocumentCountOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DeleteResult
@@ -34,12 +35,23 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun replaceOne(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
-        Left(NotImplementedError())
+    override fun replaceOne(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
+                val res = db.getCollection(collection).replaceOne(toBson(filter), toBson(replacement), options)
+                context.toJs(mapOf(
+                        "result" to mapOf("ok" to res.wasAcknowledged()),
+                        "matchedCount" to res.matchedCount,
+                        "modifiedCount" to res.modifiedCount,
+                        "upsertedCount" to if (res.upsertedId == null) 0 else 1,
+                        "upsertedId" to res.upsertedId
+                ))
+            }
+        }
     }
 
     @HostAccess.Export
-    override fun updateMany(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun updateMany(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
