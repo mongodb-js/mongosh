@@ -4,9 +4,9 @@ import com.mongodb.client.MongoClient
 import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.result.Collection
 import com.mongodb.mongosh.service.CliServiceProvider
-import com.mongodb.mongosh.service.Promise
-import com.mongodb.mongosh.service.Rejected
-import com.mongodb.mongosh.service.Resolved
+import com.mongodb.mongosh.service.Either
+import com.mongodb.mongosh.service.Left
+import com.mongodb.mongosh.service.Right
 import org.bson.Document
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
@@ -105,10 +105,10 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return ctx.eval(Source.create("js", script))
     }
 
-    fun <T> toJsPromise(promise: Promise<T>): Value {
+    fun <T> toJsPromise(promise: Either<T>): Value {
         return when (promise) {
-            is Resolved -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
-            is Rejected -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)
+            is Right -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
+            is Left -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)
         }
     }
 

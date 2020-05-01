@@ -17,13 +17,13 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         runCommandInner(database, spec)
     }
 
-    private fun runCommandInner(database: String, spec: Map<*, *>?): Promise<Document> {
-        return getDatabase(database, null).then { db -> db.runCommand(toBson(spec)) }
+    private fun runCommandInner(database: String, spec: Map<*, *>?): Either<Document> {
+        return getDatabase(database, null).map { db -> db.runCommand(toBson(spec)) }
     }
 
     @HostAccess.Export
     fun insertOne(database: String, coll: String, doc: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        getDatabase(database, dbOptions).then { db ->
+        getDatabase(database, dbOptions).map { db ->
             db.getCollection(coll).insertOne(toBson(doc))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
@@ -31,14 +31,14 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
         }
     }
 
-    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Promise<MongoDatabase> {
+    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Either<MongoDatabase> {
         val db = client.getDatabase(database)
-        return if (dbOptions == null) Resolved(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
+        return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
     fun deleteMany(database: String, coll: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        getDatabase(database, dbOptions).then { db ->
+        getDatabase(database, dbOptions).map { db ->
             val result = db.getCollection(coll).deleteMany(toBson(filter))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to result.wasAcknowledged()),
@@ -48,7 +48,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     fun insertMany(database: String, coll: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
-        getDatabase(database, dbOptions).then { db ->
+        getDatabase(database, dbOptions).map { db ->
             db.getCollection(coll).insertMany(docs.map { toBson(it as Map<*, *>?) })
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
@@ -72,7 +72,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     @HostAccess.Export
     override fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).then { countOptions ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
                 db.getCollection(collection).count(toBson(query), countOptions)
             }
         }
@@ -81,7 +81,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     @HostAccess.Export
     override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
         getDatabase(database, null).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).then { countOptions ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
                 db.getCollection(collection).countDocuments(toBson(filter), countOptions)
             }
         }
@@ -89,12 +89,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
-        Rejected(NotImplementedError())
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
     override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
-        Rejected(NotImplementedError())
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
@@ -109,27 +109,27 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     override fun getServerVersion(): Value = promise {
-        runCommandInner("admin", Document("buildInfo", 1)).then { doc -> doc["version"] }
+        runCommandInner("admin", Document("buildInfo", 1)).map { doc -> doc["version"] }
     }
 
     @HostAccess.Export
     override fun listDatabases(database: String): Value = promise {
-        Resolved(context.toJs(mapOf("databases" to client.listDatabases())))
+        Right(context.toJs(mapOf("databases" to client.listDatabases())))
     }
 
     @HostAccess.Export
     override fun isCapped(database: String, collection: String): Value = promise<Any?> {
-        Rejected(NotImplementedError())
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
     override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise<Any?> {
-        Rejected(NotImplementedError())
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
     override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
-        getDatabase(database, null).then { db ->
+        getDatabase(database, null).map { db ->
             val list = db.listCollections()
             if (filter != null) list.filter(toBson(filter))
             context.toJs(list)
@@ -138,12 +138,12 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     override fun stats(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
-        Rejected(NotImplementedError())
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
     fun remove(database: String, coll: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
-        val promise = getDatabase(database, dbOptions).then { db ->
+        val promise = getDatabase(database, dbOptions).map { db ->
             val result = db.getCollection(coll).deleteMany(toBson(query))
             DeleteResult(result.wasAcknowledged(), result.deletedCount)
         }
@@ -152,7 +152,7 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     override fun close() = client.close()
 
-    private fun <T> promise(block: () -> Promise<T>): Value {
+    private fun <T> promise(block: () -> Either<T>): Value {
         return context.toJsPromise(block())
     }
 }
