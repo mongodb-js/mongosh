@@ -68,7 +68,10 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
 
     @HostAccess.Export
     override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): AggregateCursor {
-        TODO("not implemented")
+        val db = getDatabase(database, dbOptions).getOrThrow()
+        val iterable = db.aggregate(pipeline.map { toBson(it) })
+        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
+        return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
