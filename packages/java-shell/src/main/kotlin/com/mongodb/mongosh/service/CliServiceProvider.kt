@@ -133,8 +133,10 @@ internal class CliServiceProvider(private val client: MongoClient, private val c
     }
 
     @HostAccess.Export
-    override fun getIndexes(database: String, collection: String, dbOptions: Map<*, *>?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun getIndexes(database: String, collection: String): Value = promise {
+        getDatabase(database, null).map { db ->
+            context.toJs(db.getCollection(collection).listIndexes())
+        }
     }
 
     @HostAccess.Export
