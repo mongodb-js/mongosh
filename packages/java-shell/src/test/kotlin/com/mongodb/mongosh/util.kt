@@ -56,7 +56,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                 try {
                     val result = shell.eval(cmd.command)
                     sb.append(getExpectedValue(result, cmd.options))
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     System.err.println("IGNORED:")
                     e.printStackTrace()
                     sb.append(e.javaClass.name).append(": ").append(e.message)

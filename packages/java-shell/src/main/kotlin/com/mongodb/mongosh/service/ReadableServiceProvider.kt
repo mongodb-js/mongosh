@@ -9,7 +9,7 @@ internal interface ReadableServiceProvider {
     fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): Cursor<AggregateIterable<Document>>
     fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
     fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value
-    fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?): Value
     fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value
     fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): FindCursor
     fun getServerVersion(): Value
