@@ -773,7 +773,64 @@ coll2`;
           'db1', {}, { nameOnly: true });
       });
     });
+
+    describe('runCommand', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await mapper.database_runCommand(database, { someCommand: 'someCollection' });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            someCommand: 'someCollection'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await mapper.database_runCommand(database, { someCommand: 'someCollection' });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await mapper.database_runCommand(database, { someCommand: 'someCollection' })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('adminCommand', () => {
+      it('calls serviceProvider.runCommand with the admin database', async() => {
+        await mapper.database_adminCommand(database, { someCommand: 'someCollection' });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          'admin',
+          {
+            someCommand: 'someCollection'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await mapper.database_adminCommand(database, { someCommand: 'someCollection' });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await mapper.database_adminCommand(database, { someCommand: 'someCollection' })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
+
 
   describe('explainable', () => {
     let explainable: Explainable;

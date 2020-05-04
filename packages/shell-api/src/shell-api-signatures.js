@@ -128,9 +128,10 @@ const Database = {
   type: 'Database',
   hasAsyncChild: true,
   attributes: {
-    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     getCollectionNames: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] }
+    getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] },
+    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+    adminCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.4.0', '4.4.0'] }
   }
 };
 const DeleteResult = {

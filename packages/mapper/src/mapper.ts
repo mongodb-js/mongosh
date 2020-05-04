@@ -39,6 +39,34 @@ export default class Mapper {
     this.messageBus = messageBus || new EventEmitter();
   }
 
+  private _emitExplainableApiCall(explainable: Explainable, methodName: string, methodArguments: Record<string, any> = {}): void {
+    this._emitApiCall({
+      method: methodName,
+      class: 'Explainable',
+      db: explainable._collection._database._name,
+      coll: explainable._collection._name,
+      arguments: methodArguments
+    });
+  }
+
+  private _emitDatabaseApiCall(database: Database, methodName: string, methodArguments: Record<string, any> = {}): void {
+    this._emitApiCall({
+      method: methodName,
+      class: 'Database',
+      db: database._name,
+      arguments: methodArguments
+    });
+  }
+
+  private _emitApiCall(event: {
+    method: string;
+    class: string;
+    arguments: Record<string, any>;
+    [otherProps: string]: any;
+  }): void {
+    this.messageBus.emit('mongosh:api-call', event);
+  }
+
   use(db): any {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
@@ -63,10 +91,10 @@ export default class Mapper {
     switch (arg) {
       case 'databases':
       case 'dbs':
-        return await this.showDatabases();
+        return await this._showDatabases();
       case 'collections':
       case 'tables':
-        return await this.showCollections();
+        return await this._showCollections();
       default:
         const validArguments = [
           'databases',
@@ -84,13 +112,13 @@ export default class Mapper {
     }
   }
 
-  private async showCollections(): Promise<CommandResult> {
+  private async _showCollections(): Promise<CommandResult> {
     const collectionNames = await this.database_getCollectionNames(this.context.db);
 
     return new CommandResult('ShowCollectionsResult', collectionNames.join('\n'));
   }
 
-  private async showDatabases(): Promise<CommandResult> {
+  private async _showDatabases(): Promise<CommandResult> {
     const result = await this.serviceProvider.listDatabases('admin');
 
     if (!('databases' in result)) {
@@ -129,6 +157,68 @@ export default class Mapper {
       { method: 'it', arguments: { result: results.length } }
     );
     return results;
+  }
+
+  /**
+   * Run a command against the db.
+   *
+   * @param {Database} database - the db object.
+   * @param {Object} cmd - the command spec.
+   *
+   * @returns {Promise} The promise of command results. TODO: command result object
+   */
+  database_runCommand(database: Database, cmd: Record<string, any>): Promise<any> {
+    this._emitDatabaseApiCall(database, 'runCommand', { cmd });
+    return this.serviceProvider.runCommand(database._name, cmd);
+  }
+
+  database_adminCommand(database: Database, cmd: Record<string, any>): Promise<any> {
+    this._emitDatabaseApiCall(database, 'adminCommand', { cmd });
+    return this.serviceProvider.runCommand('admin', cmd);
+  }
+
+  /**
+   * Returns an array of collection infos
+   *
+   * @param {String} database - The database.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The options.
+   *
+   * @return {Promise}
+   */
+  async database_getCollectionInfos(
+    database: Database,
+    filter: Document = {},
+    options: Document = {}): Promise<any> {
+    this._emitDatabaseApiCall(database, 'getCollectionInfos', { filter, options });
+    return await this.serviceProvider.listCollections(
+      database._name,
+      filter,
+      options
+    );
+  }
+
+  /**
+   * Returns an array of collection names
+   *
+   * @param {String} database - The database.
+   * @param {Document} filter - The filter.
+   * @param {Document} options - The options.
+   *
+   * @return {Promise}
+   */
+  async database_getCollectionNames(
+    database: Database
+  ): Promise<any> {
+    this._emitDatabaseApiCall(database, 'getCollectionNames');
+
+    const infos = await this.database_getCollectionInfos(
+      database,
+      {},
+      { nameOnly: true }
+    );
+
+    return infos.map(collection => collection.name);
   }
 
   /**
@@ -989,24 +1079,6 @@ export default class Mapper {
     );
   }
 
-  /**
-   * Run a command against the db.
-   *
-   * @param {Database} database - the db object.
-   * @param {Object} cmd - the command spec.
-   *
-   * @returns {Promise} The promise of command results. TODO: command result object
-   */
-  database_runCommand(database, cmd): Promise<any> {
-    const db = database._name;
-    this.messageBus.emit(
-      'mongosh:api-call',
-      { method: 'runCommand', class: 'Database', db, arguments: { cmd } }
-    );
-
-    return this.serviceProvider.runCommand(db, cmd);
-  }
-
   async collection_update(collection, filter, update, options: any = {}): Promise<any> {
     const db = collection._database._name;
     const coll = collection._name;
@@ -1445,62 +1517,6 @@ export default class Mapper {
   }
 
   /**
-   * Returns an array of collection infos
-   *
-   * @param {String} database - The database.
-   * @param {Document} filter - The filter.
-   * @param {Document} options - The options.
-   *
-   * @return {Promise}
-   */
-  async database_getCollectionInfos(
-    database: Database,
-    filter: Document = {},
-    options: Document = {}): Promise<any> {
-    const db = database._name;
-    this.messageBus.emit(
-      'mongosh:api-call',
-      {
-        method: 'getCollectionInfos',
-        class: 'Database',
-        db, arguments: { filter, options }
-      }
-    );
-
-    return await this.serviceProvider.listCollections(
-      db,
-      filter,
-      options
-    );
-  }
-
-  /**
-   * Returns an array of collection names
-   *
-   * @param {String} database - The database.
-   * @param {Document} filter - The filter.
-   * @param {Document} options - The options.
-   *
-   * @return {Promise}
-   */
-  async database_getCollectionNames(
-    database: Database
-  ): Promise<any> {
-    this.messageBus.emit(
-      'mongosh:api-call',
-      { method: 'getCollectionNames', class: 'Database', db: database._name }
-    );
-
-    const infos = await this.database_getCollectionInfos(
-      database,
-      {},
-      { nameOnly: true }
-    );
-
-    return infos.map(collection => collection.name);
-  }
-
-  /**
    * Returns the total size of all indexes for the collection.
    *
    * @param {Collection} collection
@@ -1823,19 +1839,6 @@ export default class Mapper {
     );
 
     return new Explainable(this, collection, verbosity);
-  }
-
-  private _emitExplainableApiCall(explainable: Explainable, methodName: string, methodArguments: any = {}): void {
-    this.messageBus.emit(
-      'mongosh:api-call',
-      {
-        method: methodName,
-        class: 'Explainable',
-        db: explainable._collection._database._name,
-        coll: explainable._collection._name,
-        arguments: methodArguments
-      }
-    );
   }
 
   explainable_getCollection(explainable: Explainable): Collection {

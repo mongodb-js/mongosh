@@ -1040,13 +1040,9 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }] });
 
     return proxy;
-  }
-
-  runCommand(...args) {
-    return this._mapper.database_runCommand(this, ...args);
   }
 
   getCollectionNames(...args) {
@@ -1056,14 +1052,16 @@ class Database {
   getCollectionInfos(...args) {
     return this._mapper.database_getCollectionInfos(this, ...args);
   }
+
+  runCommand(...args) {
+    return this._mapper.database_runCommand(this, ...args);
+  }
+
+  adminCommand(...args) {
+    return this._mapper.database_adminCommand(this, ...args);
+  }
 }
 
-
-Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.runCommand.example', 'docs': 'shell-api.classes.Database.help.attributes.runCommand.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }] });
-Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
-Database.prototype.runCommand.topologies = [0, 1, 2];
-Database.prototype.runCommand.returnsPromise = true;
-Database.prototype.runCommand.returnType = 'unknown';
 
 Database.prototype.getCollectionNames.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.getCollectionNames.example', 'docs': 'shell-api.classes.Database.help.attributes.getCollectionNames.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }] });
 Database.prototype.getCollectionNames.serverVersions = ['0.0.0', '4.4.0'];
@@ -1076,6 +1074,18 @@ Database.prototype.getCollectionInfos.serverVersions = ['3.0.0', '4.4.0'];
 Database.prototype.getCollectionInfos.topologies = [0, 1, 2];
 Database.prototype.getCollectionInfos.returnsPromise = true;
 Database.prototype.getCollectionInfos.returnType = 'unknown';
+
+Database.prototype.runCommand.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.runCommand.example', 'docs': 'shell-api.classes.Database.help.attributes.runCommand.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }] });
+Database.prototype.runCommand.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.runCommand.topologies = [0, 1, 2];
+Database.prototype.runCommand.returnsPromise = true;
+Database.prototype.runCommand.returnType = 'unknown';
+
+Database.prototype.adminCommand.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.adminCommand.example', 'docs': 'shell-api.classes.Database.help.attributes.adminCommand.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }] });
+Database.prototype.adminCommand.serverVersions = ['3.4.0', '4.4.0'];
+Database.prototype.adminCommand.topologies = [0, 1, 2];
+Database.prototype.adminCommand.returnsPromise = true;
+Database.prototype.adminCommand.returnType = 'unknown';
 
 
 class DeleteResult {

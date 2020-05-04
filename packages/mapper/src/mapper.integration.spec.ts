@@ -609,6 +609,16 @@ describe('Mapper (integration)', function() {
         ).to.deep.equal([collectionName]);
       });
     });
+
+    describe('adminCommand', () => {
+      it('runs an adminCommand', async() => {
+        const result = await mapper.database_adminCommand(
+          database, { serverStatus: 1 }
+        );
+        expect(result.ok).to.equal(1);
+        expect(result.process).to.match(/^mongo/);
+      });
+    });
   });
 
   describe('explainable', () => {
