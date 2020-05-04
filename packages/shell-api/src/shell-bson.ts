@@ -66,7 +66,6 @@ export default {
     return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
   },
   bsonsize: function(object): any {
-    const BSON = new bson.BSON();
-    return BSON.calculateObjectSize(object);
+    return bson.calculateObjectSize(object);
   }
 };

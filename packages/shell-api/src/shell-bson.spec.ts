@@ -82,4 +82,9 @@ describe('Shell BSON', () => {
       expect(h.sub_type).to.equal(5);
     });
   });
+  describe('bsonsize', () => {
+    it('calculates empty doc size', () => {
+      expect(shellBson.bsonsize({})).to.equal(5);
+    });
+  });
 });
