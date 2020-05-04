@@ -2,7 +2,7 @@
 // Mongosh to node's Recoverable errors.
 
 // src: https://github.com/nodejs/node/blob/master/lib/internal/repl/utils.js
-import { Parser as AcornParser, tokTypes as tt } from 'acorn'; 
+import { Parser, tokTypes} from 'acorn';
 import staticClassFeatures  from 'acorn-static-class-features';
 import numericSeparator from 'acorn-numeric-separator';
 import privateMethods from 'acorn-private-methods';
@@ -38,22 +38,24 @@ export default function isRecoverableError(e, code) {
   //       change these messages in the future, this will lead to a test
   //       failure, indicating that this code needs to be updated.
   //
-  const RecoverableParser = AcornParser
-    .extend(
-      privateMethods,
-      classFields,
-      numericSeparator,
-      staticClassFeatures,
-      (Parser) => {
-        return class extends Parser {
+  const RecoverableParser = Parser.extend(privateMethods, classFields, numericSeparator, staticClassFeatures, (AcornParser) => {
+        return class extends AcornParser {
+          readToken(code) {
+            console.log('reading token', code);
+            //@ts-ignore
+            super.readToken();
+          }
           nextToken() {
+            //@ts-ignore
+            console.log(this.type)
             //@ts-ignore
             super.nextToken();
             //@ts-ignore
-            if (this.type === tt.eof)
+            if (this.type === tokTypes.eof)
               recoverable = true;
           }
           raise(pos, message) {
+            console.log(message)
             switch (message) {
               case 'Unterminated template':
               case 'Unterminated comment':
@@ -68,6 +70,8 @@ export default function isRecoverableError(e, code) {
                   recoverable = true;
                 }
             }
+            console.log('pos', pos)
+            console.log('message', message)
             //@ts-ignore
             super.raise(pos, message);
           }
@@ -79,7 +83,6 @@ export default function isRecoverableError(e, code) {
   // error and return the recoverable status.
   try {
     RecoverableParser.parse(code, { ecmaVersion: 11 });
-
 
     // Odd case: the underlying JS engine (V8, Chakra) rejected this input
     // but Acorn detected no issue.  Presume that additional text won't
