@@ -10,9 +10,6 @@ class:
     __stringRep:
         - this._name
     __hasAsyncChild: true
-    runCommand:
-        <<: *__defaultMethod
-        returnsPromise: true
     getCollectionNames:
         <<: *__defaultMethod
         returnsPromise: true
@@ -22,3 +19,24 @@ class:
         serverVersions:
             - '3.0.0'
             - *ServerVersions.latest
+    runCommand:
+        <<: *__defaultMethod
+        returnsPromise: true
+    adminCommand:
+        <<: *__defaultMethod
+        serverVersions:
+            - '3.4.0'
+            - *ServerVersions.latest
+        returnsPromise: true
+    # aggregate:
+    #     <<: *__defaultMethod
+    #     returnType: 'Cursor'
+    # getSiblingDB:
+    #     <<: *__defaultMethod
+    #     returnType: 'Database'
+    # dropDatabase:
+    #     <<: *__defaultMethod
+    #     returnsPromise: true
+    # getCollection:
+    #     <<: *__defaultMethod
+    #     returnsPromise: true

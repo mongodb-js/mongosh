@@ -1094,7 +1094,18 @@ const translations = {
         help: {
           description: 'Database Class',
           attributes: {
-            runCommand: 'Runs an arbitrary command on the database.',
+            runCommand: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.runCommand',
+              description: 'Runs an arbitrary command on the database.',
+              example: 'db.runCommand({ text: "myCollection", search: "searchKeywords" })',
+              parameters: {}
+            },
+            adminCommand: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.adminCommand',
+              description: 'Runs an arbitrary command against the admin database.',
+              example: 'db.adminCommand({ serverStatus: 1 })',
+              parameters: {}
+            },
             getCollectionInfos: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getCollectionInfos',
               description: 'Returns an array of documents with collection information, i.e. collection name and options, for the current database.',
