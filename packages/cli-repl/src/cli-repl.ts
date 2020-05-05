@@ -8,10 +8,10 @@ import formatOutput from './format-output';
 import { TELEMETRY } from './constants';
 import CliOptions from './cli-options';
 import completer from './completer';
-import repl, { REPLServer } from 'repl';
+import { REPLServer, Recoverable } from 'repl';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
-// import repl from 'pretty-repl';
+import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
 import logger from './logger';
 import mkdirp from 'mkdirp';
@@ -272,7 +272,7 @@ class CliRepl {
         result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
         if (isRecoverableError(input)) {
-          return callback(new repl.Recoverable(err));
+          return callback(new Recoverable(err));
         } else {
           result = err;
         }
