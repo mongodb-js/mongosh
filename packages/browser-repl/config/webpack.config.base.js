@@ -5,10 +5,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ts|tsx|js|jsx)$/,
+        test: /^(?!.*\.spec\.js(x?)$).*\.js(x?)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader'
+        }
+      },
+      {
+        test: /^(?!.*\.spec\.ts(x?)$).*\.ts(x?)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'ts-loader'
         }
       },
       {

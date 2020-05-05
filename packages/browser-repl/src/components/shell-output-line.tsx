@@ -17,6 +17,8 @@ import { ErrorOutput } from './types/error-output';
 const styles = require('./shell-output-line.less');
 
 type ShellOutputEntryValue = any;
+type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
+
 
 export interface ShellOutputEntry {
   type: 'input' | 'output' | 'error';
@@ -86,7 +88,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       typeof value === 'function';
   }
 
-  private getIconGlyph(): string {
+  private getIconGlyph(): Glyph {
     const { type } = this.props.entry;
 
     if (type === 'input') {

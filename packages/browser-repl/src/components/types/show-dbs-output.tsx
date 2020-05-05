@@ -9,6 +9,7 @@ interface ShowDbsOutputProps {
 
 type DatabaseObject = {
   databases: object;
+  map: any;
 };
 
 export class ShowDbsOutput extends Component<ShowDbsOutputProps> {
