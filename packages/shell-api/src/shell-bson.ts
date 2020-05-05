@@ -1,4 +1,3 @@
-/* eslint prefer-rest-params: 0 */
 import bson from 'bson';
 
 type DateConstructorArguments = [ any?, any?, ...any[] ];
