@@ -1,6 +1,6 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import ShellEvaluator from '@mongosh/shell-evaluator';
-import isRecoverableError from './recoverable-error';
+import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import getConnectInfo from './connect-info';
@@ -271,7 +271,7 @@ class CliRepl {
       try {
         result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
-        if (isRecoverableError(err, input)) {
+        if (isRecoverableError(input)) {
           return callback(new repl.Recoverable(err));
         } else {
           result = err;
