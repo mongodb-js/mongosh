@@ -55,13 +55,15 @@ const archive = async() => {
   );
 };
 
-const writeSegmentFile = async() => {
-  const key = `export SEGMENT_API_KEY = ${process.env.SEGMENT_API_KEY}`;
+const writeSegmentFile = () => {
+  const key = `exports SEGMENT_API_KEY = '${process.env.SEGMENT_API_KEY}'`;
+  // create directly in cli-repl/lib so it can be part of artifacts in dist
+  const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'config.js');
   try {
-    // create directly in cli-repl/lib so it can be part of artifacts in dist
-    return await fs.writeFile(path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'config.js'));
+    // can just write this sync, since it's part of the release script
+    fs.writeFileSync(configPath, key)
   } catch (e) {
-    console.log('mongosh: unable to write segment config file');
+    console.log('mognosh: unable to write segment api key')
     return;
   }
 }
