@@ -23,8 +23,7 @@ describe('Shell BSON', () => {
       const date = new shellBson.Date();
       const cDate = new Date();
       expect(typeof date).to.equal('object');
-      // @ts-ignore
-      expect(date.getYear()).to.equal(cDate.getYear());
+      expect(date.getFullYear()).to.equal(cDate.getFullYear());
     });
     it('ISODate is always object', () => {
       // @ts-ignore

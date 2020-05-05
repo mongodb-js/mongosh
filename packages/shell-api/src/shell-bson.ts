@@ -39,15 +39,15 @@ export default {
     }
     return bson.Long.fromNumber(v);
   },
-  Date: function(): Date|string {
-    const date = dateHelper(...arguments);
+  Date: function(...args: any[]): Date|string {
+    const date = dateHelper(...args);
     if (new.target) {
       return date;
     }
     return date.toString();
   },
-  ISODate: function(): Date|string {
-    return dateHelper(...arguments);
+  ISODate: function(...args: any[]): Date {
+    return dateHelper(...args);
   },
   BinData: function(subtype, b64string): bson.Binary { // this from 'help misc' in old shell
     const buffer = Buffer.from(b64string, 'base64');
