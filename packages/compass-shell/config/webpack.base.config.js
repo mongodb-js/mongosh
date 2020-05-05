@@ -105,11 +105,8 @@ module.exports = {
         test: /\.(js|jsx)$/,
         use: [{
           loader: 'babel-loader',
-          query: {
-            cacheDirectory: true,
-            // plugins: [
-            //   'transform-decorators-legacy'
-            // ]
+          options: {
+            babelrc: true
           }
         }],
         exclude: /(node_modules)/
