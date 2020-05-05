@@ -1,4 +1,4 @@
-/* eslint @typescript-eslint/camelcase: 0, new-cap: 0, @typescript-eslint/ban-ts-ignore: 0 */
+/* eslint @typescript-eslint/camelcase: 0, new-cap: 0 */
 import shellBson from './shell-bson';
 import { expect } from 'chai';
 
@@ -19,16 +19,12 @@ describe('Shell BSON', () => {
       expect(shellBson.Date()).to.be.a('string');
     });
     it('accepts ISO args', () => {
-      // @ts-ignore
-      expect((new shellBson.Date(1) as Date).getTime()).to.equal(1);
-      // @ts-ignore
-      expect((new shellBson.Date(1, 2) as Date).getTime()).to.equal(-2172355200000);
-      // @ts-ignore
-      expect((new shellBson.Date(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
+      expect((new (shellBson.Date as any)(1) as Date).getTime()).to.equal(1);
+      expect((new (shellBson.Date as any)(1, 2) as Date).getTime()).to.equal(-2172355200000);
+      expect((new (shellBson.Date as any)(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
     });
     it('returns now object with new', () => {
-      // @ts-ignore
-      const date = new shellBson.Date();
+      const date = new (shellBson.Date as any)();
       const cDate = new Date();
       expect(typeof date).to.equal('object');
       expect(date.getFullYear()).to.equal(cDate.getFullYear());
@@ -36,8 +32,7 @@ describe('Shell BSON', () => {
   });
   describe('ISODate', () => {
     it('ISODate is always object', () => {
-      // @ts-ignore
-      const date = new shellBson.ISODate();
+      const date = new (shellBson.ISODate as any)();
       expect(typeof date).to.equal('object');
       const date2 = shellBson.ISODate();
       expect(typeof date2).to.equal('object');
