@@ -17,7 +17,7 @@
     "test-ci": "npm run lint && npm run test",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
-    "compile-ts": "DEBUG=* npm run build"
+    "compile-ts": "npm run build"
   },
   "config": {
     "unsafe-perm": true
@@ -76,6 +76,7 @@
     "react-dom": "^16.12.0",
     "rimraf": "^3.0.2",
     "style-loader": "^1.1.2",
+    "ts-loader": "^7.0.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-visualizer-plugin": "^0.1.11"
