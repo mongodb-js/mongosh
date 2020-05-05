@@ -1094,6 +1094,12 @@ const translations = {
         help: {
           description: 'Database Class',
           attributes: {
+            aggregate: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.aggregate',
+              description: 'Runs a specified admin/diagnostic pipeline which does not require an underlying collection.',
+              example: 'db.aggregate(pipeline, options)',
+              parameters: {}
+            },
             runCommand: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.runCommand',
               description: 'Runs an arbitrary command on the database.',
