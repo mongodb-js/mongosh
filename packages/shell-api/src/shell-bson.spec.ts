@@ -18,6 +18,14 @@ describe('Shell BSON', () => {
     it('returns string without new', () => {
       expect(shellBson.Date()).to.be.a('string');
     });
+    it('accepts ISO args', () => {
+      // @ts-ignore
+      expect((new shellBson.Date(1) as Date).getTime()).to.equal(1);
+      // @ts-ignore
+      expect((new shellBson.Date(1, 2) as Date).getTime()).to.equal(-2172355200000);
+      // @ts-ignore
+      expect((new shellBson.Date(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
+    });
     it('returns now object with new', () => {
       // @ts-ignore
       const date = new shellBson.Date();
@@ -25,12 +33,19 @@ describe('Shell BSON', () => {
       expect(typeof date).to.equal('object');
       expect(date.getFullYear()).to.equal(cDate.getFullYear());
     });
+  });
+  describe('ISODate', () => {
     it('ISODate is always object', () => {
       // @ts-ignore
       const date = new shellBson.ISODate();
       expect(typeof date).to.equal('object');
       const date2 = shellBson.ISODate();
       expect(typeof date2).to.equal('object');
+    });
+    it('accepts ISO args', () => {
+      expect((shellBson.ISODate(1) as Date).getTime()).to.equal(1);
+      expect((shellBson.ISODate(1, 2) as Date).getTime()).to.equal(-2172355200000);
+      expect((shellBson.ISODate(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
     });
   });
   describe('BinData', () => {

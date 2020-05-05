@@ -1,14 +1,15 @@
-/* eslint prefer-rest-params: 0, @typescript-eslint/ban-ts-ignore: 0 */
+/* eslint prefer-rest-params: 0 */
 import bson from 'bson';
 
-function dateHelper(...args: any[]): Date {
+type DateConstructorArguments = [ any?, any?, ...any[] ];
+
+function dateHelper(...args: DateConstructorArguments): Date {
   if (args.length === 0) {
     return new Date();
   }
   if (args.length === 1) {
     return new Date(args[0]);
   }
-  // @ts-ignore
   return new Date(Date.UTC(...args));
 }
 export default {
@@ -39,14 +40,14 @@ export default {
     }
     return bson.Long.fromNumber(v);
   },
-  Date: function(...args: any[]): Date|string {
+  Date: function(...args: DateConstructorArguments): Date|string {
     const date = dateHelper(...args);
     if (new.target) {
       return date;
     }
     return date.toString();
   },
-  ISODate: function(...args: any[]): Date {
+  ISODate: function(...args: DateConstructorArguments): Date {
     return dateHelper(...args);
   },
   BinData: function(subtype, b64string): bson.Binary { // this from 'help misc' in old shell
