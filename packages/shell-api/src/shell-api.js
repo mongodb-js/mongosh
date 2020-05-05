@@ -1040,7 +1040,7 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }] });
 
     return proxy;
   }
@@ -1059,6 +1059,10 @@ class Database {
 
   adminCommand(...args) {
     return this._mapper.database_adminCommand(this, ...args);
+  }
+
+  aggregate(...args) {
+    return this._mapper.database_aggregate(this, ...args);
   }
 }
 
@@ -1086,6 +1090,12 @@ Database.prototype.adminCommand.serverVersions = ['3.4.0', '4.4.0'];
 Database.prototype.adminCommand.topologies = [0, 1, 2];
 Database.prototype.adminCommand.returnsPromise = true;
 Database.prototype.adminCommand.returnType = 'unknown';
+
+Database.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.aggregate.example', 'docs': 'shell-api.classes.Database.help.attributes.aggregate.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }] });
+Database.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.aggregate.topologies = [0, 1, 2];
+Database.prototype.aggregate.returnsPromise = false;
+Database.prototype.aggregate.returnType = 'AggregationCursor';
 
 
 class DeleteResult {

@@ -9,7 +9,7 @@ const { expect } = chai;
 
 import Mapper from './mapper';
 import sinon from 'sinon';
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { Collection, Database, Explainable } from '@mongosh/shell-api';
 
 describe('Mapper', () => {
@@ -137,6 +137,93 @@ coll2`;
   });
 
   describe('collection', () => {
+    describe('aggregate', () => {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+
+      beforeEach(() => {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+      });
+
+      it('calls serviceProvider.aggregate with pipleline and options', async() => {
+        await mapper.collection_aggregate(
+          collection,
+          [{ $piplelineStage: {} }],
+          { options: true });
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          [{ $piplelineStage: {} }],
+          { options: true }
+        );
+      });
+
+      it('returns an AggregationCursor that wraps the service provider one', async() => {
+        const toArrayResult = [];
+        serviceProviderCursor.toArray.resolves(toArrayResult);
+        serviceProvider.aggregate.returns(serviceProviderCursor);
+
+        const cursor = await mapper.collection_aggregate(collection, [{ $piplelineStage: {} }]);
+        expect(await cursor.toArray()).to.equal(toArrayResult);
+      });
+
+      it('throws if serviceProvider.aggregate rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.aggregate.throws(expectedError);
+
+        expect(() => {
+          mapper.collection_aggregate(collection, [{ $piplelineStage: {} }]);
+        }).to.throw(expectedError);
+      });
+
+      it('pass readConcern and writeConcern as dbOption', async() => {
+        mapper.collection_aggregate(
+          collection,
+          [],
+          { otherOption: true, readConcern: { level: 'majority' }, writeConcern: { w: 1 } }
+        );
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          [],
+          { otherOption: true },
+          { readConcern: { level: 'majority' }, w: 1 }
+        );
+      });
+
+      it('runs explain if explain true is passed', async() => {
+        const explainResult = {};
+        serviceProviderCursor.explain.resolves(explainResult);
+        serviceProvider.aggregate.returns(serviceProviderCursor as any);
+
+        const explainableCursor = mapper.collection_aggregate(
+          collection,
+          [],
+          { explain: true }
+        );
+
+        expect(explainableCursor.shellApiType()).to.equal('ExplainableAggregationCursor');
+        expect(await explainableCursor.toReplString()).to.equal(explainResult);
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
+      });
+
+      it('wont run explain if explain is not passed', async() => {
+        serviceProvider.aggregate.returns(serviceProviderCursor as any);
+
+        const cursor = mapper.collection_aggregate(
+          collection,
+          [],
+          {}
+        );
+
+        await cursor.toReplString();
+
+        expect(cursor.shellApiType()).to.equal('AggregationCursor');
+        expect(serviceProviderCursor.explain).not.to.have.been.called;
+      });
+    });
+
     describe('bulkWrite', () => {
       let requests;
       beforeEach(async() => {
@@ -827,6 +914,89 @@ coll2`;
         const catchedError = await mapper.database_adminCommand(database, { someCommand: 'someCollection' })
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('aggregate', () => {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+
+      beforeEach(() => {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+      });
+
+      it('calls serviceProvider.aggregateDb with pipleline and options', async() => {
+        await mapper.database_aggregate(
+          database, [{ $piplelineStage: {} }], { options: true });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }],
+          { options: true }
+        );
+      });
+
+      it('returns an AggregationCursor that wraps the service provider one', async() => {
+        const toArrayResult = [];
+        serviceProviderCursor.toArray.resolves(toArrayResult);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor);
+
+        const cursor = await mapper.database_aggregate(database, [{ $piplelineStage: {} }]);
+        expect(await cursor.toArray()).to.equal(toArrayResult);
+      });
+
+      it('throws if serviceProvider.aggregateDb rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.aggregateDb.throws(expectedError);
+
+        expect(() => {
+          mapper.database_aggregate(database, [{ $piplelineStage: {} }]);
+        }).to.throw(expectedError);
+      });
+
+      it('pass readConcern and writeConcern as dbOption', async() => {
+        mapper.database_aggregate(
+          database,
+          [],
+          { otherOption: true, readConcern: { level: 'majority' }, writeConcern: { w: 1 } }
+        );
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [],
+          { otherOption: true },
+          { readConcern: { level: 'majority' }, w: 1 }
+        );
+      });
+
+      it('runs explain if explain true is passed', async() => {
+        const explainResult = {};
+        serviceProviderCursor.explain.resolves(explainResult);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+
+        const explainableCursor = mapper.database_aggregate(
+          database,
+          [],
+          { explain: true }
+        );
+
+        expect(explainableCursor.shellApiType()).to.equal('ExplainableAggregationCursor');
+        expect(await explainableCursor.toReplString()).to.equal(explainResult);
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
+      });
+
+      it('wont run explain if explain is not passed', async() => {
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+
+        const cursor = mapper.database_aggregate(
+          database,
+          [],
+          {}
+        );
+
+        await cursor.toReplString();
+
+        expect(cursor.shellApiType()).to.equal('AggregationCursor');
+        expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });
   });
