@@ -17,7 +17,8 @@ import {
 import {
   ServiceProvider,
   Document,
-  DatabaseOptions
+  DatabaseOptions,
+  Cursor as ServiceProviderCursor
 } from '@mongosh/service-provider-core';
 
 import { EventEmitter } from 'events';
@@ -39,7 +40,7 @@ export default class Mapper {
     this.messageBus = messageBus || new EventEmitter();
   }
 
-  private _emitExplainableApiCall(explainable: Explainable, methodName: string, methodArguments: Record<string, any> = {}): void {
+  private _emitExplainableApiCall(explainable: Explainable, methodName: string, methodArguments: Document = {}): void {
     this._emitApiCall({
       method: methodName,
       class: 'Explainable',
@@ -49,7 +50,7 @@ export default class Mapper {
     });
   }
 
-  private _emitDatabaseApiCall(database: Database, methodName: string, methodArguments: Record<string, any> = {}): void {
+  private _emitDatabaseApiCall(database: Database, methodName: string, methodArguments: Document = {}): void {
     this._emitApiCall({
       method: methodName,
       class: 'Database',
@@ -58,10 +59,20 @@ export default class Mapper {
     });
   }
 
+  private _emitCollectionApiCall(collection: Collection, methodName: string, methodArguments: Document = {}): void {
+    this._emitApiCall({
+      method: methodName,
+      class: 'Collection',
+      db: collection._database._name,
+      coll: collection._name,
+      arguments: methodArguments
+    });
+  }
+
   private _emitApiCall(event: {
     method: string;
     class: string;
-    arguments: Record<string, any>;
+    arguments: Document;
     [otherProps: string]: any;
   }): void {
     this.messageBus.emit('mongosh:api-call', event);
@@ -159,6 +170,48 @@ export default class Mapper {
     return results;
   }
 
+  private _aggregate(
+    databaseName: string,
+    collectionName: string,
+    pipeline: Document[],
+    options?: Document
+  ): AggregationCursor {
+    const {
+      providerOptions,
+      dbOptions,
+      explain
+    } = this._adaptAggregateOptions(options);
+
+    let providerCursor: ServiceProviderCursor;
+    if (collectionName) {
+      providerCursor = this.serviceProvider.aggregate(
+        databaseName,
+        collectionName,
+        pipeline,
+        providerOptions,
+        dbOptions
+      );
+    } else {
+      providerCursor = this.serviceProvider.aggregateDb(
+        databaseName,
+        pipeline,
+        providerOptions,
+        dbOptions
+      );
+    }
+
+    const cursor = new AggregationCursor(this, providerCursor);
+
+    if (explain) {
+      return this._makeExplainableCursor(
+        'ExplainableAggregationCursor',
+        cursor
+      );
+    }
+
+    this.currentCursor = cursor;
+    return cursor;
+  }
   /**
    * Run a command against the db.
    *
@@ -167,14 +220,23 @@ export default class Mapper {
    *
    * @returns {Promise} The promise of command results. TODO: command result object
    */
-  database_runCommand(database: Database, cmd: Record<string, any>): Promise<any> {
+  database_runCommand(database: Database, cmd: Document): Promise<any> {
     this._emitDatabaseApiCall(database, 'runCommand', { cmd });
     return this.serviceProvider.runCommand(database._name, cmd);
   }
 
-  database_adminCommand(database: Database, cmd: Record<string, any>): Promise<any> {
+  database_adminCommand(database: Database, cmd: Document): Promise<any> {
     this._emitDatabaseApiCall(database, 'adminCommand', { cmd });
     return this.serviceProvider.runCommand('admin', cmd);
+  }
+
+  database_aggregate(
+    database: Database,
+    pipeline: Document[],
+    options?: Document
+  ): AggregationCursor {
+    this._emitDatabaseApiCall(database, 'aggregate', { pipeline, options });
+    return this._aggregate(database._name, null, pipeline, options);
   }
 
   /**
@@ -241,41 +303,47 @@ export default class Mapper {
    *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
-  collection_aggregate(collection, pipeline, options: any = {}): any {
-    const db = collection._database._name;
-    const coll = collection._name;
+  collection_aggregate(collection: Collection, pipeline: Document[], options: Document = {}): AggregationCursor {
+    this._emitCollectionApiCall(
+      collection,
+      'aggregate',
+      { options, pipeline }
+    );
+
+    return this._aggregate(
+      collection._database._name,
+      collection._name,
+      pipeline,
+      options
+    );
+  }
+
+  private _adaptAggregateOptions(options: any = {}): {
+    providerOptions: Document;
+    dbOptions: DatabaseOptions;
+    explain: boolean;
+  } {
+    const providerOptions = { ...options };
 
     const dbOptions: DatabaseOptions = {};
+    let explain = false;
 
-    if ('readConcern' in options) {
+    if ('readConcern' in providerOptions) {
       dbOptions.readConcern = options.readConcern;
+      delete providerOptions.readConcern;
     }
-    if ('writeConcern' in options) {
+
+    if ('writeConcern' in providerOptions) {
       Object.assign(dbOptions, options.writeConcern);
+      delete providerOptions.writeConcern;
     }
 
-    const cmd = this.serviceProvider.aggregate(
-      db,
-      coll,
-      pipeline,
-      options,
-      dbOptions
-    );
+    if ('explain' in providerOptions) {
+      explain = providerOptions.explain;
+      delete providerOptions.explain;
+    }
 
-    this.messageBus.emit(
-      'mongosh:api-call',
-      {
-        method: 'aggregate',
-        class: 'Collection',
-        db, coll, arguments: { options, pipeline }
-      }
-    );
-
-    const cursor = new AggregationCursor(this, cmd);
-
-    this.currentCursor = cursor;
-
-    return this.currentCursor;
+    return { providerOptions, dbOptions, explain };
   }
 
   /**
@@ -1780,7 +1848,7 @@ export default class Mapper {
   async collection_runCommand(
     collection: Collection,
     commandName: string,
-    options?: Record<string, any>
+    options?: Document
   ): Promise<any> {
     if (typeof commandName !== 'string') {
       throw new MongoshInvalidInputError('The "commandName" argument must be a string.');
@@ -1861,29 +1929,41 @@ export default class Mapper {
     explainable._verbosity = verbosity;
   }
 
-  explainable_find(explainable: Explainable, query?: any, projection?: any): any {
-    this._emitExplainableApiCall(explainable, 'find', { query, projection });
-
-    // TODO: turn ExplainableCursor in a proper type.
-    const cursor = explainable._collection.find(query, projection);
-    cursor.shellApiType = (): string => 'ExplainableCursor';
+  // TODO: turn this into proper types and constructors in shell api.
+  private _makeExplainableCursor<T extends AggregationCursor|Cursor>(
+    shellApiType: string,
+    cursor: T,
+    verbosity?: string
+  ): T {
+    cursor.shellApiType = (): string => shellApiType;
     cursor.toReplString = (): Promise<any> => {
-      return cursor.explain(explainable._verbosity);
+      return cursor.explain(verbosity);
     };
 
     return cursor;
   }
 
-  explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): any {
+  explainable_find(explainable: Explainable, query?: any, projection?: any): Cursor {
+    this._emitExplainableApiCall(explainable, 'find', { query, projection });
+
+    // TODO: turn ExplainableCursor in a proper type.
+    const cursor = explainable._collection.find(query, projection) as Cursor;
+    return this._makeExplainableCursor(
+      'ExplainableCursor',
+      cursor,
+      explainable._verbosity
+    );
+  }
+
+  explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): AggregationCursor {
     this._emitExplainableApiCall(explainable, 'aggregate', { pipeline, options });
 
     // TODO: turn ExplainableAggregationCursor in a proper type.
-    const cursor = explainable._collection.aggregate(pipeline, options);
-    cursor.shellApiType = (): string => 'ExplainableAggregationCursor';
-    cursor.toReplString = (): Promise<any> => {
-      return cursor.explain(explainable._verbosity);
-    };
-
-    return cursor;
+    const cursor = explainable._collection.aggregate(pipeline, options) as AggregationCursor;
+    return this._makeExplainableCursor(
+      'ExplainableAggregationCursor',
+      cursor,
+      explainable._verbosity
+    );
   }
 }

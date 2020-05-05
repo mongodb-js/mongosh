@@ -28,9 +28,9 @@ class:
             - '3.4.0'
             - *ServerVersions.latest
         returnsPromise: true
-    # aggregate:
-    #     <<: *__defaultMethod
-    #     returnType: 'Cursor'
+    aggregate:
+        <<: *__defaultMethod
+        returnType: 'AggregationCursor'
     # getSiblingDB:
     #     <<: *__defaultMethod
     #     returnType: 'Database'

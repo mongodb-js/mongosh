@@ -619,6 +619,16 @@ describe('Mapper (integration)', function() {
         expect(result.process).to.match(/^mongo/);
       });
     });
+
+    describe('aggregate', () => {
+      it('runs an aggregate pipeline on the database', async() => {
+        const cursor = mapper.database_aggregate(database, [{
+          $listLocalSessions: {}
+        }]);
+
+        expect((await cursor.toArray())[0]).to.have.keys('_id', 'lastUse');
+      });
+    });
   });
 
   describe('explainable', () => {
