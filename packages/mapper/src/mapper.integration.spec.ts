@@ -586,6 +586,28 @@ describe('Mapper (integration)', function() {
         });
       });
     });
+
+    describe('aggregate', () => {
+      it('runs an aggregate pipeline on the database', async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+
+        const cursor = mapper.collection_aggregate(collection, [{
+          $count: 'count'
+        }]);
+
+        expect(await cursor.toArray()).to.deep.equal([{ count: 1 }]);
+      });
+
+      it('runs an explain with explain: true', async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+
+        const cursor = mapper.collection_aggregate(collection, [{
+          $count: 'count'
+        }]);
+
+        expect(await cursor.toArray()).to.deep.equal([{ count: 1 }]);
+      });
+    });
   });
 
   describe('db', () => {
