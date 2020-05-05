@@ -280,13 +280,6 @@ class CliRepl {
       callback (null, result)
     };
 
-    // function isRecoverableError(error) {
-    //   if (error.name === 'SyntaxError') {
-    //     return /^(Unexpected end of input|Unexpected token)/.test(error.message);
-    //   }
-    //   return false;
-    // }
-
     // @ts-ignore
     this.repl.eval = customEval;
 

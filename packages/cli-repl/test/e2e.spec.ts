@@ -1,4 +1,3 @@
-
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually, startShell, killOpenShells } from './helpers';
@@ -52,6 +51,40 @@ describe('e2e', function() {
       await eventually(() => {
         expect(shell.stdio.stderr).to.be.empty;
         expect(shell.stdio.stdout).to.contain(`> ${dbName}\n`);
+      });
+    });
+
+    it('throws multiline input with a single line string', async () => {
+      // this is an unterminated string constant and should throw, since it does
+      // not pass: https://www.ecma-international.org/ecma-262/#sec-line-terminators
+      shell.stdio.stdin.write('"this is a multi\nline string"\n');
+
+      await eventually(() => {
+        expect(shell.stdio.stderr).to.exist;
+      });
+    });
+
+    it('throws when a syntax error is encountered', async () => {
+      shell.stdio.stdin.write('<x>\n');
+
+      await eventually(() => {
+        expect(shell.stdio.stderr).to.exist;
+      });
+    });
+
+    it('runs an unterminated function', async () => {
+      shell.stdio.stdin.write('function x () {\nconsole.log(\'y\')\n }\n');
+
+      await eventually(() => {
+        expect(shell.stdio.stderr).to.be.empty;
+      });
+    });
+
+    it('runs an unterminated function', async () => {
+      shell.stdio.stdin.write('function x () {\n');
+
+      await eventually(() => {
+        expect(shell.stdio.stderr).to.be.empty;
       });
     });
 
