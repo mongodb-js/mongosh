@@ -1,12 +1,14 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import ShellEvaluator from '@mongosh/shell-evaluator';
+import isRecoverableError from 'is-recoverable-error';
+import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import getConnectInfo from './connect-info';
 import formatOutput from './format-output';
 import { TELEMETRY } from './constants';
-import { REPLServer } from 'repl';
 import CliOptions from './cli-options';
 import completer from './completer';
+import { REPLServer, Recoverable } from 'repl';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import repl from 'pretty-repl';
@@ -195,6 +197,7 @@ class CliRepl {
     // This checks for error instances.
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
+    // console.log('result', result)
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
       this.ShellEvaluator.revertState();
@@ -262,12 +265,19 @@ class CliRepl {
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback) => {
+      let result;
+      let err = null;
+
       try {
-        const result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
-        callback(null, result);
+        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
-        callback(err, null);
+        if (isRecoverableError(input)) {
+          return callback(new Recoverable(err));
+        } else {
+          result = err;
+        }
       }
+      callback (null, result)
     };
 
     // @ts-ignore
@@ -276,8 +286,8 @@ class CliRepl {
     const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     this.repl.setupHistory(historyFile, function(err, repl) {
-      // TODO: @lrlna format this error
-      if (err) console.log(err);
+      const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session')
+      if (err) this.writer(warn);
 
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
