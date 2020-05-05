@@ -106,7 +106,13 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           options: {
-            babelrc: true
+            plugins: [
+              'react-hot-loader/babel',
+              '@babel/plugin-syntax-object-rest-spread',
+              '@babel/plugin-proposal-object-rest-spread',
+              '@babel/plugin-proposal-class-properties',
+              '@babel/plugin-syntax-dynamic-import'
+            ]
           }
         }],
         exclude: /(node_modules)/
