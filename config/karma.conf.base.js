@@ -4,6 +4,15 @@ const os = require('os');
 console.log('#######################################################');
 console.log('PLATFORM', os.platform());
 
+const platform = os.platform();
+
+const browsers = () => {
+  if (platform === 'win32') {
+    return 'Chrome';
+  }
+  return 'HeadlessChrome';
+};
+
 /**
  * Configure Karma.
  *
@@ -48,7 +57,7 @@ const configure = (config) => {
         allowJs: true,
       },
     },
-    browsers: [ 'HeadlessChrome' ],
+    browsers: [ browsers() ],
     customLaunchers: {
       HeadlessChrome: {
         base: 'ChromeHeadless',
