@@ -13,8 +13,8 @@
   },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "test": "karma start --colors",
-    "test-ci": "karma start --colors",
+    "test": "DEBUG=* karma start --colors",
+    "test-ci": "DEBUG=* karma start --colors",
     "prepublish": "npm run compile-ts"
   },
   "license": "Apache-2.0",
