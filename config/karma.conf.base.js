@@ -30,6 +30,12 @@ const configure = (config) => {
       'mocha',
       'karma-typescript'
     ],
+    browserConsoleLogOptions: {
+      level: 'debug'
+    },
+    captureTimeout: 120000,
+    logLevel: 'debug',
+    browserSocketTimeout: 120000,
     karmaTypescriptConfig: {
       bundlerOptions: {
         constants: {
