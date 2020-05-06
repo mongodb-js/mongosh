@@ -34,10 +34,6 @@ interface ShowEvent {
   method: string;
 }
 
-interface ErrorEvent {
-  error: object;
-}
-
 interface ConnectEvent {
   uri: string;
   isAtlas: boolean;
@@ -96,7 +92,7 @@ export default function logger(bus: any, logDir: string) {
   })
 
 
-  bus.on('mongosh:error', function(error: ErrorEvent) {
+  bus.on('mongosh:error', function(error: any) {
     log.error(error);
 
     if (telemetry && error.name.includes('Mongosh')) {
