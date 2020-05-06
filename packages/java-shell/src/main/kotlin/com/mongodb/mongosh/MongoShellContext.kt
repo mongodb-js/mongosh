@@ -85,7 +85,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             }
             v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
             v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
-            v.instanceOf(cursorClass) -> CursorResult(Cursor(v, this))
+            v.instanceOf(cursorClass) -> FindCursorResult(FindCursor(v, this))
             v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
             v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")))
