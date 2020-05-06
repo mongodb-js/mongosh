@@ -63,6 +63,7 @@ export default function logger(bus: any, logDir: string) {
   try {
     // this file gets written as a part of a release
     analytics = new Analytics(require('./config.js'));
+    log.warn(require('./config.js'))
   } catch (e) {
     bus.emit('mongosh:error', e)
   }
