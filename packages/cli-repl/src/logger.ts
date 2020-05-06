@@ -62,9 +62,8 @@ export default function logger(bus: any, logDir: string) {
   let analytics = new NoopAnalytics();
   try {
     // this file gets written as a part of a release
-    console.log(require('./config.js'))
-    log.warn(require('./config.js').SEGMENT_API_KEY)
-    analytics = new Analytics(require('./config.js').SEGMENT_API_KEY);
+    log.warn(require('./analytics-config.js').SEGMENT_API_KEY)
+    analytics = new Analytics(require('./analytics-config.js').SEGMENT_API_KEY);
   } catch (e) {
     bus.emit('mongosh:error', e)
   }
@@ -100,7 +99,7 @@ export default function logger(bus: any, logDir: string) {
   bus.on('mongosh:error', function(error: ErrorEvent) {
     log.error(error);
 
-    if (telemetry) {
+    if (telemetry && error.name.includes('Mongosh')) {
       analytics.track({
         userId,
         event: 'mongosh:error',
@@ -143,17 +142,6 @@ export default function logger(bus: any, logDir: string) {
         userId,
         event: 'mongosh:show',
         properties: { method: args.method }
-      });
-    }
-  });
-
-  bus.on('mongosh:it', function() {
-    log.info('mongosh:it');
-
-    if (telemetry) {
-      analytics.track({
-        userId,
-        event: 'mongosh:it'
       });
     }
   });

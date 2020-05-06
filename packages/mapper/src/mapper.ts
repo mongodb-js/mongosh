@@ -145,14 +145,12 @@ export default class Mapper {
 
     for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
       if (!await this.currentCursor.hasNext()) {
-        this.messageBus.emit('mongosh:it');
         break;
       }
 
       results.push(await this.currentCursor.next());
     }
 
-    this.messageBus.emit('mongosh:it');
     return results;
   }
 

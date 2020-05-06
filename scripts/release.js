@@ -57,10 +57,9 @@ const archive = async() => {
 };
 
 const writeSegmentFile = () => {
-  console.log(process.env.SEGMENT_API_KEY)
   const key = `module.exports = SEGMENT_API_KEY = '${process.env.SEGMENT_API_KEY}';`;
   // create directly in cli-repl/lib so it can be part of artifacts in dist
-  const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'config.js');
+  const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'analytics-config.js');
   try {
     // can just write this sync, since it's part of the release script
     fs.writeFileSync(configPath, key)
