@@ -82,7 +82,8 @@ describe('getConnectInfo', function() {
       isDataLake: false,
       dlVersion: null,
       isGenuine: true,
-      serverName: 'mongodb'
+      serverName: 'mongodb',
+      uri: ATLAS_URI
     }
     expect(getConnectInfo(
       ATLAS_URI,
@@ -101,7 +102,8 @@ describe('getConnectInfo', function() {
       isDataLake: false,
       dlVersion: null,
       isGenuine: true,
-      serverName: 'mongodb'
+      serverName: 'mongodb',
+      uri: ATLAS_URI
     }
     expect(getConnectInfo(
       ATLAS_URI,

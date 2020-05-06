@@ -2,6 +2,7 @@ const os = require('os');
 const path = require('path');
 const { exec } = require('pkg');
 const tar = require('tar');
+const fs = require('fs');
 const config = require(path.join(__dirname, '..', 'packages', 'cli-repl', 'package.json'));
 
 /**
@@ -55,6 +56,19 @@ const archive = async() => {
   );
 };
 
+const writeSegmentFile = () => {
+  const key = `module.exports = SEGMENT_API_KEY = '${process.env.SEGMENT_API_KEY}';`;
+  // create directly in cli-repl/lib so it can be part of artifacts in dist
+  const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'analytics-config.js');
+  try {
+    // can just write this sync, since it's part of the release script
+    fs.writeFileSync(configPath, key)
+  } catch (e) {
+    console.log('mognosh: unable to write segment api key')
+    return;
+  }
+}
+
 /**
  * Creates dist/mongosh or dist/mongosh.exe and then creates a
  * tarball or zip of the executable as dist/mongosh-${version}-${os}.tgz or
@@ -62,6 +76,7 @@ const archive = async() => {
  */
 const release = async() => {
   const artifact = getArtifact();
+  writeSegmentFile();
   console.log('mongosh: creating binary:', artifact);
   await exec([
     path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),

@@ -18,6 +18,7 @@ variables:
       shell: bash
       script: |
         source .evergreen/.setup_env
+        export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         npm run compile-exec
 # Functions are any command that can be run.
