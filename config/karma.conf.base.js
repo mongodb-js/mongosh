@@ -44,7 +44,13 @@ const configure = (config) => {
         allowJs: true,
       },
     },
-    browsers: [ 'ChromeHeadless' ],
+    browsers: [ 'HeadlessChrome' ],
+    customLaunchers: {
+      HeadlessChrome: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
     singleRun: true,
     client: {
       mocha: {
