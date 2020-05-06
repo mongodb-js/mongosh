@@ -57,7 +57,8 @@ const archive = async() => {
 };
 
 const writeSegmentFile = () => {
-  const key = `module.exports = '${process.env.SEGMENT_API_KEY}';`;
+  console.log(process.env.SEGMENT_API_KEY)
+  const key = `module.exports = SEGMENT_API_KEY = '${process.env.SEGMENT_API_KEY}';`;
   // create directly in cli-repl/lib so it can be part of artifacts in dist
   const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'config.js');
   try {
@@ -76,7 +77,7 @@ const writeSegmentFile = () => {
  */
 const release = async() => {
   const artifact = getArtifact();
-  const segmentFile = await writeSegmentFile();
+  writeSegmentFile();
   console.log('mongosh: creating binary:', artifact);
   await exec([
     path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),
