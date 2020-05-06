@@ -76,6 +76,7 @@ function inspect(output) {
   return util.inspect(output, {
     showProxy: false,
     colors: true,
+    depth: 6
   });
 }
 
