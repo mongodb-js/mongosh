@@ -39,10 +39,6 @@ const configure = (config) => {
       'mocha',
       'karma-typescript'
     ],
-    browserConsoleLogOptions: {
-      level: 'debug'
-    },
-    logLevel: 'debug',
     karmaTypescriptConfig: {
       bundlerOptions: {
         constants: {
