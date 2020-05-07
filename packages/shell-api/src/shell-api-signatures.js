@@ -29,7 +29,7 @@ const Collection = {
   type: 'Collection',
   hasAsyncChild: true,
   attributes: {
-    aggregate: { type: 'function', returnsPromise: false, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
+    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
     bulkWrite: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
     countDocuments: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['4.0.3', '4.4.0'] },
     count: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
@@ -132,7 +132,7 @@ const Database = {
     getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] },
     runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     adminCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.4.0', '4.4.0'] },
-    aggregate: { type: 'function', returnsPromise: false, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] }
+    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const DeleteResult = {
@@ -150,7 +150,7 @@ const Explainable = {
     getVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     setVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     find: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    aggregate: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] }
+    aggregate: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const InsertManyResult = {

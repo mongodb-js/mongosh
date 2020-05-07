@@ -30,6 +30,7 @@ class:
         returnsPromise: true
     aggregate:
         <<: *__defaultMethod
+        returnsPromise: true
         returnType: 'AggregationCursor'
     # getSiblingDB:
     #     <<: *__defaultMethod

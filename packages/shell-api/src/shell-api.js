@@ -357,7 +357,7 @@ class Collection {
 Collection.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.aggregate.example', 'docs': 'shell-api.classes.Collection.help.attributes.aggregate.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.aggregate.description' }] });
 Collection.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
 Collection.prototype.aggregate.topologies = [0, 1, 2];
-Collection.prototype.aggregate.returnsPromise = false;
+Collection.prototype.aggregate.returnsPromise = true;
 Collection.prototype.aggregate.returnType = 'AggregationCursor';
 
 Collection.prototype.bulkWrite.help = () => new Help({ 'help': 'shell-api.classes.Collection.help.attributes.bulkWrite.example', 'docs': 'shell-api.classes.Collection.help.attributes.bulkWrite.link', 'attr': [{ 'description': 'shell-api.classes.Collection.help.attributes.bulkWrite.description' }] });
@@ -1094,7 +1094,7 @@ Database.prototype.adminCommand.returnType = 'unknown';
 Database.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.aggregate.example', 'docs': 'shell-api.classes.Database.help.attributes.aggregate.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }] });
 Database.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.aggregate.topologies = [0, 1, 2];
-Database.prototype.aggregate.returnsPromise = false;
+Database.prototype.aggregate.returnsPromise = true;
 Database.prototype.aggregate.returnType = 'AggregationCursor';
 
 
@@ -1180,8 +1180,8 @@ Explainable.prototype.find.returnType = 'Cursor';
 Explainable.prototype.aggregate.help = () => new Help({ 'help': 'shell-api.classes.Explainable.help.attributes.aggregate.example', 'docs': 'shell-api.classes.Explainable.help.attributes.aggregate.link', 'attr': [{ 'description': 'shell-api.classes.Explainable.help.attributes.aggregate.description' }] });
 Explainable.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
 Explainable.prototype.aggregate.topologies = [0, 1, 2];
-Explainable.prototype.aggregate.returnsPromise = false;
-Explainable.prototype.aggregate.returnType = 'Cursor';
+Explainable.prototype.aggregate.returnsPromise = true;
+Explainable.prototype.aggregate.returnType = 'unknown';
 
 
 class InsertManyResult {

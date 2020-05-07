@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
-import { Collection, Cursor, Database, Explainable } from '@mongosh/shell-api';
+import { Collection, Cursor, Database, Explainable, AggregationCursor } from '@mongosh/shell-api';
 
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
@@ -591,21 +591,21 @@ describe('Mapper (integration)', function() {
       it('runs an aggregate pipeline on the database', async() => {
         await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
 
-        const cursor = mapper.collection_aggregate(collection, [{
+        const cursor = await mapper.collection_aggregate(collection, [{
           $count: 'count'
         }]);
 
-        expect(await cursor.toArray()).to.deep.equal([{ count: 1 }]);
+        expect(await (cursor as AggregationCursor).toArray()).to.deep.equal([{ count: 1 }]);
       });
 
       it('runs an explain with explain: true', async() => {
         await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
 
-        const cursor = mapper.collection_aggregate(collection, [{
+        const cursor = await mapper.collection_aggregate(collection, [{
           $count: 'count'
         }]);
 
-        expect(await cursor.toArray()).to.deep.equal([{ count: 1 }]);
+        expect(await (cursor as AggregationCursor).toArray()).to.deep.equal([{ count: 1 }]);
       });
     });
   });
@@ -644,11 +644,11 @@ describe('Mapper (integration)', function() {
 
     describe('aggregate', () => {
       it('runs an aggregate pipeline on the database', async() => {
-        const cursor = mapper.database_aggregate(database, [{
+        const cursor = await mapper.database_aggregate(database, [{
           $listLocalSessions: {}
         }]);
 
-        expect((await cursor.toArray())[0]).to.have.keys('_id', 'lastUse');
+        expect((await (cursor as AggregationCursor).toArray())[0]).to.have.keys('_id', 'lastUse');
       });
     });
   });

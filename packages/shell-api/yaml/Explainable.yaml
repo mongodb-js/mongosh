@@ -22,7 +22,7 @@ class:
     returnType: 'Cursor'
   aggregate:
     <<: *__defaultMethod
-    returnType: 'Cursor'
+    returnsPromise: true
 
 #   # bsonsize:
 #   # count:
