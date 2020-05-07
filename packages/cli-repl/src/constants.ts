@@ -6,6 +6,10 @@ ${i18n.__('cli-repl.cli-repl.telemetry')}
 ${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr('disableTelemetry()', 'bold')} ${i18n.__('cli-repl.cli-repl.command')}
 `
 
+export const MONGOSH_WIKI = `
+${i18n.__('cli-repl.cli-repl.wiki.info')} ${clr(i18n.__('cli-repl.cli-repl.wiki.link'), 'bold')}
+`
+
 export const USAGE = `
 
   ${clr(i18n.__('cli-repl.args.usage'), 'bold')}

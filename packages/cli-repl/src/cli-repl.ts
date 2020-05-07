@@ -5,7 +5,7 @@ import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import getConnectInfo from './connect-info';
 import formatOutput from './format-output';
-import { TELEMETRY } from './constants';
+import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import CliOptions from './cli-options';
 import completer from './completer';
 import { REPLServer, Recoverable } from 'repl';
@@ -50,7 +50,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
-    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), 'bold'));
+    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
@@ -215,7 +215,8 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.buildInfo.version} \n`);
+    console.log(`Using MongoDB: ${this.buildInfo.version}`);
+    console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
