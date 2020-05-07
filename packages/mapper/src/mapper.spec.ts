@@ -10,7 +10,7 @@ const { expect } = chai;
 import Mapper from './mapper';
 import sinon from 'sinon';
 import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
-import { Collection, Database, Explainable } from '@mongosh/shell-api';
+import { Collection, Database, Explainable, AggregationCursor } from '@mongosh/shell-api';
 
 describe('Mapper', () => {
   let mapper: Mapper;
@@ -163,17 +163,22 @@ coll2`;
         serviceProviderCursor.toArray.resolves(toArrayResult);
         serviceProvider.aggregate.returns(serviceProviderCursor);
 
-        const cursor = await mapper.collection_aggregate(collection, [{ $piplelineStage: {} }]);
-        expect(await cursor.toArray()).to.equal(toArrayResult);
+        const cursor = await mapper.collection_aggregate(collection, [{
+          $piplelineStage: {}
+        }]);
+
+        expect(await (cursor as AggregationCursor).toArray()).to.equal(toArrayResult);
       });
 
       it('throws if serviceProvider.aggregate rejects', async() => {
         const expectedError = new Error();
         serviceProvider.aggregate.throws(expectedError);
 
-        expect(() => {
-          mapper.collection_aggregate(collection, [{ $piplelineStage: {} }]);
-        }).to.throw(expectedError);
+        expect(
+          await mapper.collection_aggregate(
+            collection, [{ $piplelineStage: {} }]
+          ).catch(e => e)
+        ).to.equal(expectedError);
       });
 
       it('pass readConcern and writeConcern as dbOption', async() => {
@@ -193,25 +198,24 @@ coll2`;
       });
 
       it('runs explain if explain true is passed', async() => {
-        const explainResult = {};
-        serviceProviderCursor.explain.resolves(explainResult);
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
         serviceProvider.aggregate.returns(serviceProviderCursor as any);
 
-        const explainableCursor = mapper.collection_aggregate(
+        const explainResult = await mapper.collection_aggregate(
           collection,
           [],
           { explain: true }
         );
 
-        expect(explainableCursor.shellApiType()).to.equal('ExplainableAggregationCursor');
-        expect(await explainableCursor.toReplString()).to.equal(explainResult);
+        expect(explainResult).to.equal(expectedExplainResult);
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
 
       it('wont run explain if explain is not passed', async() => {
         serviceProvider.aggregate.returns(serviceProviderCursor as any);
 
-        const cursor = mapper.collection_aggregate(
+        const cursor = await mapper.collection_aggregate(
           collection,
           [],
           {}
@@ -941,16 +945,18 @@ coll2`;
         serviceProvider.aggregateDb.returns(serviceProviderCursor);
 
         const cursor = await mapper.database_aggregate(database, [{ $piplelineStage: {} }]);
-        expect(await cursor.toArray()).to.equal(toArrayResult);
+        expect(await (cursor as AggregationCursor).toArray()).to.equal(toArrayResult);
       });
 
       it('throws if serviceProvider.aggregateDb rejects', async() => {
         const expectedError = new Error();
         serviceProvider.aggregateDb.throws(expectedError);
 
-        expect(() => {
-          mapper.database_aggregate(database, [{ $piplelineStage: {} }]);
-        }).to.throw(expectedError);
+        expect(
+          await mapper.database_aggregate(
+            database, [{ $piplelineStage: {} }]
+          ).catch(e => e)
+        ).to.equal(expectedError);
       });
 
       it('pass readConcern and writeConcern as dbOption', async() => {
@@ -969,25 +975,24 @@ coll2`;
       });
 
       it('runs explain if explain true is passed', async() => {
-        const explainResult = {};
-        serviceProviderCursor.explain.resolves(explainResult);
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
 
-        const explainableCursor = mapper.database_aggregate(
+        const explainResult = await mapper.database_aggregate(
           database,
           [],
           { explain: true }
         );
 
-        expect(explainableCursor.shellApiType()).to.equal('ExplainableAggregationCursor');
-        expect(await explainableCursor.toReplString()).to.equal(explainResult);
+        expect(explainResult).to.equal(expectedExplainResult);
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
 
       it('wont run explain if explain is not passed', async() => {
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
 
-        const cursor = mapper.database_aggregate(
+        const cursor = await mapper.database_aggregate(
           database,
           [],
           {}
@@ -1042,14 +1047,14 @@ coll2`;
     describe('find', () => {
       let cursorStub;
       let explainResult;
-      beforeEach(() => {
+      beforeEach(async() => {
         explainResult = { ok: 1 };
 
         collection.find = sinon.spy(() => ({
           explain: sinon.spy(() => explainResult)
         }));
 
-        cursorStub = mapper.explainable_find(
+        cursorStub = await mapper.explainable_find(
           explainable,
           { query: 1 },
           { projection: 1 }
@@ -1063,7 +1068,7 @@ coll2`;
         );
       });
 
-      it('returns an ExplainableCursor', () => {
+      it('returns an cursor that has shellApiType when evaluated', () => {
         expect(cursorStub.shellApiType()).to.equal('ExplainableCursor');
       });
 
@@ -1084,16 +1089,18 @@ coll2`;
     });
 
     describe('aggregate', () => {
-      let cursorStub;
       let explainResult;
-      beforeEach(() => {
+      let expectedExplainResult;
+      let cursor;
+      beforeEach(async() => {
         explainResult = { ok: 1 };
+        cursor = {
+          explain: sinon.spy(() => Promise.resolve(expectedExplainResult))
+        };
 
-        collection.aggregate = sinon.spy(() => ({
-          explain: sinon.spy(() => explainResult)
-        }));
+        collection.aggregate = sinon.spy(() => Promise.resolve(cursor));
 
-        cursorStub = mapper.explainable_aggregate(
+        explainResult = await mapper.explainable_aggregate(
           explainable,
           { pipeline: 1 },
           { aggregate: 1 }
@@ -1103,27 +1110,18 @@ coll2`;
       it('calls collection.aggregate with arguments', () => {
         expect(collection.aggregate).to.have.been.calledOnceWithExactly(
           { pipeline: 1 },
-          { aggregate: 1 }
+          { aggregate: 1, explain: false }
         );
       });
 
-      it('returns an ExplainableCursor', () => {
-        expect(cursorStub.shellApiType()).to.equal('ExplainableAggregationCursor');
+      it('calls explain with verbosity', async() => {
+        expect(
+          cursor.explain
+        ).to.have.been.calledOnceWithExactly('queryPlanner');
       });
 
-      context('when calling toReplString on the result', () => {
-        it('calls explain with verbosity', async() => {
-          await cursorStub.toReplString();
-          expect(
-            cursorStub.explain
-          ).to.have.been.calledOnceWithExactly('queryPlanner');
-        });
-
-        it('returns the explain result', async() => {
-          expect(
-            await cursorStub.toReplString()
-          ).to.equal(explainResult);
-        });
+      it('returns the explain result', () => {
+        expect(explainResult).to.equal(expectedExplainResult);
       });
     });
   });

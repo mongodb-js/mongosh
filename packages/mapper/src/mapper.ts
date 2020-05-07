@@ -170,12 +170,12 @@ export default class Mapper {
     return results;
   }
 
-  private _aggregate(
+  private async _aggregate(
     databaseName: string,
     collectionName: string,
     pipeline: Document[],
     options?: Document
-  ): AggregationCursor {
+  ): Promise<AggregationCursor|CommandResult> {
     const {
       providerOptions,
       dbOptions,
@@ -203,10 +203,7 @@ export default class Mapper {
     const cursor = new AggregationCursor(this, providerCursor);
 
     if (explain) {
-      return this._makeExplainableCursor(
-        'ExplainableAggregationCursor',
-        cursor
-      );
+      return await cursor.explain();
     }
 
     this.currentCursor = cursor;
@@ -230,11 +227,11 @@ export default class Mapper {
     return this.serviceProvider.runCommand('admin', cmd);
   }
 
-  database_aggregate(
+  async database_aggregate(
     database: Database,
     pipeline: Document[],
     options?: Document
-  ): AggregationCursor {
+  ): Promise<AggregationCursor|CommandResult> {
     this._emitDatabaseApiCall(database, 'aggregate', { pipeline, options });
     return this._aggregate(database._name, null, pipeline, options);
   }
@@ -303,7 +300,11 @@ export default class Mapper {
    *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
-  collection_aggregate(collection: Collection, pipeline: Document[], options: Document = {}): AggregationCursor {
+  collection_aggregate(
+    collection: Collection,
+    pipeline: Document[],
+    options: Document = {}
+  ): Promise<AggregationCursor|CommandResult> {
     this._emitCollectionApiCall(
       collection,
       'aggregate',
@@ -1931,11 +1932,10 @@ export default class Mapper {
 
   // TODO: turn this into proper types and constructors in shell api.
   private _makeExplainableCursor<T extends AggregationCursor|Cursor>(
-    shellApiType: string,
     cursor: T,
     verbosity?: string
   ): T {
-    cursor.shellApiType = (): string => shellApiType;
+    cursor.shellApiType = (): string => 'ExplainableCursor';
     cursor.toReplString = (): Promise<any> => {
       return cursor.explain(verbosity);
     };
@@ -1949,21 +1949,19 @@ export default class Mapper {
     // TODO: turn ExplainableCursor in a proper type.
     const cursor = explainable._collection.find(query, projection) as Cursor;
     return this._makeExplainableCursor(
-      'ExplainableCursor',
       cursor,
       explainable._verbosity
     );
   }
 
-  explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): AggregationCursor {
+  async explainable_aggregate(explainable: Explainable, pipeline?: any, options?: any): Promise<any> {
     this._emitExplainableApiCall(explainable, 'aggregate', { pipeline, options });
 
-    // TODO: turn ExplainableAggregationCursor in a proper type.
-    const cursor = explainable._collection.aggregate(pipeline, options) as AggregationCursor;
-    return this._makeExplainableCursor(
-      'ExplainableAggregationCursor',
-      cursor,
-      explainable._verbosity
-    );
+    const cursor = await explainable._collection.aggregate(pipeline, {
+      ...options,
+      explain: false
+    }) as AggregationCursor;
+
+    return await cursor.explain(explainable._verbosity);
   }
 }
