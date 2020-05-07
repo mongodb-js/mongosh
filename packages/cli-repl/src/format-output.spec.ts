@@ -94,6 +94,20 @@ describe('formatOutput', () => {
       expect(output).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
     });
   });
+
+  context('when the result is ShowCollectionsResult', () => {
+    it('returns the help text', () => {
+      const output = stripAnsiColors(format({
+        value: [
+          'nested_documents', 'decimal128', 'coll', 'people_imported', 'cats'
+        ],
+        type: 'ShowCollectionsResult'
+      }));
+
+      expect(output).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
+    });
+  });
+
   context('when the result is Help', () => {
     it('returns help text', () => {
       const output = stripAnsiColors(format({

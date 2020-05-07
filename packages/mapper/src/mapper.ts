@@ -118,7 +118,7 @@ export default class Mapper {
   private async _showCollections(): Promise<CommandResult> {
     const collectionNames = await this.database_getCollectionNames(this.context.db);
 
-    return new CommandResult('ShowCollectionsResult', collectionNames.join('\n'));
+    return new CommandResult('ShowCollectionsResult', collectionNames);
   }
 
   private async _showDatabases(): Promise<CommandResult> {

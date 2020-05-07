@@ -127,6 +127,18 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
   });
 
+  it('renders ShowCollectionsResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      type: 'output',
+      shellApiType: 'ShowCollectionsResult',
+      value: [
+        'nested_documents', 'decimal128', 'coll', 'people_imported', 'cats'
+      ]
+    }} />);
+
+    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ type: 'output', value: err }} />);
