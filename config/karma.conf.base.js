@@ -1,9 +1,6 @@
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 const os = require('os');
 
-console.log('#######################################################');
-console.log('PLATFORM', os.platform());
-
 const platform = os.platform();
 
 const browsers = () => {

@@ -157,7 +157,6 @@ tasks:
   - name: release_win
     depends_on:
       - name: check
-      - name: test
     commands:
       - func: checkout
       - func: install
@@ -184,7 +183,6 @@ buildvariants:
     run_on: windows-64-vs2019-test
     tasks:
       - name: check
-      - name: test
       - name: release_win
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
