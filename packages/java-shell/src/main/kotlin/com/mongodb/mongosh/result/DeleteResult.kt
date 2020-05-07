@@ -1,6 +1,7 @@
 package com.mongodb.mongosh.result
 
-class DeleteResult(val acknowleged: Boolean, val deletedCount: Long) : MongoShellResult() {
-    fun toMap(): Map<String, Any> = mapOf("acknowleged" to acknowleged, "deletedCount" to deletedCount)
-    override fun toReplString(): String = toMap().toLiteral()
+class DeleteResult(val acknowleged: Boolean, val deletedCount: Long) : MongoShellResult<Map<String, Any>> {
+    override val value: Map<String, Any>
+        get() = mapOf("acknowleged" to acknowleged, "deletedCount" to deletedCount)
+    override fun toReplString(): String = value.toLiteral()
 }

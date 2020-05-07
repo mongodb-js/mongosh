@@ -1,5 +1,7 @@
 package com.mongodb.mongosh.result
 
-class FunctionResult : MongoShellResult() {
-    override fun toReplString() = "js function"
+class FunctionResult : MongoShellResult<String> {
+    override fun toReplString() = value
+    override val value: String
+        get() = "js function"
 }

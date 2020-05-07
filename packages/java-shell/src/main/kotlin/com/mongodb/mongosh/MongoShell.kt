@@ -10,7 +10,7 @@ private val SHOW_COMMAND = Regex("show\\s+\"?([^\"]*)\"?")
 class MongoShell(client: MongoClient) : Closeable {
     private val context = MongoShellContext(client)
 
-    fun eval(script: String): MongoShellResult {
+    fun eval(script: String): MongoShellResult<*> {
         val s = script.trim()
         if (s == "help" || s == "help()") {
             val help = requireNotNull(context["help"], { "Context should contain 'help' function" })

@@ -2,7 +2,7 @@ package com.mongodb.mongosh.result
 
 import org.graalvm.polyglot.Value
 
-class CollectionResult internal constructor(val value: Collection) : MongoShellResult() {
+class CollectionResult internal constructor(override val value: Collection) : MongoShellResult<Collection> {
     override fun toReplString() = value.toReplString()
 }
 

@@ -1,5 +1,7 @@
 package com.mongodb.mongosh.result
 
-class CommandResult(val type: String, val value: MongoShellResult) : MongoShellResult() {
-    override fun toReplString(): String = value.toReplString()
+class CommandResult(val type: String, val response: MongoShellResult<*>) : MongoShellResult<Map<String, Any>> {
+    override fun toReplString(): String = value.toLiteral()
+    override val value: Map<String, Any>
+        get() = mapOf("type" to type, "value" to response)
 }

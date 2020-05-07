@@ -2,6 +2,6 @@ package com.mongodb.mongosh.result
 
 import org.bson.Document
 
-class DocumentResult(val value: Document) : MongoShellResult() {
+class DocumentResult(override val value: Document) : MongoShellResult<Document> {
     override fun toReplString(): String = value.toLiteral()
 }

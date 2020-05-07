@@ -2,7 +2,7 @@ package com.mongodb.mongosh.result
 
 import org.graalvm.polyglot.Value
 
-class DatabaseResult internal constructor(val value: Database) : MongoShellResult() {
+class DatabaseResult internal constructor(override val value: Database) : MongoShellResult<Database> {
     override fun toReplString() = value.toReplString()
 
     override fun toString(): String {

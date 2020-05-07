@@ -1,6 +1,6 @@
 package com.mongodb.mongosh.result
 
-class LongResult(val value: Long) : MongoShellResult() {
+class LongResult(override val value: Long) : MongoShellResult<Long> {
     override fun toReplString(): String = value.toString()
 
     override fun equals(other: Any?): Boolean = this === other || other is LongResult && value == other.value

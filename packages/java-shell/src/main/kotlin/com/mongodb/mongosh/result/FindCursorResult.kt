@@ -5,7 +5,7 @@ import org.bson.Document
 import org.graalvm.polyglot.Value
 
 class FindCursorResult internal constructor(cursor: FindCursor) : CursorResult<FindCursor>(cursor) {
-    override fun toReplString(): String = cursor.toReplString()
+    override fun toReplString(): String = value.toReplString()
 }
 
 class FindCursor internal constructor(private val cursor: Value, private val context: MongoShellContext) : Cursor {

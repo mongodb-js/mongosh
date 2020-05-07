@@ -69,9 +69,9 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
     }
 }
 
-private fun getExpectedValue(result: MongoShellResult, options: CompareOptions): String {
+private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOptions): String {
     var result = result
-    if (result is CommandResult) result = result.value
+    if (result is CommandResult) result = result.response
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
     if (options.arrayItem != null) {
@@ -87,7 +87,7 @@ private fun getExpectedValue(result: MongoShellResult, options: CompareOptions):
             else -> throw AssertionError()
         }
         assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${result.toReplString()}", value)
-        sb.append((value as? MongoShellResult)?.toReplString() ?: value.toString())
+        sb.append((value as? MongoShellResult<*>)?.toReplString() ?: value.toString())
     } else {
         sb.append(result.toReplString())
     }

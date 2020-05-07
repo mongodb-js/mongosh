@@ -63,11 +63,11 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return ctx.getBindings("js").getMember(value)
     }
 
-    fun extract(v: Value): MongoShellResult {
+    fun extract(v: Value): MongoShellResult<*> {
         return when {
             v.isPromise() -> {
                 try {
-                    CompletableFuture<MongoShellResult>().also { future ->
+                    CompletableFuture<MongoShellResult<*>>().also { future ->
                         v.invokeMember("then", ProxyExecutable { args ->
                             future.complete(extract(args[0]))
                         }).invokeMember("catch", ProxyExecutable { args ->
