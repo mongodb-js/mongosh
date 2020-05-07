@@ -3,8 +3,20 @@ import classnames from 'classnames';
 import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Resizable } from 're-resizable';
 
 import { Shell } from '@mongosh/browser-repl';
+
+const resizeableDirections = {
+  top: true,
+  right: false,
+  bottom: false,
+  left: false,
+  topRight: false,
+  bottomRight: false,
+  bottomLeft: false,
+  topLeft: false
+};
 
 export class CompassShell extends Component {
   static propTypes = {
@@ -71,11 +83,22 @@ export class CompassShell extends Component {
     }
 
     return (
-      <div className={classnames(styles.container)}>
-        <Shell runtime={this.props.runtime}
+      <Resizable
+        className={classnames(styles['compass-shell'])}
+        defaultSize={{
+          width: '100%',
+          height: 240
+        }}
+        id="content"
+        minHeight={30}
+        enable={resizeableDirections}
+      >
+        <Shell
+          runtime={this.props.runtime}
           initialHistory={this.state.initialHistory}
-          onHistoryChanged={this.saveHistory} />
-      </div>
+          onHistoryChanged={this.saveHistory}
+        />
+      </Resizable>
     );
   }
 }

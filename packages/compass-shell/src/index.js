@@ -5,26 +5,15 @@ const {
   Plugin
 } = createPlugin();
 
-const ROLE = {
-  name: 'Shell',
-  component: Plugin
-};
-
 /**
  * Activate all the components in the Compass Shell package.
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  // Register the CompassShellPlugin as a role in Compass
-  //
-  // Available roles are:
-  //   - Instance.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Database.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - Collection.Tab: { name: <String>, component: <React.Component>, order: <Number> }
-  //   - CollectionHUD.Item: { name <String>, component: <React.Component> }
-  //   - Header.Item: { name: <String>, component: <React.Component>, alignment: <String> }
+  console.log('Activated mongo shell and registered its role.');
 
-  appRegistry.registerRole('Instance.Tab', ROLE);
+  // Register the shell plugin's role in Compass.
+  appRegistry.registerComponent('Global.Shell', Plugin);
   appRegistry.registerStore('CompassShell.Store', store);
 }
 
@@ -33,7 +22,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Instance.Tab', ROLE);
+  appRegistry.registerComponent('Global.Shell', Plugin);
   appRegistry.deregisterStore('CompassShell.Store');
 }
 
