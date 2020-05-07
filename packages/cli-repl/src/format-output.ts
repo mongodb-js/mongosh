@@ -47,9 +47,8 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
 }
 
 function formatSimpleType(output) {
-  if (typeof output === 'string') {
-    return output;
-  }
+  if (typeof output === 'string') return output;
+  if (typeof output === 'undefined') return '';
 
   return inspect(output);
 }

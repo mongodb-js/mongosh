@@ -260,8 +260,7 @@ class CliRepl {
     const version = this.buildInfo.version;
 
     this.repl = repl.start({
-      prompt: `$ mongosh > `,
-      ignoreUndefined: true,
+      prompt: `msh > `,
       writer: this.writer,
       completer: completer.bind(null, version),
     });
