@@ -52,7 +52,13 @@ internal abstract class Cursor<T : MongoIterable<Document>>(protected val iterab
     @JvmField
     @HostAccess.Export
     val readPref = jsFun<Cursor<T>> {
-        throw UnsupportedOperationException("readPref is not supported")
+        throw NotImplementedError("readPref is not supported")
+    }
+
+    @JvmField
+    @HostAccess.Export
+    val explain = jsFun<Cursor<T>> {
+        throw NotImplementedError("explain is not supported")
     }
 
     @JvmField
