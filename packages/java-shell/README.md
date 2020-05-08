@@ -22,21 +22,29 @@ MongoClientSettings settings = MongoClientSettings.builder()
 
 try (MongoShell shell = new MongoShell(MongoClients.create(settings))) {
   shell.eval("use admin");
-  CursorResult result = (CursorResult) shell.eval("db.companies.find()").get();
+  CursorResult<?> result = (CursorResult<?>) shell.eval("db.companies.find()");
   Cursor cursor = result.getValue();
   while (cursor.hasNext()) {
     Document doc = cursor.next();
     System.out.println(doc);
   }
 }
-catch (InterruptedException | ExecutionException e) {
-  e.printStackTrace();
-}
 ```
+
+## Compilation
+
+1. Compile mongosh JS package using instructions in [mongosh/README.md](../../README.md)
+2. ```./gradlew compileJava```
+
+To compile a jar file with the library:
+```bash
+./gradlew jar
+```
+This will produce a jar file in `build/libs` directory.
 
 ## Running Tests
 
-Start MongoDB instance and set `URI` variable in [util.kt](src/test/kotlin/com/mongodb/mongosh/util.kt) to
+Start MongoDB instance and set `URI` variable in [URI.txt](src/test/resources/URI.txt) to
 MongoDB URI string e.g. `mongodb://localhost:27017`
 
 ```shell
