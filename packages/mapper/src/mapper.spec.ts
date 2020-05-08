@@ -65,11 +65,10 @@ describe('Mapper', () => {
               { name: 'coll2' }
             ]);
 
-            const expectedOutput = `coll1
-coll2`;
+            const expectedOutput = ['coll1', 'coll2'];
             expect(
               (await mapper.show(showArgument)).toReplString()
-            ).to.equal(expectedOutput);
+            ).to.deep.equal(expectedOutput);
           });
         });
       });

@@ -8,6 +8,7 @@ import { LineWithIcon } from './utils/line-with-icon';
 
 import { HelpOutput } from './types/help-output';
 import { ShowDbsOutput } from './types/show-dbs-output';
+import { ShowCollectionsOutput } from './types/show-collections-output';
 import { CursorOutput } from './types/cursor-output';
 import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 import { ObjectOutput } from './types/object-output';
@@ -55,6 +56,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <ShowDbsOutput value={value} />;
     }
 
+    if (shellApiType === 'ShowCollectionsResult') {
+      return <ShowCollectionsOutput value={value} />;
+    }
+
     if (shellApiType === 'Cursor') {
       return <CursorOutput value={value} />;
     }
@@ -77,7 +82,6 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   private isPreformattedResult(value: any, shellApiType: string): boolean {
     return typeof value === 'string' &&
     shellApiType === 'Database' ||
-    shellApiType === 'ShowCollectionsResult' ||
     shellApiType === 'Collection';
   }
 

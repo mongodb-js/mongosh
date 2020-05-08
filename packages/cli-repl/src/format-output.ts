@@ -39,6 +39,10 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatDatabases(value)
   }
 
+  if (type === 'ShowCollectionsResult') {
+    return formatCollections(value)
+  }
+
   if (type === 'Error') {
     return formatError(value)
   }
@@ -51,6 +55,10 @@ function formatSimpleType(output) {
   if (typeof output === 'undefined') return '';
 
   return inspect(output);
+}
+
+function formatCollections(output) {
+  return output.join('\n');
 }
 
 function formatDatabases(output) {
