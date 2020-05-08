@@ -14,15 +14,23 @@ internal fun String.quote(): String {
     return "\"" + StringEscapeUtils.escapeJava(this) + "\""
 }
 
+internal fun Any?.toLiteral(): String = when (this) {
+    null -> "null"
+    is Map<*, *> -> this.toLiteral()
+    is Array<*> -> this.toLiteral()
+    is String -> this.quote()
+    else -> toString()
+}
+
+internal fun Array<*>.toLiteral(): String = when {
+    isEmpty() -> "[ ]"
+    else -> joinToString(prefix = "[ ", postfix = " ]") { it.toLiteral() }
+}
+
 internal fun Map<*, *>.toLiteral(): String = when {
     isEmpty() -> "{ }"
     else -> entries.joinToString(prefix = "{ ", postfix = " }") { (key, v) ->
-        val value = when (v) {
-            is MongoShellResult<*> -> v.toLiteral()
-            is String -> v.quote()
-            is Map<*, *> -> v.toLiteral()
-            else -> v.toString()
-        }
+        val value = v.toLiteral()
         "${key.toString().quote()}: $value"
     }
 }

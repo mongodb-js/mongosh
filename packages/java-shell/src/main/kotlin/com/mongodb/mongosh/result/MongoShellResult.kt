@@ -2,7 +2,7 @@ package com.mongodb.mongosh.result
 
 
 interface MongoShellResult<T> {
-    abstract val value: T
-    abstract fun toReplString(): String
+    val value: T
+    fun toReplString(): String = value.toLiteral()
 }
 

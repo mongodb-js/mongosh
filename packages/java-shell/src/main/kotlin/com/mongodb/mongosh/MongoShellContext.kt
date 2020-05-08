@@ -110,7 +110,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.isNull -> NullResult
             v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult()
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
-            v.hasArrayElements() -> ArrayResult(Array(v.arraySize.toInt()) { extract(v.getArrayElement(it.toLong())) })
+            v.hasArrayElements() -> ArrayResult(Array(v.arraySize.toInt()) { extract(v.getArrayElement(it.toLong())).value })
             v.canExecute() -> FunctionResult()
             v.hasMembers() -> DocumentResult(Document(v.memberKeys.associateWith { key -> extract(v.getMember(key)).value })) // todo: handle recursion
             else -> throw IllegalArgumentException("unknown result: $v")

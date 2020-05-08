@@ -3,7 +3,11 @@ package com.mongodb.mongosh
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
-import com.mongodb.mongosh.result.*
+import com.mongodb.mongosh.result.CommandResult
+import com.mongodb.mongosh.result.DatabaseResult
+import com.mongodb.mongosh.result.MongoShellResult
+import com.mongodb.mongosh.result.toLiteral
+import org.bson.Document
 import org.junit.Assert.*
 import java.io.File
 import java.io.IOException
@@ -76,17 +80,23 @@ private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOption
     if (options.checkResultClassOnly) return result.javaClass.simpleName
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
-    if (options.arrayItem != null) {
-        assertTrue("To extract array item result must be an instance of ${ArrayResult::class.java}. Actual: ${result.javaClass}", result is ArrayResult)
-        result = (result as ArrayResult).value[options.arrayItem]
-    }
-    if (options.extractProperty != null) {
-        assertTrue("To extract property result must be an instance of ${DocumentResult::class.java}. Actual: ${result.javaClass}",
-                result is DocumentResult)
-        val value = if (result is DocumentResult) result.value[options.extractProperty]
-        else throw AssertionError()
-        assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${result.toReplString()}", value)
-        sb.append((value as? MongoShellResult<*>)?.toReplString() ?: value.toString())
+    if (options.arrayItem != null || options.extractProperty != null) {
+        var unwrapped = result.value
+        if (options.arrayItem != null) {
+            assertTrue("To extract array item result must be an instance of Array. Actual: ${unwrapped?.javaClass}", unwrapped is Array<*>)
+            unwrapped = (unwrapped as Array<*>)[options.arrayItem]
+        }
+        if (options.extractProperty != null) {
+            assertTrue("To extract property result must be an instance of ${Document::javaClass}. Actual: ${unwrapped?.javaClass}",
+                    unwrapped is Document)
+            val value = if (unwrapped is Document) unwrapped[options.extractProperty]
+            else throw AssertionError()
+            assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${unwrapped.toLiteral()}", value)
+            sb.append(value.toLiteral())
+        }
+        else {
+            sb.append(unwrapped.toLiteral())
+        }
     } else {
         sb.append(result.toReplString())
     }
