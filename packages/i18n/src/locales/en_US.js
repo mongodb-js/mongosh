@@ -62,7 +62,11 @@ const translations = {
       disableTelemetry: 'You can opt-out by running the ',
       command: 'command.',
       enabledTelemetry: 'Telemetry is now enabled.',
-      disabledTelemetry: 'Telemetry is now disabled.'
+      disabledTelemetry: 'Telemetry is now disabled.',
+      wiki: {
+        info: 'For more information about mongosh, please see the wiki:',
+        link: 'github.com/mongodb-js/mongosh/wiki'
+      }
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port'

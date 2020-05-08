@@ -12,6 +12,12 @@ describe('formatOutput', () => {
     });
   });
 
+  context('when the result is undefined', () => {
+    it('returns the output', () => {
+      expect(format({value: undefined})).to.equal('');
+    });
+  });
+
   context('when the result is an object', () => {
     it('returns the inspection', () => {
       expect(format({value: 2})).to.include('2');

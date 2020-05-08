@@ -5,7 +5,7 @@ import mapCliToDriver from './arg-mapper';
 import generateUri from './uri-generator';
 import completer from './completer'
 import clr from './clr'
-import { USAGE, TELEMETRY } from './constants';
+import { USAGE, TELEMETRY, MONGOSH_WIKI } from './constants';
 
 export default CliRepl;
 
@@ -13,6 +13,7 @@ export {
   clr,
   USAGE,
   TELEMETRY,
+  MONGOSH_WIKI,
   CliRepl,
   redactPwd,
   completer,
