@@ -81,13 +81,10 @@ private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOption
         result = (result as ArrayResult).value[options.arrayItem]
     }
     if (options.extractProperty != null) {
-        assertTrue("To extract property result must be an instance of ${DocumentResult::class.java} or ${ObjectResult::class.java}. Actual: ${result.javaClass}",
-                result is DocumentResult || result is ObjectResult)
-        val value = when (result) {
-            is DocumentResult -> result.value[options.extractProperty]
-            is ObjectResult -> result.value[options.extractProperty]
-            else -> throw AssertionError()
-        }
+        assertTrue("To extract property result must be an instance of ${DocumentResult::class.java}. Actual: ${result.javaClass}",
+                result is DocumentResult)
+        val value = if (result is DocumentResult) result.value[options.extractProperty]
+        else throw AssertionError()
         assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${result.toReplString()}", value)
         sb.append((value as? MongoShellResult<*>)?.toReplString() ?: value.toString())
     } else {

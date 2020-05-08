@@ -6,6 +6,7 @@ import com.mongodb.ReadPreference
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
+import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
 import org.bson.Document
 import org.graalvm.polyglot.Value
@@ -29,11 +30,12 @@ internal fun <T> convert(o: T,
     return Right(accumulator)
 }
 
-internal fun <T> convert(o: T,
+internal fun <T> convert(context: MongoShellContext,
+                         o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,
                          map: Value): Either<T> {
-    return convert(o, converters, defaultConverter, unwrap(map) as Map<*, *>)
+    return convert(o, converters, defaultConverter, context.extract(map).value as Map<*, *>)
 }
 
 internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
@@ -154,10 +156,9 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
         "writeConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
         "hint" to { iterable, value ->
-            val v = if (value is Value) unwrap(value) else value
-            when (v) {
-                is String -> Right(iterable.hint(Document(v, 1)))
-                is Map<*, *> -> Right(iterable.hint(Document(v as Map<String, Any?>)))
+            when (value) {
+                is String -> Right(iterable.hint(Document(value, 1)))
+                is Map<*, *> -> Right(iterable.hint(Document(value as Map<String, Any?>)))
                 else -> Left(CommandException("hint must be string or object value", "TypeMismatch"))
             }
         },
@@ -184,10 +185,9 @@ internal val countOptionsConverters: Map<String, (CountOptions, Any?) -> Either<
             opt.skip(value.toInt())
         },
         "hint" to { opt, value ->
-            val v = if (value is Value) unwrap(value) else value
-            when (v) {
-                is String -> Right(opt.hint(Document(v, 1)))
-                is Map<*, *> -> Right(opt.hint(Document(v as Map<String, Any?>)))
+            when (value) {
+                is String -> Right(opt.hint(Document(value, 1)))
+                is Map<*, *> -> Right(opt.hint(Document(value as Map<String, Any?>)))
                 else -> Left(CommandException("hint must be string or object value", "TypeMismatch"))
             }
         },
@@ -260,8 +260,7 @@ internal val findOneAndReplaceOptionsDefaultConverters = unrecognizedField<FindO
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
-            val v = if (value is Value) unwrap(value) else value
-            val casted = v as? C
+            val casted = value as? C
             if (casted != null) {
                 try {
                     Right(apply(o, casted))
@@ -270,19 +269,6 @@ internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pa
                 }
             } else Left(CommandException("$name has to be a ${clazz.simpleName}", "TypeMismatch"))
         }
-
-private fun unwrap(value: Value): Any? {
-    return when {
-        value.isString -> value.asString()
-        value.isBoolean -> value.asBoolean()
-        value.fitsInInt() -> value.asInt()
-        value.fitsInLong() -> value.asLong()
-        value.fitsInFloat() -> value.asFloat()
-        value.fitsInDouble() -> value.asDouble()
-        value.hasMembers() -> value.memberKeys.associateWith { key -> value.getMember(key) }
-        else -> value
-    }
-}
 
 internal fun toBson(options: Map<*, *>?): Document {
     val doc = Document()
