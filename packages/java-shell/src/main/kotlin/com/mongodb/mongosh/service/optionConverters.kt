@@ -8,6 +8,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
+import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.Value
 import java.util.concurrent.TimeUnit
@@ -35,7 +36,8 @@ internal fun <T> convert(context: MongoShellContext,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,
                          map: Value): Either<T> {
-    return convert(o, converters, defaultConverter, context.extract(map).value as Map<*, *>)
+    val result = context.extract(map)
+    return convert(o, converters, defaultConverter, (result as DocumentResult).value)
 }
 
 internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(

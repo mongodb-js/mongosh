@@ -1,2 +1,2 @@
-// command checkResultClassOnly
+// command dontCheckValue
 show collections

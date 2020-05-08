@@ -3,7 +3,7 @@ package com.mongodb.mongosh
 import com.mongodb.client.MongoClient
 import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.result.*
-import com.mongodb.mongosh.result.Collection
+import com.mongodb.mongosh.result.MongoShellCollection
 import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.JavaServiceProvider
 import com.mongodb.mongosh.service.Left
@@ -83,12 +83,12 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                     throw e.cause ?: e
                 }
             }
-            v.instanceOf(databaseClass) -> DatabaseResult(Database(v))
-            v.instanceOf(collectionClass) -> CollectionResult(Collection(v))
+            v.instanceOf(databaseClass) -> DatabaseResult(MongoShellDatabase(v))
+            v.instanceOf(collectionClass) -> CollectionResult(MongoShellCollection(v))
             v.instanceOf(cursorClass) -> FindCursorResult(FindCursor(v, this))
             v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
-            v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")))
+            v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")).value)
             v.instanceOf(deleteResultClass) -> DeleteResult(v.getMember("acknowleged").asBoolean(), v.getMember("deletedCount").asLong())
             v.instanceOf(updateResultClass) -> {
                 val res = if (v.getMember("acknowleged").asBoolean()) {
@@ -108,10 +108,10 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.fitsInFloat() -> FloatResult(v.asFloat())
             v.fitsInDouble() -> DoubleResult(v.asDouble())
             v.isNull -> NullResult
-            v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult()
+            v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
-            v.hasArrayElements() -> ArrayResult(Array(v.arraySize.toInt()) { extract(v.getArrayElement(it.toLong())).value })
-            v.canExecute() -> FunctionResult()
+            v.hasArrayElements() -> ArrayResult((0 until v.arraySize).map { extract(v.getArrayElement(it)).value })
+            v.canExecute() -> FunctionResult
             v.hasMembers() -> DocumentResult(Document(v.memberKeys.associateWith { key -> extract(v.getMember(key)).value })) // todo: handle recursion
             else -> throw IllegalArgumentException("unknown result: $v")
         }

@@ -3,7 +3,6 @@ package com.mongodb.mongosh
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
-import com.mongodb.mongosh.result.CommandResult
 import com.mongodb.mongosh.result.DatabaseResult
 import com.mongodb.mongosh.result.MongoShellResult
 import com.mongodb.mongosh.result.toLiteral
@@ -43,8 +42,15 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
     read(test, listOf(
             SectionHandler("before") { value, _ -> before = value },
             SectionHandler("command") { value, properties ->
-                val options = CompareOptions(properties["checkResultClass"] == "true", properties["getArrayItem"]?.toInt(),
-                        properties["extractProperty"], properties["checkResultClassOnly"] == "true")
+                val checkResultClass = properties.any { (key, _) -> key == "checkResultClass" }
+                val dontCheckValue = properties.any { (key, _) -> key == "dontCheckValue" }
+                val options = CompareOptions(checkResultClass, dontCheckValue, properties.mapNotNull { (key, value) ->
+                    when (key) {
+                        "getArrayItem" -> GetArrayItemCommand(value.toInt())
+                        "extractProperty" -> ExtractPropertyCommand(value)
+                        else -> null
+                    }
+                })
                 commands.add(Command(value, options))
             },
             SectionHandler("clear") { value, _ -> clear = value }
@@ -75,36 +81,39 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
 }
 
 private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOptions): String {
-    var result = result
-    if (result is CommandResult) result = result.response
-    if (options.checkResultClassOnly) return result.javaClass.simpleName
+    if (options.dontCheckValue) return result.javaClass.simpleName
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
-    if (options.arrayItem != null || options.extractProperty != null) {
-        var unwrapped = result.value
-        if (options.arrayItem != null) {
-            assertTrue("To extract array item result must be an instance of Array. Actual: ${unwrapped?.javaClass}", unwrapped is Array<*>)
-            unwrapped = (unwrapped as Array<*>)[options.arrayItem]
-        }
-        if (options.extractProperty != null) {
-            assertTrue("To extract property result must be an instance of ${Document::javaClass}. Actual: ${unwrapped?.javaClass}",
-                    unwrapped is Document)
-            val value = if (unwrapped is Document) unwrapped[options.extractProperty]
-            else throw AssertionError()
-            assertNotNull("Result does not contain property ${options.extractProperty}. Result: ${unwrapped.toLiteral()}", value)
-            sb.append(value.toLiteral())
-        }
-        else {
-            sb.append(unwrapped.toLiteral())
-        }
-    } else {
+    if (options.commands.isEmpty()) {
         sb.append(result.toReplString())
+        return sb.toString()
     }
+    var unwrapped = result.value
+    for (command in options.commands) {
+        unwrapped = when (command) {
+            is GetArrayItemCommand -> {
+                assertTrue("To extract array item result must be an instance of List. Actual: ${unwrapped?.javaClass}", unwrapped is List<*>)
+                (unwrapped as List<*>)[command.index]
+            }
+            is ExtractPropertyCommand -> {
+                assertTrue("To extract property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}",
+                        unwrapped is Document)
+                val property = if (unwrapped is Document) unwrapped[command.property]
+                else throw AssertionError()
+                assertNotNull("Result does not contain property ${command.property}. Result: ${unwrapped.toLiteral()}", property)
+                property
+            }
+        }
+    }
+    sb.append(unwrapped.toLiteral())
     return sb.toString()
 }
 
 private class Command(val command: String, val options: CompareOptions)
-private class CompareOptions(val checkResultClass: Boolean, val arrayItem: Int?, val extractProperty: String?, val checkResultClassOnly: Boolean)
+private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val commands: List<CompareCommand>)
+private sealed class CompareCommand
+private class GetArrayItemCommand(val index: Int) : CompareCommand()
+private class ExtractPropertyCommand(val property: String) : CompareCommand()
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null
@@ -136,11 +145,11 @@ private fun replaceId(value: String): String {
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 
-class SectionHandler(val sectionName: String, val valueConsumer: (String, Map<String, String>) -> Unit)
+class SectionHandler(val sectionName: String, val valueConsumer: (String, List<Pair<String, String>>) -> Unit)
 
 private fun read(text: String, handlers: List<SectionHandler>) {
     var currentHandler: SectionHandler? = null
-    var currentProperties = mapOf<String, String>()
+    var currentProperties = listOf<Pair<String, String>>()
     val currentSection = StringBuilder()
     text.split("\n").forEach { line ->
         val matcher = HEADER_PATTERN.matcher(line.trim())
@@ -151,13 +160,13 @@ private fun read(text: String, handlers: List<SectionHandler>) {
             currentHandler = handlers.find { it.sectionName == headerName }
             val props = matcher.group("properties")
             currentProperties = props?.trim()?.split(Pattern.compile("\\s+"))
-                    ?.associate { property ->
+                    ?.map { property ->
                         val eq = property.indexOf('=')
 
                         if (eq == -1) property to "true"
                         else property.substring(0, eq) to property.substring(eq + 1)
                     }
-                    ?: mapOf()
+                    ?: listOf()
         } else {
             if (currentSection.isNotEmpty()) currentSection.append("\n")
             currentSection.append(line)

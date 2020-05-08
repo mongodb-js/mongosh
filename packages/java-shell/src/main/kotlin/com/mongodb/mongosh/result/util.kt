@@ -17,12 +17,12 @@ internal fun String.quote(): String {
 internal fun Any?.toLiteral(): String = when (this) {
     null -> "null"
     is Map<*, *> -> this.toLiteral()
-    is Array<*> -> this.toLiteral()
+    is Collection<*> -> this.toLiteral()
     is String -> this.quote()
     else -> toString()
 }
 
-internal fun Array<*>.toLiteral(): String = when {
+internal fun Collection<*>.toLiteral(): String = when {
     isEmpty() -> "[ ]"
     else -> joinToString(prefix = "[ ", postfix = " ]") { it.toLiteral() }
 }
