@@ -1550,6 +1550,19 @@ function f() {
               });
             });
           });
+          describe('modified in-place', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+              writer = new AsyncWriter(signatures, spy);
+              writer.compile('x = 1');
+              writer.compile('y = x');
+              writer.compile('y.a = db');
+            });
+            it('final symbol table state updated', () => {
+              expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { a: signatures.Database } });
+              expect(spy.scopeAt(1).y).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { a: signatures.Database } });
+            });
+          });
         });
         describe('assigning to hasAsyncChild type', () => {
           describe('with identifiers', () => {
@@ -2660,6 +2673,46 @@ class Test {
         it('can handle instantiating', () => {
           expect(writer.compile('t = new Test()')).to.equal('t = new Test();');
           expect(writer.compile('t.awaitFn()')).to.equal('await t.awaitFn();');
+        });
+      });
+      describe('with attribute assignment in other function', () => {
+        before(() => {
+          spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+          writer = new AsyncWriter(signatures, spy);
+          input = `
+class Test {
+  myFunc() { x.y = 1 }
+};`;
+          const result = writer.getTransform(input);
+          ast = result.ast;
+          output = result.code;
+        });
+        it('compiles correctly', () => {
+          expect(output).to.equal(`class Test {
+  myFunc() {
+    x.y = 1;
+  }
+
+}
+
+;`);
+        });
+        it('updates symbol table', () => {
+          const type = spy.lookup('Test');
+          expect(type.type).to.equal('classdef');
+          expect(type.returnType.type).to.equal('Test');
+          expect(skipPath(type.returnType.attributes.myFunc)).to.deep.equal({
+            type: 'function',
+            returnsPromise: false,
+            returnType: {
+              type: 'unknown',
+              attributes: {}
+            }
+          });
+        });
+        it('can handle instantiating', () => {
+          expect(writer.compile('t = new Test()')).to.equal('t = new Test();');
+          expect(writer.compile('t.myFunc()')).to.equal('t.myFunc();');
         });
       });
       describe('error cases', () => {
