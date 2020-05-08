@@ -39,7 +39,8 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
     read(test, listOf(
             SectionHandler("before") { value, _ -> before = value },
             SectionHandler("command") { value, properties ->
-                val options = CompareOptions(properties["checkResultClass"] == "true", properties["getArrayItem"]?.toInt(), properties["extractProperty"])
+                val options = CompareOptions(properties["checkResultClass"] == "true", properties["getArrayItem"]?.toInt(),
+                        properties["extractProperty"], properties["checkResultClassOnly"] == "true")
                 commands.add(Command(value, options))
             },
             SectionHandler("clear") { value, _ -> clear = value }
@@ -72,6 +73,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
 private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOptions): String {
     var result = result
     if (result is CommandResult) result = result.response
+    if (options.checkResultClassOnly) return result.javaClass.simpleName
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
     if (options.arrayItem != null) {
@@ -95,7 +97,7 @@ private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOption
 }
 
 private class Command(val command: String, val options: CompareOptions)
-private class CompareOptions(val checkResultClass: Boolean, val arrayItem: Int?, val extractProperty: String?)
+private class CompareOptions(val checkResultClass: Boolean, val arrayItem: Int?, val extractProperty: String?, val checkResultClassOnly: Boolean)
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null

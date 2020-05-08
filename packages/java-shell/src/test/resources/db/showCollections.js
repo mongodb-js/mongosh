@@ -1,0 +1,2 @@
+// command checkResultClassOnly
+show collections
