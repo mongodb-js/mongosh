@@ -338,7 +338,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           throw new MongoshInternalError('Unexpected AST format.');
         }
         if (value === undefined) {
-          value = state.symbols.signatures.unknown;
+          value = { type: 'unknown', attributes: {} };
         }
         attributes[k] = value;
         if (attributes[k].hasAsyncChild || attributes[k].returnsPromise) {
