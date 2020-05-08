@@ -28,8 +28,8 @@ compileJava.dependsOn browserifyMapper
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'org.graalvm.js', name: 'js', version: '19.3.0'
-    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.11.2'
+    compile group: 'org.graalvm.js', name: 'js', version: '20.0.0'
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.4'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 }
 
