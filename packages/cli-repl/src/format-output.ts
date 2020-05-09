@@ -69,7 +69,7 @@ function formatDatabases(output) {
   return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
-function formatError(error) {
+export function formatError(error) {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `;
   if (error.message) result += error.message;

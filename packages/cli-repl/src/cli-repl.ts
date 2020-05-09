@@ -1,14 +1,14 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import formatOutput, { formatError } from './format-output';
 import ShellEvaluator from '@mongosh/shell-evaluator';
 import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
+import { REPLServer, Recoverable } from 'repl';
 import getConnectInfo from './connect-info';
-import formatOutput from './format-output';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import CliOptions from './cli-options';
 import completer from './completer';
-import { REPLServer, Recoverable } from 'repl';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import repl from 'pretty-repl';
@@ -49,10 +49,17 @@ class CliRepl {
    * @param {string} driverUrl - The driver URI.
    * @param {NodeOptions} driverOptions - The driver options.
    */
-  async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
+  async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
 
-    this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+    // sometimes we get a timeout when connecting. Make sure promise rejection
+    // is handled and formatted properly.
+    try {
+      this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+    } catch (e) {
+      return console.log(formatError(e));
+    }
+
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
     const cmdLineOpts = await this.getCmdLineOpts();
@@ -200,7 +207,6 @@ class CliRepl {
     // This checks for error instances.
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
-    // console.log('result', result)
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
       this.ShellEvaluator.revertState();
