@@ -4,6 +4,9 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
 import com.mongodb.mongosh.result.DatabaseResult
+import com.mongodb.mongosh.result.MongoShellResult
+import com.mongodb.mongosh.result.toLiteral
+import org.bson.Document
 import org.junit.Assert.*
 import java.io.File
 import java.io.IOException
@@ -31,15 +34,26 @@ fun getTestNames(testDataPath: String): List<String> {
             .map { it.name.substring(0, it.name.length - ".js".length) }
 }
 
-fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResultClass: Boolean = false, db: String? = null) {
+fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
     val test: String = File("$testDataPath/$testName.js").readText()
     var before: String? = null
-    val commands = mutableListOf<String>()
+    val commands = mutableListOf<Command>()
     var clear: String? = null
     read(test, listOf(
-            SectionHandler("before") { before = it },
-            SectionHandler("command") { commands.add(it) },
-            SectionHandler("clear") { clear = it }
+            SectionHandler("before") { value, _ -> before = value },
+            SectionHandler("command") { value, properties ->
+                val checkResultClass = properties.any { (key, _) -> key == "checkResultClass" }
+                val dontCheckValue = properties.any { (key, _) -> key == "dontCheckValue" }
+                val options = CompareOptions(checkResultClass, dontCheckValue, properties.mapNotNull { (key, value) ->
+                    when (key) {
+                        "getArrayItem" -> GetArrayItemCommand(value.toInt())
+                        "extractProperty" -> ExtractPropertyCommand(value)
+                        else -> null
+                    }
+                })
+                commands.add(Command(value, options))
+            },
+            SectionHandler("clear") { value, _ -> clear = value }
     ))
 
     assertFalse("No command found", commands.isEmpty())
@@ -51,10 +65,9 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResult
             commands.forEach { cmd ->
                 if (sb.isNotEmpty()) sb.append("\n")
                 try {
-                    val result = shell.eval(cmd).get()
-                    if (testResultClass) sb.append(result.javaClass.simpleName).append(": ")
-                    sb.append(result.toReplString())
-                } catch (e: Exception) {
+                    val result = shell.eval(cmd.command)
+                    sb.append(getExpectedValue(result, cmd.options))
+                } catch (e: Throwable) {
                     System.err.println("IGNORED:")
                     e.printStackTrace()
                     sb.append(e.javaClass.name).append(": ").append(e.message)
@@ -67,8 +80,43 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, testResult
     }
 }
 
+private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOptions): String {
+    if (options.dontCheckValue) return result.javaClass.simpleName
+    val sb = StringBuilder()
+    if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
+    if (options.commands.isEmpty()) {
+        sb.append(result.toReplString())
+        return sb.toString()
+    }
+    var unwrapped = result.value
+    for (command in options.commands) {
+        unwrapped = when (command) {
+            is GetArrayItemCommand -> {
+                assertTrue("To extract array item result must be an instance of List. Actual: ${unwrapped?.javaClass}", unwrapped is List<*>)
+                (unwrapped as List<*>)[command.index]
+            }
+            is ExtractPropertyCommand -> {
+                assertTrue("To extract property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}",
+                        unwrapped is Document)
+                val property = if (unwrapped is Document) unwrapped[command.property]
+                else throw AssertionError()
+                assertNotNull("Result does not contain property ${command.property}. Result: ${unwrapped.toLiteral()}", property)
+                property
+            }
+        }
+    }
+    sb.append(unwrapped.toLiteral())
+    return sb.toString()
+}
+
+private class Command(val command: String, val options: CompareOptions)
+private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val commands: List<CompareCommand>)
+private sealed class CompareCommand
+private class GetArrayItemCommand(val index: Int) : CompareCommand()
+private class ExtractPropertyCommand(val property: String) : CompareCommand()
+
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
-    val oldDb = if (name != null) (shell.eval("db").get() as DatabaseResult).value.name() else null
+    val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null
     if (name != null) shell.eval("use $name")
 
     block()
@@ -95,25 +143,35 @@ private fun replaceId(value: String): String {
     return MONGO_ID_PATTERN.matcher(value).replaceAll("<ObjectID>")
 }
 
-private val HEADER_PATTERN = Pattern.compile("//\\s*(.*)")
+private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 
-class SectionHandler(val sectionName: String, val valueConsumer: (String) -> Unit)
+class SectionHandler(val sectionName: String, val valueConsumer: (String, List<Pair<String, String>>) -> Unit)
 
 private fun read(text: String, handlers: List<SectionHandler>) {
     var currentHandler: SectionHandler? = null
+    var currentProperties = listOf<Pair<String, String>>()
     val currentSection = StringBuilder()
     text.split("\n").forEach { line ->
         val matcher = HEADER_PATTERN.matcher(line.trim())
         if (matcher.matches()) {
-            currentHandler?.valueConsumer?.invoke(currentSection.toString())
+            currentHandler?.valueConsumer?.invoke(currentSection.toString(), currentProperties)
             currentSection.setLength(0)
-            val headerName = matcher.group(1)
+            val headerName = matcher.group("name")
             currentHandler = handlers.find { it.sectionName == headerName }
+            val props = matcher.group("properties")
+            currentProperties = props?.trim()?.split(Pattern.compile("\\s+"))
+                    ?.map { property ->
+                        val eq = property.indexOf('=')
+
+                        if (eq == -1) property to "true"
+                        else property.substring(0, eq) to property.substring(eq + 1)
+                    }
+                    ?: listOf()
         } else {
             if (currentSection.isNotEmpty()) currentSection.append("\n")
             currentSection.append(line)
         }
     }
-    currentHandler?.valueConsumer?.invoke(currentSection.toString())
+    currentHandler?.valueConsumer?.invoke(currentSection.toString(), currentProperties)
 }
 

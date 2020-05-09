@@ -1,70 +1,82 @@
 package com.mongodb.mongosh.service
 
-import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCursor
+import com.mongodb.client.MongoIterable
 import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 
-internal class Cursor(private val findIterable: FindIterable<Document>, private val context: MongoShellContext) {
-    private val iterator: MongoCursor<Document> = findIterable.iterator()
+internal abstract class Cursor<T : MongoIterable<Document>>(protected val iterable: T, protected val context: MongoShellContext) {
+    private var iterator: MongoCursor<Document>? = null
     private var closed = false
     /** Java functions don't have js methods such as apply, bind, call etc.
      * So we need to create a real js function that wraps Java code */
     private val functionProducer = context.eval("(fun) => function inner() { return fun(this, ...arguments); }")
 
-    @JvmField
-    @HostAccess.Export
-    val limit = jsFun<Cursor> { args ->
-        if (args.isEmpty() || !args[0].fitsInInt()) {
-            throw IllegalArgumentException("Expected one argument of type int. Got: $args")
+    private fun getOrCreateIterator(): MongoCursor<Document> {
+        var it = iterator
+        if (it == null) {
+            it = iterable.iterator()
+            iterator = it
         }
-        Cursor(this.findIterable.limit(args[0].asInt()), context)
+        return it
     }
 
     @JvmField
     @HostAccess.Export
-    val hasNext = jsFun<Cursor> {
-        this.iterator.hasNext()
+    val hasNext = jsFun<Cursor<T>> {
+        getOrCreateIterator().hasNext()
     }
 
     @JvmField
     @HostAccess.Export
-    val next = jsFun<Cursor> {
-        this.iterator.next()
+    val next = jsFun<Cursor<T>> {
+        getOrCreateIterator().next()
     }
 
     @JvmField
     @HostAccess.Export
-    val isClosed = jsFun<Cursor> {
+    val isClosed = jsFun<Cursor<T>> {
         closed
     }
 
     @JvmField
     @HostAccess.Export
-    val close = jsFun<Cursor> {
+    val close = jsFun<Cursor<T>> {
         closed = true
-        this.iterator.close()
+        getOrCreateIterator().close()
     }
 
     @JvmField
     @HostAccess.Export
-    val readPref = jsFun<Cursor> {
-        throw UnsupportedOperationException()
+    val readPref = jsFun<Cursor<T>> {
+        throw NotImplementedError("readPref is not supported")
     }
 
     @JvmField
     @HostAccess.Export
-    val batchSize = jsFun<Cursor> { args ->
+    val explain = jsFun<Cursor<T>> {
+        throw NotImplementedError("explain is not supported")
+    }
+
+    @JvmField
+    @HostAccess.Export
+    val batchSize = jsFun<Cursor<T>> { args ->
+        checkQueryNotExecuted()
         if (args.isEmpty() || !args[0].fitsInInt()) {
             throw IllegalArgumentException("Expected one argument of type int. Got: $args")
         }
-        Cursor(this.findIterable.batchSize(args[0].asInt()), context)
+        iterable.batchSize(args[0].asInt())
+        this
     }
 
-    private fun <T> jsFun(block: T.(List<Value>) -> Any?): Any {
+    protected fun checkQueryNotExecuted() {
+        check(iterator == null) { "query already executed" }
+    }
+
+    protected fun <T> jsFun(block: T.(List<Value>) -> Any?): Value {
         return functionProducer.execute(ProxyExecutable { args ->
             val that = args[0].asHostObject<T>()
             that.block(args.drop(1))

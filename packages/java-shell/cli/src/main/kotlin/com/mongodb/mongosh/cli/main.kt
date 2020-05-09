@@ -28,7 +28,7 @@ fun main(vararg args: String) {
         val line = scanner.nextLine()
         if (line == null || line == "exit") return
         try {
-            val result = repl.eval(line).get()
+            val result = repl.eval(line)
             println(result.toReplString())
         } catch (e: Exception) {
             e.printStackTrace()
