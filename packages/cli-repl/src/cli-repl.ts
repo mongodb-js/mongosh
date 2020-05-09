@@ -260,7 +260,7 @@ class CliRepl {
     const version = this.buildInfo.version;
 
     this.repl = repl.start({
-      prompt: `msh > `,
+      prompt: `> `,
       writer: this.writer,
       completer: completer.bind(null, version),
     });
