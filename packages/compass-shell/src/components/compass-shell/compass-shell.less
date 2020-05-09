@@ -1,37 +1,38 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
 .compass-shell {
   width: 100%;
-  background: #4C5259;
-  color: #bfbfbe;
-  // height: 30%; // NOTE: This is needed for re-resizable to work properly.
+  background-color: @leafygreen__gray--dark-3;
   display: flex;
   flex-basis: auto;
-  // flex-direction: row;
-  // flex-grow: 0;
-  // flex-shrink: 0;
-  // margin: 0;
   overflow: hidden;
-  // transition: flex-basis 400ms ease;
   position: relative;
+  flex-direction: column;
 
-  &-toggle {
-    position: absolute;
-    left: 4px;
-    top: -4px;
-    width: 14px;
-    border-left: 0;
-    transition: all 150ms ease;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    top: 4px;
-    padding: 0;
-    cursor: pointer;
-    z-index: 1000;
-    &:hover, &:focus {
-      border-left: 0;
-    }
+  &-header {
+    width: 100%;
+    height: 24px;
+    display: flex;
+    color: @leafygreen__gray--light-1;
   }
 
-  // &-expanded {
-  //   flex-basis: 250px;
-  // }
+  &-close-btn {
+    position: absolute;
+    right: 2px;
+    top: -2px;
+  }
+
+  &-shell-container {
+    flex-grow: 1;
+    display: flex;
+    overflow: auto;
+    border-top: 1px solid @leafygreen__gray--dark-2;
+  }
+
+  &-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 1px 8px;
+  }
 }
