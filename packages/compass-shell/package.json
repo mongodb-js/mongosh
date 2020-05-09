@@ -50,6 +50,8 @@
   "access": "public"
  },
  "dependencies": {
+  "@leafygreen-ui/icon": "^5.1.0",
+  "@leafygreen-ui/icon-button": "^5.0.2",
   "@mongosh/browser-repl": "^0.0.1-alpha.15",
   "@mongosh/browser-runtime-electron": "^0.0.1-alpha.15",
   "@mongosh/service-provider-server": "^0.0.1-alpha.15",
