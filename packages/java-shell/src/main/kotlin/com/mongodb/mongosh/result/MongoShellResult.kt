@@ -2,6 +2,7 @@ package com.mongodb.mongosh.result
 
 import com.mongodb.client.result.UpdateResult
 import org.bson.Document
+import java.util.regex.Pattern
 
 
 sealed class MongoShellResult<T> {
@@ -61,6 +62,11 @@ class StringResult(override val value: String) : MongoShellResult<String>() {
 }
 
 class ArrayResult(override val value: List<Any?>) : MongoShellResult<List<Any?>>()
+
+class PatternResult(override val value: Pattern) : MongoShellResult<Pattern>() {
+    override fun equals(other: Any?): Boolean = this === other || other is PatternResult && value == other.value
+    override fun hashCode(): Int = value.hashCode()
+}
 
 class MongoShellUpdateResult(override val value: UpdateResult) : MongoShellResult<UpdateResult>()
 

@@ -21,6 +21,7 @@ import java.io.Closeable
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
     private val ctx: Context = Context.create()
@@ -65,7 +66,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
 
     fun extract(v: Value): MongoShellResult<*> {
         return when {
-            v.isPromise() -> {
+            v.instanceOf("Promise") -> {
                 try {
                     CompletableFuture<MongoShellResult<*>>().also { future ->
                         v.invokeMember("then", ProxyExecutable { args ->
@@ -101,6 +102,14 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                 } else UpdateResult.unacknowledged()
                 MongoShellUpdateResult(res)
             }
+            v.instanceOf("RegExp") -> {
+                val pattern = v.getMember("source").asString()
+                val flags1 = v.getMember("flags").asString()
+                var f = 0
+                if (flags1.contains('m')) f = f.or(Pattern.MULTILINE)
+                if (flags1.contains('i')) f = f.or(Pattern.CASE_INSENSITIVE)
+                PatternResult(Pattern.compile(pattern, f))
+            }
             v.isString -> StringResult(v.asString())
             v.isBoolean -> BooleanResult(v.asBoolean())
             v.fitsInInt() -> IntResult(v.asInt())
@@ -134,7 +143,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return eval("(o, clazz) => o instanceof clazz").execute(this, clazz).asBoolean()
     }
 
-    private fun Value.isPromise(): Boolean = eval("(x) => x instanceof Promise").execute(this).asBoolean()
+    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = eval("(x) => x instanceof $clazz").execute(this).asBoolean()
 
     fun toJs(o: Any?): Any? {
         return when (o) {
