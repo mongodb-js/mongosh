@@ -16,7 +16,7 @@ variables:
     params:
       aws_key: ${download_center_aws_key}
       aws_secret: ${download_center_aws_secret}
-      bucket: mciuploads
+      bucket: info-mongodb-com
       permissions: public-read
       content_type: application/octet-stream
   - &compile_and_release
@@ -105,7 +105,7 @@ functions:
       params:
         local_files_include_filter:
           - src/dist/mongosh.json
-        remote_file: info-mongodb-com/com-download-center/
+        remote_file: com-download-center/
   release_linux:
     - <<: *compile_and_release
     - command: shell.exec
