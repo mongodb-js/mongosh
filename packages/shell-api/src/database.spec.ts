@@ -47,7 +47,8 @@ describe('Database', () => {
     'getCollectionNames',
     'runCommand',
     'adminCommand',
-    'aggregate'
+    'aggregate',
+    'getSiblingDB'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
       it(`wraps mapper.database_${methodName}`, () => {

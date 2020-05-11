@@ -1127,6 +1127,12 @@ const translations = {
               description: 'Returns an array containing the names of all collections in the current database.',
               example: 'db.getCollectionNames',
               parameters: {}
+            },
+            getSiblingDB: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getSiblingDB',
+              description: 'Returns another database without modifying the db variable in the shell environment.',
+              example: 'db.getSiblingDB("users")',
+              parameters: {}
             }
           }
         }

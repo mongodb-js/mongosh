@@ -78,12 +78,26 @@ export default class Mapper {
     this.messageBus.emit('mongosh:api-call', event);
   }
 
-  use(db): any {
-    if (!(db in this.databases)) {
-      this.databases[db] = new Database(this, db);
+  private _getDatabase(name: string): Database {
+    if (typeof name !== 'string') {
+      throw new MongoshInvalidInputError(
+        `Database name must be a string. Received ${typeof name}.`);
     }
+
+    if (!name.trim()) {
+      throw new MongoshInvalidInputError('Database name cannot be empty.');
+    }
+
+    if (!(name in this.databases)) {
+      this.databases[name] = new Database(this, name);
+    }
+
+    return this.databases[name];
+  }
+
+  use(db: string): any {
     this.messageBus.emit( 'mongosh:use', { db });
-    this.context.db = this.databases[db];
+    this.context.db = this._getDatabase(db);
 
     return `switched to db ${db}`;
   }
@@ -1947,5 +1961,9 @@ export default class Mapper {
     }) as AggregationCursor;
 
     return await cursor.explain(explainable._verbosity);
+  }
+
+  database_getSiblingDB(database: Database, name: string): Database {
+    return this._getDatabase(name);
   }
 }

@@ -32,9 +32,9 @@ class:
         <<: *__defaultMethod
         returnsPromise: true
         returnType: 'AggregationCursor'
-    # getSiblingDB:
-    #     <<: *__defaultMethod
-    #     returnType: 'Database'
+    getSiblingDB:
+        <<: *__defaultMethod
+        returnType: 'Database'
     # dropDatabase:
     #     <<: *__defaultMethod
     #     returnsPromise: true
