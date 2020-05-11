@@ -66,6 +66,7 @@
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "file-loader": "^5.1.0",
+    "karma": "^5.0.5",
     "karma-webpack": "^4.0.2",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",

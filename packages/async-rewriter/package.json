@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "pretest": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
@@ -45,7 +46,6 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@mongosh/shell-api": "^0.0.1-alpha.17",
     "ast-pretty-print": "^2.0.1",
     "mocha": "^7.1.0",
     "sinon": "^9.0.1"

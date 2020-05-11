@@ -31,6 +31,10 @@ class UnsupportedCursor implements Cursor {
     throw new Error("Method not implemented.");
   }
 
+  clone(): Cursor {
+    throw new Error("Method not implemented.");
+  }
+
   isClosed(): boolean {
     throw new Error("Method not implemented.");
   }

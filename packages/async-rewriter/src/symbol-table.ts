@@ -36,7 +36,13 @@ export default class SymbolTable {
     this.scopeStack = initialScope;
     Object.keys(signatures).forEach(s => {
       if (s === 'unknown' || this.lookup(s).type !== 'unknown') return;
-      this.scopeAt(0)[s] = { type: 'classdef', returnType: this.signatures[s], api: true };
+      this.scopeAt(0)[s] = {
+        type: 'classdef',
+        returnType: this.signatures[s],
+        api: true,
+        returnsPromise: !!this.signatures[s].returnsPromise,
+        hasAsyncChild: !!this.signatures[s].hasAsyncChild
+      };
     });
     this.savedState = this.scopeStack;
   }
@@ -134,7 +140,7 @@ export default class SymbolTable {
   }
 
   private checkIfApi(key): void {
-    if (key in this.scopeAt(0)) {
+    if (key !== 'db' && key in this.scopeAt(0)) {
       throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
     }
   }

@@ -1,5 +1,6 @@
 import CliServiceProvider from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
 interface DataService {
   client: {
@@ -19,6 +20,7 @@ class CompassServiceProvider extends CliServiceProvider {
    * @param {DataService} dataService - a DataService instance
    * @returns {CompassServiceProvider} - a new CompassServiceProvider
    */
+  platform: ReplPlatform.Compass;
   static fromDataService(dataService: DataService): CompassServiceProvider {
     const mongoClient = dataService.client.client;
 

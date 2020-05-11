@@ -52,7 +52,6 @@
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.3",
     "mongodb-ace-autocompleter": "^0.4.1",
-    "mongodb-build-info": "^1.0.0",
     "mongodb-redact": "^0.2.0",
     "nanobus": "^4.4.0",
     "pino": "^5.16.0",
@@ -61,5 +60,8 @@
     "read": "^1.0.7",
     "semver": "^7.1.2",
     "text-table": "^0.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2"
   }
 }

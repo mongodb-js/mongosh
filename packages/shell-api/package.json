@@ -12,10 +12,8 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile-api": "node bin/compile-shell-api.js && eslint --fix src/shell-api.js && eslint --fix src/shell-api-signatures.js",
-    "precompile-ts": "npm run compile-api",
     "compile-ts": "tsc -p tsconfig.json",
-    "pretest": "npm run compile-api",
+    "pretest": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "report-missing-help": "ts-node bin/report-missing-help.ts",
@@ -35,11 +33,15 @@
     "build"
   ],
   "dependencies": {
+    "@mongosh/async-rewriter": "^0.0.1-alpha.17",
     "@mongosh/errors": "^0.0.1-alpha.17",
     "@mongosh/i18n": "^0.0.1-alpha.17",
+    "@mongosh/service-provider-core": "^0.0.1-alpha.17",
     "bson": "^4.0.4"
   },
   "devDependencies": {
-    "mocha": "^7.1.2"
+    "@types/sinon-chai": "^3.2.4",
+    "mocha": "^7.1.2",
+    "ts-sinon": "^1.2.0"
   }
 }

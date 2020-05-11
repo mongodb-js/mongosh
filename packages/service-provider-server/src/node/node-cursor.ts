@@ -97,6 +97,15 @@ class NodeCursor implements Cursor {
   }
 
   /**
+   * Clone the cursor.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  clone(): Cursor {
+    return this.cursor.clone();
+  }
+
+  /**
    * Determine if the cursor has been closed.
    *
    * @returns {boolean} If the cursor is closed.

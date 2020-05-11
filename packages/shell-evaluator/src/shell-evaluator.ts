@@ -1,11 +1,6 @@
-import AsyncWriter from '@mongosh/async-rewriter';
-import Mapper from '@mongosh/mapper';
-import { signatures, Help, ShellBson, toIterator } from '@mongosh/shell-api';
-import { ServiceProvider } from '@mongosh/service-provider-core';
-
-interface Bus {
-  emit(...args: any[]): void;
-}
+import {
+  ShellInternalState
+} from '@mongosh/shell-api';
 
 interface Container {
   toggleTelemetry(boolean): void;
@@ -17,18 +12,13 @@ interface Result {
 }
 
 class ShellEvaluator {
-  private mapper: Mapper;
-  private asyncWriter: AsyncWriter;
-  private bus: Bus;
+  private internalState: ShellInternalState;
   private container: Container;
   constructor(
-    serviceProvider: ServiceProvider,
-    bus: Bus,
+    internalState: ShellInternalState,
     container?: Container
   ) {
-    this.mapper = new Mapper(serviceProvider, bus);
-    this.asyncWriter = new AsyncWriter(signatures);
-    this.bus = bus;
+    this.internalState = internalState;
     this.container = container;
   }
 
@@ -40,35 +30,6 @@ class ShellEvaluator {
     return 'ShellEvaluator';
   }
 
-  public help(): Help {
-    this.bus.emit('mongosh:help');
-    return new Help({
-      help: 'shell-api.help.description',
-      docs: 'https://docs.mongodb.com/manual/reference/method',
-      attr: [
-        {
-          name: 'use',
-          description: 'shell-api.help.help.use'
-        },
-        {
-          name: 'it',
-          description: 'shell-api.help.help.it'
-        },
-        {
-          name: 'show databases',
-          description: 'shell-api.help.help.show-databases'
-        },
-        {
-          name: 'show collections',
-          description: 'shell-api.help.help.show-collections'
-        },
-        {
-          name: '.exit',
-          description: 'shell-api.help.help.exit'
-        }
-      ]
-    });
-  }
   /**
   * Returns true if a value is a shell api type
    *
@@ -81,11 +42,11 @@ class ShellEvaluator {
   }
 
   public revertState(): void {
-    this.asyncWriter.symbols.revertState();
+    this.internalState.asyncWriter.symbols.revertState();
   }
 
   public saveState(): void {
-    this.asyncWriter.symbols.saveState();
+    this.internalState.asyncWriter.symbols.saveState();
   }
 
   /**
@@ -102,13 +63,13 @@ class ShellEvaluator {
     argv.shift();
     switch (cmd) {
       case 'use':
-        return this.mapper.use(argv[0]);
+        return this.internalState.use(argv[0]);
       case 'show':
-        return this.mapper.show(argv[0]);
+        return this.internalState.show(argv[0]);
       case 'it':
-        return this.mapper.it();
+        return this.internalState.it();
       case 'help':
-        return this.help();
+        return this.internalState.help();
       case 'enableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(true);
@@ -121,9 +82,9 @@ class ShellEvaluator {
         return;
       default:
         this.saveState();
-        const rewrittenInput = this.asyncWriter.process(input);
+        const rewrittenInput = this.internalState.asyncWriter.process(input);
 
-        this.bus.emit(
+        this.internalState.messageBus.emit(
           'mongosh:rewritten-async-input',
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
@@ -161,47 +122,6 @@ class ShellEvaluator {
     }
 
     return { value: evaluationResult, type: null };
-  }
-
-  /**
-   * Prepare a `contextObject` as global context and set it as context
-   * for the mapper. Add each attribute to the AsyncRewriter also.
-   *
-   * The `contextObject` is prepared so that it can be used as global object
-   * for the repl evaluationi.
-   *
-   * @note The `contextObject` is mutated, it will retain all of its existing
-   * properties but also have the global shell api objects and functions.
-   *
-   * @param {Object} - contextObject an object used as global context.
-   */
-  setCtx(contextObject: any): void {
-    // Add API methods for VSCode and scripts
-    contextObject.use = this.mapper.use.bind(this.mapper);
-    contextObject.show = this.mapper.show.bind(this.mapper);
-    contextObject.it = this.mapper.it.bind(this.mapper);
-    contextObject.help = this.help.bind(this);
-    contextObject.toIterator = toIterator;
-    contextObject.print = async(arg) => {
-      if (arg.toReplString) {
-        console.log(await arg.toReplString());
-      } else {
-        console.log(arg);
-      }
-    };
-    contextObject.printjson = contextObject.print;
-    Object.assign(contextObject, ShellBson);
-
-    // Add global shell objects
-    contextObject.db = this.mapper.databases.test;
-    this.asyncWriter.symbols.initializeApiObjects({ db: signatures.Database });
-
-    // Update mapper and log
-    this.mapper.context = contextObject;
-    this.bus.emit(
-      'mongosh:setCtx',
-      { method: 'setCtx', arguments: { db: this.mapper.context.db } }
-    );
   }
 }
 

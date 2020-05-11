@@ -61,7 +61,7 @@ function preventRedeclareFunctionsAsOtherKeywords(
 }
 
 export function saveAndRestoreLexicalContext(
-  ast: object,
+  ast: any,
   options: SaveAndRestoreLexicalContextOptions
 ): SaveAndRestoreLexicalContextResult {
   const newLexicalContext = collectTopLevelLexicalContext(ast);

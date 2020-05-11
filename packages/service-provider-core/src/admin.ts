@@ -1,4 +1,5 @@
 import Result from "./result";
+import { ReplPlatform } from "./platform";
 
 export default interface Admin {
    /**
@@ -23,4 +24,22 @@ export default interface Admin {
    * @returns {Promise} The promise of command results.
    */
   listDatabases(database: string): Promise<Result>;
+
+  /**
+   * create a new service provider with a new connection.
+   *
+   * @param uri
+   * @param options
+   */
+  getNewConnection(uri: string, options: any): Promise<any>;
+
+  /**
+   * Return connection info
+   */
+  getConnectionInfo(): Promise<any>;
+
+  /**
+   * What platform (Compass/CLI/Browser)
+   */
+  platform: ReplPlatform;
 }

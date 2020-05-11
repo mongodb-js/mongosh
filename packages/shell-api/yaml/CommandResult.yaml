@@ -1,9 +1,0 @@
-class:
-    <<: *__defaultClass
-    __constructorArgs:
-        - type
-        - value
-    __stringRep:
-        - this.value
-    __shellApiType:
-        - this.type

@@ -11,7 +11,9 @@ import {
   BulkWriteResult,
   DatabaseOptions,
   WriteConcern,
-  CommandOptions
+  CommandOptions,
+  getConnectInfo,
+  ReplPlatform
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -56,19 +58,58 @@ class CliServiceProvider implements ServiceProvider {
       clientOptions
     );
 
-    return new CliServiceProvider(mongoClient);
+    return new CliServiceProvider(mongoClient, uri);
   }
 
   private readonly mongoClient: MongoClient;
+  private readonly uri: string;
+  public readonly platform: ReplPlatform.Compass;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient) {
+  constructor(mongoClient: MongoClient, uri?: string) {
     this.mongoClient = mongoClient;
+    this.uri = uri;
+  }
+
+  async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
+    const clientOptions: any = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    };
+
+    const mongoClient = await MongoClient.connect(
+      uri,
+      clientOptions
+    );
+    return new CliServiceProvider(mongoClient, uri);
+  }
+
+  async getConnectionInfo(): Promise<any> {
+    const buildInfo = await this.buildInfo();
+    const topology = await this.getTopology();
+    let cmdLineOpts = null;
+    try {
+      cmdLineOpts = await this.getCmdLineOpts();
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
+    const connectInfo = getConnectInfo(
+      this.uri,
+      buildInfo,
+      cmdLineOpts,
+      topology
+    );
+    return {
+      buildInfo: buildInfo,
+      topology: topology,
+      extraInfo: connectInfo
+    };
   }
 
   async renameCollection(

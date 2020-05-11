@@ -1,5 +1,0 @@
-class:
-    <<: *__defaultClass
-    __constructorArgs:
-        - acknowleged
-        - insertedId

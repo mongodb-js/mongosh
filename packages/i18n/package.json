@@ -31,5 +31,8 @@
   },
   "dependencies": {
     "mustache": "^4.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2"
   }
 }
