@@ -21,15 +21,12 @@ describe('Mapper', () => {
   beforeEach(() => {
     serviceProvider = stubInterface<ServiceProvider>();
     mapper = new Mapper(serviceProvider);
+    mapper.context = { db: new Database(mapper, 'test') };
     database = new Database(mapper, 'db1');
     collection = new Collection(mapper, database, 'coll1');
   });
 
   describe('commands', () => {
-    beforeEach(() => {
-      mapper.context = { db: new Database(mapper, 'test') };
-    });
-
     describe('show databases', () => {
       it('lists databases', async() => {
         serviceProvider.listDatabases.resolves({
@@ -1001,6 +998,32 @@ describe('Mapper', () => {
 
         expect(cursor.shellApiType()).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
+      });
+    });
+
+    describe('getSiblingDB', () => {
+      it('returns a database', async() => {
+        const otherDb = mapper.database_getSiblingDB(database, 'otherdb');
+        expect(otherDb).to.be.instanceOf(Database);
+        expect(otherDb._name).to.equal('otherdb');
+      });
+
+      it('does not change the context', () => {
+        const contextDbBefore = mapper.context.db;
+        mapper.database_getSiblingDB(database, 'otherdb');
+        expect(mapper.context.db).to.equal(contextDbBefore);
+      });
+
+      it('throws if name is not a string', () => {
+        expect(() => {
+          mapper.database_getSiblingDB(database, undefined);
+        }).to.throw('Database name must be a string. Received undefined.');
+      });
+
+      it('throws if name is empty', () => {
+        expect(() => {
+          mapper.database_getSiblingDB(database, '');
+        }).to.throw('Database name cannot be empty.');
       });
     });
   });

@@ -1040,7 +1040,7 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }, { 'name': 'getSiblingDB', 'description': 'shell-api.classes.Database.help.attributes.getSiblingDB.description' }] });
 
     return proxy;
   }
@@ -1063,6 +1063,10 @@ class Database {
 
   aggregate(...args) {
     return this._mapper.database_aggregate(this, ...args);
+  }
+
+  getSiblingDB(...args) {
+    return this._mapper.database_getSiblingDB(this, ...args);
   }
 }
 
@@ -1096,6 +1100,12 @@ Database.prototype.aggregate.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.aggregate.topologies = [0, 1, 2];
 Database.prototype.aggregate.returnsPromise = true;
 Database.prototype.aggregate.returnType = 'AggregationCursor';
+
+Database.prototype.getSiblingDB.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.getSiblingDB.example', 'docs': 'shell-api.classes.Database.help.attributes.getSiblingDB.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.getSiblingDB.description' }] });
+Database.prototype.getSiblingDB.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.getSiblingDB.topologies = [0, 1, 2];
+Database.prototype.getSiblingDB.returnsPromise = false;
+Database.prototype.getSiblingDB.returnType = 'Database';
 
 
 class DeleteResult {

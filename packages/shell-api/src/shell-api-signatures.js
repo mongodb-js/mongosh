@@ -132,7 +132,8 @@ const Database = {
     getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] },
     runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
     adminCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.4.0', '4.4.0'] },
-    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] }
+    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
+    getSiblingDB: { type: 'function', returnsPromise: false, returnType: 'Database', serverVersions: ['0.0.0', '4.4.0'] }
   }
 };
 const DeleteResult = {
