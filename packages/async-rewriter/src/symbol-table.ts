@@ -41,6 +41,14 @@ export default class SymbolTable {
     this.savedState = this.scopeStack;
   }
 
+  private deepCopySymbol(symbol: any): any {
+    try {
+      return JSON.parse(JSON.stringify(symbol, this.replacer));
+    } catch (error) {
+      throw new MongoshInternalError(`Internal error occurred for copying symbol ${symbol.type}. Please file a bug and attach the logfile.`);
+    }
+  }
+
   /**
    * Initialize the shell API class instances like db, sh, rs, etc.
    *
@@ -48,7 +56,7 @@ export default class SymbolTable {
    */
   public initializeApiObjects(apiObjects: object): void {
     Object.keys(apiObjects).forEach(key => {
-      const copy = JSON.parse(JSON.stringify(apiObjects[key]));
+      const copy = this.deepCopySymbol(apiObjects[key]);
       this.scopeAt(0)[key] = addApi(copy);
     });
     this.pushScope();
@@ -65,8 +73,12 @@ export default class SymbolTable {
    * @param t1
    * @param t2
    */
-  public compareTypes(t1: object, t2: object): boolean {
-    return (JSON.stringify(t1, this.replacer) === JSON.stringify(t2, this.replacer));
+  public compareTypes(t1: any, t2: any): boolean {
+    try {
+      return (JSON.stringify(t1, this.replacer) === JSON.stringify(t2, this.replacer));
+    } catch (error) {
+      throw new MongoshInternalError(`Internal error occurred for comparing symbols ${t1.type} and ${t2.type}. Please file a bug and attach the logfile.`);
+    }
   }
 
   /**
@@ -78,7 +90,7 @@ export default class SymbolTable {
     this.scopeStack.forEach(oldScope => {
       const newScope = {};
       Object.keys(oldScope).forEach(key => {
-        newScope[key] = JSON.parse(JSON.stringify(oldScope[key], this.replacer));
+        newScope[key] = this.deepCopySymbol(oldScope[key]);
         if ('path' in oldScope[key]) {
           newScope[key].path = oldScope[key].path;
         }
@@ -93,7 +105,7 @@ export default class SymbolTable {
     this.scopeStack.forEach(oldScope => {
       const newScope = {};
       Object.keys(oldScope).forEach(key => {
-        newScope[key] = JSON.parse(JSON.stringify(oldScope[key], this.replacer));
+        newScope[key] = this.deepCopySymbol(oldScope[key]);
         if ('path' in oldScope[key]) {
           newScope[key].path = oldScope[key].path;
         }
@@ -118,7 +130,7 @@ export default class SymbolTable {
         return this.scopeStack[i][item];
       }
     }
-    return this.signatures.unknown;
+    return { type: 'unknown', attributes: {} };
   }
 
   private checkIfApi(key): void {
@@ -182,6 +194,9 @@ export default class SymbolTable {
       throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`);
     }
     keys.reduce((sym, key, i) => {
+      if (sym.type === 'unknown') {
+        sym.type = 'object';
+      }
       sym.hasAsyncChild = !!sym.hasAsyncChild || !!value.hasAsyncChild;
       if (sym.attributes === undefined) {
         sym.attributes = {};
@@ -286,7 +301,7 @@ export default class SymbolTable {
             throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
           } else {
             // Types differ, but none are async, so can safely just call it unknown.
-            thisScope[k] = this.signatures.unknown;
+            thisScope[k] = { type: 'unknown', attributes: {} };
           }
         }
       });
@@ -301,8 +316,7 @@ export default class SymbolTable {
    */
   public printSymbol(symbol: any, key: string): string {
     return `  ${key}: ${JSON.stringify(symbol, (k, v) => {
-      if (k === 'path') return undefined;
-      // if (k === 'returnType') return v.type;
+      if (k === 'path') return `Node[${v.type}]`;
       return v;
     }, 2)}`;
   }

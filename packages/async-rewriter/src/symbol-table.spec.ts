@@ -353,6 +353,22 @@ describe('SymbolTable', () => {
         expect(st.scopeAt(1).a1).to.deep.equal(act);
       });
     });
+    describe('was unknown', () => {
+      const st = new SymbolTable([{}, {
+        a: { type: 'unknown', attributes: {} },
+        a1: { type: 'unknown', attributes: {} },
+      }], {});
+      it('updates for no hasAsyncChild', () => {
+        st.updateAttribute('a', ['b', 'c'], myType);
+        const act = { hasAsyncChild: false, type: 'object', attributes: { b: { hasAsyncChild: false, type: 'object', attributes: { c: myType } } } };
+        expect(st.scopeAt(1).a).to.deep.equal(act);
+      });
+      it('updates for yes hasAsyncChild', () => {
+        st.updateAttribute('a1', ['b', 'c'], { hasAsyncChild: true });
+        const act = { hasAsyncChild: true, type: 'object', attributes: { b: { hasAsyncChild: true, type: 'object', attributes: { c: { hasAsyncChild: true } } } } };
+        expect(st.scopeAt(1).a1).to.deep.equal(act);
+      });
+    });
   });
   describe('#saveState/#revertState', () => {
     let st;

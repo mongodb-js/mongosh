@@ -105,7 +105,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               '';
             throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`);
           }
-          path.node['shellType'] = state.symbols.signatures.unknown;
+          path.node['shellType'] = { type: 'unknown', attributes: {} };
           debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, path.node['shellType']);
           return;
       }
@@ -123,9 +123,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           throw new MongoshInvalidInputError(`Unable to use attribute ${rhs} because it's not defined yet`);
         }
       }
-      let sType = state.symbols.signatures.unknown;
+      let sType = { type: 'unknown', attributes: {} };
       if (lhsType.attributes === undefined) {
-        sType = state.symbols.signatures.unknown;
+        sType = { type: 'unknown', attributes: {} };
       } else if (rhs in lhsType.attributes) {
         sType = lhsType.attributes[rhs];
       } else if (lhsType.type === 'Database') {
@@ -158,7 +158,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
                   );
                   path.node.callee.property['replaced'] = true;
                 }
-                lhsType = { type: 'function', returnsPromise: true, returnType: state.symbols.signatures.unknown };
+                lhsType = { type: 'function', returnsPromise: true, returnType: { type: 'unknown', attributes: {} } };
                 break;
               }
             // eslint-disable-next-line no-fallthrough
@@ -177,7 +177,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
 
       // determine return type
       const returnType = lhsType.returnType;
-      let sType = state.symbols.signatures.unknown;
+      let sType = { type: 'unknown', attributes: {} };
       if (lhsType.type === 'function') {
         if (typeof returnType === 'string') {
           sType = state.symbols.signatures[returnType];
@@ -224,11 +224,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
   },
   VariableDeclarator: {
     exit(path: babel.NodePath<babel.types.VariableDeclarator>, state: State): void {
-      let sType = state.symbols.signatures.unknown;
+      let sType = { type: 'unknown', attributes: {} };
       if (path.node.init !== null) {
         sType = path.node.init['shellType'];
       }
-      path.node['shellType'] = state.symbols.signatures.unknown; // always undefined
+      path.node['shellType'] = { type: 'unknown', attributes: {} }; // always undefined
       const kind = path.findParent(p => state.t.isVariableDeclaration(p)) as babel.NodePath<babel.types.VariableDeclaration>;
       if (kind === null) {
         assertUnreachable();
@@ -250,7 +250,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'AssignmentPattern':
         case 'RestElement':
         case 'TSParameterProperty':
-          if (sType.hasAsyncChild || sType.returnsPromise) {
+          if (sType['hasAsyncChild'] || sType['returnsPromise']) {
             throw new MongoshUnimplementedError('Destructured assignment is not supported for Mongosh API types.');
           }
           break;
@@ -261,7 +261,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
   },
   AssignmentExpression: {
     exit(path: babel.NodePath<babel.types.AssignmentExpression>, state: State): void {
-      const sType = path.node.right['shellType'] === undefined ? state.symbols.signatures.unknown : path.node.right['shellType'];
+      const sType = path.node.right['shellType'] === undefined ? { type: 'unknown', attributes: {} } : path.node.right['shellType'];
       path.node.left['shellType'] = sType;
       path.node['shellType'] = sType; // assignment returns value unlike decl
       switch (path.node.left.type) {
@@ -308,6 +308,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             if (attrs.length > 1) {
               throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword');
             }
+            if (classPath.node['shellType'].returnType.type === 'unknown') {
+              classPath.node['shellType'].returnType.type = 'object';
+            }
             classPath.node['shellType'].returnType.attributes[attrs[0]] = sType;
           }
           break;
@@ -335,7 +338,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           throw new MongoshInternalError('Unexpected AST format.');
         }
         if (value === undefined) {
-          value = state.symbols.signatures.unknown;
+          value = { type: 'unknown', attributes: {} };
         }
         attributes[k] = value;
         if (attributes[k].hasAsyncChild || attributes[k].returnsPromise) {
@@ -410,10 +413,17 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       const className = path.node.id === null ? Date.now().toString() : path.node.id.name;
       state.symbols.addToParent(className, path.node['shellType']);
       debug(`ClassDeclaration: { name: ${className} }`, path.node['shellType']);
+      // collect names of methods and set in attributes
+      path.node.body.body.forEach((attr) => {
+        const fnName = attr.key.name;
+        if (path.node['shellType'].returnType.attributes[fnName] === 'unset') {
+          path.node['shellType'].returnType.attributes[fnName] = { type: 'unknown', attributes: {} };
+        }
+      });
     }
   },
   NewExpression: {
-    exit(path: babel.NodePath<babel.types.NewExpression>, state: State): void {
+    exit(path: babel.NodePath<babel.types.NewExpression>): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
       // check that the user is not passing a type that has async children to a self-defined function
       path.node.arguments.forEach((a, index) => {
@@ -425,7 +435,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       });
 
       const lhsType = path.node.callee['shellType'];
-      path.node['shellType'] = lhsType.returnType || state.symbols.signatures.unknown;
+      path.node['shellType'] = lhsType.returnType || { type: 'unknown', attributes: {} };
       debug(`NewExpression: { ${dbg}, callee['shellType']: ${lhsType.type} }`, path.node['shellType'].type);
     }
   },
@@ -458,7 +468,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       });
       symbolCopy1.popScope();
 
-      let rType = state.symbols.signatures.unknown;
+      let rType = { type: 'unknown', attributes: {} };
       let dbg;
       if (returnTypes.length === 0) { // no return value, take last or unknown
         if (!state.t.isBlockStatement(path.node.body)) { // => (...);
@@ -466,7 +476,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           rType = path.node.body['shellType'];
         } else { // => { ... }
           dbg = 'no return in block statement, undefined';
-          rType = state.symbols.signatures.unknown;
+          rType = { type: 'unknown', attributes: {} };
         }
       } else if (returnTypes.length === 1) {
         dbg = 'single return stmt';
@@ -479,7 +489,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         if (someAsync) {
           throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.');
         }
-        rType = state.symbols.signatures.unknown;
+        rType = { type: 'unknown', attributes: {} };
       }
 
       const sType = { type: 'function', returnsPromise: path.node.async && !!path.node['toAsync'], returnType: rType, path: path };
@@ -497,6 +507,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         if (!classPath) {
           throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
         }
+        if (classPath.node['shellType'].returnType.type === 'unknown') {
+          classPath.node['shellType'].returnType.type = 'object';
+        }
         classPath.node['shellType'].returnType.attributes[path.node.key.name] = path.node['shellType'];
       }
       debug(`Function: { id: ${debugName} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
@@ -504,7 +517,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
   },
   ReturnStatement: {
     exit(path: babel.NodePath<babel.types.ReturnStatement>, state: State): void {
-      const sType = path.node.argument === null ? state.symbols.signatures.unknown : path.node.argument['shellType'];
+      const sType = path.node.argument === null ? { type: 'unknown', attributes: {} } : path.node.argument['shellType'];
       path.node['shellType'] = sType;
       state.returnValues.push(sType);
       debug('ReturnStatement', sType.type);
@@ -564,7 +577,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
 
       // set type for ternary
       if (state.t.isConditionalExpression(path.node)) {
-        path.node['shellType'] = state.symbols.signatures.unknown;
+        path.node['shellType'] = { type: 'unknown', attributes: {} };
         if (state.t.isSequenceExpression(path.node.consequent) && state.t.isSequenceExpression(path.node.alternate)) {
           const consType = path.node.consequent.expressions[path.node.consequent.expressions.length - 1]['shellType'];
           const altType = path.node.alternate.expressions[path.node.alternate.expressions.length - 1]['shellType'];
@@ -577,7 +590,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             if (cAsync || aAsync) {
               throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.');
             }
-            path.node['shellType'] = state.symbols.signatures.unknown;
+            path.node['shellType'] = { type: 'unknown', attributes: {} };
           }
         }
       }
@@ -664,7 +677,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     }
   },
   exit(path: babel.NodePath, state: State): void {
-    const type = path.node['shellType'] || state.symbols.signatures.unknown;
+    const type = path.node['shellType'] || { type: 'unknown', attributes: {} };
     if (state.skip.some((t) => (state.t[t](path.node)))) {
       debug(`${path.node.type}`);
       return;
