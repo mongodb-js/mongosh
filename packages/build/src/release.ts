@@ -32,7 +32,7 @@ const release = async(config: Config) => {
   // 4. Upload artifacts to download center. (Handled in .evergreen.yml)
 
   // 5. Create download center config.
-  createDownloadCenterConfig(config.version, config.outputDir);
+  await createDownloadCenterConfig(config.version, config.outputDir);
 
   // 6. Upload download center config. (Handled in .evergreen.yml);
   // 7. Create Github release.
