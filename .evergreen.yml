@@ -19,7 +19,7 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
-  - &compile_exec
+  - &compile_and_release
     command: shell.exec
     params:
       working_dir: src
@@ -28,7 +28,8 @@ variables:
         source .evergreen/.setup_env
         export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-        npm run compile-exec
+        npm run release
+        ls -la dist/
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -88,7 +89,7 @@ functions:
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   release_macos:
-    - <<: *compile_exec
+    - <<: *compile_and_release
     - command: shell.exec
       params:
         working_dir: src
@@ -106,7 +107,7 @@ functions:
           - src/dist/mongosh.json
         remote_file: info-mongodb-com/com-download-center/
   release_linux:
-    - <<: *compile_exec
+    - <<: *compile_and_release
     - command: shell.exec
       params:
         working_dir: src
@@ -119,7 +120,7 @@ functions:
           - src/dist/*.*
         remote_file: ${project}/${revision}/
   release_win:
-    - <<: *compile_exec
+    - <<: *compile_and_release
     - command: shell.exec
       params:
         working_dir: src
