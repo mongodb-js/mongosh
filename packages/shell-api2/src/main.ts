@@ -72,14 +72,8 @@ export function topologies(value: any[]) {
     descriptor.value.topologies = value;
   };
 }
-export function returnsPromise(value: boolean) {
-  return function(
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    descriptor.value.topologies = value;
-  };
+export function returnsPromise(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  descriptor.value.returnsPromise = true;
 }
 export function returnType(value: string) {
   return function(
@@ -87,6 +81,6 @@ export function returnType(value: string) {
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
-    descriptor.value.topologies = value;
+    descriptor.value.returnType = value;
   };
 }
