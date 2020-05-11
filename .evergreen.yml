@@ -16,7 +16,6 @@ variables:
     params:
       working_dir: "src"
       env:
-        BLA: bla
         SEGMENT_API_KEY: ${segment_api_key}
       binary: "bash"
       args:

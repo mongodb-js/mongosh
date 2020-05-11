@@ -78,15 +78,7 @@ const writeSegmentFile = () => {
 const release = async() => {
   const artifact = getArtifact();
   console.log(' -- Writing configuration for segment in', ANALYTICS_CONFIG_PATH);
-
   writeSegmentFile();
-
-  console.log(' -- DONE: writing configuration for segment.');
-
-  console.log(' -- Content of', path.dirname(ANALYTICS_CONFIG_PATH));
-
-  console.log(fs.readdirSync(path.dirname(ANALYTICS_CONFIG_PATH)));
-
   console.log('mongosh: creating binary:', artifact);
   await exec([
     path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),
