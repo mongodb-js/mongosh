@@ -134,13 +134,16 @@ export default class Mapper {
   }
 
   async it(): Promise<any> {
-    const results = new CursorIterationResult();
+    const documents = [];
 
     if (
       !this.currentCursor ||
       this.currentCursor.isClosed()
     ) {
-      return results;
+      return new CommandResult('CursorIterationResult', {
+        noCursor: true,
+        documents
+      });
     }
 
     for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
@@ -148,10 +151,13 @@ export default class Mapper {
         break;
       }
 
-      results.push(await this.currentCursor.next());
+      documents.push(await this.currentCursor.next());
     }
 
-    return results;
+    return new CommandResult('CursorIterationResult', {
+      hasMore: await this.currentCursor.hasNext(),
+      documents
+    });
   }
 
   private async _aggregate(
