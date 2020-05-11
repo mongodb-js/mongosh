@@ -1072,6 +1072,32 @@ describe('Mapper', () => {
         ).to.equal(mapper.database_getCollection(database, 'coll'));
       });
     });
+
+    describe('dropDatabase', () => {
+      it('calls serviceProvider.dropDatabase on the database', async() => {
+        await mapper.database_dropDatabase(database, { w: 1 });
+
+        expect(serviceProvider.dropDatabase).to.have.been.calledWith(
+          database._name,
+          { w: 1 }
+        );
+      });
+
+      it('returns whatever serviceProvider.dropDatabase returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.dropDatabase.resolves(expectedResult);
+        const result = await mapper.database_dropDatabase(database);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.dropDatabase rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.dropDatabase.rejects(expectedError);
+        const catchedError = await mapper.database_dropDatabase(database)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 
   describe('explainable', () => {

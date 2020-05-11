@@ -1055,7 +1055,7 @@ class Database {
     this.shellApiType = () => {
       return 'Database';
     };
-    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }, { 'name': 'getSiblingDB', 'description': 'shell-api.classes.Database.help.attributes.getSiblingDB.description' }, { 'name': 'getCollection', 'description': 'shell-api.classes.Database.help.attributes.getCollection.description' }] });
+    this.help = () => new Help({ 'help': 'shell-api.classes.Database.help.description', 'docs': 'shell-api.classes.Database.help.link', 'attr': [{ 'name': 'getCollectionNames', 'description': 'shell-api.classes.Database.help.attributes.getCollectionNames.description' }, { 'name': 'getCollectionInfos', 'description': 'shell-api.classes.Database.help.attributes.getCollectionInfos.description' }, { 'name': 'runCommand', 'description': 'shell-api.classes.Database.help.attributes.runCommand.description' }, { 'name': 'adminCommand', 'description': 'shell-api.classes.Database.help.attributes.adminCommand.description' }, { 'name': 'aggregate', 'description': 'shell-api.classes.Database.help.attributes.aggregate.description' }, { 'name': 'getSiblingDB', 'description': 'shell-api.classes.Database.help.attributes.getSiblingDB.description' }, { 'name': 'getCollection', 'description': 'shell-api.classes.Database.help.attributes.getCollection.description' }, { 'name': 'dropDatabase', 'description': 'shell-api.classes.Database.help.attributes.dropDatabase.description' }] });
 
     return proxy;
   }
@@ -1086,6 +1086,10 @@ class Database {
 
   getCollection(...args) {
     return this._mapper.database_getCollection(this, ...args);
+  }
+
+  dropDatabase(...args) {
+    return this._mapper.database_dropDatabase(this, ...args);
   }
 }
 
@@ -1129,8 +1133,14 @@ Database.prototype.getSiblingDB.returnType = 'Database';
 Database.prototype.getCollection.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.getCollection.example', 'docs': 'shell-api.classes.Database.help.attributes.getCollection.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.getCollection.description' }] });
 Database.prototype.getCollection.serverVersions = ['0.0.0', '4.4.0'];
 Database.prototype.getCollection.topologies = [0, 1, 2];
-Database.prototype.getCollection.returnsPromise = true;
-Database.prototype.getCollection.returnType = 'unknown';
+Database.prototype.getCollection.returnsPromise = false;
+Database.prototype.getCollection.returnType = 'Collection';
+
+Database.prototype.dropDatabase.help = () => new Help({ 'help': 'shell-api.classes.Database.help.attributes.dropDatabase.example', 'docs': 'shell-api.classes.Database.help.attributes.dropDatabase.link', 'attr': [{ 'description': 'shell-api.classes.Database.help.attributes.dropDatabase.description' }] });
+Database.prototype.dropDatabase.serverVersions = ['0.0.0', '4.4.0'];
+Database.prototype.dropDatabase.topologies = [0, 1, 2];
+Database.prototype.dropDatabase.returnsPromise = true;
+Database.prototype.dropDatabase.returnType = 'unknown';
 
 
 class DeleteResult {

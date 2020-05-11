@@ -18,7 +18,8 @@ import {
   ServiceProvider,
   Document,
   DatabaseOptions,
-  Cursor as ServiceProviderCursor
+  Cursor as ServiceProviderCursor,
+  WriteConcern
 } from '@mongosh/service-provider-core';
 
 import { EventEmitter } from 'events';
@@ -1984,5 +1985,12 @@ export default class Mapper {
     }
 
     return collections[name];
+  }
+
+  async database_dropDatabase(database: Database, writeConcern?: WriteConcern): Promise<any> {
+    return await this.serviceProvider.dropDatabase(
+      database._name,
+      writeConcern
+    );
   }
 }

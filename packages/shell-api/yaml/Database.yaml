@@ -38,6 +38,6 @@ class:
     getCollection:
         <<: *__defaultMethod
         returnType: 'Collection'
-    # dropDatabase:
-    #     <<: *__defaultMethod
-    #     returnsPromise: true
+    dropDatabase:
+        <<: *__defaultMethod
+        returnsPromise: true

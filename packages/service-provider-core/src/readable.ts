@@ -142,15 +142,6 @@ interface Readable {
   getTopology(): any;
 
   /**
-   * list databases.
-   *
-   * @param {String} database - The database name.
-   *
-   * @returns {Promise} The promise of command results.
-   */
-  listDatabases(database: string): Promise<Result>;
-
-  /**
    * Is the collection capped?
    *
    * @param {String} database - The database name.

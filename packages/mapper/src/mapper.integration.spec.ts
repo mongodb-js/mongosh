@@ -651,6 +651,47 @@ describe('Mapper (integration)', function() {
         expect((await (cursor as AggregationCursor).toArray())[0]).to.have.keys('_id', 'lastUse');
       });
     });
+
+    describe('dropDatabase', () => {
+      let otherDbName;
+      beforeEach(() => {
+        otherDbName = `${dbName}-2`;
+      });
+
+      afterEach(async() => {
+        await serviceProvider.dropDatabase(otherDbName);
+      });
+
+      const listDatabases = async(): Promise<string> => {
+        const { databases } = await serviceProvider.listDatabases('admin');
+        return databases.map(db => db.name);
+      };
+
+      it('drops only the target database', async() => {
+        await createCollection(dbName, collectionName);
+        await createCollection(otherDbName, collectionName);
+
+        expect(
+          await listDatabases()
+        ).to.contain(dbName);
+
+        await mapper.database_dropDatabase(database);
+
+        expect(
+          await listDatabases()
+        ).not.to.contain(dbName);
+
+        expect(
+          await listDatabases()
+        ).to.contain(otherDbName);
+      });
+
+      it('returns the drop database result', async() => {
+        expect(
+          await mapper.database_dropDatabase(database)
+        ).to.deep.equal({ 'dropped': dbName, 'ok': 1 });
+      });
+    });
   });
 
   describe('explainable', () => {

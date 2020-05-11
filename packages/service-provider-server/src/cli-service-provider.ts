@@ -763,9 +763,10 @@ class CliServiceProvider implements ServiceProvider {
    */
   async dropDatabase(
     db: string,
-    writeConcern: WriteConcern = {}
+    writeConcern: WriteConcern = {},
+    dbOptions: DatabaseOptions = {}
   ): Promise<DropDatabaseResult> {
-    const nativeResult = await (this.db(db) as any)
+    const nativeResult = await (this.db(db, dbOptions) as any)
       .dropDatabase(writeConcern);
 
     const ok = nativeResult ? 1 : 0;

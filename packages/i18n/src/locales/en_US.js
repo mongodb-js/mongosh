@@ -1135,9 +1135,9 @@ const translations = {
               parameters: {}
             },
             getCollection: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.getCollection',
-              description: 'Returns a collection or a view object by its name.',
-              example: 'db.getCollection(name)',
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropDatabase',
+              description: 'Removes the current database, deleting the associated data files.',
+              example: 'db.dropDatabase()',
               parameters: {}
             }
           }
