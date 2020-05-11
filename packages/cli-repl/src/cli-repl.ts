@@ -44,39 +44,6 @@ class CliRepl {
   private mongoshDir: string;
 
   /**
-   * Connect to the cluster.
-   *
-   * @param {string} driverUrl - The driver URI.
-   * @param {NodeOptions} driverOptions - The driver options.
-   */
-  async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
-    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
-
-    // sometimes we get a timeout when connecting. Make sure promise rejection
-    // is handled and formatted properly.
-    try {
-      this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    } catch (e) {
-      return console.log(formatError(e));
-    }
-
-    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    this.buildInfo = await this.serviceProvider.buildInfo();
-    const cmdLineOpts = await this.getCmdLineOpts();
-    const topology = this.serviceProvider.getTopology();
-
-    const connectInfo = getConnectInfo(
-      driverUri,
-      this.buildInfo,
-      cmdLineOpts,
-      topology
-    );
-
-    this.bus.emit('mongosh:connect', connectInfo);
-    this.start();
-  }
-
-  /**
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
@@ -93,10 +60,115 @@ class CliRepl {
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
     } else {
-      this.connect(driverUri, driverOptions);
+      this.setupRepl(driverUri, driverOptions);
     }
   }
 
+  /**
+   * setup CLI environment: serviceProvider, ShellEvaluator, log connection
+   * information, and finally start the repl.
+   *
+   * @param {string} driverUrl - The driver URI.
+   * @param {NodeOptions} driverOptions - The driver options.
+   */
+  async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
+    this.serviceProvider = await this.connect(driverUri, driverOptions);
+    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
+    this.buildInfo = await this.getBuild();
+    const cmdLineOpts = await this.getCmdLineOpts();
+    const topology = this.serviceProvider.getTopology();
+
+    const connectInfo = getConnectInfo(
+      driverUri,
+      this.buildInfo,
+      cmdLineOpts,
+      topology
+    );
+
+    this.bus.emit('mongosh:connect', connectInfo);
+    this.start();
+  }
+
+  /**
+   * Connect to the cluster.
+   *
+   * @param {string} driverUrl - The driver URI.
+   * @param {NodeOptions} driverOptions - The driver options.
+   */
+  async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
+    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
+
+    // sometimes we get a timeout when connecting. Make sure promise rejection
+    // is handled and formatted properly.
+    try {
+      const serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+      return serviceProvider;
+    } catch (e) {
+      return console.log(formatError(e));
+    }
+  }
+
+  /**
+   * Start the REPL.
+   */
+  start(): void {
+    this.greet();
+
+    const version = this.buildInfo.version;
+
+    this.repl = repl.start({
+      prompt: `> `,
+      writer: this.writer,
+      completer: completer.bind(null, version),
+    });
+
+    const originalEval = util.promisify(this.repl.eval);
+
+    const customEval = async(input, context, filename, callback) => {
+      let result;
+      let err = null;
+
+      try {
+        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
+      } catch (err) {
+        if (isRecoverableError(input)) {
+          return callback(new Recoverable(err));
+        } else {
+          result = err;
+        }
+      }
+      callback (null, result)
+    };
+
+    // @ts-ignore
+    this.repl.eval = customEval;
+
+    const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
+    const redactInfo = this.options.redactInfo;
+    this.repl.setupHistory(historyFile, function(err, repl) {
+      const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session')
+      if (err) this.writer(warn);
+
+      // repl.history is an array of previous commands. We need to hijack the
+      // value we just typed, and shift it off the history array if the info is
+      // sensitive.
+      repl.on('flushHistory', function() {
+        // @ts-ignore
+        changeHistory(repl.history, redactInfo);
+      })
+    })
+
+    this.repl.on('exit', () => {
+      this.serviceProvider.close(true);
+      process.exit();
+    });
+
+    this.ShellEvaluator.setCtx(this.repl.context);
+  }
+
+  /**
+   * run getCmdLineOpts() command to get cmdLineOpts necessary for logging.
+   */
   async getCmdLineOpts(): Promise<any> {
     try {
       const cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
@@ -105,8 +177,26 @@ class CliRepl {
       // error is thrown here for atlas and DataLake connections.
       // don't actually throw, as this is only used to log out non-genuine
       // mongodb connections
-      this.bus.emit('mongodb:error', e)
+      this.bus.emit('mongosh:error', e)
       return null;
+    }
+  }
+
+  /**
+   * run buildInfo() command to get mongodbversion + other build info needed for
+   * logging
+   */
+  async getBuild(): Promise<any> {
+    // this could potentially error, so wrap it in a try/catch and format the
+    // returned error
+    try {
+      const buildInfo = await this.serviceProvider.buildInfo();
+      return buildInfo;
+    } catch (e) {
+      this.bus.emit('mongosh:error', e)
+      // if buildInfo fails, something really went wrong as it requires no
+      // privelleges to run. So return and print the error.
+      return console.log(formatError(e))
     }
   }
 
@@ -255,64 +345,6 @@ class CliRepl {
       driverOptions.auth.password = password;
       this.connect(driverUri, driverOptions);
     });
-  }
-
-  /**
-   * Start the REPL.
-   */
-  start(): void {
-    this.greet();
-
-    const version = this.buildInfo.version;
-
-    this.repl = repl.start({
-      prompt: `> `,
-      writer: this.writer,
-      completer: completer.bind(null, version),
-    });
-
-    const originalEval = util.promisify(this.repl.eval);
-
-    const customEval = async(input, context, filename, callback) => {
-      let result;
-      let err = null;
-
-      try {
-        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
-      } catch (err) {
-        if (isRecoverableError(input)) {
-          return callback(new Recoverable(err));
-        } else {
-          result = err;
-        }
-      }
-      callback (null, result)
-    };
-
-    // @ts-ignore
-    this.repl.eval = customEval;
-
-    const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
-    const redactInfo = this.options.redactInfo;
-    this.repl.setupHistory(historyFile, function(err, repl) {
-      const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session')
-      if (err) this.writer(warn);
-
-      // repl.history is an array of previous commands. We need to hijack the
-      // value we just typed, and shift it off the history array if the info is
-      // sensitive.
-      repl.on('flushHistory', function() {
-        // @ts-ignore
-        changeHistory(repl.history, redactInfo);
-      })
-    })
-
-    this.repl.on('exit', () => {
-      this.serviceProvider.close(true);
-      process.exit();
-    });
-
-    this.ShellEvaluator.setCtx(this.repl.context);
   }
 }
 
