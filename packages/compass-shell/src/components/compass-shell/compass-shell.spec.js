@@ -1,8 +1,10 @@
 import sinon from 'sinon';
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { Shell } from '@mongosh/browser-repl';
+
 import { CompassShell } from './compass-shell';
+import ShellHeader from '../shell-header';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -10,27 +12,43 @@ function updateAndWaitAsync(wrapper) {
 }
 
 describe('CompassShell', () => {
-  context('when runtime property is not present', () => {
-    it('does not render a shell if runtime is null', () => {
-      const wrapper = shallow(<CompassShell runtime={null} />);
+  context('when the prop isExpanded is false', () => {
+    it('does not render a shell', () => {
+      const fakeRuntime = {};
+      const wrapper = mount(<CompassShell runtime={fakeRuntime} isExpanded={false} />);
       expect(wrapper.find(Shell)).to.have.lengthOf(0);
     });
   });
 
-  context('when runtime property is present', () => {
-    it('renders the Shell', () => {
-      const fakeRuntime = {};
-      const wrapper = shallow(<CompassShell runtime={fakeRuntime} />);
-      expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
+  context('when the prop isExpanded is true', () => {
+    context('when runtime property is not present', () => {
+      it('does not render a shell if runtime is null', () => {
+        const wrapper = mount(<CompassShell runtime={null} isExpanded />);
+        expect(wrapper.find(Shell)).to.have.lengthOf(0);
+      });
     });
-  });
 
-  context('when historyStorage is not present', () => {
-    it('passes an empty history to the Shell', () => {
-      const fakeRuntime = {};
-      const wrapper = shallow(<CompassShell runtime={fakeRuntime} />);
+    context('when runtime property is present', () => {
+      it('renders the Shell', () => {
+        const fakeRuntime = {};
+        const wrapper = mount(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
+      });
 
-      expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
+      it('renders the ShellHeader component', () => {
+        const fakeRuntime = {};
+        const wrapper = mount(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(wrapper.find(ShellHeader).exists()).to.be(true);
+      });
+    });
+
+    context('when historyStorage is not present', () => {
+      it('passes an empty history to the Shell', () => {
+        const fakeRuntime = {};
+        const wrapper = mount(<CompassShell runtime={fakeRuntime} isExpanded />);
+
+        expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
+      });
     });
   });
 
@@ -50,7 +68,7 @@ describe('CompassShell', () => {
     it('passes the loaded history as initialHistory to Shell', async() => {
       fakeStorage.load = sinon.spy(() => Promise.resolve(['line1']));
 
-      const wrapper = shallow(<CompassShell
+      const wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         historyStorage={fakeStorage} />);
 
@@ -60,7 +78,7 @@ describe('CompassShell', () => {
     });
 
     it('saves the history when history changes', async() => {
-      const wrapper = shallow(<CompassShell
+      const wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         historyStorage={fakeStorage} />);
 
