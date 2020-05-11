@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: ["error", { "functions": false }] */
+
 import prettyBytes from 'pretty-bytes';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
@@ -5,8 +7,8 @@ import util from 'util';
 import clr from './clr';
 
 type EvaluationResult = {
-  value: any,
-  type?: string
+  value: any;
+  type?: string;
 };
 
 /**
@@ -21,7 +23,7 @@ type EvaluationResult = {
  * @returns {string} The output.
  */
 export default function formatOutput(evaluationResult: EvaluationResult): string {
-  const {value, type} = evaluationResult;
+  const { value, type } = evaluationResult;
 
   if (type === 'Cursor') {
     return formatCursor(value);
@@ -36,40 +38,40 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
   }
 
   if (type === 'ShowDatabasesResult') {
-    return formatDatabases(value)
+    return formatDatabases(value);
   }
 
   if (type === 'ShowCollectionsResult') {
-    return formatCollections(value)
+    return formatCollections(value);
   }
 
   if (type === 'Error') {
-    return formatError(value)
+    return formatError(value);
   }
 
   return formatSimpleType(value);
 }
 
-function formatSimpleType(output) {
+function formatSimpleType(output): any {
   if (typeof output === 'string') return output;
   if (typeof output === 'undefined') return '';
 
   return inspect(output);
 }
 
-function formatCollections(output) {
-  return output.join('\n');
+function formatCollections(output): string {
+  return clr(output.join('\n'), 'bold');
 }
 
-function formatDatabases(output) {
+function formatDatabases(output): string {
   const tableEntries = output.map(
     (db) => [clr(db.name, 'bold'), prettyBytes(db.sizeOnDisk)]
-  )
+  );
 
   return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
-export function formatError(error) {
+export function formatError(error): string {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `;
   if (error.message) result += error.message;
@@ -79,7 +81,7 @@ export function formatError(error) {
   return result;
 }
 
-function inspect(output) {
+function inspect(output): any {
   return util.inspect(output, {
     showProxy: false,
     colors: true,
@@ -87,7 +89,7 @@ function inspect(output) {
   });
 }
 
-function formatCursor(value) {
+function formatCursor(value): any {
   if (!value.length) {
     return '';
   }
@@ -95,7 +97,7 @@ function formatCursor(value) {
   return inspect(value);
 }
 
-function formatCursorIterationResult(value) {
+function formatCursorIterationResult(value): any {
   if (!value.length) {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
@@ -103,34 +105,34 @@ function formatCursorIterationResult(value) {
   return inspect(value);
 }
 
-function formatHelp(value) {
+function formatHelp(value): string {
   // This is the spacing between arguments and description in mongosh --help.
   // Use this length for formatting consistency.
   const argLen = 47;
   let helpMenu = '';
 
   if (value.help) {
-    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`
+    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`;
   }
 
   (value.attr || []).forEach((method) => {
     let formatted = '';
     if (method.name && method.description) {
       formatted = `    ${method.name}`;
-      const extraSpaces = 47 - formatted.length;
+      const extraSpaces = argLen - formatted.length;
       formatted += `${' '.repeat(extraSpaces)}${method.description}`;
     }
     if (!method.name && method.description) {
-      formatted = `  ${method.description}`
+      formatted = `  ${method.description}`;
     }
 
-    if (formatted != '') {
+    if (formatted !== '') {
       helpMenu += `${formatted}\n`;
     }
-  })
+  });
 
   if (value.docs) {
-    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`
+    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`;
   }
 
   return helpMenu;

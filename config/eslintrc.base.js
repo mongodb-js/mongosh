@@ -13,8 +13,11 @@ module.exports = {
   ],
   rules: {
     'object-curly-spacing': [2, 'always'],
+    'no-empty-function': 0,
     'valid-jsdoc': 0,
     'react/sort-comp': 0, // does not seem work as expected with typescript
+    '@typescript-eslint/no-empty-function': 0,
+    '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-var-requires': 0, // seems necessary to import less files
     '@typescript-eslint/no-unused-vars': 2,

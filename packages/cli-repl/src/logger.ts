@@ -1,20 +1,21 @@
+/* eslint no-console:0, no-empty-function: 0 */
+
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
 import redactPwd from './redact-pwd';
 import { ObjectId } from 'bson';
 import pino from 'pino';
 import path from 'path';
-import os from 'os';
 
 interface ApiEventArguments {
   pipeline?: any[];
   query?: object;
   options?: object;
-  filter?: object; 
+  filter?: object;
 }
 
 interface ApiEvent {
-  method?: string; 
+  method?: string;
   class?: string;
   db?: string;
   coll?: string;
@@ -47,7 +48,13 @@ interface ConnectEvent {
   serverName: string;
 }
 
-export default function logger(bus: any, logDir: string) {
+// set up a noop, in case we are not able to connect to segment.
+function NoopAnalytics(): void {}
+
+NoopAnalytics.prototype.identify = function(): void {};
+NoopAnalytics.prototype.track = function(): void {};
+
+export default function logger(bus: any, logDir: string): void {
   const sessionID = new ObjectId(Date.now());
   const logDest = path.join(logDir, `${sessionID}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
@@ -58,10 +65,10 @@ export default function logger(bus: any, logDir: string) {
   let analytics = new NoopAnalytics();
   try {
     // this file gets written as a part of a release
-    log.warn(require('./analytics-config.js').SEGMENT_API_KEY)
+    log.warn(require('./analytics-config.js').SEGMENT_API_KEY);
     analytics = new Analytics(require('./analytics-config.js').SEGMENT_API_KEY);
   } catch (e) {
-    bus.emit('mongosh:error', e)
+    bus.emit('mongosh:error', e);
   }
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
@@ -83,13 +90,13 @@ export default function logger(bus: any, logDir: string) {
     userId = id;
     telemetry = enableTelemetry;
     if (telemetry) analytics.identify({ userId });
-  })
+  });
 
   bus.on('mongosh:update-user', function(id, enableTelemetry) {
     userId = id;
     telemetry = enableTelemetry;
-    log.info('mongosh:update-user', { enableTelemetry })
-  })
+    log.info('mongosh:update-user', { enableTelemetry });
+  });
 
 
   bus.on('mongosh:error', function(error: any) {
@@ -143,14 +150,14 @@ export default function logger(bus: any, logDir: string) {
   });
 
   bus.on('mongosh:setCtx', function(args) {
-    log.info('mongosh:setCtx')
-  })
+    log.info('mongosh:setCtx', args);
+  });
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
     log.info('mongosh:api-call', redactInfo(args));
 
     // analytics properties to include if they are present in an api-call
-    let properties: ApiEvent = {};
+    const properties: ApiEvent = {};
     properties.arguments = {};
     if (args.method) properties.method = args.method;
     if (args.class) properties.class = args.class;
@@ -165,9 +172,3 @@ export default function logger(bus: any, logDir: string) {
     }
   });
 }
-
-// set up a noop, in case we are not able to connect to segment.
-function NoopAnalytics() {}
-
-NoopAnalytics.prototype.identify = function() {}
-NoopAnalytics.prototype.track = function() {}

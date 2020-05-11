@@ -1,7 +1,7 @@
 /**
  * Valid options that can be parsed from the command line.
  */
-interface CliOptions {
+export default interface CliOptions {
   _?: string[];
   async?: boolean;
   authenticationDatabase?: string;
@@ -44,5 +44,3 @@ interface CliOptions {
   verbose?: boolean;
   version?: boolean;
 }
-
-export default CliOptions;

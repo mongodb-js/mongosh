@@ -1,3 +1,5 @@
+/* eslint complexity: 0*/
+
 import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
 
@@ -23,13 +25,13 @@ const DEFAULT_PORT = '27017';
  * GSSAPI options not supported as options in Node driver,
  * only in the URI.
  */
-const GSSAPI_HOST_NAME = 'gssapiHostName';
+// const GSSAPI_HOST_NAME = 'gssapiHostName';
 
 /**
  * GSSAPI options not supported as options in Node driver,
  * only in the URI.
  */
-const GSSAPI_SERVICE_NAME = 'gssapiServiceName';
+// const GSSAPI_SERVICE_NAME = 'gssapiServiceName';
 
 /**
  * Conflicting host/port message.
@@ -46,7 +48,7 @@ const TEST = 'test';
  *
  * @param {CliOptions} options - The options.
  */
-function validateConflicts(options: CliOptions) {
+function validateConflicts(options: CliOptions): any {
   if (options.host || options.port) {
     throw new Error(i18n.__(CONFLICT));
   }
@@ -108,7 +110,10 @@ function generateUri(options: CliOptions): string {
   // the parts.
   const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?[\/]?(\S+)?$/gi;
   const parts = uriMatch.exec(uri);
-  let host = parts[1], port = parts[2], db = parts[3];
+
+  let host = parts[1];
+  const port = parts[2];
+  let db = parts[3];
 
   // If there is no port and db, host becomes db if there is no
   // '.' in the string. (legacy shell behaviour)

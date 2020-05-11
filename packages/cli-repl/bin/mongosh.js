@@ -1,6 +1,6 @@
-#!/bin/sh
-':' //; node --experimental-repl-await "$0" "$@"
+#!/usr/bin/env node
 
+/* eslint no-console: 0, no-new: 0*/
 const { CliRepl, parseCliArgs, mapCliToDriver, generateUri, USAGE } = require('../lib');
 
 process.title = 'mongosh';
@@ -18,7 +18,7 @@ try {
     const driverUri = generateUri(options);
     const appname = `${process.title} ${version}`;
 
-    new CliRepl(driverUri, {appname, ...driverOptions}, options);
+    new CliRepl(driverUri, { appname, ...driverOptions }, options);
   }
 } catch (e) {
   console.log(e.message);

@@ -3,7 +3,6 @@ import { USAGE } from './constants';
 import i18n from '@mongosh/i18n';
 import minimist from 'minimist';
 import clr from './clr';
-import os from 'os';
 
 /**
  * Unknown translation key.
@@ -66,7 +65,7 @@ const OPTIONS = {
     p: 'password',
     u: 'username'
   },
-  unknown: (parameter) => {
+  unknown: (parameter: string): boolean => {
     if (parameter === START) {
       return false;
     }
