@@ -1025,9 +1025,54 @@ describe('Mapper', () => {
           mapper.database_getSiblingDB(database, '');
         }).to.throw('Database name cannot be empty.');
       });
+
+      it('reuses db instances', () => {
+        const otherDb = mapper.database_getSiblingDB(database, 'otherdb');
+        expect(
+          mapper.database_getSiblingDB(database, 'otherdb')
+        ).to.equal(otherDb);
+      });
+    });
+
+    describe('getCollection', () => {
+      it('returns a collection for the database', async() => {
+        const coll = mapper.database_getCollection(database, 'coll');
+        expect(coll).to.be.instanceOf(Collection);
+        expect(coll._name).to.equal('coll');
+        expect(coll._database).to.equal(database);
+      });
+
+      it('throws if name is not a string', () => {
+        expect(() => {
+          mapper.database_getCollection(database, undefined);
+        }).to.throw('Collection name must be a string. Received undefined.');
+      });
+
+      it('throws if name is empty', () => {
+        expect(() => {
+          mapper.database_getCollection(database, '');
+        }).to.throw('Collection name cannot be empty.');
+      });
+
+      it('allows to use collection names that would collide with methods', () => {
+        const coll = mapper.database_getCollection(database, 'getCollection');
+        expect(coll).to.be.instanceOf(Collection);
+        expect(coll._name).to.equal('getCollection');
+      });
+
+      it('allows to use collection names that starts with _', () => {
+        const coll = mapper.database_getCollection(database, '_coll1');
+        expect(coll).to.be.instanceOf(Collection);
+        expect(coll._name).to.equal('_coll1');
+      });
+
+      it('reuses collections', () => {
+        expect(
+          mapper.database_getCollection(database, 'coll')
+        ).to.equal(mapper.database_getCollection(database, 'coll'));
+      });
     });
   });
-
 
   describe('explainable', () => {
     let explainable: Explainable;
