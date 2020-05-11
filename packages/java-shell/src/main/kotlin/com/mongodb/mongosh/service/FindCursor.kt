@@ -5,7 +5,6 @@ import com.mongodb.client.model.Collation
 import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
-import org.graalvm.polyglot.Value
 
 
 internal class FindCursor(findIterable: FindIterable<Document>, context: MongoShellContext) : Cursor<FindIterable<Document>>(findIterable, context) {

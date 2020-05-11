@@ -35,7 +35,8 @@ internal fun <T> convert(context: MongoShellContext,
                          o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,
-                         map: Value): Either<T> {
+                         map: Value?): Either<T> {
+    if (map == null) return Right(o)
     val result = context.extract(map)
     return convert(o, converters, defaultConverter, (result as DocumentResult).value)
 }
@@ -272,9 +273,9 @@ internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pa
             } else Left(CommandException("$name has to be a ${clazz.simpleName}", "TypeMismatch"))
         }
 
-internal fun toBson(options: Map<*, *>?): Document {
+private fun toBson(map: Map<*, *>?): Document {
     val doc = Document()
-    options?.entries?.forEach { (key, value) ->
+    map?.entries?.forEach { (key, value) ->
         if (key !is String) return@forEach
         doc[key] = if (value is Map<*, *>) toBson(value) else value
     }

@@ -7,40 +7,56 @@ import com.mongodb.client.model.EstimatedDocumentCountOptions
 import com.mongodb.client.model.FindOneAndReplaceOptions
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DeleteResult
+import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyObject
 import java.io.Closeable
 
+@Suppress("NAME_SHADOWING")
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
 
     @HostAccess.Export
-    override fun runCommand(database: String, spec: Map<*, *>): Value = promise {
-        runCommandInner(database, spec)
-    }
-
-    private fun runCommandInner(database: String, spec: Map<*, *>?): Either<Document> {
-        return getDatabase(database, null).map { db -> db.runCommand(toBson(spec)) }
+    override fun runCommand(database: String, spec: Value): Value = promise {
+        val spec = check(spec, "spec")
+        getDatabase(database, null).map { db -> db.runCommand(toDocument(spec)) }
     }
 
     @HostAccess.Export
-    override fun insertOne(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
+        val document = check(document, "document")
+        val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertOne(toBson(doc))
+            db.getCollection(collection).insertOne(toDocument(document))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to "UNKNOWN"))
         }
     }
 
+    private fun toDocument(map: Value?): Document {
+        return if (map == null || map.isNull) Document()
+        else (context.extract(map) as DocumentResult).value
+    }
+
+    private fun toList(map: Value?): List<Document> {
+        return if (map == null || map.isNull) listOf()
+        else (context.extract(map) as ArrayResult).value.filterIsInstance<Document>()
+    }
+
     @HostAccess.Export
-    override fun replaceOne(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
+    override fun replaceOne(database: String, collection: String, filter: Value, replacement: Value, options: Value?, dbOptions: Value?): Value = promise {
+        val filter = check(filter, "filter")
+        val replacement = check(replacement, "replacement")
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
-                val res = db.getCollection(collection).replaceOne(toBson(filter), toBson(replacement), options)
+            convert(context, ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
+                val res = db.getCollection(collection).replaceOne(toDocument(filter), toDocument(replacement), options)
                 context.toJs(mapOf(
                         "result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
@@ -53,50 +69,47 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun updateMany(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> {
+    override fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: List<*>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?) {
+    override fun findAndModify(database: String, collection: String, filter: Value?, sort: Value?, update: Value?, options: Value?, dbOptions: Value?) {
         throw NotImplementedError()
     }
 
     @HostAccess.Export
-    override fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?) {
-        throw NotImplementedError()
-    }
-
-    @HostAccess.Export
-    override fun updateOne(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun save(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun save(database: String, collection: String, document: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    private fun getDatabase(database: String, dbOptions: Map<*, *>?): Either<MongoDatabase> {
+    private fun getDatabase(database: String, dbOptions: Value?): Either<MongoDatabase> {
         val db = client.getDatabase(database)
-        return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
+        return if (dbOptions == null) Right(db) else convert(context, db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
-    override fun dropDatabase(database: String, writeConcern: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun dropDatabase(database: String, writeConcern: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun bulkWrite(database: String, collection: String, requests: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun deleteMany(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise {
+        val filter = check(filter, "filter")
+        val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toBson(filter))
+            val result = db.getCollection(collection).deleteMany(toDocument(filter))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to result.wasAcknowledged()),
                     "deletedCount" to result.deletedCount))
@@ -104,34 +117,39 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun deleteOne(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun findOneAndDelete(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?): Value = promise {
+    override fun findOneAndReplace(database: String, collection: String, filter: Value, replacement: Value, options: Value?): Value = promise {
+        val filter = check(filter, "filter")
+        val replacement = check(replacement, "replacement")
+        val options = check(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options).map { options ->
-                val res = db.getCollection(collection).findOneAndReplace(toBson(filter), toBson(replacement), options)
-                ProxyObject.fromMap(mapOf("value" to res))
-            }
+            convert(context, FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
+                    .map { options ->
+                        val res = db.getCollection(collection).findOneAndReplace(toDocument(filter), toDocument(replacement), options)
+                        ProxyObject.fromMap(mapOf("value" to res))
+                    }
         }
     }
 
     @HostAccess.Export
-    override fun findOneAndUpdate(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun insertMany(database: String, collection: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise {
+        val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertMany(docs.map { toBson(it as Map<*, *>?) })
+            db.getCollection(collection).insertMany(toList(docs))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to emptyList<String>()))
@@ -139,67 +157,88 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun aggregate(database: String, collection: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): AggregateCursor {
+    override fun aggregate(database: String, collection: String, pipeline: List<Value>, options: Value?, dbOptions: Value?): AggregateCursor {
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.getCollection(collection).aggregate(pipeline.map { toBson(it) })
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
+        val iterable = db.getCollection(collection).aggregate(pipeline.map { toDocument(it) })
+        if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
-    override fun aggregateDb(database: String, pipeline: List<Map<*, *>>, options: Map<*, *>?, dbOptions: Map<*, *>?): AggregateCursor {
+    override fun aggregateDb(database: String, pipeline: List<Value>, options: Value?, dbOptions: Value?): AggregateCursor {
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.aggregate(pipeline.map { toBson(it) })
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
+        val iterable = db.aggregate(pipeline.map { toDocument(it) })
+        if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
-    override fun count(database: String, collection: String, query: Map<*, *>?, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise {
+    override fun count(database: String, collection: String, query: Value?, options: Value?, dbOptions: Value?): Value = promise {
+        val query = check(query, "query")
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+            convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
                 @Suppress("DEPRECATION")
-                db.getCollection(collection).count(toBson(query), countOptions)
+                db.getCollection(collection).count(toDocument(query), countOptions)
             }
         }
     }
 
     @HostAccess.Export
-    override fun countDocuments(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
+    override fun countDocuments(database: String, collection: String, filter: Value?, options: Value?): Value = promise {
+        val filter = check(filter, "filter")
+        val options = check(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
-                db.getCollection(collection).countDocuments(toBson(filter), countOptions)
+            convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+                db.getCollection(collection).countDocuments(toDocument(filter), countOptions)
             }
         }
     }
 
     @HostAccess.Export
-    override fun distinct(database: String, collection: String, fieldName: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise<Any?> {
+    override fun distinct(database: String, collection: String, fieldName: String, filter: Value?, options: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun estimatedDocumentCount(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
+    override fun estimatedDocumentCount(database: String, collection: String, options: Value?): Value = promise<Any?> {
+        val options = check(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
+            convert(context, EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
                 db.getCollection(collection).estimatedDocumentCount(countOptions)
             }
         }
     }
 
     @HostAccess.Export
-    override fun find(database: String, collection: String, filter: Map<*, *>?, options: Map<*, *>?): FindCursor {
+    override fun find(database: String, collection: String, filter: Value?, options: Value?): FindCursor {
+        val filter = check(filter, "filter")
+        val options = check(options, "options")
         val coll = client.getDatabase(database).getCollection(collection)
-        val iterable = if (filter == null) coll.find() else coll.find(toBson(filter))
-        if (options != null && options["projection"] is Map<*, *>) {
-            iterable.projection(toBson(options["projection"] as Map<*, *>))
-        }
+        val iterable = if (filter == null) coll.find() else coll.find(toDocument(filter))
+        val projection = options?.getMember("projection")
+        if (projection != null) iterable.projection(toDocument(projection))
         return FindCursor(iterable, context)
+    }
+
+    private fun check(value: Value?, fieldName: String): Value? {
+        if (value == null || value.isNull) return null
+        if (!value.hasMembers()) {
+            throw IllegalArgumentException("$fieldName should be a map: $value")
+        }
+        return value
     }
 
     @HostAccess.Export
     override fun getServerVersion(): Value = promise {
-        runCommandInner("admin", Document("buildInfo", 1)).map { doc -> doc["version"] }
+        getDatabase("admin", null)
+                .map { db -> db.runCommand(Document("buildInfo", 1)) }
+                .map { doc -> doc["version"] }
     }
 
     @HostAccess.Export
@@ -224,57 +263,55 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun listCollections(database: String, filter: Map<*, *>?, options: Map<*, *>?): Value = promise {
+    override fun listCollections(database: String, filter: Value?, options: Value?): Value = promise {
+        val filter = check(filter, "filter")
         getDatabase(database, null).map { db ->
             val list = db.listCollections()
-            if (filter != null) list.filter(toBson(filter))
+            if (filter != null) list.filter(toDocument(filter))
             context.toJs(list)
         }
     }
 
     @HostAccess.Export
-    override fun stats(database: String, collection: String, options: Map<*, *>?): Value = promise<Any?> {
+    override fun stats(database: String, collection: String, options: Value?): Value = promise<Any?> {
         getDatabase(database, null).map { db ->
             db.runCommand(Document("collStats", collection))
         }
     }
 
     @HostAccess.Export
-    override fun remove(database: String, collection: String, query: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value {
+    override fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value {
+        val query = check(query, "query")
+        val dbOptions = check(dbOptions, "dbOptions")
         val promise = getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toBson(query))
+            val result = db.getCollection(collection).deleteMany(toDocument(query))
             DeleteResult(result.wasAcknowledged(), result.deletedCount)
         }
         return context.toJsPromise(promise)
     }
 
     @HostAccess.Export
-    override fun convertToCapped(database: String, collection: String, size: Number, options: Map<*, *>?): Value = promise<Any?> { 
+    override fun convertToCapped(database: String, collection: String, size: Number, options: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun createIndexes(database: String, collection: String, indexSpecs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: String, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun dropIndexes(database: String, collection: String, indexes: String, commandOptions: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: List<*>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun dropIndexes(database: String, collection: String, indexes: Value?, commandOptions: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
     @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: Map<*, *>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
-        Left(NotImplementedError())
-    }
-
-    @HostAccess.Export
-    override fun reIndex(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun reIndex(database: String, collection: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
@@ -286,7 +323,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun renameCollection(database: String, oldName: String, newName: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value = promise<Any?> { 
+    override fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
