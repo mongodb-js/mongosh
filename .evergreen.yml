@@ -18,7 +18,7 @@ variables:
       shell: bash
       script: |
         source .evergreen/.setup_env
-        export SEGMENT_API_KEY=${segment_key}
+        export SEGMENT_API_KEY=${segment_api_key}
         echo "SEGMENT_API_KEY is set to $SEGMENT_API_KEY"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         echo "Run compile-exec"
