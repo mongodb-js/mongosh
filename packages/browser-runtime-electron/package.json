@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "@mongosh/browser-runtime-core": "^0.0.5",
-    "@mongosh/service-provider-core": "^0.0.5"
+    "@mongosh/service-provider-core": "^0.0.5",
+    "@mongosh/shell-api": "^0.0.5"
   },
   "devDependencies": {
     "@mongosh/service-provider-server": "^0.0.5",

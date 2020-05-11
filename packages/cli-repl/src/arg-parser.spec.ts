@@ -240,12 +240,12 @@ describe('arg-parser', () => {
             it('raises an error', () => {
               try {
                 parse(argv);
-                throw new Error('should have thrown');
               } catch (err) {
-                expect(
+                return expect(
                   stripAnsi(err.message)
                 ).to.contain('Error parsing command line: unrecognized option: --what');
               }
+              expect.fail('parsing unknown parameter did not throw');
             });
           });
         });
@@ -740,12 +740,12 @@ describe('arg-parser', () => {
             it('raises an error', () => {
               try {
                 parse(argv);
-                throw new Error('should have thrown');
               } catch (err) {
-                expect(
+                return expect(
                   stripAnsi(err.message)
                 ).to.contain('Error parsing command line: unrecognized option: --what');
               }
+              expect.fail('parsing unknown parameter did not throw');
             });
           });
         });

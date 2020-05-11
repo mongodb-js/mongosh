@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
+const sinon = require('sinon');
 import upload from './s3';
 
 describe('s3 module', () => {

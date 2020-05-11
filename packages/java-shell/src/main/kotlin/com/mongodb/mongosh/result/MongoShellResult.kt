@@ -89,14 +89,14 @@ class PatternResult(override val value: Pattern) : MongoShellResult<Pattern>()
 
 class MongoShellUpdateResult(override val value: UpdateResult) : MongoShellResult<UpdateResult>()
 
-class InsertOneResult(val acknowleged: Boolean, val insertedId: String) : MongoShellResult<Map<String, Any>>() {
+class InsertOneResult(val acknowledged: Boolean, val insertedId: String) : MongoShellResult<Map<String, Any>>() {
     override val value: Map<String, Any>
-        get() = mapOf("acknowleged" to acknowleged, "insertedId" to insertedId)
+        get() = mapOf("acknowledged" to acknowledged, "insertedId" to insertedId)
 }
 
-class InsertManyResult(val acknowleged: Boolean, val insertedIds: List<String>) : MongoShellResult<Map<String, Any>>() {
+class InsertManyResult(val acknowledged: Boolean, val insertedIds: List<String>) : MongoShellResult<Map<String, Any>>() {
     override val value: Map<String, Any>
-        get() = mapOf("acknowleged" to acknowleged, "insertedIds" to insertedIds)
+        get() = mapOf("acknowledged" to acknowledged, "insertedIds" to insertedIds)
 }
 
 class CollectionResult internal constructor(override val value: MongoShellCollection) : MongoShellResult<MongoShellCollection>() {
@@ -111,9 +111,9 @@ class DatabaseResult internal constructor(override val value: MongoShellDatabase
     }
 }
 
-class DeleteResult(val acknowleged: Boolean, val deletedCount: Long) : MongoShellResult<Map<String, Any>>() {
+class DeleteResult(val acknowledged: Boolean, val deletedCount: Long) : MongoShellResult<Map<String, Any>>() {
     override val value: Map<String, Any>
-        get() = mapOf("acknowleged" to acknowleged, "deletedCount" to deletedCount)
+        get() = mapOf("acknowledged" to acknowledged, "deletedCount" to deletedCount)
 }
 
 class BulkWriteResult(val acknowledged: Boolean,

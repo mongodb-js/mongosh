@@ -35,7 +35,7 @@ describe('Translator', () => {
 
     context('when the result is a string', () => {
       it('returns the string', () => {
-        expect(translator.translateApiHelp('shell-api.help.description')).
+        expect(translator.translateApiHelp('shell-api.classes.ShellApi.help.description')).
           to.equal('Shell Help');
       });
     });

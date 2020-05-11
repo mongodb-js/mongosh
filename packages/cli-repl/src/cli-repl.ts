@@ -1,15 +1,15 @@
 /* eslint no-console: 0, no-sync: 0*/
 
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import { ShellInternalState } from '@mongosh/shell-api';
+import ShellEvaluator from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
-import ShellEvaluator from '@mongosh/shell-evaluator';
 import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
-import getConnectInfo from './connect-info';
 import jsonParse from 'fast-json-parse';
 import CliOptions from './cli-options';
 import completer from './completer';
@@ -36,11 +36,10 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  * The REPL used from the terminal.
  */
 class CliRepl {
-  private serviceProvider: CliServiceProvider;
-  private ShellEvaluator: ShellEvaluator;
-  private buildInfo: any;
+  private shellEvaluator: ShellEvaluator;
   private repl: REPLServer;
   private bus: Nanobus;
+  private internalState: ShellInternalState;
   private enableTelemetry: boolean;
   private disableGreetingMessage: boolean;
   private userId: ObjectId;
@@ -82,10 +81,10 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
-    this.serviceProvider = await this.connect(driverUri, driverOptions);
-    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    this.buildInfo = await this.serviceProvider.buildInfo();
-    this.logBuildInfo(driverUri);
+    const initialServiceProvider = await this.connect(driverUri, driverOptions);
+    this.internalState = new ShellInternalState(initialServiceProvider, this.bus);
+    this.shellEvaluator = new ShellEvaluator(this.internalState, this);
+    await this.internalState.fetchConnectionInfo();
     this.start();
   }
 
@@ -106,7 +105,7 @@ class CliRepl {
   start(): void {
     this.greet();
 
-    const version = this.buildInfo.version;
+    const version = this.internalState.connectionInfo.buildInfo.version;
 
     this.repl = repl.start({
       input: this.lineByLineInput,
@@ -146,7 +145,7 @@ class CliRepl {
       let result;
 
       try {
-        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
+        result = await this.shellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));
@@ -174,53 +173,17 @@ class CliRepl {
       });
     });
 
-    this.repl.on('exit', () => {
-      this.serviceProvider.close(true);
+    this.repl.on('exit', async() => {
+      await this.internalState.close(true);
       process.exit();
     });
 
-    this.ShellEvaluator.setCtx(this.repl.context);
+    this.internalState.setCtx(this.repl.context);
   }
 
   /**
-   * Log information about the current connection using buildInfo, topology,
-   * current driverUri, and cmdLineOpts.
-   *
-   * @param {string} driverUri - The driver URI.
+   * Creates a directory to store all mongosh logs, history and config
    */
-  async logBuildInfo(driverUri: string): Promise<void> {
-    const cmdLineOpts = await this.getCmdLineOpts();
-    const topology = this.serviceProvider.getTopology();
-
-    const connectInfo = getConnectInfo(
-      driverUri,
-      this.buildInfo,
-      cmdLineOpts,
-      topology
-    );
-
-    this.bus.emit('mongosh:connect', connectInfo);
-  }
-
-  /**
-   * run getCmdLineOpts() command to get cmdLineOpts necessary for logging.
-   */
-  async getCmdLineOpts(): Promise<any> {
-    try {
-      const cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
-      return cmdLineOpts;
-    } catch (e) {
-      // error is thrown here for atlas and DataLake connections.
-      // don't actually throw, as this is only used to log out non-genuine
-      // mongodb connections
-      this.bus.emit('mongosh:error', e);
-      return null;
-    }
-  }
-
-  /**
-  * Creates a directory to store all mongosh logs, history and config
-  */
   createMongoshDir(): void {
     try {
       mkdirp.sync(this.mongoshDir);
@@ -231,12 +194,12 @@ class CliRepl {
   }
 
   /**
-  * Checks if config file exists.
-  *
-  * If exists: sets userId and enabledTelemetry to this.
-  * If does not exist: writes a new file with a newly generated ObjectID for
-  * userid and enableTelemetry set to false.
-  */
+   * Checks if config file exists.
+   *
+   * If exists: sets userId and enabledTelemetry to this.
+   * If does not exist: writes a new file with a newly generated ObjectID for
+   * userid and enableTelemetry set to false.
+   */
   generateOrReadTelemetryConfig(): void {
     const configPath = path.join(this.mongoshDir, 'config');
 
@@ -274,13 +237,13 @@ class CliRepl {
   }
 
   /**
-  * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
-  * config file.
-  *
-  * @param {boolean} enabled - enabled or disabled status
-  *
-  * @returns {string} Status of telemetry logging: disabled/enabled
-  */
+   * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
+   * config file.
+   *
+   * @param {boolean} enabled - enabled or disabled status
+   *
+   * @returns {string} Status of telemetry logging: disabled/enabled
+   */
   toggleTelemetry(enabled: boolean): string {
     this.enableTelemetry = enabled;
     this.disableGreetingMessage = true;
@@ -297,9 +260,9 @@ class CliRepl {
   }
 
   /** write file sync given path and contents
-  *
-  * @param {string} filePath - path to file
-  */
+   *
+   * @param {string} filePath - path to file
+   */
   writeConfigFileSync(filePath: string): void {
     const config = {
       userId: this.userId,
@@ -324,7 +287,7 @@ class CliRepl {
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
-      this.ShellEvaluator.revertState();
+      this.shellEvaluator.revertState();
 
       return formatOutput({ type: 'Error', value: result });
     }
@@ -337,8 +300,8 @@ class CliRepl {
    */
   greet(): void {
     const { version } = require('../package.json');
-    console.log(`Using MongoDB:      ${this.buildInfo.version}`);
-    console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`)
+    console.log(`Using MongoDB: ${this.internalState.connectionInfo.buildInfo.version}`);
+    console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }

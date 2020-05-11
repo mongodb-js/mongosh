@@ -1,5 +1,5 @@
-import sinon from 'sinon';
-import { Help } from './help';
+import sinon from 'ts-sinon';
+import Help from './help';
 import { expect } from 'chai';
 
 describe('Help', () => {
