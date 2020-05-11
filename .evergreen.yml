@@ -11,6 +11,14 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
+  - &upload_download_center
+    command: s3.put
+    params:
+      aws_key: ${download_center_aws_key}
+      aws_secret: ${download_center_aws_secret}
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
   - &compile_exec
     command: shell.exec
     params:
@@ -90,8 +98,13 @@ functions:
     - <<: *upload_file
       params:
         local_files_include_filter:
-          - src/dist/*.tgz
+          - src/dist/*.*
         remote_file: ${project}/${revision}/
+    - <<: *upload_download_center
+      params:
+        local_files_include_filter:
+          - src/dist/mongosh.json
+        remote_file: info-mongodb-com/com-download-center/
   release_linux:
     - <<: *compile_exec
     - command: shell.exec
@@ -103,7 +116,7 @@ functions:
     - <<: *upload_file
       params:
         local_files_include_filter:
-          - src/dist/*.tgz
+          - src/dist/*.*
         remote_file: ${project}/${revision}/
   release_win:
     - <<: *compile_exec
@@ -116,7 +129,7 @@ functions:
     - <<: *upload_file
       params:
         local_files_include_filter:
-          - src/dist/*.zip
+          - src/dist/*.*
         remote_file: ${project}/${revision}/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
