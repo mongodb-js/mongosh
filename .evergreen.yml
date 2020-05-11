@@ -23,8 +23,8 @@ variables:
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         echo "Run compile-exec"
         npm run compile-exec
-        echo "content of browser-repl/lib:"
-        ls packages/browser-repl/lib
+        echo "content of cli-repl/lib/analytics-config.js"
+        cat packages/cli-repl/lib/analytics-config.js
 # Functions are any command that can be run.
 #
 # Current functions:
