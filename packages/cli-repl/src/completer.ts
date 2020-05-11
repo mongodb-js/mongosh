@@ -17,6 +17,7 @@ const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
 const SHELL_COMPLETIONS = shellApiSignature.attributes;
 const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
+const DB_COMPLETIONS = shellSignatures.Database.attributes;
 const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
 const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;
 const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes;
@@ -62,10 +63,9 @@ function completer(mdbVersion: string, line: string): [string[], string] {
     const hits = filterShellAPI(mdbVersion, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length === 2) {
-    // TODO: @lrlna suggest DATABASE commands (currently not available in
-    // shellSignatures)
-    // TODO: @lrlna is there a way to suggest currently available collections?
-    return [[], line];
+    // TODO: @lrlna this also needs to suggest currently available collections
+    const hits = filterShellAPI(mdbVersion, DB_COMPLETIONS, elToComplete, splitLine);
+    return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length > 2) {
     if (splitLine.length > 3) {
       // aggregation cursor completions

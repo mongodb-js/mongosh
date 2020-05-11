@@ -25,6 +25,28 @@ describe('completer.completer', () => {
     // this should eventually encompass tests for DATABASE commands and
     // COLLECTION names.
     // for now, this will only return the current input.
+    it('matches a database command', () => {
+      const i = 'db.agg';
+      expect(completer('4.4.0', i)).to.deep.equal([['db.aggregate'], i]);
+    });
+
+    it('returns all suggestions', () => {
+      const i = 'db.';
+      const dbComplete = Object.keys(shellSignatures.Database.attributes)
+      const adjusted = dbComplete.map(c => `${i}${c}`)
+      expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
+    });
+
+    it('matches several suggestions', () => {
+      const i = 'db.get';
+      expect(completer('4.4.0', i)[0]).to.include.members(
+        [
+          'db.getCollectionNames',
+          'db.getCollection',
+          'db.getCollectionInfos',
+          'db.getSiblingDB'
+        ]);
+    });
 
     it('returns current input and no suggestions', () => {
       const i = 'db.shipw';
