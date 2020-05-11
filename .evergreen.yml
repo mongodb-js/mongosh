@@ -19,8 +19,12 @@ variables:
       script: |
         source .evergreen/.setup_env
         export SEGMENT_API_KEY=${segment_key}
+        echo "SEGMENT_API_KEY is set to $SEGMENT_API_KEY"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+        echo "Run compile-exec"
         npm run compile-exec
+        echo "content of browser-repl/lib:"
+        ls packages/browser-repl/lib
 # Functions are any command that can be run.
 #
 # Current functions:
