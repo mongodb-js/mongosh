@@ -4,12 +4,11 @@ import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
-import IconButton from '@leafygreen-ui/icon-button';
-import Icon from '@leafygreen-ui/icon';
 
 import { Shell } from '@mongosh/browser-repl';
 
-import { ResizeHandle } from '../resize-handle';
+import ResizeHandle from '../resize-handle';
+import ShellHeader from '../shell-header';
 
 const resizeableDirections = {
   top: false, // This property is controlled in the component.
@@ -27,6 +26,7 @@ const defaultShellHeightOpened = 240;
 
 export class CompassShell extends Component {
   static propTypes = {
+    isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
     historyStorage: PropTypes.object
   };
@@ -39,7 +39,7 @@ export class CompassShell extends Component {
 
     this.state = {
       initialHistory: this.props.historyStorage ? null : [],
-      isExpanded: false
+      isExpanded: !!this.props.isExpanded
     };
   }
 
@@ -135,26 +135,10 @@ export class CompassShell extends Component {
           top: <ResizeHandle />,
         }}
       >
-        <div className={styles['compass-shell-header']}>
-          <button
-            className={styles['compass-shell-toggle']}
-            onClick={this.shellToggleClicked}
-          >
-            &gt;_MongoSH v0.9 Beta
-          </button>
-          {isExpanded && (
-            <div>
-              <IconButton
-                className={styles['compass-shell-close-btn']}
-                variant="dark"
-                aria-label="Some Menu"
-                onClick={this.shellToggleClicked}
-              >
-                <Icon glyph="X" />
-              </IconButton>
-            </div>
-          )}
-        </div>
+        <ShellHeader
+          isExpanded={isExpanded}
+          onShellToggleClicked={this.shellToggleClicked}
+        />
         {isExpanded && (
           <div className={classnames(styles['compass-shell-shell-container'])}>
             <Shell
