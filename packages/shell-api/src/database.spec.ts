@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import Mapper from '../../mapper/lib';
-import { Database } from './shell-api';
+import { Database, Collection } from './shell-api';
 import * as signatures from './shell-api-signatures';
 import { expect } from 'chai';
 
@@ -48,12 +48,51 @@ describe('Database', () => {
     'runCommand',
     'adminCommand',
     'aggregate',
-    'getSiblingDB'
+    'getSiblingDB',
+    'getCollection'
   ].forEach((methodName) => {
     describe(`#${methodName}`, () => {
       it(`wraps mapper.database_${methodName}`, () => {
         testWrappedMethod(methodName);
       });
     });
+  });
+
+  it('allows to get a collection as property if is not one of the existing methods', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database.someCollection).to.have.instanceOf(Collection);
+    expect(database.someCollection._name).to.equal('someCollection');
+  });
+
+  it('reuses collections', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database.someCollection).to.equal(database.someCollection);
+  });
+
+  it('does not return a collection starting with _', () => {
+    // this is the behaviour in the old shell
+
+    const database: any = new Database({}, 'db1');
+    expect(database._someProperty).to.equal(undefined);
+  });
+
+  it('does not return a collection for symbols', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database[Symbol('someProperty')]).to.equal(undefined);
+  });
+
+  it('does not return a collection with invalid name', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database['   ']).to.equal(undefined);
+  });
+
+  it('allows to access _name', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database._name).to.equal('db1');
+  });
+
+  it('allows to access _collections', () => {
+    const database: any = new Database({}, 'db1');
+    expect(database._collections).to.deep.equal({});
   });
 });

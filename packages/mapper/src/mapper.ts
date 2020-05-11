@@ -1966,4 +1966,23 @@ export default class Mapper {
   database_getSiblingDB(database: Database, name: string): Database {
     return this._getDatabase(name);
   }
+
+  database_getCollection(database: Database, name: string): Collection {
+    if (typeof name !== 'string') {
+      throw new MongoshInvalidInputError(
+        `Collection name must be a string. Received ${typeof name}.`);
+    }
+
+    if (!name.trim()) {
+      throw new MongoshInvalidInputError('Collection name cannot be empty.');
+    }
+
+    const collections: Record<string, Collection> = (database as any)._collections;
+
+    if (!collections[name]) {
+      collections[name] = new Collection(this, database, name);
+    }
+
+    return collections[name];
+  }
 }

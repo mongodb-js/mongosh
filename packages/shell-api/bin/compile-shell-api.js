@@ -5,13 +5,28 @@ const yaml = require('js-yaml');
 const YAML_DIR = 'yaml';
 
 const databaseConstructorTemplate = (contents) => (`
+    const collections = {};
+    this._collections = collections;
+
     const proxy = new Proxy(this, {
-      get: (obj, prop) => {
-        if (!(prop in obj)) {
-          obj[prop] = new Collection(_mapper, proxy, prop);
+      get: (target, prop) => {
+        if (prop in target) {
+          return target[prop];
         }
 
-        return obj[prop];
+        if (
+          typeof prop !== 'string' ||
+            prop.startsWith('_') ||
+            !prop.trim()
+        ) {
+          return;
+        }
+
+        if (!collections[prop]) {
+          collections[prop] = new Collection(_mapper, proxy, prop);
+        }
+
+        return collections[prop];
       }
     });
 ${contents}

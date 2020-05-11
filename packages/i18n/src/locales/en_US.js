@@ -1131,7 +1131,13 @@ const translations = {
             getSiblingDB: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getSiblingDB',
               description: 'Returns another database without modifying the db variable in the shell environment.',
-              example: 'db.getSiblingDB("users")',
+              example: 'db.getSiblingDB(name)',
+              parameters: {}
+            },
+            getCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getCollection',
+              description: 'Returns a collection or a view object by its name.',
+              example: 'db.getCollection(name)',
               parameters: {}
             }
           }

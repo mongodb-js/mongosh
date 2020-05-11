@@ -35,9 +35,9 @@ class:
     getSiblingDB:
         <<: *__defaultMethod
         returnType: 'Database'
+    getCollection:
+        <<: *__defaultMethod
+        returnsPromise: true
     # dropDatabase:
-    #     <<: *__defaultMethod
-    #     returnsPromise: true
-    # getCollection:
     #     <<: *__defaultMethod
     #     returnsPromise: true
