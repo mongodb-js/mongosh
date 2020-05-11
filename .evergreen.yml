@@ -12,20 +12,20 @@ variables:
       permissions: public-read
       content_type: application/octet-stream
   - &compile_exec
-    command: subprocess.exec
-    params:
-      working_dir: "src"
-      env:
-        SEGMENT_API_KEY: ${segment_api_key}
-      binary: "bash"
-      args:
-        - ".evergreen/.compile_exec"
-    # command: shell.exec
+    # command: subprocess.exec
     # params:
-    #   working_dir: src
-    #   shell: bash
-    #   script: |
-    #     source .evergreen/.setup_env
+    #   working_dir: "src"
+    #   env:
+    #     SEGMENT_API_KEY: ${segment_api_key}
+    #   binary: "bash"
+    #   args:
+    #     - ".evergreen/.compile_exec"
+    command: shell.exec
+    params:
+      working_dir: src
+      shell: bash
+      script: |
+        env | grep segment_api_key
     #     export SEGMENT_API_KEY=${segment_api_key}
     #     echo SEGMENT API KEY EXPANSION: ${segment_api_key}
     #     echo "SEGMENT_API_KEY is set to $SEGMENT_API_KEY"
