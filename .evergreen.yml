@@ -12,19 +12,29 @@ variables:
       permissions: public-read
       content_type: application/octet-stream
   - &compile_exec
-    command: shell.exec
+    command: subprocess.exec
     params:
-      working_dir: src
-      shell: bash
-      script: |
-        source .evergreen/.setup_env
-        export SEGMENT_API_KEY=${segment_api_key}
-        echo "SEGMENT_API_KEY is set to $SEGMENT_API_KEY"
-        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-        echo "Run compile-exec"
-        npm run compile-exec
-        echo "content of cli-repl/lib/analytics-config.js"
-        cat packages/cli-repl/lib/analytics-config.js
+      working_dir: "src"
+      env:
+        BLA: bla
+        SEGMENT_API_KEY: ${segment_api_key}
+      binary: "bash"
+      args:
+        - ".evergreen/.compile_exec"
+    # command: shell.exec
+    # params:
+    #   working_dir: src
+    #   shell: bash
+    #   script: |
+    #     source .evergreen/.setup_env
+    #     export SEGMENT_API_KEY=${segment_api_key}
+    #     echo SEGMENT API KEY EXPANSION: ${segment_api_key}
+    #     echo "SEGMENT_API_KEY is set to $SEGMENT_API_KEY"
+    #     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+    #     echo "Run compile-exec"
+    #     npm run compile-exec
+    #     echo "content of cli-repl/lib/analytics-config.js"
+    #     cat packages/cli-repl/lib/analytics-config.js
 # Functions are any command that can be run.
 #
 # Current functions:
