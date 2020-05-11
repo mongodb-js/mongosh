@@ -179,7 +179,7 @@ buildvariants:
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-test
     tasks:
-      - name: check
+      # - name: check
       # - name: test
       - name: release_linux
   # - name: windows

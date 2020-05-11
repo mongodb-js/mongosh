@@ -56,13 +56,14 @@ const archive = async() => {
   );
 };
 
+const ANALYTICS_CONFIG_PATH = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'analytics-config.js');
+
 const writeSegmentFile = () => {
   const key = `module.exports = '${process.env.SEGMENT_API_KEY}';`;
   // create directly in cli-repl/lib so it can be part of artifacts in dist
-  const configPath = path.join(__dirname, '..', 'packages', 'cli-repl', 'lib', 'analytics-config.js');
   try {
     // can just write this sync, since it's part of the release script
-    fs.writeFileSync(configPath, key)
+    fs.writeFileSync(ANALYTICS_CONFIG_PATH, key)
   } catch (e) {
     console.log('mognosh: unable to write segment api key')
     return;
@@ -76,7 +77,16 @@ const writeSegmentFile = () => {
  */
 const release = async() => {
   const artifact = getArtifact();
+  console.log(' -- Writing configuration for segment in', ANALYTICS_CONFIG_PATH);
+
   writeSegmentFile();
+
+  console.log(' -- DONE: writing configuration for segment.');
+
+  console.log(' -- Content of', path.dirname(ANALYTICS_CONFIG_PATH));
+
+  console.log(fs.readdirSync(path.dirname(ANALYTICS_CONFIG_PATH)));
+
   console.log('mongosh: creating binary:', artifact);
   await exec([
     path.join(__dirname, '..', 'packages', 'cli-repl', 'bin', 'mongosh.js'),
