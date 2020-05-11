@@ -60,7 +60,11 @@ class CliRepl {
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
     } else {
-      this.setupRepl(driverUri, driverOptions);
+      this.setupRepl(driverUri, driverOptions).catch((error) => {
+        this.bus.emit('mongosh:error', error);
+        console.log(formatError(error));
+        return;
+      });
     }
   }
 
@@ -68,44 +72,26 @@ class CliRepl {
    * setup CLI environment: serviceProvider, ShellEvaluator, log connection
    * information, and finally start the repl.
    *
-   * @param {string} driverUrl - The driver URI.
+   * @param {string} driverUri - The driver URI.
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     this.serviceProvider = await this.connect(driverUri, driverOptions);
     this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
-    this.buildInfo = await this.getBuild();
-    const cmdLineOpts = await this.getCmdLineOpts();
-    const topology = this.serviceProvider.getTopology();
-
-    const connectInfo = getConnectInfo(
-      driverUri,
-      this.buildInfo,
-      cmdLineOpts,
-      topology
-    );
-
-    this.bus.emit('mongosh:connect', connectInfo);
+    this.buildInfo = await this.serviceProvider.buildInfo();
+    this.logBuildInfo(driverUri);
     this.start();
   }
 
   /**
    * Connect to the cluster.
    *
-   * @param {string} driverUrl - The driver URI.
+   * @param {string} driverUri - The driver URI.
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
-
-    // sometimes we get a timeout when connecting. Make sure promise rejection
-    // is handled and formatted properly.
-    try {
-      const serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-      return serviceProvider;
-    } catch (e) {
-      return console.log(formatError(e));
-    }
+    return await CliServiceProvider.connect(driverUri, driverOptions);
   }
 
   /**
@@ -167,6 +153,26 @@ class CliRepl {
   }
 
   /**
+   * Log information about the current connection using buildInfo, topology,
+   * current driverUri, and cmdLineOpts.
+   *
+   * @param {string} driverUri - The driver URI.
+   */
+  async logBuildInfo(driverUri: string): Promise<void> {
+    const cmdLineOpts = await this.getCmdLineOpts();
+    const topology = this.serviceProvider.getTopology();
+
+    const connectInfo = getConnectInfo(
+      driverUri,
+      this.buildInfo,
+      cmdLineOpts,
+      topology
+    );
+
+    this.bus.emit('mongosh:connect', connectInfo);
+  }
+
+  /**
    * run getCmdLineOpts() command to get cmdLineOpts necessary for logging.
    */
   async getCmdLineOpts(): Promise<any> {
@@ -179,24 +185,6 @@ class CliRepl {
       // mongodb connections
       this.bus.emit('mongosh:error', e)
       return null;
-    }
-  }
-
-  /**
-   * run buildInfo() command to get mongodbversion + other build info needed for
-   * logging
-   */
-  async getBuild(): Promise<any> {
-    // this could potentially error, so wrap it in a try/catch and format the
-    // returned error
-    try {
-      const buildInfo = await this.serviceProvider.buildInfo();
-      return buildInfo;
-    } catch (e) {
-      this.bus.emit('mongosh:error', e)
-      // if buildInfo fails, something really went wrong as it requires no
-      // privelleges to run. So return and print the error.
-      return console.log(formatError(e))
     }
   }
 
