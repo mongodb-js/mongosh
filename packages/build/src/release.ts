@@ -24,17 +24,19 @@ const release = async(config: Config) => {
   // 5. Create & sign the .rpm
   // 6. Create & sign the .msi
   // 
-  // If lerna version has been run, then...
+  // If this is a new release tag.
   //
   // 1. Publish the .deb
   // 2. Publish the .rpm
-  // 3. Publish to Homebrew
-  // 4. Upload artifacts to download center. (Handled in .evergreen.yml)
+  // 3. Create PR for Homebrew
+
+  // 4. Upload artifacts to S3 for Evergreen and downloads. (Handled in .evergreen.yml)
 
   // 5. Create download center config.
   await createDownloadCenterConfig(config.version, config.outputDir);
 
   // 6. Upload download center config. (Handled in .evergreen.yml);
+
   // 7. Create Github release.
   // 8. Publish to NPM.
 }; 
