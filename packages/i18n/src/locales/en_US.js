@@ -72,7 +72,6 @@ const translations = {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port'
     }
   },
-  mapper: {},
   'service-provider-browser': {},
   'service-provider-core': {},
   'service-provider-server': {},

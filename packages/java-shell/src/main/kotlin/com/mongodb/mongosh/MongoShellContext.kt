@@ -58,10 +58,11 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         val context = ctx.getBindings("js")
         val global = context["_global"]!!
         context.removeMember("_global")
-        val mapper = global["Mapper"]!!.newInstance(serviceProvider)
+        val shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
         val shellBson = global["ShellBson"]!!
-        initContext(context, mapper, shellBson)
-        mapper.putMember("context", context)
+//        shellInternalState.invokeMember("setCtx", context)
+        initContext(context, shellInternalState, shellBson)
+        shellInternalState.putMember("context", context)
         databaseClass = global["Database"]!!
         collectionClass = global["Collection"]!!
         cursorClass = global["Cursor"]!!
@@ -86,11 +87,11 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                 eval("new HexData(0, '').constructor"))
     }
 
-    private fun initContext(context: Value, mapper: Value, shellBson: Value) {
-        context.putMember("use", mapper["use"]!!.invokeMember("bind", mapper))
-        context.putMember("show", mapper["show"]!!.invokeMember("bind", mapper))
-        context.putMember("it", mapper["it"]!!.invokeMember("bind", mapper))
-        context.putMember("db", mapper["databases"]!!["test"]!!)
+    private fun initContext(context: Value, shellInternalState: Value, shellBson: Value) {
+        context.putMember("use", shellInternalState["use"]!!.invokeMember("bind", shellInternalState))
+        context.putMember("show", shellInternalState["show"]!!.invokeMember("bind", shellInternalState))
+        context.putMember("it", shellInternalState["it"]!!.invokeMember("bind", shellInternalState))
+        context.putMember("db", shellInternalState["currentDb"]!!)
         eval("(a, b) => Object.assign(a, b);").execute(context, shellBson)
         context.removeMember("Date")
         context.putMember("Date", eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }")

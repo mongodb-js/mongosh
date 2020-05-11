@@ -2,7 +2,7 @@ import mongodb, { MongoClient, Db } from 'mongodb';
 const Collection = (mongodb as any).Collection;
 
 import { expect } from 'chai';
-import sinon from 'sinon';
+import sinon from 'ts-sinon';
 
 import CliServiceProvider from './cli-service-provider';
 

@@ -39,11 +39,5 @@
     "pkg": "^4.4.3",
     "semver": "^7.3.2",
     "tar": "^6.0.1"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^6.2.1",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.4.0"
   }
 }

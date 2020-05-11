@@ -1,7 +1,7 @@
 import {
   MongoshInvalidInputError
 } from '@mongosh/errors';
-import { Cursor } from './shell-api';
+import { Cursor } from './cursor';
 class Iterator {
   constructor(iterable) {
     this.iterable = iterable;

@@ -1,8 +1,0 @@
-class:
-    <<: *__defaultClass
-    __constructorArgs:
-        - acknowleged
-        - matchedCount
-        - modifiedCount
-        - upsertedCount
-        - insertedId

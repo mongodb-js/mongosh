@@ -1,6 +1,6 @@
 import StitchTransport from './stitch-transport';
 import { expect } from 'chai';
-import sinon from 'sinon';
+const sinon = require('sinon');
 import StitchClient from './stitch-client';
 import StitchMongoClient from './stitch-mongo-client';
 
