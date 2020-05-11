@@ -1,5 +1,8 @@
 import path from 'path';
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Automatically upload to download center
 import { promises as fs } from 'fs';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
@@ -22,6 +25,11 @@ const DIRECTORY = 'com-download-center';
 =======
 import handlebars from 'handlebars';
 >>>>>>> Generate download center template
+
+/**
+ * The filename in the download center.
+ */
+const FILENAME = 'mongosh.json';
 
 /**
  * The download center JSON template.
@@ -69,17 +77,24 @@ const CONFIG = `
 /**
  * Create the download center configuration.
 <<<<<<< HEAD
+<<<<<<< HEAD
  *
  * @param {string} version - The version.
  *
  * @returns {string} The config.
 =======
 >>>>>>> Generate download center template
+=======
+ *
+ * @param {string} version - The version.
+ * @param {string} outputDir - The output dir.
+>>>>>>> Automatically upload to download center
  */
-const createDownloadCenterConfig = (version: string): string => {
+const createDownloadCenterConfig = async(version: string, outputDir: string) => {
   const template = handlebars.compile(CONFIG);
   const rendered = template({ version: version });
   console.log('mongosh: created download center template:', rendered);
+<<<<<<< HEAD
   return rendered;
 };
 
@@ -129,3 +144,10 @@ const uploadToDownloadCenter = () => {
 export default uploadToDownloadCenter;
 export { createDownloadCenterConfig };
 >>>>>>> Generate download center template
+=======
+  const location = path.join(outputDir, FILENAME);
+  await fs.writeFile(location, rendered);
+};
+
+export default createDownloadCenterConfig;
+>>>>>>> Automatically upload to download center
