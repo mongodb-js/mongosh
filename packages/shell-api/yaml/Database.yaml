@@ -37,7 +37,7 @@ class:
         returnType: 'Database'
     getCollection:
         <<: *__defaultMethod
-        returnsPromise: true
+        returnType: 'Collection'
     # dropDatabase:
     #     <<: *__defaultMethod
     #     returnsPromise: true
