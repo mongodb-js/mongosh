@@ -1,4 +1,5 @@
 import path from 'path';
+<<<<<<< HEAD
 import { promises as fs } from 'fs';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
@@ -18,6 +19,9 @@ const BUCKET = 'info-mongodb-com';
  * Download center directory.
  */
 const DIRECTORY = 'com-download-center';
+=======
+import handlebars from 'handlebars';
+>>>>>>> Generate download center template
 
 /**
  * The download center JSON template.
@@ -51,7 +55,11 @@ const CONFIG = `
     }
   ],
   "manual_link": "https://docs.mongodb.org/manual/products/mongosh",
+<<<<<<< HEAD
   "release_notes_link": "https://github.com/mongodb-js/mongosh/releases/tag/v{{version}}",
+=======
+  "release_notes_link": "",
+>>>>>>> Generate download center template
   "previous_releases_link": "",
   "development_releases_link": "",
   "supported_browsers_link": "",
@@ -60,10 +68,13 @@ const CONFIG = `
 
 /**
  * Create the download center configuration.
+<<<<<<< HEAD
  *
  * @param {string} version - The version.
  *
  * @returns {string} The config.
+=======
+>>>>>>> Generate download center template
  */
 const createDownloadCenterConfig = (version: string): string => {
   const template = handlebars.compile(CONFIG);
@@ -72,6 +83,7 @@ const createDownloadCenterConfig = (version: string): string => {
   return rendered;
 };
 
+<<<<<<< HEAD
 /**
  * Upload the provided config to S3.
  *
@@ -108,3 +120,12 @@ const uploadDownloadCenterConfig = (version: string, awsKey: string, awsSecret: 
 
 export default uploadDownloadCenterConfig;
 export { createDownloadCenterConfig, uploadToDownloadCenter };
+=======
+const uploadToDownloadCenter = () => {
+  const awsKey = process.env.DOWNLOAD_CENTER_AWS_KEY;
+  const awsSecret = process.env.DOWNLOAD_CENTER_AWS_SECRET;
+};
+
+export default uploadToDownloadCenter;
+export { createDownloadCenterConfig };
+>>>>>>> Generate download center template
