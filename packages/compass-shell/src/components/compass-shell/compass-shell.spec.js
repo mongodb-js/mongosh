@@ -2,8 +2,10 @@ import sinon from 'sinon';
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Shell } from '@mongosh/browser-repl';
+import { Resizable } from 're-resizable';
 
 import { CompassShell } from './compass-shell';
+import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
 
 function updateAndWaitAsync(wrapper) {
@@ -39,6 +41,20 @@ describe('CompassShell', () => {
         const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(ShellHeader).exists()).to.equal(true);
+      });
+
+      it('renders a Resizable component', () => {
+        const fakeRuntime = {};
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(wrapper.find(Resizable)).to.be.present();
+      });
+
+      it('passes the resize handle component to the Resizable component', () => {
+        const fakeRuntime = {};
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(wrapper.find(Resizable).prop('handleComponent')).to.deep.equal({
+          top: <ResizeHandle />,
+        });
       });
     });
 
