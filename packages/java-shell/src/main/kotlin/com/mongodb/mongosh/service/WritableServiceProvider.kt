@@ -8,7 +8,7 @@ internal interface WritableServiceProvider {
     fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value
     fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value
     fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value
-    fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value
+    fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?): Value
     fun findOneAndReplace(database: String, collection: String, filter: Value, replacement: Value, options: Value?): Value
     fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?): Value
     fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value

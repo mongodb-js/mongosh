@@ -196,8 +196,15 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?): Value = promise<Any?> {
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
+        getDatabase(database, null).flatMap { db ->
+            convert(FindOneAndDeleteOptions(), findOneAndDeleteConverters, findOneAndDeleteDefaultConverter, options).map { options ->
+                val res = db.getCollection(collection).findOneAndDelete(filter, options)
+                context.toJs(mapOf("value" to res))
+            }
+        }
     }
 
     @HostAccess.Export

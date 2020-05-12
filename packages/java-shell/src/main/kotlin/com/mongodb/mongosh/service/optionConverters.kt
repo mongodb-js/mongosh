@@ -309,6 +309,26 @@ internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, A
 
 internal val findOneAndUpdateDefaultConverter = unrecognizedField<FindOneAndUpdateOptions>("find one and update options")
 
+internal val findOneAndDeleteConverters: Map<String, (FindOneAndDeleteOptions, Any?) -> Either<FindOneAndDeleteOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("sort", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        }
+)
+
+internal val findOneAndDeleteDefaultConverter = unrecognizedField<FindOneAndDeleteOptions>("find one and delete options")
+
 internal val updateConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
         typed("collation", Map::class.java) { opt, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
