@@ -23,7 +23,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
         val spec = check(spec, "spec")
-        getDatabase(database, null).map { db -> db.runCommand(toDocument(spec)) }
+        getDatabase(database, null).map { db -> db.runCommand(toDocument(context, spec)) }
     }
 
     @HostAccess.Export
@@ -31,16 +31,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val document = check(document, "document")
         val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertOne(toDocument(document))
+            db.getCollection(collection).insertOne(toDocument(context, document))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to "UNKNOWN"))
         }
-    }
-
-    private fun toDocument(map: Value?): Document {
-        return if (map == null || map.isNull) Document()
-        else (context.extract(map) as DocumentResult).value
     }
 
     private fun toList(map: Value?): List<Document> {
@@ -56,7 +51,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
             convert(context, ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
-                val res = db.getCollection(collection).replaceOne(toDocument(filter), toDocument(replacement), options)
+                val res = db.getCollection(collection).replaceOne(toDocument(context, filter), toDocument(context, replacement), options)
                 context.toJs(mapOf(
                         "result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
@@ -109,7 +104,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val filter = check(filter, "filter")
         val dbOptions = check(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toDocument(filter))
+            val result = db.getCollection(collection).deleteMany(toDocument(context, filter))
             context.toJs(mapOf(
                     "result" to mapOf("ok" to result.wasAcknowledged()),
                     "deletedCount" to result.deletedCount))
@@ -134,7 +129,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, null).flatMap { db ->
             convert(context, FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
                     .map { options ->
-                        val res = db.getCollection(collection).findOneAndReplace(toDocument(filter), toDocument(replacement), options)
+                        val res = db.getCollection(collection).findOneAndReplace(toDocument(context, filter), toDocument(context, replacement), options)
                         ProxyObject.fromMap(mapOf("value" to res))
                     }
         }
@@ -161,7 +156,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = check(options, "options")
         val dbOptions = check(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.getCollection(collection).aggregate(pipeline.map { toDocument(it) })
+        val iterable = db.getCollection(collection).aggregate(pipeline.map { toDocument(context, it) })
         if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
@@ -171,7 +166,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = check(options, "options")
         val dbOptions = check(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.aggregate(pipeline.map { toDocument(it) })
+        val iterable = db.aggregate(pipeline.map { toDocument(context, it) })
         if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
@@ -184,7 +179,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, dbOptions).flatMap { db ->
             convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
                 @Suppress("DEPRECATION")
-                db.getCollection(collection).count(toDocument(query), countOptions)
+                db.getCollection(collection).count(toDocument(context, query), countOptions)
             }
         }
     }
@@ -195,7 +190,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = check(options, "options")
         getDatabase(database, null).flatMap { db ->
             convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
-                db.getCollection(collection).countDocuments(toDocument(filter), countOptions)
+                db.getCollection(collection).countDocuments(toDocument(context, filter), countOptions)
             }
         }
     }
@@ -220,9 +215,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val filter = check(filter, "filter")
         val options = check(options, "options")
         val coll = client.getDatabase(database).getCollection(collection)
-        val iterable = if (filter == null) coll.find() else coll.find(toDocument(filter))
+        val iterable = if (filter == null) coll.find() else coll.find(toDocument(context, filter))
         val projection = options?.getMember("projection")
-        if (projection != null) iterable.projection(toDocument(projection))
+        if (projection != null) iterable.projection(toDocument(context, projection))
         return FindCursor(iterable, context)
     }
 
@@ -267,7 +262,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val filter = check(filter, "filter")
         getDatabase(database, null).map { db ->
             val list = db.listCollections()
-            if (filter != null) list.filter(toDocument(filter))
+            if (filter != null) list.filter(toDocument(context, filter))
             context.toJs(list)
         }
     }
@@ -284,7 +279,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val query = check(query, "query")
         val dbOptions = check(dbOptions, "dbOptions")
         val promise = getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toDocument(query))
+            val result = db.getCollection(collection).deleteMany(toDocument(context, query))
             DeleteResult(result.wasAcknowledged(), result.deletedCount)
         }
         return context.toJsPromise(promise)

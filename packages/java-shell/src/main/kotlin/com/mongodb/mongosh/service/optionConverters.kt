@@ -13,6 +13,12 @@ import org.bson.Document
 import org.graalvm.polyglot.Value
 import java.util.concurrent.TimeUnit
 
+
+internal fun toDocument(context: MongoShellContext, map: Value?): Document {
+    return if (map == null || map.isNull) Document()
+    else (context.extract(map) as DocumentResult).value
+}
+
 internal fun <T> convert(o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,

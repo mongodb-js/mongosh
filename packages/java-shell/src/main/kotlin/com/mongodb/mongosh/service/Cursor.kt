@@ -26,6 +26,13 @@ internal abstract class Cursor<T : MongoIterable<Document>>(protected val iterab
 
     @JvmField
     @HostAccess.Export
+    val map = jsFun<Cursor<T>> {
+        checkQueryNotExecuted()
+        throw NotImplementedError("map is not supported")
+    }
+
+    @JvmField
+    @HostAccess.Export
     val hasNext = jsFun<Cursor<T>> {
         getOrCreateIterator().hasNext()
     }
