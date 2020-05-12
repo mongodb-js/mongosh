@@ -56,9 +56,9 @@ function resetCompass() {
     return;
   }
 
-  // execSync('git checkout master', { cwd: compassPath });
-  // execSync('git fetch', { cwd: compassPath });
-  // execSync('git reset --hard origin/master', { cwd: compassPath });
+  execSync('git checkout master', { cwd: compassPath });
+  execSync('git fetch', { cwd: compassPath });
+  execSync('git reset --hard origin/master', { cwd: compassPath });
 }
 
 function cloneCompass() {
