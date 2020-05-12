@@ -10,8 +10,6 @@ const {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  console.log('Activated mongo shell and registered its role.');
-
   // Register the shell plugin's role in Compass.
   appRegistry.registerComponent('Global.Shell', Plugin);
   appRegistry.registerStore('CompassShell.Store', store);
