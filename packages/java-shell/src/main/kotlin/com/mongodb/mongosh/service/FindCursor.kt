@@ -75,7 +75,7 @@ internal class FindCursor(findIterable: FindIterable<Document>, context: MongoSh
         if (args.isEmpty() || !args[0].hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $args")
         }
-        val collation = convert(context, Collation.builder(), collationConverters, collationDefaultConverter, args[0])
+        val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, toDocument(context, args[0]))
                 .getOrThrow()
                 .build()
         iterable.collation(collation)

@@ -3,6 +3,7 @@ package com.mongodb.mongosh.service
 import com.mongodb.client.MongoCursor
 import com.mongodb.client.MongoIterable
 import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
@@ -88,5 +89,10 @@ internal abstract class Cursor<T : MongoIterable<Document>>(protected val iterab
             val that = args[0].asHostObject<T>()
             that.block(args.drop(1))
         })
+    }
+
+    protected fun toDocument(context: MongoShellContext, map: Value?): Document {
+        return if (map == null || map.isNull) Document()
+        else (context.extract(map) as DocumentResult).value
     }
 }

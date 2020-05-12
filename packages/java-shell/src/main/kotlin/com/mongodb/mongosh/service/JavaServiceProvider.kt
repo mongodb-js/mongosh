@@ -7,10 +7,10 @@ import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DeleteResult
+import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
-import org.graalvm.polyglot.proxy.ProxyObject
 import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
@@ -18,38 +18,33 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
-        val spec = check(spec, "spec")
+        val spec = toDocument(spec, "spec")
         getDatabase(database, null).map { db ->
-            context.toJs(db.runCommand(toDocument(context, spec)))
+            context.toJs(db.runCommand(spec))
         }
     }
 
     @HostAccess.Export
     override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
-        val document = check(document, "document")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val document = toDocument(document, "document")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertOne(toDocument(context, document))
+            db.getCollection(collection).insertOne(document)
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to "UNKNOWN"))
         }
     }
 
-    private fun toList(map: Value?): List<Document> {
-        return if (map == null || map.isNull) listOf()
-        else (context.extract(map) as ArrayResult).value.filterIsInstance<Document>()
-    }
-
     @HostAccess.Export
     override fun replaceOne(database: String, collection: String, filter: Value, replacement: Value, options: Value?, dbOptions: Value?): Value = promise {
-        val filter = check(filter, "filter")
-        val replacement = check(replacement, "replacement")
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val filter = toDocument(filter, "filter")
+        val replacement = toDocument(replacement, "replacement")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(context, ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
-                val res = db.getCollection(collection).replaceOne(toDocument(context, filter), toDocument(context, replacement), options)
+            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
+                val res = db.getCollection(collection).replaceOne(filter, replacement, options)
                 context.toJs(mapOf(
                         "result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
@@ -82,9 +77,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    private fun getDatabase(database: String, dbOptions: Value?): Either<MongoDatabase> {
+    private fun getDatabase(database: String, dbOptions: Document?): Either<MongoDatabase> {
         val db = client.getDatabase(database)
-        return if (dbOptions == null) Right(db) else convert(context, db, dbConverters, dbDefaultConverter, dbOptions)
+        return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
     @HostAccess.Export
@@ -93,13 +88,14 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise {
-        val requests = check(requests, "requests")
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        val requests = toList(requests, "requests")
+        if (requests == null || requests.any { it !is Document }) return@promise Left(IllegalArgumentException("requests must be a list of objects"))
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(context, BulkWriteOptions(), bulkWriteOptionsConverters, bulkWriteOptionsDefaultConverter, options).flatMap { options ->
-                val writeModels = toList(requests).map { getWriteModel(it) }
+            convert(BulkWriteOptions(), bulkWriteOptionsConverters, bulkWriteOptionsDefaultConverter, options).flatMap { options ->
+                val writeModels = requests.map { getWriteModel(it as Document) }
                 unwrap(writeModels).map { requests ->
                     val result = db.getCollection(collection).bulkWrite(requests, options)
                     context.toJs(mapOf(
@@ -150,11 +146,12 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise {
-        val filter = check(filter, "filter")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(context, DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
-                val result = db.getCollection(collection).deleteMany(toDocument(context, filter), deleteOptions)
+            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+                val result = db.getCollection(collection).deleteMany(filter, deleteOptions)
                 context.toJs(mapOf(
                         "result" to mapOf("ok" to result.wasAcknowledged()),
                         "deletedCount" to result.deletedCount))
@@ -164,12 +161,12 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        val filter = check(filter, "filter")
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(context, DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
-                val result = db.getCollection(collection).deleteOne(toDocument(context, filter), deleteOptions)
+            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+                val result = db.getCollection(collection).deleteOne(filter, deleteOptions)
                 context.toJs(mapOf(
                         "result" to mapOf("ok" to result.wasAcknowledged()),
                         "deletedCount" to result.deletedCount))
@@ -184,13 +181,13 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun findOneAndReplace(database: String, collection: String, filter: Value, replacement: Value, options: Value?): Value = promise {
-        val filter = check(filter, "filter")
-        val replacement = check(replacement, "replacement")
-        val options = check(options, "options")
+        val filter = toDocument(filter, "filter")
+        val replacement = toDocument(replacement, "replacement")
+        val options = toDocument(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(context, FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
+            convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
                     .map { options ->
-                        val res = db.getCollection(collection).findOneAndReplace(toDocument(context, filter), toDocument(context, replacement), options)
+                        val res = db.getCollection(collection).findOneAndReplace(filter, replacement, options)
                         context.toJs(mapOf("value" to res))
                     }
         }
@@ -198,12 +195,12 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
-        val filter = check(filter, "filter")
-        val update = check(update, "update")
-        val options = check(options, "options")
+        val filter = toDocument(filter, "filter")
+        val update = toDocument(update, "update")
+        val options = toDocument(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(context, FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, options).map { options ->
-                val res = db.getCollection(collection).findOneAndUpdate(toDocument(context, filter), toDocument(context, update), options)
+            convert(FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, options).map { options ->
+                val res = db.getCollection(collection).findOneAndUpdate(filter, update, options)
                 context.toJs(mapOf("value" to res))
             }
         }
@@ -211,10 +208,12 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise {
-        val dbOptions = check(dbOptions, "dbOptions")
+    override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val docs = toList(docs, "docs")
+        if (docs == null || docs.any { it !is Document }) return@promise Left(IllegalArgumentException("docs must be a list of objects"))
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertMany(toList(docs))
+            db.getCollection(collection).insertMany(docs.filterIsInstance<Document>())
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
                     "insertedId" to emptyList<String>()))
@@ -222,45 +221,49 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun aggregate(database: String, collection: String, pipeline: List<Value>, options: Value?, dbOptions: Value?): AggregateCursor {
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+    override fun aggregate(database: String, collection: String, pipeline: Value?, options: Value?, dbOptions: Value?): AggregateCursor {
+        val pipeline = toList(pipeline, "pipeline")
+        if (pipeline == null || pipeline.any { it !is Document }) throw IllegalArgumentException("pipeline must be a list of objects")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.getCollection(collection).aggregate(pipeline.map { toDocument(context, it) })
-        if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
+        val iterable = db.getCollection(collection).aggregate(pipeline.filterIsInstance<Document>())
+        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
-    override fun aggregateDb(database: String, pipeline: List<Value>, options: Value?, dbOptions: Value?): AggregateCursor {
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+    override fun aggregateDb(database: String, pipeline: Value?, options: Value?, dbOptions: Value?): AggregateCursor {
+        val pipeline = toList(pipeline, "pipeline")
+        if (pipeline == null || pipeline.any { it !is Document }) throw IllegalArgumentException("pipeline must be a list of objects")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.aggregate(pipeline.map { toDocument(context, it) })
-        if (options != null) convert(context, iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
+        val iterable = db.aggregate(pipeline.filterIsInstance<Document>())
+        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
         return AggregateCursor(iterable, context)
     }
 
     @HostAccess.Export
     override fun count(database: String, collection: String, query: Value?, options: Value?, dbOptions: Value?): Value = promise {
-        val query = check(query, "query")
-        val options = check(options, "options")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val query = toDocument(query, "query")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
                 @Suppress("DEPRECATION")
-                db.getCollection(collection).count(toDocument(context, query), countOptions)
+                db.getCollection(collection).count(query, countOptions)
             }
         }
     }
 
     @HostAccess.Export
     override fun countDocuments(database: String, collection: String, filter: Value?, options: Value?): Value = promise {
-        val filter = check(filter, "filter")
-        val options = check(options, "options")
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(context, CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
-                db.getCollection(collection).countDocuments(toDocument(context, filter), countOptions)
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+                db.getCollection(collection).countDocuments(filter, countOptions)
             }
         }
     }
@@ -272,9 +275,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun estimatedDocumentCount(database: String, collection: String, options: Value?): Value = promise<Any?> {
-        val options = check(options, "options")
+        val options = toDocument(options, "options")
         getDatabase(database, null).flatMap { db ->
-            convert(context, EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
+            convert(EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
                 db.getCollection(collection).estimatedDocumentCount(countOptions)
             }
         }
@@ -282,21 +285,29 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun find(database: String, collection: String, filter: Value?, options: Value?): FindCursor {
-        val filter = check(filter, "filter")
-        val options = check(options, "options")
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
         val coll = client.getDatabase(database).getCollection(collection)
-        val iterable = if (filter == null) coll.find() else coll.find(toDocument(context, filter))
-        val projection = options?.getMember("projection")
-        if (projection != null) iterable.projection(toDocument(context, projection))
+        val iterable = if (filter == null) coll.find() else coll.find(filter)
+        val projection = options?.get("projection")?.let { it as Document }
+        if (projection != null) iterable.projection(projection)
         return FindCursor(iterable, context)
     }
 
-    private fun check(value: Value?, fieldName: String): Value? {
+    private fun toDocument(value: Value?, fieldName: String): Document? {
         if (value == null || value.isNull) return null
         if (!value.hasMembers()) {
-            throw IllegalArgumentException("$fieldName should be a map: $value")
+            throw IllegalArgumentException("$fieldName should be an object: $value")
         }
-        return value
+        return (context.extract(value) as DocumentResult).value
+    }
+
+    private fun toList(value: Value?, fieldName: String): List<Any?>? {
+        if (value == null || value.isNull) return null
+        if (!value.hasArrayElements()) {
+            throw IllegalArgumentException("$fieldName should be a list: $value")
+        }
+        return (context.extract(value) as ArrayResult).value
     }
 
     @HostAccess.Export
@@ -329,10 +340,10 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun listCollections(database: String, filter: Value?, options: Value?): Value = promise {
-        val filter = check(filter, "filter")
+        val filter = toDocument(filter, "filter")
         getDatabase(database, null).map { db ->
             val list = db.listCollections()
-            if (filter != null) list.filter(toDocument(context, filter))
+            if (filter != null) list.filter(filter)
             context.toJs(list)
         }
     }
@@ -346,10 +357,10 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value {
-        val query = check(query, "query")
-        val dbOptions = check(dbOptions, "dbOptions")
+        val query = toDocument(query, "query")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
         val promise = getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toDocument(context, query))
+            val result = db.getCollection(collection).deleteMany(query)
             DeleteResult(result.wasAcknowledged(), result.deletedCount)
         }
         return context.toJsPromise(promise)
