@@ -14,10 +14,13 @@ import { ServiceProvider } from '@mongosh/service-provider-core';
 export class ElectronRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;
 
-  constructor(serviceProvider: ServiceProvider) {
+  constructor(serviceProvider: ServiceProvider, eventEmitter?: {
+    emit: (eventName: string, ...args: any[]) => void;
+  }) {
     this.openContextRuntime = new OpenContextRuntime(
       serviceProvider,
-      new ElectronInterpreterEnvironment({})
+      new ElectronInterpreterEnvironment({}),
+      eventEmitter
     );
   }
 

@@ -24,11 +24,14 @@ export class OpenContextRuntime implements Runtime {
 
   constructor(
     serviceProvider: ServiceProvider,
-    interpreterEnvironment: InterpreterEnvironment
+    interpreterEnvironment: InterpreterEnvironment,
+    eventEmitter?: {
+      emit: (eventName: string, ...args: any[]) => void;
+    }
   ) {
     this.serviceProvider = serviceProvider;
     this.interpreterEnvironment = interpreterEnvironment;
-    this.shellEvaluator = new ShellEvaluator(serviceProvider, new EventEmitter());
+    this.shellEvaluator = new ShellEvaluator(serviceProvider, eventEmitter || new EventEmitter());
     this.shellEvaluator.setCtx(this.interpreterEnvironment.getContextObject());
     this.interpreter = new Interpreter(this.interpreterEnvironment);
   }
