@@ -6,6 +6,7 @@
     "strictNullChecks": false,
     "declaration": true,
     "removeComments": true,
-    "target": "ES5"
+    "target": "ES5",
+    "experimentalDecorators": true
   }
 }
