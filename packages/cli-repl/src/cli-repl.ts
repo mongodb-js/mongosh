@@ -108,6 +108,13 @@ class CliRepl {
       completer: completer.bind(null, version),
     });
 
+    this.repl.defineCommand('clear', {
+      help: '',
+      action: () => {
+        this.repl.displayPrompt();
+      }
+    });
+
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback) => {
@@ -126,8 +133,7 @@ class CliRepl {
       callback (null, result)
     };
 
-    // @ts-ignore
-    this.repl.eval = customEval;
+    (this.repl as any).eval = customEval;
 
     const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
