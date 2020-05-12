@@ -4,7 +4,7 @@ export default class Mongo {
   constructor(shellState) {
     this.shellState = shellState;
   }
-  it() {
+  it(): void {
     this.shellState.it();
   }
 }

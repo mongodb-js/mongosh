@@ -1,11 +1,12 @@
 import Mongo from './mongo';
-import { shellApiClassDefault, returnsPromise, returnType } from './main';
+import { shellApiClassDefault, returnsPromise, returnType, hasAsyncChild } from './main';
 import {
   Cursor as ServiceProviderCursor,
   Document
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
+@hasAsyncChild
 export default class AggregationCursor {
   mongo: Mongo;
   cursor: ServiceProviderCursor;
@@ -14,7 +15,7 @@ export default class AggregationCursor {
     this.mongo = mongo;
   }
 
-  toReplString() {
+  toReplString(): any {
     return this.mongo.it();
   }
 

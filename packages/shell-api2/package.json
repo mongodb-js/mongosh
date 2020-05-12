@@ -13,7 +13,7 @@
   },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "pretest": "npm run compile-api",
+    "pretest": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "report-missing-help": "ts-node bin/report-missing-help.ts",

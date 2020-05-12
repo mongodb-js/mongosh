@@ -34,6 +34,13 @@ interface Cursor {
   close(options: Document): Promise<void>;
 
   /**
+   * Clone the cursor.
+   *
+   * @returns {Cursor} The cursor.
+   */
+  clone(): Cursor;
+
+  /**
    * Determine if the cursor has been closed.
    *
    * @returns {boolean} If the cursor is closed.
