@@ -110,6 +110,13 @@ class CliRepl {
       completer: completer.bind(null, version),
     });
 
+    this.repl.defineCommand('clear', {
+      help: '',
+      action: () => {
+        this.repl.displayPrompt();
+      }
+    });
+
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback): Promise<any> => {
