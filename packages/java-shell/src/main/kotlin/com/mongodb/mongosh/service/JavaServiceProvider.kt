@@ -3,6 +3,7 @@ package com.mongodb.mongosh.service
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
+import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
@@ -58,7 +59,27 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
+        getDatabase(database, null).flatMap { db ->
+            convert(UpdateOptions(), updateConverters, updateDefaultConverter, options).flatMap { updateOptions ->
+                when {
+                    update.hasArrayElements() -> {
+                        val updatePipeline = toList(update, "update")
+                        if (updatePipeline == null || updatePipeline.any { it !is Document }) Left<UpdateResult>(IllegalArgumentException("updatePipeline must be a list of objects"))
+                        else Right(db.getCollection(collection).updateMany(filter, updatePipeline.filterIsInstance<Document>(), updateOptions))
+                    }
+                    update.hasMembers() -> Right(db.getCollection(collection).updateMany(filter, toDocument(update, "update"), updateOptions))
+                    else -> Left<UpdateResult>(IllegalArgumentException("updatePipeline must be a list or object"))
+                }.map { res ->
+                    context.toJs(mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                            "matchedCount" to res.matchedCount,
+                            "modifiedCount" to res.modifiedCount,
+                            "upsertedCount" to if (res.upsertedId == null) 0 else 1,
+                            "upsertedId" to res.upsertedId))
+                }
+            }
+        }
     }
 
     @HostAccess.Export
@@ -67,7 +88,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 

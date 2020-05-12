@@ -309,6 +309,30 @@ internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, A
 
 internal val findOneAndUpdateDefaultConverter = unrecognizedField<FindOneAndUpdateOptions>("find one and update options")
 
+internal val updateConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            if (value.any { it !is Document }) {
+                throw IllegalArgumentException("arrayFilters must be a list of objects: $value")
+            }
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        }
+)
+
+internal val updateDefaultConverter = unrecognizedField<UpdateOptions>("update options")
+
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val casted = value as? C
