@@ -29,7 +29,6 @@ variables:
         export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
         npm run release
-        ls -la dist/
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -127,10 +126,11 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Windows artifacts ################"
+          ls -la dist/
     - <<: *upload_file
       params:
         local_files_include_filter:
-          - src\dist\*.zip
+          - src/dist/*.*
         remote_file: ${project}/${revision}/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
