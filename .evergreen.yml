@@ -130,7 +130,7 @@ functions:
     - <<: *upload_file
       params:
         local_files_include_filter:
-          - src/dist/*.zip
+          - dist/*.zip
         remote_file: ${project}/${revision}/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
