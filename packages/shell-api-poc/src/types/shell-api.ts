@@ -1,4 +1,3 @@
-import { CommandResult } from '../internal/command-result';
 import { ServiceProvider } from '../../service-provider-core';
 import { Database } from './database';
 import { ShellIterationState } from './shell-iteration-state';
@@ -29,29 +28,14 @@ export class ShellApi extends ApiType {
     });
   }
 
-  @apiMethod({
-    returnsPromise: true
-  })
-  async it(): Promise<any> {
+  @apiMethod()
+  it(): Cursor {
     const cursor = this._shellIterationState.getCursor();
-    if (!cursor || cursor.isClosed()) {
-      return;
+    if (!cursor) {
+      throw new Error('no cursor');
     }
 
-    const results = [];
-
-    for (let i = 0; i < Cursor.shellBatchSize; i++) {
-      if (!await cursor.hasNext()) {
-        break;
-      }
-
-      results.push(await cursor.next());
-    }
-
-    return new CommandResult(
-      'ShellIterationResult',
-      results
-    );
+    return cursor;
   }
 
   @apiMethod()

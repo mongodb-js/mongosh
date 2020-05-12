@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const repl = require('repl');
 const vm = require('vm');
 const util = require('util');
@@ -8,10 +9,14 @@ import { ShellApi } from '../src/types/shell-api';
 import { toEvaluationResult } from '../src/internal/evaluable';
 
 async function main(): Promise<void> {
+  console.info('Connecting to mongodb...');
+
   const client = await MongoClient.connect(
     'mongodb://localhost:27017',
     { useUnifiedTopology: true }
   );
+
+  console.info('connected.');
 
   const eventEmitter = new events.EventEmitter();
   const shellApi = new ShellApi(eventEmitter, client);

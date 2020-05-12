@@ -24,11 +24,11 @@ function i18nAttributeKey(
   suffix: string
 ): string {
   const attributeName = attribute.static ? `static-${attribute.name}` : attribute.name;
-  return `shell-api.types.${typeName}.attributes.${attributeName}.${suffix}`;
+  return `shell-api.classes.${typeName}.help.attributes.${attributeName}.${suffix}`;
 }
 
 function i18nTypeKey(typeName, suffix: string): string {
-  return `shell-api.types.${typeName}.${suffix}`;
+  return `shell-api.classes.${typeName}.help.${suffix}`;
 }
 
 /**
@@ -100,7 +100,7 @@ export class ApiType {
     const attributeSpecs = Object.values(subclass.attributes);
 
     const helpAttributes = attributeSpecs.map((attributeSpec) => ({
-      name: attributeSpec.type,
+      name: attributeSpec.name,
       description: i18nAttributeKey(subclass.type, attributeSpec, 'description')
     }));
 

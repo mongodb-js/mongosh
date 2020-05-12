@@ -23,6 +23,8 @@ export class Help {
   private attr: HelpPropertiesAttr[] = [];
 
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
+    console.log(properties);
+
     this.help = options.translate(properties.help);
     this.docs = options.translate(properties.docs);
     this.attr = (properties.attr || [])

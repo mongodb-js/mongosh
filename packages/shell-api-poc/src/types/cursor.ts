@@ -277,7 +277,11 @@ export class Cursor extends ApiType implements Evaluable {
 
   async [toEvaluationResult](): Promise<EvaluationResult> {
     const results = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < Cursor.shellBatchSize; i++) {
+      if (this.isClosed()) {
+        break;
+      }
+
       if (!await this.hasNext()) {
         break;
       }
