@@ -19,7 +19,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
         val spec = check(spec, "spec")
-        getDatabase(database, null).map { db -> db.runCommand(toDocument(context, spec)) }
+        getDatabase(database, null).map { db ->
+            context.toJs(db.runCommand(toDocument(context, spec)))
+        }
     }
 
     @HostAccess.Export
@@ -317,7 +319,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     @HostAccess.Export
     override fun stats(database: String, collection: String, options: Value?): Value = promise<Any?> {
         getDatabase(database, null).map { db ->
-            db.runCommand(Document("collStats", collection))
+            context.toJs(db.runCommand(Document("collStats", collection)))
         }
     }
 
