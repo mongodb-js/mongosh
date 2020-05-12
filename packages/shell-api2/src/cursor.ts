@@ -1,5 +1,13 @@
 import Mongo from './mongo';
-import { shellApiClassDefault, returnsPromise, returnType, hasAsyncChild, serverVersions, ServerVersions } from './main';
+import {
+  ShellApiClass,
+  shellApiClassDefault,
+  returnsPromise,
+  returnType,
+  hasAsyncChild,
+  serverVersions,
+  ServerVersions
+} from './main';
 import {
   Cursor as ServiceProviderCursor,
   Document
@@ -7,10 +15,11 @@ import {
 
 @shellApiClassDefault
 @hasAsyncChild
-export default class Cursor {
+export default class Cursor extends ShellApiClass {
   mongo: Mongo;
   cursor: ServiceProviderCursor;
   constructor(mongo, cursor) {
+    super();
     this.cursor = cursor;
     this.mongo = mongo;
   }
@@ -40,7 +49,7 @@ export default class Cursor {
 
   @returnType('Cursor')
   clone(): Cursor {
-    return this.cursor.clone();
+    return new Cursor(this.mongo, this.cursor.clone());
   }
 
   @returnsPromise

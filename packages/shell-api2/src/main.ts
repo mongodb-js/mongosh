@@ -1,5 +1,6 @@
-/* eslint-disable dot-notation */
+/* eslint-disable dot-notation,complexity */
 import { Help } from './help';
+
 export enum ServerVersions {
   latest = '4.4.0',
   earliest = '0.0.0'
@@ -13,6 +14,43 @@ export enum Topologies {
 
 export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.latest ];
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
+
+export enum ReadPreference {
+  PRIMARY = 0,
+  PRIMARY_PREFERRED = 1,
+  SECONDARY = 2,
+  SECONDARY_PREFERRED = 3,
+  NEAREST = 4
+}
+
+export enum DBQueryOption {
+  tailable = 2,
+  slaveOk = 4,
+  oplogReplay = 8,
+  noTimeout = 16,
+  awaitData = 32,
+  exhaust = 64,
+  partial = 128
+}
+
+export const DBQuery = {
+  Option: DBQueryOption
+};
+
+export interface ShellApiInterface {
+  toReplString: Function;
+  shellApiType?: Function;
+  serverVersions?: [string, string];
+  topologies?: Topologies[];
+  help?: Help;
+  [key: string]: any;
+}
+
+export class ShellApiClass implements ShellApiInterface {
+  toReplString(): any {
+    return JSON.parse(JSON.stringify(this));
+  }
+}
 
 interface TypeSignature {
   type: string;
@@ -44,7 +82,7 @@ export function shellApiClassDefault(constructor: Function): void {
   for (const propertyName of Object.keys(constructor.prototype)) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;
-    if (!isMethod || propertyName === 'toReplString') continue;
+    if (!isMethod || ['toReplString', 'shellApiType', 'constructor'].includes(propertyName)) continue;
 
     descriptor.value.serverVersions = descriptor.value.serverVersions || ALL_SERVER_VERSIONS;
     descriptor.value.topologies = descriptor.value.topologies || ALL_TOPOLOGIES;
@@ -73,7 +111,7 @@ export function shellApiClassDefault(constructor: Function): void {
     Object.defineProperty(constructor.prototype, propertyName, descriptor);
   }
   constructor.prototype.help = new Help(classHelp);
-  constructor.prototype.shellApiType = (): string => (className);
+  constructor.prototype.shellApiType = constructor.prototype.shellApiType || function(): string { return className; };
   constructor.prototype.toReplString = constructor.prototype.toReplString || function(): any { return JSON.parse(JSON.stringify(constructor.prototype)); };
   signatures[className] = classSignature;
 }

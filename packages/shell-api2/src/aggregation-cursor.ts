@@ -1,5 +1,11 @@
 import Mongo from './mongo';
-import { shellApiClassDefault, returnsPromise, returnType, hasAsyncChild } from './main';
+import {
+  shellApiClassDefault,
+  returnsPromise,
+  returnType,
+  hasAsyncChild,
+  ShellApiClass
+} from './main';
 import {
   Cursor as ServiceProviderCursor,
   Document
@@ -7,10 +13,11 @@ import {
 
 @shellApiClassDefault
 @hasAsyncChild
-export default class AggregationCursor {
+export default class AggregationCursor extends ShellApiClass {
   mongo: Mongo;
   cursor: ServiceProviderCursor;
   constructor(mongo, cursor) {
+    super();
     this.cursor = cursor;
     this.mongo = mongo;
   }
