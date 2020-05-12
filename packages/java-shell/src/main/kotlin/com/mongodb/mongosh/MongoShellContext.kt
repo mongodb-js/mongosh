@@ -34,6 +34,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val commandResultClass: Value
     private val updateResultClass: Value
     private val deleteResultClass: Value
+    private val bulkWriteResultClass: Value
 
     init {
         eval(MongoShell::class.java.getResource("/js/all-standalone.js").readText())
@@ -51,6 +52,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         commandResultClass = global.getMember("CommandResult")
         updateResultClass = global.getMember("UpdateResult")
         deleteResultClass = global.getMember("DeleteResult")
+        bulkWriteResultClass = global.getMember("BulkWriteResult")
     }
 
     private fun initContext(context: Value, mapper: Value) {
@@ -91,6 +93,14 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v.getMember("acknowleged").asBoolean(), v.getMember("insertedId").asString())
             v.instanceOf(commandResultClass) -> CommandResult(v.getMember("type").asString(), extract(v.getMember("value")).value)
             v.instanceOf(deleteResultClass) -> DeleteResult(v.getMember("acknowleged").asBoolean(), v.getMember("deletedCount").asLong())
+            v.instanceOf(bulkWriteResultClass) -> BulkWriteResult(
+                    v.getMember("ackowledged").asBoolean(), // typo in mongosh
+                    v.getMember("insertedCount").asLong(),
+                    v.getMember("matchedCount").asLong(),
+                    v.getMember("modifiedCount").asLong(),
+                    v.getMember("deletedCount").asLong(),
+                    v.getMember("upsertedCount").asLong(),
+                    (extract(v.getMember("upsertedIds")) as ArrayResult).value)
             v.instanceOf(updateResultClass) -> {
                 val res = if (v.getMember("acknowleged").asBoolean()) {
                     val insertedId = v.getMember("insertedId")

@@ -11,5 +11,6 @@ _global = {
     InsertOneResult: ShellApiSignatures.InsertOneResult,
     DeleteResult: ShellApiSignatures.DeleteResult,
     UpdateResult: ShellApiSignatures.UpdateResult,
+    BulkWriteResult: ShellApiSignatures.BulkWriteResult,
     CommandResult: ShellApiSignatures.CommandResult
 };

@@ -266,6 +266,18 @@ internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceO
 
 internal val findOneAndReplaceOptionsDefaultConverters = unrecognizedField<FindOneAndReplaceOptions>("find and replace options")
 
+internal val bulkWriteOptionsConverters: Map<String, (BulkWriteOptions, Any?) -> Either<BulkWriteOptions>> = mapOf(
+        typed("ordered", Boolean::class.java) { opt, value ->
+            opt.ordered(value)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val bulkWriteOptionsDefaultConverter = unrecognizedField<BulkWriteOptions>("bulk write options")
+
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->

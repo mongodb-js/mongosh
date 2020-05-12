@@ -2,15 +2,11 @@ package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
-import com.mongodb.client.model.CountOptions
-import com.mongodb.client.model.EstimatedDocumentCountOptions
-import com.mongodb.client.model.FindOneAndReplaceOptions
-import com.mongodb.client.model.ReplaceOptions
+import com.mongodb.client.model.*
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DeleteResult
-import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
@@ -95,8 +91,59 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise {
+        val requests = check(requests, "requests")
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(context, BulkWriteOptions(), bulkWriteOptionsConverters, bulkWriteOptionsDefaultConverter, options).flatMap { options ->
+                val writeModels = toList(requests).map { getWriteModel(it) }
+                unwrap(writeModels).map { requests ->
+                    val result = db.getCollection(collection).bulkWrite(requests, options)
+                    context.toJs(mapOf(
+                            "result" to mapOf("ok" to result.wasAcknowledged()),
+                            "insertedCount" to result.insertedCount,
+                            "insertedIds" to "UNKNOWN",
+                            "matchedCount" to result.matchedCount,
+                            "modifiedCount" to result.modifiedCount,
+                            "deletedCount" to result.deletedCount,
+                            "upsertedCount" to result.upserts.size,
+                            "upsertedIds" to result.upserts.map { it.id }))
+                }
+            }
+        }
+    }
+
+    private fun <T> unwrap(l: List<Either<T>>): Either<List<T>> {
+        return Right(l.map {
+            when (it) {
+                is Left -> return Left(it.value)
+                is Right -> it.value
+            }
+        })
+    }
+
+    private fun getWriteModel(model: Document): Either<WriteModel<Document>?> {
+        if (model.keys.size != 1) return Left(IllegalArgumentException())
+        val key = model.keys.first()
+        val innerDoc: Document = model[key] as? Document
+                ?: return Left(IllegalArgumentException("Inner object must be an instance of object. $model"))
+        return when (key) {
+            "insertOne" -> {
+                val doc = innerDoc["document"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'document' $innerDoc"))
+                Right(InsertOneModel(doc))
+            }
+            "deleteOne" -> {
+                val filter = innerDoc["filter"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
+                val collationDoc = innerDoc["collation"] as? Document ?: Document()
+                convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { collation ->
+                    DeleteOneModel<Document>(filter, DeleteOptions().collation(collation.build()))
+                }
+            }
+            else -> Left(IllegalArgumentException("Unknown bulk write operation $model"))
+        }
     }
 
     @HostAccess.Export

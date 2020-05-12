@@ -92,6 +92,23 @@ class DeleteResult(val acknowleged: Boolean, val deletedCount: Long) : MongoShel
         get() = mapOf("acknowleged" to acknowleged, "deletedCount" to deletedCount)
 }
 
+class BulkWriteResult(val acknowledged: Boolean,
+                      val insertedCount: Long,
+                      val matchedCount: Long,
+                      val modifiedCount: Long,
+                      val deletedCount: Long,
+                      val upsertedCount: Long,
+                      val upsertedIds: List<Any?>) : MongoShellResult<Map<String, Any>>() {
+    override val value: Map<String, Any>
+        get() = mapOf("acknowledged" to acknowledged,
+                "insertedCount" to insertedCount,
+                "matchedCount" to matchedCount,
+                "modifiedCount" to modifiedCount,
+                "deletedCount" to deletedCount,
+                "upsertedCount" to upsertedCount,
+                "upsertedIds" to upsertedIds)
+}
+
 class CommandResult(val type: String, val response: Any?) : MongoShellResult<Map<String, Any?>>() {
     override val value: Map<String, Any?>
         get() = Document("type", type).append("value", response)
