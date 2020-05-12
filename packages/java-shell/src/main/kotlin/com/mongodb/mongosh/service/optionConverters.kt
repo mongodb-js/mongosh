@@ -241,11 +241,11 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
 internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("replace options")
 
 internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceOptions, Any?) -> Either<FindOneAndReplaceOptions>> = mapOf(
-        typed("projection", Map::class.java) { opt, value ->
-            opt.projection(toBson(value))
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
         },
-        typed("sort", Map::class.java) { opt, value ->
-            opt.sort(toBson(value))
+        typed("sort", Document::class.java) { opt, value ->
+            opt.sort(value)
         },
         typed("maxTimeMS", Number::class.java) { opt, value ->
             opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
@@ -291,6 +291,39 @@ internal val deleteConverters: Map<String, (DeleteOptions, Any?) -> Either<Delet
 
 internal val deleteDefaultConverter = unrecognizedField<DeleteOptions>("delete options")
 
+internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, Any?) -> Either<FindOneAndUpdateOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("sort", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("returnDocument", Boolean::class.java) { opt, value ->
+            opt.returnDocument(if (value) ReturnDocument.AFTER else ReturnDocument.BEFORE)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            if (value.any { it !is Document }) {
+                throw IllegalArgumentException("arrayFilters must be a list of objects: $value")
+            }
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val findOneAndUpdateDefaultConverter = unrecognizedField<FindOneAndUpdateOptions>("find one and update options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val casted = value as? C
@@ -303,11 +336,3 @@ internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pa
             } else Left(CommandException("$name has to be a ${clazz.simpleName}", "TypeMismatch"))
         }
 
-private fun toBson(map: Map<*, *>?): Document {
-    val doc = Document()
-    map?.entries?.forEach { (key, value) ->
-        if (key !is String) return@forEach
-        doc[key] = if (value is Map<*, *>) toBson(value) else value
-    }
-    return doc
-}

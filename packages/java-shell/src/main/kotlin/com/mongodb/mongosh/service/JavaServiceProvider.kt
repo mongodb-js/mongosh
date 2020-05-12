@@ -191,14 +191,23 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             convert(context, FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
                     .map { options ->
                         val res = db.getCollection(collection).findOneAndReplace(toDocument(context, filter), toDocument(context, replacement), options)
-                        ProxyObject.fromMap(mapOf("value" to res))
+                        context.toJs(mapOf("value" to res))
                     }
         }
     }
 
     @HostAccess.Export
-    override fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
+        val filter = check(filter, "filter")
+        val update = check(update, "update")
+        val options = check(options, "options")
+        getDatabase(database, null).flatMap { db ->
+            convert(context, FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, options).map { options ->
+                val res = db.getCollection(collection).findOneAndUpdate(toDocument(context, filter), toDocument(context, update), options)
+                context.toJs(mapOf("value" to res))
+            }
+        }
+
     }
 
     @HostAccess.Export

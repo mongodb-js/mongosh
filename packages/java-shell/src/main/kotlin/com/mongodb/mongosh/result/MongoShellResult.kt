@@ -2,47 +2,43 @@ package com.mongodb.mongosh.result
 
 import com.mongodb.client.result.UpdateResult
 import org.bson.Document
+import org.bson.types.ObjectId
 import java.util.regex.Pattern
 
 
 sealed class MongoShellResult<T> {
     abstract val value: T
     open fun toReplString(): String = value.toLiteral()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as MongoShellResult<*>
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value?.hashCode() ?: 0
+    }
 }
 
 class DocumentResult(override val value: Document) : MongoShellResult<Document>()
 
-class BooleanResult(override val value: Boolean) : MongoShellResult<Boolean>() {
-    override fun equals(other: Any?): Boolean = this === other || other is BooleanResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class ObjectIdResult(override val value: ObjectId) : MongoShellResult<ObjectId>()
 
-class DoubleResult(override val value: Double) : MongoShellResult<Double>() {
-    override fun equals(other: Any?): Boolean = this === other || other is DoubleResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class BooleanResult(override val value: Boolean) : MongoShellResult<Boolean>()
 
-class FloatResult(override val value: Float) : MongoShellResult<Float>() {
-    override fun toReplString(): String = value.toString()
+class DoubleResult(override val value: Double) : MongoShellResult<Double>()
 
-    override fun equals(other: Any?): Boolean = this === other || other is FloatResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class FloatResult(override val value: Float) : MongoShellResult<Float>()
 
 object FunctionResult : MongoShellResult<String>() {
     override val value: String
         get() = "js function"
 }
 
-class IntResult(override val value: Int) : MongoShellResult<Int>() {
-    override fun equals(other: Any?): Boolean = this === other || other is IntResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class IntResult(override val value: Int) : MongoShellResult<Int>()
 
-class LongResult(override val value: Long) : MongoShellResult<Long>() {
-    override fun equals(other: Any?): Boolean = this === other || other is LongResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class LongResult(override val value: Long) : MongoShellResult<Long>()
 
 object NullResult : MongoShellResult<Any?>() {
     override val value: Any?
@@ -57,16 +53,11 @@ object VoidResult : MongoShellResult<Unit>() {
 
 class StringResult(override val value: String) : MongoShellResult<String>() {
     override fun toReplString(): String = value
-    override fun equals(other: Any?): Boolean = this === other || other is StringResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
 }
 
 class ArrayResult(override val value: List<Any?>) : MongoShellResult<List<Any?>>()
 
-class PatternResult(override val value: Pattern) : MongoShellResult<Pattern>() {
-    override fun equals(other: Any?): Boolean = this === other || other is PatternResult && value == other.value
-    override fun hashCode(): Int = value.hashCode()
-}
+class PatternResult(override val value: Pattern) : MongoShellResult<Pattern>()
 
 class MongoShellUpdateResult(override val value: UpdateResult) : MongoShellResult<UpdateResult>()
 

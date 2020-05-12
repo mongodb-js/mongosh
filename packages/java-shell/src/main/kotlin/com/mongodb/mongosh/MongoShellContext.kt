@@ -10,6 +10,7 @@ import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
 import org.bson.BsonValue
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
@@ -129,6 +130,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.isNull -> NullResult
             v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
+            v.isHostObject && v.asHostObject<Any?>() is ObjectId -> ObjectIdResult(v.asHostObject())
             v.hasArrayElements() -> ArrayResult((0 until v.arraySize).map { extract(v.getArrayElement(it)).value })
             v.canExecute() -> FunctionResult
             v.hasMembers() -> DocumentResult(Document(v.memberKeys.associateWith { key -> extract(v.getMember(key)).value })) // todo: handle recursion
