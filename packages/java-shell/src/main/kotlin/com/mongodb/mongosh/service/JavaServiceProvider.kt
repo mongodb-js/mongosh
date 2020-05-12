@@ -152,17 +152,29 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise {
         val filter = check(filter, "filter")
         val dbOptions = check(dbOptions, "dbOptions")
-        getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(toDocument(context, filter))
-            context.toJs(mapOf(
-                    "result" to mapOf("ok" to result.wasAcknowledged()),
-                    "deletedCount" to result.deletedCount))
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(context, DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+                val result = db.getCollection(collection).deleteMany(toDocument(context, filter), deleteOptions)
+                context.toJs(mapOf(
+                        "result" to mapOf("ok" to result.wasAcknowledged()),
+                        "deletedCount" to result.deletedCount))
+            }
         }
     }
 
     @HostAccess.Export
     override fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+        val filter = check(filter, "filter")
+        val options = check(options, "options")
+        val dbOptions = check(dbOptions, "dbOptions")
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(context, DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+                val result = db.getCollection(collection).deleteOne(toDocument(context, filter), deleteOptions)
+                context.toJs(mapOf(
+                        "result" to mapOf("ok" to result.wasAcknowledged()),
+                        "deletedCount" to result.deletedCount))
+            }
+        }
     }
 
     @HostAccess.Export

@@ -279,6 +279,18 @@ internal val bulkWriteOptionsConverters: Map<String, (BulkWriteOptions, Any?) ->
 internal val bulkWriteOptionsDefaultConverter = unrecognizedField<BulkWriteOptions>("bulk write options")
 
 
+internal val deleteConverters: Map<String, (DeleteOptions, Any?) -> Either<DeleteOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val deleteDefaultConverter = unrecognizedField<DeleteOptions>("delete options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val casted = value as? C
