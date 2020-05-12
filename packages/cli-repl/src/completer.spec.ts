@@ -67,8 +67,8 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.';
-      const collComplete = Object.keys(shellSignatures.Collection.attributes)
-      const adjusted = collComplete.map(c => `${i}${c}`)
+      const collComplete = Object.keys(shellSignatures.Collection.attributes);
+      const adjusted = collComplete.map(c => `${i}${c}`);
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
@@ -98,8 +98,8 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).';
-      const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes)
-      const adjusted = aggCursorComplete.map(c => `${i}${c}`)
+      const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes);
+      const adjusted = aggCursorComplete.map(c => `${i}${c}`);
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
@@ -125,7 +125,7 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.aggregate([ { $so';
       expect(completer('4.4.0', i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sort',
-         'db.shipwrecks.aggregate([ { $sortByCount'], i]);
+          'db.shipwrecks.aggregate([ { $sortByCount'], i]);
     });
 
     it('does not have a match', () => {
@@ -144,51 +144,51 @@ describe('completer.completer', () => {
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.find({ ';
       expect(completer('4.4.0', i)[0]).to.include.members(
-      [ 'db.shipwrecks.find({ $all',
-        'db.shipwrecks.find({ $and',
-        'db.shipwrecks.find({ $bitsAllClear',
-        'db.shipwrecks.find({ $bitsAllSet',
-        'db.shipwrecks.find({ $bitsAnyClear',
-        'db.shipwrecks.find({ $bitsAnySet',
-        'db.shipwrecks.find({ $comment',
-        'db.shipwrecks.find({ $elemMatch',
-        'db.shipwrecks.find({ $eq',
-        'db.shipwrecks.find({ $exists',
-        'db.shipwrecks.find({ $expr',
-        'db.shipwrecks.find({ $geoIntersects',
-        'db.shipwrecks.find({ $geoWithin',
-        'db.shipwrecks.find({ $gt',
-        'db.shipwrecks.find({ $gte',
-        'db.shipwrecks.find({ $in',
-        'db.shipwrecks.find({ $jsonSchema',
-        'db.shipwrecks.find({ $lt',
-        'db.shipwrecks.find({ $lte',
-        'db.shipwrecks.find({ $mod',
-        'db.shipwrecks.find({ $ne',
-        'db.shipwrecks.find({ $near',
-        'db.shipwrecks.find({ $nearSphere',
-        'db.shipwrecks.find({ $nin',
-        'db.shipwrecks.find({ $not',
-        'db.shipwrecks.find({ $nor',
-        'db.shipwrecks.find({ $or',
-        'db.shipwrecks.find({ $regex',
-        'db.shipwrecks.find({ $size',
-        'db.shipwrecks.find({ $slice',
-        'db.shipwrecks.find({ $text',
-        'db.shipwrecks.find({ $type',
-        'db.shipwrecks.find({ $where',
-        'db.shipwrecks.find({ Code',
-        'db.shipwrecks.find({ ObjectId',
-        'db.shipwrecks.find({ Binary',
-        'db.shipwrecks.find({ DBRef',
-        'db.shipwrecks.find({ Timestamp',
-        'db.shipwrecks.find({ NumberInt',
-        'db.shipwrecks.find({ NumberLong',
-        'db.shipwrecks.find({ NumberDecimal',
-        'db.shipwrecks.find({ MaxKey',
-        'db.shipwrecks.find({ MinKey',
-        'db.shipwrecks.find({ ISODate',
-        'db.shipwrecks.find({ RegExp' ]);
+        [ 'db.shipwrecks.find({ $all',
+          'db.shipwrecks.find({ $and',
+          'db.shipwrecks.find({ $bitsAllClear',
+          'db.shipwrecks.find({ $bitsAllSet',
+          'db.shipwrecks.find({ $bitsAnyClear',
+          'db.shipwrecks.find({ $bitsAnySet',
+          'db.shipwrecks.find({ $comment',
+          'db.shipwrecks.find({ $elemMatch',
+          'db.shipwrecks.find({ $eq',
+          'db.shipwrecks.find({ $exists',
+          'db.shipwrecks.find({ $expr',
+          'db.shipwrecks.find({ $geoIntersects',
+          'db.shipwrecks.find({ $geoWithin',
+          'db.shipwrecks.find({ $gt',
+          'db.shipwrecks.find({ $gte',
+          'db.shipwrecks.find({ $in',
+          'db.shipwrecks.find({ $jsonSchema',
+          'db.shipwrecks.find({ $lt',
+          'db.shipwrecks.find({ $lte',
+          'db.shipwrecks.find({ $mod',
+          'db.shipwrecks.find({ $ne',
+          'db.shipwrecks.find({ $near',
+          'db.shipwrecks.find({ $nearSphere',
+          'db.shipwrecks.find({ $nin',
+          'db.shipwrecks.find({ $not',
+          'db.shipwrecks.find({ $nor',
+          'db.shipwrecks.find({ $or',
+          'db.shipwrecks.find({ $regex',
+          'db.shipwrecks.find({ $size',
+          'db.shipwrecks.find({ $slice',
+          'db.shipwrecks.find({ $text',
+          'db.shipwrecks.find({ $type',
+          'db.shipwrecks.find({ $where',
+          'db.shipwrecks.find({ Code',
+          'db.shipwrecks.find({ ObjectId',
+          'db.shipwrecks.find({ Binary',
+          'db.shipwrecks.find({ DBRef',
+          'db.shipwrecks.find({ Timestamp',
+          'db.shipwrecks.find({ NumberInt',
+          'db.shipwrecks.find({ NumberLong',
+          'db.shipwrecks.find({ NumberDecimal',
+          'db.shipwrecks.find({ MaxKey',
+          'db.shipwrecks.find({ MinKey',
+          'db.shipwrecks.find({ ISODate',
+          'db.shipwrecks.find({ RegExp' ]);
     });
 
     it('has several matches', () => {
@@ -225,38 +225,38 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).';
 
       const result = [
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).collation',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).comment',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).collation',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).comment',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hint',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isClosed',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isExhausted',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).itcount',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).limit',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).map',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).max',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxTimeMS',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).min',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).next',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).noCursorTimeout',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).oplogReplay',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).projection',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).readPref',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).returnKey',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).size',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).skip',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).sort',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).tailable',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
-      ]
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hint',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isClosed',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isExhausted',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).itcount',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).limit',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).map',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).max',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxTimeMS',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).min',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).next',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).noCursorTimeout',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).oplogReplay',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).projection',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).readPref',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).returnKey',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).size',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).skip',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).sort',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).tailable',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
+      ];
 
       expect(completer('4.4.0', i)[0]).to.include.members(result);
     });
@@ -265,35 +265,35 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).';
 
       const result = [
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).addOption',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hint',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isClosed',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isExhausted',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).itcount',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).limit',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).map',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).max',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxTimeMS',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).min',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).next',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).noCursorTimeout',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).oplogReplay',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).projection',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).readPref',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).size',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).skip',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).sort',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
-      ]
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).addOption',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hint',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isClosed',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).isExhausted',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).itcount',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).limit',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).map',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).max',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxTimeMS',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).min',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).next',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).noCursorTimeout',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).oplogReplay',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).projection',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).readPref',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).size',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).skip',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).sort',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
+      ];
 
       expect(completer('3.0.0', i)[0]).to.include.members(result);
     });

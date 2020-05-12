@@ -20,6 +20,8 @@
     "start-async": "node --experimental-repl-await bin/mongosh.js start --async",
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
     "prepublish": "npm run compile-ts"
   },
   "license": "Apache-2.0",

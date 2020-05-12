@@ -1,3 +1,5 @@
+/* eslint no-console: 0, no-sync: 0*/
+
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import formatOutput, { formatError } from './format-output';
 import ShellEvaluator from '@mongosh/shell-evaluator';
@@ -103,46 +105,44 @@ class CliRepl {
     const version = this.buildInfo.version;
 
     this.repl = repl.start({
-      prompt: `> `,
+      prompt: '> ',
       writer: this.writer,
       completer: completer.bind(null, version),
     });
 
     const originalEval = util.promisify(this.repl.eval);
 
-    const customEval = async(input, context, filename, callback) => {
+    const customEval = async(input, context, filename, callback): Promise<any> => {
       let result;
-      let err = null;
 
       try {
         result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));
-        } else {
-          result = err;
         }
+        result = err;
       }
-      callback (null, result)
+      callback(null, result);
     };
 
-    // @ts-ignore
-    this.repl.eval = customEval;
+    (this.repl as any).eval = customEval;
 
-    const historyFile = path.join(this.mongoshDir,  '.mongosh_repl_history');
+    const historyFile = path.join(this.mongoshDir, '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
+    // eslint thinks we are redefining this.repl here, we are not.
+    // eslint-disable-next-line no-shadow
     this.repl.setupHistory(historyFile, function(err, repl) {
-      const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session')
+      const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session');
       if (err) this.writer(warn);
 
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
       repl.on('flushHistory', function() {
-        // @ts-ignore
-        changeHistory(repl.history, redactInfo);
-      })
-    })
+        changeHistory((repl as any).history, redactInfo);
+      });
+    });
 
     this.repl.on('exit', () => {
       this.serviceProvider.close(true);
@@ -183,7 +183,7 @@ class CliRepl {
       // error is thrown here for atlas and DataLake connections.
       // don't actually throw, as this is only used to log out non-genuine
       // mongodb connections
-      this.bus.emit('mongosh:error', e)
+      this.bus.emit('mongosh:error', e);
       return null;
     }
   }
@@ -194,7 +194,7 @@ class CliRepl {
   createMongoshDir(): void {
     try {
       mkdirp.sync(this.mongoshDir);
-    } catch(e) {
+    } catch (e) {
       this.bus.emit('mongosh:error', e);
       throw e;
     }
@@ -215,7 +215,7 @@ class CliRepl {
     try {
       fd = fs.openSync(configPath, 'wx');
       this.userId = new ObjectId(Date.now());
-      this.enableTelemetry = true ;
+      this.enableTelemetry = true;
       this.disableGreetingMessage = false;
       this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);
       this.writeConfigFileSync(configPath);
@@ -228,9 +228,8 @@ class CliRepl {
         this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
         return;
       }
-      this.bus.emit('mongosh:error', err)
+      this.bus.emit('mongosh:error', err);
       throw err;
-
     } finally {
       if (fd !== undefined) fs.closeSync(fd);
     }
@@ -254,16 +253,16 @@ class CliRepl {
 
     if (enabled) {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
-    } else {
-      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
     }
+
+    return i18n.__('cli-repl.cli-repl.disabledTelemetry');
   }
 
   /** write file sync given path and contents
   *
-  * @param {string} path - path to file
+  * @param {string} filePath - path to file
   */
-  writeConfigFileSync(path: string): void {
+  writeConfigFileSync(filePath: string): void {
     const config = {
       userId: this.userId,
       enableTelemetry: this.enableTelemetry,
@@ -271,9 +270,9 @@ class CliRepl {
     };
 
     try {
-      fs.writeFileSync(path, JSON.stringify(config));
-    } catch(err) {
-      this.bus.emit('mongosh:error', err)
+      fs.writeFileSync(filePath, JSON.stringify(config));
+    } catch (err) {
+      this.bus.emit('mongosh:error', err);
       throw err;
     }
   }
@@ -289,11 +288,11 @@ class CliRepl {
       this.bus.emit('mongosh:error', result);
       this.ShellEvaluator.revertState();
 
-      return formatOutput({type: 'Error', value: result});
+      return formatOutput({ type: 'Error', value: result });
     }
 
     return formatOutput(result);
-  }
+  };
 
   /**
    * The greeting for the shell.
@@ -314,7 +313,7 @@ class CliRepl {
   isPasswordMissing(driverOptions: NodeOptions): boolean {
     return driverOptions.auth &&
       driverOptions.auth.user &&
-      !driverOptions.auth.password
+      !driverOptions.auth.password;
   }
 
   /**
@@ -330,6 +329,8 @@ class CliRepl {
       replace: '*'
     };
     read(readOptions, (error, password) => {
+      if (error) return console.log(formatError(error));
+
       driverOptions.auth.password = password;
       this.connect(driverUri, driverOptions);
     });

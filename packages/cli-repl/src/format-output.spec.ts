@@ -1,26 +1,27 @@
+/* eslint no-control-regex: 0 */
 import format from './format-output';
 import { expect } from 'chai';
 
-function stripAnsiColors(str) {
+function stripAnsiColors(str): string {
   return str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '');
-};
+}
 
 describe('formatOutput', () => {
   context('when the result is a string', () => {
     it('returns the output', () => {
-      expect(format({value: 'test'})).to.equal('test');
+      expect(format({ value: 'test' })).to.equal('test');
     });
   });
 
   context('when the result is undefined', () => {
     it('returns the output', () => {
-      expect(format({value: undefined})).to.equal('');
+      expect(format({ value: undefined })).to.equal('');
     });
   });
 
   context('when the result is an object', () => {
     it('returns the inspection', () => {
-      expect(format({value: 2})).to.include('2');
+      expect(format({ value: 2 })).to.include('2');
     });
   });
 
@@ -28,7 +29,7 @@ describe('formatOutput', () => {
     context('when the Cursor is not empty', () => {
       it('returns the inspection', () => {
         const output = stripAnsiColors(format({
-          value: [{doc: 1}, {doc: 2}],
+          value: [{ doc: 1 }, { doc: 2 }],
           type: 'Cursor'
         }));
 
@@ -53,7 +54,7 @@ describe('formatOutput', () => {
     context('when the CursorIterationResult is not empty', () => {
       it('returns the inspection', () => {
         const output = stripAnsiColors(format({
-          value: [{doc: 1}, {doc: 2}],
+          value: [{ doc: 1 }, { doc: 2 }],
           type: 'CursorIterationResult'
         }));
 
@@ -88,11 +89,11 @@ describe('formatOutput', () => {
     it('returns the help text', () => {
       const output = stripAnsiColors(format({
         value: [
-          { name: 'admin', sizeOnDisk: 45056, empty: false  },
-          { name: 'dxl', sizeOnDisk: 8192, empty: false  },
-          { name: 'supplies', sizeOnDisk: 2236416, empty: false  },
-          { name: 'test', sizeOnDisk: 5664768, empty: false  },
-          { name: 'test', sizeOnDisk: 599999768000, empty: false  }
+          { name: 'admin', sizeOnDisk: 45056, empty: false },
+          { name: 'dxl', sizeOnDisk: 8192, empty: false },
+          { name: 'supplies', sizeOnDisk: 2236416, empty: false },
+          { name: 'test', sizeOnDisk: 5664768, empty: false },
+          { name: 'test', sizeOnDisk: 599999768000, empty: false }
         ],
         type: 'ShowDatabasesResult'
       }));
@@ -132,8 +133,8 @@ describe('formatOutput', () => {
           help: 'Shell API',
           docs: 'https://docs.mongodb.com',
           attr: [{
-            name: "show dbs",
-            description: "list available databases"
+            name: 'show dbs',
+            description: 'list available databases'
           }]
         },
         type: 'Help'
@@ -148,7 +149,7 @@ describe('formatOutput', () => {
           help: 'Shell API',
           docs: 'https://docs.mongodb.com',
           attr: [{
-            description: "list available databases"
+            description: 'list available databases'
           }]
         },
         type: 'Help'
@@ -163,8 +164,8 @@ describe('formatOutput', () => {
         value: {
           help: 'Shell API',
           attr: [{
-            name: "show dbs",
-            description: "list available databases"
+            name: 'show dbs',
+            description: 'list available databases'
           }]
         },
         type: 'Help'

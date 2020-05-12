@@ -49,6 +49,6 @@ function mapCliToDriver(options: CliOptions): NodeOptions {
     }
   });
   return nodeOptions;
-};
+}
 
 export default mapCliToDriver;

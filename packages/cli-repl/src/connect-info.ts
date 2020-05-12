@@ -1,6 +1,19 @@
 import getBuildInfo from 'mongodb-build-info';
 
-export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts: any, topology: any) {
+interface ConnectInfo {
+  isAtlas: boolean;
+  isLocalhost: boolean;
+  serverVersion: string;
+  isEnterprise: boolean;
+  uri: string;
+  authType?: string;
+  isDataLake: boolean;
+  dlVersion?: string;
+  isGenuine: boolean;
+  serverName: string;
+}
+
+export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts: any, topology: any): ConnectInfo {
   const { isGenuine, serverName } =
     getBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
   const { isDataLake, dlVersion } = getBuildInfo.getDataLake(buildInfo);
@@ -20,6 +33,6 @@ export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts:
     isDataLake,
     dlVersion,
     isGenuine,
-    serverName 
-  }
+    serverName
+  };
 }
