@@ -127,7 +127,7 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
     val expectedFile = File("$testDataPath/$name.expected.txt")
-    val normalized = replaceId(actual).trim()
+    val normalized = replaceUUID(replaceId(actual)).trim()
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
         expectedFile.writeText(normalized)
@@ -138,9 +138,14 @@ private fun compare(testDataPath: String, name: String, actual: String) {
 }
 
 private val MONGO_ID_PATTERN = Pattern.compile("[0-9a-f]{24}")
+private val MONGO_UUID_PATTERN = Pattern.compile("[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}")
 
 private fun replaceId(value: String): String {
     return MONGO_ID_PATTERN.matcher(value).replaceAll("<ObjectID>")
+}
+
+private fun replaceUUID(value: String): String {
+    return MONGO_UUID_PATTERN.matcher(value).replaceAll("<UUID>")
 }
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")

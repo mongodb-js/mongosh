@@ -3,6 +3,7 @@ package com.mongodb.mongosh.result
 import com.mongodb.client.result.UpdateResult
 import org.bson.Document
 import org.bson.types.ObjectId
+import java.util.*
 import java.util.regex.Pattern
 
 
@@ -24,6 +25,8 @@ sealed class MongoShellResult<T> {
 class DocumentResult(override val value: Document) : MongoShellResult<Document>()
 
 class ObjectIdResult(override val value: ObjectId) : MongoShellResult<ObjectId>()
+
+class UUIDResult(override val value: UUID) : MongoShellResult<UUID>()
 
 class BooleanResult(override val value: Boolean) : MongoShellResult<Boolean>()
 

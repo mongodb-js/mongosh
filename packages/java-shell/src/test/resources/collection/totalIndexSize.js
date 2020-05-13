@@ -1,7 +1,7 @@
 // before
 db.coll.remove({});
 db.coll.insert({key: "value"});
-// command
+// command dontCheckValue
 db.coll.totalIndexSize();
 // clear
 db.coll.drop();

@@ -1,2 +1,2 @@
 // command extractProperty=ismaster
-db.runCommand({ ismaster: 1 })
+db.runCommand('ismaster')

@@ -19,9 +19,12 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
-        val spec = toDocument(spec, "spec")
         getDatabase(database, null).map { db ->
-            context.toJs(db.runCommand(spec))
+            if (spec.isString) {
+                context.toJs(db.runCommand(Document(spec.asString(), 1)))
+            } else {
+                context.toJs(db.runCommand(toDocument(spec, "spec")))
+            }
         }
     }
 

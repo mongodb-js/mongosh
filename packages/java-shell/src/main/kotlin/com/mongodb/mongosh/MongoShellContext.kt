@@ -19,6 +19,7 @@ import org.graalvm.polyglot.proxy.ProxyObject
 import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -131,6 +132,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
             v.isHostObject && v.asHostObject<Any?>() is ObjectId -> ObjectIdResult(v.asHostObject())
+            v.isHostObject && v.asHostObject<Any?>() is UUID -> UUIDResult(v.asHostObject())
             v.hasArrayElements() -> ArrayResult((0 until v.arraySize).map { extract(v.getArrayElement(it)).value })
             v.canExecute() -> FunctionResult
             v.hasMembers() -> DocumentResult(Document(v.memberKeys.associateWith { key -> extract(v.getMember(key)).value })) // todo: handle recursion
