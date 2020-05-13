@@ -32,8 +32,8 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.';
-      const dbComplete = Object.keys(shellSignatures.Database.attributes)
-      const adjusted = dbComplete.map(c => `${i}${c}`)
+      const dbComplete = Object.keys(shellSignatures.Database.attributes);
+      const adjusted = dbComplete.map(c => `${i}${c}`);
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
 

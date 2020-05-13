@@ -5,7 +5,8 @@
 ## The MongoDB Shell
 
 This repository is a monorepo for all the various components in the MongoDB Shell across
-all environments (REPL, Browser, Compass, etc).
+all environments (REPL, Browser, Compass, etc). For more information on
+currently available APIs and troubleshooting, go to [our wiki](https://github.com/mongodb-js/mongosh/wiki).
 
 ## CLI Usage
 ```shell

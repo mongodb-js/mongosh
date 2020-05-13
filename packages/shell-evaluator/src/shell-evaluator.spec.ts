@@ -65,7 +65,7 @@ describe('ShellEvaluator', () => {
     });
 
     it('reverts state if error thrown', async() => {
-      const originalEval = () => { throw new Error(); };
+      const originalEval = (): any => { throw new Error(); };
       const revertSpy = sinon.spy();
       const saveSpy = sinon.spy();
       shellEvaluator.revertState = revertSpy;
@@ -79,7 +79,7 @@ describe('ShellEvaluator', () => {
       expect(saveSpy.calledOnce).to.be.true;
     });
     it('does not revert state with no error', async() => {
-      const originalEval = () => { return 1; };
+      const originalEval = (): any => { return 1; };
       const revertSpy = sinon.spy();
       const saveSpy = sinon.spy();
       shellEvaluator.revertState = revertSpy;
