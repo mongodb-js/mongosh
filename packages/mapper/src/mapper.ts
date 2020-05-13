@@ -1249,25 +1249,23 @@ export default class Mapper {
    *
    * @returns {UpdateResult} The promise of the result.
    */
-  async collection_updateOne(collection, filter, update, options: any = {}): Promise<any> {
+  async collection_updateOne(
+    collection: Collection,
+    filter: Document,
+    update: Document,
+    options: Document = {}
+  ): Promise<any> {
+    this._emitCollectionApiCall(collection, 'updateOne', { filter, options });
+
     const dbOptions: DatabaseOptions = {};
-    const db = collection._database._name;
-    const coll = collection._name;
-    this.messageBus.emit(
-      'mongosh:api-call',
-      {
-        method: 'updateMany',
-        class: 'Collection',
-        db, coll, arguments: { filter, options }
-      }
-    );
 
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
     }
-    const result = await this.serviceProvider.updateMany(
-      db,
-      coll,
+
+    const result = await this.serviceProvider.updateOne(
+      collection._database._name,
+      collection._name,
       filter,
       update,
       options,
