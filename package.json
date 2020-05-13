@@ -4,7 +4,7 @@
   "main": "index.js",
   "bin": "packages/cli-repl/bin/mongosh.js",
   "scripts": {
-    "prebootstrap": "npm i",
+    "prebootstrap": "npm install",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
