@@ -7,6 +7,7 @@ import { promises as fs } from 'fs';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import upload, { PUBLIC_READ } from './s3';
 
 /**
@@ -29,6 +30,9 @@ import handlebars from 'handlebars';
 =======
 import upload from './s3';
 >>>>>>> Adding s3 uploading ability into build
+=======
+import upload, { PUBLIC_READ } from './s3';
+>>>>>>> Do s3 uploading via build module
 
 /**
  * The filename in the download center.
@@ -44,11 +48,6 @@ const BUCKET = 'info-mongodb-com';
  * Download center directory.
  */
 const DIRECTORY = 'com-download-center';
-
-/**
- * The default ACL.
- */
-const PUBLIC_READ = 'public-read';
 
 /**
  * The download center JSON template.

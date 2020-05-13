@@ -13,10 +13,6 @@ import S3 from 'aws-sdk/clients/s3';
  */
 const release = async(config: Config) => {
   const platform = os.platform();
-  const evgS3 = new S3({
-    accessKeyId: config.evgAwsKey,
-    secretAccessKey: config.evgAwsSecret
-  });
 
   // 1. Build the executable.
   await compileExec(config.input, config.outputDir, platform);
@@ -24,7 +20,7 @@ const release = async(config: Config) => {
   // 2. Sign the executable for each OS.
 
   // 3. Zip the executable.
-  await zip(config.input, config.outputDir, platform, config.version);
+  const artifact = await zip(config.input, config.outputDir, platform, config.version);
 
   // 4. Create & sign the .deb (only on linux)
   // 5. Create & sign the .rpm (only on linux)
@@ -36,7 +32,15 @@ const release = async(config: Config) => {
   // 2. Publish the .rpm (only on linux)
   // 3. Create PR for Homebrew (only on macos)
 
-  // 4. Upload artifacts to S3 for Evergreen and downloads. (Handled in .evergreen.yml)
+  // 4. Upload artifacts to S3 for Evergreen and downloads.
+  // await uploadArtifactToEvergreen(
+  //   artifact,
+  //   config.evgAwsKey,
+  //   config.evgAwsSecret,
+  //   config.project,
+  //   config.revision
+  // );
+  // await uploadArtifactToDownloads();
 
   // 5. Create Github release.
 

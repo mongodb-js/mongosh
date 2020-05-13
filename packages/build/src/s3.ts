@@ -1,6 +1,11 @@
 import S3 from 'aws-sdk/clients/s3';
 
 /**
+ * The default ACL.
+ */
+const PUBLIC_READ = 'public-read';
+
+/**
  * Takes a configured S3 instance and uploads its data.
  *
  * @param {any} params - The upload parameters.
@@ -21,3 +26,4 @@ const upload = (params: any, s3: any): Promise<any> => {
 };
 
 export default upload;
+export { PUBLIC_READ };

@@ -32,6 +32,8 @@ module.exports = {
   version: CONFIG.version,
   input: INPUT,
   outputDir: OUTPUT_DIR,
+  project: process.env.PROJECT,
+  revision: process.env.REVISION,
   evgAwsKey: process.env.AWS_KEY,
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
