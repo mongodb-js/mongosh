@@ -20,7 +20,7 @@ if [[ $OSTYPE == "cygwin" ]]; then
   rm -rf node_modules/npm2/
   chmod +x npm.cmd npm
   cd ..
-  npm run bootstrap-ci
+  npm run bootstrap
 else
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
   export NVM_DIR="$HOME/.nvm"
@@ -30,5 +30,5 @@ else
   nvm install $NODE_JS_VERSION
   nvm alias default $NODE_JS_VERSION
   npm install -g npm@latest
-  npm run bootstrap-ci
+  npm run bootstrap
 fi
