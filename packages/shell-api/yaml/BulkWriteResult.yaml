@@ -1,7 +1,7 @@
 class:
     <<: *__defaultClass
     __constructorArgs:
-        - ackowledged
+        - acknowledged
         - insertedCount
         - insertedIds
         - matchedCount

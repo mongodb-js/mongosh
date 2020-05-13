@@ -160,8 +160,8 @@ describe('Mapper (integration)', function() {
           );
         });
 
-        it('returns ackowledged = true', () => {
-          expect(result.ackowledged).to.be.true;
+        it('returns acknowledged = true', () => {
+          expect(result.acknowledged).to.be.true;
         });
 
         it('returns insertedCount = 1', () => {
