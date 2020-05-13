@@ -1,4 +1,4 @@
-export class CursorIterationResult extends Array {
+export default class CursorIterationResult extends Array {
   toReplString: () => this;
   shellApiType: () => string;
 

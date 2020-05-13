@@ -1,7 +1,13 @@
 import AsyncWriter from '@mongosh/async-rewriter';
-import Mapper from '@mongosh/mapper';
-import { signatures, Help, ShellBson, toIterator } from '@mongosh/shell-api';
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import {
+  signatures,
+  Help,
+  ShellBson,
+  toIterator,
+  Mongo,
+  InternalState,
+  CursorIterationResult,
+} from '@mongosh/shell-api2';
 
 interface Bus {
   emit(...args: any[]): void;
@@ -17,16 +23,18 @@ interface Result {
 }
 
 class ShellEvaluator {
-  private mapper: Mapper;
   private asyncWriter: AsyncWriter;
   private bus: Bus;
   private container: Container;
+  private internalState: InternalState;
   constructor(
-    serviceProvider: ServiceProvider,
+    uri: string,
+    options: any,
     bus: Bus,
     container?: Container
   ) {
-    this.mapper = new Mapper(serviceProvider, bus);
+    this.internalState = new InternalState(bus);
+    this.internalState.initialMongo = new Mongo(uri, options, this.internalState);
     this.asyncWriter = new AsyncWriter(signatures);
     this.bus = bus;
     this.container = container;
@@ -88,6 +96,13 @@ class ShellEvaluator {
     this.asyncWriter.symbols.saveState();
   }
 
+  async it(): Promise<any> {
+    if (!this.internalState.currentCursor) {
+      return new CursorIterationResult();
+    }
+    return await this.internalState.currentCursor.it();
+  }
+
   /**
    * Checks for linux-style commands then evaluates input using originalEval.
    *
@@ -102,11 +117,11 @@ class ShellEvaluator {
     argv.shift();
     switch (cmd) {
       case 'use':
-        return this.mapper.use(argv[0]);
+        return this.internalState.currentMongo.use(argv[0]);
       case 'show':
-        return this.mapper.show(argv[0]);
+        return this.internalState.currentMongo.show(argv[0]);
       case 'it':
-        return this.mapper.it();
+        return this.it();
       case 'help':
         return this.help();
       case 'enableTelemetry()':
@@ -175,23 +190,23 @@ class ShellEvaluator {
    * @param {Object} - contextObject an object used as global context.
    */
   setCtx(contextObject: any): void {
+    this.internalState.context = contextObject;
     // Add API methods for VSCode and scripts
-    contextObject.use = this.mapper.use.bind(this.mapper);
-    contextObject.show = this.mapper.show.bind(this.mapper);
-    contextObject.it = this.mapper.it.bind(this.mapper);
+    contextObject.use = this.internalState.currentMongo.use.bind(this.internalState.currentMongo);
+    contextObject.show = this.internalState.currentMongo.show.bind(this.internalState.currentMongo);
+    contextObject.it = this.it.bind(this);
     contextObject.help = this.help.bind(this);
     contextObject.toIterator = toIterator;
     Object.assign(contextObject, ShellBson);
 
     // Add global shell objects
-    contextObject.db = this.mapper.databases.test;
+    contextObject.db = this.internalState.currentMongo.databases.test;
     this.asyncWriter.symbols.initializeApiObjects({ db: signatures.Database });
 
     // Update mapper and log
-    this.mapper.context = contextObject;
     this.bus.emit(
       'mongosh:setCtx',
-      { method: 'setCtx', arguments: { db: this.mapper.context.db } }
+      { method: 'setCtx', arguments: { db: contextObject.db } }
     );
   }
 }

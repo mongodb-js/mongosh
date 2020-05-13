@@ -1,4 +1,5 @@
 import Mongo from './mongo';
+import CursorIterationResult from './cursor-iteration-result';
 import {
   ShellApiClass,
   shellApiClassDefault,
@@ -24,8 +25,26 @@ export default class Cursor extends ShellApiClass {
     this.mongo = mongo;
   }
 
-  toReplString(): void {
-    return this.mongo.it();
+  async toReplString(): Promise<any> {
+    return await this.it();
+  }
+
+  async it(): Promise<any> {
+    const results = new CursorIterationResult();
+
+    if (this.isClosed()) {
+      return results;
+    }
+
+    for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
+      if (!await this.hasNext()) {
+        break;
+      }
+
+      results.push(await this.next());
+    }
+
+    return results;
   }
 
   @returnType('Cursor')

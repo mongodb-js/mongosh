@@ -53,7 +53,7 @@ class CliRepl {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
 
     this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
+    this.ShellEvaluator = new ShellEvaluator(driverUri, driverOptions, this.bus, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
     const cmdLineOpts = await this.getCmdLineOpts();
     const topology = this.serviceProvider.getTopology();
