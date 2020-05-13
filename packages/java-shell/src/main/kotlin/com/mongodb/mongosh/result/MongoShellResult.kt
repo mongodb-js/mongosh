@@ -1,8 +1,9 @@
 package com.mongodb.mongosh.result
 
+import com.mongodb.DBRef
 import com.mongodb.client.result.UpdateResult
 import org.bson.Document
-import org.bson.types.ObjectId
+import org.bson.types.*
 import java.util.*
 import java.util.regex.Pattern
 
@@ -26,7 +27,31 @@ class DocumentResult(override val value: Document) : MongoShellResult<Document>(
 
 class ObjectIdResult(override val value: ObjectId) : MongoShellResult<ObjectId>()
 
+class Decimal128Result(override val value: Decimal128) : MongoShellResult<Decimal128>()
+
+class SymbolResult(override val value: Symbol) : MongoShellResult<Symbol>()
+
+class MaxKeyResult : MongoShellResult<MaxKey>() {
+    override val value = MaxKey()
+}
+
+class MinKeyResult : MongoShellResult<MinKey>() {
+    override val value = MinKey()
+}
+
+class DBRefResult(override val value: DBRef) : MongoShellResult<DBRef>()
+
+class BSONTimestampResult(override val value: BSONTimestamp) : MongoShellResult<BSONTimestamp>()
+
+class CodeResult(override val value: Code) : MongoShellResult<Code>()
+
+class CodeWithScopeResult(override val value: CodeWithScope) : MongoShellResult<CodeWithScope>()
+
+class BinaryResult(override val value: Binary) : MongoShellResult<Binary>()
+
 class UUIDResult(override val value: UUID) : MongoShellResult<UUID>()
+
+class DateResult(override val value: Date) : MongoShellResult<Date>()
 
 class BooleanResult(override val value: Boolean) : MongoShellResult<Boolean>()
 

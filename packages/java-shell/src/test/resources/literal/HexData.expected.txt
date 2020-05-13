@@ -1,0 +1,2 @@
+BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 16}
+BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 16}
