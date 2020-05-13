@@ -50,6 +50,9 @@ export class ShellApiClass implements ShellApiInterface {
   toReplString(): any {
     return JSON.parse(JSON.stringify(this));
   }
+  shellApiType(): string {
+    return 'ShellApiClass';
+  }
 }
 
 interface TypeSignature {
@@ -82,7 +85,11 @@ export function shellApiClassDefault(constructor: Function): void {
   for (const propertyName of Object.keys(constructor.prototype)) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;
-    if (!isMethod || ['toReplString', 'shellApiType', 'constructor'].includes(propertyName)) continue;
+    if (
+      !isMethod ||
+      ['toReplString', 'shellApiType', 'constructor'].includes(propertyName) ||
+      propertyName.startsWith('_')
+    ) continue;
 
     descriptor.value.serverVersions = descriptor.value.serverVersions || ALL_SERVER_VERSIONS;
     descriptor.value.topologies = descriptor.value.topologies || ALL_TOPOLOGIES;
@@ -111,7 +118,9 @@ export function shellApiClassDefault(constructor: Function): void {
     Object.defineProperty(constructor.prototype, propertyName, descriptor);
   }
   constructor.prototype.help = new Help(classHelp);
-  constructor.prototype.shellApiType = constructor.prototype.shellApiType || function(): string { return className; };
+  if (!constructor.prototype.hasOwnProperty('shellApiType')) {
+    constructor.prototype.shellApiType = function(): string { return className; };
+  }
   constructor.prototype.toReplString = constructor.prototype.toReplString || function(): any { return JSON.parse(JSON.stringify(constructor.prototype)); };
   signatures[className] = classSignature;
 }

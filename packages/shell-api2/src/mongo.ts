@@ -1,15 +1,15 @@
 import {
   ServiceProvider,
-  Document,
-  DatabaseOptions,
-  Cursor as ServiceProviderCursor
+  // Document,
+  // DatabaseOptions,
+  // Cursor as ServiceProviderCursor
 } from '@mongosh/service-provider-core';
 import {
   shellApiClassDefault,
-  returnsPromise,
-  returnType,
-  hasAsyncChild,
-  ShellApiClass
+  // returnsPromise,
+  // returnType,
+  // hasAsyncChild,
+  // ShellApiClass
 } from './main';
 import Database from './database';
 import InternalState from './internal-state';

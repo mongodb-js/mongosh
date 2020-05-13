@@ -5,7 +5,9 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass, serverVersions, ServerVersions
+  ShellApiClass,
+  serverVersions,
+  ServerVersions
 } from './main';
 
 import {
@@ -33,6 +35,7 @@ export default class Database extends ShellApiClass {
         return obj[prop];
       }
     });
+    return proxy;
   }
 
   toReplString(): any {
@@ -123,7 +126,7 @@ export default class Database extends ShellApiClass {
    */
   @returnsPromise
   @returnType('AggregationCursor')
-  async aggregate(pipeline: Document[], options?: Document): Promise<AggregationCursor | CommandResult> {
+  async aggregate(pipeline: Document[], options?: Document): Promise<AggregationCursor> {
     const {
       providerOptions,
       dbOptions,
