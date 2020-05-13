@@ -261,7 +261,7 @@ describe('Mapper', () => {
         const result = await mapper.collection_bulkWrite(collection, requests);
 
         expect(await result.toReplString()).to.be.deep.equal({
-          ackowledged: true,
+          acknowledged: true,
           insertedCount: 1,
           matchedCount: 2,
           modifiedCount: 3,

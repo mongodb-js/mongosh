@@ -389,7 +389,7 @@ export default class Mapper {
     );
 
     return new BulkWriteResult(
-      !!result.result.ok, // ackowledged
+      !!result.result.ok, // acknowledged
       result.insertedCount,
       result.insertedIds,
       result.matchedCount,
