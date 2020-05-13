@@ -1,5 +1,5 @@
 import Mongo from './mongo';
-import CursorIterationResult from './cursor-iteration-result';
+import { CursorIterationResult } from './result';
 import {
   ShellApiClass,
   shellApiClassDefault,

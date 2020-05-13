@@ -37,9 +37,9 @@ describe('Explainable', () => {
     it('toReplString', () => {
       expect(explainable.toReplString()).to.equal('Explainable(myDB.myCollection)');
     });
-    // it('shellApiType', () => {
-    //   expect(explainable.shellApiType()).to.equal('Explainable');
-    // })
+    it('shellApiType', () => {
+      expect(explainable.shellApiType()).to.equal('Explainable');
+    });
   });
   describe('commands', () => {
     let mongo: Mongo;

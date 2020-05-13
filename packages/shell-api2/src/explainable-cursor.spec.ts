@@ -31,6 +31,7 @@ describe('ExplainableCursor', () => {
       expect(eCursor.shellApiType()).to.equal('ExplainableCursor');
       expect(eCursor.help.shellApiType()).to.equal('Help');
       expect(eCursor.verbosity).to.equal('verbosity');
+      // expect(eCursor.toReplString()).to.equal('');
     });
 
     it('returns the same ExplainableCursor', () => {

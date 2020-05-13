@@ -10,7 +10,7 @@ import {
   Cursor as ServiceProviderCursor,
   Document
 } from '@mongosh/service-provider-core';
-import CursorIterationResult from './cursor-iteration-result';
+import { CursorIterationResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild

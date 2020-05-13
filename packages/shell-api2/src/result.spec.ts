@@ -104,4 +104,13 @@ describe('Results', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
   });
+  describe('CursorIterationResult', () => {
+    const r = new results.CursorIterationResult(1, 2, 3) as ShellApiInterface;
+    it('shellApiType', () => {
+      expect(r.shellApiType()).to.equal('CursorIterationResult');
+    });
+    it('toReplString', () => {
+      expect(r.toReplString()).to.deep.equal([ 1, 2, 3 ]);
+    });
+  });
 });

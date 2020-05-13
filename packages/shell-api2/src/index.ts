@@ -7,13 +7,13 @@ import ExplainableCursor from './explainable-cursor';
 import {
   BulkWriteResult,
   CommandResult,
+  CursorIterationResult,
   DeleteResult,
   InsertManyResult,
   InsertOneResult,
   UpdateResult
 } from './result';
 import Mongo from './mongo';
-import CursorIterationResult from './cursor-iteration-result';
 import ShellBson from './shell-bson';
 import { signatures } from './main';
 

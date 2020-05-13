@@ -83,7 +83,6 @@ export function shellApiClassDefault(constructor: Function): void {
   };
 
   for (const propertyName of Object.keys(constructor.prototype)) {
-    if (className === 'ExplainableCursor') console.log(propertyName);
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;
     if (

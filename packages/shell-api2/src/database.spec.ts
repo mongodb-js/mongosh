@@ -30,8 +30,11 @@ describe('Database', () => {
     describe('toReplString', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
-      it('returns DB name', () => {
+      it('toReplString returns DB name', () => {
         expect(db.toReplString()).to.equal('myDB');
+      });
+      it('shellApiType', () => {
+        expect(db.shellApiType()).to.equal('Database');
       });
     });
   });

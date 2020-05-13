@@ -1,14 +1,15 @@
 import { Collection, Mongo, ExplainableCursor } from './index';
-import { hasAsyncChild, returnsPromise, returnType, shellApiClassDefault } from './main';
+import { hasAsyncChild, returnsPromise, returnType, ShellApiClass, shellApiClassDefault } from './main';
 import { Document } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 @hasAsyncChild
-export default class Explainable {
+export default class Explainable extends ShellApiClass {
   mongo: Mongo;
   collection: Collection;
   verbosity: string;
   constructor(mongo, collection, verbosity) {
+    super();
     this.mongo = mongo;
     this.collection = collection;
     this.verbosity = verbosity;

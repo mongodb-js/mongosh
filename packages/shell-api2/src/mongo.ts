@@ -8,7 +8,8 @@ import {
   shellApiClassDefault,
   returnsPromise,
   returnType,
-  hasAsyncChild
+  hasAsyncChild,
+  ShellApiClass
 } from './main';
 import Database from './database';
 import InternalState from './internal-state';
@@ -17,13 +18,14 @@ import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors'
 
 @shellApiClassDefault
 @hasAsyncChild
-export default class Mongo {
+export default class Mongo extends ShellApiClass {
   public serviceProvider: ServiceProvider;
   public databases: any;
   public internalState: InternalState;
   public options: any;
 
   constructor(internalState, options/* , host?, fleOptions?*/) {
+    super();
     this.internalState = internalState;
     this.databases = {};
     this.options = options; // TODO: maybe not needed

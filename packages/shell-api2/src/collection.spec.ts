@@ -34,8 +34,11 @@ describe('Collection', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
       const coll = new Collection(mongo, db, 'myCollection');
-      it('returns DB name', () => {
+      it('toReplString returns DB name', () => {
         expect(coll.toReplString()).to.equal('myCollection');
+      });
+      it('shellApiType', () => {
+        expect(coll.shellApiType()).to.equal('Collection');
       });
     });
   });
