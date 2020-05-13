@@ -1,25 +1,7 @@
 # Variables for common functions.
 #
-# upload_file: Saves a file to the Evergreen S3 bucket.
-# upload_download_center: Upload a file to the download center S3 bucket.
 # compile_and_release: Runs the exec compile and release process.
 variables:
-  - &upload_file
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/octet-stream
-  - &upload_download_center
-    command: s3.put
-    params:
-      aws_key: ${download_center_aws_key}
-      aws_secret: ${download_center_aws_secret}
-      bucket: info-mongodb-com
-      permissions: public-read
-      content_type: application/octet-stream
   - &compile_and_release
     command: shell.exec
     params:
@@ -29,6 +11,8 @@ variables:
         source .evergreen/.setup_env
         export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+        export PROJECT=${project}
+        export REVISION=${revision}
         export AWS_KEY=${aws_key}
         export AWS_SECRET=${aws_secret}
         export DOWNLOAD_CENTER_AWS_KEY=${download_center_aws_key}
@@ -100,16 +84,6 @@ functions:
         shell: bash
         script: |
           echo "################# Sign, notarise, and release MacOS artifacts ################"
-    - <<: *upload_file
-      params:
-        local_files_include_filter:
-          - src/dist/*.*
-        remote_file: ${project}/${revision}/
-    - <<: *upload_download_center
-      params:
-        local_files_include_filter:
-          - src/dist/mongosh.json
-        remote_file: com-download-center/
   release_linux:
     - <<: *compile_and_release
     - command: shell.exec
@@ -118,11 +92,6 @@ functions:
         shell: bash
         script: |
           echo "################# Sign and release Linux artifacts ################"
-    - <<: *upload_file
-      params:
-        local_files_include_filter:
-          - src/dist/*.*
-        remote_file: ${project}/${revision}/
   release_win:
     - <<: *compile_and_release
     - command: shell.exec
@@ -132,11 +101,6 @@ functions:
         script: |
           echo "################# Sign and release Windows artifacts ################"
           ls -la dist/
-    - <<: *upload_file
-      params:
-        local_files_include_filter:
-          - src/dist/*.*
-        remote_file: ${project}/${revision}/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #

@@ -23,8 +23,4 @@ describe('download center module', () => {
       expect(config).to.include('mongosh-1.2.2-win.zip');
     });
   });
-
-  describe('.uploadDownloadCenterConfig', () => {
-
-  });
 });
