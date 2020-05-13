@@ -1,11 +1,15 @@
+import sinon, { SinonStubbedInstance } from 'sinon';
+import chai from 'chai';
+import sinonChai from 'sinon-chai';
+chai.use(sinonChai);
+const { expect } = chai;
+
 import NodeCursor, { Flag } from './node-cursor';
 import { Cursor } from 'mongodb';
-import { expect } from 'chai';
-import sinon from 'sinon';
 
 describe('NodeCursor', () => {
   describe('#addOption', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -21,10 +25,18 @@ describe('NodeCursor', () => {
       expect(nodeCursor.addOption(2)).to.equal(nodeCursor);
       mock.verify();
     });
+
+    it('throws if a SlaveOk flag passed', () => {
+      expect(() => nodeCursor.addOption(4)).to.throw('the slaveOk option is not yet supported.');
+    });
+
+    it('throws if an unknown flag passed', () => {
+      expect(() => nodeCursor.addOption(123123)).to.throw('Unknown option flag number: 123123');
+    });
   });
 
   describe('#allowPartialResults', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -43,7 +55,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#batchSize', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -62,7 +74,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#close', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const options = { skipKillCursors: true };
@@ -82,7 +94,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#collation', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const coll = { locale: 'en' };
@@ -102,7 +114,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#comment', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const cmt = 'hi';
@@ -122,7 +134,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#count', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -141,7 +153,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#hasNext', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -160,7 +172,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#isExhausted', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor: NodeCursor;
     let hasNextMock;
     let isClosedMock;
@@ -195,7 +207,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#hint', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const index = 'a_1';
@@ -215,7 +227,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#limit', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = 6;
@@ -235,7 +247,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#max', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = { a: 1 };
@@ -255,7 +267,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#maxTimeMS', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = 5000;
@@ -275,7 +287,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#min', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = { a: 1 };
@@ -295,7 +307,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#noCursorTimeout', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -314,7 +326,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#oplogReplay', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -333,7 +345,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#projection', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = { a: 1 };
@@ -353,7 +365,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#readPref', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = 'primary';
@@ -370,10 +382,14 @@ describe('NodeCursor', () => {
       expect(nodeCursor.readPref(value)).to.equal(nodeCursor);
       mock.verify();
     });
+
+    it('throws MongoshUnimplementedError if tagset is passed', () => {
+      expect(() => nodeCursor.readPref(value, [])).to.throw('the tagSet argument is not yet supported.');
+    });
   });
 
   describe('#returnKey', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = true;
@@ -392,49 +408,8 @@ describe('NodeCursor', () => {
     });
   });
 
-  // TODO: fix implementation
-  // describe('#showDiskLoc', () => {
-  //   let cursor;
-  //   let nodeCursor;
-  //   let mock;
-
-  //   beforeEach(() => {
-  //     mock = sinon.mock().withArgs(true);
-  //     cursor = sinon.createStubInstance(Cursor, {
-  //       showRecordId: mock
-  //     });
-  //     nodeCursor = new NodeCursor(cursor);
-  //   });
-
-  //   it('fluidly sets the show disk location flag', () => {
-  //     expect(nodeCursor.showDiskLoc()).to.equal(nodeCursor);
-  //     mock.verify();
-  //   });
-  // });
-
-  // TODO: fix implementation
-  // describe('#showRecordId', () => {
-  //   let cursor;
-  //   let nodeCursor;
-  //   let mock;
-  //   const value = true;
-
-  //   beforeEach(() => {
-  //     mock = sinon.mock().withArgs(value);
-  //     cursor = sinon.createStubInstance(Cursor, {
-  //       showRecordId: mock
-  //     });
-  //     nodeCursor = new NodeCursor(cursor);
-  //   });
-
-  //   it('fluidly sets the show record id value', () => {
-  //     expect(nodeCursor.showRecordId(value)).to.equal(nodeCursor);
-  //     mock.verify();
-  //   });
-  // });
-
   describe('#skip', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = 6;
@@ -454,7 +429,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#sort', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
     const value = { a: 1 };
@@ -474,7 +449,7 @@ describe('NodeCursor', () => {
   });
 
   describe('#tailable', () => {
-    let cursor;
+    let cursor: SinonStubbedInstance<Cursor>;
     let nodeCursor;
     let mock;
 
@@ -489,6 +464,25 @@ describe('NodeCursor', () => {
     it('fluidly adds the cursor flag', () => {
       expect(nodeCursor.tailable()).to.equal(nodeCursor);
       mock.verify();
+    });
+  });
+
+  describe('#itcount', () => {
+    let cursor: SinonStubbedInstance<Cursor>;
+    let nodeCursor;
+
+    beforeEach(() => {
+      cursor = sinon.createStubInstance(Cursor);
+      nodeCursor = new NodeCursor(cursor);
+    });
+
+    it('returns the iteration count', async() => {
+      cursor.hasNext.onCall(0).resolves(true);
+      cursor.hasNext.onCall(1).resolves(true);
+      cursor.hasNext.onCall(2).resolves(false);
+      cursor.next.resolves({});
+
+      expect(await nodeCursor.itcount()).to.equal(2);
     });
   });
 

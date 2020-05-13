@@ -1,5 +1,6 @@
 import { Cursor as NativeCursor, CollationDocument } from 'mongodb';
 import { Cursor } from '@mongosh/service-provider-core';
+import { MongoshUnimplementedError, MongoshInvalidInputError } from '@mongosh/errors';
 
 /**
  * Enum for the available cursor flags.
@@ -8,7 +9,7 @@ const enum Flag {
   Tailable = 'tailable',
   SlaveOk = 'slaveOk',
   OplogReplay = 'oplogReplay',
-  NoTimeout = 'noTimeout',
+  NoTimeout = 'noCursorTimeout',
   AwaitData = 'awaitData',
   Exhaust = 'exhaust',
   Partial = 'partial'
@@ -46,16 +47,22 @@ class NodeCursor implements Cursor {
   /**
    * Add a cursor flag as an option to the cursor.
    *
-   * @param {number} option - The flag number.
+   * @param {number} optionFlagNumber - The flag number.
    *
    * @returns {NodeCursor} The cursor.
    */
-  addOption(option: number): NodeCursor {
-    const opt = FLAGS[option];
-    if (opt === Flag.SlaveOk || !opt) {
-      return this; // TODO
+  addOption(optionFlagNumber: number): NodeCursor {
+    const optionFlag = FLAGS[optionFlagNumber];
+
+    if (!optionFlag) {
+      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
     }
-    this.cursor.addCursorFlag(opt, true);
+
+    if (optionFlag === Flag.SlaveOk) {
+      throw new MongoshUnimplementedError('the slaveOk option is not yet supported.');
+    }
+
+    this.cursor.addCursorFlag(optionFlag, true);
     return this;
   }
 
@@ -156,7 +163,6 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-
   /**
    * cursor.isExhausted() returns true if the cursor is closed and there are no
    * remaining objects in the batch.
@@ -168,7 +174,14 @@ class NodeCursor implements Cursor {
   }
 
   async itcount(): Promise<number> {
-    return (await this.cursor.toArray()).length;
+    let count = 0;
+
+    while (await this.hasNext()) {
+      await this.next();
+      count++;
+    }
+
+    return count;
   }
 
   /**
@@ -228,10 +241,6 @@ class NodeCursor implements Cursor {
     return this.cursor.next();
   }
 
-  modifiers(): any { // TODO
-
-  }
-
   /**
    * Tell the cursor not to timeout.
    *
@@ -240,10 +249,6 @@ class NodeCursor implements Cursor {
   noCursorTimeout(): NodeCursor {
     this.addFlag(Flag.NoTimeout);
     return this;
-  }
-
-  objsLeftInBatch(): any {
-    // TODO
   }
 
   /**
@@ -267,23 +272,21 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  pretty(): void {
-    // TODO
-  }
-
-  readConcern(/** v */): any {
-    // TODO
-  }
-
   /**
    * Set the read preference.
    *
    * @param {string} preference - The read preference.
+   * @param {string} tagSet - The tag set.
    *
    * @returns {NodeCursor} The cursor.
    */
-  readPref(preference: string): NodeCursor {
-    this.cursor.setReadPreference(preference as any);
+  readPref(mode: string, tagSet?: Document[]): NodeCursor {
+    if (tagSet) {
+      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
+    }
+
+    this.cursor.setReadPreference(mode as any);
+
     return this;
   }
 
@@ -298,32 +301,6 @@ class NodeCursor implements Cursor {
     this.cursor.returnKey(enabled as any);
     return this;
   }
-
-  // TODO: showRecordId takes an object:
-  // https://github.com/mongodb/node-mongodb-native/blob/4c852e7e926776c9aa7a74842accfcd813dafa87/lib/cursor/cursor.js#L341
-  // /**
-  //  * Enable showing disk location.
-  //  *
-  //  * @returns {NodeCursor} The cursor.
-  //  */
-  // showDiskLoc(): NodeCursor {
-  //   this.cursor.showRecordId(true);
-  //   return this;
-  // }
-
-  // TODO: showRecordId takes an object:
-  // https://github.com/mongodb/node-mongodb-native/blob/4c852e7e926776c9aa7a74842accfcd813dafa87/lib/cursor/cursor.js#L341
-  // /**
-  //  * Enable/disable showing the disk location.
-  //  *
-  //  * @param {boolean} enabled - The value.
-  //  *
-  //  * @returns {NodeCursor} The cursor.
-  //  */
-  // showRecordId(enabled: boolean): NodeCursor {
-  //   this.cursor.showRecordId(enabled);
-  //   return this;
-  // }
 
   size(): Promise<number> {
     return this.cursor.count(); // TODO: size same as count?
@@ -384,7 +361,7 @@ class NodeCursor implements Cursor {
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.
 
-    const fullExplain = await this.cursor.explain();
+    const fullExplain: any = await this.cursor.explain();
 
     const explain: any = {
       ...fullExplain

@@ -65,6 +65,7 @@ interface Cursor {
    */
   count(): Promise<number>;
 
+
   forEach(f): Promise<void>;
 
   /**
@@ -157,15 +158,6 @@ interface Cursor {
   projection(spec: Document): Cursor;
 
   /**
-   * Set the read preference.
-   *
-   * @param {string} preference - The read preference.
-   *
-   * @returns {Cursor} The cursor.
-   */
-  readPref(preference: string): Cursor;
-
-  /**
    * Set the cursor to return the index field.
    *
    * @param {boolean} enabled - Whether to enable return key.
@@ -200,6 +192,15 @@ interface Cursor {
    * @returns {Cursor} The cursor.
    */
   tailable(): Cursor;
+
+  /**
+   * Set read preference for the cursor.
+   *
+   * @param {string} mode - the read preference mode
+   * @param {Document[]} [tagSet] - the tag set
+   * @returns {Cursor}
+   */
+  readPref(mode: string, tagSet?: Document[]): Cursor;
 
   /**
    * Get the documents from the cursor as an array of objects.

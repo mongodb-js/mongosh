@@ -9,7 +9,6 @@ class:
         wrappee: _cursor
         firstArg: ''
     __hasAsyncChild: true
-    # bsonsize: *__defaultMethod # TODO
     close:
         <<: *__defaultMethod
         returnsPromise: true
@@ -33,11 +32,12 @@ class:
     next:
         <<: *__defaultMethod
         returnsPromise: true
-    # objsLeftInBatch:
-    #     <<: *__defaultMethod
     toArray:
         <<: *__defaultMethod
         returnsPromise: true
     explain:
         <<: *__defaultMethod
         returnsPromise: true
+    # objsLeftInBatch:
+    #     <<: *__defaultMethod
+    # bsonsize: *__defaultMethod # TODO

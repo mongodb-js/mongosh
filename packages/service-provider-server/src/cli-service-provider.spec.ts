@@ -56,7 +56,7 @@ describe('CliServiceProvider', () => {
       const cursor = await serviceProvider.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
-      aggMock.verify();
+      (aggMock as any).verify();
     });
   });
 
@@ -75,7 +75,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.bulkWrite('music', 'bands', requests);
       expect(result).to.deep.equal(commandResult);
-      bulkMock.verify();
+      (bulkMock as any).verify();
     });
   });
 
@@ -93,7 +93,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
-      countMock.verify();
+      (countMock as any).verify();
     });
   });
 
@@ -111,7 +111,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.deleteMany('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      deleteMock.verify();
+      (deleteMock as any).verify();
     });
   });
 
@@ -129,7 +129,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.deleteOne('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      deleteMock.verify();
+      (deleteMock as any).verify();
     });
   });
 
@@ -148,7 +148,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.distinct('music', 'bands', 'name');
       expect(result).to.deep.equal(distinctResult);
-      distinctMock.verify();
+      (distinctMock as any).verify();
     });
   });
 
@@ -166,7 +166,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.estimatedDocumentCount('music', 'bands');
       expect(result).to.deep.equal(countResult);
-      countMock.verify();
+      (countMock as any).verify();
     });
   });
 
@@ -187,7 +187,7 @@ describe('CliServiceProvider', () => {
       const cursor = await serviceProvider.find('music', 'bands', filter);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
-      findMock.verify();
+      (findMock as any).verify();
     });
   });
 
@@ -216,7 +216,7 @@ describe('CliServiceProvider', () => {
         { options: 1 }
       );
       expect(result).to.deep.equal(commandResult);
-      findMock.verify();
+      (findMock as any).verify();
     });
   });
 
@@ -234,7 +234,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.findOneAndDelete('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      findMock.verify();
+      (findMock as any).verify();
     });
   });
 
@@ -256,7 +256,7 @@ describe('CliServiceProvider', () => {
       const result = await serviceProvider.
         findOneAndReplace('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
-      findMock.verify();
+      (findMock as any).verify();
     });
   });
 
@@ -278,7 +278,7 @@ describe('CliServiceProvider', () => {
       const result = await serviceProvider.
         findOneAndUpdate('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      findMock.verify();
+      (findMock as any).verify();
     });
   });
 
@@ -297,7 +297,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.insertMany('music', 'bands', [ doc ]);
       expect(result).to.deep.equal(commandResult);
-      insertMock.verify();
+      (insertMock as any).verify();
     });
   });
 
@@ -316,7 +316,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.insertOne('music', 'bands', doc);
       expect(result).to.deep.equal(commandResult);
-      insertMock.verify();
+      (insertMock as any).verify();
     });
   });
 
@@ -337,7 +337,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.replaceOne('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
-      replaceMock.verify();
+      (replaceMock as any).verify();
     });
   });
 
@@ -367,7 +367,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
-      commandMock.verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -388,7 +388,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.updateOne('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      updateMock.verify();
+      (updateMock as any).verify();
     });
   });
 
@@ -409,7 +409,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.updateMany('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      updateMock.verify();
+      (updateMock as any).verify();
     });
   });
 
@@ -453,7 +453,7 @@ describe('CliServiceProvider', () => {
         await serviceProvider.dropDatabase('db1');
         expect((clientStub.db as any).calledOnce);
         expect((clientStub.db as any).calledWith('db1'));
-        dropDatabaseMock.verify();
+        (dropDatabaseMock as any).verify();
       });
     });
 
@@ -463,7 +463,7 @@ describe('CliServiceProvider', () => {
         await serviceProvider.dropDatabase('db1', { w: 1 });
         expect((clientStub.db as any).calledOnce);
         expect((clientStub.db as any).calledWith('db1'));
-        dropDatabaseMock.verify();
+        (dropDatabaseMock as any).verify();
       });
     });
   });
@@ -503,8 +503,8 @@ describe('CliServiceProvider', () => {
     it('executes the command against the admin database', async() => {
       const result = await serviceProvider.buildInfo();
       expect(result).to.deep.equal(buildInfoResult);
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -549,8 +549,8 @@ describe('CliServiceProvider', () => {
     it('executes getCmdLineOpts against an admin db', async() => {
       const result = await serviceProvider.getCmdLineOpts();
       expect(result).to.deep.equal(cmdLineOptsResult);
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -582,8 +582,8 @@ describe('CliServiceProvider', () => {
     it('executes the command', async() => {
       const result = await serviceProvider.convertToCapped('db1', 'coll1', 1000);
       expect(result).to.deep.equal({ ok: 1 });
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -620,7 +620,7 @@ describe('CliServiceProvider', () => {
         'coll1',
         indexSpecs);
       expect(result).to.deep.equal(nativeMethodResult);
-      nativeMethodMock.verify();
+      (nativeMethodMock as any).verify();
     });
   });
 
@@ -655,7 +655,7 @@ describe('CliServiceProvider', () => {
       );
 
       expect(result).to.deep.equal(indexSpecs);
-      nativeMethodMock.verify();
+      (nativeMethodMock as any).verify();
     });
   });
 
@@ -687,8 +687,8 @@ describe('CliServiceProvider', () => {
     it('executes the command', async() => {
       const result = await serviceProvider.dropIndexes('db1', 'coll1', ['index-1']);
       expect(result).to.deep.equal({ ok: 1 });
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -733,8 +733,8 @@ describe('CliServiceProvider', () => {
         }
       ]);
 
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -758,7 +758,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.stats('db1', 'coll1', options);
       expect(result).to.deep.equal(expectedResult);
-      statsMock.verify();
+      (statsMock as any).verify();
     });
   });
 
@@ -790,8 +790,8 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.reIndex('db1', 'coll1');
       expect(result).to.deep.equal({ ok: 1 });
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 
@@ -834,8 +834,8 @@ describe('CliServiceProvider', () => {
         { dropTarget: true, session: 1 }
       );
       expect(result).to.deep.equal({ ok: 1 });
-      dbMock.verify();
-      commandMock.verify();
+      (dbMock as any).verify();
+      (commandMock as any).verify();
     });
   });
 });
