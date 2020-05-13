@@ -66,6 +66,74 @@ describe('CompassShell', () => {
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
       });
     });
+
+    context('when it is clicked to collapse', () => {
+      it('sets the collapsed height to 24', () => {
+        const shell = new CompassShell({ isExpanded: true });
+        let sizeSetTo = {};
+        shell.resizableRef = {
+          sizeStyle: {
+            height: 100
+          },
+          updateSize: newSize => {
+            sizeSetTo = newSize;
+          }
+        };
+        shell.shellToggleClicked();
+
+        expect(sizeSetTo).to.deep.equal({
+          width: '100%',
+          height: 24
+        });
+      });
+
+      it('sets the state to collapsed', () => {
+        const shell = new CompassShell({ isExpanded: true });
+        shell.setState = stateUpdate => {
+          shell.state = {
+            ...shell.state,
+            ...stateUpdate
+          };
+        };
+        shell.resizableRef = {
+          sizeStyle: {
+            height: 100
+          },
+          updateSize: () => { }
+        };
+        shell.shellToggleClicked();
+
+        expect(shell.state.isExpanded).to.equal(false);
+      });
+
+      context('when it is expanded again', () => {
+        it('resumes its previous height', () => {
+          const shell = new CompassShell({ isExpanded: true });
+          shell.setState = stateUpdate => {
+            shell.state = {
+              ...shell.state,
+              ...stateUpdate
+            };
+          };
+          let sizeSetTo = {};
+          shell.resizableRef = {
+            sizeStyle: {
+              height: 99
+            },
+            updateSize: newSize => {
+              sizeSetTo = newSize;
+            }
+          };
+          shell.shellToggleClicked();
+          shell.shellToggleClicked();
+
+          expect(sizeSetTo).to.deep.equal({
+            width: '100%',
+            height: 99
+          });
+        });
+      });
+    });
   });
 
   context('when historyStorage is present', () => {
