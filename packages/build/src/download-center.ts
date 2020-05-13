@@ -6,6 +6,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
+<<<<<<< HEAD
 import upload, { PUBLIC_READ } from './s3';
 
 /**
@@ -25,11 +26,29 @@ const DIRECTORY = 'com-download-center';
 =======
 import handlebars from 'handlebars';
 >>>>>>> Generate download center template
+=======
+import upload from './s3';
+>>>>>>> Adding s3 uploading ability into build
 
 /**
  * The filename in the download center.
  */
 const FILENAME = 'mongosh.json';
+
+/**
+ * Download center bucket name.
+ */
+const BUCKET = 'info-mongodb-com';
+
+/**
+ * Download center directory.
+ */
+const DIRECTORY = 'com-download-center';
+
+/**
+ * The default ACL.
+ */
+const PUBLIC_READ = 'public-read';
 
 /**
  * The download center JSON template.
@@ -64,10 +83,14 @@ const CONFIG = `
   ],
   "manual_link": "https://docs.mongodb.org/manual/products/mongosh",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "release_notes_link": "https://github.com/mongodb-js/mongosh/releases/tag/v{{version}}",
 =======
   "release_notes_link": "",
 >>>>>>> Generate download center template
+=======
+  "release_notes_link": "https://github.com/mongodb-js/mongosh/releases/tag/v{{version}}",
+>>>>>>> Adding s3 uploading ability into build
   "previous_releases_link": "",
   "development_releases_link": "",
   "supported_browsers_link": "",
@@ -87,13 +110,19 @@ const CONFIG = `
 =======
  *
  * @param {string} version - The version.
+<<<<<<< HEAD
  * @param {string} outputDir - The output dir.
 >>>>>>> Automatically upload to download center
+=======
+ *
+ * @returns {string} The config.
+>>>>>>> Adding s3 uploading ability into build
  */
-const createDownloadCenterConfig = async(version: string, outputDir: string) => {
+const createDownloadCenterConfig = (version: string): string => {
   const template = handlebars.compile(CONFIG);
   const rendered = template({ version: version });
   console.log('mongosh: created download center template:', rendered);
+<<<<<<< HEAD
 <<<<<<< HEAD
   return rendered;
 };
@@ -151,3 +180,44 @@ export { createDownloadCenterConfig };
 
 export default createDownloadCenterConfig;
 >>>>>>> Automatically upload to download center
+=======
+  return rendered;
+};
+
+/**
+ * Upload the provided config to S3.
+ *
+ * @param {string} config - The config.
+ */
+const uploadToDownloadCenter = (s3: S3, config: string): Promise<any> => {
+  const uploadParams = {
+    ACL: PUBLIC_READ,
+    Bucket: BUCKET,
+    Key: `/${DIRECTORY}/${FILENAME}`,
+    Body: config
+  };
+  console.log('mongosh: uploading config to download center');
+  return upload(uploadParams, s3);
+};
+
+/**
+ * Upload the download center config to s3.
+ *
+ * @param {string} version - The app version.
+ * @param {string} awsKey - The aws key.
+ * @param {string} awsSecret - The aws secret.
+ *
+ * @returns {Promise} The promise.
+ */
+const uploadDownloadCenterConfig = (version: string, awsKey: string, awsSecret: string): Promise<any> => {
+  const s3 = new S3({
+    accessKeyId: awsKey,
+    secretAccessKey: awsSecret
+  });
+  const config = createDownloadCenterConfig(version);
+  return uploadToDownloadCenter(s3, config);
+}
+
+export default uploadDownloadCenterConfig;
+export { createDownloadCenterConfig, uploadToDownloadCenter };
+>>>>>>> Adding s3 uploading ability into build

@@ -31,5 +31,9 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
 module.exports = {
   version: CONFIG.version,
   input: INPUT,
-  outputDir: OUTPUT_DIR
+  outputDir: OUTPUT_DIR,
+  evgAwsKey: process.env.AWS_KEY,
+  evgAwsSecret: process.env.AWS_SECRET,
+  downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
+  downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET
 };

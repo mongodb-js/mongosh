@@ -1,7 +1,8 @@
 # Variables for common functions.
 #
-# save_artifact: Saves a file to the S3 bucket.
-# archive_mongosh: Puts the executable in a tarball.
+# upload_file: Saves a file to the Evergreen S3 bucket.
+# upload_download_center: Upload a file to the download center S3 bucket.
+# compile_and_release: Runs the exec compile and release process.
 variables:
   - &upload_file
     command: s3.put
@@ -28,6 +29,10 @@ variables:
         source .evergreen/.setup_env
         export SEGMENT_API_KEY=${segment_key}
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+        export AWS_KEY=${aws_key}
+        export AWS_SECRET=${aws_secret}
+        export DOWNLOAD_CENTER_AWS_KEY=${download_center_aws_key}
+        export DOWNLOAD_CENTER_AWS_SECRET=${download_center_aws_secret}
         npm run release
 # Functions are any command that can be run.
 #

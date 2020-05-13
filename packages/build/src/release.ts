@@ -4,14 +4,19 @@ import compileExec from './compile-exec';
 import createDownloadCenterConfig from './download-center';
 import Platform from './platform';
 import zip from './zip';
+import S3 from 'aws-sdk/clients/s3';
 
 /**
  * Run the release process.
  *
- * @param {Config} config - the configuration, usually a package.json.
+ * @param {Config} config - the configuration, usually config/build.config.js.
  */
 const release = async(config: Config) => {
   const platform = os.platform();
+  const evgS3 = new S3({
+    accessKeyId: config.evgAwsKey,
+    secretAccessKey: config.evgAwsSecret
+  });
 
   // 1. Build the executable.
   await compileExec(config.input, config.outputDir, platform);
@@ -33,15 +38,17 @@ const release = async(config: Config) => {
 
   // 4. Upload artifacts to S3 for Evergreen and downloads. (Handled in .evergreen.yml)
 
-  // 5. Create download center config. (only on macos)
+  // 5. Create Github release.
+
+  // 6. Create download center config and upload. (only on macos)
+  // 7. Publish to NPM. (only on macos)
   if (platform === Platform.MacOs) {
-    await createDownloadCenterConfig(config.version, config.outputDir);
+    await uploadDownloadCenterConfig(
+      config.version,
+      config.downloadCenterAwsKey,
+      config.downloadCenterAwsSecret
+    );
   }
-
-  // 6. Upload download center config. (Handled in .evergreen.yml);
-
-  // 7. Create Github release.
-  // 8. Publish to NPM. (only on macos)
 }; 
 
 export default release;
