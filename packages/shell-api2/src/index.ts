@@ -1,6 +1,8 @@
 import AggregationCursor from './aggregation-cursor';
 import Cursor from './cursor';
 import Database from './database';
+import Collection from './collection';
+import Explainable from './explainable';
 import {
   BulkWriteResult,
   CommandResult,
@@ -19,6 +21,8 @@ export {
   Cursor,
   CursorIterationResult,
   Database,
+  Collection,
+  Explainable,
   BulkWriteResult,
   CommandResult,
   DeleteResult,

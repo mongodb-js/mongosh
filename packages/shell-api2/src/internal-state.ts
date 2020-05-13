@@ -1,6 +1,7 @@
 import { AggregationCursor, Cursor, Database } from './index';
 import { EventEmitter } from 'events';
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
+import { MongoshInvalidInputError } from '@mongosh/errors';
 
 export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor;
@@ -54,6 +55,20 @@ export default class ShellInternalState {
     }
 
     return { providerOptions, dbOptions, explain };
+  }
+
+  public validateExplainableVerbosity(verbosity: string): void {
+    const allowedVerbosity = [
+      'queryPlanner',
+      'executionStats',
+      'allPlansExecution'
+    ];
+
+    if (!allowedVerbosity.includes(verbosity)) {
+      throw new MongoshInvalidInputError(
+        `verbosity can only be one of ${allowedVerbosity.join(', ')}. Received ${verbosity}.`
+      );
+    }
   }
 }
 

@@ -6,10 +6,9 @@ import {
 } from '@mongosh/service-provider-core';
 import {
   shellApiClassDefault,
-  // returnsPromise,
-  // returnType,
-  // hasAsyncChild,
-  // ShellApiClass
+  returnsPromise,
+  returnType,
+  hasAsyncChild
 } from './main';
 import Database from './database';
 import InternalState from './internal-state';
@@ -17,16 +16,20 @@ import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 
 @shellApiClassDefault
+@hasAsyncChild
 export default class Mongo {
   public serviceProvider: ServiceProvider;
   public databases: any;
   public internalState: InternalState;
+  public options: any;
 
-  constructor(internalState, options, host?, fleOptions?) {
+  constructor(internalState, options/* , host?, fleOptions?*/) {
     this.internalState = internalState;
     this.databases = {};
+    this.options = options; // TODO: maybe not needed
   }
 
+  @returnType('Database')
   getDB(db): Database {
     if (!(db in this.databases)) {
       this.databases[db] = new Database(this, db);
@@ -45,6 +48,7 @@ export default class Mongo {
     return `switched to db ${db}`;
   }
 
+  @returnsPromise
   async show(arg): Promise<CommandResult> {
     this.internalState.messageBus.emit( 'mongosh:show', { method: `show ${arg}` });
 

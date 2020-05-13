@@ -14,7 +14,7 @@ import {
   Cursor as ServiceProviderCursor,
   Document
 } from '@mongosh/service-provider-core';
-import { AggregationCursor, CommandResult } from './index';
+import { AggregationCursor } from './index';
 
 @shellApiClassDefault
 @hasAsyncChild
