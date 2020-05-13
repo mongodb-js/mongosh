@@ -3,6 +3,7 @@ import Cursor from './cursor';
 import Database from './database';
 import Collection from './collection';
 import Explainable from './explainable';
+import ExplainableCursor from './explainable-cursor';
 import {
   BulkWriteResult,
   CommandResult,
@@ -23,6 +24,7 @@ export {
   Database,
   Collection,
   Explainable,
+  ExplainableCursor,
   BulkWriteResult,
   CommandResult,
   DeleteResult,

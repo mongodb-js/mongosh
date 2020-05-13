@@ -296,7 +296,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Cursor} The promise of the cursor.
    */
   @returnType('Cursor')
-  find(query, projection): Cursor {
+  find(query?, projection?): Cursor {
     const options: any = {};
     if (projection) {
       options.projection = projection;
@@ -323,7 +323,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Cursor} The promise of the cursor.
    */
   @returnsPromise
-  async findOne(query, projection): Promise<Document> {
+  async findOne(query?, projection?): Promise<Document> {
     const options: any = {};
     if (projection) {
       options.projection = projection;
