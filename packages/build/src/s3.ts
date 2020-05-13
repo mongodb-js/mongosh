@@ -8,7 +8,7 @@ import S3 from 'aws-sdk/clients/s3';
  *
  * @returns {Promise} - A Promise.
  */
-const upload = (params: any, s3: S3): Promise<any> => {
+const upload = (params: any, s3: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     s3.upload(params, (error, data) => {
       if (error) {
