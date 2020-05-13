@@ -187,6 +187,105 @@ describe('Mapper (integration)', function() {
       });
     });
 
+    describe('updateOne', () => {
+      beforeEach(async() => {
+        await serviceProvider.insertMany(dbName, collectionName, [
+          { doc: 1 },
+          { doc: 1 },
+          { doc: 2 }
+        ]);
+      });
+
+      context('without upsert', () => {
+        let result;
+
+        beforeEach(async() => {
+          result = await mapper.collection_updateOne(
+            collection, { doc: 1 }, { $inc: { x: 1 } }
+          );
+        });
+
+        it('updates only one existing document matching filter', async() => {
+          const docs = await findAllWithoutId(dbName, collectionName);
+
+          expect(docs).to.deep.equal([
+            { doc: 1, x: 1 },
+            { doc: 1 },
+            { doc: 2 }
+          ]);
+        });
+
+        it('returns update result correctly', () => {
+          const {
+            acknowleged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount
+          } = result;
+
+          expect({
+            acknowleged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount
+          }).to.deep.equal({
+            acknowleged: 1,
+            insertedId: null,
+            matchedCount: 1,
+            modifiedCount: 1,
+            upsertedCount: 0
+          });
+        });
+      });
+
+      context('with upsert', () => {
+        let result;
+
+        beforeEach(async() => {
+          result = await mapper.collection_updateOne(
+            collection, { _id: 'new-doc' }, { $set: { _id: 'new-doc', doc: 3 } }, { upsert: true }
+          );
+        });
+
+        it('inserts a document', async() => {
+          const docs = await findAllWithoutId(dbName, collectionName);
+
+          expect(docs).to.deep.equal([
+            { doc: 1 },
+            { doc: 1 },
+            { doc: 2 },
+            { doc: 3 }
+          ]);
+        });
+
+        it('returns update result correctly', () => {
+          const {
+            acknowleged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount
+          } = result;
+
+          expect({
+            acknowleged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount
+          }).to.deep.equal({
+            acknowleged: 1,
+            insertedId: { index: 0, _id: 'new-doc' },
+            matchedCount: 0,
+            modifiedCount: 0,
+            upsertedCount: 1
+          });
+        });
+      });
+    });
+
     describe('converToCapped', () => {
       let result;
 
