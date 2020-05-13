@@ -103,7 +103,7 @@ class UnsupportedCursor implements Cursor {
     throw new Error("Method not implemented.");
   }
 
-  readPref(preference: string): Cursor {
+  readPref(preference: string, tagSet?: Document[]): Cursor {
     throw new Error("Method not implemented.");
   }
 
