@@ -1,6 +1,7 @@
 import os from 'os';
 import Config from './config';
 import compileExec from './compile-exec';
+import uploadArtifactToEvergreen from './evergreen';
 import uploadDownloadCenterConfig from './download-center';
 import Platform from './platform';
 import zip from './zip';
@@ -33,13 +34,13 @@ const release = async(config: Config) => {
   // 3. Create PR for Homebrew (only on macos)
 
   // 4. Upload artifacts to S3 for Evergreen and downloads.
-  // await uploadArtifactToEvergreen(
-  //   artifact,
-  //   config.evgAwsKey,
-  //   config.evgAwsSecret,
-  //   config.project,
-  //   config.revision
-  // );
+  await uploadArtifactToEvergreen(
+    artifact,
+    config.evgAwsKey,
+    config.evgAwsSecret,
+    config.project,
+    config.revision
+  );
   // await uploadArtifactToDownloads();
 
   // 5. Create Github release.
