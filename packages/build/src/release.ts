@@ -15,6 +15,7 @@ import S3 from 'aws-sdk/clients/s3';
  */
 const release = async(config: Config) => {
   const platform = os.platform();
+  console.log('mongosh: releasing with config:', config);
 
   // - Build the executable.
   await compileExec(config.input, config.outputDir, platform);
