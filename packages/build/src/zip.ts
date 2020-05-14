@@ -61,7 +61,7 @@ const zipWindows = async(input: string, filename: string) => {
  *
  * @returns {string} The filename of the zip.
  */
-const zip = async(input: string, outputDir: string, platform: string, version: string): string => {
+const zip = async(input: string, outputDir: string, platform: string, version: string): Promise<string> => {
   const filename = zipPath(outputDir, platform, version);
   console.log('mongosh: zipping:', filename);
   if (platform === Platform.Windows) {

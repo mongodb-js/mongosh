@@ -1,4 +1,5 @@
 import path from 'path';
+import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';
 
 /**
@@ -16,7 +17,7 @@ const BUCKET = 'mciuploads';
  * @returns {Promise} The promise.
  */
 const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string): Promise<any> => {
-  const evgS3 = new S3({
+  const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
   });
@@ -24,7 +25,7 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
     Key: `/${project}/${revision}/${path.basename(artifact)}`,
-    Body: config
+    Body: 'artifact'
   };
   console.log(`mongosh: uploading ${artifact} to evergreen`);
   return upload(uploadParams, s3);
