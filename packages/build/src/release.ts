@@ -41,7 +41,13 @@ const release = async(config: Config) => {
     config.project,
     config.revision
   );
-  // await uploadArtifactToDownloads();
+  await uploadArtifactToDownloads(
+    artifact,
+    config.downloadsAwsKey,
+    config.downloadsAwsSecret,
+    config.project,
+    config.revision
+  );
 
   // 5. Create Github release.
 

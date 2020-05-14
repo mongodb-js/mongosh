@@ -17,6 +17,8 @@ variables:
         export AWS_SECRET=${aws_secret}
         export DOWNLOAD_CENTER_AWS_KEY=${download_center_aws_key}
         export DOWNLOAD_CENTER_AWS_SECRET=${download_center_aws_secret}
+        export DOWNLOADS_AWS_KEY=${downloads_aws_key}
+        export DOWNLOADS_AWS_SECRET=${downloads_aws_secret}
         npm run release
 # Functions are any command that can be run.
 #
