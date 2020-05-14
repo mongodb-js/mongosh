@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';
@@ -25,7 +26,7 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
     Key: `/${project}/${revision}/${path.basename(artifact)}`,
-    Body: 'artifact'
+    Body: fs.createReadStream(artifact);
   };
   console.log(`mongosh: uploading ${artifact} to evergreen`);
   return upload(uploadParams, s3);
