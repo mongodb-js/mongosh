@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
+import sinon from 'ts-sinon';
 import { signatures, ExplainableCursor } from './index';
 import { ServerVersions } from './main';
 
@@ -9,11 +9,11 @@ describe('ExplainableCursor', () => {
       expect(signatures.ExplainableCursor.type).to.equal('ExplainableCursor');
       expect(signatures.ExplainableCursor.hasAsyncChild).to.equal(true);
     });
-    xit('map signature', () => {
+    it('inherited (map) signature', () => {
       expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
-        returnType: 'ExplainableCursor'
+        returnType: 'Cursor' // because inherited from Cursor.
       });
     });
   });
@@ -22,16 +22,17 @@ describe('ExplainableCursor', () => {
     let eCursor;
     beforeEach(() => {
       wrappee = {
-        map: sinon.spy()
+        map: sinon.spy(),
+        explain: (verbosity) => ({ ok: verbosity })
       };
       eCursor = new ExplainableCursor({}, wrappee, 'verbosity');
     });
 
-    it('sets dynamic properties', () => {
+    it('sets dynamic properties', async() => {
       expect(eCursor.shellApiType()).to.equal('ExplainableCursor');
       expect(eCursor.help.shellApiType()).to.equal('Help');
       expect(eCursor.verbosity).to.equal('verbosity');
-      // expect(eCursor.toReplString()).to.equal('');
+      expect(await eCursor.toReplString()).to.deep.equal({ ok: 'verbosity' });
     });
 
     it('returns the same ExplainableCursor', () => {

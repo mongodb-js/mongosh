@@ -1,7 +1,6 @@
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import { stubInterface, StubbedInstance } from 'ts-sinon';
+import { use, expect } from 'chai';
+const sinonChai = require('sinon-chai'); // weird with import
+import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { signatures } from './main';
 import Database from './database';
@@ -12,7 +11,7 @@ import Explainable from './explainable';
 import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import ShellInternalState from './internal-state';
 
-chai.use(sinonChai);
+use(sinonChai);
 describe('Collection', () => {
   describe('signatures', () => {
     it('type', () => {

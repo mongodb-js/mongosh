@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
+import sinon from 'ts-sinon';
 import { signatures, Cursor } from './index';
 import { ServerVersions } from './main';
 

@@ -1,7 +1,5 @@
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import { stubInterface, StubbedInstance } from 'ts-sinon';
+import { expect } from 'chai';
+import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { signatures } from './main';
 import Database from './database';
@@ -9,7 +7,6 @@ import Mongo from './mongo';
 import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import ShellInternalState from './internal-state';
 
-chai.use(sinonChai);
 describe('Database', () => {
   describe('signatures', () => {
     it('type', () => {

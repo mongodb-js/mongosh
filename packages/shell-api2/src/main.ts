@@ -82,7 +82,8 @@ export function shellApiClassDefault(constructor: Function): void {
     attributes: {}
   };
 
-  for (const propertyName of Object.keys(constructor.prototype)) {
+  const classAttributes = Object.keys(constructor.prototype);
+  for (const propertyName of classAttributes) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;
     if (
@@ -116,6 +117,33 @@ export function shellApiClassDefault(constructor: Function): void {
       description: `${attributeHelpKeyPrefix}.description`
     });
     Object.defineProperty(constructor.prototype, propertyName, descriptor);
+  }
+
+  if (Object.getPrototypeOf(constructor.prototype).constructor.name !== 'ShellApiClass') {
+    const superClass = Object.getPrototypeOf(constructor.prototype);
+    const superClassHelpKeyPrefix = `shell-api.classes.${superClass.constructor.name}.help`;
+    for (const propertyName of Object.keys(superClass)) {
+      const descriptor = Object.getOwnPropertyDescriptor(superClass, propertyName);
+      const isMethod = descriptor.value instanceof Function;
+      if (
+        classAttributes.includes(propertyName) ||
+        !isMethod ||
+        ['toReplString', 'shellApiType', 'constructor'].includes(propertyName) ||
+        propertyName.startsWith('_')
+      ) continue;
+      classSignature.attributes[propertyName] = {
+        type: 'function',
+        returnsPromise: descriptor.value.returnsPromise,
+        returnType: descriptor.value.returnType
+      };
+
+      const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;
+
+      classHelp.attr.push({
+        name: propertyName,
+        description: `${attributeHelpKeyPrefix}.description`
+      });
+    }
   }
   constructor.prototype.help = new Help(classHelp);
   if (!constructor.prototype.hasOwnProperty('shellApiType')) {

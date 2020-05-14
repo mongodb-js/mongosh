@@ -1,6 +1,5 @@
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
+import { expect } from 'chai';
+import sinon from 'ts-sinon';
 import { stubInterface, StubbedInstance } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { signatures } from './main';
@@ -12,7 +11,6 @@ import Explainable from './explainable';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './internal-state';
 
-chai.use(sinonChai);
 describe('Explainable', () => {
   describe('signatures', () => {
     it('type', () => {

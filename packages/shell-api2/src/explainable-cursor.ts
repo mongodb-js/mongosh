@@ -4,7 +4,7 @@ import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
-export default class ExplainableCursor extends Cursor { // TODO: this won't be visible in signatures
+export default class ExplainableCursor extends Cursor {
   mongo: Mongo;
   cursor: ServiceProviderCursor;
   verbosity: string;
@@ -16,6 +16,9 @@ export default class ExplainableCursor extends Cursor { // TODO: this won't be v
   }
 
   async toReplString(): Promise<any> {
-    return this.cursor.explain(this.verbosity);
+    return await this.cursor.explain(this.verbosity);
+  }
+  shellApiType(): string {
+    return 'ExplainableCursor'; // required otherwise inherits Cursor's method
   }
 }
