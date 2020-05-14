@@ -1,4 +1,4 @@
-# mongosh [![Build Status](https://dev.azure.com/team-compass/mongosh/_apis/build/status/mongodb-js.mongosh?branchName=master)](https://dev.azure.com/team-compass/mongosh/_build/latest?definitionId=5&branchName=master)
+# mongosh
 
 [Evergreen Waterfall](https://evergreen.mongodb.com/waterfall/mongosh)
 
