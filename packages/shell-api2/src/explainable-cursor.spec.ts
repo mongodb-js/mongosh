@@ -23,7 +23,7 @@ describe('ExplainableCursor', () => {
     beforeEach(() => {
       wrappee = {
         map: sinon.spy(),
-        explain: (verbosity) => ({ ok: verbosity })
+        explain: (verbosity): any => ({ ok: verbosity })
       };
       eCursor = new ExplainableCursor({}, wrappee, 'verbosity');
     });

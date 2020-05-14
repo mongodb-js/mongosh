@@ -15,7 +15,7 @@ export default class Explainable extends ShellApiClass {
     this.verbosity = verbosity;
   }
 
-  toReplString = () => {
+  toReplString = (): string => {
     return `Explainable(${this.collection.getFullName()})`;
   };
 
