@@ -37,5 +37,7 @@ module.exports = {
   evgAwsKey: process.env.AWS_KEY,
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
-  downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET
+  downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET,
+  downloadsAwsKey: process.env.DOWNLOADS_AWS_KEY,
+  downloadsAwsSecret: process.env.DOWNLOADS_AWS_SECRET
 };
