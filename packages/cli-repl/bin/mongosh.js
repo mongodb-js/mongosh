@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+#!/bin/sh
+':' //; node --experimental-repl-await "$0" "$@"
 
 /* eslint no-console: 0, no-new: 0*/
 const { CliRepl, parseCliArgs, mapCliToDriver, generateUri, USAGE } = require('../lib');
