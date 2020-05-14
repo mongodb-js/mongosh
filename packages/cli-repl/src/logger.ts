@@ -61,7 +61,7 @@ export default function logger(bus: any, logDir: string): void {
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
   console.log(`Current sessionID: ${session_id}`);
-  let userID;
+  let userId;
   let telemetry;
 
   let analytics = new NoopAnalytics();
@@ -76,26 +76,26 @@ export default function logger(bus: any, logDir: string): void {
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = redactPwd(args.uri);
     delete args.uri;
-    const params = { session_id, userID, connectionUri, ...args };
+    const params = { session_id, userId, connectionUri, ...args };
     log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
-        userID,
-        event: 'mongosh:connect',
+        userId,
+        event: 'New Connection',
         properties: { session_id, ...args }
       });
     }
   });
 
   bus.on('mongosh:new-user', function(id, enableTelemetry) {
-    userID = id;
+    userId = id;
     telemetry = enableTelemetry;
-    if (telemetry) analytics.identify({ userID });
+    if (telemetry) analytics.identify({ userId });
   });
 
   bus.on('mongosh:update-user', function(id, enableTelemetry) {
-    userID = id;
+    userId = id;
     telemetry = enableTelemetry;
     log.info('mongosh:update-user', { enableTelemetry });
   });
@@ -106,8 +106,8 @@ export default function logger(bus: any, logDir: string): void {
 
     if (telemetry && error.name.includes('Mongosh')) {
       analytics.track({
-        userID,
-        event: 'mongosh:error',
+        userId,
+        event: 'Error',
         properties: { error }
       });
     }
@@ -118,8 +118,8 @@ export default function logger(bus: any, logDir: string): void {
 
     if (telemetry) {
       analytics.track({
-        userID,
-        event: 'mongosh:help'
+        userId,
+        event: 'Help'
       });
     }
   });
@@ -133,8 +133,8 @@ export default function logger(bus: any, logDir: string): void {
 
     if (telemetry) {
       analytics.track({
-        userID,
-        event: 'mongosh:use'
+        userId,
+        event: 'Use'
       });
     }
   });
@@ -144,8 +144,8 @@ export default function logger(bus: any, logDir: string): void {
 
     if (telemetry) {
       analytics.track({
-        userID,
-        event: 'mongosh:show',
+        userId,
+        event: 'Show',
         properties: { method: args.method }
       });
     }
@@ -167,8 +167,8 @@ export default function logger(bus: any, logDir: string): void {
 
     if (telemetry) {
       analytics.track({
-        userID,
-        event: 'mongosh:api-call',
+        userId,
+        event: 'Api Call',
         properties: redactInfo(properties)
       });
     }
