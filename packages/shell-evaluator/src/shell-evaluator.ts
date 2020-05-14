@@ -1,17 +1,6 @@
-import AsyncWriter from '@mongosh/async-rewriter';
 import {
-  signatures,
-  Help,
-  ShellBson,
-  toIterator,
-  Mongo,
-  InternalState,
-  CursorIterationResult,
-} from '@mongosh/shell-api2';
-
-interface Bus {
-  emit(...args: any[]): void;
-}
+  ShellInternalState
+} from '@mongosh/shell-api';
 
 interface Container {
   toggleTelemetry(boolean): void;
@@ -23,20 +12,13 @@ interface Result {
 }
 
 class ShellEvaluator {
-  private asyncWriter: AsyncWriter;
-  private bus: Bus;
+  private internalState: ShellInternalState;
   private container: Container;
-  private internalState: InternalState;
   constructor(
-    uri: string,
-    options: any,
-    bus: Bus,
+    internalState: ShellInternalState,
     container?: Container
   ) {
-    this.internalState = new InternalState(bus);
-    this.internalState.initialMongo = new Mongo(uri, options, this.internalState);
-    this.asyncWriter = new AsyncWriter(signatures);
-    this.bus = bus;
+    this.internalState = internalState;
     this.container = container;
   }
 
@@ -48,35 +30,6 @@ class ShellEvaluator {
     return 'ShellEvaluator';
   }
 
-  public help(): Help {
-    this.bus.emit('mongosh:help');
-    return new Help({
-      help: 'shell-api.help.description',
-      docs: 'https://docs.mongodb.com/manual/reference/method',
-      attr: [
-        {
-          name: 'use',
-          description: 'shell-api.help.help.use'
-        },
-        {
-          name: 'it',
-          description: 'shell-api.help.help.it'
-        },
-        {
-          name: 'show databases',
-          description: 'shell-api.help.help.show-databases'
-        },
-        {
-          name: 'show collections',
-          description: 'shell-api.help.help.show-collections'
-        },
-        {
-          name: '.exit',
-          description: 'shell-api.help.help.exit'
-        }
-      ]
-    });
-  }
   /**
   * Returns true if a value is a shell api type
    *
@@ -89,18 +42,11 @@ class ShellEvaluator {
   }
 
   public revertState(): void {
-    this.asyncWriter.symbols.revertState();
+    this.internalState.asyncWriter.symbols.revertState();
   }
 
   public saveState(): void {
-    this.asyncWriter.symbols.saveState();
-  }
-
-  async it(): Promise<any> {
-    if (!this.internalState.currentCursor) {
-      return new CursorIterationResult();
-    }
-    return await this.internalState.currentCursor.it();
+    this.internalState.asyncWriter.symbols.saveState();
   }
 
   /**
@@ -117,13 +63,13 @@ class ShellEvaluator {
     argv.shift();
     switch (cmd) {
       case 'use':
-        return this.internalState.currentMongo.use(argv[0]);
+        return this.internalState.use(argv[0]);
       case 'show':
-        return this.internalState.currentMongo.show(argv[0]);
+        return this.internalState.show(argv[0]);
       case 'it':
-        return this.it();
+        return this.internalState.it();
       case 'help':
-        return this.help();
+        return this.internalState.help();
       case 'enableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(true);
@@ -136,8 +82,8 @@ class ShellEvaluator {
         return;
       default:
         this.saveState();
-        const rewrittenInput = this.asyncWriter.compile(input);
-        this.bus.emit(
+        const rewrittenInput = this.internalState.asyncWriter.compile(input);
+        this.internalState.messageBus.emit(
           'mongosh:rewritten-async-input',
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
@@ -177,38 +123,6 @@ class ShellEvaluator {
     return { value: evaluationResult, type: null };
   }
 
-  /**
-   * Prepare a `contextObject` as global context and set it as context
-   * for the mapper. Add each attribute to the AsyncRewriter also.
-   *
-   * The `contextObject` is prepared so that it can be used as global object
-   * for the repl evaluationi.
-   *
-   * @note The `contextObject` is mutated, it will retain all of its existing
-   * properties but also have the global shell api objects and functions.
-   *
-   * @param {Object} - contextObject an object used as global context.
-   */
-  setCtx(contextObject: any): void {
-    this.internalState.context = contextObject;
-    // Add API methods for VSCode and scripts
-    contextObject.use = this.internalState.currentMongo.use.bind(this.internalState.currentMongo);
-    contextObject.show = this.internalState.currentMongo.show.bind(this.internalState.currentMongo);
-    contextObject.it = this.it.bind(this);
-    contextObject.help = this.help.bind(this);
-    contextObject.toIterator = toIterator;
-    Object.assign(contextObject, ShellBson);
-
-    // Add global shell objects
-    contextObject.db = this.internalState.currentMongo.databases.test;
-    this.asyncWriter.symbols.initializeApiObjects({ db: signatures.Database });
-
-    // Update mapper and log
-    this.bus.emit(
-      'mongosh:setCtx',
-      { method: 'setCtx', arguments: { db: contextObject.db } }
-    );
-  }
 }
 
 export default ShellEvaluator;

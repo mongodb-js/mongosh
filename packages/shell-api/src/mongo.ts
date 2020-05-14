@@ -1,8 +1,5 @@
 import {
   ServiceProvider,
-  // Document,
-  // DatabaseOptions,
-  // Cursor as ServiceProviderCursor
 } from '@mongosh/service-provider-core';
 import {
   shellApiClassDefault,
@@ -12,7 +9,7 @@ import {
   ShellApiClass
 } from './main';
 import Database from './database';
-import InternalState from './internal-state';
+import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 
@@ -21,14 +18,16 @@ import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors'
 export default class Mongo extends ShellApiClass {
   public serviceProvider: ServiceProvider;
   public databases: any;
-  public internalState: InternalState;
+  public internalState: ShellInternalState;
   public options: any;
+  public uri: string;
 
-  constructor(internalState, options/* , host?, fleOptions?*/) {
+  constructor(internalState: ShellInternalState, options: any = {}, uri: string = 'localhost:27017'/*, fleOptions?*/) {
     super();
     this.internalState = internalState;
     this.databases = {};
-    this.options = options; // TODO: maybe not needed
+    this.options = options;
+    this.uri = uri;
   }
 
   @returnType('Database')

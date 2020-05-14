@@ -4,6 +4,7 @@ import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
 import { Runtime } from './runtime';
 import { EventEmitter } from 'events';
+import { ShellInternalState } from '@mongosh/shell-api';
 
 import ShellEvaluator from '@mongosh/shell-evaluator';
 
@@ -21,6 +22,7 @@ export class OpenContextRuntime implements Runtime {
   private interpreterEnvironment: InterpreterEnvironment;
   private autocompleter: ShellApiAutocompleter;
   private shellEvaluator: ShellEvaluator;
+  private internalState: ShellInternalState;
 
   constructor(
     serviceProvider: ServiceProvider,
@@ -28,8 +30,9 @@ export class OpenContextRuntime implements Runtime {
   ) {
     this.serviceProvider = serviceProvider;
     this.interpreterEnvironment = interpreterEnvironment;
-    this.shellEvaluator = new ShellEvaluator(serviceProvider, new EventEmitter());
-    this.shellEvaluator.setCtx(this.interpreterEnvironment.getContextObject());
+    this.internalState = new ShellInternalState(new EventEmitter());
+    this.shellEvaluator = new ShellEvaluator(this.internalState);
+    this.internalState.setCtx(this.interpreterEnvironment.getContextObject());
     this.interpreter = new Interpreter(this.interpreterEnvironment);
   }
 

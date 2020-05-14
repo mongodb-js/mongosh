@@ -17,7 +17,7 @@ type HelpOptions = {
 
 const DEFAULT_TRANSLATE = i18n.translateApiHelp.bind(i18n);
 
-export class Help {
+export default class Help {
   private help: string;
   private docs: string;
   private attr: HelpPropertiesAttr[] = [];

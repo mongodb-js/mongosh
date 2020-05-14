@@ -22,6 +22,7 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
+import { ShellInternalState } from '@mongosh/shell-api';
 
 /**
  * Connecting text key.
@@ -33,7 +34,8 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  */
 class CliRepl {
   private serviceProvider: CliServiceProvider;
-  private ShellEvaluator: ShellEvaluator;
+  private shellEvaluator: ShellEvaluator;
+  private internalState: ShellInternalState;
   private buildInfo: any;
   private repl: REPLServer;
   private bus: Nanobus;
@@ -52,8 +54,10 @@ class CliRepl {
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
 
-    this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.ShellEvaluator = new ShellEvaluator(driverUri, driverOptions, this.bus, this);
+    // this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+    this.internalState = new ShellInternalState(this.bus);
+    this.internalState.initalize(driverUri, driverOptions);
+    this.shellEvaluator = new ShellEvaluator(this.internalState, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
     const cmdLineOpts = await this.getCmdLineOpts();
     const topology = this.serviceProvider.getTopology();
@@ -203,7 +207,7 @@ class CliRepl {
     // console.log('result', result)
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
-      this.ShellEvaluator.revertState();
+      this.shellEvaluator.revertState();
 
       return formatOutput({type: 'Error', value: result});
     }
@@ -272,7 +276,7 @@ class CliRepl {
       let err = null;
 
       try {
-        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
+        result = await this.shellEvaluator.customEval(originalEval, input, context, filename);
       } catch (err) {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));
@@ -306,7 +310,7 @@ class CliRepl {
       process.exit();
     });
 
-    this.ShellEvaluator.setCtx(this.repl.context);
+    this.internalState.setCtx(this.repl.context);
   }
 }
 

@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation,complexity */
-import { Help } from './help';
+import Help from './help';
 
 export enum ServerVersions {
   latest = '4.4.0',
@@ -66,7 +66,17 @@ interface TypeSignature {
 interface Signatures {
   [key: string]: TypeSignature;
 }
-const signatures = {} as Signatures;
+const signatures = {
+  ShellApi: {
+    type: 'ShellApi',
+    hasAsyncChild: false,
+    attributes: {
+      use: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+      it: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
+      show: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+    }
+  }
+} as Signatures;
 
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;

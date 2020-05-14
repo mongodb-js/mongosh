@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import SymbolTable, { addApi } from './symbol-table';
-import { signatures as s } from '@mongosh/shell-api';
+import s from '../test/shell-api-signatures';
 
 const myType = { type: 'myType', attributes: { myAttr: s.unknown } };
 const signatures = Object.keys(s).reduce((t, k) => {

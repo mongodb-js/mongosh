@@ -1,5 +1,4 @@
 import { signatures as shellSignatures } from '@mongosh/shell-api';
-import { shellApiSignature } from '@mongosh/shell-evaluator';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,
@@ -15,7 +14,7 @@ const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
 
 const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
-const SHELL_COMPLETIONS = shellApiSignature.attributes;
+const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
 const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
 const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
 const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "0.0.1-alpha.13",
+  "version": "0.0.1-alpha.14",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -29,13 +29,19 @@
     "access": "public"
   },
   "devDependencies": {
-    "rimraf": "^3.0.2"
+    "@types/sinon": "^7.5.2",
+    "@types/sinon-chai": "^3.2.4",
+    "chai": "^4.2.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^9.0.2",
+    "sinon-chai": "^3.5.0"
   },
   "dependencies": {
     "@babel/generator": "^7.9.4",
     "@babel/parser": "^7.9.4",
-    "@mongosh/cli-repl": "^0.0.1-alpha.13",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.13",
-    "@mongosh/shell-evaluator": "^0.0.1-alpha.13"
+    "@mongosh/cli-repl": "^0.0.1-alpha.14",
+    "@mongosh/service-provider-core": "^0.0.1-alpha.14",
+    "@mongosh/shell-api": "^0.0.1-alpha.14",
+    "@mongosh/shell-evaluator": "^0.0.1-alpha.14"
   }
 }

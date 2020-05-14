@@ -2,7 +2,8 @@
   "extends": "../../config/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "allowJs": true
+    "allowJs": true,
+    "experimentalDecorators": true
   },
   "include": [
     "./src/**/*"

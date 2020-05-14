@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import traverse from '@babel/traverse';
 
-import { signatures } from '@mongosh/shell-api';
+import signatures from '../test/shell-api-signatures';
 
 import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
