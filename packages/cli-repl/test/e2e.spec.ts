@@ -72,6 +72,14 @@ describe('e2e', function() {
       });
     });
 
+    it('does not throw for a repl await function', async() => {
+      shell.stdio.stdin.write('await Promise.resolve(\'Nori-cat\');');
+
+      await eventually(() => {
+        expect(shell.stdio.stderr).to.be.equal('');
+      });
+    });
+
     it('runs an unterminated function', async() => {
       shell.stdio.stdin.write('function x () {\nconsole.log(\'y\')\n }\n');
 
