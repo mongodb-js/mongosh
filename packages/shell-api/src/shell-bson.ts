@@ -13,14 +13,28 @@ function dateHelper(...args: DateConstructorArguments): Date {
 }
 export default {
   RegExp: RegExp,
-  DBRef: bson.DBRef,
-  DBPointer: bson.DBPointer,
+  DBRef: function(...args) {
+    return new bson.DBRef(...args);
+  },
+  DBPointer: function(...args) {
+    return new bson.DBPointer(...args);
+  },
   Map: bson.Map,
-  MaxKey: bson.MaxKey,
-  MinKey: bson.MinKey,
-  ObjectId: bson.ObjectID,
-  BSONSymbol: bson.BSONSymbol,
-  Timestamp: bson.Timestamp,
+  MaxKey: function(...args) {
+    return new bson.MaxKey(...args);
+  },
+  MinKey: function(...args) {
+    return new bson.MinKey(...args);
+  },
+  ObjectId: function(...args) {
+    return new bson.ObjectID(...args);
+  },
+  Symbol: function(...args) {
+    return new bson.BSONSymbol(...args);
+  },
+  Timestamp: function(...args) {
+    return new bson.Timestamp(...args);
+  },
   Code: function(c, s): bson.Code {
     return new bson.Code(c, s);
   },

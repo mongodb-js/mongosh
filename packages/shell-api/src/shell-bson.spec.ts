@@ -7,6 +7,70 @@ const b64_1234 = 'MTIzNA==';
 const utf_1234 = '1234';
 
 describe('Shell BSON', () => {
+  describe('DBRef', () => {
+    it('without new', () => {
+      const s = shellBson.DBRef('namespace', 'oid');
+      expect(s._bsontype).to.equal('DBRef');
+    });
+    it('with new', () => {
+      const s = new (shellBson.DBRef as any)('namespace', 'oid');
+      expect(s._bsontype).to.equal('DBRef');
+    });
+  });
+  describe('MaxKey', () => {
+    it('without new', () => {
+      const s = shellBson.MaxKey();
+      expect(s._bsontype).to.equal('MaxKey');
+    });
+    it('with new', () => {
+      const s = new (shellBson.MaxKey as any)();
+      expect(s._bsontype).to.equal('MaxKey');
+    });
+  });
+  describe('MinKey', () => {
+    it('without new', () => {
+      const s = shellBson.MinKey();
+      expect(s._bsontype).to.equal('MinKey');
+    });
+    it('with new', () => {
+      const s = new (shellBson.MinKey as any)();
+      expect(s._bsontype).to.equal('MinKey');
+    });
+  });
+  describe('ObjectId', () => {
+    it('without new', () => {
+      const s = shellBson.ObjectId('5ebbe8e2905bb493d6981b6b');
+      expect(s._bsontype).to.equal('ObjectID');
+      expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
+    });
+    it('with new', () => {
+      const s = new (shellBson.ObjectId as any)('5ebbe8e2905bb493d6981b6b');
+      expect(s._bsontype).to.equal('ObjectID');
+      expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
+    });
+  });
+  describe('Symbol', () => {
+    it('without new', () => {
+      const s = shellBson.Symbol('5ebbe8e2905bb493d6981b6b');
+      expect(s._bsontype).to.equal('Symbol');
+      expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
+    });
+    it('with new', () => {
+      const s = new (shellBson.Symbol as any)('5ebbe8e2905bb493d6981b6b');
+      expect(s._bsontype).to.equal('Symbol');
+      expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
+    });
+  });
+  describe('Timestamp', () => {
+    it('without new', () => {
+      const s = shellBson.Timestamp(0, 100);
+      expect(s._bsontype).to.equal('Timestamp');
+    });
+    it('with new', () => {
+      const s = new (shellBson.Timestamp as any)(0, 100);
+      expect(s._bsontype).to.equal('Timestamp');
+    });
+  });
   describe('Code', () => {
     it('expects arguments in order', () => {
       const code = shellBson.Code('code', { k: 'v' });
