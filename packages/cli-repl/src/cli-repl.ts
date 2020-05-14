@@ -336,10 +336,17 @@ class CliRepl {
       replace: '*'
     };
     read(readOptions, (error, password) => {
-      if (error) return console.log(formatError(error));
+      if (error) {
+        this.bus.emit('mongosh:error', error);
+        return console.log(formatError(error));
+      }
 
       driverOptions.auth.password = password;
-      this.connect(driverUri, driverOptions);
+      this.setupRepl(driverUri, driverOptions).catch((e) => {
+        this.bus.emit('mongosh:error', e);
+        console.log(formatError(e));
+        return;
+      });
     });
   }
 }
