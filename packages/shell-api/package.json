@@ -37,7 +37,8 @@
     "@mongosh/errors": "0.0.1-alpha.14",
     "@mongosh/i18n": "0.0.1-alpha.14",
     "@mongosh/service-provider-core": "0.0.1-alpha.14",
-    "bson": "^4.0.4"
+    "bson": "^4.0.4",
+    "mongodb-build-info": "^1.0.0"
   },
   "devDependencies": {
     "@types/sinon-chai": "^3.2.4",

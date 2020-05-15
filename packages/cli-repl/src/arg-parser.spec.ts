@@ -236,9 +236,15 @@ describe('arg-parser', () => {
           context('when providing an unknown parameter', () => {
             const argv = [ ...baseArgv, uri, '--what' ];
 
-            it('raises an error', () => {
-              expect(parse.bind(null, argv)).to.
-                throw('Error parsing command line: unrecognized option: --what');
+            it('raises an error', (done) => {
+              try {
+                parse(argv);
+              } catch (e) {
+                expect(e.message.includes(
+                  'Error parsing command line: unrecognized option: --what'
+                ));
+                done();
+              }
             });
           });
         });
@@ -730,9 +736,15 @@ describe('arg-parser', () => {
           context('when providing an unknown parameter', () => {
             const argv = [ ...baseArgv, uri, '--what' ];
 
-            it('raises an error', () => {
-              expect(parse.bind(null, argv)).to.
-                throw('Error parsing command line: unrecognized option: --what');
+            it('raises an error', (done) => {
+              try {
+                parse(argv);
+              } catch (e) {
+                expect(e.message.includes(
+                  'Error parsing command line: unrecognized option: --what'
+                ));
+                done();
+              }
             });
           });
         });

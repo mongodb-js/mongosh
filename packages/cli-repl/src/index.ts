@@ -19,4 +19,5 @@ export {
   completer,
   generateUri,
   parseCliArgs,
-  mapCliToDriver };
+  mapCliToDriver
+};

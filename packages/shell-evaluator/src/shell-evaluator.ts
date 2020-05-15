@@ -122,7 +122,6 @@ class ShellEvaluator {
 
     return { value: evaluationResult, type: null };
   }
-
 }
 
 export default ShellEvaluator;

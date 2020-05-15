@@ -3,7 +3,6 @@ import ShellEvaluator from '@mongosh/shell-evaluator';
 import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import getConnectInfo from './connect-info';
 import formatOutput from './format-output';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import CliOptions from './cli-options';
@@ -22,7 +21,7 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
-import { ShellInternalState } from '@mongosh/shell-api';
+import { ShellInternalState, ReplPlatform } from '@mongosh/shell-api';
 
 /**
  * Connecting text key.
@@ -33,10 +32,9 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  * The REPL used from the terminal.
  */
 class CliRepl {
-  private serviceProvider: CliServiceProvider;
   private shellEvaluator: ShellEvaluator;
   private internalState: ShellInternalState;
-  private buildInfo: any;
+  private connectionInfo: any;
   private repl: REPLServer;
   private bus: Nanobus;
   private enableTelemetry: boolean;
@@ -48,28 +46,17 @@ class CliRepl {
   /**
    * Connect to the cluster.
    *
-   * @param {string} driverUrl - The driver URI.
+   * @param {string} driverUri - The driver URI.
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
 
-    // this.serviceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
-    this.internalState = new ShellInternalState(this.bus);
-    this.internalState.initalize(driverUri, driverOptions);
+    const initialServiceProvider = await CliServiceProvider.connect(driverUri, driverOptions);
+    this.internalState = new ShellInternalState(ReplPlatform.CLI, initialServiceProvider, this.bus);
+    this.internalState.uri = driverUri; // TODO: remove
+    this.connectionInfo = await this.internalState.getConnectionInfo();
     this.shellEvaluator = new ShellEvaluator(this.internalState, this);
-    this.buildInfo = await this.serviceProvider.buildInfo();
-    const cmdLineOpts = await this.getCmdLineOpts();
-    const topology = this.serviceProvider.getTopology();
-
-    const connectInfo = getConnectInfo(
-      driverUri,
-      this.buildInfo,
-      cmdLineOpts,
-      topology
-    );
-
-    this.bus.emit('mongosh:connect', connectInfo);
     this.start();
   }
 
@@ -91,19 +78,6 @@ class CliRepl {
       this.requirePassword(driverUri, driverOptions);
     } else {
       this.connect(driverUri, driverOptions);
-    }
-  }
-
-  async getCmdLineOpts(): Promise<any> {
-    try {
-      const cmdLineOpts = await this.serviceProvider.getCmdLineOpts();
-      return cmdLineOpts;
-    } catch (e) {
-      // error is thrown here for atlas and DataLake connections.
-      // don't actually throw, as this is only used to log out non-genuine
-      // mongodb connections
-      this.bus.emit('mongodb:error', e)
-      return null;
     }
   }
 
@@ -219,7 +193,7 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.buildInfo.version}`);
+    console.log(`Using MongoDB: ${this.connectionInfo.buildInfo.version}`);
     console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
@@ -261,7 +235,7 @@ class CliRepl {
   start(): void {
     this.greet();
 
-    const version = this.buildInfo.version;
+    const version = this.connectionInfo.buildInfo.version;
 
     this.repl = repl.start({
       prompt: `> `,
@@ -306,7 +280,7 @@ class CliRepl {
     })
 
     this.repl.on('exit', () => {
-      this.serviceProvider.close(true);
+      this.internalState.close(true);
       process.exit();
     });
 

@@ -7,6 +7,8 @@ import ExplainableCursor from './explainable-cursor';
 import Help from './help';
 import ShellInternalState from './shell-internal-state';
 import toIterator from './toIterator';
+import Shard from './shard';
+import ReplicaSet from './replica-set';
 import {
   BulkWriteResult,
   CommandResult,
@@ -18,7 +20,14 @@ import {
 } from './result';
 import Mongo from './mongo';
 import ShellBson from './shell-bson';
-import { signatures } from './main';
+import {
+  signatures,
+  ReplPlatform,
+  Topologies,
+  ServerVersions,
+  ReadPreference,
+  DBQueryOption
+} from './main';
 
 export {
   AggregationCursor,
@@ -36,8 +45,15 @@ export {
   InsertManyResult,
   InsertOneResult,
   Mongo,
+  Shard,
+  ReplicaSet,
   ShellBson,
   UpdateResult,
   toIterator,
-  signatures
+  signatures,
+  DBQueryOption,
+  ReadPreference,
+  ReplPlatform,
+  ServerVersions,
+  Topologies
 };

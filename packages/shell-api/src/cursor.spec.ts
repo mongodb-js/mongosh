@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { signatures, Cursor } from './index';
-import { ServerVersions } from './main';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './main';
 
 describe('Cursor', () => {
   describe('signature', () => {
@@ -13,7 +13,10 @@ describe('Cursor', () => {
       expect(signatures.Cursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
-        returnType: 'Cursor'
+        returnType: 'Cursor',
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
       });
     });
   });

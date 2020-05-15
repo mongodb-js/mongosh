@@ -26,7 +26,6 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@mongosh/async-rewriter": "^0.0.1-alpha.14",
     "@mongosh/service-provider-core": "^0.0.1-alpha.14",
     "@mongosh/shell-api": "^0.0.1-alpha.14"
   },
@@ -34,6 +33,7 @@
     "@types/sinon": "^7.5.2",
     "@types/sinon-chai": "^3.2.4",
     "chai": "^4.2.0",
+    "mocha": "^7.1.2",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0"
   }

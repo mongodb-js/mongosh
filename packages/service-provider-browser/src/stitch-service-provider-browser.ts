@@ -19,6 +19,8 @@ import {
   StitchAppClient
 } from 'mongodb-stitch-browser-sdk';
 
+import { MongoshUnimplementedError } from '@mongosh/errors';
+
 /**
  * Init error.
  */
@@ -56,6 +58,10 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       console.log(i18n.__(INIT_ERROR), err);
     }
     return new StitchServiceProviderBrowser(client, serviceName);
+  }
+
+  async getNewConnection(uri, options) {
+    throw new MongoshUnimplementedError();
   }
 
   /**

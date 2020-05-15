@@ -71,6 +71,19 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
   }
 
+  async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
+    const clientOptions: any = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    };
+
+    const mongoClient = await MongoClient.connect(
+      uri,
+      clientOptions
+    );
+    return new CliServiceProvider(mongoClient);
+  }
+
   async renameCollection(
     database: string,
     oldName: string,

@@ -4,7 +4,7 @@ import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
 import { Runtime } from './runtime';
 import { EventEmitter } from 'events';
-import { ShellInternalState } from '@mongosh/shell-api';
+import { ShellInternalState, ReplPlatform } from '@mongosh/shell-api';
 
 import ShellEvaluator from '@mongosh/shell-evaluator';
 
@@ -17,7 +17,6 @@ import ShellEvaluator from '@mongosh/shell-evaluator';
  * calls rather than requiring event emitter bridges or RPC.
  */
 export class OpenContextRuntime implements Runtime {
-  private serviceProvider: ServiceProvider;
   private interpreter: Interpreter;
   private interpreterEnvironment: InterpreterEnvironment;
   private autocompleter: ShellApiAutocompleter;
@@ -26,11 +25,11 @@ export class OpenContextRuntime implements Runtime {
 
   constructor(
     serviceProvider: ServiceProvider,
-    interpreterEnvironment: InterpreterEnvironment
+    interpreterEnvironment: InterpreterEnvironment,
+    platform: ReplPlatform
   ) {
-    this.serviceProvider = serviceProvider;
     this.interpreterEnvironment = interpreterEnvironment;
-    this.internalState = new ShellInternalState(new EventEmitter());
+    this.internalState = new ShellInternalState(platform, serviceProvider, new EventEmitter());
     this.shellEvaluator = new ShellEvaluator(this.internalState);
     this.internalState.setCtx(this.interpreterEnvironment.getContextObject());
     this.interpreter = new Interpreter(this.interpreterEnvironment);
@@ -38,8 +37,8 @@ export class OpenContextRuntime implements Runtime {
 
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
-      const buildInfo = await this.serviceProvider.buildInfo();
-      const serverVersion = buildInfo.version;
+      const connectionInfo = await this.internalState.getConnectionInfo();
+      const serverVersion = connectionInfo.buildInfo.version;
       this.autocompleter = new ShellApiAutocompleter(serverVersion);
     }
 

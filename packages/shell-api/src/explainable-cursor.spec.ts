@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { signatures, ExplainableCursor } from './index';
-import { ServerVersions } from './main';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './main';
 
 describe('ExplainableCursor', () => {
   describe('signature', () => {
@@ -13,7 +13,10 @@ describe('ExplainableCursor', () => {
       expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
-        returnType: 'Cursor' // because inherited from Cursor.
+        returnType: 'Cursor', // because inherited from Cursor.
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
       });
     });
   });

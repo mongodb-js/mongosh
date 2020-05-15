@@ -1,18 +1,15 @@
 import Mongo from './mongo';
 import { CursorIterationResult } from './result';
 import {
-  ShellApiClass,
-  shellApiClassDefault,
+  hasAsyncChild,
   returnsPromise,
   returnType,
-  hasAsyncChild,
   serverVersions,
-  ServerVersions
+  ServerVersions,
+  ShellApiClass,
+  shellApiClassDefault
 } from './main';
-import {
-  Cursor as ServiceProviderCursor,
-  Document
-} from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, Document } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -26,10 +23,10 @@ export default class Cursor extends ShellApiClass {
   }
 
   async toReplString(): Promise<any> {
-    return await this.it();
+    return await this._it();
   }
 
-  async it(): Promise<any> {
+  async _it(): Promise<any> {
     const results = new CursorIterationResult();
 
     if (this.isClosed()) {
@@ -90,7 +87,7 @@ export default class Cursor extends ShellApiClass {
     return this;
   }
 
-  @serverVersions([ServerVersions.earliest, '4.0.0'])
+  @serverVersions([ServerVersions.earliest, ServerVersions.latest]) // TODO: this technically deprecated
   @returnsPromise
   count(): Promise<number> {
     return this.cursor.count();

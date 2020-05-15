@@ -5,14 +5,18 @@ import {
   Help,
   Database,
   Mongo,
+  ReplicaSet,
+  Shard,
   signatures,
   ShellBson,
-  toIterator
+  toIterator,
+  ReplPlatform
 } from './index';
 import { EventEmitter } from 'events';
-import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
+import { DatabaseOptions, Document, ServiceProvider } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
+import getConnectInfo from './connect-info';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -23,27 +27,52 @@ export default class ShellInternalState {
   public messageBus: EventEmitter;
   public context: any;
   public asyncWriter: AsyncWriter;
-  constructor(messageBus) {
+  public initialServiceProvider: ServiceProvider; // the initial service provider
+  public uri: string;
+  public platform: ReplPlatform;
+  constructor(platform: ReplPlatform, initialServiceProvider: ServiceProvider, messageBus: any) {
+    this.initialServiceProvider = initialServiceProvider;
+    this.platform = platform;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
-  }
-
-  /**
-   * Initialize the original connection Mongo.
-   *
-   * @param uri
-   * @param options
-   */
-  initalize(uri, options) {
-    const mongo = new Mongo(this, uri, options);
+    const mongo = new Mongo(this);
     this.currentCursor = null;
     this.currentDb = mongo.getDB('test');
   }
 
-  use(db) {
+  // TODO: this should probably go in the service provider
+  async getConnectionInfo(): Promise<any> {
+    const buildInfo = await this.currentDb.mongo.serviceProvider.buildInfo();
+    const topology = await this.currentDb.mongo.serviceProvider.getTopology();
+    let cmdLineOpts = null;
+    try {
+      cmdLineOpts = await this.currentDb.mongo.serviceProvider.getCmdLineOpts();
+    } catch (e) {
+      this.messageBus.emit('mongodb:error', e);
+    }
+    const connectInfo = getConnectInfo(
+      // TODO: this.currentDb.mongo.serviceProvider.getUri(),
+      this.uri,
+      buildInfo,
+      cmdLineOpts,
+      topology
+    );
+    this.messageBus.emit('mongosh:connect', connectInfo);
+    // this will expand when we support custom prompts
+    return {
+      buildInfo: buildInfo,
+      topology: topology
+    };
+  }
+
+  close(p): void {
+    this.currentDb.mongo.serviceProvider.close(p);
+  }
+
+  use(db): any {
     return this.currentDb.mongo.use(db);
   }
-  show(arg) {
+  show(arg): any {
     return this.currentDb.mongo.show(arg);
   }
   async it(): Promise<any> {
@@ -51,7 +80,7 @@ export default class ShellInternalState {
       // TODO: warn here
       return new CursorIterationResult();
     }
-    return await this.currentCursor.it();
+    return await this.currentCursor._it();
   }
   public help(): Help {
     this.messageBus.emit('mongosh:help');
@@ -107,6 +136,8 @@ export default class ShellInternalState {
 
     // Add global shell objects
     contextObject.db = this.currentDb;
+    contextObject.rs = new ReplicaSet(this.currentDb.mongo);
+    contextObject.sh = new Shard(this.currentDb.mongo);
     this.asyncWriter.symbols.initializeApiObjects({ db: signatures.Database });
 
     // Update mapper and log

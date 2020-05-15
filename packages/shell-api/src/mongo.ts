@@ -6,7 +6,9 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass,
+  classPlatforms,
+  ReplPlatform
 } from './main';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -15,19 +17,29 @@ import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors'
 
 @shellApiClassDefault
 @hasAsyncChild
+@classPlatforms([ ReplPlatform.CLI] )
 export default class Mongo extends ShellApiClass {
   public serviceProvider: ServiceProvider;
   public databases: any;
   public internalState: ShellInternalState;
-  public options: any;
-  public uri: string;
+  private uri: string;
+  private internalConnectOptions: any;
 
-  constructor(internalState: ShellInternalState, options: any = {}, uri: string = 'localhost:27017'/*, fleOptions?*/) {
+  constructor(
+    internalState: ShellInternalState,
+    uri = 'localhost:27017'
+    /* fleOptions? */
+  ) {
     super();
     this.internalState = internalState;
     this.databases = {};
-    this.options = options;
     this.uri = uri;
+
+    this.serviceProvider = this.internalState.initialServiceProvider;
+  }
+
+  async connect(): Promise<ServiceProvider> {
+    return await this.serviceProvider.getNewConnection(this.uri, this.internalConnectOptions);
   }
 
   @returnType('Database')

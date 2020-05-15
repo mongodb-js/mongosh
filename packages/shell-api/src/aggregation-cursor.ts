@@ -23,7 +23,7 @@ export default class AggregationCursor extends ShellApiClass {
     this.mongo = mongo;
   }
 
-  async it(): Promise<any> {
+  async _it(): Promise<any> {
     const results = new CursorIterationResult();
 
     if (this.isClosed()) {
@@ -43,7 +43,7 @@ export default class AggregationCursor extends ShellApiClass {
 
 
   async toReplString(): Promise<any> {
-    return await this.it();
+    return await this._it();
   }
 
   @returnsPromise

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { signatures, AggregationCursor } from './index';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './main';
 
 describe('AggregationCursor', () => {
   describe('signature', () => {
@@ -12,7 +13,10 @@ describe('AggregationCursor', () => {
       expect(signatures.AggregationCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
-        returnType: 'AggregationCursor'
+        returnType: 'AggregationCursor',
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
       });
     });
   });

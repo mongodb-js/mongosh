@@ -11,6 +11,8 @@ import {
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
 
+import { ReplPlatform } from '@mongosh/shell-api';
+
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;
   private iframe: HTMLIFrameElement;
@@ -59,7 +61,7 @@ export class IframeRuntime implements Runtime {
     document.body.appendChild(this.container);
 
     const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
-    this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment);
+    this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment, ReplPlatform.Browser);
 
     return await ready;
   }

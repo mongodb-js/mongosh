@@ -46,7 +46,7 @@ describe('completer.completer', () => {
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes)
-      const adjusted = collComplete.map(c => `${i}${c}`)
+      const adjusted = collComplete.filter(c => !['count', 'update', 'save', 'remove'].includes(c)).map(c => `${i}${c}`)
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
@@ -204,7 +204,6 @@ describe('completer.completer', () => {
 
       const result = [
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
@@ -245,7 +244,6 @@ describe('completer.completer', () => {
       const result = [
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).addOption',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
-				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).arrayAccess',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
 				'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',

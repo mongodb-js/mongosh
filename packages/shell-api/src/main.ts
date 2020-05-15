@@ -12,8 +12,15 @@ export enum Topologies {
   Sharded = 2
 }
 
+export enum ReplPlatform {
+  Compass,
+  Browser,
+  CLI
+}
+
 export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.latest ];
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
+export const ALL_PLATFORMS = [ ReplPlatform.Compass, ReplPlatform.Browser, ReplPlatform.CLI ];
 
 export enum ReadPreference {
   PRIMARY = 0,
@@ -93,12 +100,13 @@ export function shellApiClassDefault(constructor: Function): void {
   };
 
   const classAttributes = Object.keys(constructor.prototype);
+  const toIgnore = ['toReplString', 'shellApiType', 'constructor'];
   for (const propertyName of classAttributes) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;
     if (
       !isMethod ||
-      ['toReplString', 'shellApiType', 'constructor'].includes(propertyName) ||
+      toIgnore.includes(propertyName) ||
       propertyName.startsWith('_')
     ) continue;
 
@@ -106,11 +114,15 @@ export function shellApiClassDefault(constructor: Function): void {
     descriptor.value.topologies = descriptor.value.topologies || ALL_TOPOLOGIES;
     descriptor.value.returnType = descriptor.value.returnType || { type: 'unknown', attributes: {} };
     descriptor.value.returnsPromise = descriptor.value.returnsPromise || false;
+    descriptor.value.platforms = descriptor.value.platforms || ALL_PLATFORMS;
 
     classSignature.attributes[propertyName] = {
       type: 'function',
+      serverVersions: descriptor.value.serverVersions,
+      topologies: descriptor.value.topologies,
+      returnType: descriptor.value.returnType,
       returnsPromise: descriptor.value.returnsPromise,
-      returnType: descriptor.value.returnType
+      platforms: descriptor.value.platforms
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
@@ -138,13 +150,16 @@ export function shellApiClassDefault(constructor: Function): void {
       if (
         classAttributes.includes(propertyName) ||
         !isMethod ||
-        ['toReplString', 'shellApiType', 'constructor'].includes(propertyName) ||
+        toIgnore.includes(propertyName) ||
         propertyName.startsWith('_')
       ) continue;
       classSignature.attributes[propertyName] = {
         type: 'function',
+        serverVersions: descriptor.value.serverVersions,
+        topologies: descriptor.value.topologies,
+        returnType: descriptor.value.returnType,
         returnsPromise: descriptor.value.returnsPromise,
-        returnType: descriptor.value.returnType
+        platforms: descriptor.value.platforms
       };
 
       const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;
@@ -196,4 +211,18 @@ export function returnType(type: string | TypeSignature): Function {
 }
 export function hasAsyncChild(constructor: Function): void {
   constructor.prototype.hasAsyncChild = true;
+}
+export function platforms(platformsArray: any[]): Function {
+  return function(
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): void {
+    descriptor.value.platforms = platformsArray;
+  };
+}
+export function classPlatforms(platformsArray: any[]): Function {
+  return function(constructor: Function): void {
+    constructor.prototype.platforms = platformsArray;
+  };
 }

@@ -1,15 +1,16 @@
-import { use, expect } from 'chai';
-const sinonChai = require('sinon-chai'); // weird with import
-import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
+import { expect, use } from 'chai';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { signatures } from './main';
+import { ReplPlatform, signatures, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS } from './main';
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
 import Explainable from './explainable';
-import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
+
+const sinonChai = require('sinon-chai'); // weird with import
 
 use(sinonChai);
 describe('Collection', () => {
@@ -21,7 +22,10 @@ describe('Collection', () => {
       expect(signatures.Collection.attributes.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
-        returnType: 'AggregationCursor'
+        returnType: 'AggregationCursor',
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
       });
     });
     it('hasAsyncChild', () => {
@@ -51,10 +55,9 @@ describe('Collection', () => {
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
-      internalState = new ShellInternalState(bus);
-      mongo = new Mongo(internalState, {});
       serviceProvider = stubInterface<ServiceProvider>();
-      mongo.serviceProvider = serviceProvider;
+      internalState = new ShellInternalState(ReplPlatform.CLI, serviceProvider, bus);
+      mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');
       collection = new Collection(mongo, database, 'coll1');
     });

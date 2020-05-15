@@ -312,30 +312,6 @@ export default class Collection extends ShellApiClass {
     return cursor;
   }
 
-  /**
-   * Find one document in the collection.
-   *
-   * @note: findOne is just find with limit.
-   *
-   * @param {Object} query - The filter.
-   * @param {Object} projection - The projection.
-   *
-   * @returns {Cursor} The promise of the cursor.
-   */
-  @returnsPromise
-  async findOne(query?, projection?): Promise<Document> {
-    const options: any = {};
-    if (projection) {
-      options.projection = projection;
-    }
-
-    this._emitCollectionApiCall('findOne', { query, options });
-    return new Cursor(
-      this,
-      this.mongo.serviceProvider.find(this.database.name, this.name, query, options)
-    ).limit(1).next();
-  }
-
   @returnsPromise
   async findAndModify(
     options: {
@@ -374,6 +350,30 @@ export default class Collection extends ShellApiClass {
     );
 
     return result.value;
+  }
+
+  /**
+   * Find one document in the collection.
+   *
+   * @note: findOne is just find with limit.
+   *
+   * @param {Object} query - The filter.
+   * @param {Object} projection - The projection.
+   *
+   * @returns {Cursor} The promise of the cursor.
+   */
+  @returnsPromise
+  async findOne(query?, projection?): Promise<Document> {
+    const options: any = {};
+    if (projection) {
+      options.projection = projection;
+    }
+
+    this._emitCollectionApiCall('findOne', { query, options });
+    return new Cursor(
+      this,
+      this.mongo.serviceProvider.find(this.database.name, this.name, query, options)
+    ).limit(1).next();
   }
 
   @returnsPromise

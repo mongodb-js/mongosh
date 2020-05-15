@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { signatures } from './main';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ReplPlatform, signatures } from './main';
 import Database from './database';
 import Mongo from './mongo';
-import { ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 
 describe('Database', () => {
@@ -16,7 +16,10 @@ describe('Database', () => {
       expect(signatures.Database.attributes.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
-        returnType: 'AggregationCursor'
+        returnType: 'AggregationCursor',
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
       });
     });
     it('hasAsyncChild', () => {
@@ -51,10 +54,9 @@ describe('Database', () => {
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
-      internalState = new ShellInternalState(bus);
-      mongo = new Mongo(internalState, {});
       serviceProvider = stubInterface<ServiceProvider>();
-      mongo.serviceProvider = serviceProvider;
+      internalState = new ShellInternalState(ReplPlatform.CLI, serviceProvider, bus);
+      mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');
     });
     describe('getCollectionInfos', () => {
