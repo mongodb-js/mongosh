@@ -77,6 +77,7 @@
     "mongodb-runner": "^4.7.5",
     "nexe": "^3.3.2",
     "pkg": "^4.4.3",
+    "pretty-bytes": "^5.3.0",
     "puppeteer": "^2.0.0",
     "rimraf": "^3.0.2",
     "sinon": "^7.5.0",
