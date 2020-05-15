@@ -93,16 +93,61 @@ const translations = {
         help: {
           description: 'Aggregation Class',
           attributes: {
-            close: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
-            forEach: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
-            hasNext: 'cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.',
-            isClosed: 'Returns true if the cursor is closed.',
-            isExhausted: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
-            itcount: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
-            map: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
-            next: 'The next document in the cursor returned by the db.collection.find() method.',
-            objsLeftInBatch: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
-            toArray: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.'
+            close: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.close',
+              description: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
+              example: 'db.collection.aggregate(pipeline, options).close()'
+            },
+            forEach: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.forEach',
+              description: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
+              example: 'db.collection.aggregate(pipeline, options).forEach(function)'
+            },
+            hasNext: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
+              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.',
+              example: 'db.collection.aggregate(pipeline, options).hasNext()'
+            },
+            isClosed: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isClosed',
+              description: 'Returns true if the cursor is closed.',
+              example: 'db.collection.aggregate(pipeline, options).isClosed()'
+            },
+            isExhausted: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isExhausted',
+              description: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
+              example: 'db.collection.aggregate(pipeline, options).isExhausted()'
+            },
+            itcount: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.itcount',
+              description: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
+              example: 'db.collection.aggregate(pipeline, options).itcount()'
+            },
+            map: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.map',
+              description: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
+              example: 'db.collection.aggregate(pipeline, options).map(function)'
+            },
+            next: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
+              description: 'The next document in the cursor returned by the db.collection.aggregate() method.',
+              example: 'db.collection.aggregate(pipeline, options).next()'
+            },
+            explain: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
+              description: 'Provides information on the query plan for db.collection.aggregate() method.',
+              example: 'db.collection.aggregate(pipeline, options).explain([verbosity])'
+            },
+            objsLeftInBatch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.objsLeftInBatch',
+              description: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
+              example: 'db.collection.aggregate(pipeline, options).objsLeftInBatch()',
+            },
+            toArray: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
+              description: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
+              example: 'db.collection.aggregate(pipeline, options).toArray()'
+            } 
           }
         }
       },
@@ -272,6 +317,11 @@ const translations = {
                 }
               },
               returns: 'The count.'
+            },
+            dataSize: {
+              link: 'hhttps://docs.mongodb.com/manual/reference/method/db.collection.dataSize',
+              description: 'This method provides a wrapper around the size output of the collStats (i.e. db.collection.stats()) command.',
+              example: 'db.collection.dataSize()'
             },
             deleteMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany',
@@ -589,6 +639,16 @@ const translations = {
               },
               returns: 'Returns either the original document or, if returnNewDocument: true, the updated document.'
             },
+            getIndexes: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
+              description: 'Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
+              example: 'db.collection.getIndexes()'
+            },
+            getIndices: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
+              description: 'Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
+              example: 'db.collection.getIndices()'
+            },
             insert: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insert',
               description: 'Inserts a document or documents into a collection.',
@@ -722,6 +782,16 @@ const translations = {
               },
               returns: 'A WriteResult object that contains the status of the operation. Changed in version 2.6: The save() returns an object that contains the status of the operation.'
             },
+            stats: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.stats',
+              description: 'Returns statistics about the collection.',
+              example: 'db.collection.stats(options)'
+            },
+            storageSize: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.storageSize',
+              description: 'The total amount of storage allocated to this collection for document storage.',
+              example: 'db.collection.storageSize()'
+            },
             replaceOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.replaceOne',
               description: 'Replaces a single document within the collection based on the filter.',
@@ -759,6 +829,11 @@ const translations = {
                 }
               },
               returns: ''
+            },
+            totalSize: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalSize',
+              description: 'The total size in bytes of the data in the collection plus the size of every index on the collection.',
+              example: 'db.collection.totalSize()'
             },
             update: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.update',
@@ -859,36 +934,6 @@ const translations = {
                 }
               }
             },
-            getDb: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
-            stats: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
-            dataSize: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
-            storageSize: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
-            totalSize: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
             createIndexes: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createIndexes',
               description: 'Creates one or more indexes on a collection',
@@ -907,16 +952,16 @@ const translations = {
               example: "db.coll.ensureIndex({ category: 1 }, { name: 'index-1' })",
               parameters: {}
             },
-            getIndexes: {
+            getDB: {
               link: '',
-              description: '',
-              example: '',
+              description: 'Get current database.',
+              example: 'db.collection.getDB()',
               parameters: {}
             },
             getIndexKeys: {
               link: '',
-              description: '',
-              example: '',
+              description: 'Return an array of key patterns for indexes defined on collection',
+              example: 'db.collection.getIndexKeys()',
               parameters: {}
             },
             getIndices: {
@@ -934,19 +979,19 @@ const translations = {
             totalIndexSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalIndexSize',
               description: 'Reports the total size used by the indexes on a collection.',
-              example: '',
+              example: 'db.collection.totalIndexSize()',
               parameters: {}
             },
             dropIndexes: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropIndexes',
               description: 'Drops the specified index or indexes (except the index on the _id field) from a collection.',
-              example: '',
+              example: 'db.collection.dropIndexes()',
               parameters: {}
             },
             dropIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropIndex',
               description: 'Drops or removes the specified index from a collection.',
-              example: '',
+              example: 'db.collection.dropIndex()',
               parameters: {}
             },
             reIndex: {
@@ -1049,48 +1094,260 @@ const translations = {
         help: {
           description: 'Collection Cursor',
           attributes: {
-            addOption: 'Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.',
-            allowPartialResults: "Sets the 'partial' option to true.",
-            batchSize: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
-            clone: 'Clone the cursor.',
-            close: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
-            collation: 'Specifies the collation for the cursor returned by the db.collection.find(). To use, append to the db.collection.find().',
-            comment: 'Adds a comment field to the query.',
-            count: 'Counts the number of documents referenced by a cursor.',
-            explain: 'Provides information on the query plan for the db.collection.find() method.',
-            forEach: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
-            getQueryPlan: 'Runs cursor.explain()',
-            hasNext: 'cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.',
-            hint: 'Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.',
-            isClosed: 'Returns true if the cursor is closed.',
-            isExhausted: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
-            itcount: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
-            length: 'Runs cursor.count()',
-            limit: 'Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.',
-            map: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
-            max: 'Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.',
-            maxScan: 'Constrains the query to only scan the specified number of documents when fulfilling the query.',
-            maxTimeMs: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
-            min: 'Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.',
-            modifiers: 'Get query modifiers.',
-            next: 'The next document in the cursor returned by the db.collection.find() method.',
-            noCursorTimeout: 'Instructs the server to avoid closing a cursor automatically after a period of inactivity.',
-            objsLeftInBatch: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
-            oplogReplay: 'Sets oplogReplay cursor flag to true.',
-            projection: 'Sets a field projection for the query.',
-            pretty: 'Configures the cursor to display results in an easy-to-read format.',
-            readConcern: 'Specify a read concern for the db.collection.find() method.',
-            readonly: '',
-            readPref: 'Append readPref() to a cursor to control how the client routes the query to members of the replica set.',
-            returnKey: 'Modifies the cursor to return index keys rather than the documents.',
-            showDiskLoc: 'The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.',
-            showRecordId: 'Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.',
-            size: 'A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.',
-            skip: 'Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.',
-            snapshot: 'The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document',
-            sort: 'Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.',
-            tailable: 'Marks the cursor as tailable.',
-            toArray: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.'
+            addOption: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.addOption',
+              description: 'Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.',
+              example: 'db.collection.find(query, projection).addOption(flag)',
+              parameters: {}
+            },
+            allowPartialResults: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.allowPartialResults',
+              description: "Sets the 'partial' option to true.",
+              example: 'db.collection.find(query, projection).allowPartialResults()',
+              parameters: {}
+            },
+            batchSize: {
+              link: '',
+              description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
+              example: 'db.collection.find(query, projection).',
+              parameters: {}
+            },
+            clone: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',
+              description: 'Clone the cursor.',
+              example: 'db.collection.find(query, projection).batchSize(10)',
+              parameters: {}
+            },
+            close: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.close',
+              description: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
+              example: 'db.collection.find(query, projection).close()',
+              parameters: {}
+            },
+            collation: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.collation',
+              description: 'Specifies the collation for the cursor returned by the db.collection.find(). To use, append to the db.collection.find().',
+              example: 'db.collection.find(query, projection).collation(collationDocument)',
+              parameters: {}
+            },
+            comment: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.comment',
+              description: 'Adds a comment field to the query.',
+              example: 'db.collection.find(query, projection).comment(\'Comment\')',
+              parameters: {}
+            },
+            count: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.count',
+              description: 'Counts the number of documents referenced by a cursor.',
+              example: 'db.collection.find(query, projection).count()',
+              parameters: {}
+            },
+            explain: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
+              description: 'Provides information on the query plan for the db.collection.find() method.',
+              example: 'db.collection.find(query, projection).explain()',
+              parameters: {}
+            },
+            forEach: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.forEach',
+              description: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
+              example: 'db.collection.find(query, projection).forEach(function)',
+              parameters: {}
+            },
+            getQueryPlan: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
+              description: 'Runs cursor.explain()',
+              example: 'db.collection.find(query, projection).getQueryPlan()',
+              parameters: {}
+            },
+            hasNext: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
+              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.',
+              example: 'db.collection.find(query, projection).hasNext()',
+              parameters: {}
+            },
+            hint: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.hint',
+              description: 'Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.',
+              example: 'db.collection.find(query, projection).hint(index)',
+              parameters: {}
+            },
+            isClosed: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isClosed',
+              description: 'Returns true if the cursor is closed.',
+              example: 'db.collection.find(query, projection).isClosed()',
+              parameters: {}
+            },
+            isExhausted: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isExhausted',
+              description: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
+              example: 'db.collection.find(query, projection).isExhausted()',
+              parameters: {}
+            },
+            itcount: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.itcount',
+              description: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
+              example: 'db.collection.find(query, projection).itcount()',
+              parameters: {}
+            },
+            length: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.count',
+              description: 'Runs cursor.count()',
+              example: 'db.collection.find(query, projection).length()',
+              parameters: {}
+            },
+            limit: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit',
+              description: 'Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.',
+              example: 'db.collection.find(query, projection).limit(2)',
+              parameters: {}
+            },
+            map: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.map',
+              description: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
+              example: 'db.collection.find(query, projection).map(function)',
+              parameters: {}
+            },
+            max: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.max',
+              description: 'Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.',
+              example: 'db.collection.find(query, projection).max(indexBoundsDocument)',
+              parameters: {}
+            },
+            // this is deprecated, leave empty.
+            maxScan: {
+              link: '',
+              description: '',
+              example: '',
+              parameters: {}
+            },
+            maxTimeMS: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS',
+              description: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
+              example: 'db.collection.find(query, projection).maxTimeMS(timeLimit)',
+              parameters: {}
+            },
+            min: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.min',
+              description: 'Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.',
+              example: 'db.collection.find(query, projection).min(indexBoundsDocument)',
+              parameters: {}
+            },
+            modifiers: {
+              link: '',
+              description: 'Get query modifiers.',
+              example: 'db.collection.find(query, projection).modifiers()',
+              parameters: {}
+            },
+            next: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
+              description: 'The next document in the cursor returned by the db.collection.find() method.',
+              example: 'db.collection.find(query, projection).next()',
+              parameters: {}
+            },
+            noCursorTimeout: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.noCursorTimeout',
+              description: 'Instructs the server to avoid closing a cursor automatically after a period of inactivity.',
+              example: 'db.collection.find(query, projection).noCursorTimeout()',
+              parameters: {}
+            },
+            objsLeftInBatch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.objsLeftInBatch',
+              description: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
+              example: 'db.collection.find(query, projection).objsLeftInBatch()',
+              parameters: {}
+            },
+            oplogReplay: {
+              link: '',
+              description: 'Sets oplogReplay cursor flag to true.',
+              example: 'db.collection.find(query, projection).oplogReplay()',
+              parameters: {}
+            },
+            projection: {
+              link: '',
+              description: 'Sets a field projection for the query.',
+              example: 'db.collection.find(query, projection).projection(field)',
+              parameters: {}
+            },
+            // don't document since everything is currently pretty printed
+            pretty: {
+              link: '',
+              description: '',
+              example: '',
+              parameters: {}
+            },
+            readConcern: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.readConcern',
+              description: 'Specify a read concern for the db.collection.find() method.',
+              example: 'db.collection.find(query, projection).readConcern(level)',
+              parameters: {}
+            },
+            readonly: {
+              link: '',
+              description: '',
+              example: '',
+              parameters: {}
+            },
+            readPref: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.readPref',
+              description: 'Append readPref() to a cursor to control how the client routes the query to members of the replica set.',
+              example: 'db.collection.find(query, projection).readPref(mode, tagSet)',
+              parameters: {}
+            },
+            returnKey: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.returnKey',
+              description: 'Modifies the cursor to return index keys rather than the documents.',
+              example: 'db.collection.find(query, projection).returnKey()',
+              parameters: {}
+            },
+            showDiskLoc: {
+              link: '',
+              description: 'The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY style find.',
+              example: 'db.collection.find(query, projection).showDiskLoc()',
+              parameters: {}
+            },
+            showRecordId: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.showRecordId',
+              description: 'Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.',
+              example: 'db.collection.find(query, projection).showRecordId',
+              parameters: {}
+            },
+            size: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.size',
+              description: 'A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.',
+              example: 'db.collection.find(query, projection).size()',
+              parameters: {}
+            },
+            skip: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip',
+              description: 'Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.',
+              example: 'db.collection.find(query, projection).skip(offsetNumber)',
+              parameters: {}
+            },
+            snapshot: {
+              link: '',
+              description: 'The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document',
+              example: 'db.collection.find(query, projection).snapshot()',
+              parameters: {}
+            },
+            sort: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort',
+              description: 'Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.',
+              example: 'db.collection.find(query, projection).sort(sortDocument)',
+              parameters: {}
+            },
+            tailable: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.tailable',
+              description: 'Marks the cursor as tailable.',
+              example: 'db.collection.find(query, projection).tailable({ awaitData: true })',
+              parameters: {}
+            },
+            toArray: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
+              description: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
+              example: 'db.collection.find(query, projection).toArray()',
+              parameters: {}
+            }
           }
         }
       },
@@ -1108,6 +1365,12 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.runCommand',
               description: 'Runs an arbitrary command on the database.',
               example: 'db.runCommand({ text: "myCollection", search: "searchKeywords" })',
+              parameters: {}
+            },
+            dropDatabase: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropDatabase',
+              description: 'Removes the current database, deleting the associated data files.',
+              example: 'db.dropDatabase([writeConcern])',
               parameters: {}
             },
             adminCommand: {
@@ -1147,6 +1410,18 @@ const translations = {
         help: {
           description: 'Explainable Class',
           attributes: {
+            aggregate: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Provides information on the query plan for db.collection.aggregate() method.',
+              example: 'db.coll.explain().aggregate()',
+              parameters: {}
+            },
+            find: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan.',
+              example: 'db.coll.explain().find()',
+              parameters: {}
+            },
             getCollection: {
               link: '',
               description: 'Returns the explainable collection.',
