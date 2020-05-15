@@ -134,7 +134,7 @@ export default class SymbolTable {
   }
 
   private checkIfApi(key): void {
-    if (key in this.scopeAt(0)) {
+    if (key !== 'db' && key in this.scopeAt(0)) { // TODO: could be nicer
       throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
     }
   }

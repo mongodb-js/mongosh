@@ -34,7 +34,7 @@ export default class ShellInternalState {
     this.platform = platform;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
-    const mongo = new Mongo(this);
+    const mongo = new Mongo(true, this);
     this.currentCursor = null;
     this.currentDb = mongo.getDB('test');
   }
@@ -115,10 +115,32 @@ export default class ShellInternalState {
     Object.assign(contextObject, ShellBson);
 
     // Add global shell objects
+    this.asyncWriter.symbols.initializeApiObjects({
+      db: signatures.Database,
+      rs: signatures.ReplicaSet,
+      sh: signatures.Shard,
+      Mongo: signatures.Mongo
+    });
+
+    // TODO: why is db undefined the first time
+    Object.defineProperty(contextObject, 'db', {
+      set(newDb: any) {
+        console.log('setting DB!');
+        this.currentDb = newDb;
+        contextObject.rs = new ReplicaSet(this.currentDb.mongo);
+        contextObject.sh = new Shard(this.currentDb.mongo);
+        return newDb;
+      }
+    });
     contextObject.db = this.currentDb;
-    contextObject.rs = new ReplicaSet(this.currentDb.mongo);
-    contextObject.sh = new Shard(this.currentDb.mongo);
-    this.asyncWriter.symbols.initializeApiObjects({ db: signatures.Database });
+
+    // TODO: update async-rewriter so that it inserts await in front of Mongo
+    contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {
+      console.log('creating new mongo!');
+      const mongo = new Mongo(false, this, uri, options);
+      await mongo.connect();
+      return mongo;
+    };
 
     // Update mapper and log
     this.messageBus.emit(

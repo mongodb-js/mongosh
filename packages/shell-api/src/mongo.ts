@@ -1,45 +1,54 @@
+import { ServiceProvider } from '@mongosh/service-provider-core';
 import {
-  ServiceProvider,
-} from '@mongosh/service-provider-core';
-import {
-  shellApiClassDefault,
+  classPlatforms,
+  classReturnsPromise,
+  hasAsyncChild,
+  ReplPlatform,
   returnsPromise,
   returnType,
-  hasAsyncChild,
   ShellApiClass,
-  classPlatforms,
-  ReplPlatform
+  shellApiClassDefault
 } from './main';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
+@classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI] )
 export default class Mongo extends ShellApiClass {
   public serviceProvider: ServiceProvider;
   public databases: any;
   public internalState: ShellInternalState;
   private uri: string;
-  private internalConnectOptions: any;
+  private options: any;
 
   constructor(
+    initial: boolean,
     internalState: ShellInternalState,
-    uri = 'localhost:27017'
-    /* fleOptions? */
+    uri = 'mongodb://localhost/',
+    fleOptions?
   ) {
     super();
     this.internalState = internalState;
     this.databases = {};
     this.uri = uri;
+    this.options = fleOptions; // TODO
 
+    if (!initial && this.internalState.platform === ReplPlatform.Browser || this.internalState.platform === ReplPlatform.Compass) {
+      throw new MongoshUnimplementedError('new Mongo connection are not supported for current platform');
+    }
     this.serviceProvider = this.internalState.initialServiceProvider;
   }
 
-  async connect(): Promise<ServiceProvider> {
-    return await this.serviceProvider.getNewConnection(this.uri, this.internalConnectOptions);
+  toReplString(): any {
+    return this.uri;
+  }
+
+  async connect(): Promise<void> {
+    this.serviceProvider = await this.serviceProvider.getNewConnection(this.uri, this.options);
   }
 
   @returnType('Database')

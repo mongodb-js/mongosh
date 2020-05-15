@@ -58,6 +58,9 @@ export default class Database extends ShellApiClass {
     });
   }
 
+  getMongo(): Mongo {
+    return this.mongo;
+  }
 
   /**
    * Returns an array of collection names

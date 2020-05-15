@@ -96,6 +96,7 @@ export function shellApiClassDefault(constructor: Function): void {
   const classSignature = {
     type: className,
     hasAsyncChild: constructor.prototype.hasAsyncChild || false,
+    returnsPromise: constructor.prototype.returnsPromise || false,
     attributes: {}
   };
 
@@ -211,6 +212,9 @@ export function returnType(type: string | TypeSignature): Function {
 }
 export function hasAsyncChild(constructor: Function): void {
   constructor.prototype.hasAsyncChild = true;
+}
+export function classReturnsPromise(constructor: Function): void {
+  constructor.prototype.returnsPromise = true;
 }
 export function platforms(platformsArray: any[]): Function {
   return function(
