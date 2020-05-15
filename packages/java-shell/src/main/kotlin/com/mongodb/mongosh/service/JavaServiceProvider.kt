@@ -91,8 +91,30 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value {
+        return updateOne(database, collection, filter, update, options, null)
+    }
+
+    @HostAccess.Export
+    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        val filter = toDocument(filter, "filter")
+        val options = toDocument(options, "options")
+        val dbOptions = toDocument(dbOptions, "dbOptions")
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(UpdateOptions(), updateConverters, updateDefaultConverter, options).map { updateOptions ->
+                val coll = db.getCollection(collection)
+                val res = if (update.hasArrayElements()) {
+                    val pipeline = toList(update, "update")?.map { it as Document }
+                    coll.updateOne(filter, pipeline, updateOptions)
+                } else coll.updateOne(filter, toDocument(update, "update"), updateOptions)
+                context.toJs(mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                        "matchedCount" to res.matchedCount,
+                        "modifiedCount" to res.modifiedCount,
+                        "upsertedCount" to if (res.upsertedId == null) 0 else 1,
+                        "upsertedId" to res.upsertedId
+                ))
+            }
+        }
     }
 
     @HostAccess.Export
