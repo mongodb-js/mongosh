@@ -7,6 +7,7 @@ import WriteConcern from './write-concern';
 import ReadConcern from './read-concern';
 import CommandOptions from './command-options';
 import DatabaseOptions from './database-options';
+import getConnectInfo from './connect-info';
 
 export {
   ServiceProvider,
@@ -17,5 +18,6 @@ export {
   ReadConcern,
   WriteConcern,
   CommandOptions,
-  DatabaseOptions
+  DatabaseOptions,
+  getConnectInfo
 };

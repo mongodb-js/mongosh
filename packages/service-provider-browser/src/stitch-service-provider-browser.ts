@@ -6,7 +6,8 @@ import {
   Cursor,
   DatabaseOptions,
   CommandOptions,
-  WriteConcern
+  WriteConcern,
+  getConnectInfo
 } from '@mongosh/service-provider-core';
 
 import StitchTransport from './stitch-transport';
@@ -62,6 +63,28 @@ class StitchServiceProviderBrowser implements ServiceProvider {
 
   async getNewConnection(uri, options) {
     throw new MongoshUnimplementedError();
+  }
+
+  async getConnectionInfo(): Promise<any> {
+    const buildInfo = await this.buildInfo();
+    const topology = await this.getTopology();
+    let cmdLineOpts = null;
+    try {
+      cmdLineOpts = await this.getCmdLineOpts();
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
+    const connectInfo = getConnectInfo(
+      '', // TODO: something more useful?
+      buildInfo,
+      cmdLineOpts,
+      topology
+    );
+    return {
+      buildInfo: buildInfo,
+      topology: topology,
+      connectInfo: connectInfo
+    };
   }
 
   /**

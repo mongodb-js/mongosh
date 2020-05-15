@@ -31,4 +31,9 @@ export default interface Admin {
    * @param options
    */
   getNewConnection(uri: string, options: any): Promise<any>;
+
+  /**
+   * Return connection info
+   */
+  getConnectionInfo(): Promise<any>;
 }

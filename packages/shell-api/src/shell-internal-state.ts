@@ -16,7 +16,6 @@ import { EventEmitter } from 'events';
 import { DatabaseOptions, Document, ServiceProvider } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
-import getConnectInfo from './connect-info';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -40,29 +39,10 @@ export default class ShellInternalState {
     this.currentDb = mongo.getDB('test');
   }
 
-  // TODO: this should probably go in the service provider
   async getConnectionInfo(): Promise<any> {
-    const buildInfo = await this.currentDb.mongo.serviceProvider.buildInfo();
-    const topology = await this.currentDb.mongo.serviceProvider.getTopology();
-    let cmdLineOpts = null;
-    try {
-      cmdLineOpts = await this.currentDb.mongo.serviceProvider.getCmdLineOpts();
-    } catch (e) {
-      this.messageBus.emit('mongodb:error', e);
-    }
-    const connectInfo = getConnectInfo(
-      // TODO: this.currentDb.mongo.serviceProvider.getUri(),
-      this.uri,
-      buildInfo,
-      cmdLineOpts,
-      topology
-    );
-    this.messageBus.emit('mongosh:connect', connectInfo);
-    // this will expand when we support custom prompts
-    return {
-      buildInfo: buildInfo,
-      topology: topology
-    };
+    const info = await this.currentDb.mongo.serviceProvider.getConnectionInfo();
+    this.messageBus.emit('mongosh:connect', info.connectInfo);
+    return { buildInfo: info.buildInfo }; // this will expand when we do custom prompts
   }
 
   close(p): void {

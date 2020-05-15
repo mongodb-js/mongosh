@@ -22,6 +22,9 @@
   "engines": {
     "node": "^12.4.0"
   },
+  "dependencies": {
+    "mongodb-build-info": "^1.0.0"
+  },
   "dependency-check": {
     "entries": [
       "src/**/*.js"
