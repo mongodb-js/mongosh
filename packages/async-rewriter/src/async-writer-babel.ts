@@ -731,7 +731,9 @@ export default class AsyncWriter {
       return babel.transformSync(code, {
         plugins: [this.plugin],
         code: true,
-        ast: true
+        ast: true,
+        configFile: false,
+        babelrc: false
       });
     } catch (e) {
       e.message = e.message.replace('unknown: ', '');
