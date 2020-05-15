@@ -14,3 +14,5 @@ db.coll.insertOne({
 });
 // command
 db.coll.find();
+// clear
+db.coll.drop();

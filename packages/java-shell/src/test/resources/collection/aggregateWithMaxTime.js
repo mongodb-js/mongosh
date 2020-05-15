@@ -12,3 +12,5 @@ db.coll.aggregate([
     {$group: {_id: "$group", total: {$sum: "$amount"}}},
     {$sort: {_id: 1}}
 ], {maxTimeMS: 1000});
+// clear
+db.coll.drop();

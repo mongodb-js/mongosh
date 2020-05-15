@@ -6,3 +6,5 @@ db.coll.insertOne({a: 1});
 db.coll.findOneAndDelete({a: 1});
 // command
 db.coll.find();
+// clear
+db.coll.drop();

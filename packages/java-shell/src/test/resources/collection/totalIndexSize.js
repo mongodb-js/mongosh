@@ -5,3 +5,5 @@ db.coll.insert({key: "value"});
 db.coll.totalIndexSize();
 // clear
 db.coll.drop();
+// clear
+db.coll.drop();

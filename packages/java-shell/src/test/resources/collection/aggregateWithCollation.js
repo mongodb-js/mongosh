@@ -12,3 +12,5 @@ db.coll.aggregate([
     {$group: {_id: "$group", total: {$sum: "$amount"}}},
     {$sort: {_id: 1}}
 ], {collation: {locale: "en", numericOrdering: true}});
+// clear
+db.coll.drop();

@@ -12,3 +12,5 @@ db.coll.aggregate([
     {$group: {_id: "$group", total: {$sum: "$amount"}}},
     {$sort: {total: -1}}
 ], {readConcern: {level: "local"}});
+// clear
+db.coll.drop();
