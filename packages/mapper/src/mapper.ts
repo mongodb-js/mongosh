@@ -1488,7 +1488,7 @@ export default class Mapper {
   }
 
   /**
-   * Returns an array of key patters for the indexes defined on the collection.
+   * Returns an array of key patterns for the indexes defined on the collection.
    *
    * @param {Collection} collection
    *
