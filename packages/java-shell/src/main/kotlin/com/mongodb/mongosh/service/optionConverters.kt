@@ -6,11 +6,8 @@ import com.mongodb.ReadPreference
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
-import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
-import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
-import org.graalvm.polyglot.Value
 import java.util.concurrent.TimeUnit
 
 
@@ -352,6 +349,40 @@ internal val updateConverters: Map<String, (UpdateOptions, Any?) -> Either<Updat
 
 internal val updateDefaultConverter = unrecognizedField<UpdateOptions>("update options")
 
+internal val indexModelConverters: Map<String, (IndexModel, Any?) -> Either<IndexModel>> = mapOf(
+        typed("collation", Map::class.java) { model, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            IndexModel(model.keys, model.options.collation(collation))
+        },
+        typed("key", Map::class.java) { model, value ->
+            IndexModel(value as Document, model.options)
+        },
+        typed("background", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.background(value))
+        },
+        typed("unique", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.unique(value))
+        },
+        typed("name", String::class.java) { model, value ->
+            IndexModel(model.keys, model.options.name(value))
+        },
+        typed("partialFilterExpression", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.partialFilterExpression(value as Document))
+        },
+        typed("sparse", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.sparse(value))
+        },
+        typed("expireAfterSeconds", Number::class.java) { model, value ->
+            IndexModel(model.keys, model.options.expireAfter(value.toLong(), TimeUnit.SECONDS))
+        },
+        typed("storageEngine", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.storageEngine(value as Document))
+        }
+)
+
+internal val indexModelDefaultConverter = unrecognizedField<IndexModel>("index model")
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->

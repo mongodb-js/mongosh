@@ -132,10 +132,10 @@ private fun compare(testDataPath: String, name: String, actual: String) {
     val expectedFile = File("$testDataPath/$name.expected.txt")
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
-        expectedFile.writeText(actual)
+        expectedFile.writeText(actual.trim())
         fail("Created output file $expectedFile")
     } else {
-        assertEquals(expectedFile.readText().trim(), actual)
+        assertEquals(expectedFile.readText().trim(), actual.trim())
     }
 }
 
