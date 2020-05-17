@@ -9,16 +9,15 @@ variables:
       shell: bash
       script: |
         source .evergreen/.setup_env
-        export SEGMENT_API_KEY=${segment_key}
-        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-        export PROJECT=${project}
-        export REVISION=${revision}
-        export AWS_KEY=${aws_key}
-        export AWS_SECRET=${aws_secret}
-        export DOWNLOAD_CENTER_AWS_KEY=${download_center_aws_key}
-        export DOWNLOAD_CENTER_AWS_SECRET=${download_center_aws_secret}
-        export DOWNLOADS_AWS_KEY=${downloads_aws_key}
-        export DOWNLOADS_AWS_SECRET=${downloads_aws_secret}
+        export SEGMENT_API_KEY="${segment_key}"
+        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+        export PROJECT="${project}"
+        export REVISION="${revision}"
+        export AWS_KEY="${aws_key}"
+        export AWS_SECRET="${aws_secret}"
+        export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
+        export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
+        export GITHUB_TOKEN="${github_token}"
         npm run release
 # Functions are any command that can be run.
 #

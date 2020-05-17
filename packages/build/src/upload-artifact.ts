@@ -25,7 +25,7 @@ const uploadArtifactToDownloads = (artifact: string, awsKey: string, awsSecret: 
   const uploadParams = {
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
-    Key: `/mongosh/${path.basename(artifact)}`,
+    Key: `compass/${path.basename(artifact)}`,
     Body: fs.createReadStream(artifact)
   };
   console.log(`mongosh: uploading ${artifact} to downloads`);
