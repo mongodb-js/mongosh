@@ -150,7 +150,7 @@ tasks:
 buildvariants:
   - name: macos
     display_name: "MacOS Mohave"
-    run_on: macos-1014
+    run_on: macos-1014-codesign
     tasks:
       - name: check
       - name: test
