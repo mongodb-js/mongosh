@@ -33,19 +33,19 @@ const CONFIG = `
           "arch": "x64",
           "os": "darwin",
           "name": "MacOS 64-bit (10.10+)",
-          "download_link": "https://downloads.mongodb.com/mongosh/mongosh-{{version}}-darwin.tgz"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-darwin.tgz"
         },
         {
           "arch": "x64",
           "os": "win32",
           "name": "Windows 64-bit (7+)",
-          "download_link": "https://downloads.mongodb.com/mongosh/mongosh-{{version}}-win.zip"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-win.zip"
         },
         {
           "arch": "x64",
           "os": "linux",
           "name": "Linux 64-bit",
-          "download_link": "https://downloads.mongodb.com/mongosh/mongosh-{{version}}-linux.tgz"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-linux.tgz"
         }
       ]
     }
@@ -55,7 +55,7 @@ const CONFIG = `
   "previous_releases_link": "",
   "development_releases_link": "",
   "supported_browsers_link": "",
-  "tutorial_link": ""
+  "tutorial_link": "test"
 }`;
 
 /**
@@ -82,7 +82,7 @@ const uploadToDownloadCenter = (s3: S3, config: string): Promise<any> => {
   const uploadParams = {
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
-    Key: `/${DIRECTORY}/${FILENAME}`,
+    Key: `${DIRECTORY}/${FILENAME}`,
     Body: config
   };
   console.log('mongosh: uploading config to download center');
