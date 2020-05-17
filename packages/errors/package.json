@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/errors",
-  "version": "0.0.1-alpha.15",
+  "version": "0.0.1-alpha.16",
   "description": "MongoDB Shell Errors Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",

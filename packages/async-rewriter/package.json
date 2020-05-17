@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/async-rewriter",
-  "version": "0.0.1-alpha.15",
+  "version": "0.0.1-alpha.16",
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "@babel/template": "^7.8.6",
     "@babel/traverse": "^7.9.0",
     "@babel/types": "^7.9.0",
-    "@mongosh/errors": "^0.0.1-alpha.15",
+    "@mongosh/errors": "^0.0.1-alpha.16",
     "@types/babel__core": "^7.1.6",
     "@types/babel__traverse": "^7.0.9",
     "acorn": "^7.2.0",
@@ -45,7 +45,7 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@mongosh/shell-api": "^0.0.1-alpha.15",
+    "@mongosh/shell-api": "^0.0.1-alpha.16",
     "ast-pretty-print": "^2.0.1",
     "mocha": "^7.1.0",
     "sinon": "^9.0.1"
