@@ -30,10 +30,12 @@
     ]
   },
   "dependencies": {
+    "@octokit/rest": "^17.9.0",
     "adm-zip": "^0.4.14",
     "aws-sdk": "^2.674.0",
     "handlebars": "^4.7.6",
     "pkg": "^4.4.3",
+    "semver": "^7.3.2",
     "tar": "^6.0.1"
   },
   "devDependencies": {
