@@ -8,6 +8,7 @@ import {
   MongoshInvalidInputError,
   MongoshUnimplementedError
 } from '@mongosh/errors';
+import processTopLevelAwait from './await';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
@@ -747,5 +748,14 @@ export default class AsyncWriter {
    */
   compile(code): string {
     return this.getTransform(code).code;
+  }
+
+  /**
+   * Returns translated code.
+   * @param {string} code - string to compile.
+   */
+  process(code): string {
+    const input = this.compile(code);
+    return processTopLevelAwait(input) || input;
   }
 }
