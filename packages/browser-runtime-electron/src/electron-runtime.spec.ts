@@ -24,6 +24,20 @@ describe('Electron runtime', function() {
     expect(result.value).to.equal(4);
   });
 
+  it('allows do declare variables', async() => {
+    await electronRuntime.evaluate('var x = 2');
+    expect((await electronRuntime.evaluate('x')).value).to.equal(2);
+    await electronRuntime.evaluate('let y = 2');
+    expect((await electronRuntime.evaluate('y')).value).to.equal(2);
+    await electronRuntime.evaluate('const z = 2');
+    expect((await electronRuntime.evaluate('z')).value).to.equal(2);
+  });
+
+  it('allows do declare functions', async() => {
+    await electronRuntime.evaluate('function f() { return 2; }');
+    expect((await electronRuntime.evaluate('f()')).value).to.equal(2);
+  });
+
   it('can run help', async() => {
     const result = await electronRuntime.evaluate('help');
     expect(result.shellApiType).to.equal('Help');
