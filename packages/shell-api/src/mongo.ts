@@ -22,7 +22,7 @@ export default class Mongo extends ShellApiClass {
   public serviceProvider: ServiceProvider;
   public databases: any;
   public internalState: ShellInternalState;
-  private uri: string;
+  public uri: string;
   private options: any;
 
   constructor(

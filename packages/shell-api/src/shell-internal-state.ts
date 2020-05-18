@@ -129,7 +129,7 @@ export default class ShellInternalState {
 
     Object.defineProperty(contextObject, 'db', {
       set: (newDb: any) => {
-        if (!('shellApyType' in newDb) || newDb.shellApiType() !== 'Database') {
+        if (newDb.shellApiType && newDb.shellApiType() !== 'Database') {
           throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
         }
         this.currentDb = newDb;

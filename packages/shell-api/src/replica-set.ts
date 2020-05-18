@@ -29,6 +29,10 @@ export default class ReplicaSet extends ShellApiClass {
     return proxy;
   }
 
+  toReplString(): any {
+    return `ReplicaSet class connected to ${this.mongo.uri}`;
+  }
+
   /**
    * Internal helper for emitting ReplicaSet API call events.
    *

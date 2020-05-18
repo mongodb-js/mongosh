@@ -29,6 +29,10 @@ export default class Shard extends ShellApiClass {
     return proxy;
   }
 
+  toReplString(): any {
+    return `Shard class connected to ${this.mongo.uri}`;
+  }
+
   /**
    * Internal helper for emitting Shard API call events.
    *
