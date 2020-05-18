@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "pretest": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",

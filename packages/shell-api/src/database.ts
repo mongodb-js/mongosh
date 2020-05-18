@@ -58,6 +58,7 @@ export default class Database extends ShellApiClass {
     });
   }
 
+  @returnType('Mongo')
   getMongo(): Mongo {
     return this.mongo;
   }

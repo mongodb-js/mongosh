@@ -1,206 +1,1038 @@
-const unknown = {
-  type: 'unknown',
-  attributes: {}
-};
-const AggregationCursor = {
-  type: 'AggregationCursor',
-  hasAsyncChild: true,
-  attributes: {
-    close: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    forEach: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    hasNext: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    isClosed: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    isExhausted: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    itcount: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    map: { type: 'function', returnsPromise: false, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
-    next: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    toArray: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    explain: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
+module.exports = {
+  'CommandResult': {
+    'type': 'CommandResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'BulkWriteResult': {
+    'type': 'BulkWriteResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'InsertManyResult': {
+    'type': 'InsertManyResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'InsertOneResult': {
+    'type': 'InsertOneResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'UpdateResult': {
+    'type': 'UpdateResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'DeleteResult': {
+    'type': 'DeleteResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'CursorIterationResult': {
+    'type': 'CursorIterationResult',
+    'hasAsyncChild': false,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'AggregationCursor': {
+    'type': 'AggregationCursor',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'close': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'forEach': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'hasNext': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'isClosed': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'isExhausted': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'itcount': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'map': {
+        'type': 'function',
+        'returnType': 'AggregationCursor',
+        'returnsPromise': false
+      },
+      'next': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'toArray': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'explain': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      }
+    }
+  },
+  'Collection': {
+    'type': 'Collection',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'aggregate': {
+        'type': 'function',
+        'returnType': 'AggregationCursor',
+        'returnsPromise': true
+      },
+      'bulkWrite': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'count': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'countDocuments': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'deleteMany': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'deleteOne': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'distinct': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'estimatedDocumentCount': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'find': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'findAndModify': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'findOne': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'renameCollection': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'findOneAndDelete': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'findOneAndReplace': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'findOneAndUpdate': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'insert': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'insertMany': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'insertOne': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'isCapped': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'remove': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'save': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'replaceOne': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'update': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'updateMany': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'updateOne': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'convertToCapped': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'createIndexes': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'createIndex': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'ensureIndex': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getIndexes': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getIndexSpecs': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getIndices': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getIndexKeys': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'dropIndexes': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'dropIndex': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'totalIndexSize': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'reIndex': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getDB': {
+        'type': 'function',
+        'returnType': 'Database',
+        'returnsPromise': false
+      },
+      'stats': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'dataSize': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'storageSize': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'totalSize': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'drop': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'exists': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getFullName': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'getName': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'runCommand': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'explain': {
+        'type': 'function',
+        'returnType': 'Explainable',
+        'returnsPromise': false
+      }
+    }
+  },
+  'Cursor': {
+    'type': 'Cursor',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'addOption': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'allowPartialResults': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'batchSize': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'clone': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'close': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'collation': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'comment': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'count': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'explain': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'forEach': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'hasNext': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'hint': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'isClosed': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'isExhausted': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'itcount': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'limit': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'map': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'max': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'maxTimeMS': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'min': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'next': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'noCursorTimeout': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'oplogReplay': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'projection': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'readPref': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'returnKey': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'size': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'skip': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'sort': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'tailable': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'toArray': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      }
+    }
+  },
+  'Database': {
+    'type': 'Database',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'getMongo': {
+        'type': 'function',
+        'returnType': 'Mongo',
+        'returnsPromise': false
+      },
+      'getCollectionNames': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'getCollectionInfos': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'runCommand': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'adminCommand': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'aggregate': {
+        'type': 'function',
+        'returnType': 'AggregationCursor',
+        'returnsPromise': true
+      }
+    }
+  },
+  'Explainable': {
+    'type': 'Explainable',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'getCollection': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'getVerbosity': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'setVerbosity': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'find': {
+        'type': 'function',
+        'returnType': 'ExplainableCursor',
+        'returnsPromise': false
+      },
+      'aggregate': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      }
+    }
+  },
+  'ExplainableCursor': {
+    'type': 'ExplainableCursor',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {
+      'addOption': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'allowPartialResults': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'batchSize': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'clone': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'close': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'collation': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'comment': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'count': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'explain': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'forEach': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'hasNext': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'hint': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'isClosed': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'isExhausted': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'itcount': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'limit': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'map': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'max': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'maxTimeMS': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'min': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'next': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'noCursorTimeout': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'oplogReplay': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'projection': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'readPref': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'returnKey': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'size': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      },
+      'skip': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'sort': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'tailable': {
+        'type': 'function',
+        'returnType': 'Cursor',
+        'returnsPromise': false
+      },
+      'toArray': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      }
+    }
+  },
+  'Shard': {
+    'type': 'Shard',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'ReplicaSet': {
+    'type': 'ReplicaSet',
+    'hasAsyncChild': true,
+    'returnsPromise': false,
+    'attributes': {}
+  },
+  'Mongo': {
+    'type': 'Mongo',
+    'hasAsyncChild': true,
+    'returnsPromise': true,
+    'attributes': {
+      'connect': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'getDB': {
+        'type': 'function',
+        'returnType': 'Database',
+        'returnsPromise': false
+      },
+      'use': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': false
+      },
+      'show': {
+        'type': 'function',
+        'returnType': {
+          'type': 'unknown',
+          'attributes': {}
+        },
+        'returnsPromise': true
+      }
+    }
   }
-};
-const BulkWriteResult = {
-  type: 'BulkWriteResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const Collection = {
-  type: 'Collection',
-  hasAsyncChild: true,
-  attributes: {
-    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] },
-    bulkWrite: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    countDocuments: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['4.0.3', '4.4.0'] },
-    count: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    deleteMany: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    deleteOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    distinct: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    estimatedDocumentCount: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['4.0.3', '4.4.0'] },
-    find: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    findAndModify: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    findOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    findOneAndDelete: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    findOneAndReplace: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    findOneAndUpdate: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    insert: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    insertMany: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    insertOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    isCapped: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    remove: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    save: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    replaceOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    update: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    updateMany: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    updateOne: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    convertToCapped: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    createIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    createIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    ensureIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    getIndexSpecs: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    getIndexKeys: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.2.0', '4.4.0'] },
-    getIndices: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    dropIndexes: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    dropIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    reIndex: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    totalIndexSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getDB: { type: 'function', returnsPromise: false, returnType: 'Database', serverVersions: ['0.0.0', '4.4.0'] },
-    stats: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    dataSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    storageSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    totalSize: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    drop: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getFullName: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getName: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    exists: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    renameCollection: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    explain: { type: 'function', returnsPromise: false, returnType: 'Explainable', serverVersions: ['0.0.0', '4.4.0'] }
-  }
-};
-const CommandResult = {
-  type: 'CommandResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const Cursor = {
-  type: 'Cursor',
-  hasAsyncChild: true,
-  attributes: {
-    addOption: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '3.2.0'] },
-    allowPartialResults: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    arrayAccess: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    batchSize: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    clone: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    close: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    collation: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.4.0', '4.4.0'] },
-    comment: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.2.0', '4.4.0'] },
-    count: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    explain: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    forEach: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    hasNext: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    hint: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    isClosed: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    isExhausted: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    itcount: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    limit: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    map: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    max: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    maxTimeMS: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    min: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    next: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    noCursorTimeout: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    oplogReplay: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    projection: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    readPref: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    returnKey: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.2.0', '4.4.0'] },
-    size: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    skip: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    sort: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    tailable: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['3.2.0', '4.4.0'] },
-    toArray: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
-  }
-};
-const Database = {
-  type: 'Database',
-  hasAsyncChild: true,
-  attributes: {
-    getCollectionNames: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    getCollectionInfos: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.0.0', '4.4.0'] },
-    runCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    adminCommand: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['3.4.0', '4.4.0'] },
-    aggregate: { type: 'function', returnsPromise: true, returnType: 'AggregationCursor', serverVersions: ['0.0.0', '4.4.0'] }
-  }
-};
-const DeleteResult = {
-  type: 'DeleteResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const Explainable = {
-  type: 'Explainable',
-  hasAsyncChild: false,
-  attributes: {
-    getCollection: { type: 'function', returnsPromise: false, returnType: 'Collection', serverVersions: ['0.0.0', '4.4.0'] },
-    getVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    setVerbosity: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-    find: { type: 'function', returnsPromise: false, returnType: 'Cursor', serverVersions: ['0.0.0', '4.4.0'] },
-    aggregate: { type: 'function', returnsPromise: true, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
-  }
-};
-const InsertManyResult = {
-  type: 'InsertManyResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const InsertOneResult = {
-  type: 'InsertOneResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const ReplicaSet = {
-  type: 'ReplicaSet',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const Shard = {
-  type: 'Shard',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-const UpdateResult = {
-  type: 'UpdateResult',
-  hasAsyncChild: false,
-  attributes: {
-
-  }
-};
-export default {
-  unknown,
-  AggregationCursor,
-  BulkWriteResult,
-  Collection,
-  CommandResult,
-  Cursor,
-  Database,
-  DeleteResult,
-  Explainable,
-  InsertManyResult,
-  InsertOneResult,
-  ReplicaSet,
-  Shard,
-  UpdateResult
 };

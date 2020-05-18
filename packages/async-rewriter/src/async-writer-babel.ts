@@ -178,7 +178,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       // determine return type
       const returnType = lhsType.returnType;
       let sType = { type: 'unknown', attributes: {} };
-      if (lhsType.type === 'function') {
+      if (lhsType.type === 'function' || lhsType.type === 'classdef') {
         if (typeof returnType === 'string') {
           sType = state.symbols.signatures[returnType];
         } else if (returnType !== undefined) {
@@ -423,7 +423,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     }
   },
   NewExpression: {
-    exit(path: babel.NodePath<babel.types.NewExpression>): void {
+    exit(path: babel.NodePath<babel.types.NewExpression>, state: State): void {
       const dbg = `callee.type: ${path.node.callee.type}`;
       // check that the user is not passing a type that has async children to a self-defined function
       path.node.arguments.forEach((a, index) => {
@@ -436,6 +436,20 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
 
       const lhsType = path.node.callee['shellType'];
       path.node['shellType'] = lhsType.returnType || { type: 'unknown', attributes: {} };
+      if (lhsType.returnsPromise) {
+        // NOTE: if need to convert top-level await into async func can do it here.
+        if (path.parent.type !== 'AwaitExpression') {
+          const newNode = state.t.awaitExpression(path.node);
+          newNode['shellType'] = lhsType.returnType || { type: 'unknown', attributes: {} };
+          path.replaceWith(newNode);
+        }
+        const parent = path.getFunctionParent();
+        if (parent !== null) {
+          parent.node.async = true;
+          parent.node['toAsync'] = true;
+        }
+        path.skip();
+      }
       debug(`NewExpression: { ${dbg}, callee['shellType']: ${lhsType.type} }`, path.node['shellType'].type);
     }
   },
