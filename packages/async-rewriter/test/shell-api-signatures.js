@@ -1,4 +1,25 @@
 module.exports = {
+  'ShellApi': {
+    'type': 'ShellApi',
+    'hasAsyncChild': false,
+    'attributes': {
+      'use': {
+        'type': 'function',
+        'returnsPromise': false,
+        'returnType': 'unknown',
+      },
+      'it': {
+        'type': 'function',
+        'returnsPromise': false,
+        'returnType': 'unknown',
+      },
+      'show': {
+        'type': 'function',
+        'returnsPromise': false,
+        'returnType': 'unknown',
+      }
+    }
+  },
   'CommandResult': {
     'type': 'CommandResult',
     'hasAsyncChild': false,
