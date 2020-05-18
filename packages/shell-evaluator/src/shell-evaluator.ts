@@ -121,7 +121,8 @@ class ShellEvaluator {
         return;
       default:
         this.saveState();
-        const rewrittenInput = this.asyncWriter.compile(input);
+        const rewrittenInput = this.asyncWriter.process(input);
+
         this.bus.emit(
           'mongosh:rewritten-async-input',
           { original: input.trim(), rewritten: rewrittenInput.trim() }

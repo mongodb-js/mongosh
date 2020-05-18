@@ -116,6 +116,43 @@ describe('async-writer-babel', () => {
       });
     });
   });
+  describe('TopLevelAwait', () => {
+    before(() => {
+      writer = new AsyncWriter(signatures);
+      writer.symbols.initializeApiObjects({
+        db: signatures.Database,
+        c: signatures.Collection,
+      });
+      writer.symbols.add('t', signatures.unknown);
+    });
+    it('compiles db.coll.insertOne({})', () => {
+      expect(writer.process('db.coll.insertOne({})'))
+        .to.equal('(async () => { return (await db.coll.insertOne({})); })()');
+    });
+    it('compiles async function within a function', () => {
+      expect(writer.process('function fn() { db.coll.insertOne({}); }'))
+        .to.equal('async function fn() {\n  await db.coll.insertOne({});\n}');
+    });
+    it('compiles async function within a class function', () => {
+      const i = `
+class Test {
+  regularFn() { return db; }
+  awaitFn() { db.coll.insertOne({}) }
+};`;
+      expect(writer.process(i)).to.equal(`class Test {
+  regularFn() {
+    return db;
+  }
+
+  async awaitFn() {
+    await db.coll.insertOne({});
+  }
+
+}
+
+;`);
+    });
+  });
   describe('MemberExpression', () => {
     describe('with Identifier lhs', () => {
       before(() => {
