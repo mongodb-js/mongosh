@@ -440,13 +440,21 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: String, commandOptions: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
-    }
+    override fun dropIndexes(database: String, collection: String, indexes: Value?): Value = promise<Any?> {
+        val indexes = if (indexes != null && !indexes.isNull) indexes else throw IllegalArgumentException("Indexes parameter must not be null")
+        val indexesList = if (indexes.hasArrayElements()) toList(indexes, "indexes")!!
+        else listOf(context.extract(indexes).value)
+        getDatabase(database, null).map { db ->
+            val coll = db.getCollection(collection)
+            indexesList.forEach { index ->
+                when (index) {
+                    is String -> coll.dropIndex(index)
+                    is Document -> coll.dropIndex(index)
+                    else -> throw IllegalArgumentException("Unknown index specification $index")
+                }
+            }
 
-    @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: Value?, commandOptions: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+        }
     }
 
     @HostAccess.Export
