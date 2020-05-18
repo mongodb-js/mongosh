@@ -65,7 +65,7 @@ export default class Mongo extends ShellApiClass {
       this.databases[db] = new Database(this, db);
     }
     this.internalState.messageBus.emit( 'mongosh:use', { db });
-    this.internalState.context.db = this.databases[db];
+    this.internalState.currentDb = this.databases[db];
 
     return `switched to db ${db}`;
   }

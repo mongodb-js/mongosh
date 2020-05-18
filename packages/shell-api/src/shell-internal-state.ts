@@ -36,7 +36,7 @@ export default class ShellInternalState {
     this.asyncWriter = new AsyncWriter(signatures);
     const mongo = new Mongo(true, this);
     this.currentCursor = null;
-    this.currentDb = mongo.getDB('test');
+    this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
   }
 
   async getConnectionInfo(): Promise<any> {
@@ -45,8 +45,13 @@ export default class ShellInternalState {
     return { buildInfo: info.buildInfo }; // this will expand when we do custom prompts
   }
 
+  // TODO: do we need to close all Mongo's?
   close(p): void {
-    this.currentDb.mongo.serviceProvider.close(p);
+    try {
+      this.currentDb.mongo.serviceProvider.close(p);
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
   }
 
   use(db): any {
@@ -122,21 +127,22 @@ export default class ShellInternalState {
       Mongo: signatures.Mongo
     });
 
-    // TODO: why is db undefined the first time
     Object.defineProperty(contextObject, 'db', {
-      set(newDb: any) {
-        console.log('setting DB!');
+      set: (newDb: any) => {
+        if (!('shellApyType' in newDb) || newDb.shellApiType() !== 'Database') {
+          throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
+        }
         this.currentDb = newDb;
         contextObject.rs = new ReplicaSet(this.currentDb.mongo);
         contextObject.sh = new Shard(this.currentDb.mongo);
         return newDb;
+      },
+      get: () => {
+        return this.currentDb;
       }
     });
-    contextObject.db = this.currentDb;
 
-    // TODO: update async-rewriter so that it inserts await in front of Mongo
     contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {
-      console.log('creating new mongo!');
       const mongo = new Mongo(false, this, uri, options);
       await mongo.connect();
       return mongo;
