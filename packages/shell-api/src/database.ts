@@ -7,8 +7,8 @@ import {
   hasAsyncChild,
   ShellApiClass,
   serverVersions,
-  ServerVersions
-} from './main';
+} from './decorators';
+import { ServerVersions } from './enums';
 
 import {
   Cursor as ServiceProviderCursor,

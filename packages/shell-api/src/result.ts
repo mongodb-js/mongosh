@@ -1,4 +1,4 @@
-import { ShellApiClass, shellApiClassDefault } from './main';
+import { ShellApiClass, shellApiClassDefault } from './decorators';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {

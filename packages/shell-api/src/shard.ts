@@ -3,7 +3,7 @@ import {
   shellApiClassDefault,
   hasAsyncChild,
   ShellApiClass,
-} from './main';
+} from './decorators';
 
 import {
   Document

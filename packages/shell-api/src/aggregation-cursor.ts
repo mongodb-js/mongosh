@@ -5,7 +5,7 @@ import {
   returnType,
   hasAsyncChild,
   ShellApiClass
-} from './main';
+} from './decorators';
 import {
   Cursor as ServiceProviderCursor,
   Document

@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { signatures, ExplainableCursor } from './index';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './main';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { signatures } from './decorators';
+import ExplainableCursor from './explainable-cursor';
 
 describe('ExplainableCursor', () => {
   describe('signature', () => {

@@ -4,8 +4,10 @@ import {
   hasAsyncChild,
   ShellApiClass,
   returnsPromise,
-  returnType, serverVersions, ServerVersions
-} from './main';
+  returnType,
+  serverVersions
+} from './decorators';
+import { ServerVersions } from './enums';
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,

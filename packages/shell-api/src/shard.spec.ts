@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import Shard from './replica-set';
+import Shard from './shard';
 
 describe('Shard', () => {
   describe('unimplemented', () => {

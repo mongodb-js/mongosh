@@ -21,13 +21,15 @@ import {
 import Mongo from './mongo';
 import ShellBson from './shell-bson';
 import {
-  signatures,
+  signatures
+} from './decorators';
+import {
   ReplPlatform,
   Topologies,
   ServerVersions,
   ReadPreference,
   DBQueryOption
-} from './main';
+} from './enums';
 
 export {
   AggregationCursor,

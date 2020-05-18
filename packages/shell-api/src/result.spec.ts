@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as results from './result';
-import { ShellApiInterface, signatures } from './main';
+import { ShellApiInterface, signatures } from './decorators';
 
 describe('Results', () => {
   describe('signatures', () => {

@@ -1,5 +1,13 @@
-import { Collection, Mongo, ExplainableCursor } from './index';
-import { hasAsyncChild, returnsPromise, returnType, ShellApiClass, shellApiClassDefault } from './main';
+import Collection from './collection';
+import Mongo from './mongo';
+import ExplainableCursor from './explainable-cursor';
+import {
+  hasAsyncChild,
+  returnsPromise,
+  returnType,
+  ShellApiClass,
+  shellApiClassDefault
+} from './decorators';
 import { Document } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault

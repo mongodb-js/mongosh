@@ -1,5 +1,5 @@
-import { shellApiClassDefault } from './main';
-import { Cursor } from './index';
+import { shellApiClassDefault } from './decorators';
+import Cursor from './cursor';
 import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 

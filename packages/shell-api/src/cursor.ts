@@ -5,10 +5,10 @@ import {
   returnsPromise,
   returnType,
   serverVersions,
-  ServerVersions,
   ShellApiClass,
   shellApiClassDefault
-} from './main';
+} from './decorators';
+import { ServerVersions } from './enums';
 import { Cursor as ServiceProviderCursor, Document } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault

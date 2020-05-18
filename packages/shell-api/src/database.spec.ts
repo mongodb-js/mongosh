@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ReplPlatform, signatures } from './main';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ReplPlatform } from './enums';
+import { signatures } from './decorators';
 import Database from './database';
 import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';

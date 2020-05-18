@@ -14,7 +14,7 @@ import {
 } from './index';
 import { EventEmitter } from 'events';
 import { DatabaseOptions, Document, ServiceProvider } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 
 /**
@@ -24,7 +24,6 @@ export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor;
   public currentDb: Database;
   public messageBus: EventEmitter;
-  public context: any;
   public asyncWriter: AsyncWriter;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public uri: string;
@@ -34,7 +33,7 @@ export default class ShellInternalState {
     this.platform = platform;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
-    const mongo = new Mongo(true, this);
+    const mongo = new Mongo(this);
     this.currentCursor = null;
     this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
   }
@@ -110,7 +109,6 @@ export default class ShellInternalState {
    * @param {Object} contextObject - contextObject an object used as global context.
    */
   setCtx(contextObject: any): void {
-    this.context = contextObject;
     // Add API methods for VSCode and scripts
     contextObject.use = this.use.bind(this);
     contextObject.show = this.show.bind(this);
@@ -143,7 +141,10 @@ export default class ShellInternalState {
     });
 
     contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {
-      const mongo = new Mongo(false, this, uri, options);
+      if (this.platform === ReplPlatform.Browser || this.platform === ReplPlatform.Compass) {
+        throw new MongoshUnimplementedError('new Mongo connection are not supported for current platform');
+      }
+      const mongo = new Mongo(this, uri, options);
       await mongo.connect();
       return mongo;
     };

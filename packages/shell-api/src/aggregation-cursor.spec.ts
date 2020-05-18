@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { signatures, AggregationCursor } from './index';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './main';
+import { signatures } from './decorators';
+import AggregationCursor from './aggregation-cursor';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 
 describe('AggregationCursor', () => {
   describe('signature', () => {

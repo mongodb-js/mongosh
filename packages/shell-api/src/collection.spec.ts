@@ -1,7 +1,8 @@
 import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { ReplPlatform, signatures, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS } from './main';
+import { signatures } from './decorators';
+import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, ReplPlatform } from './enums';
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';

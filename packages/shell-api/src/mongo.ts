@@ -3,16 +3,16 @@ import {
   classPlatforms,
   classReturnsPromise,
   hasAsyncChild,
-  ReplPlatform,
   returnsPromise,
   returnType,
   ShellApiClass,
   shellApiClassDefault
-} from './main';
+} from './decorators';
+import { ReplPlatform } from './enums';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -26,7 +26,6 @@ export default class Mongo extends ShellApiClass {
   private options: any;
 
   constructor(
-    initial: boolean,
     internalState: ShellInternalState,
     uri = 'mongodb://localhost/',
     fleOptions?
@@ -35,11 +34,7 @@ export default class Mongo extends ShellApiClass {
     this.internalState = internalState;
     this.databases = {};
     this.uri = uri;
-    this.options = fleOptions; // TODO
-
-    if (!initial && this.internalState.platform === ReplPlatform.Browser || this.internalState.platform === ReplPlatform.Compass) {
-      throw new MongoshUnimplementedError('new Mongo connection are not supported for current platform');
-    }
+    this.options = fleOptions;
     this.serviceProvider = this.internalState.initialServiceProvider;
   }
 
