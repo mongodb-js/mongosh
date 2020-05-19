@@ -52,16 +52,10 @@
  "dependencies": {
   "@leafygreen-ui/icon": "^5.1.0",
   "@leafygreen-ui/icon-button": "^5.0.2",
-<<<<<<< HEAD
   "@mongosh/browser-repl": "^0.0.1-alpha.15",
   "@mongosh/browser-runtime-electron": "^0.0.1-alpha.15",
   "@mongosh/service-provider-server": "^0.0.1-alpha.15",
   "mongodb-client-encryption": "^1.0.1"
-=======
-  "@mongosh/browser-repl": "^0.0.1-alpha.14",
-  "@mongosh/browser-runtime-electron": "^0.0.1-alpha.14",
-  "@mongosh/service-provider-server": "^0.0.1-alpha.14"
->>>>>>> Remove extra dependency
  },
  "peerDependencies": {
   "hadron-ipc": "^1.1.0",
