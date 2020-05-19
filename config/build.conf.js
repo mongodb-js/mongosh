@@ -39,5 +39,8 @@ module.exports = {
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
   downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET,
   githubToken: process.env.GITHUB_TOKEN,
-  segmentKey: process.env.SEGMENT_API_KEY
+  segmentKey: process.env.SEGMENT_API_KEY,
+  appleUser: process.env.APPLE_DEV_USER,
+  applePassword: process.env.APPLE_DEV_PASSWORD,
+  appleAppIdentity: process.env.APPLE_APP_IDENTITY
 };
