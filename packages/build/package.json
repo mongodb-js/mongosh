@@ -33,6 +33,8 @@
     "@octokit/rest": "^17.9.0",
     "adm-zip": "^0.4.14",
     "aws-sdk": "^2.674.0",
+    "electron-notarize": "^0.3.0",
+    "electron-osx-sign": "^0.4.16",
     "handlebars": "^4.7.6",
     "pkg": "^4.4.3",
     "semver": "^7.3.2",

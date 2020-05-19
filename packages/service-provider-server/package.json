@@ -3,7 +3,6 @@
   "version": "0.0.1-alpha.16",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
-  "types": "lib/index.d.ts",
   "config": {
     "unsafe-perm": true
   },
