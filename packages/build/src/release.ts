@@ -49,7 +49,7 @@ const release = async(config: Config) => {
   );
 
   // - Create release and upload assets to Github.
-  await releaseToGithub(config.version, artifact, octokit);
+  await releaseToGithub(config.version, artifact, platform, octokit);
 
   // - Publish the .deb (only on linux)
   // - Publish the .rpm (only on linux)
