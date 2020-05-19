@@ -1,11 +1,22 @@
 import { Octokit } from '@octokit/rest';
 import semver from 'semver';
 
+/**
+ * The repo we are working on.
+ */
 const REPO = Object.freeze({
   owner: 'mongodb-js',
   repo: 'mongosh'
 });
 
+/**
+ * Determine if this version is releasable.
+ *
+ * @param {string} version - The current version.
+ * @param {Octokit} octokit - The octokit instance.
+ *
+ * @returns {Promise} The promise of the boolean.
+ */
 const isReleasable = async(version: string, octokit: Octokit): Promise<boolean> => {
   const latestRelease = await getLatestRelease(octokit);
   return semver.gt(version, latestRelease.tag_name.replace('v', ''));
@@ -27,7 +38,7 @@ const getLatestRelease = async(octokit: Octokit): Promise<any> => {
   return data;
 };
 
-const createRelease = (version: string, octokit: Octokit) => {
+const createRelease = (version: string, octokit: Octokit): Promise<any> => {
   const params = {
     ...REPO,
     tag_name: `v${version}`,
@@ -37,7 +48,7 @@ const createRelease = (version: string, octokit: Octokit) => {
   return octokit.repos.createRelease(params);
 };
 
-const uploadAsset = (artifact: string, octokit: Octokit) => {
+const uploadAsset = (artifact: string, octokit: Octokit): Promise<any> => {
   const params = {
     ...REPO,
     release_id: 1,
