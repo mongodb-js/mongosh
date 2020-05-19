@@ -28,26 +28,28 @@ export default class CompassShell extends Component {
         >
           &gt;_MongoSH Beta
         </button>
-        {isExpanded && (
-          <div className={styles['compass-shell-header-right-actions']}>
-            <IconButton
-              className={styles['compass-shell-header-info-btn']}
-              variant="dark"
-              aria-label="Open Shell Information"
-              onClick={() => alert('Coming soon')}
-            >
-              <Icon glyph="InfoWithCircle" />
-            </IconButton>
+        <div className={styles['compass-shell-header-right-actions']}>
+          {isExpanded && (
             <IconButton
               className={styles['compass-shell-header-close-btn']}
               variant="dark"
               aria-label="Close Shell"
               onClick={onShellToggleClicked}
             >
-              <Icon glyph="X" />
+              <Icon glyph="ChevronDown" />
             </IconButton>
-          </div>
-        )}
+          )}
+          {!isExpanded && (
+            <IconButton
+              className={styles['compass-shell-header-open-btn']}
+              variant="dark"
+              aria-label="Open Shell"
+              onClick={onShellToggleClicked}
+            >
+              <Icon glyph="ChevronUp" />
+            </IconButton>
+          )}
+        </div>
       </div>
     );
   }
