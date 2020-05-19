@@ -3,7 +3,7 @@ import { Octokit } from '@octokit/rest';
 import Config from './config';
 import compileExec from './compile-exec';
 import uploadArtifactToEvergreen from './evergreen';
-import createRelease, { isReleasable, uploadAsset } from './github';
+import releaseToGithub from './github';
 import uploadArtifactToDownloads from './upload-artifact';
 import uploadDownloadCenterConfig from './download-center';
 import Platform from './platform';
@@ -48,35 +48,33 @@ const release = async(config: Config) => {
     config.revision
   );
 
-  if (await isReleasable(config.version, octokit)) {
-    const releaseId = await createRelease(config.version, octokit);
-    await uploadAsset(artifact, releaseId, octokit);
+  // - Create release and upload assets to Github.
+  await releaseToGithub(config.version, artifact, octokit);
 
-    // - Publish the .deb (only on linux)
-    // - Publish the .rpm (only on linux)
-    // - Create PR for Homebrew (only on macos)
+  // - Publish the .deb (only on linux)
+  // - Publish the .rpm (only on linux)
+  // - Create PR for Homebrew (only on macos)
 
-    // - Upload the artifact to downloads.10gen.com
-    await uploadArtifactToDownloads(
-      artifact,
+  // - Upload the artifact to downloads.10gen.com
+  await uploadArtifactToDownloads(
+    artifact,
+    config.downloadCenterAwsKey,
+    config.downloadCenterAwsSecret,
+    config.project,
+    config.revision
+  );
+
+  // - Create download center config and upload.
+  // - Publish to NPM.
+  //
+  // These only need to happen once so we only run them on MacOS.
+  if (platform === Platform.MacOs) {
+    await uploadDownloadCenterConfig(
+      config.version,
       config.downloadCenterAwsKey,
-      config.downloadCenterAwsSecret,
-      config.project,
-      config.revision
+      config.downloadCenterAwsSecret
     );
-
-    // - Create download center config and upload.
-    // - Publish to NPM.
-    //
-    // These only need to happen once so we only run them on MacOS.
-    if (platform === Platform.MacOs) {
-      await uploadDownloadCenterConfig(
-        config.version,
-        config.downloadCenterAwsKey,
-        config.downloadCenterAwsSecret
-      );
-      // npm publish.
-    }
+    // npm publish.
   }
 }; 
 
