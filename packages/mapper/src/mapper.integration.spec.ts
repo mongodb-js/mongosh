@@ -743,9 +743,9 @@ describe('Mapper (integration)', function() {
 
     describe('aggregate', () => {
       it('runs an aggregate pipeline on the database', async() => {
-        const cursor = await mapper.database_aggregate(database, [{
+        const cursor = await mapper.database_aggregate(database, { pipeline: [{
           $listLocalSessions: {}
-        }]);
+        }] });
 
         expect((await (cursor as AggregationCursor).toArray())[0]).to.have.keys('_id', 'lastUse');
       });
