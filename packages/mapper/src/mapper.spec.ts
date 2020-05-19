@@ -140,47 +140,6 @@ describe('Mapper', () => {
         serviceProviderCursor = stubInterface<ServiceProviderCursor>();
       });
 
-      it('calls serviceProvider.aggregate with pipeline and no options', async() => {
-        await mapper.collection_aggregate(
-          collection,
-          [{ $piplelineStage: {} }]
-        );
-
-        expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection._database._name,
-          collection._name,
-          [{ $piplelineStage: {} }],
-          {}
-        );
-      });
-      it('calls serviceProvider.aggregate with no pipeline and no options', async() => {
-        await mapper.collection_aggregate(
-          collection
-        );
-
-        expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection._database._name,
-          collection._name,
-          [],
-          {}
-        );
-      });
-      it('calls serviceProvider.aggregate with stages as arguments', async() => {
-        await mapper.collection_aggregate(
-          collection,
-          { $option1: 1 },
-          { $option2: 2 },
-          { $option3: 3 }
-        );
-
-        expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection._database._name,
-          collection._name,
-          [{ $option1: 1 }, { $option2: 2 }, { $option3: 3 }],
-          {}
-        );
-      });
-
       it('calls serviceProvider.aggregate with pipleline and options', async() => {
         await mapper.collection_aggregate(
           collection,
@@ -967,47 +926,10 @@ describe('Mapper', () => {
 
       it('calls serviceProvider.aggregateDb with pipleline and options', async() => {
         await mapper.database_aggregate(
-          database, {
-            pipeline: [ { $piplelineStage: {} } ],
-            options: true
-          }
-        );
+          database, [{ $piplelineStage: {} }], { options: true });
 
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
-          [{ $piplelineStage: {} }],
-          { options: true }
-        );
-      });
-
-      it('calls serviceProvider.aggregateDb with aggregate: 1', async() => {
-        await mapper.database_aggregate(
-          database, {
-            aggregate: 1,
-            pipeline: [ { $piplelineStage: {} } ],
-            options: true
-          }
-        );
-
-        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
-          database._name,
-          [{ $piplelineStage: {} }],
-          { options: true }
-        );
-      });
-
-      it('calls serviceProvider.aggregate with aggregate: "collName"', async() => {
-        await mapper.database_aggregate(
-          database, {
-            aggregate: 'collName',
-            pipeline: [ { $piplelineStage: {} } ],
-            options: true
-          }
-        );
-
-        expect(serviceProvider.aggregate).to.have.been.calledWith(
-          database._name,
-          'collName',
           [{ $piplelineStage: {} }],
           { options: true }
         );
@@ -1018,7 +940,7 @@ describe('Mapper', () => {
         serviceProviderCursor.toArray.resolves(toArrayResult);
         serviceProvider.aggregateDb.returns(serviceProviderCursor);
 
-        const cursor = await mapper.database_aggregate(database, { pipeline: [{ $piplelineStage: {} }] });
+        const cursor = await mapper.database_aggregate(database, [{ $piplelineStage: {} }]);
         expect(await (cursor as AggregationCursor).toArray()).to.equal(toArrayResult);
       });
 
@@ -1028,7 +950,7 @@ describe('Mapper', () => {
 
         expect(
           await mapper.database_aggregate(
-            database, { pipeline: [{ $piplelineStage: {} }] }
+            database, [{ $piplelineStage: {} }]
           ).catch(e => e)
         ).to.equal(expectedError);
       });
@@ -1036,6 +958,7 @@ describe('Mapper', () => {
       it('pass readConcern and writeConcern as dbOption', async() => {
         mapper.database_aggregate(
           database,
+          [],
           { otherOption: true, readConcern: { level: 'majority' }, writeConcern: { w: 1 } }
         );
 
@@ -1054,6 +977,7 @@ describe('Mapper', () => {
 
         const explainResult = await mapper.database_aggregate(
           database,
+          [],
           { explain: true }
         );
 
@@ -1066,6 +990,7 @@ describe('Mapper', () => {
 
         const cursor = await mapper.database_aggregate(
           database,
+          [],
           {}
         );
 
