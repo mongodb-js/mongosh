@@ -269,7 +269,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             db.getCollection(collection).insertMany(docs.filterIsInstance<Document>())
             context.toJs(mapOf(
                     "result" to mapOf("ok" to true),
-                    "insertedId" to emptyList<String>()))
+                    "insertedIds" to emptyList<String>()))
         }
     }
 

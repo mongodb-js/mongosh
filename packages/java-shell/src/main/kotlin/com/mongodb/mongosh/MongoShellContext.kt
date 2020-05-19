@@ -42,6 +42,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val cursorClass: Value
     private val aggregationCursorClass: Value
     private val insertOneResultClass: Value
+    private val insertManyResultClass: Value
     private val commandResultClass: Value
     private val updateResultClass: Value
     private val deleteResultClass: Value
@@ -66,6 +67,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         cursorClass = global["Cursor"]!!
         aggregationCursorClass = global["AggregationCursor"]!!
         insertOneResultClass = global["InsertOneResult"]!!
+        insertManyResultClass = global["InsertManyResult"]!!
         commandResultClass = global["CommandResult"]!!
         updateResultClass = global["UpdateResult"]!!
         deleteResultClass = global["DeleteResult"]!!
@@ -175,6 +177,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(cursorClass) -> FindCursorResult(FindCursor<Any?>(v, this))
             v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v["acknowleged"]!!.asBoolean(), v["insertedId"]!!.asString())
+            v.instanceOf(insertManyResultClass) -> InsertManyResult(v["acknowleged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
             v.instanceOf(commandResultClass) -> CommandResult(v["type"]!!.asString(), extract(v["value"]!!).value)
             v.instanceOf(deleteResultClass) -> DeleteResult(v["acknowleged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             v.instanceOf(bulkWriteResultClass) -> BulkWriteResult(

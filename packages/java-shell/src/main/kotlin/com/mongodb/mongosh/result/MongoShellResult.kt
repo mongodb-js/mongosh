@@ -94,6 +94,11 @@ class InsertOneResult(val acknowleged: Boolean, val insertedId: String) : MongoS
         get() = mapOf("acknowleged" to acknowleged, "insertedId" to insertedId)
 }
 
+class InsertManyResult(val acknowleged: Boolean, val insertedIds: List<String>) : MongoShellResult<Map<String, Any>>() {
+    override val value: Map<String, Any>
+        get() = mapOf("acknowleged" to acknowleged, "insertedIds" to insertedIds)
+}
+
 class CollectionResult internal constructor(override val value: MongoShellCollection) : MongoShellResult<MongoShellCollection>() {
     override fun toReplString() = value.toReplString()
 }

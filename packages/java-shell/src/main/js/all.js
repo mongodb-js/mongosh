@@ -9,6 +9,7 @@ _global = {
     Cursor: ShellApiSignatures.Cursor,
     AggregationCursor: ShellApiSignatures.AggregationCursor,
     InsertOneResult: ShellApiSignatures.InsertOneResult,
+    InsertManyResult: ShellApiSignatures.InsertManyResult,
     DeleteResult: ShellApiSignatures.DeleteResult,
     UpdateResult: ShellApiSignatures.UpdateResult,
     BulkWriteResult: ShellApiSignatures.BulkWriteResult,
