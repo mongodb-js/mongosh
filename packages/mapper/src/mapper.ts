@@ -228,18 +228,11 @@ export default class Mapper {
 
   async database_aggregate(
     database: Database,
-    command: any = {}
+    pipeline: Document[],
+    options?: Document
   ): Promise<AggregationCursor|CommandResult> {
-    const collectionName = command.aggregate === 1 || command.aggregate === undefined ? null : command.aggregate;
-    const pipeline = command.pipeline || [];
-    const options = Object.keys(command).reduce((result, k) => {
-      if (k !== 'aggregate' && k !== 'pipeline') result[k] = command[k];
-      return result;
-    }, {});
-
     this._emitDatabaseApiCall(database, 'aggregate', { pipeline, options });
-
-    return this._aggregate(database._name, collectionName, pipeline, options);
+    return this._aggregate(database._name, null, pipeline, options);
   }
 
   /**
@@ -304,24 +297,13 @@ export default class Mapper {
    *    <allowDiskUse, cursor, maxTimeMS, bypassDocumentValidation,
    *    readConcern, collation, hint, comment, writeConcern>
    *
-   * OR each stage can be passed as an argument.
-   *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
   collection_aggregate(
     collection: Collection,
-    ...args: any[]
+    pipeline: Document[],
+    options: Document = {}
   ): Promise<AggregationCursor|CommandResult> {
-    let options;
-    let pipeline;
-    if (args.length === 0 || Array.isArray(args[0])) {
-      options = args[1] || {};
-      pipeline = args[0] || [];
-    } else {
-      options = {};
-      pipeline = args;
-    }
-
     this._emitCollectionApiCall(
       collection,
       'aggregate',
