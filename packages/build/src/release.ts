@@ -26,11 +26,14 @@ const release = async(config: Config) => {
   // - Build the executable.
   await compileExec(config.input, config.outputDir, platform);
 
-  // - Sign the executable for each OS. Sign executable or zip?
-  // - Notarise the zip (only on macos)
+  // - Sign the executable
 
   // - Zip the executable.
   const artifact = await zip(config.input, config.outputDir, platform, config.version);
+
+  if (platform === Platform.MacOs) {
+    // - Notarize the zip.
+  }
 
   // - Create & sign the .deb (only on linux)
   // - Create & sign the .rpm (only on linux)
