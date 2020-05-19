@@ -474,6 +474,10 @@ export default class Mapper {
     const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
+
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -518,6 +522,9 @@ export default class Mapper {
     const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -774,6 +781,10 @@ export default class Mapper {
       }
     );
 
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined filter to an update command');
+    }
+
     const result = await this.serviceProvider.findOneAndDelete(
       db,
       coll,
@@ -807,6 +818,10 @@ export default class Mapper {
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
       delete findOneAndReplaceOptions.returnNewDocument;
+    }
+
+    if (filter === undefined || replacement === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
     }
 
     this.messageBus.emit(
@@ -854,6 +869,10 @@ export default class Mapper {
       delete findOneAndUpdateOptions.returnNewDocument;
     }
 
+    if (filter === undefined || update === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
+
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -895,6 +914,9 @@ export default class Mapper {
 
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
+    }
+    if (docs === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
     }
 
     this.messageBus.emit(
@@ -939,6 +961,9 @@ export default class Mapper {
     const db = collection._database._name;
     const coll = collection._name;
 
+    if (docs === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
     }
@@ -985,6 +1010,9 @@ export default class Mapper {
     const db = collection._database._name;
     const coll = collection._name;
 
+    if (doc === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
     }
@@ -1047,6 +1075,9 @@ export default class Mapper {
     const db = collection._database._name;
     const coll = collection._name;
 
+    if (query === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
     }
@@ -1081,6 +1112,9 @@ export default class Mapper {
     const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
+    if (doc === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -1117,6 +1151,9 @@ export default class Mapper {
     const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -1150,6 +1187,9 @@ export default class Mapper {
   async collection_update(collection, filter, update, options: any = {}): Promise<any> {
     const db = collection._database._name;
     const coll = collection._name;
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -1202,6 +1242,9 @@ export default class Mapper {
    * @returns {UpdateResult} The promise of the result.
    */
   async collection_updateMany(collection, filter, update, options: any = {}): Promise<any> {
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     const dbOptions: DatabaseOptions = {};
     const db = collection._database._name;
     const coll = collection._name;
@@ -1255,6 +1298,9 @@ export default class Mapper {
     update: Document,
     options: Document = {}
   ): Promise<any> {
+    if (filter === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this._emitCollectionApiCall(collection, 'updateOne', { filter, options });
 
     const dbOptions: DatabaseOptions = {};
@@ -1324,6 +1370,9 @@ export default class Mapper {
     keyPatterns: Document[],
     options: Document = {}
   ): Promise<any> {
+    if (keyPatterns === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     const db = collection._database._name;
     const coll = collection._name;
 
@@ -1364,6 +1413,9 @@ export default class Mapper {
     keys: Document,
     options: Document = {}
   ): Promise<any> {
+    if (keys === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     this.messageBus.emit(
       'mongosh:api-call',
       {
@@ -1522,6 +1574,9 @@ export default class Mapper {
     collection: Collection,
     indexes: string|string[]|Document|Document[]
   ): Promise<any> {
+    if (indexes === undefined) {
+      throw new MongoshInvalidInputError('Cannot pass an undefined argument to an update command');
+    }
     const db = collection._database._name;
     const coll = collection._name;
     this.messageBus.emit(
