@@ -1020,7 +1020,7 @@ class Test {
       });
       it('ignores exceptions', () => {
         expect(writer.compile('print(db)')).to.equal('print(db);');
-        expect(writer.compile('printjson(db)')).to.equal('print(db);');
+        expect(writer.compile('printjson(db)')).to.equal('printjson(db);');
       });
       it('throws an error for db.coll', (done) => {
         try {
