@@ -1,7 +1,5 @@
 package com.mongodb.mongosh.result
 
-import org.bson.Document
-
-interface Cursor : Iterator<Document> {
+interface Cursor<out T> : Iterator<T> {
     fun toReplString(): String
 }

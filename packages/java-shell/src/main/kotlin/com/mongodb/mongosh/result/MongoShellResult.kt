@@ -133,12 +133,12 @@ class CommandResult(val type: String, val response: Any?) : MongoShellResult<Map
         get() = Document("type", type).append("value", response)
 }
 
-abstract class CursorResult<T : Cursor>(override val value: T) : MongoShellResult<T>()
-class FindCursorResult internal constructor(cursor: FindCursor) : CursorResult<FindCursor>(cursor) {
+abstract class CursorResult<T : Cursor<*>>(override val value: T) : MongoShellResult<T>()
+class FindCursorResult internal constructor(cursor: FindCursor<*>) : CursorResult<FindCursor<*>>(cursor) {
     override fun toReplString(): String = value.toReplString()
 }
 
-class AggregationCursorResult internal constructor(cursor: AggregationCursor) : CursorResult<AggregationCursor>(cursor) {
+class AggregationCursorResult internal constructor(cursor: AggregationCursor<*>) : CursorResult<AggregationCursor<*>>(cursor) {
     override fun toReplString(): String = value.toReplString()
 }
 

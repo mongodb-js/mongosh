@@ -274,7 +274,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun aggregate(database: String, collection: String, pipeline: Value?, options: Value?, dbOptions: Value?): AggregateCursor {
+    override fun aggregate(database: String, collection: String, pipeline: Value?, options: Value?, dbOptions: Value?): Cursor {
         val pipeline = toList(pipeline, "pipeline")
         if (pipeline == null || pipeline.any { it !is Document }) throw IllegalArgumentException("pipeline must be a list of objects")
         val options = toDocument(options, "options")
@@ -282,11 +282,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val iterable = db.getCollection(collection).aggregate(pipeline.filterIsInstance<Document>())
         if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return AggregateCursor(iterable, context)
+        return Cursor(helper(iterable, context), context)
     }
 
     @HostAccess.Export
-    override fun aggregateDb(database: String, pipeline: Value?, options: Value?, dbOptions: Value?): AggregateCursor {
+    override fun aggregateDb(database: String, pipeline: Value?, options: Value?, dbOptions: Value?): Cursor {
         val pipeline = toList(pipeline, "pipeline")
         if (pipeline == null || pipeline.any { it !is Document }) throw IllegalArgumentException("pipeline must be a list of objects")
         val options = toDocument(options, "options")
@@ -294,7 +294,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val iterable = db.aggregate(pipeline.filterIsInstance<Document>())
         if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return AggregateCursor(iterable, context)
+        return Cursor(helper(iterable, context), context)
     }
 
     @HostAccess.Export
@@ -337,14 +337,14 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun find(database: String, collection: String, filter: Value?, options: Value?): FindCursor {
+    override fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
         val coll = client.getDatabase(database).getCollection(collection)
         val iterable = if (filter == null) coll.find() else coll.find(filter)
         val projection = options?.get("projection")?.let { it as Document }
         if (projection != null) iterable.projection(projection)
-        return FindCursor(iterable, context)
+        return Cursor(helper(iterable, context), context)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {

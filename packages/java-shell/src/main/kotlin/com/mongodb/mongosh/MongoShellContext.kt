@@ -172,8 +172,8 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             }
             v.instanceOf(databaseClass) -> DatabaseResult(MongoShellDatabase(v))
             v.instanceOf(collectionClass) -> CollectionResult(MongoShellCollection(v))
-            v.instanceOf(cursorClass) -> FindCursorResult(FindCursor(v, this))
-            v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor(v, this))
+            v.instanceOf(cursorClass) -> FindCursorResult(FindCursor<Any?>(v, this))
+            v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             v.instanceOf(insertOneResultClass) -> InsertOneResult(v["acknowleged"]!!.asBoolean(), v["insertedId"]!!.asString())
             v.instanceOf(commandResultClass) -> CommandResult(v["type"]!!.asString(), extract(v["value"]!!).value)
             v.instanceOf(deleteResultClass) -> DeleteResult(v["acknowleged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
