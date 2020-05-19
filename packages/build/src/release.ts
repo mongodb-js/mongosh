@@ -24,12 +24,12 @@ const release = async(config: Config) => {
   });
 
   // - Build the executable.
-  await compileExec(config.input, config.outputDir, platform);
+  const executable = await compileExec(config.input, config.outputDir, platform);
 
   // - Sign the executable
 
   // - Zip the executable.
-  const artifact = await zip(config.input, config.outputDir, platform, config.version);
+  const artifact = await zip(executable, config.outputDir, platform, config.version);
 
   if (platform === Platform.MacOs) {
     // - Notarize the zip.

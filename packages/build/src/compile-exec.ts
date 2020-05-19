@@ -68,7 +68,7 @@ const executablePath = (outputDir: string, platform: string): string => {
  * @param {string} outputDir - The output directory for the executable.
  * @param {string} platform - The platform.
  */
-const compileExec = async(input: string, outputDir: string, platform: string) => {
+const compileExec = async(input: string, outputDir: string, platform: string): Promise<string> => {
   const executable = executablePath(outputDir, platform);
   console.log('mongosh: creating binary:', executable);
   await compile([
@@ -78,6 +78,7 @@ const compileExec = async(input: string, outputDir: string, platform: string) =>
     '-t',
     determineTarget(platform)
   ]);
+  return executable;
 };
 
 export default compileExec;

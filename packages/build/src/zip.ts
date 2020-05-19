@@ -45,10 +45,10 @@ const zipPosix = async(outputDir: string, filename: string) => {
  * @param {string} input - The file to zip.
  * @param {string} filename - the zip filename.
  */
-const zipWindows = async(input: string, filename: string) => {
+const zipWindows = (input: string, filename: string) => {
   const admZip = new AdmZip();
   admZip.addLocalFile(input)
-  await admZip.writeZip(filename);
+  admZip.writeZip(filename);
 };
 
 /**
@@ -67,7 +67,7 @@ const zip = async(input: string, outputDir: string, platform: string, version: s
   if (platform === Platform.Linux) {
     await zipPosix(outputDir, filename);
   } else {
-    await zipWindows(input, filename);
+    zipWindows(input, filename);
   }
   return filename;
 };
