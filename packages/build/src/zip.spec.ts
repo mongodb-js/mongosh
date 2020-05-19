@@ -21,7 +21,7 @@ describe('zip module', () => {
     context('when the platform is macos', () => {
       it('returns the tarball name', () => {
         expect(zipPath('', Platform.MacOs, '1.0.0')).
-          to.equal('mongosh-1.0.0-darwin.tgz');
+          to.equal('mongosh-1.0.0-darwin.zip');
       });
     });
 

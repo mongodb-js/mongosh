@@ -13,7 +13,7 @@ import Platform from './platform';
  * @returns {string} The path.
  */
 const zipPath = (outputDir: string, platform: string, version: string): string => {
-  const ext = (platform === Platform.Windows) ? 'zip' : 'tgz';
+  const ext = (platform === Platform.Linux) ? 'tgz' : 'zip';
   return path.join(outputDir, `mongosh-${version}-${platform}.${ext}`);
 };
 
@@ -64,10 +64,10 @@ const zipWindows = async(input: string, filename: string) => {
 const zip = async(input: string, outputDir: string, platform: string, version: string): Promise<string> => {
   const filename = zipPath(outputDir, platform, version);
   console.log('mongosh: zipping:', filename);
-  if (platform === Platform.Windows) {
-    zipWindows(input, filename);
+  if (platform === Platform.Linux) {
+    await zipPosix(outputDir, filename);
   } else {
-    zipPosix(outputDir, filename);
+    await zipWindows(input, filename);
   }
   return filename;
 };

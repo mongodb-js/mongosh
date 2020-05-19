@@ -33,7 +33,7 @@ const CONFIG = `
           "arch": "x64",
           "os": "darwin",
           "name": "MacOS 64-bit (10.10+)",
-          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-darwin.tgz"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-darwin.zip"
         },
         {
           "arch": "x64",

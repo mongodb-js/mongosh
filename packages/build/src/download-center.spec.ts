@@ -12,7 +12,7 @@ describe('download center module', () => {
     });
 
     it('returns the string with the macos version injected', () => {
-      expect(config).to.include('mongosh-1.2.2-darwin.tgz');
+      expect(config).to.include('mongosh-1.2.2-darwin.zip');
     });
 
     it('returns the string with the linux version injected', () => {
