@@ -18,6 +18,9 @@ variables:
         export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
         export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
         export GITHUB_TOKEN="${github_token}"
+        export APPLE_DEV_USER="${apple_dev_user}"
+        export APPLE_DEV_PASSWORD="${apple_dev_password}"
+        export APPLE_APP_IDENTITY="${apple_app_identity}"
         npm run release
 # Functions are any command that can be run.
 #
