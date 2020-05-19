@@ -141,8 +141,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       const dbg = `callee.type: ${path.node.callee.type}`;
       let lhsType = path.node.callee['shellType'];
 
+      const isException = path.node.callee.type === 'Identifier' && ['print', 'printjson'].includes(path.node.callee.name);
       // If any of the arguments are a function that returns a promise
-      if (path.node.arguments.some(a => a['shellType'].returnsPromise)) {
+      if (!isException && path.node.arguments.some(a => a['shellType'].returnsPromise)) {
         if (path.node.callee.type === 'MemberExpression' &&
             !path.node.callee.computed) {
           switch (path.node.callee.property.type) {
@@ -172,7 +173,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       }
       /* Check that the user is not passing a type that has async children to a self-defined function.
          This is possible for scripts but not for line-by-line execution, so turned off for everything. */
-      if (path.node.arguments.some(a => a['shellType'].hasAsyncChild)) {
+      if (!isException && path.node.arguments.some(a => a['shellType'].hasAsyncChild)) {
         throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function');
       }
 

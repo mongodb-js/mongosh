@@ -182,6 +182,14 @@ class ShellEvaluator {
     contextObject.it = this.mapper.it.bind(this.mapper);
     contextObject.help = this.help.bind(this);
     contextObject.toIterator = toIterator;
+    contextObject.print = async(arg) => {
+      if (arg.toReplString) {
+        console.log(await arg.toReplString());
+      } else {
+        console.log(arg);
+      }
+    };
+    contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
 
     // Add global shell objects
