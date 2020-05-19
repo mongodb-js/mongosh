@@ -140,6 +140,47 @@ describe('Mapper', () => {
         serviceProviderCursor = stubInterface<ServiceProviderCursor>();
       });
 
+      it('calls serviceProvider.aggregate with pipeline and no options', async() => {
+        await mapper.collection_aggregate(
+          collection,
+          [{ $piplelineStage: {} }]
+        );
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          [{ $piplelineStage: {} }],
+          {}
+        );
+      });
+      it('calls serviceProvider.aggregate with no pipeline and no options', async() => {
+        await mapper.collection_aggregate(
+          collection
+        );
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          [],
+          {}
+        );
+      });
+      it('calls serviceProvider.aggregate with stages as arguments', async() => {
+        await mapper.collection_aggregate(
+          collection,
+          { $option1: 1 },
+          { $option2: 2 },
+          { $option3: 3 }
+        );
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          [{ $option1: 1 }, { $option2: 2 }, { $option3: 3 }],
+          {}
+        );
+      });
+
       it('calls serviceProvider.aggregate with pipleline and options', async() => {
         await mapper.collection_aggregate(
           collection,
