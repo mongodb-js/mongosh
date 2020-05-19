@@ -297,13 +297,24 @@ export default class Mapper {
    *    <allowDiskUse, cursor, maxTimeMS, bypassDocumentValidation,
    *    readConcern, collation, hint, comment, writeConcern>
    *
+   * OR each stage can be passed as an argument.
+   *
    * @returns {AggregationCursor} The promise of the aggregation cursor.
    */
   collection_aggregate(
     collection: Collection,
-    pipeline: Document[],
-    options: Document = {}
+    ...args: any[]
   ): Promise<AggregationCursor|CommandResult> {
+    let options;
+    let pipeline;
+    if (args.length === 0 || Array.isArray(args[0])) {
+      options = args[1] || {};
+      pipeline = args[0] || [];
+    } else {
+      options = {};
+      pipeline = args;
+    }
+
     this._emitCollectionApiCall(
       collection,
       'aggregate',
