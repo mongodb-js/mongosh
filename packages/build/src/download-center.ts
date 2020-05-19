@@ -39,7 +39,7 @@ const CONFIG = `
           "arch": "x64",
           "os": "win32",
           "name": "Windows 64-bit (7+)",
-          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-win.zip"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-win32.zip"
         },
         {
           "arch": "x64",

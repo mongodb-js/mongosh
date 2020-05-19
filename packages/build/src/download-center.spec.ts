@@ -20,7 +20,7 @@ describe('download center module', () => {
     });
 
     it('returns the string with the win version injected', () => {
-      expect(config).to.include('mongosh-1.2.2-win.zip');
+      expect(config).to.include('mongosh-1.2.2-win32.zip');
     });
   });
 });
