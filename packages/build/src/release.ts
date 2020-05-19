@@ -47,7 +47,7 @@ const release = async(config: Config) => {
 
   if (await isReleasable(config.version, octokit)) {
     const releaseId = await createRelease(config.version, octokit);
-    await uploadAsset(artifact, octokit);
+    await uploadAsset(artifact, releaseId, octokit);
 
     // - Publish the .deb (only on linux)
     // - Publish the .rpm (only on linux)

@@ -1,4 +1,8 @@
 import { Octokit } from '@octokit/rest';
+import {
+  GetResponseTypeFromEndpointMethod,
+  GetResponseDataTypeFromEndpointMethod,
+} from "@octokit/types";
 import semver from 'semver';
 
 /**
@@ -38,6 +42,12 @@ const getLatestRelease = async(octokit: Octokit): Promise<any> => {
   return data;
 };
 
+/**
+ * Create a new release.
+ *
+ * @param {string} version - The release version.
+ * @param {Octokit} octokit - The octokit instance.
+ */
 const createRelease = (version: string, octokit: Octokit): Promise<any> => {
   const params = {
     ...REPO,
@@ -48,10 +58,15 @@ const createRelease = (version: string, octokit: Octokit): Promise<any> => {
   return octokit.repos.createRelease(params);
 };
 
-const uploadAsset = (artifact: string, octokit: Octokit): Promise<any> => {
+/**
+ * Upload the asset to the release.
+ *
+ * 
+ */
+const uploadAsset = (artifact: string, releaseId: number, octokit: Octokit): Promise<any> => {
   const params = {
     ...REPO,
-    release_id: 1,
+    release_id: releaseId,
     data: ''
   };
   return octokit.repos.uploadReleaseAsset(params);
