@@ -89,5 +89,6 @@ export default releaseToGithub;
 export {
   getLatestRelease,
   createRelease,
-  uploadAsset
+  uploadAsset,
+  REPO
 };
