@@ -52,6 +52,11 @@ describe('Electron runtime', function() {
     expect(result.shellApiType).to.equal('ShowDatabasesResult');
   });
 
+  it('allows to use require', async() => {
+    const result = await electronRuntime.evaluate('require("util").types.isDate(new Date())');
+    expect(result.value).to.equal(true);
+  });
+
   it('can switch database', async() => {
     expect(
       (await electronRuntime.evaluate('db')).value
