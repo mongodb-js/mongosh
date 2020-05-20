@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-
-/* eslint no-console: 0, no-new: 0*/
 const { CliRepl, parseCliArgs, mapCliToDriver, generateUri, USAGE } = require('../lib');
 
 process.title = 'mongosh';
