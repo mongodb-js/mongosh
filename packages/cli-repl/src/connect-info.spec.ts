@@ -1,3 +1,4 @@
+/* eslint camelcase: 0, @typescript-eslint/camelcase: 0 */
 import { expect } from 'chai';
 import getConnectInfo from './connect-info';
 
@@ -74,15 +75,17 @@ describe('getConnectInfo', function() {
 
   it('reports on an enterprise version >=3.2 of mongodb with credentials', function() {
     const output = {
-      isAtlas: true,
-      isLocalhost: false,
-      serverVersion: '3.2.0-rc2',
-      isEnterprise: true,
-      authType: 'LDAP',
-      isDataLake: false,
-      dlVersion: null,
-      isGenuine: true,
-      serverName: 'mongodb',
+      is_atlas: true,
+      is_localhost: false,
+      server_version: '3.2.0-rc2',
+      is_enterprise: true,
+      auth_type: 'LDAP',
+      is_data_lake: false,
+      dl_version: null,
+      is_genuine: true,
+      non_genuine_server_name: 'mongodb',
+      server_arch: 'x86_64',
+      server_os: 'osx',
       uri: ATLAS_URI
     };
     expect(getConnectInfo(
@@ -94,15 +97,17 @@ describe('getConnectInfo', function() {
 
   it('reports on an enterprise version >=3.2 of mongodb with no credentials', function() {
     const output = {
-      isAtlas: true,
-      isLocalhost: false,
-      serverVersion: '3.2.0-rc2',
-      isEnterprise: true,
-      authType: null,
-      isDataLake: false,
-      dlVersion: null,
-      isGenuine: true,
-      serverName: 'mongodb',
+      is_atlas: true,
+      is_localhost: false,
+      server_version: '3.2.0-rc2',
+      is_enterprise: true,
+      auth_type: null,
+      is_data_lake: false,
+      dl_version: null,
+      is_genuine: true,
+      non_genuine_server_name: 'mongodb',
+      server_arch: 'x86_64',
+      server_os: 'osx',
       uri: ATLAS_URI
     };
     expect(getConnectInfo(

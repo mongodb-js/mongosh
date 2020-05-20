@@ -1,4 +1,4 @@
-/* eslint no-console:0, no-empty-function: 0 */
+/* eslint no-console: 0, no-empty-function: 0, camelcase: 0, @typescript-eslint/camelcase: 0 */
 
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
@@ -36,16 +36,18 @@ interface ShowEvent {
 }
 
 interface ConnectEvent {
+  is_atlas: boolean;
+  is_localhost: boolean;
+  server_version: string;
+  server_os?: string;
+  server_arch?: string;
+  is_enterprise: boolean;
+  auth_type?: string;
+  is_data_lake: boolean;
+  dl_version?: string;
+  is_genuine: boolean;
+  non_genuine_server_name: string;
   uri: string;
-  isAtlas: boolean;
-  isLocalhost: boolean;
-  serverVersion: string;
-  isEnterprise: boolean;
-  authType: string;
-  isDataLake: boolean;
-  dlVersion?: string;
-  isGenuine: boolean;
-  serverName: string;
 }
 
 // set up a noop, in case we are not able to connect to segment.
@@ -55,10 +57,10 @@ NoopAnalytics.prototype.identify = function(): void {};
 NoopAnalytics.prototype.track = function(): void {};
 
 export default function logger(bus: any, logDir: string): void {
-  const sessionID = new ObjectId(Date.now());
-  const logDest = path.join(logDir, `${sessionID}_log`);
+  const session_id = new ObjectId(Date.now());
+  const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
-  console.log(`Current sessionID: ${sessionID}`);
+  console.log(`Current sessionID: ${session_id}`);
   let userId;
   let telemetry;
 
@@ -74,14 +76,14 @@ export default function logger(bus: any, logDir: string): void {
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = redactPwd(args.uri);
     delete args.uri;
-    const params = { sessionID, userId, connectionUri, ...args };
+    const params = { session_id, userId, connectionUri, ...args };
     log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:connect',
-        properties: { sessionID, connectionUri, ...args }
+        event: 'New Connection',
+        properties: { session_id, ...args }
       });
     }
   });
@@ -105,7 +107,7 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry && error.name.includes('Mongosh')) {
       analytics.track({
         userId,
-        event: 'mongosh:error',
+        event: 'Error',
         properties: { error }
       });
     }
@@ -117,7 +119,7 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:help'
+        event: 'Help'
       });
     }
   });
@@ -132,7 +134,7 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:use'
+        event: 'Use'
       });
     }
   });
@@ -143,7 +145,7 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:show',
+        event: 'Show',
         properties: { method: args.method }
       });
     }
@@ -166,7 +168,7 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'mongosh:api-call',
+        event: 'Api Call',
         properties: redactInfo(properties)
       });
     }
