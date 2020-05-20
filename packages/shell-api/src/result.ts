@@ -69,7 +69,7 @@ export class UpdateResult extends ShellApiClass {
   matchedCount: number;
   modifiedCount: number;
   upsertedCount: number;
-  constructor(acknowledged, insertedId, matchedCount, modifiedCount, upsertedCount) {
+  constructor(acknowledged, matchedCount, modifiedCount, upsertedCount, insertedId) {
     super();
     this.acknowledged = acknowledged;
     this.insertedId = insertedId;
