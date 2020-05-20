@@ -1,6 +1,7 @@
 /* eslint no-use-before-define: ["error", { "functions": false }] */
 
 import prettyBytes from 'pretty-bytes';
+import bsonWriter from './format-bson';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
@@ -82,7 +83,8 @@ export function formatError(error): string {
 }
 
 function inspect(output): any {
-  return util.inspect(output, {
+  const formatted = bsonWriter(output);
+  return util.inspect(formatted, {
     showProxy: false,
     colors: true,
     depth: 6
