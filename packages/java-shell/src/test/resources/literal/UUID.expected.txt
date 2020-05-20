@@ -1,2 +1,4 @@
-BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 4}
-BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 4}
+UUIDResult: { "$binary" : "MTIzNA==" , "$type" : 4}
+UUIDResult: { "$binary" : "MTIzNA==" , "$type" : 4}
+UUIDResult: { "$binary" : "UiC0GPj3DUzZ9dIHNbb42ZDF" , "$type" : 4}
+UUIDResult

@@ -8,6 +8,7 @@ import com.mongodb.mongosh.result.MongoShellResult
 import com.mongodb.mongosh.result.toLiteral
 import org.bson.Document
 import org.junit.Assert.*
+import org.junit.Assume.assumeFalse
 import java.io.File
 import java.io.IOException
 import java.util.regex.Pattern
@@ -35,6 +36,7 @@ fun getTestNames(testDataPath: String): List<String> {
 }
 
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
+    assumeFalse(testName.endsWith("-ignored"))
     val test: String = File("$testDataPath/$testName.js").readText()
     var before: String? = null
     val commands = mutableListOf<Command>()
