@@ -6,12 +6,10 @@ import com.mongodb.ReadPreference
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
-import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.CommandException
-import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
-import org.graalvm.polyglot.Value
 import java.util.concurrent.TimeUnit
+
 
 internal fun <T> convert(o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
@@ -29,15 +27,6 @@ internal fun <T> convert(o: T,
         }
     }
     return Right(accumulator)
-}
-
-internal fun <T> convert(context: MongoShellContext,
-                         o: T,
-                         converters: Map<String, (T, Any?) -> Either<T>>,
-                         defaultConverter: (T, String, Any?) -> Either<T>,
-                         map: Value): Either<T> {
-    val result = context.extract(map)
-    return convert(o, converters, defaultConverter, (result as DocumentResult).value)
 }
 
 internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
@@ -234,11 +223,11 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
 internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("replace options")
 
 internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceOptions, Any?) -> Either<FindOneAndReplaceOptions>> = mapOf(
-        typed("projection", Map::class.java) { opt, value ->
-            opt.projection(toBson(value))
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
         },
-        typed("sort", Map::class.java) { opt, value ->
-            opt.sort(toBson(value))
+        typed("sort", Document::class.java) { opt, value ->
+            opt.sort(value)
         },
         typed("maxTimeMS", Number::class.java) { opt, value ->
             opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
@@ -259,6 +248,141 @@ internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceO
 
 internal val findOneAndReplaceOptionsDefaultConverters = unrecognizedField<FindOneAndReplaceOptions>("find and replace options")
 
+internal val bulkWriteOptionsConverters: Map<String, (BulkWriteOptions, Any?) -> Either<BulkWriteOptions>> = mapOf(
+        typed("ordered", Boolean::class.java) { opt, value ->
+            opt.ordered(value)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val bulkWriteOptionsDefaultConverter = unrecognizedField<BulkWriteOptions>("bulk write options")
+
+
+internal val deleteConverters: Map<String, (DeleteOptions, Any?) -> Either<DeleteOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val deleteDefaultConverter = unrecognizedField<DeleteOptions>("delete options")
+
+internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, Any?) -> Either<FindOneAndUpdateOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("sort", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("returnDocument", Boolean::class.java) { opt, value ->
+            opt.returnDocument(if (value) ReturnDocument.AFTER else ReturnDocument.BEFORE)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            if (value.any { it !is Document }) {
+                throw IllegalArgumentException("arrayFilters must be a list of objects: $value")
+            }
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val findOneAndUpdateDefaultConverter = unrecognizedField<FindOneAndUpdateOptions>("find one and update options")
+
+internal val findOneAndDeleteConverters: Map<String, (FindOneAndDeleteOptions, Any?) -> Either<FindOneAndDeleteOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("projection", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("sort", Document::class.java) { opt, value ->
+            opt.projection(value)
+        },
+        typed("maxTimeMS", Number::class.java) { opt, value ->
+            opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        }
+)
+
+internal val findOneAndDeleteDefaultConverter = unrecognizedField<FindOneAndDeleteOptions>("find one and delete options")
+
+internal val updateConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
+        typed("collation", Map::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            if (value.any { it !is Document }) {
+                throw IllegalArgumentException("arrayFilters must be a list of objects: $value")
+            }
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        }
+)
+
+internal val updateDefaultConverter = unrecognizedField<UpdateOptions>("update options")
+
+internal val indexModelConverters: Map<String, (IndexModel, Any?) -> Either<IndexModel>> = mapOf(
+        typed("collation", Map::class.java) { model, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            IndexModel(model.keys, model.options.collation(collation))
+        },
+        typed("key", Map::class.java) { model, value ->
+            IndexModel(value as Document, model.options)
+        },
+        typed("background", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.background(value))
+        },
+        typed("unique", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.unique(value))
+        },
+        typed("name", String::class.java) { model, value ->
+            IndexModel(model.keys, model.options.name(value))
+        },
+        typed("partialFilterExpression", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.partialFilterExpression(value as Document))
+        },
+        typed("sparse", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.sparse(value))
+        },
+        typed("expireAfterSeconds", Number::class.java) { model, value ->
+            IndexModel(model.keys, model.options.expireAfter(value.toLong(), TimeUnit.SECONDS))
+        },
+        typed("storageEngine", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.storageEngine(value as Document))
+        }
+)
+
+internal val indexModelDefaultConverter = unrecognizedField<IndexModel>("index model")
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
@@ -272,11 +396,3 @@ internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pa
             } else Left(CommandException("$name has to be a ${clazz.simpleName}", "TypeMismatch"))
         }
 
-internal fun toBson(options: Map<*, *>?): Document {
-    val doc = Document()
-    options?.entries?.forEach { (key, value) ->
-        if (key !is String) return@forEach
-        doc[key] = if (value is Map<*, *>) toBson(value) else value
-    }
-    return doc
-}

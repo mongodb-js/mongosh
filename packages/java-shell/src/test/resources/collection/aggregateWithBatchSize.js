@@ -12,3 +12,5 @@ db.coll.aggregate([
     {$group: {_id: "$group", total: {$sum: "$amount"}}},
     {$sort: {_id: 1}}
 ], {cursor: {batchSize: 1}});
+// clear
+db.coll.drop();

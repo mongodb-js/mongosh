@@ -8,6 +8,7 @@ import com.mongodb.mongosh.result.MongoShellResult
 import com.mongodb.mongosh.result.toLiteral
 import org.bson.Document
 import org.junit.Assert.*
+import org.junit.Assume.assumeFalse
 import java.io.File
 import java.io.IOException
 import java.util.regex.Pattern
@@ -35,6 +36,7 @@ fun getTestNames(testDataPath: String): List<String> {
 }
 
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
+    assumeFalse(testName.endsWith("-ignored"))
     val test: String = File("$testDataPath/$testName.js").readText()
     var before: String? = null
     val commands = mutableListOf<Command>()
@@ -43,8 +45,9 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
             SectionHandler("before") { value, _ -> before = value },
             SectionHandler("command") { value, properties ->
                 val checkResultClass = properties.any { (key, _) -> key == "checkResultClass" }
+                val dontReplaceId = properties.any { (key, _) -> key == "dontReplaceId" }
                 val dontCheckValue = properties.any { (key, _) -> key == "dontCheckValue" }
-                val options = CompareOptions(checkResultClass, dontCheckValue, properties.mapNotNull { (key, value) ->
+                val options = CompareOptions(checkResultClass, dontCheckValue, dontReplaceId, properties.mapNotNull { (key, value) ->
                     when (key) {
                         "getArrayItem" -> GetArrayItemCommand(value.toInt())
                         "extractProperty" -> ExtractPropertyCommand(value)
@@ -66,7 +69,9 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                 if (sb.isNotEmpty()) sb.append("\n")
                 try {
                     val result = shell.eval(cmd.command)
-                    sb.append(getExpectedValue(result, cmd.options))
+                    val actualValue = getActualValue(result, cmd.options)
+                    val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else replaceUUID(replaceId(actualValue)).trim()
+                    sb.append(normalized)
                 } catch (e: Throwable) {
                     System.err.println("IGNORED:")
                     e.printStackTrace()
@@ -80,7 +85,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
     }
 }
 
-private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOptions): String {
+private fun getActualValue(result: MongoShellResult<*>, options: CompareOptions): String {
     if (options.dontCheckValue) return result.javaClass.simpleName
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
@@ -110,7 +115,7 @@ private fun getExpectedValue(result: MongoShellResult<*>, options: CompareOption
 }
 
 private class Command(val command: String, val options: CompareOptions)
-private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val commands: List<CompareCommand>)
+private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val dontReplaceId: Boolean, val commands: List<CompareCommand>)
 private sealed class CompareCommand
 private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()
@@ -127,20 +132,24 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
     val expectedFile = File("$testDataPath/$name.expected.txt")
-    val normalized = replaceId(actual).trim()
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
-        expectedFile.writeText(normalized)
+        expectedFile.writeText(actual.trim())
         fail("Created output file $expectedFile")
     } else {
-        assertEquals(expectedFile.readText().trim(), normalized)
+        assertEquals(expectedFile.readText().trim(), actual.trim())
     }
 }
 
 private val MONGO_ID_PATTERN = Pattern.compile("[0-9a-f]{24}")
+private val MONGO_UUID_PATTERN = Pattern.compile("[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}")
 
 private fun replaceId(value: String): String {
     return MONGO_ID_PATTERN.matcher(value).replaceAll("<ObjectID>")
+}
+
+private fun replaceUUID(value: String): String {
+    return MONGO_UUID_PATTERN.matcher(value).replaceAll("<UUID>")
 }
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")

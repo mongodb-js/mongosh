@@ -3,29 +3,27 @@ package com.mongodb.mongosh.service
 import org.graalvm.polyglot.Value
 
 internal interface WritableServiceProvider {
-    fun runCommand(database: String, spec: Map<*, *>): Value
-    fun dropDatabase(database: String, writeConcern: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun bulkWrite(database: String, collection: String, requests: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun deleteMany(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun deleteOne(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun findOneAndDelete(database: String, collection: String, filter: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun findOneAndReplace(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?): Value
-    fun findOneAndUpdate(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun insertMany(database: String, collection: String, docs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun insertOne(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun replaceOne(database: String, collection: String, filter: Map<*, *>, replacement: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun updateMany(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: List<*>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?)
-    fun findAndModify(database: String, collection: String, query: Map<*, *>, sort: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?)
-    fun updateOne(database: String, collection: String, filter: Map<*, *>, update: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun save(database: String, collection: String, doc: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun remove(database: String, collection: String, query: Map<*, *>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun convertToCapped(database: String, collection: String, size: Number, options: Map<*, *>?): Value
-    fun createIndexes(database: String, collection: String, indexSpecs: List<*>, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun dropIndexes(database: String, collection: String, indexes: String, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun dropIndexes(database: String, collection: String, indexes: List<*>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun dropIndexes(database: String, collection: String, indexes: Map<*, *>, commandOptions: Map<*, *>?, dbOptions: Map<*, *>?): Value
-    fun reIndex(database: String, collection: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun runCommand(database: String, spec: Value): Value
+    fun dropDatabase(database: String, writeConcern: Value?, dbOptions: Value?): Value
+    fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value
+    fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value
+    fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value
+    fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?): Value
+    fun findOneAndReplace(database: String, collection: String, filter: Value, replacement: Value, options: Value?): Value
+    fun findOneAndUpdate(database: String, collection: String, filter: Value, update: Value, options: Value?): Value
+    fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value
+    fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value
+    fun replaceOne(database: String, collection: String, filter: Value, replacement: Value, options: Value?, dbOptions: Value?): Value
+    fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value
+    fun findAndModify(database: String, collection: String, filter: Value?, sort: Value?, update: Value?, options: Value?, dbOptions: Value?)
+    fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value
+    fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value
+    fun save(database: String, collection: String, document: Value, options: Value?, dbOptions: Value?): Value
+    fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value
+    fun convertToCapped(database: String, collection: String, size: Number, options: Value?): Value
+    fun createIndexes(database: String, collection: String, indexSpecs: Value?): Value
+    fun dropIndexes(database: String, collection: String, indexes: Value?): Value
+    fun reIndex(database: String, collection: String, options: Value?, dbOptions: Value?): Value
     fun dropCollection(database: String, collection: String): Value
-    fun renameCollection(database: String, oldName: String, newName: String, options: Map<*, *>?, dbOptions: Map<*, *>?): Value
+    fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value
 }

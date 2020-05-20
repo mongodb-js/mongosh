@@ -4,14 +4,14 @@ import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.Value
 
-class AggregationCursor internal constructor(private val cursor: Value, private val context: MongoShellContext) : Cursor {
+class AggregationCursor<out T> internal constructor(private val cursor: Value, private val context: MongoShellContext) : Cursor<T> {
     override fun hasNext(): Boolean {
         return cursor.invokeMember("hasNext").asBoolean()
     }
 
-    override fun next(): Document {
+    override fun next(): T {
         if (!hasNext()) throw NoSuchElementException()
-        return cursor.invokeMember("next").asHostObject()
+        return context.extract(cursor.invokeMember("next")).value as T
     }
 
     override fun toReplString(): String {

@@ -5,3 +5,5 @@ db.coll.insertOne({a: 2});
 db.coll.insertOne({a: 3});
 // command
 db.coll.estimatedDocumentCount();
+// clear
+db.coll.drop();

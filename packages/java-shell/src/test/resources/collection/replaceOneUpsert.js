@@ -5,3 +5,5 @@ db.coll.insertOne({a: 1});
 db.coll.replaceOne({a: 2}, {a: 3}, {upsert: true});
 // command
 db.coll.find();
+// clear
+db.coll.drop();

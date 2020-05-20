@@ -1,0 +1,2 @@
+{ "acknowleged": true, "insertedIds": [ ] }
+[ { "_id": <ObjectID>, "a": 1, "objectId": <ObjectID>, "maxKey": { "$maxKey" : 1}, "minKey": { "$minKey" : 1}, "binData": { "$binary" : "MTIzNA==" , "$type" : 16}, "date": { "$date" : 1355875200000}, "isoDate": { "$date" : 1355875200000}, "numberInt": 24, "timestamp": Timestamp{value=429496729600, seconds=100, inc=0} } ]

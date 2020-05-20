@@ -1,0 +1,6 @@
+DateResult
+DateResult
+DateResult: { "$date" : 1}
+DateResult: { "$date" : 2678400000}
+DateResult: { "$date" : 2865900000}
+DateResult: { "$date" : 1355875200000}
