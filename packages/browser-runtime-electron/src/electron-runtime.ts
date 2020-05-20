@@ -19,7 +19,7 @@ export class ElectronRuntime implements Runtime {
   }) {
     this.openContextRuntime = new OpenContextRuntime(
       serviceProvider,
-      new ElectronInterpreterEnvironment({}),
+      new ElectronInterpreterEnvironment({ require }),
       messageBus
     );
   }
