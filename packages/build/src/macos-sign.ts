@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
@@ -28,8 +28,13 @@ const publish = async(executable: string, artifact: string, config: Config) => {
   // Remove the zip that was created since the notarize process will create a
   // new zip.
   await fs.unlink(artifact);
-  await sign(config.outputDir, config.appleAppIdentity);
-  await notarize(config.bundleId, executable, config.appleUser, config.applePassword);
+  await sign(config.outputDir, config.appleAppIdentity).
+    catch((e) => { console.error(e); throw e; });
+  await notarize(
+    config.bundleId,
+    executable,
+    config.appleUser,
+    config.applePassword).catch((e) => { console.error(e); throw e; });
 };
 
 export default publish;
