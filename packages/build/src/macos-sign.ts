@@ -27,9 +27,12 @@ const sign = (path: string, identity: string) => {
 const publish = async(executable: string, artifact: string, config: Config) => {
   // Remove the zip that was created since the notarize process will create a
   // new zip.
+  console.log('mongosh: removing unsigned zip:', artifact);
   await fs.unlink(artifact);
+  console.log('mongosh: signing:', executable);
   await sign(config.outputDir, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
+  console.log('mongosh: notarizing and zipping:', executable);
   await notarize(
     config.bundleId,
     executable,
