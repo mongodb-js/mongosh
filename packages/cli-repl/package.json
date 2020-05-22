@@ -31,6 +31,9 @@
   "engines": {
     "node": "^12.4.0"
   },
+  "build": {
+    "bundleId": "com.mongodb.mongosh"
+  },
   "dependencies": {
     "@mongosh/build": "^0.0.1-alpha.19",
     "@mongosh/errors": "^0.0.1-alpha.19",
