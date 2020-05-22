@@ -30,6 +30,7 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
  */
 module.exports = {
   version: CONFIG.version,
+  bundleId: CONFIG.bundleId,
   input: INPUT,
   outputDir: OUTPUT_DIR,
   project: process.env.PROJECT,
