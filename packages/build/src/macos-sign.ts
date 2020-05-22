@@ -27,9 +27,8 @@ const publish = (executable: string, artifact: string, config: config) => {
   // Remove the zip that was created since the notarize process will create a
   // new zip.
   await fs.unlink(artifact);
-  // open ssh tunnel.
   await sign(config.outputDir, config.appleAppIdentity);
   await notarize(config.bundleId, executable, config.appleUser, config.applePassword);
 };
 
-export publish;
+export default publish;
