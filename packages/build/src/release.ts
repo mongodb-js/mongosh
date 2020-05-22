@@ -48,31 +48,33 @@ const release = async(config: Config) => {
   );
 
   // - Create release and upload assets to Github.
-  await releaseToGithub(config.version, artifact, platform, octokit);
+  const isNewRelease = await releaseToGithub(config.version, artifact, platform, octokit);
 
-  // - Publish the .deb (only on linux)
-  // - Publish the .rpm (only on linux)
-  // - Create PR for Homebrew (only on macos)
+  if (isNewRelease) {
+    // - Publish the .deb (only on linux)
+    // - Publish the .rpm (only on linux)
+    // - Create PR for Homebrew (only on macos)
 
-  // - Upload the artifact to downloads.10gen.com
-  await uploadArtifactToDownloads(
-    artifact,
-    config.downloadCenterAwsKey,
-    config.downloadCenterAwsSecret,
-    config.project,
-    config.revision
-  );
-
-  // - Create download center config and upload.
-  // - Publish to NPM.
-  //
-  // These only need to happen once so we only run them on MacOS.
-  if (platform === Platform.MacOs) {
-    await uploadDownloadCenterConfig(
-      config.version,
+    // - Upload the artifact to downloads.10gen.com
+    await uploadArtifactToDownloads(
+      artifact,
       config.downloadCenterAwsKey,
-      config.downloadCenterAwsSecret
+      config.downloadCenterAwsSecret,
+      config.project,
+      config.revision
     );
+
+    // - Create download center config and upload.
+    // - Publish to NPM.
+    //
+    // These only need to happen once so we only run them on MacOS.
+    if (platform === Platform.MacOs) {
+      await uploadDownloadCenterConfig(
+        config.version,
+        config.downloadCenterAwsKey,
+        config.downloadCenterAwsSecret
+      );
+    }
   }
 }; 
 

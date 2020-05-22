@@ -21,14 +21,16 @@ const REPO = Object.freeze({
  * @param {string} platform - The platform.
  * @param {Octokit} octokit - The octokit instance.
  */
-const releaseToGithub = async(version: string, artifact: string, platform: string, octokit: Octokit): Promise<any> => {
+const releaseToGithub = async(version: string, artifact: string, platform: string, octokit: Octokit): Promise<boolean> => {
   const latestRelease = await getLatestRelease(octokit);
   if (semver.gt(version, latestRelease.tag_name.replace('v', ''))) {
     // Create a new release if our version is higher than latest.
     const newRelease = await createRelease(version, octokit);
     await uploadAsset(artifact, platform, newRelease.upload_url, octokit);
+    return true;
   } else {
     await uploadAsset(artifact, platform, latestRelease.upload_url, octokit);
+    return false
   }
 };
 
