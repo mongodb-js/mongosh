@@ -6,6 +6,7 @@ import uploadArtifactToEvergreen from './evergreen';
 import releaseToGithub from './github';
 import uploadArtifactToDownloads from './upload-artifact';
 import uploadDownloadCenterConfig from './download-center';
+import publishMacOs from './macos-sign';
 import Platform from './platform';
 import zip from './zip';
 import S3 from 'aws-sdk/clients/s3';
@@ -26,16 +27,14 @@ const release = async(config: Config) => {
   // - Build the executable.
   const executable = await compileExec(config.input, config.outputDir, platform);
 
-  // - Sign the executable
-
-  // - Zip the executable.
+  // Zip the executable.
   const artifact = await zip(executable, config.outputDir, platform, config.version);
 
+  // Sign and notarize the executable and artifact.
   if (platform === Platform.MacOs) {
-    // - Notarize the zip.
+    await publishMacOs(executable, artifact, config);
   }
 
-  // - Create & sign the .deb (only on linux)
   // - Create & sign the .rpm (only on linux)
   // - Create & sign the .msi (only on win)
 
@@ -74,7 +73,6 @@ const release = async(config: Config) => {
       config.downloadCenterAwsKey,
       config.downloadCenterAwsSecret
     );
-    // npm publish.
   }
 }; 
 
