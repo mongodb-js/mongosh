@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
+import Config from './config';
 
 const notarize = (bundleId: string, executable: string, user: string, password: string) => {
   return nodeNotarize({
@@ -23,7 +24,7 @@ const sign = (path: string, identity: string) => {
   });
 };
 
-const publish = (executable: string, artifact: string, config: config) => {
+const publish = async(executable: string, artifact: string, config: Config) => {
   // Remove the zip that was created since the notarize process will create a
   // new zip.
   await fs.unlink(artifact);
