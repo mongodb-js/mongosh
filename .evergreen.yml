@@ -8,6 +8,8 @@ variables:
       working_dir: src
       shell: bash
       script: |
+        cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
+        cd $(pwd)
         source .evergreen/.setup_env
         export SEGMENT_API_KEY="${segment_key}"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
@@ -22,6 +24,15 @@ variables:
         export APPLE_DEV_PASSWORD="${apple_dev_password}"
         export APPLE_APP_IDENTITY="${apple_app_identity}"
         npm run release
+        RELEASE_MONGOSH
+
+        if [ `uname` == Darwin ]; then
+          ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
+        else
+          bash ~/release_mongosh.sh
+        fi
+
+        ls -la dist/
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -82,29 +93,10 @@ functions:
           npm run test-ci
   release_macos:
     - <<: *compile_and_release
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          echo "################# Sign, notarise, and release MacOS artifacts ################"
   release_linux:
     - <<: *compile_and_release
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          echo "################# Sign and release Linux artifacts ################"
   release_win:
     - <<: *compile_and_release
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          echo "################# Sign and release Windows artifacts ################"
-          ls -la dist/
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
