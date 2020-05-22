@@ -12,9 +12,9 @@ const notarize = (bundleId: string, executable: string, user: string, password: 
   });
 };
 
-const sign = (path: string, identity: string) => {
+const sign = (executable: string, identity: string) => {
   return new Promise((resolve, reject) => {
-    codesign({ identity: identity, appPath: path }, (err, paths) => {
+    codesign({ identity: identity, appPath: executable }, (err, paths) => {
       if (err) {
         reject(err);
       } else {
@@ -30,7 +30,7 @@ const publish = async(executable: string, artifact: string, config: Config) => {
   console.log('mongosh: removing unsigned zip:', artifact);
   await fs.unlink(artifact);
   console.log('mongosh: signing:', executable);
-  await sign(config.outputDir, config.appleAppIdentity).
+  await sign(executable, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
   console.log('mongosh: notarizing and zipping:', executable);
   await notarize(
