@@ -29,19 +29,19 @@ describe('compile module', () => {
   describe('Target', () => {
     describe('Target.Windows', () => {
       it('returns win', () => {
-        expect(Target.Windows).to.equal('win');
+        expect(Target.Windows).to.equal('win32-x86-12.4.0');
       });
     });
 
     describe('Target.MacOs', () => {
       it('returns macos', () => {
-        expect(Target.MacOs).to.equal('macos');
+        expect(Target.MacOs).to.equal('darwin-12.4.0');
       });
     });
 
     describe('Target.Linux', () => {
       it('returns linux', () => {
-        expect(Target.Linux).to.equal('linux');
+        expect(Target.Linux).to.equal('linux-x86-12.4.0');
       });
     });
   });
@@ -96,28 +96,6 @@ describe('compile module', () => {
     context('when the platform is linux', () => {
       it('returns the path', () => {
         expect(executablePath('', Platform.Linux)).to.equal('mongosh');
-      });
-    });
-  });
-
-  describe('.compileExec', () => {
-    const platform = os.platform();
-    const expectedExecutable = executablePath(__dirname, platform);
-    const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
-
-    before(() => {
-      return compileExec(inputFile, __dirname, platform);
-    });
-
-    after((done) => {
-      fs.unlink(expectedExecutable, done);
-    });
-
-    it('builds the executable', (done) => {
-      fs.stat(expectedExecutable, (error, stats) => {
-        expect(error).to.equal(null);
-        expect(stats.size).to.be.above(0);
-        done();
       });
     });
   });
