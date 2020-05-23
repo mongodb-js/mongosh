@@ -1,6 +1,7 @@
 import path from 'path';
-import { exec as compile } from 'pkg';
+import { compile } from 'nexe';
 import Platform from './platform';
+import generateInput from './generate-input';
 
 /**
  * The executable name enum.
@@ -14,9 +15,9 @@ enum ExecName {
  * Target enum.
  */
 enum Target {
-  Windows = 'win',
-  MacOs = 'macos',
-  Linux = 'linux'
+  Windows = 'win32-x86-12.4.0',
+  MacOs = 'darwin-12.4.0',
+  Linux = 'linux-x86-12.4.0'
 }
 
 /**
@@ -62,22 +63,46 @@ const executablePath = (outputDir: string, platform: string): string => {
 };
 
 /**
- * Compile the executable.
+ * Compile the executable. This builds the thing that ends up in dist/
+ * that we will zip up and send off to userland.
  *
  * @param {string} input - The root js of the app.
  * @param {string} outputDir - The output directory for the executable.
  * @param {string} platform - The platform.
  */
-const compileExec = async(input: string, outputDir: string, platform: string): Promise<string> => {
+const compileExec = async(
+  input: string,
+  execInput: string,
+  outputDir: string,
+  platform: string,
+  resources: string[],
+  analyticsConfig: string,
+  segmentKey: string): Promise<string> => {
+
+  // Nexe has a huge problem figuring out dependencies in this project,
+  // especially with all the lerna symlinking, so we use Parcel to bundle
+  // up everything into a single JS under cli-repl/dist/mongosh.js
+  // that Nexe can make an executable of. This JS also takes care of the
+  // analytics config file being written.
+  await generateInput(input, execInput, analyticsConfig, segmentKey);
+
   const executable = executablePath(outputDir, platform);
   console.log('mongosh: creating binary:', executable);
-  await compile([
-    input,
-    '-o',
-    executable,
-    '-t',
-    determineTarget(platform)
-  ]);
+  // Nexe requires 2 compile tasks to run - the first is to clean out the
+  // cache but requires an input file for some reason.
+  await compile({
+    input: execInput,
+    clean: true,
+    targets: [ determineTarget(platform) ]
+  });
+  // The second Nexe compile actually does the work.
+  await compile({
+    input: execInput,
+    output: executable,
+    loglevel: 'verbose',
+    targets: [ determineTarget(platform) ],
+    resources: resources
+  });
   return executable;
 };
 
