@@ -1,6 +1,6 @@
 import path from 'path';
 import { expect } from 'chai';
-import { createDownloadCenterConfig } from './analytics';
+import { createAnalyticsConfig } from './analytics';
 
 describe('analytics module', () => {
   describe('.createAnalyticsConfig', () => {
@@ -11,7 +11,7 @@ describe('analytics module', () => {
     });
 
     it('returns the string with the segment key injected', () => {
-      expect(config).to.include('SEGMENT_API_KEY = "key"');
+      expect(config).to.include('SEGMENT_API_KEY: "key"');
     });
   });
 });
