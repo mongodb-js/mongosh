@@ -2,9 +2,9 @@ import os from 'os';
 import { Octokit } from '@octokit/rest';
 import Config from './config';
 import compileExec from './compile-exec';
-import uploadArtifactToEvergreen from './evergreen';
 import releaseToGithub from './github';
 import uploadArtifactToDownloads from './upload-artifact';
+import uploadArtifactToEvergreen from './evergreen';
 import uploadDownloadCenterConfig from './download-center';
 import publishMacOs from './macos-sign';
 import Platform from './platform';
@@ -18,14 +18,23 @@ import S3 from 'aws-sdk/clients/s3';
  */
 const release = async(config: Config) => {
   const platform = os.platform();
+  console.log(config);
 
   const octokit = new Octokit({
     auth: config.githubToken,
     userAgent: `mongosh ${config.version}`
   });
 
-  // - Build the executable.
-  const executable = await compileExec(config.input, config.outputDir, platform);
+  // Build the executable.
+  const executable = await compileExec(
+    config.input,
+    config.execInput,
+    config.outputDir,
+    platform,
+    config.resources,
+    config.analyticsConfig,
+    config.segmentKey
+  );
 
   // Zip the executable.
   const artifact = await zip(executable, config.outputDir, platform, config.version);
@@ -35,10 +44,10 @@ const release = async(config: Config) => {
     await publishMacOs(executable, artifact, config);
   }
 
-  // - Create & sign the .rpm (only on linux)
-  // - Create & sign the .msi (only on win)
+  // Create & sign the .rpm (only on linux)
+  // Create & sign the .msi (only on win)
 
-  // - Upload artifacts to S3 for Evergreen.
+  // Upload artifacts to S3 for Evergreen.
   await uploadArtifactToEvergreen(
     artifact,
     config.evgAwsKey,
@@ -47,15 +56,15 @@ const release = async(config: Config) => {
     config.revision
   );
 
-  // - Create release and upload assets to Github.
+  // Create release and upload assets to Github.
   const isNewRelease = await releaseToGithub(config.version, artifact, platform, octokit);
 
   if (isNewRelease) {
-    // - Publish the .deb (only on linux)
-    // - Publish the .rpm (only on linux)
-    // - Create PR for Homebrew (only on macos)
+    // Publish the .deb (only on linux)
+    // Publish the .rpm (only on linux)
+    // Create PR for Homebrew (only on macos)
 
-    // - Upload the artifact to downloads.10gen.com
+    // Upload the artifact to downloads.10gen.com
     await uploadArtifactToDownloads(
       artifact,
       config.downloadCenterAwsKey,
@@ -64,8 +73,8 @@ const release = async(config: Config) => {
       config.revision
     );
 
-    // - Create download center config and upload.
-    // - Publish to NPM.
+    // Create download center config and upload.
+    // Publish to NPM.
     //
     // These only need to happen once so we only run them on MacOS.
     if (platform === Platform.MacOs) {

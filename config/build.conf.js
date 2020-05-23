@@ -21,9 +21,19 @@ const CONFIG = require(path.join(MONGOSH, 'package.json'));
 const INPUT = path.join(MONGOSH, 'bin', 'mongosh.js');
 
 /**
+ * The input for the exec.
+ */
+const EXEC_INPUT = path.join(MONGOSH, 'dist', 'mongosh.js');
+
+/**
  * The output dir for the build.
  */
 const OUTPUT_DIR = path.join(ROOT, 'dist');
+
+/**
+ * Analytics configuration file.
+ */
+const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
 
 /**
  * Export the configuration for the build.
@@ -32,7 +42,9 @@ module.exports = {
   version: CONFIG.version,
   bundleId: CONFIG.bundleId,
   input: INPUT,
+  execInput: EXEC_INPUT,
   outputDir: OUTPUT_DIR,
+  analyticsConfig: ANALYTICS_CONFIG,
   project: process.env.PROJECT,
   revision: process.env.REVISION,
   evgAwsKey: process.env.AWS_KEY,
