@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';

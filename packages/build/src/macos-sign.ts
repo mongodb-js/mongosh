@@ -1,4 +1,5 @@
-import { promises as fs } from 'fs';
+import fs from 'fs';
+import util from 'util';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
@@ -28,7 +29,7 @@ const publish = async(executable: string, artifact: string, config: Config) => {
   // Remove the zip that was created since the notarize process will create a
   // new zip.
   console.log('mongosh: removing unsigned zip:', artifact);
-  await fs.unlink(artifact);
+  await util.promisify(fs.unlink)(artifact);
   console.log('mongosh: signing:', executable);
   await sign(executable, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
