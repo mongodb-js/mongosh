@@ -1,3 +1,4 @@
+exec_timeout_secs: 7200
 # Variables for common functions.
 #
 # compile_and_release: Runs the exec compile and release process.
@@ -102,6 +103,7 @@ functions:
         shell: powershell
         script: |
           Get-Location
+          Get-ChildItem Env:
     - <<: *compile_and_release
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
