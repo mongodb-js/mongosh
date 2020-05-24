@@ -39,6 +39,7 @@ class SignableCompiler extends Compiler {
     // open ssl with asm so we revert back to the slower version.
     await exec({
       build: true,
+      mangle: false,
       configure: ['--openssl-no-asm'],
       input: this.input,
       output: this.output,
