@@ -72,7 +72,7 @@ const compileExec = async(
   } else {
     const { exec } = require('pkg');
     await new UnsignableCompiler(execInput, executable, platform)
-      .compile(execPkg);
+      .compile(exec);
   }
 
   return executable;
