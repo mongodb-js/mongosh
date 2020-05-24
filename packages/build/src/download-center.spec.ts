@@ -1,5 +1,3 @@
-import path from 'path';
-import { promises as fs } from 'fs';
 import { expect } from 'chai';
 import { createDownloadCenterConfig } from './download-center';
 
