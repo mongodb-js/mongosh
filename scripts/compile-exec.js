@@ -9,7 +9,6 @@ const run = async() => {
     config.execInput,
     config.outputDir,
     os.platform(),
-    config.resources,
     config.analyticsConfig,
     config.segmentKey
   );
