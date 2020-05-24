@@ -90,7 +90,7 @@ const uploadAsset = (artifact: string, platform: string, uploadUrl: string, octo
   return octokit.request(params).catch((e) => {
     // If the asset already exists it will throw, but we just log
     // it since we don't want to overwrite assets.
-    console.error(e);
+    console.log('mongosh: asset already exists:', e);
   });
 };
 
