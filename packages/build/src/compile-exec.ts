@@ -1,6 +1,4 @@
 import path from 'path';
-import { exec as execPkg } from 'pkg';
-import { compile as execNexe } from 'nexe';
 import generateInput from './generate-input';
 import Platform from './platform';
 import SignableCompiler from './signable-compiler';
@@ -68,9 +66,11 @@ const compileExec = async(
   console.log('mongosh: creating binary:', executable);
 
   if (platform === Platform.MacOs) {
+    const exec = require('nexe');
     await new SignableCompiler(execInput, executable, platform)
-      .compile(execNexe);
+      .compile(exec);
   } else {
+    const { exec } = require('pkg');
     await new UnsignableCompiler(execInput, executable, platform)
       .compile(execPkg);
   }

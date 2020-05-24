@@ -96,13 +96,13 @@ functions:
   release_linux:
     - <<: *compile_and_release
   release_win:
-    - <<: *compile_and_release
     - command: shell.exec
       params:
         working_dir: src
         shell: powershell
         script: |
           Get-Location
+    - <<: *compile_and_release
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
