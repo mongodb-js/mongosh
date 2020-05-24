@@ -1,5 +1,4 @@
 import Compilable from './compilable';
-import Platform from './platform';
 
 /**
  * Common class for compilers to extend from.
@@ -7,16 +6,16 @@ import Platform from './platform';
 abstract class Compiler implements Compilable {
   readonly input: string;
   readonly output: string;
-  readonly platform: Platform;
+  readonly platform: string;
 
   /**
    * Instantiate the compiler.
    *
    * @param {string} input - The input location.
    * @param {string} output - The output location.
-   * @param {Platform} platform - The platform.
+   * @param {string} platform - The platform.
    */
-  constructor(input: string, output: string, platform: Platform) {
+  constructor(input: string, output: string, platform: string) {
     this.input = input;
     this.output = output;
     this.platform = platform;

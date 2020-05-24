@@ -27,7 +27,12 @@ class SignableCompiler extends Compiler {
     // Clean out the Nexe cache - this actuall requires an additional
     // call to compile that doesn't actuall compile anything, but is
     // required to have a clean slate to buld Node from source.
-    await exec({ input: this.input, clean: true, targets: [ target ] });
+    await exec({
+      build: true,
+      input: this.input,
+      clean: true,
+      targets: [ target ]
+    });
 
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile

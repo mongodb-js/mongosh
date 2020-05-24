@@ -27,6 +27,8 @@ const generateInput = async(input: string, execInput: string, analyticsConfig: s
     contentHash: false,
     target: 'node',
     bundleNodeModules: true,
+    minified: true,
+    sourceMaps: false,
     logLevel: 3
   });
   await bundler.bundle();
