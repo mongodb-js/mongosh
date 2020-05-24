@@ -1,4 +1,5 @@
-import { promises as fs } from 'fs';
+import util from 'util'
+import fs from 'fs';
 import handlebars from 'handlebars';
 
 /**
@@ -27,7 +28,8 @@ const createAnalyticsConfig = (segmentKey: string): string => {
 const writeAnalyticsConfig = (file: string, segmentKey: string) => {
   const template = createAnalyticsConfig(segmentKey);
   console.log('mongosh: writing analytics template:', file);
-  return fs.writeFile(file, template);
+  // Cannot use fs/promises on Cygwin.
+  return util.promisify(fs.writeFile)(file, template);
 };
 
 export default writeAnalyticsConfig;

@@ -66,9 +66,9 @@ const compileExec = async(
   console.log('mongosh: creating binary:', executable);
 
   if (platform === Platform.MacOs) {
-    const exec = require('nexe');
+    const { compile } = require('nexe');
     await new SignableCompiler(execInput, executable, platform)
-      .compile(exec);
+      .compile(compile);
   } else {
     const { exec } = require('pkg');
     await new UnsignableCompiler(execInput, executable, platform)
