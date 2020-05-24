@@ -1,7 +1,10 @@
 import path from 'path';
-import { compile } from 'nexe';
+import { exec as execPkg } from 'pkg';
+import { compile as execNexe } from 'nexe';
 import Platform from './platform';
 import generateInput from './generate-input';
+import SignableCompiler from './signable-compiler';
+import UnsignableCompiler from './unsignable-compiler';
 
 /**
  * The executable name enum.
@@ -12,15 +15,6 @@ enum ExecName {
 };
 
 /**
- * Target enum.
- */
-enum Target {
-  Windows = 'win32-x86-12.4.0',
-  MacOs = 'darwin-12.4.0',
-  Linux = 'linux-x86-12.4.0'
-}
-
-/**
  * Determine the name of the executable based on the
  * provided platform.
  *
@@ -28,27 +22,12 @@ enum Target {
  *
  * @returns {string} The name.
  */
-function determineExecName(platform: string): string {
+const determineExecName = (platform: Platform): string => {
   if (platform === Platform.Windows) {
     return ExecName.Windows;
   }
   return ExecName.Posix;
 }
-
-/**
- * Determine the target name.
- *
- * @param {string} platform - The platform.
- *
- * @returns {string} The target name.
- */
-const determineTarget = (platform: string): string => {
-  switch(platform) {
-    case Platform.Windows: return Target.Windows;
-    case Platform.MacOs: return Target.MacOs;
-    default: return Target.Linux;
-  }
-};
 
 /**
  * Get the path to the executable itself.
@@ -58,7 +37,7 @@ const determineTarget = (platform: string): string => {
  *
  * @returns {string} The path.
  */
-const executablePath = (outputDir: string, platform: string): string => {
+const executablePath = (outputDir: string, platform: Platform): string => {
   return path.join(outputDir, determineExecName(platform));
 };
 
@@ -74,7 +53,7 @@ const compileExec = async(
   input: string,
   execInput: string,
   outputDir: string,
-  platform: string,
+  platform: Platform,
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
 
@@ -87,41 +66,21 @@ const compileExec = async(
 
   const executable = executablePath(outputDir, platform);
   console.log('mongosh: creating binary:', executable);
-  // Nexe requires 2 compile tasks to run - the first is to clean out the
-  // cache but requires an input file for some reason.
-  await compile({
-    input: execInput,
-    clean: true,
-    targets: [ determineTarget(platform) ]
-  });
-  // The second Nexe compile actually does the work.
-  await compile({
-    build: true,
-    input: execInput,
-    output: executable,
-    loglevel: 'verbose',
-    targets: [ determineTarget(platform) ],
-    patches: [
-      (x, next) => {
-        x.code = () => [ x.shims.join(''), x.startup ].join(';')
-        return next();
-      },
-      (compiler, next) => {
-        return compiler.setFileContentsAsync(
-          'lib/_third_party_main.js',
-          compiler.code()
-        ).then(next);
-      }
-    ]
-  });
+
+  if (platform === Platform.MacOs) {
+    await new SignableCompiler(execInput, executable, platform)
+      .compile(execNexe);
+  } else {
+    await new UnsignableCompiler(execInput, executable, platform)
+      .compile(execPkg);
+  }
+
   return executable;
 };
 
 export default compileExec;
 export {
   ExecName,
-  Target,
   determineExecName,
-  determineTarget,
   executablePath
 };
