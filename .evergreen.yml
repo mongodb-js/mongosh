@@ -11,7 +11,7 @@ variables:
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         cd $(pwd)
         source .evergreen/.setup_env
-        export SEGMENT_API_KEY="${segment_key}"
+        export SEGMENT_API_KEY="${segment_api_key}"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export PROJECT="${project}"
         export REVISION="${revision}"
