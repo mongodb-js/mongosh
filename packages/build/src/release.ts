@@ -18,7 +18,6 @@ import S3 from 'aws-sdk/clients/s3';
  */
 const release = async(config: Config) => {
   const platform = os.platform();
-  console.log(config);
 
   const octokit = new Octokit({
     auth: config.githubToken,
