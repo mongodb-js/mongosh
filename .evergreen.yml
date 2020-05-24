@@ -80,7 +80,6 @@ functions:
         shell: bash
         script: |
           source .evergreen/.setup_env
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           npm run check-ci
   test:
     - command: shell.exec

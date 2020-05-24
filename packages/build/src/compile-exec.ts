@@ -75,7 +75,6 @@ const compileExec = async(
   execInput: string,
   outputDir: string,
   platform: string,
-  resources: string[],
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
 
@@ -97,11 +96,23 @@ const compileExec = async(
   });
   // The second Nexe compile actually does the work.
   await compile({
+    build: true,
     input: execInput,
     output: executable,
     loglevel: 'verbose',
     targets: [ determineTarget(platform) ],
-    resources: resources
+    patches: [
+      (x, next) => {
+        x.code = () => [ x.shims.join(''), x.startup ].join(';')
+        return next();
+      },
+      (compiler, next) => {
+        return compiler.setFileContentsAsync(
+          'lib/_third_party_main.js',
+          compiler.code()
+        ).then(next);
+      }
+    ]
   });
   return executable;
 };

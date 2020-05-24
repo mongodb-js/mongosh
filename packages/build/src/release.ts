@@ -30,7 +30,6 @@ const release = async(config: Config) => {
     config.execInput,
     config.outputDir,
     platform,
-    config.resources,
     config.analyticsConfig,
     config.segmentKey
   );
