@@ -1,8 +1,8 @@
 import path from 'path';
 import { exec as execPkg } from 'pkg';
 import { compile as execNexe } from 'nexe';
-import Platform from './platform';
 import generateInput from './generate-input';
+import Platform from './platform';
 import SignableCompiler from './signable-compiler';
 import UnsignableCompiler from './unsignable-compiler';
 
@@ -22,7 +22,7 @@ enum ExecName {
  *
  * @returns {string} The name.
  */
-const determineExecName = (platform: Platform): string => {
+const determineExecName = (platform: string): string => {
   if (platform === Platform.Windows) {
     return ExecName.Windows;
   }
@@ -37,7 +37,7 @@ const determineExecName = (platform: Platform): string => {
  *
  * @returns {string} The path.
  */
-const executablePath = (outputDir: string, platform: Platform): string => {
+const executablePath = (outputDir: string, platform: string): string => {
   return path.join(outputDir, determineExecName(platform));
 };
 
@@ -53,7 +53,7 @@ const compileExec = async(
   input: string,
   execInput: string,
   outputDir: string,
-  platform: Platform,
+  platform: string,
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
 

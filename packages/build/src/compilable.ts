@@ -1,12 +1,10 @@
-import Platform from './platform';
-
 /**
  * Compilers need to implement this interface.
  */
 interface Compilable {
   readonly input: string;
   readonly output: string;
-  readonly platform: Platform;
+  readonly platform: string;
 
   /**
    * Compile the executaable.
