@@ -68,23 +68,6 @@ variables:
 #   release_macos - Publishes the npm packages and uploads the tarballs.
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win - Publishes the npm packages and uploads the tarballs.
-#
-# TODO: Durran:
-#
-# MacOS Notarise:
-#
-# 1) Store password in Keychain:
-#
-# xcrun altool --store-password-in-keychain-item "AC_PASSWORD" \
-#              -u "AC_USERNAME" \
-#              -p <secret_password>
-#
-# xcrun altool --notarize-app \
-#      --primary-bundle-id "com.mongodb-js.mongosh" \
-#      --username "AC_USERNAME" \
-#      --password "@keychain:AC_PASSWORD" \
-#      --asc-provider <ProviderShortname> \
-#      --file OvernightTextEditor_11.6.8.zip
 functions:
   checkout:
     - command: git.get_project

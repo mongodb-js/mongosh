@@ -1,5 +1,5 @@
 $version = "12.4.0"
-$url = "https://nodejs.org/dist/node-v$version.msi"
+$url = "https://nodejs.org/download/release/v$version/node-v$version-x86.msi"
 $filename = "node.msi"
 $node_msi = "$PSScriptRoot\$filename"
 
