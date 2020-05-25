@@ -12,5 +12,7 @@ Write-Output "$filename downloaded"
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
 Start-Process -Wait -FilePath msiexec -ArgumentList /i, $node_msi, /quiet
+Write-Output "$node_msi installed."
+
 npm i -g npm@latest
 npm run bootstrap
