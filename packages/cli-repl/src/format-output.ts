@@ -3,12 +3,64 @@
 import prettyBytes from 'pretty-bytes';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
+import mongodb from 'mongodb';
 import util from 'util';
 import clr from './clr';
 
 type EvaluationResult = {
   value: any;
   type?: string;
+};
+
+const i = Symbol.for('nodejs.util.inspect.custom');
+
+mongodb.Binary.prototype[i] = function() {
+  return `BinData(${this.value()})`;
+};
+
+mongodb.Code.prototype[i] = function() {
+  return this.toJSON();
+};
+
+mongodb.DBRef.prototype[i] = function() {
+  return `DBRef(${this.toJSON()})`;
+};
+
+mongodb.Decimal128.prototype[i] = function() {
+  return `NumberDecimal('${this.toString()}')`;
+};
+
+mongodb.Double.prototype[i] = function() {
+  return this.valueOf();
+};
+
+mongodb.Int32.prototype[i] = function() {
+  return this.valueOf();
+};
+
+mongodb.Long.prototype[i] = function() {
+  return `NumberLong(${this.toNumber()})`;
+};
+
+// mongodb.MaxKey.prototype[i] = function() {
+//   return `${this.toExtendedJSON()}`;
+// }
+//
+// mongodb.MinKey.prototype[i] = function() {
+//   return `${this.toExtendedJSON()}`;
+// }
+
+mongodb.ObjectId.prototype[i] = function() {
+  return `ObjectID('${this.toHexString()}')`;
+};
+
+mongodb.Symbol.prototype[i] = function() {
+  return `'${this.valueOf()}'`;
+};
+
+mongodb.Timestamp.prototype[i] = function() {
+  // TODO: use this.high and this.low to display timestamp instead of toString()
+  return `Timestamp(${this.toString()})`;
 };
 
 /**
