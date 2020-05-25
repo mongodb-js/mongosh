@@ -36,11 +36,16 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
 const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
 
 /**
+ * The bundle id for MacOs.
+ */
+const BUNDLE_ID = 'com.mongodb.mongosh';
+
+/**
  * Export the configuration for the build.
  */
 module.exports = {
   version: CONFIG.version,
-  bundleId: CONFIG.bundleId,
+  bundleId: BUNDLE_ID,
   input: INPUT,
   execInput: EXEC_INPUT,
   outputDir: OUTPUT_DIR,
