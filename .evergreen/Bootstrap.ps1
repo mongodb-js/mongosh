@@ -13,3 +13,4 @@ write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
 msiexec /i $node_msi /quiet
 npm i -g npm@latest
+npm run bootstrap

@@ -42,6 +42,7 @@ variables:
       working_dir: src
       shell: powershell
       script: |
+        .\.evergreen/Bootstrap
         $Env:SEGMENT_API_KEY = "${segment_api_key}"
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:PROJECT = "${project}"
@@ -80,13 +81,6 @@ functions:
         shell: bash
         script: |
           source .evergreen/.install_node
-  install_win:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: powershell
-        script: |
-          .\.evergreen/InstallNode
   check:
     - command: shell.exec
       params:
@@ -101,6 +95,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
+          .\.evergreen/Bootstrap
           npm run check-ci
   test:
     - command: shell.exec
@@ -118,6 +113,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          .\.evergreen/Bootstrap
           $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
           $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
           npm run test-ci
@@ -145,7 +141,6 @@ tasks:
   - name: check_win
     commands:
       - func: checkout
-      - func: install_win
       - func: check_win
   - name: test
     commands:
@@ -155,7 +150,6 @@ tasks:
   - name: test_win
     commands:
       - func: checkout
-      - func: install_win
       - func: test_win
   - name: release_macos
     depends_on:
@@ -179,7 +173,6 @@ tasks:
       - name: test_win
     commands:
       - func: checkout
-      - func: install_win
       - func: release_win
 # Need to run builds for every possible build variant.
 buildvariants:
