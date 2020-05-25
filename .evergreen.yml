@@ -103,7 +103,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
-          .evergreen/.install_node_win
+          .\.evergreen/InstallNode
   check:
     - command: shell.exec
       params:
