@@ -12,6 +12,7 @@ interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   history?: readonly string[];
   autocompleter?: Autocompleter;
+  setInputRef?(ref): void;
 }
 
 interface ShellInputState {
@@ -22,7 +23,8 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   static propTypes = {
     onInput: PropTypes.func,
     history: PropTypes.arrayOf(PropTypes.string),
-    autocompleter: PropTypes.object
+    autocompleter: PropTypes.object,
+    setInputRef: PropTypes.func
   };
 
   readonly state: ShellInputState = {
@@ -120,6 +122,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onArrowUpOnFirstLine={this.historyBack}
       onArrowDownOnLastLine={this.historyNext}
       autocompleter={this.props.autocompleter}
+      setInputRef={this.props.setInputRef}
     />);
 
     const className = classnames(styles['shell-input']);
