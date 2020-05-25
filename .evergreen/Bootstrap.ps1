@@ -20,5 +20,4 @@ Set-Location -Path .\temp
 
 Set-Location -Path $PSScriptRoot
 
-npm i -g npm@latest
 npm run bootstrap
