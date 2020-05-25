@@ -3,7 +3,7 @@ $url = "https://nodejs.org/download/release/v$version/node-v$version-win-x64.zip
 $filename = "node.msi"
 $node_zip = "$PSScriptRoot\temp\$filename"
 
-New-Item -Path .\temp -Item-Type directory
+New-Item -Path .\temp -ItemType directory
 Write-Host "[NODE] downloading nodejs install"
 Write-Host "url : $url"
 $start_time = Get-Date
