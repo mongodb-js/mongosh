@@ -42,7 +42,7 @@ variables:
       working_dir: src
       shell: powershell
       script: |
-        .\.evergreen/Bootstrap
+        .\.evergreen\Bootstrap
         $Env:SEGMENT_API_KEY = "${segment_api_key}"
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:PROJECT = "${project}"
@@ -95,7 +95,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
-          .\.evergreen/Bootstrap
+          .\.evergreen\Bootstrap
           npm run check-ci
   test:
     - command: shell.exec
@@ -111,9 +111,9 @@ functions:
     - command: shell.exec
       params:
         working_dir: src
-        shell: bash
+        shell: powershell
         script: |
-          .\.evergreen/Bootstrap
+          .\.evergreen\Bootstrap
           $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
           $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
           npm run test-ci
