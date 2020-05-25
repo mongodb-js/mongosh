@@ -20,7 +20,7 @@ import ShellEvaluator from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import CliOptions from './cli-options';
-import completer from './completer';
+import autocomplete from '@mongosh/autocomplete';
 import logger from './logger';
 import clr from './clr';
 import { redactPwd } from '.';
@@ -106,7 +106,7 @@ class CliRepl {
     this.repl = repl.start({
       prompt: '> ',
       writer: this.writer,
-      completer: completer.bind(null, version),
+      completer: autocomplete.bind(null, version),
     });
 
     this.repl.defineCommand('clear', {
