@@ -1017,6 +1017,21 @@ describe('arg-parser', () => {
               expect(parse(argv).kmsURL).to.equal('example.com');
             });
           });
+
+          context('when providing filenames', () => {
+            context('when the filenames end in .js', () => {
+              const argv = [ ...baseArgv, uri, 'test1.js', 'test2.js' ];
+
+              it('returns the URI in the object', () => {
+                expect(parse(argv)._[0]).to.equal(uri);
+              });
+
+              it('sets the filenames', () => {
+                expect(parse(argv)._[1]).to.equal('test1.js');
+                expect(parse(argv)._[2]).to.equal('test2.js');
+              });
+            });
+          });
         });
       });
 
