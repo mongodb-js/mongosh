@@ -24,4 +24,4 @@ Move-Item .\node_modules\npm -Destination .\node_modules\npm2
 .\node.exe .\node_modules\npm2\bin\npm-cli.js i -g npm@latest
 
 Set-Location -Path $PSScriptRoot\..\
-npm run boostrap
+npm run bootstrap
