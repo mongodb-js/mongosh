@@ -26,6 +26,7 @@ const releaseToGithub = async(version: string, artifact: string, platform: strin
   if (semver.gt(version, latestRelease.tag_name.replace('v', ''))) {
     // Create a new release if our version is higher than latest.
     const newRelease = await createRelease(version, octokit);
+    // TODO: Durran - Sign and notarize for MacOS here instead of before.
     await uploadAsset(artifact, platform, newRelease.upload_url, octokit);
     return true;
   } else {
@@ -76,7 +77,7 @@ const createRelease = async(version: string, octokit: Octokit): Promise<any> => 
  * @param {string} uploadUrl - The release endpoint.
  * @param {Octokit} octokit - The octokit instance.
  */
-const uploadAsset = (artifact: string, platform: string, uploadUrl: string, octokit: Octokit): Promise<any> => {
+const uploadAsset = async(artifact: string, platform: string, uploadUrl: string, octokit: Octokit) Promise<any> => {
   const params = {
     method: 'POST',
     url: uploadUrl,
@@ -87,7 +88,7 @@ const uploadAsset = (artifact: string, platform: string, uploadUrl: string, octo
     data: fs.readFileSync(artifact)
   };
   console.log('mongosh: uploading asset to github:', artifact);
-  return octokit.request(params).catch((e) => {
+  await octokit.request(params).catch((e) => {
     // If the asset already exists it will throw, but we just log
     // it since we don't want to overwrite assets.
     console.log('mongosh: asset already exists:', e);

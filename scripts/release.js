@@ -9,4 +9,6 @@ const runRelease = async() => {
   await release(config);
 };
 
-runRelease();
+runRelease().then(() => {
+  process.exit(0);
+});
