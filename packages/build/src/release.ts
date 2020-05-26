@@ -84,6 +84,8 @@ const release = async(config: Config) => {
       );
     }
   }
+
+  console.log('mongosh: finished release process.');
 }; 
 
 export default release;

@@ -24,7 +24,7 @@ variables:
         export APPLE_DEV_USER="${apple_dev_user}"
         export APPLE_DEV_PASSWORD="${apple_dev_password}"
         export APPLE_APP_IDENTITY="${apple_app_identity}"
-        export DEBUG="node-codesign"
+        export DEBUG="node-codesign,electron-notarize"
         export IS_CI="${is_ci}"
         npm run release
         RELEASE_MONGOSH
