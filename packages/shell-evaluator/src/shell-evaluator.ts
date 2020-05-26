@@ -63,13 +63,11 @@ class ShellEvaluator {
     argv.shift();
     switch (cmd) {
       case 'use':
-        return this.internalState.use(argv[0]);
+        return this.internalState.shellApi.use(argv[0]);
       case 'show':
-        return this.internalState.show(argv[0]);
+        return this.internalState.shellApi.show(argv[0]);
       case 'it':
-        return this.internalState.it();
-      case 'help':
-        return this.internalState.help();
+        return this.internalState.shellApi.it();
       case 'enableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(true);

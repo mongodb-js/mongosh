@@ -1,8 +1,6 @@
 import {
   AggregationCursor,
-  CursorIterationResult,
   Cursor,
-  Help,
   Database,
   Mongo,
   ReplicaSet,
@@ -10,11 +8,13 @@ import {
   signatures,
   ShellBson,
   toIterator,
+  ShellApi
 } from './index';
 import { EventEmitter } from 'events';
 import { Document, ServiceProvider, ReplPlatform } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
+import { toIgnore } from './decorators';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -29,10 +29,12 @@ export default class ShellInternalState {
   public connectionInfo: any;
   public context: any;
   private mongos: Mongo[];
+  public shellApi: ShellApi;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter()) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
+    this.shellApi = new ShellApi(this);
     const mongo = new Mongo(this);
     this.currentCursor = null;
     this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
@@ -51,49 +53,6 @@ export default class ShellInternalState {
     }
   }
 
-  use(db): any {
-    return this.currentDb.mongo.use(db);
-  }
-  show(arg): any {
-    return this.currentDb.mongo.show(arg);
-  }
-  async it(): Promise<any> {
-    if (!this.currentCursor) {
-      // TODO: warn here
-      return new CursorIterationResult();
-    }
-    return await this.currentCursor._it();
-  }
-  public help(): Help {
-    this.messageBus.emit('mongosh:help');
-    return new Help({
-      help: 'shell-api.help.description',
-      docs: 'https://docs.mongodb.com/manual/reference/method',
-      attr: [
-        {
-          name: 'use',
-          description: 'shell-api.help.help.use'
-        },
-        {
-          name: 'it',
-          description: 'shell-api.help.help.it'
-        },
-        {
-          name: 'show databases',
-          description: 'shell-api.help.help.show-databases'
-        },
-        {
-          name: 'show collections',
-          description: 'shell-api.help.help.show-collections'
-        },
-        {
-          name: '.exit',
-          description: 'shell-api.help.help.exit'
-        }
-      ]
-    });
-  }
-
   /**
    * Prepare a `contextObject` as global context and set it as context
    * Add each attribute to the AsyncWriter also.
@@ -108,11 +67,6 @@ export default class ShellInternalState {
    */
   setCtx(contextObject: any): void {
     this.context = contextObject;
-    // Add API methods for VSCode and scripts
-    contextObject.use = this.use.bind(this);
-    contextObject.show = this.show.bind(this);
-    contextObject.it = this.it.bind(this);
-    contextObject.help = this.help.bind(this);
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg) => {
       if (arg.toReplString) {
@@ -121,6 +75,10 @@ export default class ShellInternalState {
         console.log(arg);
       }
     };
+    Object.assign(contextObject, this.shellApi);
+    Object.getOwnPropertyNames(ShellApi.prototype)
+      .filter(n => !toIgnore.concat('hasAsyncChild').includes(n))
+      .forEach((n) => { contextObject[n] = this.shellApi[n]; });
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
     contextObject.rs = new ReplicaSet(this.currentDb.mongo);

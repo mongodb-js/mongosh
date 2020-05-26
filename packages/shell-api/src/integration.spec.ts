@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
-import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo } from './index';
+import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi } from './index';
 
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
@@ -62,6 +62,7 @@ describe('Shell API (integration)', function() {
   });
 
   let internalState;
+  let shellApi;
   let mongo;
   let dbName;
   let database;
@@ -73,6 +74,7 @@ describe('Shell API (integration)', function() {
     collectionName = 'docs';
 
     internalState = new ShellInternalState(serviceProvider);
+    shellApi = new ShellApi(internalState);
     mongo = new Mongo(internalState);
     mongo.use(dbName);
     database = mongo.getDB(dbName);
@@ -101,8 +103,8 @@ describe('Shell API (integration)', function() {
       describe('when calling it after find', () => {
         it('returns next batch of docs', async() => {
           collection.find({}, { _id: 0 });
-          await internalState.it();
-          expect(await internalState.it()).to.deep.equal([{
+          await shellApi.it();
+          expect(await shellApi.it()).to.deep.equal([{
             doc: 21
           }]);
         });

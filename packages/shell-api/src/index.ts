@@ -9,6 +9,7 @@ import ShellInternalState from './shell-internal-state';
 import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
+import ShellApi from './shell-api';
 import {
   BulkWriteResult,
   CommandResult,
@@ -54,6 +55,7 @@ export {
   signatures,
   DBQueryOption,
   ReadPreference,
+  ShellApi,
   ServerVersions,
   Topologies
 };

@@ -36,18 +36,9 @@ interface TypeSignature {
 interface Signatures {
   [key: string]: TypeSignature;
 }
-const signatures = {
-  ShellApi: {
-    type: 'ShellApi',
-    hasAsyncChild: false,
-    attributes: {
-      use: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-      it: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] },
-      show: { type: 'function', returnsPromise: false, returnType: 'unknown', serverVersions: ['0.0.0', '4.4.0'] }
-    }
-  }
-} as Signatures;
+const signatures = {} as Signatures;
 
+export const toIgnore = ['toReplString', 'shellApiType', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name; // TODO: will this work with webpack
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -64,7 +55,6 @@ export function shellApiClassDefault(constructor: Function): void {
   };
 
   const classAttributes = Object.keys(constructor.prototype);
-  const toIgnore = ['toReplString', 'shellApiType', 'constructor'];
   for (const propertyName of classAttributes) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
     const isMethod = descriptor.value instanceof Function;

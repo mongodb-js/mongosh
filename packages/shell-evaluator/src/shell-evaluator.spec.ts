@@ -17,7 +17,7 @@ describe('ShellEvaluator', () => {
     useSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      use: useSpy,
+      shellApi: { use: useSpy },
       asyncWriter: {
         process: i => (i),
         symbols: {
