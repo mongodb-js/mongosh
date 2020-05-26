@@ -16,7 +16,7 @@ Expand-Archive $node_zip -OutputPath $PSScriptRoot
 Get-ChildItem -Path $PSScriptRoot
 
 Set-Location -Path $node_dir
-.\node.exe .\node_modules\npm2\bin\npm-cli.js i -g npm@latest
+.\node.exe .\node_modules\npm\bin\npm-cli.js i -g npm@latest
 
 Set-Location -Path $PSScriptRoot\..\
 npm run boostrap
