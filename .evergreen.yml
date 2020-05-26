@@ -102,7 +102,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
-          .\.evergreen/SetupEnv
+          .\.evergreen\SetupEnv
           npm run check-ci
   test:
     - command: shell.exec
@@ -120,9 +120,9 @@ functions:
         working_dir: src
         shell: powershell
         script: |
-          .\.evergreen/SetupEnv
-          $Env:MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
-          $Env:MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
+          .\.evergreen\SetupEnv
+          $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
+          $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
           npm run test-ci
   release_macos:
     - <<: *compile_and_release
@@ -215,7 +215,7 @@ buildvariants:
     tasks:
       - name: check
       - name: release_win
-  - name: windows
+  - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
