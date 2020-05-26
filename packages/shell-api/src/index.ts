@@ -20,7 +20,6 @@ import {
   UpdateResult
 } from './result';
 import Mongo from './mongo';
-import ShellBson from './shell-bson';
 import {
   signatures
 } from './decorators';
@@ -49,7 +48,6 @@ export {
   Mongo,
   Shard,
   ReplicaSet,
-  ShellBson,
   UpdateResult,
   toIterator,
   signatures,

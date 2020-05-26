@@ -92,7 +92,75 @@ const translations = {
               description: 'Quit the MongoDB shell with .exit'
             },
             show: {
-              description: '\'show databases\': Print a list of all available databases. \n\'show-collections\': Print a list of all collections for current database'
+              description: '\'show databases\': Print a list of all available databases. \'show-collections\': Print a list of all collections for current database'
+            },
+            DBRef: {
+              description: 'DBRefs are a convention for representing a document, rather than a specific reference type. They include the name of the collection, and in some cases the database name, in addition to the value from the _id field.',
+              link: 'https://docs.mongodb.com/manual/reference/database-references'
+            },
+            DBPointer: {
+              description: 'Class for deprecated BSON type DBPointer',
+            },
+            MaxKey: {
+              description: 'Class for BSON type MaxKey',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html'
+            },
+            MinKey: {
+              description: 'Class for BSON type MinKey',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html'
+            },
+            ObjectId: {
+              description: 'Class for BSON type ObjectId',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#objectid'
+            },
+            Symbol: {
+              description: 'Class for deprecated BSON type Symbol',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html'
+            },
+            Timestamp: {
+              description: 'Class for BSON type Timestamp',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html#timestamps'
+            },
+            Code: {
+              description: 'Class for BSON type Code or deprecated CodeWithScope',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html'
+            },
+            NumberDecimal: {
+              description: 'Class for BSON type NumberDecimal',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#numberdecimal'
+            },
+            NumberInt: {
+              description: 'Class for BSON type 32-bit integer',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#numberint'
+            },
+            NumberLong: {
+              description: 'Class for BSON type 64-bit integer',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#numberlong'
+            },
+            ISODate: {
+              description: 'Helper method for constructing Date',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#date'
+            },
+            Date: {
+              description: 'Class for Date',
+              link: 'https://docs.mongodb.com/manual/core/shell-types/#date'
+            },
+            BinData: {
+              description: 'Class for BSON type Binary',
+              link: 'https://docs.mongodb.com/manual/reference/bson-types/index.html'
+            },
+            HexData: {
+              description: 'Create a BSON BinData value from a hex string'
+            },
+            UUID: {
+              description: 'Create a BSON BinData value of UUID subtype'
+            },
+            MD5: {
+              description: 'Create a BSON BinData value of MD5 subtype'
+            },
+            bsonsize: {
+              description: 'Prints the BSON size for the argument',
+              link: 'https://docs.mongodb.com/manual/reference/mongo-shell/index.html#miscellaneous'
             }
           }
         }

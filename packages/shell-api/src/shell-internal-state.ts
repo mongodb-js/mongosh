@@ -6,7 +6,6 @@ import {
   ReplicaSet,
   Shard,
   signatures,
-  ShellBson,
   toIterator,
   ShellApi
 } from './index';
@@ -80,7 +79,6 @@ export default class ShellInternalState {
       .filter(n => !toIgnore.concat('hasAsyncChild').includes(n))
       .forEach((n) => { contextObject[n] = this.shellApi[n]; });
     contextObject.printjson = contextObject.print;
-    Object.assign(contextObject, ShellBson);
     contextObject.rs = new ReplicaSet(this.currentDb.mongo);
     contextObject.sh = new Shard(this.currentDb.mongo);
 

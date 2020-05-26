@@ -183,3 +183,8 @@ export function classPlatforms(platformsArray: any[]): Function {
     constructor.prototype.platforms = platformsArray;
   };
 }
+export function classServerVersions(versionsArray: any[]): Function {
+  return function(constructor: Function): void {
+    constructor.prototype.serverVersions = versionsArray;
+  };
+}
