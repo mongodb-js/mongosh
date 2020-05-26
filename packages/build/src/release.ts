@@ -37,7 +37,7 @@ const release = async(config: Config) => {
   // Zip the executable.
   const artifact = await zip(executable, config.outputDir, platform, config.version);
 
-  // Sign and notarize the executable and artifact.
+  // Sign and notarize the executable and artifact for MacOs.
   if (platform === Platform.MacOs) {
     await publishMacOs(executable, artifact, config);
   }
@@ -45,7 +45,7 @@ const release = async(config: Config) => {
   // Create & sign the .rpm (only on linux)
   // Create & sign the .msi (only on win)
 
-  // Upload artifacts to S3 for Evergreen.
+  // Upload artifact to S3 for Evergreen.
   await uploadArtifactToEvergreen(
     artifact,
     config.evgAwsKey,
@@ -54,7 +54,8 @@ const release = async(config: Config) => {
     config.revision
   );
 
-  // Create release and upload assets to Github.
+  // Create release and upload assets to Github. Will return true if the current
+  // version is a new release and the release was created on Github.
   const isNewRelease = await releaseToGithub(config.version, artifact, platform, octokit);
 
   if (isNewRelease) {
