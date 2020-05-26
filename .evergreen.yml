@@ -114,7 +114,7 @@ functions:
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
-  test:
+  test_ps:
     - command: shell.exec
       params:
         working_dir: src
