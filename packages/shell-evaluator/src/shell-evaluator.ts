@@ -128,6 +128,8 @@ class ShellEvaluator {
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
         try {
+          console.log(rewrittenInput);
+
           return await originalEval(rewrittenInput, context, filename);
         } catch (err) {
           // This is for browser/Compass

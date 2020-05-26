@@ -55,11 +55,17 @@
     "mongodb-build-info": "^1.1.0",
     "mongodb-redact": "^0.2.0",
     "nanobus": "^4.4.0",
+    "p-queue": "^6.4.0",
     "pino": "^5.16.0",
     "pretty-bytes": "^5.3.0",
     "pretty-repl": "^2.3.0",
     "read": "^1.0.7",
     "semver": "^7.1.2",
     "text-table": "^0.2.0"
+  },
+  "devDependencies": {
+    "@types/sinon": "^7.5.1",
+    "@types/sinon-chai": "^3.2.3"
   }
 }
+

@@ -3,10 +3,9 @@
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import formatOutput, { formatError } from './format-output';
 import ShellEvaluator from '@mongosh/shell-evaluator';
-import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import { REPLServer, Recoverable } from 'repl';
+import { REPLServer } from 'repl';
 import getConnectInfo from './connect-info';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import CliOptions from './cli-options';
@@ -19,11 +18,11 @@ import logger from './logger';
 import mkdirp from 'mkdirp';
 import clr from './clr';
 import path from 'path';
-import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
+import { createCustomEval } from './custom-eval';
 
 /**
  * Connecting text key.
@@ -35,7 +34,7 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
  */
 class CliRepl {
   private serviceProvider: CliServiceProvider;
-  private ShellEvaluator: ShellEvaluator;
+  private shellEvaluator: ShellEvaluator;
   private buildInfo: any;
   private repl: REPLServer;
   private bus: Nanobus;
@@ -79,7 +78,7 @@ class CliRepl {
    */
   async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     this.serviceProvider = await this.connect(driverUri, driverOptions);
-    this.ShellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
+    this.shellEvaluator = new ShellEvaluator(this.serviceProvider, this.bus, this);
     this.buildInfo = await this.serviceProvider.buildInfo();
     this.logBuildInfo(driverUri);
     this.start();
@@ -117,21 +116,10 @@ class CliRepl {
       }
     });
 
-    const originalEval = util.promisify(this.repl.eval);
-
-    const customEval = async(input, context, filename, callback): Promise<any> => {
-      let result;
-
-      try {
-        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
-      } catch (err) {
-        if (isRecoverableError(input)) {
-          return callback(new Recoverable(err));
-        }
-        result = err;
-      }
-      callback(null, result);
-    };
+    const customEval = createCustomEval(
+      this.repl.eval,
+      this.shellEvaluator.customEval.bind(this.shellEvaluator)
+    );
 
     (this.repl as any).eval = customEval;
 
@@ -156,8 +144,9 @@ class CliRepl {
       process.exit();
     });
 
-    this.ShellEvaluator.setCtx(this.repl.context);
+    this.shellEvaluator.setCtx(this.repl.context);
   }
+
 
   /**
    * Log information about the current connection using buildInfo, topology,
@@ -293,7 +282,7 @@ class CliRepl {
     // in case of errors.
     if (result && result.message && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
-      this.ShellEvaluator.revertState();
+      this.shellEvaluator.revertState();
 
       return formatOutput({ type: 'Error', value: result });
     }
