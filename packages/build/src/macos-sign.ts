@@ -39,7 +39,7 @@ const publish = async(executable: string, artifact: string, config: Config) => {
     executable,
     config.appleUser,
     config.applePassword).catch((e) => { console.error(e); throw e; });
-  console.log('mongosh: renaming notarized zip:' artifact);
+  console.log('mongosh: renaming notarized zip:', artifact);
   await util.promisify(fs.rename)(`${executable}.zip`, artifact);
 };
 
