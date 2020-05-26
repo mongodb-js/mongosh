@@ -1,4 +1,5 @@
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+const setupTestBrowser = require('../../../config/setup-test-browser');
+const browser = setupTestBrowser();
 
 const webpackConfigTest = require('./webpack.config.test');
 
@@ -36,7 +37,7 @@ module.exports = (config) => {
     reporters: [
       'mocha'
     ],
-    browsers: [ 'ChromeHeadless' ],
+    browsers: [ browser ],
     singleRun: true,
     client: {
       mocha: {

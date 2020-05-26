@@ -1,14 +1,6 @@
-process.env.CHROME_BIN = require('puppeteer').executablePath();
 const os = require('os');
-
-const platform = os.platform();
-
-const browsers = () => {
-  if (platform === 'win32') {
-    return 'Chrome';
-  }
-  return 'HeadlessChrome';
-};
+const setupTestBrowser = require('./setup-test-browser');
+const browser = setupTestBrowser();
 
 /**
  * Configure Karma.
@@ -50,7 +42,7 @@ const configure = (config) => {
         allowJs: true,
       },
     },
-    browsers: [ browsers() ],
+    browsers: [ browser ],
     customLaunchers: {
       HeadlessChrome: {
         base: 'ChromeHeadless',
