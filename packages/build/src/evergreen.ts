@@ -22,13 +22,14 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
   });
+  const key = `${project}/${revision}/${path.basename(artifact)}`;
   const uploadParams = {
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
-    Key: `${project}/${revision}/${path.basename(artifact)}`,
+    Key: key,
     Body: fs.createReadStream(artifact)
   };
-  console.log(`mongosh: uploading ${artifact} to evergreen`);
+  console.log(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
   return upload(uploadParams, s3);
 };
 
