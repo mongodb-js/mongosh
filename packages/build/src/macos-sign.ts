@@ -5,6 +5,15 @@ import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
 import zip from './zip';
 
+/**
+ * Notarizes the zipped mongosh. Will send the zip to Apple and poll apple
+ * for the notarization result.
+ *
+ * @param {string} bundleId - The bundle id (com.mongodb.mongosh)
+ * @param {string} artifact - The path to the zip.
+ * @param {string} user - The apple dev account user.
+ * @param {string} password - The apple dev account password.
+ */
 const notarize = (bundleId: string, artifact: string, user: string, password: string) => {
   return nodeNotarize({
     appBundleId: bundleId,
@@ -14,6 +23,12 @@ const notarize = (bundleId: string, artifact: string, user: string, password: st
   });
 };
 
+/**
+ * Signs the executable via codesign.
+ *
+ * @param {string} executable - The mongosh executable.
+ * @param {string} identity - The apple developer identity.
+ */
 const sign = (executable: string, identity: string) => {
   return new Promise((resolve, reject) => {
     codesign({ identity: identity, appPath: executable }, (err, paths) => {
