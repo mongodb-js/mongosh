@@ -192,7 +192,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   private onShellClicked = (event: React.MouseEvent): void => {
-    // Only focus when clicking the background (not clicking output).
+    // Focus on input when clicking the shell background (not clicking output).
     if (event.currentTarget === event.target) {
       if (this.shellInputRef && this.shellInputRef.editor) {
         this.shellInputRef.editor.focus();

@@ -134,4 +134,14 @@ describe('<Editor />', () => {
     execCommandBoundTo(aceEditor, 'Down');
     expect(spy).not.to.have.been.called;
   });
+
+  it('sets the input ref for the editor', () => {
+    const spy = sinon.spy();
+    const wrapper = mount(<Editor setInputRef={spy} />);
+
+    const aceEditor = getAceEditorInstance(wrapper);
+
+    expect(spy).to.have.been.calledOnce;
+    expect(spy.args[0][0].editor).to.equal(aceEditor);
+  });
 });
