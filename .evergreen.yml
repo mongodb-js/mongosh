@@ -181,6 +181,7 @@ tasks:
   - name: release_win
     depends_on:
       - name: check
+      - name: test
     commands:
       - func: checkout
       - func: install
@@ -214,6 +215,7 @@ buildvariants:
     run_on: windows-64-vs2019-test
     tasks:
       - name: check
+      - name: test
       - name: release_win
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"

@@ -60,5 +60,6 @@ module.exports = {
   segmentKey: process.env.SEGMENT_API_KEY,
   appleUser: process.env.APPLE_DEV_USER,
   applePassword: process.env.APPLE_DEV_PASSWORD,
-  appleAppIdentity: process.env.APPLE_APP_IDENTITY
+  appleAppIdentity: process.env.APPLE_APP_IDENTITY,
+  isCi: process.env.IS_CI
 };
