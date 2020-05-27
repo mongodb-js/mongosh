@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "0.0.1-alpha.19",
+  "version": "0.0.1",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -34,8 +34,8 @@
   "dependencies": {
     "@babel/generator": "^7.9.4",
     "@babel/parser": "^7.9.4",
-    "@mongosh/cli-repl": "^0.0.1-alpha.19",
-    "@mongosh/service-provider-core": "^0.0.1-alpha.19",
-    "@mongosh/shell-evaluator": "^0.0.1-alpha.19"
+    "@mongosh/cli-repl": "^0.0.1",
+    "@mongosh/service-provider-core": "^0.0.1",
+    "@mongosh/shell-evaluator": "^0.0.1"
   }
 }
