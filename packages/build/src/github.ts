@@ -77,7 +77,7 @@ const createRelease = async(version: string, octokit: Octokit): Promise<any> => 
  * @param {string} uploadUrl - The release endpoint.
  * @param {Octokit} octokit - The octokit instance.
  */
-const uploadAsset = async(artifact: string, platform: string, uploadUrl: string, octokit: Octokit) Promise<any> => {
+const uploadAsset = async(artifact: string, platform: string, uploadUrl: string, octokit: Octokit): Promise<any> => {
   const params = {
     method: 'POST',
     url: uploadUrl,

@@ -39,7 +39,7 @@ const release = async(config: Config) => {
 
   // Sign and notarize the executable and artifact for MacOs.
   if (platform === Platform.MacOs) {
-    await publishMacOs(executable, artifact, config);
+    await publishMacOs(executable, artifact, platform, config);
   }
 
   // Create & sign the .rpm (only on linux)
