@@ -18,7 +18,7 @@ const CONFIG = require(path.join(MONGOSH, 'package.json'));
 /**
  * The input for the build.
  */
-const INPUT = path.join(MONGOSH, 'bin', 'mongosh.js');
+const INPUT = path.join(MONGOSH, 'lib', 'run.js');
 
 /**
  * The input for the exec.

@@ -6,6 +6,7 @@ import NodeFleOptions from './node-fle-options';
  * partial list of things that need to be mapped.
  */
 export default interface NodeOptions {
+  appname?: string;
   auth?: NodeAuthOptions;
   authSource?: string;
   authMechanism?: string;

@@ -38,9 +38,9 @@ const release = async(config: Config) => {
   const artifact = await zip(executable, config.outputDir, platform, config.version);
 
   // Sign and notarize the executable and artifact for MacOs.
-  if (platform === Platform.MacOs) {
-    await publishMacOs(executable, artifact, platform, config);
-  }
+  //if (platform === Platform.MacOs) {
+  //  await publishMacOs(executable, artifact, platform, config);
+  //}
 
   // Create & sign the .rpm (only on linux)
   // Create & sign the .msi (only on win)
