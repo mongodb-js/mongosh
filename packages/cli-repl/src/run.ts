@@ -13,6 +13,7 @@ try {
     const driverOptions = mapCliToDriver(options);
     const driverUri = generateUri(options);
     const appname = `${process.title} ${version}`;
+    /* eslint no-new:0 */
     new CliRepl(driverUri, { appname, ...driverOptions }, options);
   }
 } catch (e) {
