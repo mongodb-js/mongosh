@@ -51,6 +51,7 @@
     "lodash.set": "^4.3.2",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.3",
+    "mongodb": "^3.5.7",
     "mongodb-ace-autocompleter": "^0.4.1",
     "mongodb-build-info": "^1.1.0",
     "mongodb-redact": "^0.2.0",
