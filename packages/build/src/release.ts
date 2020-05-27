@@ -53,6 +53,14 @@ const release = async(config: Config) => {
     config.project,
     config.revision
   );
+  // Upload the artifact to downloads.10gen.com
+  await uploadArtifactToDownloads(
+    artifact,
+    config.downloadCenterAwsKey,
+    config.downloadCenterAwsSecret,
+    config.project,
+    config.revision
+  );
 
   // Create release and upload assets to Github. Will return true if the current
   // version is a new release and the release was created on Github.
@@ -63,14 +71,6 @@ const release = async(config: Config) => {
     // Publish the .rpm (only on linux)
     // Create PR for Homebrew (only on macos)
 
-    // Upload the artifact to downloads.10gen.com
-    await uploadArtifactToDownloads(
-      artifact,
-      config.downloadCenterAwsKey,
-      config.downloadCenterAwsSecret,
-      config.project,
-      config.revision
-    );
 
     // Create download center config and upload.
     // Publish to NPM.
