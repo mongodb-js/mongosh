@@ -115,7 +115,7 @@ export default class Collection extends ShellApiClass {
       providerOptions,
       dbOptions
     );
-    const cursor = new AggregationCursor(this, providerCursor);
+    const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
       return await cursor.explain('queryPlanner'); // TODO: set default or use optional argument
@@ -341,7 +341,7 @@ export default class Collection extends ShellApiClass {
 
     this._emitCollectionApiCall('find', { query, options });
     const cursor = new Cursor(
-      this,
+      this._mongo,
       this._mongo._serviceProvider.find(this._database._name, this._name, query, options)
     );
 
