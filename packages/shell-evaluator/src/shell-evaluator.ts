@@ -96,29 +96,29 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  private async innerEval(originalEval: any, input: string, context: any, filename: string): Promise<any> {
+  private innerEval(originalEval: any, input: string, context: any, filename: string, cb: Function): void {
     const argv = input.trim().replace(/;$/, '').split(' ');
     const cmd = argv[0];
     argv.shift();
     switch (cmd) {
       case 'use':
-        return this.mapper.use(argv[0]);
+        return cb(null, this.mapper.use(argv[0]));
       case 'show':
-        return this.mapper.show(argv[0]);
+        return cb(null, this.mapper.show(argv[0]));
       case 'it':
-        return this.mapper.it();
+        return cb(null, this.mapper.it());
       case 'help':
-        return this.help();
+        return cb(null, this.help());
       case 'enableTelemetry()':
         if (this.container) {
-          return this.container.toggleTelemetry(true);
+          return cb(null, this.container.toggleTelemetry(true));
         }
-        return;
+        return cb(null, undefined);
       case 'disableTelemetry()':
         if (this.container) {
-          return this.container.toggleTelemetry(false);
+          return cb(null, this.container.toggleTelemetry(false));
         }
-        return;
+        return cb(null, undefined);
       default:
         this.saveState();
         const rewrittenInput = this.asyncWriter.process(input);
@@ -127,13 +127,7 @@ class ShellEvaluator {
           'mongosh:rewritten-async-input',
           { original: input.trim(), rewritten: rewrittenInput.trim() }
         );
-        try {
-          return await originalEval(rewrittenInput, context, filename);
-        } catch (err) {
-          // This is for browser/Compass
-          this.revertState();
-          throw err;
-        }
+        originalEval(rewrittenInput, context, filename, cb);
     }
   }
 
@@ -144,23 +138,42 @@ class ShellEvaluator {
    * @param {String} input - user input.
    * @param {Context} context - the execution context.
    * @param {String} filename
+   * @param {Function} callback
    */
-  public async customEval(originalEval, input, context, filename): Promise<Result> {
-    const evaluationResult = await this.innerEval(
-      originalEval,
-      input,
-      context,
-      filename
-    );
+  public customEval(originalEval, input, context, filename, callback): void {
+    const cb = (err, evaluationResultPromise) => {
+      if (err) {
+        this.revertState();
+        callback(err);
+      } else {
+        Promise.resolve(evaluationResultPromise).then((evaluationResult) => {
+          if (this.isShellApiType(evaluationResult)) {
+            Promise.resolve(evaluationResult.toReplString()).then((replString) => {
+              callback(null, {
+                type: evaluationResult.shellApiType(),
+                value: replString
+              });
+            });
+          } else {
+            callback(null, { value: evaluationResult, type: null });
+          }
+        }).catch((err2) => {
+          callback(err2);
+        });
+      }
+    };
 
-    if (this.isShellApiType(evaluationResult)) {
-      return {
-        type: evaluationResult.shellApiType(),
-        value: await evaluationResult.toReplString()
-      };
+    try {
+      this.innerEval(
+        originalEval,
+        input,
+        context,
+        filename,
+        cb
+      );
+    } catch (err) {
+      callback(err);
     }
-
-    return { value: evaluationResult, type: null };
   }
 
   /**

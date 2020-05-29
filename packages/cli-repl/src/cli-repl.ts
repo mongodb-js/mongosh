@@ -117,20 +117,16 @@ class CliRepl {
       }
     });
 
-    const originalEval = util.promisify(this.repl.eval);
+    const originalEval = this.repl.eval.bind(this.repl);
 
-    const customEval = async(input, context, filename, callback): Promise<any> => {
-      let result;
-
-      try {
-        result = await this.ShellEvaluator.customEval(originalEval, input, context, filename);
-      } catch (err) {
-        if (isRecoverableError(input)) {
+    const customEval = (input, context, filename, callback): void => {
+      function cb(err, res) {
+        if (err && isRecoverableError(input)) {
           return callback(new Recoverable(err));
         }
-        result = err;
+        return callback(err, res);
       }
-      callback(null, result);
+      this.ShellEvaluator.customEval(originalEval, input, context, filename, cb);
     };
 
     (this.repl as any).eval = customEval;
