@@ -141,12 +141,12 @@ class ShellEvaluator {
    * @param {Function} callback
    */
   public customEval(originalEval, input, context, filename, callback): void {
-    const cb = (err, evaluationResultPromise) => {
+    const cb = (err, evaluationResult/*Promise*/) => {
       if (err) {
         this.revertState();
         callback(err);
       } else {
-        Promise.resolve(evaluationResultPromise).then((evaluationResult) => {
+        // Promise.resolve(evaluationResultPromise).then((evaluationResult) => {
           if (this.isShellApiType(evaluationResult)) {
             Promise.resolve(evaluationResult.toReplString()).then((replString) => {
               callback(null, {
@@ -157,9 +157,9 @@ class ShellEvaluator {
           } else {
             callback(null, { value: evaluationResult, type: null });
           }
-        }).catch((err2) => {
-          callback(err2);
-        });
+        // }).catch((err2) => {
+        //   callback(err2);
+        // });
       }
     };
 
