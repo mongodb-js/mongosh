@@ -8,7 +8,7 @@ import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
-internal class Cursor(private var helper: MongoIterableHelper<*>, private val context: MongoShellContext) {
+internal class Cursor(private var helper: MongoIterableHelper<*>, private val context: MongoShellContext) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
     private var closed = false
 
@@ -22,90 +22,86 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    fun map(func: Value): Cursor {
-        checkQueryNotExecuted()
-        if (!func.canExecute()) {
-            throw IllegalArgumentException("Expected one argument of type function. Got: $func")
-        }
-        helper = helper.map(func)
-        return this
-    }
-
-    @HostAccess.Export
-    fun limit(v: Int): Cursor {
-        checkQueryNotExecuted()
-        helper.limit(v)
-        return this
-    }
-
-    @HostAccess.Export
-    fun skip(v: Int): Cursor {
-        checkQueryNotExecuted()
-        helper.skip(v)
-        return this
-    }
-
-    @HostAccess.Export
-    fun max(v: Value): Cursor {
-        checkQueryNotExecuted()
-        if (!v.hasMembers()) {
-            throw IllegalArgumentException("Expected one argument of type object. Got: $v")
-        }
-        helper.max(toDocument(context, v))
-        return this
-    }
-
-    @HostAccess.Export
-    fun hasNext(): Boolean = getOrCreateIterator().hasNext()
-
-    @HostAccess.Export
-    fun next(): Any? = getOrCreateIterator().next()
-
-    @HostAccess.Export
-    fun isClosed(): Boolean = closed
-
-    @HostAccess.Export
-    fun close(v: Value) {
-        closed = true
-        getOrCreateIterator().close()
-    }
-
-    @HostAccess.Export
-    fun setReadPreference(v: Value): Cursor {
-        throw NotImplementedError("readPref is not supported")
-    }
-
-    @HostAccess.Export
-    fun explain(v: Value): Cursor {
-        throw NotImplementedError("explain is not supported")
-    }
-
-    @HostAccess.Export
-    fun addCursorFlag(v: Value): Cursor {
+    override fun addCursorFlag(flag: Value, v: Boolean): Cursor {
         throw NotImplementedError("setting cursor flags are not supported")
     }
 
     @HostAccess.Export
-    fun noServiceProviderCursorTimeout(v: Value): Cursor {
-        throw NotImplementedError("noServiceProviderCursorTimeout is not supported")
+    override fun addOption(option: Int): Cursor {
+        throw NotImplementedError("addOption is not supported")
     }
 
     @HostAccess.Export
-    fun batchSize(v: Int): Cursor {
+    override fun allowPartialResults(): Cursor {
+        checkQueryNotExecuted()
+        helper.allowPartialResults()
+        return this
+    }
+
+    @HostAccess.Export
+    override fun batchSize(v: Int): Cursor {
         checkQueryNotExecuted()
         helper.batchSize(v)
         return this
     }
 
+    override fun bufferedCount(): Int {
+        throw NotImplementedError("bufferedCount is not supported")
+    }
+
     @HostAccess.Export
-    fun comment(v: String): Cursor {
+    override fun close() {
+        closed = true
+        getOrCreateIterator().close()
+    }
+
+    @HostAccess.Export
+    override fun close(options: Value) = close()
+
+    override fun clone(): Cursor {
+        checkQueryNotExecuted()
+        throw NotImplementedError("clone is not supported")
+    }
+
+    @HostAccess.Export
+    override fun isClosed(): Boolean = closed
+
+    @HostAccess.Export
+    override fun collation(v: Value): Cursor {
+        checkQueryNotExecuted()
+        if (!v.hasMembers()) {
+            throw IllegalArgumentException("Expected one argument of type object. Got: $v")
+        }
+        val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, toDocument(context, v))
+                .getOrThrow()
+                .build()
+        helper.collation(collation)
+        return this
+    }
+
+    @HostAccess.Export
+    override fun comment(v: String): Cursor {
         checkQueryNotExecuted()
         helper.comment(v)
         return this
     }
 
     @HostAccess.Export
-    fun hint(v: Value): Cursor {
+    override fun count(): Int {
+        checkQueryNotExecuted()
+        return helper.count()
+    }
+
+    @HostAccess.Export
+    override fun forEach(func: Value) {
+        throw NotImplementedError("forEach is not supported")
+    }
+
+    @HostAccess.Export
+    override fun hasNext(): Boolean = getOrCreateIterator().hasNext()
+
+    @HostAccess.Export
+    override fun hint(v: Value): Cursor {
         checkQueryNotExecuted()
         if (!(v.hasMembers() || v.isString)) {
             throw IllegalArgumentException("Expected one argument of type string or object. Got: $v")
@@ -118,18 +114,114 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
         return this
     }
 
+    @HostAccess.Export
+    override fun isExhausted(): Boolean {
+        return isClosed() && !hasNext()
+    }
 
     @HostAccess.Export
-    fun collation(v: Value): Cursor {
+    override fun itcount(): Int {
+        throw NotImplementedError("itcount is not supported")
+    }
+
+    @HostAccess.Export
+    override fun limit(v: Int): Cursor {
+        checkQueryNotExecuted()
+        helper.limit(v)
+        return this
+    }
+
+    @HostAccess.Export
+    override fun map(func: Value): Cursor {
+        checkQueryNotExecuted()
+        if (!func.canExecute()) {
+            throw IllegalArgumentException("Expected one argument of type function. Got: $func")
+        }
+        helper = helper.map(func)
+        return this
+    }
+
+    @HostAccess.Export
+    override fun max(v: Value): Cursor {
         checkQueryNotExecuted()
         if (!v.hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $v")
         }
-        val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, toDocument(context, v))
-                .getOrThrow()
-                .build()
-        helper.collation(collation)
+        helper.max(toDocument(context, v))
         return this
+    }
+
+    @HostAccess.Export
+    override fun maxTimeMS(value: Int): ServiceProviderCursor {
+        throw NotImplementedError("maxTimeMS is not supported")
+    }
+
+    override fun maxAwaitTimeMS(value: Int): ServiceProviderCursor {
+        throw NotImplementedError("maxAwaitTimeMS is not supported")
+    }
+
+    @HostAccess.Export
+    override fun min(indexBounds: Value): ServiceProviderCursor {
+        throw NotImplementedError("min is not supported")
+    }
+
+    @HostAccess.Export
+    override fun next(): Any? = getOrCreateIterator().next()
+
+    @HostAccess.Export
+    override fun oplogReplay(): ServiceProviderCursor {
+        throw NotImplementedError("oplogReplay is not supported")
+    }
+
+    @HostAccess.Export
+    override fun project(v: Value): ServiceProviderCursor {
+        throw NotImplementedError("projection is not supported")
+    }
+
+    @HostAccess.Export
+    override fun returnKey(v: Boolean): ServiceProviderCursor {
+        throw NotImplementedError("returnKey is not supported")
+    }
+
+    @HostAccess.Export
+    override fun setReadPreference(v: Value): Cursor {
+        throw NotImplementedError("setReadPreference is not supported")
+    }
+
+    override fun showRecordId(v: Boolean): ServiceProviderCursor {
+        throw NotImplementedError("showRecordId is not supported")
+    }
+
+    @HostAccess.Export
+    override fun size(): Value {
+        throw NotImplementedError("size is not supported")
+    }
+
+    @HostAccess.Export
+    override fun skip(v: Int): Cursor {
+        checkQueryNotExecuted()
+        helper.skip(v)
+        return this
+    }
+
+    @HostAccess.Export
+    override fun sort(spec: Value): Cursor {
+        throw NotImplementedError("sort is not supported")
+    }
+
+    @HostAccess.Export
+    override fun tailable(): Cursor {
+        throw NotImplementedError("tailable is not supported")
+    }
+
+    @HostAccess.Export
+    override fun toArray(): Value {
+        throw NotImplementedError("toArray is not supported")
+    }
+
+    @HostAccess.Export
+    override fun explain(verbosity: String) {
+        throw NotImplementedError("explain is not supported")
     }
 
     private fun checkQueryNotExecuted() {

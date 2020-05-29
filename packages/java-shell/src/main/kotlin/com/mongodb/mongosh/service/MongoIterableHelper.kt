@@ -18,36 +18,22 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
         }, context)
     }
 
-    open fun limit(v: Int) {
-        throw NotImplementedError("limit is not supported")
-    }
-
-    open fun max(v: Document) {
-        throw NotImplementedError("max is not supported")
-    }
-
-    open fun skip(v: Int) {
-        throw NotImplementedError("skip is not supported")
-    }
-
-    open fun comment(v: String) {
-        throw NotImplementedError("comment is not supported")
-    }
-
-    open fun hint(v: String) {
-        throw NotImplementedError("hint is not supported")
-    }
-
-    open fun hint(v: Document) {
-        throw NotImplementedError("hint is not supported")
-    }
-
-    open fun collation(v: Collation) {
-        throw NotImplementedError("collation is not supported")
-    }
+    open fun limit(v: Int): Unit = throw NotImplementedError("limit is not supported")
+    open fun max(v: Document): Unit = throw NotImplementedError("max is not supported")
+    open fun skip(v: Int): Unit = throw NotImplementedError("skip is not supported")
+    open fun comment(v: String): Unit = throw NotImplementedError("comment is not supported")
+    open fun hint(v: String): Unit = throw NotImplementedError("hint is not supported")
+    open fun hint(v: Document): Unit = throw NotImplementedError("hint is not supported")
+    open fun collation(v: Collation): Unit = throw NotImplementedError("collation is not supported")
+    open fun allowPartialResults(): Unit = throw NotImplementedError("allowPartialResults is not supported")
+    open fun count(): Int = throw NotImplementedError("count is not supported")
 }
 
 internal class FindIterableHelper(iterable: FindIterable<out Any?>, context: MongoShellContext) : MongoIterableHelper<FindIterable<out Any?>>(iterable, context) {
+    override fun allowPartialResults() {
+        iterable.partial(true)
+    }
+
     override fun limit(v: Int) {
         iterable.limit(v)
     }
