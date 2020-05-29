@@ -11,7 +11,7 @@ interface ServiceProviderCursor {
   fun close()
   fun clone(): ServiceProviderCursor
   fun isClosed(): Boolean
-  fun collation(spec: Value): ServiceProviderCursor
+  fun collation(v: Value): ServiceProviderCursor
   fun comment(v: String): ServiceProviderCursor
   fun count(): Int
   fun forEach(func: Value)
@@ -27,12 +27,12 @@ interface ServiceProviderCursor {
   fun min(v: Value): ServiceProviderCursor
   fun next(): Any?
   fun project(v: Value): ServiceProviderCursor
-  fun returnKey(v: Boolean): ServiceProviderCursor
+  fun returnKey(v: Value): ServiceProviderCursor
   fun setReadPreference(v: Value): ServiceProviderCursor
   fun showRecordId(v: Boolean): ServiceProviderCursor
   fun size(): Value
   fun skip(v: Int): ServiceProviderCursor
   fun sort(spec: Value): ServiceProviderCursor
-  fun toArray(): Value
-  fun explain(verbosity: String)
+  fun toArray(): Any?
+  fun explain(verbosity: String): Any?
 }

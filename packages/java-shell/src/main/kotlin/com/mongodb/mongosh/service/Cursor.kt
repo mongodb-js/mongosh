@@ -27,9 +27,9 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
         when (flag) {
             "noCursorTimeout" -> helper.noCursorTimeout()
             "partial" -> helper.allowPartialResults()
-            "tailable",
+            "oplogReplay" -> helper.oplogReplay()
+            "tailable" -> helper.tailable()
             "slaveOk",
-            "oplogReplay",
             "awaitData",
             "exhaust" -> throw NotImplementedError("Cursor flag $flag is not supported")
             else -> throw IllegalArgumentException("Unknown cursor flag $flag")
@@ -94,6 +94,11 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     override fun count(): Int {
         checkQueryNotExecuted()
         return helper.count()
+    }
+
+    @HostAccess.Export
+    override fun explain(verbosity: String) {
+        throw NotImplementedError("explain is not supported")
     }
 
     @HostAccess.Export
@@ -193,12 +198,15 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun returnKey(v: Boolean): ServiceProviderCursor {
-        throw NotImplementedError("returnKey is not supported")
+    override fun returnKey(v: Value): Cursor {
+        checkQueryNotExecuted()
+        helper.returnKey(if (v.isBoolean) v.asBoolean() else true)
+        return this
     }
 
     @HostAccess.Export
     override fun setReadPreference(v: Value): Cursor {
+        checkQueryNotExecuted()
         throw NotImplementedError("setReadPreference is not supported")
     }
 
@@ -220,17 +228,15 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
 
     @HostAccess.Export
     override fun sort(spec: Value): Cursor {
-        throw NotImplementedError("sort is not supported")
+        checkQueryNotExecuted()
+        helper.sort(toDocument(context, spec))
+        return this
     }
 
     @HostAccess.Export
-    override fun toArray(): Value {
-        throw NotImplementedError("toArray is not supported")
-    }
-
-    @HostAccess.Export
-    override fun explain(verbosity: String) {
-        throw NotImplementedError("explain is not supported")
+    override fun toArray(): Any? {
+        checkQueryNotExecuted()
+        return context.toJs(helper.toArray())
     }
 
     private fun checkQueryNotExecuted() {

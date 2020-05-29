@@ -23,7 +23,11 @@ class CursorTest : ShellTestCase() {
     @Test fun testNoCursorTimeout()   = test()
     @Test fun testProjection()        = test()
     @Test fun testReadConcern()       = test()
+    @Test fun testReturnKey()         = test()
     @Test fun testSkip()              = test()
+    @Test fun testSort()              = test()
+    @Test fun testTailable()          = test()
+    @Test fun testToArray()           = test()
 
     private fun test() {
         val name = (Throwable()).stackTrace[1].methodName.removePrefix("test")
