@@ -15,8 +15,8 @@ const CTRL_D = '\u0004';
  * NOTE: the control sequences Ctrl+C and Ctrl+D are not buffered and instead
  * are forwarded regardless.
  *
- * Is possible to disable the "line splitting" by calling `.disable()` and
- * re-enable it by calling `.enable()`.
+ * Is possible to disable the "line splitting" by calling `.disableBlockOnNewline()` and
+ * re-enable it by calling `.enableBlockOnNewLine()`.
  *
  * If the line splitting is disabled the stream will behave like
  * the proxied `tty.ReadStream`, forwarding all the characters.
@@ -25,7 +25,7 @@ export class LineByLineInput {
   private _emitter: EventEmitter;
   private _originalInput: NodeJS.ReadStream;
   private _forwarding: boolean;
-  private _enabled: boolean;
+  private _blockOnNewLineEnabled: boolean;
   private _charQueue: string[];
   private _decoder: StringDecoder;
 
@@ -33,7 +33,7 @@ export class LineByLineInput {
     this._emitter = new EventEmitter();
     this._originalInput = readable;
     this._forwarding = true;
-    this._enabled = true;
+    this._blockOnNewLineEnabled = true;
     this._charQueue = [];
     this._decoder = new StringDecoder('utf-8');
 
@@ -70,12 +70,12 @@ export class LineByLineInput {
     this._flush();
   }
 
-  enable(): void {
-    this._enabled = true;
+  enableBlockOnNewLine(): void {
+    this._blockOnNewLineEnabled = true;
   }
 
-  disable(): void {
-    this._enabled = false;
+  disableBlockOnNewline(): void {
+    this._blockOnNewLineEnabled = false;
     this._flush();
   }
 
@@ -102,12 +102,12 @@ export class LineByLineInput {
   }
 
   private _shouldForward(): boolean {
-    // If we are not splitting the input by line
+    // If we are not blocking on new lines
     // we just forward everything as is,
     // otherwise we forward only if the forwarding
     // is not paused.
 
-    return !this._enabled || this._forwarding;
+    return !this._blockOnNewLineEnabled || this._forwarding;
   }
 
   private _emitChar(char): void {

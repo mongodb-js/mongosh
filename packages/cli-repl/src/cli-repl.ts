@@ -125,7 +125,7 @@ class CliRepl {
     const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
 
     this.repl.commands.editor.action = (): any => {
-      this.lineByLineInput.disable();
+      this.lineByLineInput.disableBlockOnNewline();
       return originalEditorAction();
     };
 
@@ -139,6 +139,8 @@ class CliRepl {
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback): Promise<any> => {
+      this.lineByLineInput.enableBlockOnNewLine();
+
       let result;
 
       try {
