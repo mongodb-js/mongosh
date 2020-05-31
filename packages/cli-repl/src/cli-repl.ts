@@ -118,8 +118,8 @@ class CliRepl {
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
 
     this.repl.displayPrompt = (...args: any[]): any => {
+      originalDisplayPrompt(...args);
       this.lineByLineInput.nextLine();
-      return originalDisplayPrompt(...args);
     };
 
     const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
