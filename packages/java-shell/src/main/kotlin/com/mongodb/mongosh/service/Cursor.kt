@@ -97,7 +97,7 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun explain(verbosity: String): Any? {
+    override fun explain(verbosity: String?): Any? {
         checkQueryNotExecuted()
         helper.explain(verbosity)
         return context.toJs(helper.iterable.first())
