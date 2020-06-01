@@ -14,6 +14,7 @@ class DbTest : ShellTestCase() {
     @Test fun testShowCollections()    = test()
     @Test fun testShowDatabases()      = test()
     @Test fun testUseDb()              = test()
+    @Test fun testVersion()            = test()
 
     private fun test() {
         val name = (Throwable()).stackTrace[1].methodName.removePrefix("test")
