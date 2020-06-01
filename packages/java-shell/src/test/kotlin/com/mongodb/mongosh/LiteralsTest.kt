@@ -37,7 +37,7 @@ class LiteralsTest : ShellTestCase() {
     @Test fun testUnknownSymbol() = test()
     @Test fun testUUID()          = test()
     
-    fun test() {
+    private fun test() {
         val name = (Throwable()).stackTrace[1].methodName.removePrefix("test")
 
         withShell { shell ->
