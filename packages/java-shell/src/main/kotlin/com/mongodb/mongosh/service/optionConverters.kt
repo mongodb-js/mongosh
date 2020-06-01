@@ -384,6 +384,48 @@ internal val indexModelConverters: Map<String, (IndexModel, Any?) -> Either<Inde
 
 internal val indexModelDefaultConverter = unrecognizedField<IndexModel>("index model")
 
+internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOptions, Any?) -> Either<CreateCollectionOptions>> = mapOf(
+        typed("capped", Boolean::class.java) { opt, value ->
+            opt.capped(value)
+        },
+        typed("autoIndexId", Boolean::class.java) { opt, value ->
+            opt.autoIndex(value)
+        },
+        typed("size", Number::class.java) { opt, value ->
+            opt.sizeInBytes(value.toLong())
+        },
+        typed("max", Number::class.java) { opt, value ->
+            opt.maxDocuments(value.toLong())
+        },
+        typed("storageEngine", Document::class.java) { opt, value ->
+            opt.storageEngineOptions(value)
+        },
+        typed("validator", Document::class.java) { opt, value ->
+            opt.validationOptions.validator(value)
+            opt
+        },
+        typed("validationLevel", String::class.java) { opt, value ->
+            opt.validationOptions.validationLevel(ValidationLevel.fromString(value))
+            opt
+        },
+        typed("validationAction", String::class.java) { opt, value ->
+            opt.validationOptions.validationAction(ValidationAction.fromString(value))
+            opt
+        },
+        typed("indexOptionDefaults", Document::class.java) { opt, value ->
+            opt.indexOptionDefaults(IndexOptionDefaults().storageEngine(value))
+        },
+        typed("collation", Document::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+)
+
+internal val createCollectionOptionsConverter = unrecognizedField<CreateCollectionOptions>("create collection options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val casted = value as? C

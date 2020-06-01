@@ -4,6 +4,7 @@ import org.junit.Test
 
 class DbTest : ShellTestCase() {
 
+    @Test fun testCreateCollection()   = test()
     @Test fun testDbHelp()             = test()
     @Test fun testDefaultDb()          = test()
     @Test fun testGetCollection()      = test()

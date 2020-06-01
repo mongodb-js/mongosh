@@ -14,7 +14,7 @@ import org.graalvm.polyglot.Value
 import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
     @JvmField
     @HostAccess.Export
@@ -434,6 +434,16 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     @HostAccess.Export
     override fun convertToCapped(database: String, collection: String, size: Number, options: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
+        val options = toDocument(options, "options") ?: Document()
+        getDatabase(database, null).flatMap { db ->
+            convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
+                db.createCollection(collection, opt)
+            }
+        }
     }
 
     @HostAccess.Export
