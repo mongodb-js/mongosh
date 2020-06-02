@@ -14,7 +14,7 @@ enum Target {
  * A compiler that can produce an executable that is not
  * code signable, but faster for dev environments.
  */
-class SignableCompiler extends Compiler {
+class UnsignableCompiler extends Compiler {
 
   /**
    * Compile the executable with the library.
@@ -46,5 +46,5 @@ class SignableCompiler extends Compiler {
   };
 }
 
-export default SignableCompiler;
+export default UnsignableCompiler;
 export { Target };
