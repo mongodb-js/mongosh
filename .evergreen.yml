@@ -43,21 +43,24 @@ variables:
       shell: powershell
       script: |
         .\.evergreen\SetupEnv
-        $Env:SEGMENT_API_KEY = "${segment_api_key}"
-        $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-        $Env:PROJECT = "${project}"
-        $Env:REVISION = "${revision}"
-        $Env:AWS_KEY = "${aws_key}"
-        $Env:AWS_SECRET = "${aws_secret}"
-        $Env:DOWNLOAD_CENTER_AWS_KEY = "${download_center_aws_key}"
-        $Env:DOWNLOAD_CENTER_AWS_SECRET = "${download_center_aws_secret}"
-        $Env:GITHUB_TOKEN = "${github_token}"
-        $Env:APPLE_DEV_USER = "${apple_dev_user}"
-        $Env:APPLE_DEV_PASSWORD = "${apple_dev_password}"
-        $Env:APPLE_APP_IDENTITY = "${apple_app_identity}"
-        $Env:DEBUG = "node-codesign"
-        $Env:IS_CI = "${is_ci}"
+        Set-Content -Path .\ReleaseMongosh.ps1 -Value @"
+        $Env:SEGMENT_API_KEY = '${segment_api_key}'
+        $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true'
+        $Env:PROJECT = '${project}'
+        $Env:REVISION = '${revision}'
+        $Env:AWS_KEY = '${aws_key}'
+        $Env:AWS_SECRET = '${aws_secret}'
+        $Env:DOWNLOAD_CENTER_AWS_KEY = '${download_center_aws_key}'
+        $Env:DOWNLOAD_CENTER_AWS_SECRET = '${download_center_aws_secret}'
+        $Env:GITHUB_TOKEN = '${github_token}'
+        $Env:APPLE_DEV_USER = '${apple_dev_user}'
+        $Env:APPLE_DEV_PASSWORD = '${apple_dev_password}'
+        $Env:APPLE_APP_IDENTITY = '${apple_app_identity}'
+        $Env:DEBUG = 'node-codesign'
+        $Env:IS_CI = '${is_ci}'
         npm run release
+        "@
+        .\ReleaseMongosh
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
 #
