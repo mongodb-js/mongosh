@@ -71,7 +71,7 @@ export function saveAndRestoreLexicalContext(
     newLexicalContext
   );
 
-  const { code } = generate(ast);
+  const { code } = generate((ast as any));
 
   let newCode = '';
 

@@ -28,7 +28,7 @@ class UnsignableCompiler extends Compiler {
       '-o',
       this.output,
       '-t',
-      target
+      `node12-${target}`
     ]);
   }
 
