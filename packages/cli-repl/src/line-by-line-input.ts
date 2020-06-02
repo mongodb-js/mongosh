@@ -80,8 +80,15 @@ export class LineByLineInput {
   }
 
   private _onData = (chunk: Buffer): void => {
-    const chars = this._decoder.write(chunk);
+    if (this._blockOnNewLineEnabled) {
+      return this._forwardAndBlockOnNewline(chunk);
+    }
 
+    return this._forwardWithoutBlocking(chunk);
+  };
+
+  private _forwardAndBlockOnNewline(chunk: Buffer): void {
+    const chars = this._decoder.write(chunk);
     for (const char of chars) {
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
         this._emitChar(char);
@@ -89,9 +96,14 @@ export class LineByLineInput {
         this._charQueue.push(char);
       }
     }
-
     this._flush();
-  };
+  }
+
+  private _forwardWithoutBlocking(chunk: Buffer): void {
+    // keeps decoding state consistent
+    this._decoder.write(chunk);
+    this._emitChunk(chunk);
+  }
 
   private _pauseForwarding(): void {
     this._forwarding = false;
@@ -111,7 +123,11 @@ export class LineByLineInput {
   }
 
   private _emitChar(char): void {
-    this._emitter.emit('data', Buffer.from(char, 'utf8'));
+    this._emitChunk(Buffer.from(char, 'utf8'));
+  }
+
+  private _emitChunk(chunk: Buffer): void {
+    this._emitter.emit('data', chunk);
   }
 
   private _flush(): void {
