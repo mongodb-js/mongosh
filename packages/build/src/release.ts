@@ -9,7 +9,6 @@ import uploadDownloadCenterConfig from './download-center';
 import publishMacOs from './macos-sign';
 import Platform from './platform';
 import zip from './zip';
-import { execSync } from 'child_process';
 import S3 from 'aws-sdk/clients/s3';
 
 /**
@@ -24,8 +23,6 @@ const release = async(config: Config) => {
     auth: config.githubToken,
     userAgent: `mongosh ${config.version}`
   });
-
-  console.log(`node --version ${execSync('node --version')}`);
 
   // Build the executable.
   const executable = await compileExec(
