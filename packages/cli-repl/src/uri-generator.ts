@@ -61,7 +61,7 @@ function validateConflicts(options: CliOptions): any {
  *
  * @returns {string} The host.
  */
-function generateHost(options: CliOptions = {}): string {
+function generateHost(options: CliOptions): string {
   return options.host ? options.host : DEFAULT_HOST;
 }
 
@@ -72,7 +72,8 @@ function generateHost(options: CliOptions = {}): string {
  *
  * @returns {string} The port.
  */
-function generatePort(options: CliOptions = {}): string {
+function generatePort(options: CliOptions): string {
+  console.log(`in generatePort, options=${options.port}`);
   return options.port ? options.port : DEFAULT_PORT;
 }
 
@@ -97,7 +98,7 @@ function generateUri(options: CliOptions): string {
 
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
-    return `${Scheme.Mongo}${generateHost()}:${generatePort()}`;
+    return `${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}`;
   }
 
   // A mongodb:// or mongodb+srv:// URI is provided, treat as correct.

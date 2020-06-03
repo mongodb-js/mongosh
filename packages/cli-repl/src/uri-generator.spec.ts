@@ -10,6 +10,15 @@ describe('uri-generator.generate-uri', () => {
     });
   });
 
+  context('when no URI is provided', () => {
+    it('handles host', () => {
+      expect(generateUri({ _: [], host: 'localhost'})).to.equal('mongodb://localhost:27017')
+    });
+    it('handles port', () => {
+      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018')
+    });
+  });
+
   context('when a full URI is provided', () => {
     context('when no additional options are provided', () => {
       const uri = 'mongodb://192.0.0.1:27018/foo';
