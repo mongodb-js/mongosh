@@ -21,6 +21,7 @@ interface EditorProps {
   onArrowDownOnLastLine?(): void | Promise<void>;
   onChange?(value: string): void | Promise<void>;
   autocompleter?: Autocompleter;
+  setInputRef?(ref): void;
   value?: string;
 }
 
@@ -30,6 +31,7 @@ export class Editor extends Component<EditorProps> {
     onArrowUpOnFirstLine: PropTypes.func,
     onArrowDownOnLastLine: PropTypes.func,
     onChange: PropTypes.func,
+    setInputRef: PropTypes.func,
     value: PropTypes.string
   };
 
@@ -71,6 +73,11 @@ export class Editor extends Component<EditorProps> {
       }}
       name={`mongosh-ace-${Date.now()}`}
       mode="javascript"
+      ref={(ref: any): void => {
+        if (this.props.setInputRef) {
+          this.props.setInputRef(ref);
+        }
+      }}
       theme="mongosh"
       onChange={this.props.onChange}
       onLoad={this.onEditorLoad}

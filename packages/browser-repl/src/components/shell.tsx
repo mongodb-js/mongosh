@@ -98,6 +98,9 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private shellInputElement?: HTMLElement;
+  private shellInputRef?: {
+    editor?: HTMLElement;
+  };
 
   readonly state: ShellState = {
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
@@ -188,18 +191,34 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.shellInputElement.scrollIntoView();
   }
 
+  private onShellClicked = (event: React.MouseEvent): void => {
+    // Focus on input when clicking the shell background (not clicking output).
+    if (event.currentTarget === event.target) {
+      if (this.shellInputRef && this.shellInputRef.editor) {
+        this.shellInputRef.editor.focus();
+      }
+    }
+  };
+
   render(): JSX.Element {
-    return (<div className={classnames(styles.shell)}>
-      <div>
-        <ShellOutput
-          output={this.state.output} />
+    return (
+      <div
+        className={classnames(styles.shell)}
+        onClick={this.onShellClicked}
+      >
+        <div>
+          <ShellOutput
+            output={this.state.output} />
+        </div>
+        <div ref={(el): void => { this.shellInputElement = el; }}>
+          <ShellInput
+            onInput={this.onInput}
+            history={this.state.history}
+            autocompleter={this.props.runtime}
+            setInputRef={(ref): void => { this.shellInputRef = ref;}}
+          />
+        </div>
       </div>
-      <div ref={(el): void => { this.shellInputElement = el; }}>
-        <ShellInput
-          onInput={this.onInput}
-          history={this.state.history}
-          autocompleter={this.props.runtime} />
-      </div>
-    </div>);
+    );
   }
 }

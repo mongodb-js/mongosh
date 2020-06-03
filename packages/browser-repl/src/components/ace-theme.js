@@ -4,6 +4,7 @@ const foregroundColor = uiColors.gray.light3;
 const backgroundColor = uiColors.gray.dark3;
 const borderColor = uiColors.gray.dark1;
 const activeLineColor = uiColors.gray.dark2;
+const selectionColor = uiColors.gray.dark1;
 
 const cursorColor = uiColors.green.base;
 
@@ -40,7 +41,7 @@ const layoutCss = `
     background: transparent;
   }
   .ace-mongosh .ace_marker-layer .ace_selection {
-    background: transparent;
+    background: ${selectionColor};
   }
 `;
 

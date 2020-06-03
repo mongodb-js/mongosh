@@ -7,6 +7,8 @@ import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
 import { ShellOutputEntry } from './shell-output-line';
 
+const styles = require('./shell.less');
+
 const wait: (ms?: number) => Promise<void> = (ms = 10) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -17,6 +19,7 @@ describe('<Shell />', () => {
   let fakeRuntime;
   let wrapper: ShallowWrapper | ReactWrapper;
   let scrollIntoView;
+  let elementFocus;
   let onInput;
 
   beforeEach(() => {
@@ -27,6 +30,7 @@ describe('<Shell />', () => {
     };
 
     scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
+    elementFocus = sinon.spy(HTMLElement.prototype, 'focus');
 
     fakeRuntime = {
       evaluate: sinon.fake.returns({ value: 'some result' })
@@ -43,6 +47,7 @@ describe('<Shell />', () => {
 
   afterEach(() => {
     scrollIntoView.restore();
+    elementFocus.restore();
   });
 
   it('renders a ShellOutput component', () => {
@@ -264,5 +269,31 @@ describe('<Shell />', () => {
     wrapper.update();
 
     expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+  });
+
+  it('focuses on the input when the background container is clicked', () => {
+    wrapper = mount(<Shell runtime={fakeRuntime} />);
+    const container = wrapper.find(`.${styles.shell}`);
+
+    const fakeMouseEvent: any = {
+      target: 'a',
+      currentTarget: 'a'
+    };
+    container.prop('onClick')(fakeMouseEvent);
+
+    expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
+  });
+
+  it('does not focus on the input when an element that is not the background container is clicked', () => {
+    wrapper = mount(<Shell runtime={fakeRuntime} />);
+    const container = wrapper.find(`.${styles.shell}`);
+
+    const fakeMouseEvent: any = {
+      target: 'a',
+      currentTarget: 'b'
+    };
+    container.prop('onClick')(fakeMouseEvent);
+
+    expect(HTMLElement.prototype.focus).to.not.have.been.called;
   });
 });
