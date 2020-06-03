@@ -217,10 +217,12 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
         },
         typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
             opt.bypassDocumentValidation(value)
-        }
+        },
+        "filter" to { opt, _ -> Right(opt) },
+        "replacement" to { opt, _ -> Right(opt) }
 )
 
-internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("replace options")
+internal val replaceOptionsDefaultConverter = unrecognizedField<ReplaceOptions>("replace options")
 
 internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceOptions, Any?) -> Either<FindOneAndReplaceOptions>> = mapOf(
         typed("projection", Document::class.java) { opt, value ->
@@ -425,6 +427,28 @@ internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOpt
 )
 
 internal val createCollectionOptionsConverter = unrecognizedField<CreateCollectionOptions>("create collection options")
+
+internal val updateOptionsConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
+        typed("collation", Document::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        "filter" to { opt, _ -> Right(opt) },
+        "update" to { opt, _ -> Right(opt) }
+)
+
+internal val updateOptionsDefaultConverter = unrecognizedField<UpdateOptions>("update options")
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->

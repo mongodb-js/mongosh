@@ -65,7 +65,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
+            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, options).map { options ->
                 val res = db.getCollection(collection).replaceOne(filter, replacement, options)
                 mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
@@ -182,7 +182,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         })
     }
 
-    private fun getWriteModel(model: Document): Either<WriteModel<Document>?> {
+    private fun getWriteModel(model: Document): Either<WriteModel<Document>> {
         if (model.keys.size != 1) return Left(IllegalArgumentException())
         val key = model.keys.first()
         val innerDoc: Document = model[key] as? Document
@@ -193,12 +193,43 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                         ?: return Left(IllegalArgumentException("No property 'document' $innerDoc"))
                 Right(InsertOneModel(doc))
             }
-            "deleteOne" -> {
+            "deleteOne", "deleteMany" -> {
                 val filter = innerDoc["filter"] as? Document
                         ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
                 val collationDoc = innerDoc["collation"] as? Document ?: Document()
                 convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { collation ->
-                    DeleteOneModel<Document>(filter, DeleteOptions().collation(collation.build()))
+                    val opt = DeleteOptions().collation(collation.build())
+                    if (key == "deleteOne") DeleteOneModel<Document>(filter, opt)
+                    else DeleteManyModel<Document>(filter, opt)
+                }
+            }
+            "updateOne", "updateMany" -> {
+                val filter = innerDoc["filter"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
+                val update = innerDoc["update"]
+                        ?: return Left(IllegalArgumentException("No property 'update' $innerDoc"))
+                convert(UpdateOptions(), updateOptionsConverters, updateOptionsDefaultConverter, innerDoc).flatMap { opt ->
+                    val res: Either<WriteModel<Document>> = when (update) {
+                        is Document -> {
+                            val model: WriteModel<Document> = if (key == "updateOne") UpdateOneModel(filter, update, opt) else UpdateManyModel(filter, update, opt)
+                            Right(model)
+                        }
+                        is List<*> -> {
+                            val model: WriteModel<Document> = if (key == "updateOne") UpdateOneModel(filter, update.filterIsInstance<Document>(), opt) else UpdateManyModel(filter, update.filterIsInstance<Document>(), opt)
+                            Right(model)
+                        }
+                        else -> Left(IllegalArgumentException("Property 'update' has to be a document of a list $innerDoc"))
+                    }
+                    res
+                }
+            }
+            "replaceOne" -> {
+                val filter = innerDoc["filter"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
+                val replacement = innerDoc["replacement"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'replacement' $innerDoc"))
+                convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, innerDoc).map { opt ->
+                    ReplaceOneModel<Document>(filter, replacement, opt)
                 }
             }
             else -> Left(IllegalArgumentException("Unknown bulk write operation $model"))
