@@ -1,14 +1,19 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styles from './shell-header.less';
 import PropTypes from 'prop-types';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
 
-export default class CompassShell extends Component {
+export default class ShellHeader extends Component {
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
     onShellToggleClicked: PropTypes.func.isRequired
   };
+
+  onInfoClicked = () => {
+    // TODO: Open modal.
+  }
+
   /**
    * Render ShellHeader component.
    *
@@ -30,14 +35,24 @@ export default class CompassShell extends Component {
         </button>
         <div className={styles['compass-shell-header-right-actions']}>
           {isExpanded && (
-            <IconButton
-              className={styles['compass-shell-header-close-btn']}
-              variant="dark"
-              aria-label="Close Shell"
-              onClick={onShellToggleClicked}
-            >
-              <Icon glyph="ChevronDown" />
-            </IconButton>
+            <Fragment>
+              <IconButton
+                className={styles['compass-shell-header-info-btn']}
+                variant="dark"
+                aria-label="Shell Info"
+                onClick={this.onInfoClicked}
+              >
+                <Icon glyph="InfoWithCircle" />
+              </IconButton>
+              <IconButton
+                className={styles['compass-shell-header-close-btn']}
+                variant="dark"
+                aria-label="Close Shell"
+                onClick={onShellToggleClicked}
+              >
+                <Icon glyph="ChevronDown" />
+              </IconButton>
+            </Fragment>
           )}
           {!isExpanded && (
             <IconButton
