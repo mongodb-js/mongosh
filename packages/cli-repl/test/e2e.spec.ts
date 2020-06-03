@@ -53,12 +53,20 @@ describe('e2e', function() {
       // this is an unterminated string constant and should throw, since it does
       // not pass: https://www.ecma-international.org/ecma-262/#sec-line-terminators
       await shell.executeLine('"this is a multi\nline string');
-      shell.assertContainsError('SyntaxError: Invalid or unexpected token');
+      shell.assertContainsError('SyntaxError: Unterminated string constant');
     });
 
+    it('does not throw for valid input', async() => {
+      await shell.executeLine('1');
+      shell.assertNoErrors();
+
+      await eventually(() => {
+        shell.assertContainsOutput('1');
+      });
+    });
     it('throws when a syntax error is encountered', async() => {
       await shell.executeLine('<x');
-      shell.assertContainsError('SyntaxError: Unexpected token \'<\'');
+      shell.assertContainsError('SyntaxError: Unexpected token');
     });
 
     it('runs an unterminated function', async() => {

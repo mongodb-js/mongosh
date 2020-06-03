@@ -113,6 +113,7 @@ class CliRepl {
       prompt: '> ',
       writer: this.writer,
       completer: completer.bind(null, version),
+      terminal: true
     });
 
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
@@ -149,7 +150,7 @@ class CliRepl {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));
         }
-        result = err;
+        return callback(err);
       }
       callback(null, result);
     };
