@@ -1,5 +1,6 @@
 import parse, { getLocale } from './arg-parser';
 import { expect } from 'chai';
+import stripAnsi from 'strip-ansi';
 
 const NODE = 'node';
 const MONGOSH = 'mongosh';
@@ -237,8 +238,14 @@ describe('arg-parser', () => {
             const argv = [ ...baseArgv, uri, '--what' ];
 
             it('raises an error', () => {
-              expect(parse.bind(null, argv)).to.
-                throw('Error parsing command line: unrecognized option: --what');
+              try {
+                parse(argv);
+                throw new Error('should have thrown');
+              } catch (err) {
+                expect(
+                  stripAnsi(err.message)
+                ).to.contain('Error parsing command line: unrecognized option: --what');
+              }
             });
           });
         });
@@ -731,8 +738,14 @@ describe('arg-parser', () => {
             const argv = [ ...baseArgv, uri, '--what' ];
 
             it('raises an error', () => {
-              expect(parse.bind(null, argv)).to.
-                throw('Error parsing command line: unrecognized option: --what');
+              try {
+                parse(argv);
+                throw new Error('should have thrown');
+              } catch (err) {
+                expect(
+                  stripAnsi(err.message)
+                ).to.contain('Error parsing command line: unrecognized option: --what');
+              }
             });
           });
         });

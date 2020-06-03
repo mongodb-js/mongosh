@@ -1,19 +1,20 @@
-import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import { eventually, startShell, killOpenShells } from './helpers';
+import { eventually } from './helpers';
+import { TestShell } from './test-shell';
 
 describe('e2e', function() {
   before(require('mongodb-runner/mocha/before')({ port: 27018, timeout: 60000 }));
   after(require('mongodb-runner/mocha/after')({ port: 27018 }));
 
-  afterEach(() => killOpenShells());
+  afterEach(() => TestShell.killall());
 
   describe('--version', () => {
     it('shows version', async() => {
-      const shell = startShell('--version');
+      const shell = TestShell.start({ args: [ '--version' ] });
+
       await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.stdout).to.contain(
+        shell.assertNoErrors();
+        shell.assertContainsOutput(
           require('../package.json').version
         );
       });
@@ -23,20 +24,23 @@ describe('e2e', function() {
   describe('with connection string', () => {
     let db;
     let client;
-    let shell;
+    let shell: TestShell;
     let dbName;
 
     beforeEach(async() => {
       dbName = `test-${Date.now()}`;
       const connectionString = `mongodb://localhost:27018/${dbName}`;
+      shell = TestShell.start({ args: [ connectionString ] });
 
-      shell = startShell(connectionString);
       client = await (MongoClient as any).connect(
         connectionString,
-        { useNewUrlParser: true }
+        { useNewUrlParser: true, useUnifiedTopology: true }
       );
 
       db = client.db(dbName);
+
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
     });
 
     afterEach(async() => {
@@ -45,68 +49,48 @@ describe('e2e', function() {
       client.close();
     });
 
-    it.skip('connects to the right database', async() => {
-      shell.stdio.stdin.write('db\n');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.stdout).to.contain(`> ${dbName}\n`);
-      });
-    });
-
     it('throws multiline input with a single line string', async() => {
       // this is an unterminated string constant and should throw, since it does
       // not pass: https://www.ecma-international.org/ecma-262/#sec-line-terminators
-      shell.stdio.stdin.write('"this is a multi\nline string"\n');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.exist;
-      });
+      await shell.executeLine('"this is a multi\nline string');
+      shell.assertContainsError('SyntaxError: Unterminated string constant');
     });
 
+    it('does not throw for valid input', async() => {
+      await shell.executeLine('1');
+      shell.assertNoErrors();
+
+      await eventually(() => {
+        shell.assertContainsOutput('1');
+      });
+    });
     it('throws when a syntax error is encountered', async() => {
-      shell.stdio.stdin.write('<x>\n');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.exist;
-      });
-    });
-
-    it('does not throw for a repl await function', async() => {
-      shell.stdio.stdin.write('await Promise.resolve(\'Nori-cat\');');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.be.equal('');
-      });
+      await shell.executeLine('<x');
+      shell.assertContainsError('SyntaxError: Unexpected token');
     });
 
     it('runs an unterminated function', async() => {
-      shell.stdio.stdin.write('function x () {\nconsole.log(\'y\')\n }\n');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-      });
+      await shell.writeInputLine('function x () {\nconsole.log(\'y\')\n }');
+      shell.assertNoErrors();
     });
 
     it('runs an unterminated function', async() => {
-      shell.stdio.stdin.write('function x () {\n');
-
-      await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-      });
+      await shell.writeInputLine('function x () {');
+      shell.assertNoErrors();
     });
 
     it('runs help command', async() => {
-      shell.stdio.stdin.write('help\n');
+      await shell.executeLine('help');
 
       await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.stdout).to.contain('Shell Help');
+        shell.assertContainsOutput('Shell Help');
       });
+
+      shell.assertNoErrors();
     });
 
     it('allows to find documents', async() => {
-      shell.stdio.stdin.write(`use ${dbName}\n`);
+      await shell.writeInputLine(`use ${dbName}`);
 
       await db.collection('test').insertMany([
         { doc: 1 },
@@ -114,14 +98,16 @@ describe('e2e', function() {
         { doc: 3 }
       ]);
 
-      shell.stdio.stdin.write('db.test.find()\n');
+      await shell.writeInputLine('db.test.find()');
 
       await eventually(() => {
-        expect(shell.stdio.stderr).to.be.empty;
-        expect(shell.stdio.stdout).to.contain('doc: 1');
-        expect(shell.stdio.stdout).to.contain('doc: 2');
-        expect(shell.stdio.stdout).to.contain('doc: 3');
+        shell.assertContainsOutput('doc: 1');
+        shell.assertContainsOutput('doc: 2');
+        shell.assertContainsOutput('doc: 3');
       });
+
+      shell.assertNoErrors();
     });
   });
 });
+

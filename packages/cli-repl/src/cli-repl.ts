@@ -24,6 +24,7 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import { redactPwd } from '.';
+import { LineByLineInput } from './line-by-line-input';
 
 /**
  * Connecting text key.
@@ -44,6 +45,7 @@ class CliRepl {
   private userId: ObjectId;
   private options: CliOptions;
   private mongoshDir: string;
+  private lineByLineInput: LineByLineInput;
 
   /**
    * Instantiate the new CLI Repl.
@@ -51,6 +53,7 @@ class CliRepl {
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
     this.options = options;
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
+    this.lineByLineInput = new LineByLineInput(process.stdin);
 
     this.createMongoshDir();
 
@@ -105,10 +108,27 @@ class CliRepl {
     const version = this.buildInfo.version;
 
     this.repl = repl.start({
+      input: this.lineByLineInput,
+      output: process.stdout,
       prompt: '> ',
       writer: this.writer,
       completer: completer.bind(null, version),
+      terminal: true
     });
+
+    const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
+
+    this.repl.displayPrompt = (...args: any[]): any => {
+      originalDisplayPrompt(...args);
+      this.lineByLineInput.nextLine();
+    };
+
+    const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
+
+    this.repl.commands.editor.action = (): any => {
+      this.lineByLineInput.disableBlockOnNewline();
+      return originalEditorAction();
+    };
 
     this.repl.defineCommand('clear', {
       help: '',
@@ -120,6 +140,8 @@ class CliRepl {
     const originalEval = util.promisify(this.repl.eval);
 
     const customEval = async(input, context, filename, callback): Promise<any> => {
+      this.lineByLineInput.enableBlockOnNewLine();
+
       let result;
 
       try {
@@ -128,7 +150,7 @@ class CliRepl {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));
         }
-        result = err;
+        return callback(err);
       }
       callback(null, result);
     };
