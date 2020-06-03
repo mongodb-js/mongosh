@@ -58,6 +58,8 @@ export class LineByLineInput {
   on(event: string, handler: (...args: any[]) => void): void {
     if (event === 'data') {
       this._emitter.on('data', handler);
+      // we may have buffered data for the first listener
+      this._flush();
       return;
     }
 
@@ -131,6 +133,11 @@ export class LineByLineInput {
   }
 
   private _flush(): void {
+    // there is nobody to flush for
+    if (this._emitter.listenerCount('data') === 0) {
+      return;
+    }
+
     while (
       this._charQueue.length &&
       this._shouldForward() &&
