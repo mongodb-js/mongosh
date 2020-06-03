@@ -3,6 +3,7 @@ package com.mongodb.mongosh.service
 import com.mongodb.CursorType
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.FindIterable
+import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.Collation
 import com.mongodb.mongosh.MongoShellContext
@@ -44,12 +45,29 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
     open fun returnKey(v: Boolean): Unit = throw NotImplementedError("returnKey is not supported")
     open fun sort(spec: Document): Unit = throw NotImplementedError("sort is not supported")
     open fun tailable(): Unit = throw NotImplementedError("tailable is not supported")
-    open fun explain(verbosity: String?): Unit = throw NotImplementedError("explain is not supported")
+    open fun explain(verbosity: String?): Any? = throw NotImplementedError("explain is not supported")
 }
 
-internal class AggregateIterableHelper(iterable: AggregateIterable<out Any?>, context: MongoShellContext) : MongoIterableHelper<AggregateIterable<out Any?>>(iterable, context) {
+internal class AggregateIterableHelper(iterable: AggregateIterable<out Any?>,
+                                       context: MongoShellContext,
+                                       private val db: MongoDatabase?,
+                                       private val collection: String?,
+                                       private val pipeline: List<Document>?,
+                                       private val options: Document?)
+    : MongoIterableHelper<AggregateIterable<out Any?>>(iterable, context) {
     override fun maxTimeMS(v: Long) {
         iterable.maxTime(v, TimeUnit.MILLISECONDS)
+    }
+
+    override fun explain(verbosity: String?): Any? {
+        check(db != null) { "db is not set" }
+        check(pipeline != null) { "pipeline is not set" }
+        val explain = Document()
+        explain["aggregate"] = collection ?: 1
+        explain["pipeline"] = pipeline
+        explain["explain"] = true
+        if (options != null) explain.putAll(options)
+        return db.runCommand(explain)
     }
 
     override fun comment(v: String) {
@@ -130,15 +148,15 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>, context: Mon
         iterable.cursorType(CursorType.Tailable)
     }
 
-    override fun explain(verbosity: String?) {
-        iterable.modifiers(Document("\$explain", true))
+    override fun explain(verbosity: String?): Any? {
+        return iterable.modifiers(Document("\$explain", true)).first()
     }
 }
 
 internal fun helper(iterable: MongoIterable<out Any?>, context: MongoShellContext): MongoIterableHelper<*> {
     return when (iterable) {
         is FindIterable -> FindIterableHelper(iterable, context)
-        is AggregateIterable -> AggregateIterableHelper(iterable, context)
+        is AggregateIterable -> AggregateIterableHelper(iterable, context, null, null, null, null)
         else -> MongoIterableHelper(iterable, context)
     }
 }

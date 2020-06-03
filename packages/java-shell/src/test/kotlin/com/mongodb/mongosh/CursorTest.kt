@@ -4,6 +4,7 @@ import org.junit.Test
 
 class CursorTest : ShellTestCase() {
 
+    @Test fun testAggregateExplain()  = test()
     @Test fun testAggregateIsClosed() = test()
     @Test fun testCollation()         = test()
     @Test fun testComment()           = test()

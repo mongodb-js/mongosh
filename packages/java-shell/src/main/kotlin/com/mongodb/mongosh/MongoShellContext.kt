@@ -159,7 +159,8 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf("Promise") -> extract(unwrapPromise(v))
             type == "Help" -> extract(v["attr"]!!)
             type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
-            type == "AggregationCursor" -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
+            // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
+            type == "AggregationCursor" && v.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
             type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             type == "UpdateResult" -> {

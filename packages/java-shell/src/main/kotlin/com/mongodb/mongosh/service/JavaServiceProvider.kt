@@ -294,7 +294,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val iterable = db.getCollection(collection).aggregate(pipeline.filterIsInstance<Document>())
         if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(helper(iterable, context), context)
+        return Cursor(AggregateIterableHelper(iterable, context, db, collection, pipeline.filterIsInstance<Document>(), options), context)
     }
 
     @HostAccess.Export
@@ -306,7 +306,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val iterable = db.aggregate(pipeline.filterIsInstance<Document>())
         if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(helper(iterable, context), context)
+        return Cursor(AggregateIterableHelper(iterable, context, db, null, pipeline.filterIsInstance<Document>(), options), context)
     }
 
     @HostAccess.Export

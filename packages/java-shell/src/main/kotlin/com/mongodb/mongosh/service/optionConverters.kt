@@ -126,7 +126,7 @@ internal val collationConverters: Map<String, (Collation.Builder, Any?) -> Eithe
 internal val collationDefaultConverter = unrecognizedField<Collation.Builder>("collation")
 
 internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?) -> Either<AggregateIterable<Document>>> = mapOf(
-        typed("collation", Map::class.java) { iterable, value ->
+        typed("collation", Document::class.java) { iterable, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
                     .getOrThrow()
                     .build()
@@ -135,7 +135,7 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         typed("allowDiskUse", Boolean::class.java) { iterable, value ->
             iterable.allowDiskUse(value)
         },
-        typed("cursor", Map::class.java) { iterable, value ->
+        typed("cursor", Document::class.java) { iterable, value ->
             convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow()
         },
         typed("maxTimeMS", Number::class.java) { iterable, value ->
@@ -149,7 +149,7 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         "hint" to { iterable, value ->
             when (value) {
                 is String -> Right(iterable.hint(Document(value, 1)))
-                is Map<*, *> -> Right(iterable.hint(Document(value as Map<String, Any?>)))
+                is Document -> Right(iterable.hint(value))
                 else -> Left(CommandException("hint must be string or object value", "TypeMismatch"))
             }
         },
