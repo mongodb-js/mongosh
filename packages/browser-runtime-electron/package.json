@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-electron",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "description": "Mongosh browser runtime electron",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -29,11 +29,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "^0.0.1",
-    "@mongosh/service-provider-core": "^0.0.1"
+    "@mongosh/browser-runtime-core": "^0.0.2-alpha.0",
+    "@mongosh/service-provider-core": "^0.0.2-alpha.0"
   },
   "devDependencies": {
-    "@mongosh/service-provider-server": "^0.0.1",
+    "@mongosh/service-provider-server": "^0.0.2-alpha.0",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
     "rimraf": "^3.0.2"
