@@ -5,10 +5,10 @@
   "bin": "packages/cli-repl/bin/mongosh.js",
   "scripts": {
     "prebootstrap": "npm install",
-    "bootstrap": "lerna bootstrap --concurrency=1",
+    "bootstrap": "lerna bootstrap",
     "clean": "lerna clean -y && rm -Rf node_modules",
-    "check": "echo 'check is disabled temporarily'",
-    "check-ci": "echo 'check is disabled temporarily'",
+    "check": "lerna bootstrap",
+    "check-ci": "lerna bootstrap",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "compile-ts": "lerna run compile-ts",
