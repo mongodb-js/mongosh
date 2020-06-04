@@ -67,7 +67,6 @@ export default function logger(bus: any, logDir: string): void {
   let analytics = new NoopAnalytics();
   try {
     // this file gets written as a part of a release
-    log.warn(require('./analytics-config.js').SEGMENT_API_KEY);
     analytics = new Analytics(require('./analytics-config.js').SEGMENT_API_KEY);
   } catch (e) {
     bus.emit('mongosh:error', e);
