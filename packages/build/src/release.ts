@@ -3,6 +3,7 @@ import { Octokit } from '@octokit/rest';
 import Config from './config';
 import compileExec from './compile-exec';
 import releaseToGithub from './github';
+import importExpansions from './expansions';
 import uploadArtifactToDownloads from './upload-artifact';
 import uploadArtifactToEvergreen from './evergreen';
 import uploadDownloadCenterConfig from './download-center';
@@ -23,6 +24,10 @@ const release = async(config: Config) => {
     auth: config.githubToken,
     userAgent: `mongosh ${config.version}`
   });
+
+  if (config.isCi) {
+    await importExpansions(config.expansions);
+  }
 
   // Build the executable.
   const executable = await compileExec(

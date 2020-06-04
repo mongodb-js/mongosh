@@ -36,6 +36,11 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
 const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
 
 /**
+ * Expansions location.
+ */
+const EXPANSIONS = path.join(ROOT, 'expansions.yaml');
+
+/**
  * The bundle id for MacOs.
  */
 const BUNDLE_ID = 'com.mongodb.mongosh';
@@ -61,5 +66,6 @@ module.exports = {
   appleUser: process.env.APPLE_DEV_USER,
   applePassword: process.env.APPLE_DEV_PASSWORD,
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
-  isCi: process.env.IS_CI
+  isCi: process.env.IS_CI,
+  expansions: EXPANSIONS
 };

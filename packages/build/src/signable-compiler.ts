@@ -1,3 +1,4 @@
+import fs from 'fs';
 import Compiler from './compiler';
 import Platform from './platform';
 
@@ -5,9 +6,9 @@ import Platform from './platform';
  * Target enum.
  */
 enum Target {
-  Windows = 'win32-x86-12.4.0',
-  MacOs = 'darwin-12.4.0',
-  Linux = 'linux-x86-12.4.0'
+  Windows = 'win32-x86-11.15.0',
+  MacOs = 'darwin-11.15.0',
+  Linux = 'linux-x86-11.15.0'
 }
 
 /**
@@ -46,15 +47,12 @@ class SignableCompiler extends Compiler {
       loglevel: 'verbose',
       targets: [ target ],
       patches: [
-        (x, next) => {
-          x.code = () => [ x.shims.join(''), x.startup ].join(';')
-          return next();
-        },
-        (compiler, next) => {
-          return compiler.setFileContentsAsync(
+        async(compiler, next) => {
+          await compiler.setFileContentsAsync(
             'lib/_third_party_main.js',
-            compiler.code()
-          ).then(next);
+            fs.readFileSync(this.input, 'utf8')
+          );
+          next();
         }
       ]
     });
