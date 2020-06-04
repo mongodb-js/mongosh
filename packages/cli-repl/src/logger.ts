@@ -47,6 +47,7 @@ interface ConnectEvent {
   dl_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
+  node_version: string;
   uri: string;
 }
 
@@ -57,7 +58,7 @@ NoopAnalytics.prototype.identify = function(): void {};
 NoopAnalytics.prototype.track = function(): void {};
 
 export default function logger(bus: any, logDir: string): void {
-  const session_id = new ObjectId(Date.now());
+  const session_id = new ObjectId(Date.now()).toString();
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
   console.log(`Current sessionID: ${session_id}`);
@@ -67,7 +68,6 @@ export default function logger(bus: any, logDir: string): void {
   let analytics = new NoopAnalytics();
   try {
     // this file gets written as a part of a release
-    log.warn(require('./analytics-config.js').SEGMENT_API_KEY);
     analytics = new Analytics(require('./analytics-config.js').SEGMENT_API_KEY);
   } catch (e) {
     bus.emit('mongosh:error', e);
@@ -97,6 +97,7 @@ export default function logger(bus: any, logDir: string): void {
   bus.on('mongosh:update-user', function(id, enableTelemetry) {
     userId = id;
     telemetry = enableTelemetry;
+    if (telemetry) analytics.identify({ userId });
     log.info('mongosh:update-user', { enableTelemetry });
   });
 
