@@ -29,8 +29,7 @@ describe('e2e', function() {
 
     beforeEach(async() => {
       dbName = `test-${Date.now()}`;
-      const dbConnectionString = `${connectionString}}/${dbName}`;
-      shell = TestShell.start({ args: [ dbConnectionString ] });
+      shell = TestShell.start({ args: [ connectionString ] });
 
       client = await (MongoClient as any).connect(
         connectionString,
