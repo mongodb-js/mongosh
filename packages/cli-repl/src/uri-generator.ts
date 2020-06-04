@@ -73,7 +73,6 @@ function generateHost(options: CliOptions): string {
  * @returns {string} The port.
  */
 function generatePort(options: CliOptions): string {
-  console.log(`in generatePort, options=${options.port}`);
   return options.port ? options.port : DEFAULT_PORT;
 }
 
