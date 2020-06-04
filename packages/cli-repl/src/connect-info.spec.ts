@@ -85,6 +85,7 @@ describe('getConnectInfo', function() {
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
+      node_version: process.version,
       server_os: 'osx',
       uri: ATLAS_URI
     };
@@ -107,6 +108,7 @@ describe('getConnectInfo', function() {
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
+      node_version: process.version,
       server_os: 'osx',
       uri: ATLAS_URI
     };

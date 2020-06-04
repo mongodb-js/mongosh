@@ -47,6 +47,7 @@ interface ConnectEvent {
   dl_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
+  node_version: string;
   uri: string;
 }
 
