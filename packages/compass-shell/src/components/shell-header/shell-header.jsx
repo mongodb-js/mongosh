@@ -1,18 +1,19 @@
-import React, { Component, Fragment } from 'react';
-import styles from './shell-header.less';
-import PropTypes from 'prop-types';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
+import PropTypes from 'prop-types';
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
 
-export default class ShellHeader extends Component {
+import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
+
+import styles from './shell-header.less';
+
+export class ShellHeader extends Component {
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
-    onShellToggleClicked: PropTypes.func.isRequired
+    onShellToggleClicked: PropTypes.func.isRequired,
+    showInfoModal: PropTypes.func.isRequired
   };
-
-  onInfoClicked = () => {
-    // TODO: Open modal.
-  }
 
   /**
    * Render ShellHeader component.
@@ -22,7 +23,8 @@ export default class ShellHeader extends Component {
   render() {
     const {
       isExpanded,
-      onShellToggleClicked
+      onShellToggleClicked,
+      showInfoModal
     } = this.props;
 
     return (
@@ -40,7 +42,7 @@ export default class ShellHeader extends Component {
                 className={styles['compass-shell-header-info-btn']}
                 variant="dark"
                 aria-label="Shell Info"
-                onClick={this.onInfoClicked}
+                onClick={showInfoModal}
               >
                 <Icon glyph="InfoWithCircle" />
               </IconButton>
@@ -69,3 +71,13 @@ export default class ShellHeader extends Component {
     );
   }
 }
+
+export default connect(
+  null,
+  (dispatch) => ({
+    showInfoModal: () => dispatch({
+      type: SET_SHOW_INFO_MODAL,
+      isInfoModalVisible: true
+    })
+  })
+)(ShellHeader);
