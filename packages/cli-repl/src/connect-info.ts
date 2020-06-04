@@ -43,7 +43,7 @@ export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts:
     auth_type,
     is_data_lake,
     dl_version,
-    node_version: process.version;
+    node_version: process.version,
     is_genuine,
     non_genuine_server_name
   };
