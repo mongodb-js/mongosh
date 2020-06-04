@@ -1,4 +1,6 @@
 import fs from 'fs';
+import path from 'path';
+import util from 'util';
 import Compiler from './compiler';
 import Platform from './platform';
 
@@ -9,7 +11,12 @@ enum Target {
   Windows = 'win32-x86-11.15.0',
   MacOs = 'darwin-11.15.0',
   Linux = 'linux-x86-11.15.0'
-}
+};
+
+/**
+ * Node's 3rd party main script, pre Node 12.
+ */
+const THIRD_PARTY_MAIN = path.join('lib', '_third_party_main.js');
 
 /**
  * A compiler that can produce an executable that is actually
@@ -48,10 +55,9 @@ class SignableCompiler extends Compiler {
       targets: [ target ],
       patches: [
         async(compiler, next) => {
-          await compiler.setFileContentsAsync(
-            'lib/_third_party_main.js',
-            fs.readFileSync(this.input, 'utf8')
-          );
+          const contents = await util.promisify(fs.readFile)(this.input, 'utf8');
+          compiler.shims.push(contents);
+          await compiler.setFileContentsAsync(THIRD_PARTY_MAIN, compiler.code());
           next();
         }
       ]
