@@ -97,6 +97,7 @@ export default function logger(bus: any, logDir: string): void {
   bus.on('mongosh:update-user', function(id, enableTelemetry) {
     userId = id;
     telemetry = enableTelemetry;
+    if (telemetry) analytics.identify({ userId });
     log.info('mongosh:update-user', { enableTelemetry });
   });
 
