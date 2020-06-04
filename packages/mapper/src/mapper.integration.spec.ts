@@ -2,22 +2,10 @@ import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import Mapper from './mapper';
 import { Collection, Cursor, Database, Explainable, AggregationCursor } from '@mongosh/shell-api';
-
-const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
-const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
+import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('Mapper (integration)', function() {
-  this.timeout(60000);
-
-  before(function(done) {
-    try {
-      mongodbRunnerBefore({ port: 27018, timeout: 60000 }).call(this, done);
-    } catch (e) {
-      done(e);
-    }
-  });
-
-  after(mongodbRunnerAfter({ port: 27018 }));
+  const connectionString = startTestServer();
 
   let serviceProvider: CliServiceProvider;
 
@@ -55,7 +43,7 @@ describe('Mapper (integration)', function() {
   };
 
   before(async() => {
-    serviceProvider = await CliServiceProvider.connect('mongodb://localhost:27018');
+    serviceProvider = await CliServiceProvider.connect(connectionString);
   });
 
   after(() => {
@@ -402,7 +390,7 @@ describe('Mapper (integration)', function() {
 
         expect(
           result
-        ).to.deep.equal({
+        ).to.deep.include({
           nIndexesWas: 1,
           nIndexes: 1,
           indexes: [
