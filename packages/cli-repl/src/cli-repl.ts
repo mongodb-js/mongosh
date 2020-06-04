@@ -256,7 +256,7 @@ class CliRepl {
         const config = jsonParse(fs.readFileSync(configPath, 'utf8'));
 
         if (config.err) {
-          this.bus.emit('mongosh:error', 'Unable to parse user config', err)
+          this.bus.emit('mongosh:error', 'Unable to parse user config', err);
           return;
         }
 
