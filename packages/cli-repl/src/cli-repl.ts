@@ -2,19 +2,22 @@
 
 import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
 import formatOutput, { formatError } from './format-output';
+import { LineByLineInput } from './line-by-line-input';
+import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import ShellEvaluator from '@mongosh/shell-evaluator';
 import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
 import getConnectInfo from './connect-info';
-import { TELEMETRY, MONGOSH_WIKI } from './constants';
+import jsonParse from 'fast-json-parse';
 import CliOptions from './cli-options';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
+import { redactPwd } from '.';
 import logger from './logger';
 import mkdirp from 'mkdirp';
 import clr from './clr';
@@ -23,8 +26,6 @@ import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
-import { redactPwd } from '.';
-import { LineByLineInput } from './line-by-line-input';
 
 /**
  * Connecting text key.
@@ -243,17 +244,23 @@ class CliRepl {
 
     try {
       fd = fs.openSync(configPath, 'wx');
-      this.userId = new ObjectId(Date.now());
+      this.userId = new ObjectId(Date.now()).toString();
       this.enableTelemetry = true;
       this.disableGreetingMessage = false;
       this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);
       this.writeConfigFileSync(configPath);
     } catch (err) {
       if (err.code === 'EEXIST') {
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        this.userId = config.userId;
+        const config = jsonParse(fs.readFileSync(configPath, 'utf8'));
+
+        if (config.err) {
+          this.bus.emit('mongosh:error', 'Unable to parse user config', err)
+          return;
+        }
+
+        this.userId = config.value.userId;
         this.disableGreetingMessage = true;
-        this.enableTelemetry = config.enableTelemetry;
+        this.enableTelemetry = config.value.enableTelemetry;
         this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
         return;
       }
