@@ -3,6 +3,7 @@ import Config from './config';
 import compileExec from './compile-exec';
 import uploadArtifactToEvergreen from './evergreen';
 import zip from './zip';
+import importExpansions from './expansions';
 
 // import { Octokit } from '@octokit/rest';
 // import releaseToGithub from './github';
@@ -18,6 +19,10 @@ import zip from './zip';
  * @param {Config} config - the configuration, usually config/build.config.js.
  */
 const release = async(config: Config): Promise<void> => {
+  if (config.isCi) {
+    await importExpansions(config.expansions);
+  }
+
   const platform = os.platform();
 
   // Build the executable.

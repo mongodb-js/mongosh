@@ -22,6 +22,8 @@ Remove-Item .\npx
 Remove-Item .\npx.cmd
 Move-Item .\node_modules\npm -Destination .\node_modules\npm2 
 .\node.exe .\node_modules\npm2\bin\npm-cli.js i -g npm@latest
+Set-Item -Path Env:Path -Value (Get-Location + ";" + $Env:Path)
 
 Set-Location -Path $PSScriptRoot\..\
+node --version
 npm run bootstrap
