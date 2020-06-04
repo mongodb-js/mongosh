@@ -251,6 +251,8 @@ class CliRepl {
       this.writeConfigFileSync(configPath);
     } catch (err) {
       if (err.code === 'EEXIST') {
+        // make sure we catch errors for json parse and always have err and
+        // value on config result
         const config = jsonParse(fs.readFileSync(configPath, 'utf8'));
 
         if (config.err) {
