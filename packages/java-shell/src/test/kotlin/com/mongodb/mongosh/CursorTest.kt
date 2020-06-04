@@ -6,6 +6,8 @@ class CursorTest : ShellTestCase() {
 
     @Test fun testAggregateExplain()  = test()
     @Test fun testAggregateIsClosed() = test()
+    @Test fun testAggregateReadPref() = test()
+    @Test fun testBatchSize()         = test()
     @Test fun testCollation()         = test()
     @Test fun testComment()           = test()
     @Test fun testCursorHelp()        = test()
@@ -25,6 +27,7 @@ class CursorTest : ShellTestCase() {
     @Test fun testNoCursorTimeout()   = test()
     @Test fun testProjection()        = test()
     @Test fun testReadConcern()       = test()
+    @Test fun testReadPref()          = test()
     @Test fun testReturnKey()         = test()
     @Test fun testSkip()              = test()
     @Test fun testSort()              = test()

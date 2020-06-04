@@ -1,7 +1,6 @@
 package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoCursor
-import com.mongodb.client.model.Collation
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
@@ -76,9 +75,7 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
         if (!v.hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $v")
         }
-        val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, toDocument(context, v))
-                .getOrThrow()
-                .build()
+        val collation = toDocument(context, v)
         helper.collation(collation)
         return this
     }
@@ -206,9 +203,10 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun setReadPreference(v: Value): Cursor {
+    override fun setReadPreference(v: String): Cursor {
         checkQueryNotExecuted()
-        throw NotImplementedError("setReadPreference is not supported")
+        helper = helper.readPrev(v, null)
+        return this
     }
 
     override fun showRecordId(v: Boolean): ServiceProviderCursor {

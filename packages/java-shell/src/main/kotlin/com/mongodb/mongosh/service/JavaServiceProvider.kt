@@ -323,9 +323,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.getCollection(collection).aggregate(pipeline.filterIsInstance<Document>())
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(AggregateIterableHelper(iterable, context, db, collection, pipeline.filterIsInstance<Document>(), options), context)
+        val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>(), options
+                ?: Document())
+        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
     }
 
     @HostAccess.Export
@@ -335,9 +335,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.aggregate(pipeline.filterIsInstance<Document>())
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(AggregateIterableHelper(iterable, context, db, null, pipeline.filterIsInstance<Document>(), options), context)
+        val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>(), options
+                ?: Document())
+        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
     }
 
     @HostAccess.Export
@@ -383,11 +383,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val coll = client.getDatabase(database).getCollection(collection)
-        val iterable = if (filter == null) coll.find() else coll.find(filter)
-        val projection = options?.get("projection")?.let { it as Document }
-        if (projection != null) iterable.projection(projection)
-        return Cursor(helper(iterable, context), context)
+        val db = client.getDatabase(database)
+        val createOptions = FindCreateOptions(db, collection, filter ?: Document(), options ?: Document())
+        return Cursor(FindIterableHelper(find(createOptions), context, createOptions), context)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {
