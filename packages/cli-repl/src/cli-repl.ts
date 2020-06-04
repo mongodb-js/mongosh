@@ -96,7 +96,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
-    console.log(i18n.__(CONNECTING), clr(redactPwd(driverUri), ['bold', 'green']));
+    console.log(i18n.__(CONNECTING), '    ', clr(redactPwd(driverUri), ['bold', 'green']));
     return await CliServiceProvider.connect(driverUri, driverOptions);
   }
 
@@ -336,7 +336,9 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    console.log(`Using MongoDB: ${this.buildInfo.version}`);
+    const { version } = require('../package.json');
+    console.log(`Using MongoDB:      ${this.buildInfo.version}`);
+    console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`)
     console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }

@@ -61,7 +61,7 @@ export default function logger(bus: any, logDir: string): void {
   const session_id = new ObjectId(Date.now()).toString();
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
-  console.log(`Current sessionID: ${session_id}`);
+  console.log(`Current sessionID:  ${session_id}`);
   let userId;
   let telemetry;
 
