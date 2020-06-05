@@ -76,13 +76,11 @@ const release = async(config: Config) => {
     // Publish to NPM.
     //
     // These only need to happen once so we only run them on MacOS.
-    if (platform === Platform.MacOs) {
-      await uploadDownloadCenterConfig(
-        config.version,
-        config.downloadCenterAwsKey,
-        config.downloadCenterAwsSecret
-      );
-    }
+    await uploadDownloadCenterConfig(
+      config.version,
+      config.downloadCenterAwsKey,
+      config.downloadCenterAwsSecret
+    );
   }
 
   console.log('mongosh: finished release process.');
