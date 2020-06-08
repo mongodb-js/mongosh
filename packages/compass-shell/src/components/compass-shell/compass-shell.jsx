@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classnames from 'classnames';
 import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
@@ -7,6 +7,7 @@ import { Resizable } from 're-resizable';
 
 import { Shell } from '@mongosh/browser-repl';
 
+import InfoModal from '../info-modal';
 import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
 
@@ -117,38 +118,41 @@ export class CompassShell extends Component {
     }
 
     return (
-      <Resizable
-        className={styles['compass-shell']}
-        defaultSize={{
-          width: '100%',
-          height: defaultShellHeightClosed
-        }}
-        id="content"
-        minHeight={defaultShellHeightClosed}
-        maxHeight={800}
-        enable={{
-          ...resizeableDirections,
-          top: isExpanded
-        }}
-        ref={c => { this.resizableRef = c; }}
-        handleComponent={{
-          top: <ResizeHandle />,
-        }}
-      >
-        <ShellHeader
-          isExpanded={isExpanded}
-          onShellToggleClicked={this.shellToggleClicked}
-        />
-        {isExpanded && (
-          <div className={classnames(styles['compass-shell-shell-container'])}>
-            <Shell
-              runtime={this.props.runtime}
-              initialHistory={this.state.initialHistory}
-              onHistoryChanged={this.saveHistory}
-            />
-          </div>
-        )}
-      </Resizable>
+      <Fragment>
+        <InfoModal />
+        <Resizable
+          className={styles['compass-shell']}
+          defaultSize={{
+            width: '100%',
+            height: defaultShellHeightClosed
+          }}
+          id="content"
+          minHeight={defaultShellHeightClosed}
+          maxHeight={800}
+          enable={{
+            ...resizeableDirections,
+            top: isExpanded
+          }}
+          ref={c => { this.resizableRef = c; }}
+          handleComponent={{
+            top: <ResizeHandle />,
+          }}
+        >
+          <ShellHeader
+            isExpanded={isExpanded}
+            onShellToggleClicked={this.shellToggleClicked}
+          />
+          {isExpanded && (
+            <div className={classnames(styles['compass-shell-shell-container'])}>
+              <Shell
+                runtime={this.props.runtime}
+                initialHistory={this.state.initialHistory}
+                onHistoryChanged={this.saveHistory}
+              />
+            </div>
+          )}
+        </Resizable>
+      </Fragment>
     );
   }
 }

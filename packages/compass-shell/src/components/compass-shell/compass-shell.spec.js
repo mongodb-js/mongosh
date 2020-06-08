@@ -7,6 +7,7 @@ import { Resizable } from 're-resizable';
 import { CompassShell } from './compass-shell';
 import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
+import InfoModal from '../info-modal';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -47,6 +48,12 @@ describe('CompassShell', () => {
         const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(Resizable)).to.be.present();
+      });
+
+      it('renders the info modal component', () => {
+        const fakeRuntime = {};
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(wrapper.find(InfoModal)).to.be.present();
       });
 
       it('passes the resize handle component to the Resizable component', () => {
