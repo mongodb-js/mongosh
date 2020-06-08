@@ -92,24 +92,24 @@ export default class ShellInternalState {
       Mongo: signatures.Mongo
     });
 
+    const setFunc = (newDb: any): Database => {
+      if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
+        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
+      }
+      this.currentDb = newDb;
+      contextObject.rs = new ReplicaSet(this.currentDb.mongo);
+      contextObject.sh = new Shard(this.currentDb.mongo);
+      this.fetchConnectionInfo();
+      return newDb;
+    };
+    const getFunc = (): Database => this.currentDb;
     try {
       Object.defineProperty(contextObject, 'db', {
-        set: (newDb: any) => {
-          if (newDb.shellApiType && newDb.shellApiType() !== 'Database') {
-            throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
-          }
-          this.currentDb = newDb;
-          contextObject.rs = new ReplicaSet(this.currentDb.mongo);
-          contextObject.sh = new Shard(this.currentDb.mongo);
-          this.fetchConnectionInfo();
-          return newDb;
-        },
-        get: () => {
-          return this.currentDb;
-        }
+        set: setFunc,
+        get: getFunc
       });
     } catch (e) { // java shell, can't use getters/setters
-      contextObject.db = this.currentDb;
+      contextObject.db = setFunc(this.currentDb);
     }
 
     contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {
