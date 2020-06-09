@@ -53,6 +53,14 @@ export default class ShellInternalState {
     }
   }
 
+  public setDbFunc(newDb: any): Database {
+    this.currentDb = newDb;
+    this.context.rs = new ReplicaSet(this.currentDb.mongo);
+    this.context.sh = new Shard(this.currentDb.mongo);
+    this.fetchConnectionInfo();
+    return newDb;
+  }
+
   /**
    * Prepare a `contextObject` as global context and set it as context
    * Add each attribute to the AsyncWriter also.
@@ -96,20 +104,17 @@ export default class ShellInternalState {
       if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
         throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
       }
-      this.currentDb = newDb;
-      contextObject.rs = new ReplicaSet(this.currentDb.mongo);
-      contextObject.sh = new Shard(this.currentDb.mongo);
-      this.fetchConnectionInfo();
-      return newDb;
+      return this.setDbFunc(newDb);
     };
-    const getFunc = (): Database => this.currentDb;
+
     try {
       Object.defineProperty(contextObject, 'db', {
+        configurable: true,
         set: setFunc,
-        get: getFunc
+        get: () => (this.currentDb)
       });
     } catch (e) { // java shell, can't use getters/setters
-      contextObject.db = setFunc(this.currentDb);
+      contextObject.db = this.setDbFunc(this.currentDb);
     }
 
     contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {

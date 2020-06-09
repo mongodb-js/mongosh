@@ -179,6 +179,17 @@ class CliRepl {
     });
 
     this.internalState.setCtx(this.repl.context);
+    Object.defineProperty(this.repl.context, 'db', {
+      set: (newDb) => {
+        if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
+          const warn = new MongoshWarning('Cannot reassign \'db\' to non-Database type');
+          console.log(warn);
+          return;
+        }
+        this.internalState.setDbFunc(newDb);
+      },
+      get: () => (this.internalState.currentDb)
+    });
   }
 
   /**
