@@ -6,7 +6,9 @@ import {
   Cursor,
   DatabaseOptions,
   CommandOptions,
-  WriteConcern
+  WriteConcern,
+  getConnectInfo,
+  ReplPlatform
 } from '@mongosh/service-provider-core';
 
 import StitchTransport from './stitch-transport';
@@ -18,6 +20,8 @@ import {
   Stitch,
   StitchAppClient
 } from 'mongodb-stitch-browser-sdk';
+
+import { MongoshUnimplementedError } from '@mongosh/errors';
 
 /**
  * Init error.
@@ -35,7 +39,7 @@ const ATLAS = 'mongodb-atlas';
  */
 class StitchServiceProviderBrowser implements ServiceProvider {
   readonly stitchTransport: StitchTransport<StitchAppClient, RemoteMongoClient>;
-
+  public readonly platform: ReplPlatform;
   /**
    * Create a StitchBrowserTransport from a Stitch app id.
    *
@@ -56,6 +60,32 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       console.log(i18n.__(INIT_ERROR), err);
     }
     return new StitchServiceProviderBrowser(client, serviceName);
+  }
+
+  async getNewConnection(uri, options) {
+    throw new MongoshUnimplementedError();
+  }
+
+  async getConnectionInfo(): Promise<any> {
+    const buildInfo = await this.buildInfo();
+    const topology = await this.getTopology();
+    let cmdLineOpts = null;
+    try {
+      cmdLineOpts = await this.getCmdLineOpts();
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
+    const connectInfo = getConnectInfo(
+      '', // TODO: something more useful?
+      buildInfo,
+      cmdLineOpts,
+      topology
+    );
+    return {
+      buildInfo: buildInfo,
+      topology: topology,
+      connectInfo: connectInfo
+    };
   }
 
   /**
@@ -119,6 +149,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
       getServiceClient(RemoteMongoClient.factory, serviceName);
     this.stitchTransport =
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
+    this.platform = ReplPlatform.Browser;
   }
 
   aggregateDb(database: string, pipeline: Document[], options?: Document, dbOptions?: DatabaseOptions): Cursor {

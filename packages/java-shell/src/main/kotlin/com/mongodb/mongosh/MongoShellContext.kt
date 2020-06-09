@@ -54,14 +54,14 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     private val functionProducer = eval("(fun) => function inner() { return fun(...arguments); }")
 
     init {
-        eval(MongoShell::class.java.getResource("/js/all-standalone.js").readText())
+        val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js").readText()
+        eval(setupScript, "all-standalone.js")
         val context = ctx.getBindings("js")
         val global = context["_global"]!!
         context.removeMember("_global")
-        val mapper = global["Mapper"]!!.newInstance(serviceProvider)
-        val shellBson = global["ShellBson"]!!
-        initContext(context, mapper, shellBson)
-        mapper.putMember("context", context)
+        val shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
+        shellInternalState.invokeMember("setCtx", context)
+        initContext(context)
         databaseClass = global["Database"]!!
         collectionClass = global["Collection"]!!
         cursorClass = global["Cursor"]!!
@@ -86,14 +86,9 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                 eval("new HexData(0, '').constructor"))
     }
 
-    private fun initContext(context: Value, mapper: Value, shellBson: Value) {
-        context.putMember("use", mapper["use"]!!.invokeMember("bind", mapper))
-        context.putMember("show", mapper["show"]!!.invokeMember("bind", mapper))
-        context.putMember("it", mapper["it"]!!.invokeMember("bind", mapper))
-        context.putMember("db", mapper["databases"]!!["test"]!!)
-        eval("(a, b) => Object.assign(a, b);").execute(context, shellBson)
+    private fun initContext(context: Value) {
         context.removeMember("Date")
-        context.putMember("Date", eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }")
+        context.putMember("Date", eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
                 .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) }))
         context.putMember("ISODate", functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) }))
         context["Date"]!!.putMember("now", ProxyExecutable { System.currentTimeMillis() })
@@ -164,7 +159,8 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                             if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
                                 future.completeExceptionally(error.asHostObject<Any>() as Throwable)
                             } else {
-                                future.completeExceptionally(Exception(error.toString()))
+                                val message = error.toString() + (if (error.instanceOf("Error")) "\n${error.getMember("stack").asString()}" else "")
+                                future.completeExceptionally(Exception(message))
                             }
                         })
                     }.get(1, TimeUnit.SECONDS)
@@ -176,10 +172,10 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(collectionClass) -> CollectionResult(MongoShellCollection(v))
             v.instanceOf(cursorClass) -> FindCursorResult(FindCursor<Any?>(v, this))
             v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
-            v.instanceOf(insertOneResultClass) -> InsertOneResult(v["acknowleged"]!!.asBoolean(), v["insertedId"]!!.asString())
-            v.instanceOf(insertManyResultClass) -> InsertManyResult(v["acknowleged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
+            v.instanceOf(insertOneResultClass) -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
+            v.instanceOf(insertManyResultClass) -> InsertManyResult(v["acknowledged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
             v.instanceOf(commandResultClass) -> CommandResult(v["type"]!!.asString(), extract(v["value"]!!).value)
-            v.instanceOf(deleteResultClass) -> DeleteResult(v["acknowleged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
+            v.instanceOf(deleteResultClass) -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             v.instanceOf(bulkWriteResultClass) -> BulkWriteResult(
                     v["acknowledged"]!!.asBoolean(),
                     v["insertedCount"]!!.asLong(),
@@ -189,7 +185,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                     v["upsertedCount"]!!.asLong(),
                     (extract(v["upsertedIds"]!!) as ArrayResult).value)
             v.instanceOf(updateResultClass) -> {
-                val res = if (v["acknowleged"]!!.asBoolean()) {
+                val res = if (v["acknowledged"]!!.asBoolean()) {
                     val insertedId = v["insertedId"]
                     UpdateResult.acknowledged(
                             v["matchedCount"]!!.asLong(),
@@ -256,24 +252,24 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    fun eval(@Language("js") script: String): Value {
-        return ctx.eval(Source.create("js", script))
+    fun eval(@Language("js") script: String, name: String = "Unnamed"): Value {
+        return ctx.eval(Source.newBuilder("js", script, name).buildLiteral())
     }
 
     fun <T> toJsPromise(promise: Either<T>): Value {
         return when (promise) {
-            is Right -> eval("(v) => new Promise(((resolve) => resolve(v)))").execute(promise.value)
-            is Left -> eval("(v) => new Promise(((_, reject) => reject(v)))").execute(promise.value)
+            is Right -> eval("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(promise.value)
+            is Left -> eval("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
         }
     }
 
     override fun close() = serviceProvider.close()
 
     private fun Value.instanceOf(clazz: Value?): Boolean {
-        return clazz != null && eval("(o, clazz) => o instanceof clazz").execute(this, clazz).asBoolean()
+        return clazz != null && eval("(o, clazz) => o instanceof clazz", "instance_of_class_script").execute(this, clazz).asBoolean()
     }
 
-    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = eval("(x) => x instanceof $clazz").execute(this).asBoolean()
+    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = eval("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()
 
     fun toJs(o: Any?): Any? {
         return when (o) {

@@ -8,7 +8,7 @@ import { injectLastExpressionCallback } from './inject-last-expression-callback'
 describe('injectLastExpressionCallback', () => {
   const testInjectLastExpressionCallback = (code): string => {
     const ast = injectLastExpressionCallback('mongodbEvalCapture', parse(code));
-    return generate(ast).code;
+    return generate(ast as any).code;
   };
 
   it('captures literals', () => {

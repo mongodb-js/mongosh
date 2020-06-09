@@ -13,7 +13,6 @@
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "compile-ts": "lerna run compile-ts",
-    "compile-api": "lerna run compile-api",
     "start-async": "lerna exec npm run start-async --scope @mongosh/cli-repl",
     "compile-cli": "lerna run compile-ts --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
@@ -59,6 +58,7 @@
     "@octokit/rest": "^17.9.0",
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
+    "@types/sinon-chai": "^3.2.4",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
     "adm-zip": "^0.4.14",
@@ -82,7 +82,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-typescript": "^4.1.1",
     "lerna": "^3.10.7",
-    "mocha": "^6.2.1",
+    "mocha": "^7.1.2",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
     "nexe": "^4.0.0-beta.6",
@@ -96,6 +96,7 @@
     "sinon-chai": "^3.4.0",
     "tar": "^6.0.1",
     "ts-node": "^8.5.2",
+    "ts-sinon": "^1.2.0",
     "typescript": "^3.7.2",
     "uuid": "^3.3.3"
   }

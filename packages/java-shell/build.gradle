@@ -17,13 +17,13 @@ node {
     nodeModulesDir = file('.')
 }
 
-task browserifyMapper(type: NpmTask) {
-    args = ['run', 'browserify-mapper']
+task browserifyShellApi(type: NpmTask) {
+    args = ['run', 'browserify-shell-api']
 }
 
-browserifyMapper.dependsOn npmInstall
+browserifyShellApi.dependsOn npmInstall
 
-compileJava.dependsOn browserifyMapper
+compileJava.dependsOn browserifyShellApi
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"

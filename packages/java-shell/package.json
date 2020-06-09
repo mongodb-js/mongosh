@@ -11,7 +11,7 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "browserify-mapper": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv"
+    "browserify-shell-api": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv"
   },
   "devDependencies": {
     "browserify": "latest"

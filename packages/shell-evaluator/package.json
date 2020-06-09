@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@mongosh/async-rewriter": "^0.0.5",
-    "@mongosh/mapper": "^0.0.5",
     "@mongosh/service-provider-core": "^0.0.5",
     "@mongosh/shell-api": "^0.0.5"
   },

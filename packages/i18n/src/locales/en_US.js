@@ -72,23 +72,31 @@ const translations = {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port'
     }
   },
-  mapper: {},
   'service-provider-browser': {},
   'service-provider-core': {},
   'service-provider-server': {},
   'shell-api': {
-    help: {
-      description: 'Shell Help',
-      link: 'https://docs.mongodb.com/manual/reference/method',
-      help: {
-        use: 'Set current database',
-        it: 'result of the last line evaluated; use to further iterate',
-        exit: 'Quit the MongoDB shell',
-        'show-databases': 'Print a list of all available databases',
-        'show-collections': 'Print a list of all collections for current database',
-      }
-    },
     classes: {
+      ShellApi: {
+        help: {
+          description: 'Shell Help',
+          link: 'https://docs.mongodb.com/manual/reference/method',
+          attributes: {
+            use: {
+              description: 'Set current database'
+            },
+            it: {
+              description: 'result of the last line evaluated; use to further iterate'
+            },
+            exit: {
+              description: 'Quit the MongoDB shell with .exit'
+            },
+            show: {
+              description: '\'show databases\': Print a list of all available databases. \n\'show-collections\': Print a list of all collections for current database'
+            }
+          }
+        }
+      },
       AggregationCursor: {
         help: {
           description: 'Aggregation Class',

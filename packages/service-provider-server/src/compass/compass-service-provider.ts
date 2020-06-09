@@ -1,5 +1,6 @@
 import CliServiceProvider from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
 interface DataService {
   client: {
@@ -11,6 +12,18 @@ interface DataService {
  * A service provider that is meant to be used in compass.
  */
 class CompassServiceProvider extends CliServiceProvider {
+  public readonly platform: ReplPlatform;
+  /**
+   * Instantiate a new CompassServiceProvider with the data-service's connected
+   * MongoClient instance.
+   *
+   * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   * @param {string} uri - optional URI for telemetry.
+   */
+  constructor(mongoClient: MongoClient, uri?: string) {
+    super(mongoClient, uri);
+    this.platform = ReplPlatform.Compass;
+  }
   /**
    * Creates a new CompassServiceProvider that uses compass
    * data service (https://www.npmjs.com/package/mongodb-data-service) for

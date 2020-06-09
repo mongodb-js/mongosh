@@ -26,7 +26,7 @@ class MongoShell(client: MongoClient) : Closeable {
             val show = requireNotNull(context["show"], { "Context should contain 'show' function" })
             return context.extract(show.execute(showRes.groups[1]!!.value))
         }
-        return context.extract(context.eval(s))
+        return context.extract(context.eval(s, "user_script"))
     }
 
     override fun close() = context.close()

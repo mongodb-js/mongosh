@@ -97,6 +97,15 @@ class NodeCursor implements Cursor {
   }
 
   /**
+   * Clone the cursor.
+   *
+   * @returns {NodeCursor} The cursor.
+   */
+  clone(): Cursor {
+    return this.cursor.clone();
+  }
+
+  /**
    * Determine if the cursor has been closed.
    *
    * @returns {boolean} If the cursor is closed.
@@ -355,8 +364,7 @@ class NodeCursor implements Cursor {
     return this;
   }
 
-  // TODO: we should probably move this in the mapper
-  // layer
+  // TODO: @maurizio we should probably move this in the Explain class?
   async explain(verbosity: string): Promise<any> {
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.

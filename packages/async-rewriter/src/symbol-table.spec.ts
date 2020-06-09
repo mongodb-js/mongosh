@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import SymbolTable, { addApi } from './symbol-table';
-import { signatures as s } from '@mongosh/shell-api';
+const s = require('../test/shell-api-signatures');
 
 const myType = { type: 'myType', attributes: { myAttr: s.unknown } };
 const signatures = Object.keys(s).reduce((t, k) => {
@@ -17,33 +17,41 @@ describe('SymbolTable', () => {
     it('signatures loaded', () => {
       const st = new SymbolTable(
         [{}],
-        { testClass: { type: 'testClass' }, unknown: signatures.unknown }
+        { testClass: { type: 'testClass' }, unknown: { type: 'unknown', attributes: {} } }
       );
-      expect(st.scopeAt(0)).to.deep.equal({ testClass: { api: true, type: 'classdef', returnType: { type: 'testClass' } } });
-    });
-    it('signatures loaded even with missing unknown', () => {
-      const st = new SymbolTable(
-        [{}],
-        { testClass: { type: 'testClass' } }
-      );
-      expect(st.signatures.unknown).to.deep.equal({ type: 'unknown', attributes: {} });
-      expect(st.scopeAt(0)).to.deep.equal({ testClass: { api: true, type: 'classdef', returnType: { type: 'testClass' } } });
+      expect(st.scopeAt(0)).to.deep.equal({
+        testClass: {
+          api: true,
+          type: 'classdef',
+          returnType: { type: 'testClass' },
+          hasAsyncChild: false,
+          returnsPromise: false
+        }
+      });
     });
   });
   describe('#initializeApiObjects', () => {
     it('adds API objects to top-level scope', () => {
       const st = new SymbolTable(
         [{}],
-        { testClass: { type: 'testClass' }, unknown: signatures.unknown }
+        { testClass: { type: 'testClass' }, unknown: { type: 'unknown', attributes: {} } }
       );
       st.initializeApiObjects({
         db: signatures.Database,
-        coll: signatures.Collection
+        coll: signatures.Collection,
+        m: signatures.Mongo
       });
       expect(st.scopeAt(0)).to.deep.equal({
         db: signatures.Database,
         coll: signatures.Collection,
-        testClass: { api: true, type: 'classdef', returnType: { type: 'testClass' } }
+        m: signatures.Mongo,
+        testClass: {
+          api: true,
+          type: 'classdef',
+          returnType: { type: 'testClass' },
+          hasAsyncChild: false,
+          returnsPromise: false
+        }
       });
     });
   });
@@ -108,7 +116,7 @@ describe('SymbolTable', () => {
     st.pushScope();
     st.add('db1', signatures.Collection);
     it('returns unknown when undefined', () => {
-      expect(st.lookup('myDb')).to.deep.equal(signatures.unknown);
+      expect(st.lookup('myDb')).to.deep.equal({ type: 'unknown', attributes: {} });
     });
     it('finds the most recent symbol', () => {
       expect(st.lookup('db1')).to.deep.equal(signatures.Collection);
@@ -207,7 +215,7 @@ describe('SymbolTable', () => {
         expect(st.scopeAt(0)).to.deep.equal({ myVar: myType });
       });
       it('updates variable in ST', () => {
-        const st = new SymbolTable([{ myVar: signatures.unknown }], {});
+        const st = new SymbolTable([{ myVar: { type: 'unknown', attributes: {} } }], {});
         const alternatives = [
           new SymbolTable([{ myVar: myType }], {}),
           new SymbolTable([{ myVar: myType }], {}),
@@ -226,7 +234,7 @@ describe('SymbolTable', () => {
           new SymbolTable([{ myVar: myType }], {}),
         ];
         st.compareSymbolTables(alternatives);
-        expect(st.scopeAt(0)).to.deep.equal({ myVar: signatures.unknown });
+        expect(st.scopeAt(0)).to.deep.equal({ myVar: { type: 'unknown', attributes: {} } });
       });
       it('updates variable in ST', () => {
         const st = new SymbolTable([{ myVar: signatures.Database }], {});
@@ -236,7 +244,7 @@ describe('SymbolTable', () => {
           new SymbolTable([{ myVar: myType }], {}),
         ];
         st.compareSymbolTables(alternatives);
-        expect(st.scopeAt(0)).to.deep.equal({ myVar: signatures.unknown });
+        expect(st.scopeAt(0)).to.deep.equal({ myVar: { type: 'unknown', attributes: {} } });
       });
     });
     describe('Alternatives have different values but none are async', () => {
@@ -248,7 +256,7 @@ describe('SymbolTable', () => {
           new SymbolTable([{ myVar: myType }], {}),
         ];
         st.compareSymbolTables(alternatives);
-        expect(st.scopeAt(0)).to.deep.equal({ myVar: signatures.unknown });
+        expect(st.scopeAt(0)).to.deep.equal({ myVar: { type: 'unknown', attributes: {} } });
       });
     });
     describe('Alternatives have all the same async value', () => {

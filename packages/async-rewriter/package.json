@@ -45,9 +45,6 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@mongosh/shell-api": "^0.0.5",
-    "ast-pretty-print": "^2.0.1",
-    "mocha": "^7.1.0",
-    "sinon": "^9.0.1"
+    "ast-pretty-print": "^2.0.1"
   }
 }

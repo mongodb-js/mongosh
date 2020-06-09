@@ -36,6 +36,7 @@
     "@babel/parser": "^7.9.4",
     "@mongosh/cli-repl": "^0.0.5",
     "@mongosh/service-provider-core": "^0.0.5",
-    "@mongosh/shell-evaluator": "^0.0.5"
+    "@mongosh/shell-evaluator": "^0.0.5",
+    "@mongosh/shell-api": "^0.0.5"
   }
 }
