@@ -161,12 +161,99 @@ const translations = {
       },
       BulkWriteResult: {
         help: {
-          description: 'BulkWriteResult Class'
+          description: 'BulkWriteResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server'
+            },
+            insertedCount: {
+              description: 'Number of documents inserted'
+            },
+            insertedIds: {
+              description: 'Array of ObjectIds inserted'
+            },
+            matchedCount: {
+              description: 'Number of documents matched'
+            },
+            modifiedCount: {
+              description: 'Number of documents modified'
+            },
+            deletedCount: {
+              description: 'Number of documents deleted'
+            },
+            upsertedCount: {
+              description: 'Number of documents upserted'
+            },
+            upsertedIds: {
+              description: 'Array of ObjectIds upserted'
+            }
+          }
         }
       },
       CommandResult: {
         help: {
           description: 'CommandResult Class'
+        }
+      },
+      InsertManyResult: {
+        help: {
+          description: 'InsertManyResult Class'
+        },
+        attributes: {
+          acknowledged: {
+            description: 'Acknowledged returned from the server'
+          },
+          insertedIds: {
+            description: 'Array of ObjectIds inserted'
+          }
+        }
+      },
+      InsertOneResult: {
+        help: {
+          description: 'InsertOneResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server'
+            },
+            insertedId: {
+              description: 'ObjectId of document inserted'
+            }
+          }
+        }
+      },
+      UpdateResult: {
+        help: {
+          description: 'CommandResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server'
+            },
+            insertedId: {
+              description: 'ObjectId inserted'
+            },
+            matchedCount: {
+              description: 'Number of documents matched'
+            },
+            modifiedCount: {
+              description: 'Number of documents modified'
+            },
+            upsertedCount: {
+              description: 'Number of documents upserted'
+            }
+          }
+        }
+      },
+      DeleteResult: {
+        help: {
+          description: 'CommandResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server'
+            },
+            deletedCount: {
+              description: 'Number of documents deleted'
+            }
+          }
         }
       },
       ShowDbsResult: {

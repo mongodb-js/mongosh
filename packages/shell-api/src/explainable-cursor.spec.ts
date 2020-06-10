@@ -5,6 +5,13 @@ import { signatures } from './decorators';
 import ExplainableCursor from './explainable-cursor';
 
 describe('ExplainableCursor', () => {
+  describe('help', () => {
+    const apiClass: any = new ExplainableCursor({}, {}, 'verbosity');
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.ExplainableCursor.type).to.equal('ExplainableCursor');

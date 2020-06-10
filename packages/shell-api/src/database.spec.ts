@@ -10,6 +10,13 @@ import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/servi
 import ShellInternalState from './shell-internal-state';
 
 describe('Database', () => {
+  describe('help', () => {
+    const apiClass: any = new Database({}, 'name');
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
       const database: any = new Database({}, 'db1');

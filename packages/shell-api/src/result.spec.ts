@@ -33,6 +33,10 @@ describe('Results', () => {
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
+    });
   });
   describe('CommandResult', () => {
     const r = new results.CommandResult(
@@ -46,6 +50,10 @@ describe('Results', () => {
     });
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal({ ok: 1 });
+    });
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
     });
   });
   describe('DeleteResult', () => {
@@ -61,6 +69,10 @@ describe('Results', () => {
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
+    });
   });
   describe('InsertManyResult', () => {
     const r = new results.InsertManyResult(
@@ -74,6 +86,10 @@ describe('Results', () => {
     });
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+    });
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
     });
   });
   describe('InsertOneResult', () => {
@@ -89,6 +105,10 @@ describe('Results', () => {
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
+    });
   });
   describe('UpdateResult', () => {
     const r = new results.UpdateResult(
@@ -103,14 +123,9 @@ describe('Results', () => {
     it('toReplString', () => {
       expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
-  });
-  describe('CursorIterationResult', () => {
-    const r = new results.CursorIterationResult(1, 2, 3) as ShellApiInterface;
-    it('shellApiType', () => {
-      expect(r.shellApiType()).to.equal('CursorIterationResult');
-    });
-    it('toReplString', () => {
-      expect(r.toReplString()).to.deep.equal([ 1, 2, 3 ]);
+    it('calls help function', () => {
+      expect((r as any).help().shellApiType()).to.equal('Help');
+      expect(r.help.shellApiType()).to.equal('Help');
     });
   });
 });
