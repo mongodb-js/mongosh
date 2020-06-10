@@ -13,6 +13,7 @@ import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { retractPassword } from '@mongosh/history';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -39,7 +40,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   toReplString(): any {
-    return this.uri;
+    return retractPassword(this.uri);
   }
 
   async connect(): Promise<void> {

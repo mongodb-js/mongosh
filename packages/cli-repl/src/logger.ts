@@ -2,7 +2,7 @@
 
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
-import redactPwd from './redact-pwd';
+import { retractPassword } from '@mongosh/history';
 import { ObjectId } from 'bson';
 import pino from 'pino';
 import path from 'path';
@@ -74,7 +74,7 @@ export default function logger(bus: any, logDir: string): void {
   }
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
-    const connectionUri = redactPwd(args.uri);
+    const connectionUri = retractPassword(args.uri);
     delete args.uri;
     const params = { session_id, userId, connectionUri, ...args };
     log.info('mongosh:connect', params);

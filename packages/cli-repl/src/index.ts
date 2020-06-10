@@ -1,5 +1,4 @@
 import CliRepl from './cli-repl';
-import redactPwd from './redact-pwd';
 import parseCliArgs from './arg-parser';
 import mapCliToDriver from './arg-mapper';
 import generateUri from './uri-generator';
@@ -15,7 +14,6 @@ export {
   TELEMETRY,
   MONGOSH_WIKI,
   CliRepl,
-  redactPwd,
   completer,
   generateUri,
   parseCliArgs,
