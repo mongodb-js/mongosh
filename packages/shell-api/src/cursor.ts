@@ -221,4 +221,9 @@ export default class Cursor extends ShellApiClass {
   toArray(): Promise<Document[]> {
     return this.cursor.toArray();
   }
+
+  @returnType('Cursor')
+  pretty(): Cursor {
+    return this;
+  }
 }
