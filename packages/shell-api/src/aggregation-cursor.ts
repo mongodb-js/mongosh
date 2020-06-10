@@ -94,5 +94,10 @@ export default class AggregationCursor extends ShellApiClass {
   explain(verbosity: string): Promise<any> {
     return this.cursor.explain(verbosity);
   }
+
+  @returnType('AggregationCursor')
+  pretty(): AggregationCursor {
+    return this;
+  }
 }
 
