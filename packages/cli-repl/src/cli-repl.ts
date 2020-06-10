@@ -81,7 +81,7 @@ class CliRepl {
    */
   async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
-    this.internalState = new ShellInternalState(initialServiceProvider, this.bus);
+    this.internalState = new ShellInternalState(initialServiceProvider, this.bus, this.options);
     this.shellEvaluator = new ShellEvaluator(this.internalState, this);
     await this.internalState.fetchConnectionInfo();
     this.start();
@@ -94,8 +94,10 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
-    console.log(i18n.__(CONNECTING), '    ', clr(retractPassword(driverUri), ['bold', 'green']));
-    return await CliServiceProvider.connect(driverUri, driverOptions);
+    if (!this.options.nodb) {
+      console.log(i18n.__(CONNECTING), '    ', clr(retractPassword(driverUri), ['bold', 'green']));
+    }
+    return await CliServiceProvider.connect(driverUri, driverOptions, this.options);
   }
 
   /**
