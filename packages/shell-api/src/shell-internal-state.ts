@@ -11,8 +11,8 @@ import {
   ShellApi
 } from './index';
 import { EventEmitter } from 'events';
-import { Document, ServiceProvider, ReplPlatform } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { Document, ServiceProvider } from '@mongosh/service-provider-core';
+import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 
@@ -28,7 +28,7 @@ export default class ShellInternalState {
   public uri: string;
   public connectionInfo: any;
   public context: any;
-  private mongos: Mongo[];
+  public mongos: Mongo[];
   public shellApi: ShellApi;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter()) {
     this.initialServiceProvider = initialServiceProvider;
@@ -99,12 +99,14 @@ export default class ShellInternalState {
     contextObject.sh = new Shard(this.currentDb.mongo);
 
     // Add global shell objects
-    this.asyncWriter.symbols.initializeApiObjects({
+    const apiObjects = {
       db: signatures.Database,
       rs: signatures.ReplicaSet,
-      sh: signatures.Shard,
-      Mongo: signatures.Mongo
-    });
+      sh: signatures.Shard
+    } as any;
+    Object.assign(apiObjects, signatures.ShellApi.attributes);
+    delete apiObjects.Mongo;
+    this.asyncWriter.symbols.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
       if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
@@ -122,20 +124,6 @@ export default class ShellInternalState {
     } catch (e) { // java shell, can't use getters/setters
       contextObject.db = this.setDbFunc(this.currentDb);
     }
-
-    contextObject.Mongo = async(uri?, options?): Promise<Mongo> => {
-      if (
-        this.initialServiceProvider.platform !== ReplPlatform.CLI
-      ) {
-        throw new MongoshUnimplementedError(
-          `new Mongo connection are not supported for current platform: ${ReplPlatform[this.initialServiceProvider.platform]}`
-        );
-      }
-      const mongo = new Mongo(this, uri, options);
-      await mongo.connect();
-      this.mongos.push(mongo);
-      return mongo;
-    };
 
     this.messageBus.emit(
       'mongosh:setCtx',

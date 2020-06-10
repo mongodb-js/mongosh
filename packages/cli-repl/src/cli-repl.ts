@@ -8,7 +8,7 @@ import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import isRecoverableError from 'is-recoverable-error';
 import { MongoshWarning } from '@mongosh/errors';
-import { changeHistory } from '@mongosh/history';
+import { changeHistory, retractPassword } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
 import jsonParse from 'fast-json-parse';
 import CliOptions from './cli-options';
@@ -17,7 +17,6 @@ import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
 import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
-import { redactPwd } from '.';
 import logger from './logger';
 import mkdirp from 'mkdirp';
 import clr from './clr';
@@ -95,7 +94,7 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
-    console.log(i18n.__(CONNECTING), '    ', clr(redactPwd(driverUri), ['bold', 'green']));
+    console.log(i18n.__(CONNECTING), '    ', clr(retractPassword(driverUri), ['bold', 'green']));
     return await CliServiceProvider.connect(driverUri, driverOptions);
   }
 

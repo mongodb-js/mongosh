@@ -1,4 +1,5 @@
 import redactInfo from 'mongodb-redact';
+import redactPwd from './redact-pwd';
 
 /**
  * Modifies command history array based on sensitive information.
@@ -11,10 +12,14 @@ import redactInfo from 'mongodb-redact';
  */
 export function changeHistory(history: string[], redact = false): void {
   const hiddenCommands =
-    RegExp('createUser|auth|updateUser|changeUserPassword', 'g');
+    RegExp('createUser|auth|updateUser|changeUserPassword|connect', 'g');
 
   if (hiddenCommands.test(history[0])) {
     history.shift();
+    return;
+  }
+  if (/Mongo\(([^+)]+)\)/g.test(history[0])) {
+    history[0] = history[0].replace(/Mongo\(([^+)]+)\)/g, (substr) => redactPwd(substr));
     return;
   }
 

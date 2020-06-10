@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 import { expect } from 'chai';
 import ShellApi from './shell-api';
 import { signatures } from './index';
@@ -5,7 +6,7 @@ import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 
@@ -25,7 +26,15 @@ describe('ShellApi', () => {
       });
       expect(signatures.ShellApi.attributes.show).to.deep.equal({
         type: 'function',
-        returnsPromise: false,
+        returnsPromise: true,
+        returnType: { type: 'unknown', attributes: {} },
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.exit).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -36,6 +45,22 @@ describe('ShellApi', () => {
         returnsPromise: true,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: 'Mongo',
+        platforms: [ ReplPlatform.CLI ],
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.connect).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: 'Database',
+        platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
         serverVersions: ALL_SERVER_VERSIONS
       });
@@ -60,6 +85,7 @@ describe('ShellApi', () => {
       mongo = stubInterface<Mongo>();
       internalState = new ShellInternalState(serviceProvider, bus);
       internalState.currentDb.mongo = mongo;
+      serviceProvider.platform = ReplPlatform.CLI;
     });
     describe('use', () => {
       beforeEach(() => {
@@ -87,6 +113,33 @@ describe('ShellApi', () => {
         internalState.currentCursor = stubInterface<Cursor>();
         await internalState.shellApi.it();
         expect(internalState.currentCursor._it).to.have.been.called;
+      });
+    });
+    describe('Mongo', () => {
+      beforeEach(() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+      });
+      it('returns a new Mongo object', async() => {
+        const m = await internalState.shellApi.Mongo('uri');
+        expect(m.shellApiType()).to.equal('Mongo');
+        expect(m.uri).to.equal('uri');
+      });
+      it('fails for non-CLI', async() => {
+        serviceProvider.platform = ReplPlatform.Browser;
+        try {
+          await internalState.shellApi.Mongo('uri');
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshUnimplementedError');
+        }
+        expect.fail('MongoshInvalidInputError not thrown for Mongo');
+      });
+    });
+    describe('connect', () => {
+      it('returns a new DB', async() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+        const db = await internalState.shellApi.connect('uri', 'username', 'pwd');
+        expect(db.shellApiType()).to.equal('Database');
+        expect(db.getMongo().uri).to.equal('uri');
       });
     });
   });
@@ -130,6 +183,40 @@ describe('ShellApi', () => {
         internalState.currentCursor = stubInterface<Cursor>();
         await internalState.context.it();
         expect(internalState.currentCursor._it).to.have.been.called;
+      });
+    });
+    describe('Mongo', () => {
+      beforeEach(() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+      });
+      it('returns a new Mongo object', async() => {
+        const m = await internalState.context.Mongo('uri');
+        expect(m.shellApiType()).to.equal('Mongo');
+        expect(m.uri).to.equal('uri');
+      });
+      it('fails for non-CLI', async() => {
+        serviceProvider.platform = ReplPlatform.Browser;
+        try {
+          await internalState.shellApi.Mongo('uri');
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshUnimplementedError');
+        }
+        expect.fail('MongoshInvalidInputError not thrown for Mongo');
+      });
+    });
+    describe('connect', () => {
+      it('returns a new DB', async() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+        const db = await internalState.context.connect('uri');
+        expect(db.shellApiType()).to.equal('Database');
+        expect(db.getMongo().uri).to.equal('uri');
+      });
+      it('handles username/pwd', async() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+        const db = await internalState.context.connect('uri', 'username', 'pwd');
+        expect(db.shellApiType()).to.equal('Database');
+        expect(db.getMongo().uri).to.equal('uri');
+        expect(db.getMongo().options).to.deep.equal({ auth: { username: 'username', password: 'pwd' } });
       });
     });
   });

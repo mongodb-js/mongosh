@@ -35,6 +35,7 @@
   "dependencies": {
     "@mongosh/async-rewriter": "^0.0.5",
     "@mongosh/errors": "^0.0.5",
+    "@mongosh/history": "^0.0.5",
     "@mongosh/i18n": "^0.0.5",
     "@mongosh/service-provider-core": "^0.0.5",
     "bson": "^4.0.4"
