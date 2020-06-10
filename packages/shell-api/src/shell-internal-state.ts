@@ -76,7 +76,7 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    contextObject.print = async(arg): void => {
+    contextObject.print = async(arg): Promise<void> => {
       if (arg.toReplString) {
         console.log(await arg.toReplString());
       } else {
@@ -91,6 +91,7 @@ export default class ShellInternalState {
           return this.shellApi[n](...args);
         };
       });
+    contextObject.quit = contextObject.exit;
     contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
