@@ -5,6 +5,13 @@ import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 
 describe('Cursor', () => {
+  describe('help', () => {
+    const apiClass: any = new Cursor({}, {});
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.Cursor.type).to.equal('Cursor');

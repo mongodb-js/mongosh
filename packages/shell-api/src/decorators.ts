@@ -40,7 +40,7 @@ const signatures = {} as Signatures;
 
 export const toIgnore = ['toReplString', 'shellApiType', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
-  const className = constructor.name; // TODO: will this work with webpack
+  const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp = {
     help: `${classHelpKeyPrefix}.description`,
@@ -124,7 +124,9 @@ export function shellApiClassDefault(constructor: Function): void {
       });
     }
   }
-  constructor.prototype.help = new Help(classHelp);
+  const help = new Help(classHelp);
+  constructor.prototype.help = () => (help);
+  Object.setPrototypeOf(constructor.prototype.help, help);
   if (!constructor.prototype.hasOwnProperty('shellApiType')) {
     constructor.prototype.shellApiType = function(): string { return className; };
   }

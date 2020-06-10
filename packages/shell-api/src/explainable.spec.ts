@@ -12,6 +12,13 @@ import { ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 
 describe('Explainable', () => {
+  describe('help', () => {
+    const apiClass: any = new Explainable({}, {}, 'verbosity');
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('signatures', () => {
     it('type', () => {
       expect(signatures.Explainable.type).to.equal('Explainable');

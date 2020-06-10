@@ -15,6 +15,13 @@ const sinonChai = require('sinon-chai'); // weird with import
 
 use(sinonChai);
 describe('Collection', () => {
+  describe('help', () => {
+    const apiClass: any = new Collection({}, {}, 'name');
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('signatures', () => {
     it('type', () => {
       expect(signatures.Collection.type).to.equal('Collection');

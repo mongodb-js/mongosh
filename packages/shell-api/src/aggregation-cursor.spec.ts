@@ -5,6 +5,13 @@ import AggregationCursor from './aggregation-cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 
 describe('AggregationCursor', () => {
+  describe('help', () => {
+    const apiClass: any = new AggregationCursor({}, {});
+    it('calls help function', () => {
+      expect(apiClass.help().shellApiType()).to.equal('Help');
+      expect(apiClass.help.shellApiType()).to.equal('Help');
+    });
+  });
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.AggregationCursor.type).to.equal('AggregationCursor');

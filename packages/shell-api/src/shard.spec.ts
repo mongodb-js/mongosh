@@ -14,4 +14,11 @@ describe('Shard', () => {
       }
     });
   });
+  // describe('help', () => {
+  //   const apiClass: any = new Shard({});
+  //   it('calls help function', () => {
+  //     expect(apiClass.help().shellApiType()).to.equal('Help');
+  //     expect(apiClass.help.shellApiType()).to.equal('Help');
+  //   });
+  // });
 });
