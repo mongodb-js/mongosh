@@ -66,7 +66,7 @@ export class InfoModal extends PureComponent {
               className={styles['info-modal-banner-link']}
               id="mongosh-info-link"
               rel="noreopener"
-              href="https://docs.mongodb.com/mongodb-shell/"
+              href="https://docs.mongodb.com/compass/beta/embedded-shell/"
               target="_blank"
             >MongoSH Beta</a>
           </div>
