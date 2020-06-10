@@ -51,6 +51,6 @@ export function validateExplainableVerbosity(verbosity: string): void {
 
 export function checkUndefinedUpdate(...args: any): void {
   if (args.some(a => a === undefined)) {
-    throw new MongoshInvalidInputError('Cannot pass an undefined argument to a write command');
+    throw new MongoshInvalidInputError('Cannot pass an undefined argument to a command');
   }
 }

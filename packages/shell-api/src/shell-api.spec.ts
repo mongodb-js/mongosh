@@ -141,6 +141,17 @@ describe('ShellApi', () => {
         expect(db.shellApiType()).to.equal('Database');
         expect(db.getMongo().uri).to.equal('uri');
       });
+      it('fails with no arg', async() => {
+        serviceProvider.platform = ReplPlatform.CLI;
+        try {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          await internalState.shellApi.connect();
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshInvalidInputError');
+        }
+        expect.fail('MongoshInvalidInputError not thrown for connect');
+      });
     });
   });
   describe('from context', () => {

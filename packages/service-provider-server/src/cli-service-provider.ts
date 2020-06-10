@@ -42,22 +42,26 @@ class CliServiceProvider implements ServiceProvider {
    *
    * @param {String} uri - The URI.
    * @param {NodeOptions} options - The options.
+   * @param {Object} cliOptions - Options passed through CLI. Right now only being used for nodb.
    *
    * @returns {Promise} The promise with cli service provider.
    */
   static async connect(
     uri: string,
-    options: NodeOptions = {}
+    options: NodeOptions = {},
+    cliOptions: any = {}
   ): Promise<CliServiceProvider> {
     const clientOptions: any = {
       ...DEFAULT_OPTIONS,
       ...options
     };
 
-    const mongoClient = await MongoClient.connect(
-      uri,
-      clientOptions
-    );
+    const mongoClient = !cliOptions.nodb ?
+      await MongoClient.connect(
+        uri,
+        clientOptions
+      ) :
+      new MongoClient(uri, clientOptions);
 
     return new CliServiceProvider(mongoClient, uri);
   }
