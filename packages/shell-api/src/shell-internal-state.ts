@@ -15,6 +15,7 @@ import { Document, ServiceProvider } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
+import NoDatabase from './no-db';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -30,21 +31,31 @@ export default class ShellInternalState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
-  constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter()) {
+  public cliOptions: any;
+  constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
     this.shellApi = new ShellApi(this);
-    const mongo = new Mongo(this);
+    this.mongos = [];
+    this.connectionInfo = { buildInfo: {} };
+    if (!cliOptions.nodb) {
+      const mongo = new Mongo(this);
+      this.mongos.push(mongo);
+      this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
+    } else {
+      this.currentDb = new NoDatabase() as Database;
+    }
     this.currentCursor = null;
-    this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
     this.context = {};
-    this.mongos = [ mongo ];
+    this.cliOptions = cliOptions;
   }
 
   async fetchConnectionInfo(): Promise<void> {
-    this.connectionInfo = await this.currentDb.mongo.serviceProvider.getConnectionInfo();
-    this.messageBus.emit('mongosh:connect', this.connectionInfo.extraInfo);
+    if (!this.cliOptions.nodb) {
+      this.connectionInfo = await this.currentDb.mongo.serviceProvider.getConnectionInfo();
+      this.messageBus.emit('mongosh:connect', this.connectionInfo.extraInfo);
+    }
   }
 
   async close(p): Promise<void> {
@@ -95,6 +106,7 @@ export default class ShellInternalState {
     contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
+
     contextObject.rs = new ReplicaSet(this.currentDb.mongo);
     contextObject.sh = new Shard(this.currentDb.mongo);
 

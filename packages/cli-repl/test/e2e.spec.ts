@@ -21,6 +21,27 @@ describe('e2e', function() {
     });
   });
 
+  describe('--nodb', () => {
+    let shell;
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ '--nodb' ] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+    });
+    it('db throws', async() => {
+      await shell.executeLine('db');
+      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+    });
+    it('show dbs throws InvalidInput', async() => {
+      await shell.executeLine('show dbs');
+      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+    });
+    it('db.coll.find() throws InvalidInput', async() => {
+      await shell.executeLine('db.coll.find()');
+      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+    });
+  });
+
   describe('with connection string', () => {
     let db;
     let client;
