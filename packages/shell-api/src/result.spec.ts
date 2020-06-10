@@ -128,4 +128,16 @@ describe('Results', () => {
       expect(r.help.shellApiType()).to.equal('Help');
     });
   });
+  describe('CursorIterationResult', () => {
+    const r = new results.CursorIterationResult(1, 2, 3) as ShellApiInterface;
+    it('superclass attributes set', () => {
+      expect(r.length).to.equal(3);
+    });
+    it('shellApiType', () => {
+      expect(r.shellApiType()).to.equal('CursorIterationResult');
+    });
+    it('toReplString', () => {
+      expect(r.toReplString()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+    });
+  });
 });

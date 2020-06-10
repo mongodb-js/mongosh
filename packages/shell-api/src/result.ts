@@ -90,6 +90,7 @@ export class DeleteResult extends ShellApiClass {
   }
 }
 
+// NOTE: because this is inherited, the decorator does not add attributes. So no help() function.
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
   toReplString: () => this;
