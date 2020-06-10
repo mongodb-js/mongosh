@@ -68,6 +68,9 @@ class ShellEvaluator {
         return this.internalState.shellApi.show(argv[0]);
       case 'it':
         return this.internalState.shellApi.it();
+      case 'exit':
+      case 'quit':
+        return await this.internalState.shellApi.exit();
       case 'enableTelemetry()':
         if (this.container) {
           return this.container.toggleTelemetry(true);
