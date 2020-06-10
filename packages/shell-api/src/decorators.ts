@@ -17,6 +17,7 @@ export interface ShellApiInterface {
 }
 
 export class ShellApiClass implements ShellApiInterface {
+  help: any;
   toReplString(): any {
     return JSON.parse(JSON.stringify(this));
   }
@@ -125,7 +126,7 @@ export function shellApiClassDefault(constructor: Function): void {
     }
   }
   const help = new Help(classHelp);
-  constructor.prototype.help = () => (help);
+  constructor.prototype.help = (): Help => (help);
   Object.setPrototypeOf(constructor.prototype.help, help);
   if (!constructor.prototype.hasOwnProperty('shellApiType')) {
     constructor.prototype.shellApiType = function(): string { return className; };

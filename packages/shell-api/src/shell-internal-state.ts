@@ -76,17 +76,22 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    contextObject.print = async(arg) => {
+    contextObject.print = async(arg): void => {
       if (arg.toReplString) {
         console.log(await arg.toReplString());
       } else {
         console.log(arg);
       }
     };
-    Object.assign(contextObject, this.shellApi);
+    Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
     Object.getOwnPropertyNames(ShellApi.prototype)
-      .filter(n => !toIgnore.concat('hasAsyncChild').includes(n))
-      .forEach((n) => { contextObject[n] = this.shellApi[n]; });
+      .filter(n => !toIgnore.concat(['hasAsyncChild', 'help']).includes(n) && typeof this.shellApi[n] === 'function')
+      .forEach((n) => {
+        contextObject[n] = (...args): any => {
+          return this.shellApi[n](...args);
+        };
+      });
+    contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
     contextObject.rs = new ReplicaSet(this.currentDb.mongo);
