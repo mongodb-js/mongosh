@@ -1,4 +1,4 @@
-import CliOptions from './cli-options';
+import { CliOptions } from '@mongosh/service-provider-server';
 import { USAGE } from './constants';
 import i18n from '@mongosh/i18n';
 import minimist from 'minimist';

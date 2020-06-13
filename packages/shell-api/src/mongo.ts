@@ -8,7 +8,7 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import { ReplPlatform, generateUri } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
@@ -34,7 +34,7 @@ export default class Mongo extends ShellApiClass {
     super();
     this.internalState = internalState;
     this.databases = {};
-    this.uri = uri;
+    this.uri = generateUri({ _: [uri] });
     this.options = fleOptions;
     this.serviceProvider = this.internalState.initialServiceProvider;
   }

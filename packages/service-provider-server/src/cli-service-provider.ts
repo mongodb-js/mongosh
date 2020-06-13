@@ -13,7 +13,8 @@ import {
   WriteConcern,
   CommandOptions,
   getConnectInfo,
-  ReplPlatform
+  ReplPlatform,
+  DEFAULT_DB
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -37,6 +38,7 @@ const DEFAULT_OPTIONS = Object.freeze({
  */
 class CliServiceProvider implements ServiceProvider {
   public readonly platform: ReplPlatform;
+  public readonly initialDb: string;
   /**
    * Create a new CLI service provider from the provided URI.
    *
@@ -80,6 +82,11 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
+    try {
+      this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
+    } catch (err) {
+      this.initialDb = DEFAULT_DB;
+    }
   }
 
   async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {

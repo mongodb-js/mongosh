@@ -42,4 +42,9 @@ export default interface Admin {
    * What platform (Compass/CLI/Browser)
    */
   platform: ReplPlatform;
+
+  /**
+   * The initial database
+   */
+  initialDb: string;
 }

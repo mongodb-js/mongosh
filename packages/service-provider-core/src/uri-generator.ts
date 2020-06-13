@@ -2,6 +2,7 @@
 
 import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
+import { DEFAULT_DB } from './index';
 
 /**
  * URI schemes.
@@ -37,11 +38,6 @@ const DEFAULT_PORT = '27017';
  * Conflicting host/port message.
  */
 const CONFLICT = 'cli-repl.uri-generator.no-host-port';
-
-/**
- * The default db name.
- */
-const TEST = 'test';
 
 /**
  * Validate conflicts in the options.
@@ -128,7 +124,7 @@ function generateUri(options: CliOptions): string {
     validateConflicts(options);
   }
 
-  return `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${db || TEST}`;
+  return `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${db || DEFAULT_DB}`;
 }
 
 export default generateUri;

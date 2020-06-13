@@ -1,6 +1,6 @@
 import CliServiceProvider from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 
 interface DataService {
   client: {
@@ -13,6 +13,7 @@ interface DataService {
  */
 class CompassServiceProvider extends CliServiceProvider {
   public readonly platform: ReplPlatform;
+  public readonly initialDb: string;
   /**
    * Instantiate a new CompassServiceProvider with the data-service's connected
    * MongoClient instance.
@@ -23,6 +24,11 @@ class CompassServiceProvider extends CliServiceProvider {
   constructor(mongoClient: MongoClient, uri?: string) {
     super(mongoClient, uri);
     this.platform = ReplPlatform.Compass;
+    try {
+      this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
+    } catch (err) {
+      this.initialDb = DEFAULT_DB;
+    }
   }
   /**
    * Creates a new CompassServiceProvider that uses compass

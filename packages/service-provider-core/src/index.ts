@@ -9,6 +9,9 @@ import CommandOptions from './command-options';
 import DatabaseOptions from './database-options';
 import getConnectInfo from './connect-info';
 import { ReplPlatform } from './platform';
+import CliOptions from './cli-options';
+import generateUri, { Scheme }  from './uri-generator';
+const DEFAULT_DB = 'test';
 
 export {
   ServiceProvider,
@@ -21,5 +24,9 @@ export {
   CommandOptions,
   DatabaseOptions,
   getConnectInfo,
-  ReplPlatform
+  ReplPlatform,
+  CliOptions,
+  generateUri,
+  Scheme,
+  DEFAULT_DB
 };

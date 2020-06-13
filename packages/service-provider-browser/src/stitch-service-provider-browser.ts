@@ -8,7 +8,8 @@ import {
   CommandOptions,
   WriteConcern,
   getConnectInfo,
-  ReplPlatform
+  ReplPlatform,
+  DEFAULT_DB
 } from '@mongosh/service-provider-core';
 
 import StitchTransport from './stitch-transport';
@@ -40,6 +41,7 @@ const ATLAS = 'mongodb-atlas';
 class StitchServiceProviderBrowser implements ServiceProvider {
   readonly stitchTransport: StitchTransport<StitchAppClient, RemoteMongoClient>;
   public readonly platform: ReplPlatform;
+  public readonly initialDb: string;
   /**
    * Create a StitchBrowserTransport from a Stitch app id.
    *
@@ -150,6 +152,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     this.stitchTransport =
       new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
     this.platform = ReplPlatform.Browser;
+    this.initialDb = DEFAULT_DB;
   }
 
   aggregateDb(database: string, pipeline: Document[], options?: Document, dbOptions?: DatabaseOptions): Cursor {
