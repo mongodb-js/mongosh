@@ -25,6 +25,7 @@ import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
+import semver from 'semver';
 
 /**
  * Connecting text key.
@@ -311,10 +312,14 @@ class CliRepl {
    * The greeting for the shell.
    */
   greet(): void {
-    const { version } = require('../package.json');
+    const { version, engines } = require('../package.json');
     console.log(`Using MongoDB: ${this.internalState.connectionInfo.buildInfo.version}`);
     console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
+    if (semver.lt(process.version, engines.node.replace('^', ''))) {
+      console.log(`WARNING: mismatched node version. Minimum node version required ${engines.node}. Currently using ${process.version}. Exiting...\n\n`);
+      process.exit();
+    }
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
