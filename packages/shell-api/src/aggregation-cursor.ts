@@ -30,7 +30,7 @@ export default class AggregationCursor extends ShellApiClass {
       return results;
     }
 
-    for (let i = 0; i < 20; i++) { // TODO: ensure that assigning cursor doesn't iterate
+    for (let i = 0; i < 20; i++) {
       if (!await this.hasNext()) {
         break;
       }

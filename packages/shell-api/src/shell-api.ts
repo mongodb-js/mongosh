@@ -81,7 +81,6 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async it(): Promise<any> {
     if (!this.internalState.currentCursor) {
-      // TODO: warn here
       return new CursorIterationResult();
     }
     return await this.internalState.currentCursor._it();
