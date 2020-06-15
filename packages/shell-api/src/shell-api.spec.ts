@@ -168,6 +168,10 @@ describe('ShellApi', () => {
       internalState.setCtx({});
       internalState.currentDb.mongo = mongo;
     });
+    it('calls help function', () => {
+      expect(internalState.context.use.help().shellApiType()).to.equal('Help');
+      expect(internalState.context.use.help.shellApiType()).to.equal('Help');
+    });
     describe('use', () => {
       beforeEach(() => {
         internalState.context.use('testdb');

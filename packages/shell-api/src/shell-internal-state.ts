@@ -101,6 +101,7 @@ export default class ShellInternalState {
         contextObject[n] = (...args): any => {
           return this.shellApi[n](...args);
         };
+        contextObject[n].help = this.shellApi[n].help;
       });
     contextObject.quit = contextObject.exit;
     contextObject.help = this.shellApi.help;
@@ -152,4 +153,3 @@ export default class ShellInternalState {
     this.messageBus.emit('mongosh:api-call', event);
   }
 }
-

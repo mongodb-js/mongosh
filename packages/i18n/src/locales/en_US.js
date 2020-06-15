@@ -1059,12 +1059,6 @@ const translations = {
               example: 'db.collection.getIndexKeys()',
               parameters: {}
             },
-            getIndices: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
-            },
             getIndexSpecs: {
               link: '',
               description: '',
