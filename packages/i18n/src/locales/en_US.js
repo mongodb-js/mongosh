@@ -89,10 +89,21 @@ const translations = {
               description: 'result of the last line evaluated; use to further iterate'
             },
             exit: {
-              description: 'Quit the MongoDB shell with .exit'
+              description: 'Quit the MongoDB shell with exit/exit()/.exit'
+            },
+            quit: {
+              description: 'Quit the MongoDB shell with quit/quit()'
             },
             show: {
               description: '\'show databases\': Print a list of all available databases. \n\'show-collections\': Print a list of all collections for current database'
+            },
+            connect: {
+              description: 'Create a new connection and return the Database object. Usage: connect(URI, username [optional], password [optional])',
+              link: 'https://docs.mongodb.com/manual/reference/method/connect'
+            },
+            Mongo: {
+              description: 'Create a new connection and return the Mongo object. Usage: new Mongo(URI, options [optional])',
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo'
             }
           }
         }
@@ -155,7 +166,10 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
               description: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
               example: 'db.collection.aggregate(pipeline, options).toArray()'
-            } 
+            },
+            pretty: {
+              description: 'Deprecated. The shell provides auto-formatting so this method is no longer useful'
+            }
           }
         }
       },
@@ -1360,10 +1374,7 @@ const translations = {
             },
             // don't document since everything is currently pretty printed
             pretty: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
+              description: 'Deprecated. The shell provides auto-formatting so this method is no longer useful'
             },
             readConcern: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.readConcern',
@@ -1491,6 +1502,12 @@ const translations = {
               description: 'Removes the current database, deleting the associated data files.',
               example: 'db.dropDatabase()',
               parameters: {}
+            },
+            getMongo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getMongo/',
+              description: 'Returns the current database connection',
+              example: 'connection = db.getMongo()',
+              parameters: {}
             }
           }
         }
@@ -1532,6 +1549,15 @@ const translations = {
           }
         }
       },
+      ExplainableCursor: {
+        iteration: {
+          'no-cursor': 'no cursor',
+          'type-it-for-more': 'Type "it" for more'
+        },
+        help: {
+          description: 'Explainable Cursor. See the Cursor class help methods for more information'
+        }
+      },
       ReplicaSet: {
         help: {
           description: 'Replica Set Class'
@@ -1540,6 +1566,17 @@ const translations = {
       Shard: {
         help: {
           description: 'The Shard Class'
+        }
+      },
+      Mongo: {
+        help: {
+          description: 'The Mongo Class. Represents a connection to a server',
+          link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo'
+        },
+        attributes: {
+          getDB: {
+            description: 'Returns the specified Database of the Mongo object.'
+          }
         }
       }
     }
