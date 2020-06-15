@@ -25,6 +25,7 @@ import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
+import semver from 'semver';
 
 /**
  * Connecting text key.
@@ -50,6 +51,7 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
+    this.verifyNodeVersion();
     this.options = options;
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
     this.lineByLineInput = new LineByLineInput(process.stdin);
@@ -306,6 +308,14 @@ class CliRepl {
 
     return formatOutput(result);
   };
+
+  verifyNodeVersion(): void {
+    const { engines } = require('../package.json');
+    if (!semver.satisfies(process.version, engines.node)) {
+      console.log(`WARNING: mismatched node version. Minimum node version required ${engines.node}. Currently using ${process.version}. Exiting...\n\n`);
+      process.exit(1);
+    }
+  }
 
   /**
    * The greeting for the shell.
