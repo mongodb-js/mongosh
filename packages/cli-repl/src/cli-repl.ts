@@ -51,6 +51,7 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
+    this.verifyNodeVersion();
     this.options = options;
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
     this.lineByLineInput = new LineByLineInput(process.stdin);
@@ -308,18 +309,22 @@ class CliRepl {
     return formatOutput(result);
   };
 
+  verifyNodeVersion(): void {
+    const { engines } = require('../package.json');
+    if (!semver.satisfies(process.version, engines.node)) {
+      console.log(`WARNING: mismatched node version. Minimum node version required ${engines.node}. Currently using ${process.version}. Exiting...\n\n`);
+      process.exit(1);
+    }
+  }
+
   /**
    * The greeting for the shell.
    */
   greet(): void {
-    const { version, engines } = require('../package.json');
+    const { version } = require('../package.json');
     console.log(`Using MongoDB: ${this.internalState.connectionInfo.buildInfo.version}`);
     console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
-    if (semver.lt(process.version, engines.node.replace('^', ''))) {
-      console.log(`WARNING: mismatched node version. Minimum node version required ${engines.node}. Currently using ${process.version}. Exiting...\n\n`);
-      process.exit();
-    }
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
 
