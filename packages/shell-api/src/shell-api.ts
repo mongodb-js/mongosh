@@ -13,7 +13,7 @@ import Database from './database';
 import { CommandResult } from './result';
 import ShellInternalState from './shell-internal-state';
 import { checkUndefinedUpdate } from './helpers';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import { ReplPlatform, DEFAULT_DB } from '@mongosh/service-provider-core';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
@@ -75,7 +75,8 @@ export default class ShellApi extends ShellApiClass {
     if (user) options.username = user;
     if (pwd) options.password = pwd;
     const mongo = await this.Mongo(uri, Object.keys(options).length ? { auth: options } : {});
-    return mongo.getDB('test');
+    const db = mongo.serviceProvider.initialDb || DEFAULT_DB;
+    return mongo.getDB(db);
   }
 
   @returnsPromise

@@ -1,7 +1,11 @@
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import {
+  startTestServer,
+  LOCAL_INSTANCE_HOST,
+  LOCAL_INSTANCE_PORT
+} from '../../../testing/integration-testing-hooks';
 
 describe('e2e', function() {
   const connectionString = startTestServer();
@@ -39,6 +43,57 @@ describe('e2e', function() {
     it('db.coll.find() throws InvalidInput', async() => {
       await shell.executeLine('db.coll.find()');
       shell.assertContainsError('MongoshInvalidInputError: No connected database');
+    });
+  });
+
+  describe('set db', () => {
+    describe('via host:port/test', () => {
+      let shell;
+      beforeEach(async() => {
+        shell = TestShell.start({ args: [`${LOCAL_INSTANCE_HOST}:${LOCAL_INSTANCE_PORT}/testdb1`] });
+        await shell.waitForPrompt();
+        shell.assertNoErrors();
+      });
+      it('db set correctly', async() => {
+        await shell.executeLine('db');
+        shell.assertNoErrors();
+
+        await eventually(() => {
+          shell.assertContainsOutput('testdb1');
+        });
+      });
+    });
+    describe('via mongodb://uri', () => {
+      let shell;
+      beforeEach(async() => {
+        shell = TestShell.start({ args: [`mongodb://${LOCAL_INSTANCE_HOST}:${LOCAL_INSTANCE_PORT}/testdb2`] });
+        await shell.waitForPrompt();
+        shell.assertNoErrors();
+      });
+      it('db set correctly', async() => {
+        await shell.executeLine('db');
+        shell.assertNoErrors();
+
+        await eventually(() => {
+          shell.assertContainsOutput('testdb2');
+        });
+      });
+    });
+    describe('legacy db only', () => {
+      let shell;
+      beforeEach(async() => {
+        shell = TestShell.start({ args: ['testdb3', `--port=${LOCAL_INSTANCE_PORT}`] });
+        await shell.waitForPrompt();
+        shell.assertNoErrors();
+      });
+      it('db set correctly', async() => {
+        await shell.executeLine('db');
+        shell.assertNoErrors();
+
+        await eventually(() => {
+          shell.assertContainsOutput('testdb3');
+        });
+      });
     });
   });
 
@@ -107,6 +162,15 @@ describe('e2e', function() {
       });
 
       shell.assertNoErrors();
+    });
+
+    it('db set correctly', async() => {
+      await shell.executeLine('db');
+      shell.assertNoErrors();
+
+      await eventually(() => {
+        shell.assertContainsOutput('test');
+      });
     });
 
     it('allows to find documents', async() => {

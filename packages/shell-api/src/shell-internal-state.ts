@@ -11,7 +11,7 @@ import {
   ShellApi
 } from './index';
 import { EventEmitter } from 'events';
-import { Document, ServiceProvider } from '@mongosh/service-provider-core';
+import { Document, ServiceProvider, DEFAULT_DB } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
@@ -42,7 +42,7 @@ export default class ShellInternalState {
     if (!cliOptions.nodb) {
       const mongo = new Mongo(this);
       this.mongos.push(mongo);
-      this.currentDb = mongo.getDB('test'); // TODO: set to CLI arg
+      this.currentDb = mongo.getDB(initialServiceProvider.initialDb || DEFAULT_DB);
     } else {
       this.currentDb = new NoDatabase() as Database;
     }
@@ -89,8 +89,10 @@ export default class ShellInternalState {
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg): Promise<void> => {
       if (arg.toReplString) {
+        // eslint-disable-next-line no-console
         console.log(await arg.toReplString());
       } else {
+        // eslint-disable-next-line no-console
         console.log(arg);
       }
     };

@@ -107,6 +107,7 @@ describe('Database', () => {
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.initialDb = 'test';
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');

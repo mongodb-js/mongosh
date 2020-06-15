@@ -1,7 +1,8 @@
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
 
-const LOCAL_INSTANCE_PORT = 27018;
+export const LOCAL_INSTANCE_PORT = 27018;
+export const LOCAL_INSTANCE_HOST = 'localhost';
 
 /**
  * Starts a local server unless the `MONGOSH_TEST_SERVER_URL`
@@ -18,7 +19,7 @@ const LOCAL_INSTANCE_PORT = 27018;
  */
 export function startTestServer(): string {
   const envConnectionString = process.env.MONGOSH_TEST_SERVER_URL;
-  const localConnectionString = `mongodb://localhost:${LOCAL_INSTANCE_PORT}`;
+  const localConnectionString = `mongodb://${LOCAL_INSTANCE_HOST}:${LOCAL_INSTANCE_PORT}`;
   const connectionString = envConnectionString || localConnectionString;
 
   if (!envConnectionString) {

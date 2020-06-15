@@ -1,5 +1,4 @@
-import CliOptions from './cli-options';
-import { NodeOptions } from '@mongosh/service-provider-server';
+import { NodeOptions, CliOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
 /**

@@ -1,5 +1,5 @@
 import mapCliToDriver from './arg-mapper';
-import CliOptions from './cli-options';
+import { CliOptions } from '@mongosh/service-provider-server';
 import { expect } from 'chai';
 
 describe('arg-mapper.mapCliToDriver', () => {

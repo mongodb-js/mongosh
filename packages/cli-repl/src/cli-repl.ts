@@ -1,6 +1,6 @@
 /* eslint no-console: 0, no-sync: 0*/
 
-import { CliServiceProvider, NodeOptions } from '@mongosh/service-provider-server';
+import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
 import { ShellInternalState } from '@mongosh/shell-api';
 import ShellEvaluator from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
@@ -11,7 +11,6 @@ import { MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
 import jsonParse from 'fast-json-parse';
-import CliOptions from './cli-options';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
 import { ObjectId } from 'bson';
