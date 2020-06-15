@@ -16,6 +16,10 @@ describe('Database', () => {
       expect(apiClass.help().shellApiType()).to.equal('Help');
       expect(apiClass.help.shellApiType()).to.equal('Help');
     });
+    it('calls help function for methods', () => {
+      expect(apiClass.runCommand.help().shellApiType()).to.equal('Help');
+      expect(apiClass.runCommand.help.shellApiType()).to.equal('Help');
+    });
   });
   describe('collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
