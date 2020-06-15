@@ -81,13 +81,16 @@ export function shellApiClassDefault(constructor: Function): void {
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
-    descriptor.value.help = {
+    const attrHelp = {
       help: `${attributeHelpKeyPrefix}.example`,
       docs: `${attributeHelpKeyPrefix}.link`,
       attr: [
         { description: `${attributeHelpKeyPrefix}.description` }
       ]
     };
+    const aHelp = new Help(attrHelp);
+    descriptor.value.help = (): Help => (aHelp);
+    Object.setPrototypeOf(descriptor.value.help, aHelp);
 
     classHelp.attr.push({
       name: propertyName,
