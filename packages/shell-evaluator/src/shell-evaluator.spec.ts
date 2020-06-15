@@ -19,7 +19,7 @@ describe('ShellEvaluator', () => {
       messageBus: busMock,
       shellApi: { use: useSpy },
       asyncWriter: {
-        process: i => (i),
+        process: (i): string => (i),
         symbols: {
           saveState: sinon.spy(), revertState: sinon.spy()
         }

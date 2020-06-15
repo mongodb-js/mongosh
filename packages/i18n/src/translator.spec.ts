@@ -75,7 +75,7 @@ describe('Translator', () => {
         });
 
         context('when the key uses object notation', () => {
-          const translator = new Translator({ test: { test: 'value' }});
+          const translator = new Translator({ test: { test: 'value' } });
 
           context('when the key is found', () => {
             it('returns the translation', () => {

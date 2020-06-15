@@ -1,6 +1,6 @@
 export default interface BulkWriteResult {
   result: {
-    ok: number
+    ok: number;
   };
 
   /**
@@ -31,10 +31,10 @@ export default interface BulkWriteResult {
   /**
    * Ids of upserted documents.
    */
-  upsertedIds: {[index: number]: any}
+  upsertedIds: {[index: number]: any};
 
   /**
    * Ids of inserted documents.
    */
-  insertedIds: {[index: number]: any}
+  insertedIds: {[index: number]: any};
 }

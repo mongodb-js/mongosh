@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ServiceProvider,
   Result,
@@ -52,8 +53,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    */
   static async fromAppId(
     stitchAppId: string,
-    serviceName: string) : Promise<StitchServiceProviderBrowser> {
-
+    serviceName: string): Promise<StitchServiceProviderBrowser> {
     const client = Stitch.initializeDefaultAppClient(stitchAppId);
     try {
       await client.auth.loginWithCredential(new AnonymousCredential());
@@ -64,7 +64,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     return new StitchServiceProviderBrowser(client, serviceName);
   }
 
-  async getNewConnection(uri, options) {
+  async getNewConnection(uri, options): Promise<any> {
     throw new MongoshUnimplementedError();
   }
 
@@ -106,8 +106,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   aggregate(
     database: string,
     collection: string,
-    pipeline: object[] = []) : Cursor {
-
+    pipeline: object[] = []): Cursor {
     return this.stitchTransport.aggregate(database, collection, pipeline);
   }
 
@@ -116,7 +115,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Promise} The rejected promise.
    */
-  bulkWrite() : Promise<BulkWriteResult> {
+  bulkWrite(): Promise<BulkWriteResult> {
     return this.stitchTransport.bulkWrite();
   }
 
@@ -134,8 +133,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.countDocuments(database, collection, filter, options);
   }
 
@@ -156,71 +154,71 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   }
 
   aggregateDb(database: string, pipeline: Document[], options?: Document, dbOptions?: DatabaseOptions): Cursor {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   count(db: string, coll: string, query?: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   isCapped(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   getIndexes(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   listCollections(database: string, filter?: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   stats(database: string, collection: string, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   dropDatabase(database: string, writeConcern?: WriteConcern, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
-  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, dbOptions?: DatabaseOptions) {
-    throw new Error("Method not implemented.");
+  findAndModify(database: string, collection: string, query: Document, sort: any[] | Document, update: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
+    throw new Error('Method not implemented.');
   }
 
   save(database: string, collection: string, doc: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   remove(database: string, collection: string, query: Document, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   convertToCapped(database: string, collection: string, size: number, options?: CommandOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   createIndexes(database: string, collection: string, indexSpecs: Document[], options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   dropIndexes(database: string, collection: string, indexes: string | Document | Document[] | string[], commandOptions?: CommandOptions, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   reIndex(database: string, collection: string, options?: CommandOptions, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   dropCollection(database: string, collection: string, dbOptions?: DatabaseOptions): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   renameCollection(database: string, oldName: string, newName: string, options?: Document, dbOptions?: DatabaseOptions): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   close(boolean: any): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   getCmdLineOpts(): Promise<Result> {
@@ -236,7 +234,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   }
 
   listDatabases(database: string): Promise<any> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   /**
@@ -252,8 +250,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   deleteMany(
     database: string,
     collection: string,
-    filter: object = {}) : Promise<Result> {
-
+    filter: object = {}): Promise<Result> {
     return this.stitchTransport.deleteMany(database, collection, filter);
   }
 
@@ -270,8 +267,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   deleteOne(
     database: string,
     collection: string,
-    filter: object = {}) : Promise<Result> {
-
+    filter: object = {}): Promise<Result> {
     return this.stitchTransport.deleteOne(database, collection, filter);
   }
 
@@ -280,7 +276,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Cursor} The unsupported cursor.
    */
-  distinct() : Promise<any> {
+  distinct(): Promise<any> {
     return this.stitchTransport.distinct();
   }
 
@@ -289,7 +285,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Promise} The rejected promise.
    */
-  estimatedDocumentCount() : Promise<Result> {
+  estimatedDocumentCount(): Promise<Result> {
     return this.stitchTransport.estimatedDocumentCount();
   }
 
@@ -307,8 +303,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : any {
-
+    options: object = {}): any {
     return this.stitchTransport.find(database, collection, filter, options);
   }
 
@@ -326,8 +321,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     database: string,
     collection: string,
     filter: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndDelete(database, collection, filter, options);
   }
 
@@ -347,8 +341,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     collection: string,
     filter: object = {},
     replacement: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndReplace(database, collection, filter, replacement, options);
   }
 
@@ -368,8 +361,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.findOneAndUpdate(database, collection, filter, update, options);
   }
 
@@ -387,8 +379,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     database: string,
     collection: string,
     docs: object[] = [],
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.insertMany(database, collection, docs);
   }
 
@@ -406,8 +397,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     database: string,
     collection: string,
     doc: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.insertOne(database, collection, doc);
   }
 
@@ -416,7 +406,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Promise} The rejected promise.
    */
-  replaceOne() : Promise<Result> {
+  replaceOne(): Promise<Result> {
     return this.stitchTransport.replaceOne();
   }
 
@@ -425,7 +415,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {Promise} The rejected promise.
    */
-  runCommand() : Promise<Result> {
+  runCommand(): Promise<Result> {
     return this.stitchTransport.runCommand();
   }
 
@@ -445,8 +435,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.updateMany(database, collection, filter, update, options);
   }
 
@@ -466,8 +455,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     collection: string,
     filter: object = {},
     update: object = {},
-    options: object = {}) : Promise<Result> {
-
+    options: object = {}): Promise<Result> {
     return this.stitchTransport.updateOne(database, collection, filter, update, options);
   }
 
@@ -476,7 +464,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    *
    * @returns {String} The user id.
    */
-  get userId() : string {
+  get userId(): string {
     return this.stitchTransport.userId;
   }
 }

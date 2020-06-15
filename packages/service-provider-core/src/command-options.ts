@@ -1,5 +1,5 @@
-import WriteConcern from "./write-concern";
+import WriteConcern from './write-concern';
 
 export default interface CommandOptions {
-  writeConcern?: WriteConcern
+  writeConcern?: WriteConcern;
 }

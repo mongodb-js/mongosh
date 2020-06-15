@@ -16,7 +16,7 @@ import StitchMongoClient from './stitch-mongo-client';
  *
  * @returns {Stub} The client stub to pass to the transport.
  */
-const createClientStub = (collectionStub) => {
+const createClientStub = (collectionStub): any => {
   const dbStub = {
     collection: sinon.stub().returns(collectionStub)
   };
@@ -25,8 +25,8 @@ const createClientStub = (collectionStub) => {
   };
 };
 
-const createStitchClientStub = (): StitchClient => ({auth: null});
-const createMongoClientStub = (): StitchMongoClient => ({db: () => {}});
+const createStitchClientStub = (): StitchClient => ({ auth: null });
+const createMongoClientStub = (): StitchMongoClient => ({ db: (): void => {} });
 
 describe('StitchTransport', () => {
   const stitchClient = createStitchClientStub();
@@ -46,7 +46,7 @@ describe('StitchTransport', () => {
 
   describe('#aggregate', () => {
     let stitchTransport;
-    const pipeline = [{ $match: { name: 'Aphex Twin' }}];
+    const pipeline = [{ $match: { name: 'Aphex Twin' } }];
     const aggResult = [{ name: 'Aphex Twin' }];
 
     const aggMock = sinon.mock().withArgs(pipeline).
@@ -73,7 +73,7 @@ describe('StitchTransport', () => {
 
   describe('#bulkWrite', () => {
     let stitchTransport;
-    const requests = [{ insertOne: { name: 'Aphex Twin' }}];
+    const requests = [{ insertOne: { name: 'Aphex Twin' } }];
 
     beforeEach(() => {
       stitchTransport = new StitchTransport(stitchClient, createClientStub({}));
@@ -115,7 +115,7 @@ describe('StitchTransport', () => {
 
   describe('#deleteMany', () => {
     let stitchTransport;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
@@ -138,7 +138,7 @@ describe('StitchTransport', () => {
 
   describe('#deleteOne', () => {
     let stitchTransport;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
@@ -223,7 +223,7 @@ describe('StitchTransport', () => {
 
   describe('#findOneAndDelete', () => {
     let stitchTransport;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
@@ -246,7 +246,7 @@ describe('StitchTransport', () => {
 
   describe('#findOneAndReplace', () => {
     let stitchTransport;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
     const findMock = sinon.mock().once().withArgs(filter, replacement).
@@ -273,9 +273,9 @@ describe('StitchTransport', () => {
 
   describe('#findOneAndUpdate', () => {
     let stitchTransport;
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
+    const update = { $set: { name: 'Richard James' } };
     const findMock = sinon.mock().once().withArgs(filter, update).
       resolves(commandResult);
 
@@ -301,7 +301,7 @@ describe('StitchTransport', () => {
   describe('#insertMany', () => {
     let stitchTransport;
     const doc = { name: 'Aphex Twin' };
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const insertMock = sinon.mock().once().withArgs([ doc ]).resolves(commandResult);
 
     beforeEach(() => {
@@ -325,7 +325,7 @@ describe('StitchTransport', () => {
   describe('#insertOne', () => {
     let stitchTransport;
     const doc = { name: 'Aphex Twin' };
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const commandResult = { result: { n: 1, ok: 1 } };
     const insertMock = sinon.mock().once().withArgs(doc).resolves(commandResult);
 
     beforeEach(() => {
@@ -387,8 +387,8 @@ describe('StitchTransport', () => {
   describe('#updateOne', () => {
     let stitchTransport;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
     const updateMock = sinon.mock().once().withArgs(filter, update).
       resolves(commandResult);
 
@@ -413,8 +413,8 @@ describe('StitchTransport', () => {
   describe('#updateMany', () => {
     let stitchTransport;
     const filter = { name: 'Aphex Twin' };
-    const update = { $set: { name: 'Richard James' }};
-    const commandResult = { result: { n: 1, ok: 1 }};
+    const update = { $set: { name: 'Richard James' } };
+    const commandResult = { result: { n: 1, ok: 1 } };
     const updateMock = sinon.mock().once().withArgs(filter, update).
       resolves(commandResult);
 

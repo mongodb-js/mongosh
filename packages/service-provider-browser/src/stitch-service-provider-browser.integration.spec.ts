@@ -20,6 +20,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
     before(async() => {
       stitchTransport = await StitchServiceProviderBrowser.fromAppId(stitchAppId, serviceName);
+      // eslint-disable-next-line @typescript-eslint/camelcase
       testScope = { testId: testId, owner_id: stitchTransport.userId };
     });
 
@@ -35,7 +36,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
         beforeEach(async() => {
           result = await stitchTransport.
-            aggregate('music', 'bands', [{ $match: { ...testScope, name: 'Aphex Twin' }}]);
+            aggregate('music', 'bands', [{ $match: { ...testScope, name: 'Aphex Twin' } }]);
         });
 
         it('executes the command and resolves the result', async() => {
@@ -45,8 +46,8 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
       });
 
       context('when running against a database', () => {
-        it.skip('it rejects the action', () => {
-          return stitchTransport.aggregate('admin', null, [{ $currentOp: {}}]).catch((err) => {
+        it('it rejects the action', () => {
+          return stitchTransport.aggregate('admin', null, [{ $currentOp: {} }]).catch((err) => {
             expect(err).to.not.equal(null);
           });
         });
@@ -181,7 +182,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             findOneAndUpdate('music', 'bands', filter, update);
@@ -253,7 +254,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             updateMany('music', 'bands', filter, update);
@@ -271,7 +272,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
 
         beforeEach(async() => {
           const filter = { ...testScope, name: 'Aphex Twin' };
-          const update = { $set: { name: 'Richard James' }};
+          const update = { $set: { name: 'Richard James' } };
 
           result = await stitchTransport.
             updateOne('music', 'bands', filter, update);

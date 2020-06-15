@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import i18n from '@mongosh/i18n';
 
 import StitchClient from './stitch-client';
@@ -31,15 +32,13 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Array} pipeline - The aggregation pipeline.
-   * @param {Document} options - The pipeline options.
    *
    * @returns {Cursor} The aggregation cursor.
    */
   aggregate(
     database: string,
     collection: string,
-    pipeline: Document[] = []) : Cursor {
-
+    pipeline: Document[] = []): Cursor {
     if (collection === null) {
       return new UnsupportedCursor(i18n.__(AGG_ON_DB));
     }
@@ -52,7 +51,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {Promise} The rejected promise.
    */
-  bulkWrite() : Promise<Result> {
+  bulkWrite(): Promise<Result> {
     return Promise.reject(`Bulk write ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
@@ -70,8 +69,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     database: string,
     collection: string,
     filter: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).count(filter, options);
   }
 
@@ -93,15 +91,13 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
-   * @param {Document} options - The delete many options.
    *
    * @returns {Promise} The promise of the result.
    */
   deleteMany(
     database: string,
     collection: string,
-    filter: Document = {}) : Promise<Result> {
-
+    filter: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       deleteMany(filter);
   }
@@ -112,15 +108,13 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
-   * @param {Document} options - The delete one options.
    *
    * @returns {Promise} The promise of the result.
    */
   deleteOne(
     database: string,
     collection: string,
-    filter: Document = {}) : Promise<Result> {
-
+    filter: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       deleteOne(filter);
   }
@@ -130,7 +124,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {Cursor} The rejected promise when toArray is called.
    */
-  distinct() : Promise<any> {
+  distinct(): Promise<any> {
     return Promise.resolve(new UnsupportedCursor(`Distinct ${i18n.__(NOT_IMPLEMENTED)}`));
   }
 
@@ -139,7 +133,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {Promise} The rejected promise.
    */
-  estimatedDocumentCount() : Promise<Result> {
+  estimatedDocumentCount(): Promise<Result> {
     return Promise.reject(`Estimated document count ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
@@ -157,8 +151,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     database: string,
     collection: string,
     filter: Document = {},
-    options: Document = {}) : Cursor {
-
+    options: Document = {}): Cursor {
     return this.db(database).collection(collection).
       find(filter, options);
   }
@@ -177,8 +170,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     database: string,
     collection: string,
     filter: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       findOneAndDelete(filter, options);
   }
@@ -199,8 +191,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     collection: string,
     filter: Document = {},
     replacement: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       findOneAndReplace(filter, replacement, options);
   }
@@ -221,8 +212,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     collection: string,
     filter: Document = {},
     update: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       findOneAndUpdate(filter, update, options);
   }
@@ -241,8 +231,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     database: string,
     collection: string,
     docs: Document[] = [],
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       insertMany(docs);
   }
@@ -261,8 +250,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     database: string,
     collection: string,
     doc: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       insertOne(doc);
   }
@@ -272,7 +260,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {Promise} The rejected promise.
    */
-  replaceOne() : Promise<Result> {
+  replaceOne(): Promise<Result> {
     return Promise.reject(`Replace one ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
@@ -281,7 +269,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {Promise} The rejected promise.
    */
-  runCommand() : Promise<Result> {
+  runCommand(): Promise<Result> {
     return Promise.reject(`Running a direct command ${i18n.__(NOT_IMPLEMENTED)}`);
   }
 
@@ -301,8 +289,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     collection: string,
     filter: Document = {},
     update: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       updateMany(filter, update, options);
   }
@@ -323,8 +310,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
     collection: string,
     filter: Document = {},
     update: Document = {},
-    options: Document = {}) : Promise<Result> {
-
+    options: Document = {}): Promise<Result> {
     return this.db(database).collection(collection).
       updateOne(filter, update, options);
   }
@@ -334,7 +320,7 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @returns {String} The user id.
    */
-  get userId() : string {
+  get userId(): string {
     return this.stitchClient.auth.user.id;
   }
 
@@ -343,9 +329,9 @@ class StitchTransport<S extends StitchClient, M extends StitchMongoClient> {
    *
    * @param {String} name - The database name.
    *
-   * @returns {RemoteMongoDaatabase} The database.
+   * @returns {RemoteMongoDatabase} The database.
    */
-  private db(name: string) {
+  private db(name: string): any {
     return this.mongoClient.db(name);
   }
 }

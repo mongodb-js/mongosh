@@ -1,6 +1,6 @@
 import Document from './document';
 
-interface Cursor {
+export default interface Cursor {
   /**
    * Add a cursor flag as an option to the cursor.
    *
@@ -8,7 +8,7 @@ interface Cursor {
    *
    * @returns {Cursor} The cursor.
    */
-  addOption(option: number): Cursor
+  addOption(option: number): Cursor;
 
   /**
    * Set cursor to allow partial results.
@@ -223,4 +223,3 @@ interface Cursor {
   explain(verbosity: string): Promise<any>;
 }
 
-export default Cursor;

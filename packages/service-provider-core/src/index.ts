@@ -10,7 +10,7 @@ import DatabaseOptions from './database-options';
 import getConnectInfo from './connect-info';
 import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
-import generateUri, { Scheme }  from './uri-generator';
+import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
 
 export {

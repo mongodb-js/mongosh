@@ -15,7 +15,9 @@
     "compile-ts": "tsc -p tsconfig.json",
     "test": "karma start --colors",
     "test-ci": "karma start --colors",
-    "prepublish": "npm run compile-ts"
+    "prepublish": "npm run compile-ts",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint"
   },
   "license": "Apache-2.0",
   "publishConfig": {
