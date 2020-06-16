@@ -6,7 +6,7 @@ import DatabaseOptions from './database-options';
 /**
  * Interface for read operations in the CRUD specification.
  */
-interface Readable {
+export default interface Readable {
   /**
    * Run an aggregation pipeline.
    *
@@ -23,7 +23,7 @@ interface Readable {
     collection: string,
     pipeline: Document[],
     options?: Document,
-    dbOptions?: DatabaseOptions) : Cursor;
+    dbOptions?: DatabaseOptions): Cursor;
 
   /**
    * Run an aggregation pipeline on the DB.
@@ -31,6 +31,7 @@ interface Readable {
    * @param {String} database - The database name.
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Document} options - The pipeline options.
+   * @param {Object} dbOptions - Optional options.
    *
    * @returns {Cursor} A cursor.
    */
@@ -39,7 +40,7 @@ interface Readable {
     pipeline: Document[],
     options?: Document,
     dbOptions?: DatabaseOptions
-  ) : Cursor;
+  ): Cursor;
 
   /**
    * Returns the count of documents that would match a find() query for the
@@ -98,7 +99,7 @@ interface Readable {
     fieldName: string,
     filter?: Document,
     options?: Document,
-    dbOptions?: DatabaseOptions) : Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Get an estimated document count from the collection.
@@ -114,7 +115,7 @@ interface Readable {
     database: string,
     collection: string,
     options?: Document,
-    dbOptions?: DatabaseOptions) : Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<Result>;
 
   /**
    * Find documents in the collection.
@@ -132,7 +133,7 @@ interface Readable {
     collection: string,
     filter?: Document,
     options?: Document,
-    dbOptions?: DatabaseOptions) : Cursor;
+    dbOptions?: DatabaseOptions): Cursor;
 
   /**
    * Returns the server version.
@@ -201,7 +202,6 @@ interface Readable {
     collection: string,
     options?: Document,
     dbOptions?: DatabaseOptions
-  ): Promise<Result>
+  ): Promise<Result>;
 }
 
-export default Readable;

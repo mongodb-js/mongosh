@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import Mustache from 'mustache';
 import Catalog from './catalog';
 import en_US from './locales/en_US';
@@ -60,7 +61,7 @@ class Translator {
    *
    * @param {string} locale - The locale.
    */
-  setLocale(locale: string) {
+  setLocale(locale: string): void {
     if (MAPPINGS.hasOwnProperty(locale)) {
       this.locale = locale;
       this.catalog = MAPPINGS[locale];
@@ -100,7 +101,7 @@ class Translator {
     return Mustache.render(TEMPLATE, value);
   }
 
-  private find(key) {
+  private find(key): any {
     return key.split('.').reduce((a, b) => {
       return a ? a[b] : undefined;
     }, this.catalog);

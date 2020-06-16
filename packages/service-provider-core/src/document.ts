@@ -1,5 +1,3 @@
-interface Document {
-  [prop: string]: any
-};
-
-export default Document;
+export default interface Document {
+  [prop: string]: any;
+}

@@ -159,23 +159,25 @@ describe('Interpreter', () => {
       ).to.equal(3);
     });
 
-    it.skip('can redeclare a top level function as function', async() => {
-      expect(
-        await testEvaluate(
-          'function f() { return 1; }',
-          'function f() { return 2; }',
-          'f()'
-        )
-      ).to.equal(2);
-    });
+    describe.skip('redeclare top level vars', () => {
+      it('can redeclare a top level function as function', async() => {
+        expect(
+          await testEvaluate(
+            'function f() { return 1; }',
+            'function f() { return 2; }',
+            'f()'
+          )
+        ).to.equal(2);
+      });
 
-    it.skip('can redeclare a top level function as var', async() => {
-      expect(
-        await testEvaluate(
-          'function sum(a, b) { return a + b; }',
-          'var sum = 1'
-        )
-      ).to.equal(1);
+      it('can redeclare a top level function as var', async() => {
+        expect(
+          await testEvaluate(
+            'function sum(a, b) { return a + b; }',
+            'var sum = 1'
+          )
+        ).to.equal(1);
+      });
     });
 
     it('cannot re-declare a top level function as let', async() => {

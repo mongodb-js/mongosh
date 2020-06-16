@@ -6,6 +6,4 @@ import Admin from './admin';
 /**
  * Interface for all service providers.
  */
-interface ServiceProvider extends Readable, Writable, Closable, Admin {};
-
-export default ServiceProvider;
+export default interface ServiceProvider extends Readable, Writable, Closable, Admin {}

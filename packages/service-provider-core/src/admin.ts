@@ -1,5 +1,5 @@
-import Result from "./result";
-import { ReplPlatform } from "./platform";
+import Result from './result';
+import { ReplPlatform } from './platform';
 
 export default interface Admin {
    /**
