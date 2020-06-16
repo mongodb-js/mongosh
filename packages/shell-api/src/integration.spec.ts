@@ -113,9 +113,9 @@ describe('Shell API (integration)', function() {
           });
         });
 
-        describe('when calling toReplString on the cursor', () => {
+        describe('when calling asPrintable on the cursor', () => {
           it('returns the right documents', async() => {
-            expect(await cursor.toReplString()).to.deep.equal([{ doc: 2 }]);
+            expect(await cursor.asPrintable()).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -786,11 +786,11 @@ describe('Shell API (integration)', function() {
     });
 
     describe('find', () => {
-      it('returns a cursor that has the explain as result of toReplString', async() => {
+      it('returns a cursor that has the explain as result of asPrintable', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.toReplString();
+        const result = await cursor.asPrintable();
         expect(result).to.have.keys([
           'ok',
           'queryPlanner',
@@ -800,11 +800,11 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      it('returns a cursor that has the explain as result of toReplString', async() => {
+      it('returns a cursor that has the explain as result of asPrintable', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.toReplString();
+        const result = await cursor.asPrintable();
         expect(result).to.have.keys([
           'ok',
           'queryPlanner',

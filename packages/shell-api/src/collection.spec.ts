@@ -17,9 +17,9 @@ use(sinonChai);
 describe('Collection', () => {
   describe('help', () => {
     const apiClass: any = new Collection({}, {}, 'name');
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help().asShellResult()).type).to.equal('Help');
+      expect((await apiClass.help.asShellResult()).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -41,15 +41,15 @@ describe('Collection', () => {
     });
   });
   describe('metadata', () => {
-    describe('toReplString', () => {
+    describe('asPrintable', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
       const coll = new Collection(mongo, db, 'myCollection');
-      it('toReplString returns DB name', () => {
-        expect(coll.toReplString()).to.equal('myCollection');
+      it('asPrintable returns DB name', () => {
+        expect(coll.asPrintable()).to.equal('myCollection');
       });
-      it('shellApiType', () => {
-        expect(coll.shellApiType()).to.equal('Collection');
+      it('asShellResult', async() => {
+        expect((await coll.asShellResult()).type).to.equal('Collection');
       });
     });
   });
@@ -187,9 +187,9 @@ describe('Collection', () => {
           {}
         );
 
-        await cursor.toReplString();
+        await cursor.asPrintable();
 
-        expect(cursor.shellApiType()).to.equal('AggregationCursor');
+        expect((await cursor.asShellResult()).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });
@@ -230,7 +230,7 @@ describe('Collection', () => {
 
         const result = await collection.bulkWrite(requests);
 
-        expect(await result.toReplString()).to.be.deep.equal({
+        expect(await result.asPrintable()).to.be.deep.equal({
           acknowledged: true,
           insertedCount: 1,
           matchedCount: 2,

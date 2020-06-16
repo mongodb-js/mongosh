@@ -1,4 +1,4 @@
-import { shellApiClassDefault } from './decorators';
+import { ShellResult, shellApiClassDefault } from './decorators';
 import Cursor from './cursor';
 import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
@@ -15,10 +15,13 @@ export default class ExplainableCursor extends Cursor {
     this.verbosity = verbosity;
   }
 
-  async toReplString(): Promise<any> {
+  async asPrintable(): Promise<any> {
     return await this.cursor.explain(this.verbosity);
   }
-  shellApiType(): string {
-    return 'ExplainableCursor'; // required otherwise inherits Cursor's method
+  asShellResult(): ShellResult {
+    return {
+      type: 'ExplainableCursor',
+      value: this.asPrintable()
+    }; // required otherwise inherits Cursor's method
   }
 }

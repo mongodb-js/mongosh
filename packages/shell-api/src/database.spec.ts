@@ -12,13 +12,13 @@ import ShellInternalState from './shell-internal-state';
 describe('Database', () => {
   describe('help', () => {
     const apiClass: any = new Database({}, 'name');
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help().asShellResult()).type).to.equal('Help');
+      expect((await apiClass.help.asShellResult()).type).to.equal('Help');
     });
-    it('calls help function for methods', () => {
-      expect(apiClass.runCommand.help().shellApiType()).to.equal('Help');
-      expect(apiClass.runCommand.help.shellApiType()).to.equal('Help');
+    it('calls help function for methods', async() => {
+      expect((await apiClass.runCommand.help().asShellResult()).type).to.equal('Help');
+      expect((await apiClass.runCommand.help.asShellResult()).type).to.equal('Help');
     });
   });
   describe('collections', () => {
@@ -79,22 +79,22 @@ describe('Database', () => {
     });
   });
   describe('Metadata', () => {
-    describe('toReplString', () => {
+    describe('asPrintable', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
-      it('toReplString returns DB name', () => {
-        expect(db.toReplString()).to.equal('myDB');
+      it('asPrintable returns DB name', () => {
+        expect(db.asPrintable()).to.equal('myDB');
       });
-      it('shellApiType', () => {
-        expect(db.shellApiType()).to.equal('Database');
+      it('asShellResult', async() => {
+        expect((await db.asShellResult()).type).to.equal('Database');
       });
     });
   });
   describe('attributes', () => {
     const mongo = sinon.spy();
     const db = new Database(mongo, 'myDB') as any;
-    it('creates new collection for attribute', () => {
-      expect(db.coll.shellApiType()).to.equal('Collection');
+    it('creates new collection for attribute', async() => {
+      expect((await db.coll.asShellResult()).type).to.equal('Collection');
     });
   });
   describe('commands', () => {
@@ -269,9 +269,9 @@ describe('Database', () => {
           [],
           {}
         );
-        await cursor.toReplString();
+        await cursor.asPrintable();
 
-        expect(cursor.shellApiType()).to.equal('AggregationCursor');
+        expect((await cursor.asShellResult()).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });

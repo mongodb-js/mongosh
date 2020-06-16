@@ -36,7 +36,7 @@ export default class Collection extends ShellApiClass {
     this.name = name;
   }
 
-  toReplString(): any {
+  asPrintable(): any {
     return this.name;
   }
 

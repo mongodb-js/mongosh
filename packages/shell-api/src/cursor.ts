@@ -22,7 +22,7 @@ export default class Cursor extends ShellApiClass {
     this.mongo = mongo;
   }
 
-  async toReplString(): Promise<any> {
+  async asPrintable(): Promise<any> {
     return await this._it();
   }
 

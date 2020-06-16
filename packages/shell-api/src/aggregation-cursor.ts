@@ -42,7 +42,7 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
 
-  async toReplString(): Promise<any> {
+  async asPrintable(): Promise<any> {
     return await this._it();
   }
 

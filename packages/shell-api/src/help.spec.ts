@@ -9,21 +9,21 @@ describe('Help', () => {
     translate = sinon.fake((x) => `translated: ${x}`);
   });
 
-  describe('#shellApiType', () => {
-    it('returns Help', () => {
-      expect(new Help({ help: 'help' }, { translate }).shellApiType()).to.equal('Help');
+  describe('#asShellResult', () => {
+    it('returns Help', async() => {
+      expect((await new Help({ help: 'help' }, { translate }).asShellResult()).type).to.equal('Help');
     });
   });
 
-  describe('#toReplString', () => {
+  describe('#asPrintable', () => {
     it('returns the Help a plain object', () => {
       const properties = {
         help: 'help'
       };
 
       const help = new Help(properties, { translate });
-      expect(help.toReplString().constructor.name).to.equal('Object');
-      expect(help.toReplString()).to.not.equal(help);
+      expect(help.asPrintable().constructor.name).to.equal('Object');
+      expect(help.asPrintable()).to.not.equal(help);
     });
 
     it('returns translated help', () => {
@@ -33,7 +33,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          .asPrintable()
           .help
       ).to.equal('translated: help');
     });
@@ -46,7 +46,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          .asPrintable()
           .docs
       ).to.equal('translated: https://example.com');
     });
@@ -58,7 +58,7 @@ describe('Help', () => {
 
       const help = new Help(properties, { translate });
 
-      expect(help.toReplString().attr).to.deep.equal([]);
+      expect(help.asPrintable().attr).to.deep.equal([]);
     });
 
     it('returns attr with translated description', () => {
@@ -69,7 +69,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          .asPrintable()
           .attr
       ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);
     });

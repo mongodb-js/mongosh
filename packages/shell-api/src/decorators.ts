@@ -4,25 +4,36 @@ import {
   Topologies,
   ALL_PLATFORMS,
   ALL_TOPOLOGIES,
-  ALL_SERVER_VERSIONS
+  ALL_SERVER_VERSIONS,
+  isShellApi
 } from './enums';
 
 export interface ShellApiInterface {
-  toReplString: Function;
-  shellApiType?: Function;
+  [isShellApi]: boolean;
+  asPrintable: Function;
+  asShellResult: Function;
   serverVersions?: [string, string];
   topologies?: Topologies[];
   help?: Help;
   [key: string]: any;
 }
 
+export interface ShellResult {
+  value: any;
+  type: string;
+}
+
 export class ShellApiClass implements ShellApiInterface {
   help: any;
-  toReplString(): any {
+  [isShellApi]: true;
+  asPrintable(): any {
     return JSON.parse(JSON.stringify(this));
   }
-  shellApiType(): string {
-    return 'ShellApiClass';
+  asShellResult(): ShellResult {
+    return {
+      value: this.asPrintable(),
+      type: 'ShellApiClass'
+    };
   }
 }
 
@@ -39,7 +50,7 @@ interface Signatures {
 }
 const signatures = {} as Signatures;
 
-export const toIgnore = ['toReplString', 'shellApiType', 'constructor'];
+export const toIgnore = ['asShellResult', 'asPrintable', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -131,10 +142,17 @@ export function shellApiClassDefault(constructor: Function): void {
   const help = new Help(classHelp);
   constructor.prototype.help = (): Help => (help);
   Object.setPrototypeOf(constructor.prototype.help, help);
-  if (!constructor.prototype.hasOwnProperty('shellApiType')) {
-    constructor.prototype.shellApiType = function(): string { return className; };
+  constructor.prototype.asPrintable = constructor.prototype.asPrintable || function(): any { return JSON.parse(JSON.stringify(constructor.prototype)); };
+  if (!constructor.prototype.hasOwnProperty('asShellResult')) {
+    constructor.prototype.asShellResult = async function(): Promise<ShellResult> {
+      return {
+        type: className,
+        value: await this.asPrintable()
+      };
+    };
   }
-  constructor.prototype.toReplString = constructor.prototype.toReplString || function(): any { return JSON.parse(JSON.stringify(constructor.prototype)); };
+  constructor.prototype.shellApiName = constructor;
+  constructor.prototype[isShellApi] = true;
   signatures[className] = classSignature;
 }
 

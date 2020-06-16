@@ -1,4 +1,5 @@
 import i18n from '@mongosh/i18n';
+import { ShellResult } from './decorators';
 
 type HelpProperties = {
   help: string;
@@ -34,12 +35,15 @@ export default class Help {
       );
   }
 
-  shellApiType(): string {
-    return 'Help';
-  }
-
-  toReplString(): HelpProperties {
+  asPrintable(): HelpProperties {
     const { help, docs, attr } = this;
     return { help, docs, attr };
+  }
+
+  async asShellResult(): Promise<ShellResult> {
+    return {
+      type: 'Help',
+      value: await this.asPrintable()
+    };
   }
 }

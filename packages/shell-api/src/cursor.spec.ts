@@ -7,9 +7,9 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } fr
 describe('Cursor', () => {
   describe('help', () => {
     const apiClass: any = new Cursor({}, {});
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help().asShellResult()).type).to.equal('Help');
+      expect((await apiClass.help.asShellResult()).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -38,9 +38,9 @@ describe('Cursor', () => {
       cursor = new Cursor({}, wrappee);
     });
 
-    it('sets dynamic properties', () => {
-      expect(cursor.shellApiType()).to.equal('Cursor');
-      expect(cursor.help.shellApiType()).to.equal('Help');
+    it('sets dynamic properties', async() => {
+      expect((await cursor.asShellResult()).type).to.equal('Cursor');
+      expect((await cursor.help.asShellResult()).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {

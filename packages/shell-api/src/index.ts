@@ -28,7 +28,8 @@ import {
   Topologies,
   ServerVersions,
   ReadPreference,
-  DBQueryOption
+  DBQueryOption,
+  isShellApi
 } from './enums';
 
 export {
@@ -57,5 +58,6 @@ export {
   ReadPreference,
   ShellApi,
   ServerVersions,
-  Topologies
+  Topologies,
+  isShellApi
 };

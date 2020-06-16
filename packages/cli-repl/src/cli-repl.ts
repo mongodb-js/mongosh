@@ -1,7 +1,7 @@
 /* eslint no-console: 0, no-sync: 0*/
 
 import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
-import { ShellInternalState } from '@mongosh/shell-api';
+import { isShellApi, ShellInternalState } from '@mongosh/shell-api';
 import ShellEvaluator from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
@@ -183,7 +183,7 @@ class CliRepl {
     this.internalState.setCtx(this.repl.context);
     Object.defineProperty(this.repl.context, 'db', {
       set: (newDb) => {
-        if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
+        if (newDb[isShellApi] === undefined || newDb.shellApiName !== 'Database') {
           const warn = new MongoshWarning('Cannot reassign \'db\' to non-Database type');
           console.log(warn);
           return;

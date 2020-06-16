@@ -56,7 +56,7 @@ export default class Database extends ShellApiClass {
     return proxy;
   }
 
-  toReplString(): any {
+  asPrintable(): any {
     return this.name;
   }
 

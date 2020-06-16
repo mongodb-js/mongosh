@@ -1,4 +1,5 @@
-import { ShellApiClass, shellApiClassDefault } from './decorators';
+import { ShellResult, ShellApiClass, shellApiClassDefault } from './decorators';
+import { isShellApi } from './enums';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {
@@ -9,11 +10,14 @@ export class CommandResult extends ShellApiClass {
     this.type = type;
     this.value = value;
   }
-  toReplString(): any {
+  asPrintable(): any {
     return this.value;
   }
-  shellApiType(): any {
-    return this.type;
+  asShellResult(): ShellResult {
+    return {
+      type: this.type,
+      value: this.asPrintable()
+    };
   }
 }
 
@@ -93,19 +97,25 @@ export class DeleteResult extends ShellApiClass {
 // NOTE: because this is inherited, the decorator does not add attributes. So no help() function.
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
-  toReplString: () => this;
-  shellApiType: () => string;
+  asPrintable: () => this;
+  asShellResult: () => string;
+  [isShellApi]: true;
 
   constructor(...args) {
     super(...args);
 
-    Object.defineProperty(this, 'toReplString', {
+    Object.defineProperty(this, 'asPrintable', {
       value: () => { return this; },
       enumerable: false
     });
 
-    Object.defineProperty(this, 'shellApiType', {
-      value: () => { return 'CursorIterationResult'; },
+    Object.defineProperty(this, 'asShellResult', {
+      value: () => {
+        return {
+          type: 'CursorIterationResult',
+          value: this.asPrintable()
+        };
+      },
       enumerable: false
     });
   }

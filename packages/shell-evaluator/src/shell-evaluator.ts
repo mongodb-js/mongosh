@@ -1,5 +1,6 @@
 import {
-  ShellInternalState
+  ShellInternalState,
+  isShellApi
 } from '@mongosh/shell-api';
 
 interface Container {
@@ -20,25 +21,6 @@ class ShellEvaluator {
   ) {
     this.internalState = internalState;
     this.container = container;
-  }
-
-  public toReplString(): string {
-    return JSON.parse(JSON.stringify(this));
-  }
-
-  public shellApiType(): string {
-    return 'ShellEvaluator';
-  }
-
-  /**
-  * Returns true if a value is a shell api type
-   *
-   * @param {any} evaluationResult - The result of evaluation
-   */
-  private isShellApiType(evaluationResult: any): boolean {
-    return evaluationResult &&
-      typeof evaluationResult.shellApiType === 'function' &&
-      typeof evaluationResult.toReplString === 'function';
   }
 
   public revertState(): void {
@@ -115,11 +97,8 @@ class ShellEvaluator {
       filename
     );
 
-    if (this.isShellApiType(evaluationResult)) {
-      return {
-        type: evaluationResult.shellApiType(),
-        value: await evaluationResult.toReplString()
-      };
+    if (evaluationResult[isShellApi]) {
+      return await evaluationResult.asShellResult();
     }
 
     return { value: evaluationResult, type: null };

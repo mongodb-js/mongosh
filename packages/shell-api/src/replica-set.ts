@@ -29,7 +29,7 @@ export default class ReplicaSet extends ShellApiClass {
     return proxy;
   }
 
-  toReplString(): any {
+  asPrintable(): any {
     return `ReplicaSet class connected to ${this.mongo.uri}`;
   }
 

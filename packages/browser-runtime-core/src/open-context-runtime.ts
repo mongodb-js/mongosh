@@ -54,7 +54,7 @@ export class OpenContextRuntime implements Runtime {
       this.interpreterEnvironment.getContextObject(),
       ''
     );
-    return {
+    return { // TODO: this is confusing, why rename type -> shellApiType then make a new type?
       shellApiType: result.type,
       value: result.value
     };
