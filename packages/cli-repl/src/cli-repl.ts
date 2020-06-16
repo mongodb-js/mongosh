@@ -321,7 +321,7 @@ class CliRepl {
    */
   greet(): void {
     const { version } = require('../package.json');
-    console.log(`Using MongoDB: ${this.internalState.connectionInfo.buildInfo.version}`);
+    console.log(`Using MongoDB:      ${this.internalState.connectionInfo.buildInfo.version}`);
     console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
