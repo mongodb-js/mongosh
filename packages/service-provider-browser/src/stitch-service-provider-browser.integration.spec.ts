@@ -45,13 +45,13 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
         });
       });
 
-      // context('when running against a database', () => {
-      //   it('it rejects the action', () => {
-      //     return stitchTransport.aggregate('admin', null, [{ $currentOp: {} }]).catch((err) => {
-      //       expect(err).to.not.equal(null);
-      //     });
-      //   });
-      // });
+      context('when running against a database', () => {
+        it('it rejects the action', () => {
+          return stitchTransport.aggregate('admin', null, [{ $currentOp: {} }]).catch((err) => {
+            expect(err).to.not.equal(null);
+          });
+        });
+      });
     });
 
     describe('#bulkWrite', () => {

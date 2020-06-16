@@ -12,7 +12,6 @@
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
     "compile-ts": "lerna run compile-ts",
-    "start-async": "lerna exec npm run start-async --scope @mongosh/cli-repl",
     "compile-cli": "lerna run compile-ts --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
     "start-cli": "lerna exec npm start --scope @mongosh/cli-repl",

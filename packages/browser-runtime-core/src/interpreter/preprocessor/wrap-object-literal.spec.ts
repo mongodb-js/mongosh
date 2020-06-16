@@ -18,10 +18,10 @@ describe('wrapObjectLiteral', () => {
     expect(wrapObjectLiteral('\n    {x: 2}  \n ')).to.equal('(\n    {x: 2}  \n )');
   });
 
-  // it('should not wrap multiple statements', () => {
-  //   // TODO: for some reason this is the default behaviour in node repl and devtools,
-  //   // as is now it wraps everything, which breaks the code.
-  //   expect(wrapObjectLiteral('{x: 2}; {x: 2}')).to.equal('{x: 2}; {x: 2}');
-  // });
+  it.skip('should not wrap multiple statements', () => {
+    // TODO: for some reason this is the default behaviour in node repl and devtools,
+    // as is now it wraps everything, which breaks the code.
+    expect(wrapObjectLiteral('{x: 2}; {x: 2}')).to.equal('{x: 2}; {x: 2}');
+  });
 });
 

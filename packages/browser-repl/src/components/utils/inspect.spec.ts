@@ -37,19 +37,6 @@ describe('inspect', () => {
         inspect(undefined)
       ).to.equal('undefined');
     });
-
-    // it('inspects Symbol', () => {
-    //   expect(
-    //     inspect(Symbol('123'))
-    //   ).to.equal('Symbol(123)');
-    // });
-    //
-    // it('inspects BigInt', () => {
-    //   expect(
-    //     // eslint-disable-next-line no-undef
-    //     inspect(BigInt(1))
-    //   ).to.equal('1n');
-    // });
   });
 
   context('with BSON types', () => {

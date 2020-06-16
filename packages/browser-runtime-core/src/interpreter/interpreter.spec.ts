@@ -71,15 +71,15 @@ describe('Interpreter', () => {
       ).to.deep.equal({ x: 1 });
     });
 
-    // it('evaluates object literal after other statements as block', async() => {
-    //   // TODO: for some reason this is the default behaviour in node repl and devtools,
-    //   // as is now it wraps everything, which breaks the code.
-    //   expect(
-    //     await testEvaluate(
-    //       ';{x: 1}'
-    //     )
-    //   ).to.equal(1);
-    // });
+    it.skip('evaluates object literal after other statements as block', async() => {
+      // TODO: for some reason this is the default behaviour in node repl and devtools,
+      // as is now it wraps everything, which breaks the code.
+      expect(
+        await testEvaluate(
+          ';{x: 1}'
+        )
+      ).to.equal(1);
+    });
 
     it('can declare a top level variable with let', async() => {
       expect(
@@ -159,24 +159,26 @@ describe('Interpreter', () => {
       ).to.equal(3);
     });
 
-    // it('can redeclare a top level function as function', async() => {
-    //   expect(
-    //     await testEvaluate(
-    //       'function f() { return 1; }',
-    //       'function f() { return 2; }',
-    //       'f()'
-    //     )
-    //   ).to.equal(2);
-    // });
-    //
-    // it('can redeclare a top level function as var', async() => {
-    //   expect(
-    //     await testEvaluate(
-    //       'function sum(a, b) { return a + b; }',
-    //       'var sum = 1'
-    //     )
-    //   ).to.equal(1);
-    // });
+    describe.skip('redeclare top level vars', () => {
+      it('can redeclare a top level function as function', async() => {
+        expect(
+          await testEvaluate(
+            'function f() { return 1; }',
+            'function f() { return 2; }',
+            'f()'
+          )
+        ).to.equal(2);
+      });
+
+      it('can redeclare a top level function as var', async() => {
+        expect(
+          await testEvaluate(
+            'function sum(a, b) { return a + b; }',
+            'var sum = 1'
+          )
+        ).to.equal(1);
+      });
+    });
 
     it('cannot re-declare a top level function as let', async() => {
       const error = await testEvaluate(
