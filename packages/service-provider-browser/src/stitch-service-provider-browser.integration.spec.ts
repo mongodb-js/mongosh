@@ -44,14 +44,6 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
           expect(docs).to.deep.equal([]);
         });
       });
-
-      context('when running against a database', () => {
-        it('it rejects the action', () => {
-          return stitchTransport.aggregate('admin', null, [{ $currentOp: {} }]).catch((err) => {
-            expect(err).to.not.equal(null);
-          });
-        });
-      });
     });
 
     describe('#bulkWrite', () => {
