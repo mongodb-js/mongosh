@@ -38,19 +38,19 @@ describe('signable compiler module', () => {
   describe('.Target', () => {
     describe('Target.Windows', () => {
       it('returns win', () => {
-        expect(Target.Windows).to.equal('win32-x86-11.15.0');
+        expect(Target.Windows).to.equal('win32-x86-12.4.0');
       });
     });
 
     describe('Target.MacOs', () => {
       it('returns macos', () => {
-        expect(Target.MacOs).to.equal('darwin-11.15.0');
+        expect(Target.MacOs).to.equal('darwin-12.4.0');
       });
     });
 
     describe('Target.Linux', () => {
       it('returns linux', () => {
-        expect(Target.Linux).to.equal('linux-x86-11.15.0');
+        expect(Target.Linux).to.equal('linux-x86-12.4.0');
       });
     });
   });

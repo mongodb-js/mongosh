@@ -12,18 +12,9 @@ variables:
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         cd $(pwd)
         source .evergreen/.setup_env
-        export SEGMENT_API_KEY="${segment_api_key}"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export PROJECT="${project}"
         export REVISION="${revision}"
-        export AWS_KEY="${aws_key}"
-        export AWS_SECRET="${aws_secret}"
-        export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
-        export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
-        export GITHUB_TOKEN="${github_token}"
-        export APPLE_DEV_USER="${apple_dev_user}"
-        export APPLE_DEV_PASSWORD="${apple_dev_password}"
-        export APPLE_APP_IDENTITY="${apple_app_identity}"
         export DEBUG="node-codesign,electron-notarize"
         export IS_CI="${is_ci}"
         npm run release
@@ -43,18 +34,9 @@ variables:
       shell: powershell
       script: |
         .\.evergreen\SetupEnv
-        $Env:SEGMENT_API_KEY = "${segment_api_key}"
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:PROJECT = "${project}"
         $Env:REVISION = "${revision}"
-        $Env:AWS_KEY = "${aws_key}"
-        $Env:AWS_SECRET = "${aws_secret}"
-        $Env:DOWNLOAD_CENTER_AWS_KEY = "${download_center_aws_key}"
-        $Env:DOWNLOAD_CENTER_AWS_SECRET = "${download_center_aws_secret}"
-        $Env:GITHUB_TOKEN = "${github_token}"
-        $Env:APPLE_DEV_USER = "${apple_dev_user}"
-        $Env:APPLE_DEV_PASSWORD = "${apple_dev_password}"
-        $Env:APPLE_APP_IDENTITY = "${apple_app_identity}"
         $Env:DEBUG = "node-codesign"
         $Env:IS_CI = "${is_ci}"
         npm run release
