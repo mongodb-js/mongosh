@@ -64,8 +64,8 @@ const translations = {
       enabledTelemetry: 'Telemetry is now enabled.',
       disabledTelemetry: 'Telemetry is now disabled.',
       wiki: {
-        info: 'For more information about mongosh, please see the wiki:',
-        link: 'github.com/mongodb-js/mongosh/wiki'
+        info: 'For more information about mongosh, please see our docs:',
+        link: 'https://docs.mongodb.com/mongodb-shell/'
       }
     },
     'uri-generator': {
