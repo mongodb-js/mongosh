@@ -5,11 +5,11 @@ import {
   ALL_PLATFORMS,
   ALL_TOPOLOGIES,
   ALL_SERVER_VERSIONS,
-  isShellApi
+  shellApiType
 } from './enums';
 
 export interface ShellApiInterface {
-  [isShellApi]: boolean;
+  [shellApiType]: string;
   asPrintable: Function;
   asShellResult: Function;
   serverVersions?: [string, string];
@@ -25,11 +25,11 @@ export interface ShellResult {
 
 export class ShellApiClass implements ShellApiInterface {
   help: any;
-  [isShellApi]: true;
+  [shellApiType] = 'ShellApiClass';
   asPrintable(): any {
     return JSON.parse(JSON.stringify(this));
   }
-  asShellResult(): ShellResult {
+  asShellResult(): any {
     return {
       value: this.asPrintable(),
       type: 'ShellApiClass'
@@ -151,8 +151,7 @@ export function shellApiClassDefault(constructor: Function): void {
       };
     };
   }
-  constructor.prototype.shellApiName = constructor;
-  constructor.prototype[isShellApi] = true;
+  constructor.prototype[shellApiType] = constructor;
   signatures[className] = classSignature;
 }
 

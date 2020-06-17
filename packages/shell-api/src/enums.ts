@@ -37,4 +37,4 @@ export const DBQuery = {
   Option: DBQueryOption
 };
 
-export const isShellApi = Symbol('isShellApiType');
+export const shellApiType = Symbol('shellApiType');

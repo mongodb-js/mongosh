@@ -18,10 +18,10 @@ export default class ExplainableCursor extends Cursor {
   async asPrintable(): Promise<any> {
     return await this.cursor.explain(this.verbosity);
   }
-  asShellResult(): ShellResult {
+  async asShellResult(): Promise<ShellResult> {
     return {
       type: 'ExplainableCursor',
-      value: this.asPrintable()
+      value: await this.asPrintable()
     }; // required otherwise inherits Cursor's method
   }
 }

@@ -1,5 +1,5 @@
 import { ShellResult, ShellApiClass, shellApiClassDefault } from './decorators';
-import { isShellApi } from './enums';
+import { shellApiType } from './enums';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {
@@ -99,7 +99,7 @@ export class DeleteResult extends ShellApiClass {
 export class CursorIterationResult extends Array {
   asPrintable: () => this;
   asShellResult: () => string;
-  [isShellApi]: true;
+  [shellApiType]: 'CursorIterationResult';
 
   constructor(...args) {
     super(...args);

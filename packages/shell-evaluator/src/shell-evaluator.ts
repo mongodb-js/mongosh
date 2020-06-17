@@ -1,15 +1,11 @@
 import {
   ShellInternalState,
-  isShellApi
+  shellApiType,
+  ShellResult
 } from '@mongosh/shell-api';
 
 interface Container {
   toggleTelemetry(boolean): void;
-}
-
-interface Result {
-  type: string;
-  value: any;
 }
 
 class ShellEvaluator {
@@ -89,7 +85,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  public async customEval(originalEval, input, context, filename): Promise<Result> {
+  public async customEval(originalEval, input, context, filename): Promise<ShellResult> {
     const evaluationResult = await this.innerEval(
       originalEval,
       input,
@@ -97,7 +93,7 @@ class ShellEvaluator {
       filename
     );
 
-    if (evaluationResult[isShellApi]) {
+    if (evaluationResult[shellApiType]) {
       return await evaluationResult.asShellResult();
     }
 
