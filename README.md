@@ -8,6 +8,19 @@ This repository is a monorepo for all the various components in the MongoDB Shel
 all environments (REPL, Browser, Compass, etc). For more information on
 currently available APIs and troubleshooting, go to [our wiki](https://github.com/mongodb-js/mongosh/wiki).
 
+For our official documentation, please visit [MongoDB Docs
+page](https://docs.mongodb.com/mongodb-shell).
+
+![MongoDB Shell Example](./mongosh.gif)
+
+## Installation
+You can get the release tarball from our [Downloads
+Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
+Shell on three different platofrms - Windows(zip), MacOS(tgz) and Linx(tgz).
+Once downloaded, you will have to extract the binary and add it to your PATH
+variable. For detailed instructions for each of our supported platforms, please visit
+[installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install)
+
 ## CLI Usage
 ```shell
   $ mongosh [options] [db address]
@@ -73,11 +86,13 @@ currently available APIs and troubleshooting, go to [our wiki](https://github.co
   For more information on mongosh usage: https://docs.mongodb.com/manual/mongo/.
 ```
 
-## Requirements
+## Local Development
+
+### Requirements
 
 - NodeJS `~12.4.0`
 
-## Install
+### Install
 
 ```shell
 npm install -g lerna
@@ -85,7 +100,7 @@ npm install -g typescript
 npm run bootstrap
 ```
 
-## Running Tests
+### Running Tests
 
 Run all tests:
 
@@ -96,7 +111,7 @@ npm test
 Run tests from a specific package:
 
 ```shell
-lerna run test --scope mongosh-transport
+lerna run test --scope @mongosh/cli-repl 
 ```
 
 Run tests with all output from packages:
@@ -114,15 +129,22 @@ variables to be set:
 These can be gotten from the mongosh-test cluster in the Compass Atlas
 clusters.
 
-## Starting the CLI
+### Starting the CLI
 
-Via NPM:
+Via npm:
 
 ```shell
-npm start
+npm run start
 ```
 
-## Compiling
+Alternatively you can also run start inside the `cli-repl` package, if you're
+sure everything else is compiled:
+
+```shell
+cd packages/cli-repl && npm run start
+```
+
+### Compiling
 
 Compile all Typescript:
 
@@ -132,6 +154,19 @@ npm run compile-ts
 
 Compile the standalone executable:
 
-```shel
+```shell
 npm run compile-exec
 ```
+
+## Contributing
+For issues, please create a ticket in our [JIRA Pr
+ject](https://jira.mongodb.org/browse/MONGOSH).
+
+For contributing, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+Is there anything else you’d like to see in MongoDB Shell? Let us know by
+submitting suggestions in out [feedback
+forum](https://feedback.mongodb.com/forums/929233-mongodb-shell).
+
+## License
+[Apache-2.0](./LICENSE)
