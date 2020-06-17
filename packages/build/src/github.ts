@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { StringDecoder } from 'string_decoder';
 import path from 'path';
 import { Octokit } from '@octokit/rest';
 import semver from 'semver';
@@ -29,10 +28,9 @@ const releaseToGithub = async(version: string, artifact: string, platform: strin
     // TODO: Durran - Sign and notarize for MacOS here instead of before.
     await uploadAsset(artifact, platform, newRelease.upload_url, octokit);
     return true;
-  } else {
-    await uploadAsset(artifact, platform, latestRelease.upload_url, octokit);
-    return false
   }
+  await uploadAsset(artifact, platform, latestRelease.upload_url, octokit);
+  return false;
 };
 
 /**
@@ -60,9 +58,10 @@ const getLatestRelease = async(octokit: Octokit): Promise<any> => {
 const createRelease = async(version: string, octokit: Octokit): Promise<any> => {
   const params = {
     ...REPO,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     tag_name: `v${version}`,
     name: version,
-    body: 'TODO: Generate Release Notes'
+    body: `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`
   };
   const { data } = await octokit.repos.createRelease(params);
   console.log('mongosh: created release:', data);
