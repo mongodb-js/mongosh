@@ -6,7 +6,7 @@ import {
   returnType,
   hasAsyncChild,
   ShellApiClass,
-  serverVersions,
+  serverVersions, ShellResult,
 } from './decorators';
 import { ServerVersions } from './enums';
 import { adaptAggregateOptions } from './helpers';
@@ -56,8 +56,11 @@ export default class Database extends ShellApiClass {
     return proxy;
   }
 
-  asPrintable(): any {
-    return this.name;
+  asShellResult(): ShellResult {
+    return {
+      type: 'Database',
+      value: this.name
+    };
   }
 
   /**

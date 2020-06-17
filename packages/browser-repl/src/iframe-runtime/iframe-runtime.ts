@@ -4,12 +4,12 @@ import {
 
 import {
   Runtime,
-  EvaluationResult,
   Completion,
   OpenContextRuntime
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ShellResult } from '@mongosh/shell-api';
 
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;
@@ -21,7 +21,7 @@ export class IframeRuntime implements Runtime {
     this.serviceProvider = serviceProvider;
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string): Promise<ShellResult> {
     if (!this.openContextRuntime) {
       await this.initialize();
     }

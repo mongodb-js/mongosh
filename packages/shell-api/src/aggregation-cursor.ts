@@ -4,7 +4,7 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass, ShellResult
 } from './decorators';
 import {
   Cursor as ServiceProviderCursor,
@@ -42,8 +42,11 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
 
-  async asPrintable(): Promise<any> {
-    return await this._it();
+  async asShellResult(): Promise<ShellResult> {
+    return {
+      type: 'AggregationCursor',
+      value: await this._it()
+    };
   }
 
   @returnsPromise

@@ -5,7 +5,7 @@ import {
   ShellApiClass,
   returnsPromise,
   returnType,
-  serverVersions
+  serverVersions, ShellResult
 } from './decorators';
 import { ServerVersions } from './enums';
 import { adaptAggregateOptions, validateExplainableVerbosity, checkUndefinedUpdate } from './helpers';
@@ -36,8 +36,11 @@ export default class Collection extends ShellApiClass {
     this.name = name;
   }
 
-  asPrintable(): any {
-    return this.name;
+  asShellResult(): ShellResult {
+    return {
+      type: 'Collection',
+      value: this.name
+    };
   }
 
   /**

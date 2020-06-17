@@ -29,9 +29,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('BulkWriteResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -47,9 +45,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('commandType');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal({ ok: 1 });
+      expect((await r.asShellResult()).value).to.deep.equal({ ok: 1 });
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -65,9 +61,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('DeleteResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -83,9 +77,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('InsertManyResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -101,9 +93,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('InsertOneResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -119,9 +109,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('UpdateResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
     it('calls help function', async() => {
       expect((await (r as any).help().asShellResult()).type).to.equal('Help');
@@ -135,9 +123,7 @@ describe('Results', () => {
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('CursorIterationResult');
-    });
-    it('asPrintable', () => {
-      expect(r.asPrintable()).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await r.asShellResult()).value).to.deep.equal(JSON.parse(JSON.stringify(r)));
     });
   });
 });

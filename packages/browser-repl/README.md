@@ -45,6 +45,6 @@ Shell is a React component with the following properties:
 
 An object representing an entry in the shell output, with the following properties:
 
-- `type: 'input' | 'output' | 'error'`: the type of the entry
-- `shellApiType?: string`: the shell api type if the entry value is a shell api object.
+- `format: 'input' | 'output' | 'error'`: the type of the entry
+- `type?: string`: the shell api type if the entry value is a shell api object.
 - `value: any`: the value that has to be rendered in output.

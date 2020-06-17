@@ -41,15 +41,13 @@ describe('Collection', () => {
     });
   });
   describe('metadata', () => {
-    describe('asPrintable', () => {
+    describe('asShellResult', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
       const coll = new Collection(mongo, db, 'myCollection');
-      it('asPrintable returns DB name', () => {
-        expect(coll.asPrintable()).to.equal('myCollection');
-      });
       it('asShellResult', async() => {
         expect((await coll.asShellResult()).type).to.equal('Collection');
+        expect((await coll.asShellResult()).value).to.equal('myCollection');
       });
     });
   });
@@ -187,8 +185,6 @@ describe('Collection', () => {
           {}
         );
 
-        await cursor.asPrintable();
-
         expect((await cursor.asShellResult()).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
@@ -230,7 +226,7 @@ describe('Collection', () => {
 
         const result = await collection.bulkWrite(requests);
 
-        expect(await result.asPrintable()).to.be.deep.equal({
+        expect((await result.asShellResult()).value).to.be.deep.equal({
           acknowledged: true,
           insertedCount: 1,
           matchedCount: 2,

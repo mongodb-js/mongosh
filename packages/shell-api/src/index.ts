@@ -30,7 +30,7 @@ import {
   ServerVersions,
   ReadPreference,
   DBQueryOption,
-  shellApiType
+  shellApiSymbol
 } from './enums';
 
 export {
@@ -60,6 +60,6 @@ export {
   ShellApi,
   ServerVersions,
   Topologies,
-  shellApiType,
+  shellApiSymbol,
   ShellResult
 };

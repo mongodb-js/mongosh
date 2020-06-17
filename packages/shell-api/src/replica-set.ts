@@ -2,7 +2,7 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass,
+  ShellApiClass, ShellResult,
 } from './decorators';
 
 import {
@@ -29,8 +29,11 @@ export default class ReplicaSet extends ShellApiClass {
     return proxy;
   }
 
-  asPrintable(): any {
-    return `ReplicaSet class connected to ${this.mongo.uri}`;
+  asShellResult(): ShellResult {
+    return {
+      type: 'ReplicaSet',
+      value: `ReplicaSet class connected to ${this.mongo.uri}`
+    };
   }
 
   /**

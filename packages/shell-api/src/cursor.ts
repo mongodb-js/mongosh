@@ -6,7 +6,7 @@ import {
   returnType,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault, ShellResult
 } from './decorators';
 import { ServerVersions } from './enums';
 import { Cursor as ServiceProviderCursor, Document } from '@mongosh/service-provider-core';
@@ -22,8 +22,11 @@ export default class Cursor extends ShellApiClass {
     this.mongo = mongo;
   }
 
-  async asPrintable(): Promise<any> {
-    return await this._it();
+  async asShellResult(): Promise<ShellResult> {
+    return {
+      type: 'Cursor',
+      value: await this._it()
+    };
   }
 
   async _it(): Promise<any> {

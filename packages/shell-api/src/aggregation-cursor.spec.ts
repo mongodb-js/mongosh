@@ -33,7 +33,8 @@ describe('AggregationCursor', () => {
     let cursor;
     beforeEach(() => {
       wrappee = {
-        map: sinon.spy()
+        map: sinon.spy(),
+        isClosed: (): boolean => true
       };
       cursor = new AggregationCursor({}, wrappee);
     });

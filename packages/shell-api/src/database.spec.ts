@@ -79,13 +79,13 @@ describe('Database', () => {
     });
   });
   describe('Metadata', () => {
-    describe('asPrintable', () => {
+    describe('asShellResult', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
-      it('asPrintable returns DB name', () => {
-        expect(db.asPrintable()).to.equal('myDB');
+      it('value', async() => {
+        expect((await db.asShellResult()).value).to.equal('myDB');
       });
-      it('asShellResult', async() => {
+      it('type', async() => {
         expect((await db.asShellResult()).type).to.equal('Database');
       });
     });
@@ -269,7 +269,6 @@ describe('Database', () => {
           [],
           {}
         );
-        await cursor.asPrintable();
 
         expect((await cursor.asShellResult()).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;

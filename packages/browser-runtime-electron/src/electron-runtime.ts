@@ -5,12 +5,12 @@ import {
 
 import {
   Runtime,
-  EvaluationResult,
   OpenContextRuntime,
   Completion
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ShellResult } from '@mongosh/shell-api';
 
 declare const __webpack_require__: any;
 declare const __non_webpack_require__: any;
@@ -43,7 +43,7 @@ export class ElectronRuntime implements Runtime {
     );
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string): Promise<ShellResult> {
     return await this.openContextRuntime.evaluate(code);
   }
 

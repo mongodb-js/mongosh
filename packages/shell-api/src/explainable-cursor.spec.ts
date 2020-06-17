@@ -42,8 +42,8 @@ describe('ExplainableCursor', () => {
     it('sets dynamic properties', async() => {
       expect((await eCursor.asShellResult()).type).to.equal('ExplainableCursor');
       expect((await eCursor.help.asShellResult()).type).to.equal('Help');
+      expect((await eCursor.asShellResult()).value).to.deep.equal({ ok: 'verbosity' });
       expect(eCursor.verbosity).to.equal('verbosity');
-      expect(await eCursor.asPrintable()).to.deep.equal({ ok: 'verbosity' });
     });
 
     it('returns the same ExplainableCursor', () => {

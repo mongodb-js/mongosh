@@ -1,10 +1,10 @@
 import { Completion } from './autocompleter/autocompleter';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
-import { Interpreter, InterpreterEnvironment, EvaluationResult } from './interpreter';
+import { Interpreter, InterpreterEnvironment } from './interpreter';
 import { Runtime } from './runtime';
 import { EventEmitter } from 'events';
-import { ShellInternalState } from '@mongosh/shell-api';
+import { ShellInternalState, ShellResult } from '@mongosh/shell-api';
 
 import ShellEvaluator from '@mongosh/shell-evaluator';
 
@@ -46,17 +46,13 @@ export class OpenContextRuntime implements Runtime {
     return this.autocompleter.getCompletions(code);
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string): Promise<ShellResult> {
     const evalFn = this.interpreter.evaluate.bind(this.interpreter);
-    const result = await this.shellEvaluator.customEval(
+    return await this.shellEvaluator.customEval(
       evalFn,
       code,
       this.interpreterEnvironment.getContextObject(),
       ''
     );
-    return { // TODO: this is confusing, why rename type -> shellApiType then make a new type?
-      shellApiType: result.type,
-      value: result.value
-    };
   }
 }

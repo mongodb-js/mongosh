@@ -5,12 +5,11 @@ import {
   ALL_PLATFORMS,
   ALL_TOPOLOGIES,
   ALL_SERVER_VERSIONS,
-  shellApiType
+  shellApiSymbol
 } from './enums';
+import { MongoshInternalError } from '@mongosh/errors';
 
 export interface ShellApiInterface {
-  [shellApiType]: string;
-  asPrintable: Function;
   asShellResult: Function;
   serverVersions?: [string, string];
   topologies?: Topologies[];
@@ -25,15 +24,8 @@ export interface ShellResult {
 
 export class ShellApiClass implements ShellApiInterface {
   help: any;
-  [shellApiType] = 'ShellApiClass';
-  asPrintable(): any {
-    return JSON.parse(JSON.stringify(this));
-  }
   asShellResult(): any {
-    return {
-      value: this.asPrintable(),
-      type: 'ShellApiClass'
-    };
+    throw new MongoshInternalError('Shell API Type did not use decorators');
   }
 }
 
@@ -50,7 +42,7 @@ interface Signatures {
 }
 const signatures = {} as Signatures;
 
-export const toIgnore = ['asShellResult', 'asPrintable', 'constructor'];
+export const toIgnore = ['asShellResult', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -142,16 +134,15 @@ export function shellApiClassDefault(constructor: Function): void {
   const help = new Help(classHelp);
   constructor.prototype.help = (): Help => (help);
   Object.setPrototypeOf(constructor.prototype.help, help);
-  constructor.prototype.asPrintable = constructor.prototype.asPrintable || function(): any { return JSON.parse(JSON.stringify(constructor.prototype)); };
   if (!constructor.prototype.hasOwnProperty('asShellResult')) {
     constructor.prototype.asShellResult = async function(): Promise<ShellResult> {
       return {
         type: className,
-        value: await this.asPrintable()
+        value: Object.assign({}, this)
       };
     };
   }
-  constructor.prototype[shellApiType] = constructor;
+  Object.defineProperty(constructor.prototype, shellApiSymbol, { value: className, enumerable: false });
   signatures[className] = classSignature;
 }
 

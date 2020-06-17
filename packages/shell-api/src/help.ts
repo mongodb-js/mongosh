@@ -1,5 +1,6 @@
 import i18n from '@mongosh/i18n';
 import { ShellResult } from './decorators';
+import { shellApiSymbol } from './enums';
 
 type HelpProperties = {
   help: string;
@@ -26,6 +27,7 @@ export default class Help {
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
     this.help = options.translate(properties.help);
     this.docs = options.translate(properties.docs);
+    this[shellApiSymbol] = 'Help';
     this.attr = (properties.attr || [])
       .map((attr) => ({
         name: attr.name,
@@ -35,15 +37,11 @@ export default class Help {
       );
   }
 
-  asPrintable(): HelpProperties {
+  asShellResult(): ShellResult {
     const { help, docs, attr } = this;
-    return { help, docs, attr };
-  }
-
-  async asShellResult(): Promise<ShellResult> {
     return {
       type: 'Help',
-      value: await this.asPrintable()
+      value: { help, docs, attr }
     };
   }
 }

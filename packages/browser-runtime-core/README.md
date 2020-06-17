@@ -11,9 +11,9 @@ agnostic interface.
 
 All runtimes implement the following interface:
 
-- `evaluate(code: string): Promise<EvaluationResult>`: Evaluates a string of code.
+- `evaluate(code: string): Promise<ShellResult>`: Evaluates a string of code.
 
-### `EvaluationResult`
+### `ShellResult`
 
 An object holding the result of an evaluation. Has the following properties:
 

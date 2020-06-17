@@ -69,8 +69,8 @@ describe('<Shell />', () => {
   context('when initialOutput is set', () => {
     it('allows to set intial output', async() => {
       const initialOutput: ShellOutputEntry[] = [
-        { type: 'input', value: 'line 1' },
-        { type: 'output', value: 'some result' }
+        { format: 'input', value: 'line 1' },
+        { format: 'output', value: 'some result' }
       ];
 
       wrapper = shallow(<Shell
@@ -87,10 +87,10 @@ describe('<Shell />', () => {
 
     it('applies max maxOutputLength', () => {
       const initialOutput: ShellOutputEntry[] = [
-        { type: 'input', value: 'line 1' },
-        { type: 'output', value: 'some result' },
-        { type: 'input', value: 'line 2' },
-        { type: 'output', value: 'some result' }
+        { format: 'input', value: 'line 1' },
+        { format: 'output', value: 'some result' },
+        { format: 'input', value: 'line 2' },
+        { format: 'output', value: 'some result' }
       ];
 
       wrapper = shallow(<Shell
@@ -100,9 +100,9 @@ describe('<Shell />', () => {
       />);
 
       expect(wrapper.state('output')).to.deep.equal([
-        { type: 'output', value: 'some result' },
-        { type: 'input', value: 'line 2' },
-        { type: 'output', value: 'some result' }
+        { format: 'output', value: 'some result' },
+        { format: 'input', value: 'line 2' },
+        { format: 'output', value: 'some result' }
       ]);
     });
   });
@@ -145,15 +145,15 @@ describe('<Shell />', () => {
 
     it('adds the evaluated input and output as lines to the output', () => {
       expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
-        { type: 'input', value: 'some code' },
-        { type: 'output', value: 'some result', shellApiType: undefined }
+        { format: 'input', value: 'some code' },
+        { format: 'output', value: 'some result', type: undefined }
       ]);
     });
 
     it('calls onOutputChanged with output', () => {
       expect(onOutputChangedSpy).to.have.been.calledWith([
-        { type: 'input', value: 'some code' },
-        { type: 'output', value: 'some result', shellApiType: undefined }
+        { format: 'input', value: 'some code' },
+        { format: 'output', value: 'some result', type: undefined }
       ]);
     });
 
@@ -162,9 +162,9 @@ describe('<Shell />', () => {
       await onInput('line 1');
       await onInput('line 2');
       expect(wrapper.state('output')).to.deep.equal([
-        { type: 'output', value: 'some result', shellApiType: undefined },
-        { type: 'input', value: 'line 2' },
-        { type: 'output', value: 'some result', shellApiType: undefined }
+        { format: 'output', value: 'some result', type: undefined },
+        { format: 'input', value: 'line 2' },
+        { format: 'output', value: 'some result', type: undefined }
       ]);
     });
 
@@ -225,16 +225,16 @@ describe('<Shell />', () => {
       const output = wrapper.find(ShellOutput).prop('output');
 
       expect(output).to.deep.equal([
-        { type: 'input', value: 'some code' },
-        { type: 'error', value: error }
+        { format: 'input', value: 'some code' },
+        { format: 'error', value: error }
       ]);
     });
 
 
     it('calls onOutputChanged with output', () => {
       expect(onOutputChangedSpy).to.have.been.calledWith([
-        { type: 'input', value: 'some code' },
-        { type: 'error', value: error }
+        { format: 'input', value: 'some code' },
+        { format: 'error', value: error }
       ]);
     });
 
@@ -262,8 +262,8 @@ describe('<Shell />', () => {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
 
     wrapper.setState({ output: [
-      { type: 'input', value: 'some code' },
-      { type: 'output', value: 'some result' }
+      { format: 'input', value: 'some code' },
+      { format: 'output', value: 'some result' }
     ] });
 
     wrapper.update();

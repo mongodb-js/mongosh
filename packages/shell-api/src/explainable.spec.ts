@@ -42,11 +42,10 @@ describe('Explainable', () => {
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'verbosity');
-    it('asPrintable', () => {
-      expect(explainable.asPrintable()).to.equal('Explainable(myDB.myCollection)');
-    });
     it('asShellResult', async() => {
-      expect((await explainable.asShellResult()).type).to.equal('Explainable');
+      const result = await explainable.asShellResult();
+      expect(result.type).to.equal('Explainable');
+      expect(result.value).to.equal('Explainable(myDB.myCollection)');
     });
   });
   describe('commands', () => {
@@ -126,15 +125,14 @@ describe('Explainable', () => {
         expect((await cursorStub.asShellResult()).type).to.equal('ExplainableCursor');
       });
 
-      context('when calling asPrintable on the result', () => {
+      context('when calling asShellResult.value on the result', () => {
         it('calls explain with verbosity', async() => {
-          expect(await cursorStub.asPrintable()).to.equal(explainResult);
           expect(cursorStub.verbosity).to.equal('queryPlanner');
         });
 
         it('returns the explain result', async() => {
           expect(
-            await cursorStub.asPrintable()
+            (await cursorStub.asShellResult()).value
           ).to.equal(explainResult);
         });
       });

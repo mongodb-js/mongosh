@@ -15,15 +15,16 @@ describe('Help', () => {
     });
   });
 
-  describe('#asPrintable', () => {
+  describe('#asShellResult', () => {
     it('returns the Help a plain object', () => {
       const properties = {
         help: 'help'
       };
 
       const help = new Help(properties, { translate });
-      expect(help.asPrintable().constructor.name).to.equal('Object');
-      expect(help.asPrintable()).to.not.equal(help);
+      const result = help.asShellResult();
+      expect(result.value.constructor.name).to.equal('Object');
+      expect(result.value).to.not.equal(help);
     });
 
     it('returns translated help', () => {
@@ -33,7 +34,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asPrintable()
+          .asShellResult()
+          .value
           .help
       ).to.equal('translated: help');
     });
@@ -46,7 +48,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asPrintable()
+          .asShellResult()
+          .value
           .docs
       ).to.equal('translated: https://example.com');
     });
@@ -58,7 +61,7 @@ describe('Help', () => {
 
       const help = new Help(properties, { translate });
 
-      expect(help.asPrintable().attr).to.deep.equal([]);
+      expect(help.asShellResult().value.attr).to.deep.equal([]);
     });
 
     it('returns attr with translated description', () => {
@@ -69,7 +72,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asPrintable()
+          .asShellResult()
+          .value
           .attr
       ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);
     });

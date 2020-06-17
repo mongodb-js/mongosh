@@ -113,9 +113,9 @@ describe('Shell API (integration)', function() {
           });
         });
 
-        describe('when calling asPrintable on the cursor', () => {
+        describe('when calling asShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect(await cursor.asPrintable()).to.deep.equal([{ doc: 2 }]);
+            expect((await cursor.asShellResult()).value).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -786,12 +786,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('find', () => {
-      it('returns a cursor that has the explain as result of asPrintable', async() => {
+      it('returns a cursor that has the explain as result of asShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.asPrintable();
-        expect(result).to.have.keys([
+        const result = await cursor.asShellResult();
+        expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'
@@ -800,12 +800,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      it('returns a cursor that has the explain as result of asPrintable', async() => {
+      it('returns a cursor that has the explain as result of asShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.asPrintable();
-        expect(result).to.have.keys([
+        const result = await cursor.asShellResult();
+        expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'

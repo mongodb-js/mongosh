@@ -40,7 +40,7 @@ describe('Electron runtime', function() {
 
   it('can run help', async() => {
     const result = await electronRuntime.evaluate('help');
-    expect(result.shellApiType).to.equal('Help');
+    expect(result.type).to.equal('Help');
   });
 
   it('can run show', async() => {
@@ -49,7 +49,7 @@ describe('Electron runtime', function() {
     });
 
     const result = await electronRuntime.evaluate('show dbs');
-    expect(result.shellApiType).to.equal('ShowDatabasesResult');
+    expect(result.type).to.equal('ShowDatabasesResult');
   });
 
   it('allows to use require', async() => {
