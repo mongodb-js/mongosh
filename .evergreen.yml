@@ -15,7 +15,6 @@ variables:
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export PROJECT="${project}"
         export REVISION="${revision}"
-        export DEBUG="node-codesign,electron-notarize"
         export IS_CI="${is_ci}"
         npm run release
         RELEASE_MONGOSH
@@ -37,7 +36,6 @@ variables:
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:PROJECT = "${project}"
         $Env:REVISION = "${revision}"
-        $Env:DEBUG = "node-codesign"
         $Env:IS_CI = "${is_ci}"
         npm run release
         Get-ChildItem -Path .\dist\
