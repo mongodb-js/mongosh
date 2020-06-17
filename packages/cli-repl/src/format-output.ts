@@ -24,7 +24,6 @@ type EvaluationResult = {
  */
 export default function formatOutput(evaluationResult: EvaluationResult): string {
   const { value, type } = evaluationResult;
-  console.log(type);
 
   if (type === 'Cursor') {
     return formatCursor(value);
