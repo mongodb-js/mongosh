@@ -16,7 +16,7 @@ page](https://docs.mongodb.com/mongodb-shell).
 ## Installation
 You can get the release tarball from our [Downloads
 Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
-Shell on three different platofrms - Windows(zip), MacOS(tgz) and Linx(tgz).
+Shell on three different platofrms - Windows(zip), MacOS(tgz) and Linux(tgz).
 Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
 [installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install)
@@ -147,6 +147,12 @@ cd packages/cli-repl && npm run start
 ### Compiling
 
 Compile all Typescript:
+
+```shell
+npm run compile-all
+```
+
+Compile just the CLI:
 
 ```shell
 npm run compile-ts
