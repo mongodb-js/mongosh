@@ -61,7 +61,7 @@ const createRelease = async(version: string, octokit: Octokit): Promise<any> => 
     // eslint-disable-next-line @typescript-eslint/camelcase
     tag_name: `v${version}`,
     name: version,
-    body: `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`
+    body: `Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version})`
   };
   const { data } = await octokit.repos.createRelease(params);
   console.log('mongosh: created release:', data);
