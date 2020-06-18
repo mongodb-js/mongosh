@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Editor } from './editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
@@ -9,9 +8,10 @@ import Icon from '@leafygreen-ui/icon';
 const styles = require('./shell-input.less');
 
 interface ShellInputProps {
-  onInput?(code: string): void | Promise<void>;
-  history?: readonly string[];
   autocompleter?: Autocompleter;
+  history?: readonly string[];
+  onClearCommand?(): void | Promise<void>;
+  onInput?(code: string): void | Promise<void>;
   setInputRef?(ref): void;
 }
 
@@ -20,13 +20,6 @@ interface ShellInputState {
 }
 
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
-  static propTypes = {
-    onInput: PropTypes.func,
-    history: PropTypes.arrayOf(PropTypes.string),
-    autocompleter: PropTypes.object,
-    setInputRef: PropTypes.func
-  };
-
   readonly state: ShellInputState = {
     currentValue: ''
   };
@@ -116,13 +109,14 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     />);
 
     const editor = (<Editor
-      value={this.state.currentValue}
-      onChange={this.onChange}
-      onEnter={this.onEnter}
+      autocompleter={this.props.autocompleter}
       onArrowUpOnFirstLine={this.historyBack}
       onArrowDownOnLastLine={this.historyNext}
-      autocompleter={this.props.autocompleter}
+      onChange={this.onChange}
+      onEnter={this.onEnter}
+      onClearCommand={this.props.onClearCommand}
       setInputRef={this.props.setInputRef}
+      value={this.state.currentValue}
     />);
 
     const className = classnames(styles['shell-input']);

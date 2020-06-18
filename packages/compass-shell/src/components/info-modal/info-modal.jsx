@@ -27,6 +27,9 @@ const hotkeys = [{
   key: 'Ctrl+H',
   description: 'Erases one character. Similar to hitting backspace.'
 }, {
+  key: 'Ctrl+L',
+  description: 'Clears the screen, similar to the clear command.'
+}, {
   key: 'Ctrl+T',
   description: 'Swap the last two characters before the cursor.'
 }, {

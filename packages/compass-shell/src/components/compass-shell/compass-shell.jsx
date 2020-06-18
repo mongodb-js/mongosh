@@ -48,8 +48,13 @@ export class CompassShell extends Component {
     this.loadHistory();
   }
 
-  resizableRef = null;
+  onShellOutputChanged = (output) => {
+    this.shellOutput = output;
+  }
+
   lastOpenHeight = defaultShellHeightOpened;
+  resizableRef = null;
+  shellOutput = [];
 
   saveHistory = async(history) => {
     if (!this.props.historyStorage) {
@@ -143,11 +148,15 @@ export class CompassShell extends Component {
             onShellToggleClicked={this.shellToggleClicked}
           />
           {isExpanded && (
-            <div className={classnames(styles['compass-shell-shell-container'])}>
+            <div
+              className={classnames(styles['compass-shell-shell-container'])}
+            >
               <Shell
                 runtime={this.props.runtime}
                 initialHistory={this.state.initialHistory}
+                initialOutput={this.shellOutput}
                 onHistoryChanged={this.saveHistory}
+                onOutputChanged={this.onShellOutputChanged}
               />
             </div>
           )}
