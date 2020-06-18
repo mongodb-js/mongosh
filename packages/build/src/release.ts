@@ -20,6 +20,8 @@ import zip from './zip';
 const release = async(config: Config): Promise<void> => {
   const platform = os.platform();
 
+  console.log(`mongosh: config branch ${config.branch}`);
+
   // Build the executable.
   const executable = await compileExec(
     config.input,
