@@ -20,18 +20,20 @@ const REPO = Object.freeze({
  * @param {string} platform - The platform.
  * @param {Octokit} octokit - The octokit instance.
  */
-const releaseToGithub = async(version: string, artifact: string, platform: string, octokit: Octokit): Promise<boolean> => {
-  const latestRelease = await getLatestRelease(octokit);
-  if (semver.gt(version, latestRelease.tag_name.replace('v', ''))) {
-    // Create a new release if our version is higher than latest.
-    const newRelease = await createRelease(version, octokit);
-    // TODO: Durran - Sign and notarize for MacOS here instead of before.
-    await uploadAsset(artifact, platform, newRelease.upload_url, octokit);
-    return true;
-  }
-  await uploadAsset(artifact, platform, latestRelease.upload_url, octokit);
-  return false;
+const releaseToGithub = async(version: string, artifact: string, platform: string, octokit: Octokit): Promise<void> => {
+  // Create a new release if our version is higher than latest.
+  const newRelease = await createRelease(version, octokit);
+  // TODO: Durran - Sign and notarize for MacOS here instead of before.
+  await uploadAsset(artifact, platform, newRelease.upload_url, octokit);
+  console.log(`mongosh: uploaded new version to github ${version}`)
+  return;
 };
+
+const isLatestRelease = async(version: string, octokit: Octokit): Promise<boolean> => {
+  const latestRelease = await getLatestRelease(octokit);
+  return semver.gt(version, latestRelease.tag_name.replace('v', ''));
+}
+
 
 /**
  * Get the latest release from Github.
@@ -97,6 +99,7 @@ const uploadAsset = async(artifact: string, platform: string, uploadUrl: string,
 export default releaseToGithub;
 export {
   getLatestRelease,
+  isLatestRelease,
   createRelease,
   uploadAsset,
   REPO
