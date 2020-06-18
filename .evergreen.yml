@@ -18,7 +18,7 @@ variables:
 =======
         export PROJECT="${project}"
         export REVISION="${revision}"
-        export BRANCH="${branch}"
+        export BRANCH="${branch_name}"
         export AWS_KEY="${aws_key}"
         export AWS_SECRET="${aws_secret}"
         export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
