@@ -267,7 +267,7 @@ buildvariants:
     tasks:
       - name: check_ps
       - name: release_win_ps
-  - name: upload
+  - name: macos
     display_name: "MacOS Mohave"
     run_on: macos-1014-codesign
     tasks:
