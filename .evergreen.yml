@@ -267,6 +267,11 @@ buildvariants:
     tasks:
       - name: check_ps
       - name: release_win_ps
+  - name: upload
+    display_name: "MacOS Mohave"
+    run_on: macos-1014-codesign
+    tasks:
+      - name: upload_assets
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
