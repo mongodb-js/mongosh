@@ -15,7 +15,7 @@ describe('BrowserRepl', () => {
           <BrowserRepl runtime={fakeRuntime} />
         </div>
       );
-      console.log('wrapper', wrapper);
+
       expect(wrapper.find(Shell)).to.have.lengthOf(1);
     });
   });
