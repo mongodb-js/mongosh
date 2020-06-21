@@ -12,7 +12,7 @@ import Platform from './platform';
  *
  * @returns {string} The path.
  */
-const zipPath = (outputDir: string, platform: string, version: string): string => {
+export const zipPath = (outputDir: string, platform: string, version: string): string => {
   const ext = (platform === Platform.Linux) ? 'tgz' : 'zip';
   return path.join(outputDir, `mongosh-${version}-${platform}.${ext}`);
 };
@@ -34,7 +34,7 @@ const filterOut = (pathToFilter: string): boolean => {
  * @param {string} outputDir - The output directory.
  * @param {string} filename - the zip filename.
  */
-const zipPosix = async(outputDir: string, filename: string): Promise<void> => {
+export const zipPosix = async(outputDir: string, filename: string): Promise<void> => {
   const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
   await tar.c(options, [ '.' ]);
 };
@@ -45,7 +45,7 @@ const zipPosix = async(outputDir: string, filename: string): Promise<void> => {
  * @param {string} input - The file to zip.
  * @param {string} filename - the zip filename.
  */
-const zipWindows = (input: string, filename: string): void => {
+export const zipWindows = (input: string, filename: string): void => {
   const admZip = new AdmZip();
   admZip.addLocalFile(input);
   admZip.writeZip(filename);
