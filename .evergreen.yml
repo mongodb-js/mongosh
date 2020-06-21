@@ -1,17 +1,5 @@
 exec_timeout_secs: 7200
 
-pre:
-  command: shell.exec
-  params:
-    script: |
-      echo "pre-task run"
-
-post:
-  - command: shell.exec
-    params:
-      script: |
-        echo "post-task run."
-
 # Variables for common functions.
 #
 # compile_and_release: Runs the exec compile and release process.

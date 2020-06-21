@@ -1,4 +1,3 @@
-import path from 'path';
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';
@@ -104,7 +103,7 @@ const uploadDownloadCenterConfig = (version: string, awsKey: string, awsSecret: 
   });
   const config = createDownloadCenterConfig(version);
   return uploadToDownloadCenter(s3, config);
-}
+};
 
 export default uploadDownloadCenterConfig;
 export { createDownloadCenterConfig, uploadToDownloadCenter };

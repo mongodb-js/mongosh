@@ -24,7 +24,8 @@ module.exports = {
     'mocha/no-skipped-tests': 1,
     'mocha/no-exclusive-tests': 2,
     'semi': 0,
-    '@typescript-eslint/semi': [2, 'always']
+    '@typescript-eslint/semi': [2, 'always'],
+    'no-console': [1, { allow: ['warn', 'error', 'info'] }]
   },
   overrides: [{
     files: ['**/*.js'],

@@ -24,8 +24,8 @@ const zipPath = (outputDir: string, platform: string, version: string): string =
  *
  * @returns {boolean} If the file should be filtered out.
  */
-const filterOut = (path) => {
-  return !path.match(/tgz/g)
+const filterOut = (pathToFilter: string): boolean => {
+  return !pathToFilter.match(/tgz/g);
 };
 
 /**
@@ -34,7 +34,7 @@ const filterOut = (path) => {
  * @param {string} outputDir - The output directory.
  * @param {string} filename - the zip filename.
  */
-const zipPosix = async(outputDir: string, filename: string) => {
+const zipPosix = async(outputDir: string, filename: string): Promise<void> => {
   const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
   await tar.c(options, [ '.' ]);
 };
@@ -45,11 +45,13 @@ const zipPosix = async(outputDir: string, filename: string) => {
  * @param {string} input - The file to zip.
  * @param {string} filename - the zip filename.
  */
-const zipWindows = (input: string, filename: string) => {
+const zipWindows = (input: string, filename: string): void => {
   const admZip = new AdmZip();
-  admZip.addLocalFile(input)
+  admZip.addLocalFile(input);
   admZip.writeZip(filename);
 };
+
+export type ZipFile = { path: string; contentType: string };
 
 /**
  * Create a gzipped tarball or zip for the provided options.
@@ -59,18 +61,31 @@ const zipWindows = (input: string, filename: string) => {
  * @param {string} platform - The platform.
  * @param {string} version - The version.
  *
- * @returns {string} The filename of the zip.
+ * @returns {ZipFile} The path and type of the zip.
  */
-const zip = async(input: string, outputDir: string, platform: string, version: string): Promise<string> => {
+export async function zip(
+  input: string,
+  outputDir: string,
+  platform: string,
+  version: string
+): Promise<ZipFile> {
   const filename = zipPath(outputDir, platform, version);
-  console.log('mongosh: zipping:', filename);
+
+  console.info('mongosh: zipping:', filename);
+
   if (platform === Platform.Linux) {
     await zipPosix(outputDir, filename);
-  } else {
-    zipWindows(input, filename);
-  }
-  return filename;
-};
 
-export default zip;
-export { zipPath, zipPosix, zipWindows };
+    return {
+      path: filename,
+      contentType: 'application/gzip'
+    };
+  }
+
+  zipWindows(input, filename);
+
+  return {
+    path: filename,
+    contentType: 'application/zip'
+  };
+}

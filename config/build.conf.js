@@ -62,5 +62,10 @@ module.exports = {
   appleUser: process.env.APPLE_DEV_USER,
   applePassword: process.env.APPLE_DEV_PASSWORD,
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
-  isCi: process.env.IS_CI
+  isCi: process.env.IS_CI,
+  platform: os.platform(),
+  repo: {
+    owner: 'mongodb-js',
+    repo: 'mongosh'
+  }
 };
