@@ -35,7 +35,7 @@ export default async function release(config: Config): Promise<void> {
   console.log('mongosh: internal release completed.');
 
   // Only release to public from master and when tagged with the right version.
-  if (shouldDoPublicRelease(githubRepo, config)) {
+  if (await shouldDoPublicRelease(githubRepo, config)) {
     console.log('mongosh: start public release.');
 
     await releaseToDownloadCenter(zipFile, config);
