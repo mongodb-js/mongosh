@@ -149,13 +149,6 @@ functions:
           .\.evergreen\SetupEnv
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           npm run test-ci
-  # upload_assets:
-  #   - command: shell.exec
-  #     params:
-  #       working_dir: src
-  #       shell: bash
-  #       script: |
-  #         echo "hello"
   release_macos:
     - command: expansions.write
       params:
@@ -232,14 +225,6 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: release_win_ps
-  # - name: upload_assets
-  #   depends_on:
-  #     - name: release_win_ps
-  #     - name: release_linux
-  #     - name: release_macos
-  #   commands:
-  #     - func: checkout
-  #     - func: upload_assets
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: macos
@@ -268,11 +253,6 @@ buildvariants:
     tasks:
       - name: check_ps
       - name: release_win_ps
-  # - name: macos
-  #   display_name: "MacOS Mohave"
-  #   run_on: macos-1014-codesign
-  #   tasks:
-  #     - name: upload_assets
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
 #    run_on: ubuntu1804-power8-test
