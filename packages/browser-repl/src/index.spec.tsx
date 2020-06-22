@@ -1,4 +1,3 @@
-// import sinon from 'sinon';
 import React from 'react';
 import { expect } from '../testing/chai';
 import { shallow } from '../testing/enzyme';
@@ -8,7 +7,7 @@ import { Shell as BrowserRepl } from './index';
 
 describe('BrowserRepl', () => {
   context('when it is required', () => {
-    it('renders', () => {
+    it('renders the Shell component', () => {
       const fakeRuntime: any = {};
       const wrapper = shallow(
         <div>

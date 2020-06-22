@@ -29,6 +29,7 @@ export class CompassShell extends Component {
   static propTypes = {
     isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
+    shellOutput: PropTypes.array,
     historyStorage: PropTypes.object
   };
 
@@ -37,6 +38,8 @@ export class CompassShell extends Component {
   };
   constructor(props) {
     super(props);
+
+    this.shellOutput = this.props.shellOutput || [];
 
     this.state = {
       initialHistory: this.props.historyStorage ? null : [],
@@ -54,7 +57,6 @@ export class CompassShell extends Component {
 
   lastOpenHeight = defaultShellHeightOpened;
   resizableRef = null;
-  shellOutput = [];
 
   saveHistory = async(history) => {
     if (!this.props.historyStorage) {

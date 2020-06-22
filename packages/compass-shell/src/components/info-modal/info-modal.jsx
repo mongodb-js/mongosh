@@ -78,7 +78,10 @@ export class InfoModal extends PureComponent {
           </div>
           <div className={styles['info-modal-shortcuts']}>
             {hotkeys.map(shortcut => (
-              <div className={styles['info-modal-shortcuts-hotkey']}>
+              <div
+                className={styles['info-modal-shortcuts-hotkey']}
+                key={`short-cut-${shortcut.key}`}
+              >
                 <span
                   className={styles['info-modal-shortcuts-hotkey-key']}
                 >{shortcut.key}</span>{shortcut.description}

@@ -63,6 +63,29 @@ describe('CompassShell', () => {
           top: <ResizeHandle />,
         });
       });
+
+      it('renders the Shell with an output change handler', () => {
+        const fakeRuntime = {};
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        expect(!!wrapper.find(Shell).prop('onOutputChanged')).to.equal(true);
+      });
+
+      it('passes saved shell output', () => {
+        const fakeRuntime = {};
+        const wrapper = shallow(<CompassShell
+          runtime={fakeRuntime}
+          isExpanded
+          shellOutput={[{
+            type: 'output',
+            value: 'pineapple'
+          }]}
+        />);
+
+        expect(wrapper.find(Shell).prop('initialOutput')).to.deep.equal([{
+          type: 'output',
+          value: 'pineapple'
+        }]);
+      });
     });
 
     context('when historyStorage is not present', () => {
@@ -186,6 +209,24 @@ describe('CompassShell', () => {
         fakeStorage.save.calledWith(['line1'])
       ).to.equal(true);
     });
+  });
+
+  it('sets shellOutput on onShellOutputChanged', () => {
+    const shell = new CompassShell({ isExpanded: true });
+
+    shell.onShellOutputChanged([{
+      type: 'output',
+      value: 'some output'
+    }]);
+    console.log('shell.shellOutput', shell.shellOutput, [{
+      type: 'output',
+      value: 'some output'
+    }]);
+
+    expect(shell.shellOutput).to.deep.equal([{
+      type: 'output',
+      value: 'some output'
+    }]);
   });
 });
 

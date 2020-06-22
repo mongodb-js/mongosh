@@ -11,19 +11,22 @@ describe('<Editor />', () => {
     return aceEditor.instance().editor as any;
   };
 
-  const execCommandBoundTo = (aceEditor: any, key: string): void => {
+  const execCommandBoundTo = (
+    aceEditor: any,
+    key: { win: string; mac: string }
+  ): void => {
     const commands = Object.values(aceEditor.commands.commands);
-    const command: any = commands.find(({ bindKey }) => {
+    const command: any = commands.find(({ name, bindKey }) => {
       if (!bindKey) {
         return false;
       }
-
-      if (typeof bindKey === 'string') {
-        return key === bindKey;
+      if (name === 'gotoline') {
+        // Ignore gotoline - our command overrides.
+        return false;
       }
 
-      const { win, mac } = bindKey as {win: string; mac: string};
-      return win === key && mac === key;
+      const { win, mac } = bindKey as { win: string; mac: string };
+      return win === key.win && mac === key.mac;
     });
 
     if (!command) {
@@ -58,7 +61,24 @@ describe('<Editor />', () => {
     const aceEditor = getAceEditorInstance(wrapper);
     expect(spy).not.to.have.been.called;
 
-    execCommandBoundTo(aceEditor, 'Return');
+    execCommandBoundTo(aceEditor, {
+      win: 'Return',
+      mac: 'Return'
+    });
+    expect(spy).to.have.been.calledOnce;
+  });
+
+  it('calls onClearCommand when command/ctrl+L is pressed', () => {
+    const spy = sinon.spy();
+    const wrapper = mount(<Editor onClearCommand={spy} />);
+
+    const aceEditor = getAceEditorInstance(wrapper);
+
+    expect(spy).not.to.have.been.called;
+    execCommandBoundTo(aceEditor, {
+      win: 'Ctrl-L',
+      mac: 'Command-L'
+    });
     expect(spy).to.have.been.calledOnce;
   });
 
@@ -69,7 +89,10 @@ describe('<Editor />', () => {
     const aceEditor = getAceEditorInstance(wrapper);
 
     expect(spy).not.to.have.been.called;
-    execCommandBoundTo(aceEditor, 'Up');
+    execCommandBoundTo(aceEditor, {
+      win: 'Up',
+      mac: 'Up'
+    });
     expect(spy).to.have.been.calledOnce;
   });
 
@@ -82,7 +105,10 @@ describe('<Editor />', () => {
     aceEditor.moveCursorToPosition({ row: 1, column: 0 });
     aceEditor.clearSelection();
 
-    execCommandBoundTo(aceEditor, 'Up');
+    execCommandBoundTo(aceEditor, {
+      win: 'Up',
+      mac: 'Up'
+    });
     expect(spy).not.to.have.been.called;
   });
 
@@ -96,7 +122,10 @@ describe('<Editor />', () => {
     aceEditor.clearSelection();
 
     expect(spy).not.to.have.been.called;
-    execCommandBoundTo(aceEditor, 'Down');
+    execCommandBoundTo(aceEditor, {
+      win: 'Down',
+      mac: 'Down'
+    });
     expect(spy).to.have.been.calledOnce;
   });
 
@@ -107,7 +136,10 @@ describe('<Editor />', () => {
     const aceEditor = getAceEditorInstance(wrapper);
     aceEditor.setValue('row 0\nrow 1');
 
-    execCommandBoundTo(aceEditor, 'Down');
+    execCommandBoundTo(aceEditor, {
+      win: 'Down',
+      mac: 'Down'
+    });
     expect(spy).not.to.have.been.called;
   });
 
@@ -119,7 +151,10 @@ describe('<Editor />', () => {
     aceEditor.setValue('text');
     aceEditor.selectAll();
 
-    execCommandBoundTo(aceEditor, 'Up');
+    execCommandBoundTo(aceEditor, {
+      win: 'Up',
+      mac: 'Up'
+    });
     expect(spy).not.to.have.been.called;
   });
 
@@ -131,7 +166,10 @@ describe('<Editor />', () => {
     aceEditor.setValue('text');
     aceEditor.selectAll();
 
-    execCommandBoundTo(aceEditor, 'Down');
+    execCommandBoundTo(aceEditor, {
+      win: 'Down',
+      mac: 'Down'
+    });
     expect(spy).not.to.have.been.called;
   });
 

@@ -46,11 +46,12 @@ interface Signatures {
   [key: string]: TypeSignature;
 }
 
-if (!global['!!!mdb.signatures']) {
-  global['!!!mdb.signatures'] = {};
+const signaturesGlobalIdentifier = '@@@mdb.signatures@@@';
+if (!global[signaturesGlobalIdentifier]) {
+  global[signaturesGlobalIdentifier] = {};
 }
 
-const signatures: Signatures = global['!!!mdb.signatures'];
+const signatures: Signatures = global[signaturesGlobalIdentifier];
 
 export const toIgnore = [asShellResult, 'asPrintable', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
