@@ -111,6 +111,7 @@ function getStageAccumulators(stage: string, mdbVersion: string): any {
 
   if (stage.includes(PROJECT)) {
     return ACCUMULATORS.filter(acc => {
+      if (!mdbVersion) return acc.projectVersion;
       return (
         acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
       );
@@ -123,6 +124,7 @@ function getStageAccumulators(stage: string, mdbVersion: string): any {
 function filterQueries(mdbVersion: string, completions: any, prefix: string, split: string): any {
   const hits = completions.filter((e) => {
     if (!e.name) return false;
+    if (!mdbVersion) return e.name.startsWith(prefix);
     return e.name.startsWith(prefix) && semver.gte(mdbVersion, e.version);
   });
 
@@ -132,6 +134,7 @@ function filterQueries(mdbVersion: string, completions: any, prefix: string, spl
 
 function filterShellAPI(mdbVersion: string, completions: object, prefix: string, split?: string[]): any {
   const hits = Object.keys(completions).filter((c) => {
+    if (!mdbVersion) return c.startsWith(prefix);
     return c.startsWith(prefix)
       && semver.gte(mdbVersion, completions[c].serverVersions[0])
       && semver.lte(mdbVersion, completions[c].serverVersions[1]);
