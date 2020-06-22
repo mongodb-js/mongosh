@@ -21,6 +21,36 @@ describe('completer.completer', () => {
     });
   });
 
+  context('when no version is passed to completer', () => {
+    it('matches all db completions', () => {
+      const i = 'db.';
+      expect(completer(undefined, i)).to.deep.equal([[
+        'db.getMongo',
+        'db.getCollectionNames',
+        'db.getCollectionInfos',
+        'db.runCommand',
+        'db.adminCommand',
+        'db.aggregate',
+        'db.getSiblingDB',
+        'db.getCollection',
+        'db.dropDatabase',
+      ], i]);
+    });
+
+    it('does not have a match', () => {
+      const i = 'db.shipwrecks.aggregate([ { $so';
+      expect(completer(undefined, i)).to.deep.equal([
+        ['db.shipwrecks.aggregate([ { $sort',
+          'db.shipwrecks.aggregate([ { $sortByCount'], i]);
+    });
+
+    it('is an exact match to one of shell completions', () => {
+      const i = 'db.bios.find({ field: { $exis';
+      expect(completer(undefined, i))
+        .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
+    });
+  });
+
   context('when context is top level db', () => {
     // this should eventually encompass tests for DATABASE commands and
     // COLLECTION names.
