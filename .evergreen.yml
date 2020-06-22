@@ -1,248 +1,55 @@
 exec_timeout_secs: 7200
-# Variables for common functions.
-#
-# compile_and_release: Runs the exec compile and release process.
-variables:
-  - &compile_and_release
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: bash
-      script: |
-        cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
-        cd $(pwd)
-        source .evergreen/.setup_env
-        export SEGMENT_API_KEY="${segment_api_key}"
-        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-        export PROJECT="${project}"
-        export REVISION="${revision}"
-        export AWS_KEY="${aws_key}"
-        export AWS_SECRET="${aws_secret}"
-        export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
-        export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
-        export GITHUB_TOKEN="${github_token}"
-        export APPLE_DEV_USER="${apple_dev_user}"
-        export APPLE_DEV_PASSWORD="${apple_dev_password}"
-        export APPLE_APP_IDENTITY="${apple_app_identity}"
-        export DEBUG="node-codesign,electron-notarize"
-        export IS_CI="${is_ci}"
-        npm run release
-        RELEASE_MONGOSH
 
-        if [ `uname` == Darwin ]; then
-          ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
-        else
-          bash ~/release_mongosh.sh
-        fi
-
-        ls -la dist/
-  - &compile_and_release_ps
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: powershell
-      script: |
-        .\.evergreen\SetupEnv
-        $Env:SEGMENT_API_KEY = "${segment_api_key}"
-        $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-        $Env:PROJECT = "${project}"
-        $Env:REVISION = "${revision}"
-        $Env:AWS_KEY = "${aws_key}"
-        $Env:AWS_SECRET = "${aws_secret}"
-        $Env:DOWNLOAD_CENTER_AWS_KEY = "${download_center_aws_key}"
-        $Env:DOWNLOAD_CENTER_AWS_SECRET = "${download_center_aws_secret}"
-        $Env:GITHUB_TOKEN = "${github_token}"
-        $Env:APPLE_DEV_USER = "${apple_dev_user}"
-        $Env:APPLE_DEV_PASSWORD = "${apple_dev_password}"
-        $Env:APPLE_APP_IDENTITY = "${apple_app_identity}"
-        $Env:DEBUG = "node-codesign"
-        $Env:IS_CI = "${is_ci}"
-        npm run release
-        Get-ChildItem -Path .\dist\
-# Functions are any command that can be run.
-#
-# Current functions:
-#   checkout - Checks out the project from git.
-#   install - Installs Node and all dependencies.
-#   check - Performs linter and dependency checks.
-#   test - Runs all tests.
-#   release_macos - Publishes the npm packages and uploads the tarballs.
-#   release_linux - Publishes the npm packages and uploads the tarballs.
-#   release_win_ps - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
       params:
         directory: src
-  install:
+
+  test_expansion_on_linux:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
-          source .evergreen/.install_node
-  install_ps:
+          pwd
+          ls ../tmp
+
+  test_expansion_on_windows:
+    - command: expansions.write
+      params:
+        file: tmp\expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src
         shell: powershell
         script: |
-          .\.evergreen\InstallNode
-  check:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          source .evergreen/.setup_env
-          npm run check-ci
-  check_ps:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: powershell
-        script: |
-          .\.evergreen\SetupEnv
-          npm run check-ci
-  test:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          source .evergreen/.setup_env
-          export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
-          export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
-          npm run test-ci
-  test_ps:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: powershell
-        script: |
-          .\.evergreen\SetupEnv
-          $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
-          $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
-          npm run test-ci
-  release_macos:
-    - <<: *compile_and_release
-  release_linux:
-    - <<: *compile_and_release
-  release_win_ps:
-    - <<: *compile_and_release_ps
-# Tasks will show up as the individual blocks in the Evergreen UI that can
-# pass or fail.
-#
-# Current tasks:
-#   check - Performs linter and dependency checks.
-#   test - Runs all tests.
-#   release_macos - Publishes the npm packages and uploads the tarballs.
-#   release_linux - Publishes the npm packages and uploads the tarballs.
-#   release_win_ps - Publishes the npm packages and uploads the tarballs (from powershell).
+          pwd
+          ls ..\tmp\
+
 tasks:
-  - name: check
+  - name: test_expansion_on_linux
     commands:
       - func: checkout
-      - func: install
-      - func: check
-  - name: check_ps
+      - func: test_expansion_on_linux
+  - name: test_expansion_on_windows
     commands:
       - func: checkout
-      - func: install_ps
-      - func: check_ps
-  - name: test
-    commands:
-      - func: checkout
-      - func: install
-      - func: test
-  - name: test_ps
-    commands:
-      - func: checkout
-      - func: install_ps
-      - func: test_ps
-  - name: release_macos
-    depends_on:
-      - name: check
-      - name: test
-    commands:
-      - func: checkout
-      - func: install
-      - func: release_macos
-  - name: release_linux
-    depends_on:
-      - name: check
-      - name: test
-    commands:
-      - func: checkout
-      - func: install
-      - func: release_linux
-  - name: release_win_ps
-    depends_on:
-      - name: check_ps
-    commands:
-      - func: checkout
-      - func: install_ps
-      - func: release_win_ps
-# Need to run builds for every possible build variant.
+      - func: test_expansion_on_windows
+
 buildvariants:
-  - name: macos
-    display_name: "MacOS Mohave"
-    run_on: macos-1014-codesign
-    tasks:
-      - name: check
-      - name: test
-      - name: release_macos
   - name: ubuntu
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-test
     tasks:
-      - name: check
-      - name: test
-      - name: release_linux
-  - name: windows
-    display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-test
-    tasks:
-      - name: check
-      - name: test
+      - name: test_expansion_on_linux
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
-      - name: check_ps
-      - name: release_win_ps
-#  - name: ubuntuppc
-#    display_name: "Ubuntu 18.04 PPC"
-#    run_on: ubuntu1804-power8-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: ubuntuz
-#    display_name: "Ubuntu 18.04 Z Series"
-#    run_on: ubuntu1804-zseries-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhel7
-#    display_name: "RHEL 7.6"
-#    run_on: rhel76-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhelppc
-#    display_name: "RHEL 7.1 PPC"
-#    run_on: rhel71-power8-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhelz
-#    display_name: "RHEL 7.2 Z Series"
-#    run_on: rhel72-zseries-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
+      - name: test_expansion_on_windows
