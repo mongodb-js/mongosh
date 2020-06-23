@@ -23,7 +23,7 @@ const importExpansions = () => {
     process.env[key] = expansions[key];
   });
 
-  console.info('Imported expansions:', Object.keys(expansions));
+  console.info('Imported expansions:', Object.keys(expansions).join(', '));
 }
 
 importExpansions();
