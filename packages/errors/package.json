@@ -17,8 +17,8 @@
     "node": "^12.4.0"
   },
   "scripts": {
-    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./*.spec.ts\"",
-    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./*.spec.ts\"",
+    "test": "mocha -r '../../scripts/import-expansions.js' --timeout 15000 --colors -r ts-node/register \"./*.spec.ts\"",
+    "test-ci": "mocha -r '../../scripts/import-expansions.js' --timeout 15000 -r ts-node/register \"./*.spec.ts\"",
     "lint": "eslint \"./*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",

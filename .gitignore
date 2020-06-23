@@ -15,3 +15,5 @@ dist/
 node_modules/
 .lock-wscript
 .cache/
+expansions.yaml
+tmp/expansions.yaml
