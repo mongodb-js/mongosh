@@ -1,5 +1,3 @@
-console.log('loading build.conf.js');
-
 const path = require('path');
 
 /**
