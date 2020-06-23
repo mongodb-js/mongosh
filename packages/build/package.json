@@ -14,8 +14,8 @@
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts",
-    "test": "mocha -r '../../scripts/import-expansions.js' --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha -r '../../scripts/import-expansions.js' --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\""
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\""
   },
   "license": "Apache-2.0",
   "publishConfig": {
