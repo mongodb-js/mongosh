@@ -5,13 +5,13 @@ import uuidv4 from 'uuid/v4';
 /**
  * In order for these tests to run, the following environment
  * variables must be present and valid:
- *   - MONGOSH_STITCH_TEST_APP_ID
- *   - MONGOSH_STITCH_TEST_SERVICE_NAME
+ *   - STITCH_TEST_APP_ID
+ *   - STITCH_TEST_SERVICE_NAME
  */
 describe('StitchServiceProviderBrowser [ integration ]', function() {
   this.timeout(30000);
-  const stitchAppId = process.env.MONGOSH_STITCH_TEST_APP_ID;
-  const serviceName = process.env.MONGOSH_STITCH_TEST_SERVICE_NAME;
+  const stitchAppId = process.env.STITCH_TEST_APP_ID;
+  const serviceName = process.env.STITCH_TEST_SERVICE_NAME;
 
   if (stitchAppId && serviceName) {
     let stitchTransport;
@@ -276,7 +276,7 @@ describe('StitchServiceProviderBrowser [ integration ]', function() {
       });
     });
   } else {
-    it('please set the MONGOSH_STITCH_TEST_APP_ID and MONGOSH_STITCH_TEST_SERVICE_NAME env variables', () => {
+    it('please set the STITCH_TEST_APP_ID and STITCH_TEST_SERVICE_NAME env variables', () => {
       expect(true).to.equal(true);
     });
   }

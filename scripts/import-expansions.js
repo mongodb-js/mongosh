@@ -1,6 +1,7 @@
 const YAML = require('yaml');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 /**
  * Imports expansions written to disk to the process env so
@@ -14,6 +15,12 @@ const importExpansions = () => {
   const expansionsPath = path.resolve(process.env.EVERGREEN_EXPANSIONS_PATH);
 
   if (!fs.existsSync(expansionsPath)) {
+    console.log({
+      platform: os.platform(),
+      cwd: process.cwd(),
+      expansionsPath
+    });
+
     throw new Error(`importExpansions failed: file ${expansionsPath} not found`);
   }
 

@@ -32,7 +32,7 @@ variables:
       script: |
         .\.evergreen\SetupEnv
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-        $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path '..' 'tmp' 'expansions.yaml' -Resolve)
+        $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
         npm run release
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
@@ -93,9 +93,6 @@ functions:
           set -e
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-          echo "Expansions path is set to: ${EVERGREEN_EXPANSIONS_PATH}"
-          export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
-          export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   test_ps:
     - command: expansions.write
@@ -108,11 +105,7 @@ functions:
         shell: powershell
         script: |
           .\.evergreen\SetupEnv
-          $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path '..' 'tmp' 'expansions.yaml' -Resolve)
-          ls ..\tmp\
-          Write-Host "Expansions path is set to: $Env:EVERGREEN_EXPANSIONS_PATH"
-          $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
-          $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
+          $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           npm run test-ci
   release_macos:
     - command: expansions.write
@@ -202,7 +195,7 @@ buildvariants:
       - name: test
       - name: release_linux
   - name: windows
-    display_name: "Windows VS 2019"
+    display_name: "Windows VS 2019 Cygwin"
     run_on: windows-64-vs2019-test
     tasks:
       - name: check

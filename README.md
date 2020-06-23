@@ -111,7 +111,7 @@ npm test
 Run tests from a specific package:
 
 ```shell
-lerna run test --scope @mongosh/cli-repl 
+lerna run test --scope @mongosh/cli-repl
 ```
 
 Run tests with all output from packages:
@@ -123,8 +123,8 @@ lerna run test --stream
 Getting the Stitch integration tests running requires the 2 following env
 variables to be set:
 
-- `MONGOSH_STITCH_TEST_APP_ID`
-- `MONGOSH_STITCH_TEST_SERVICE_NAME`
+- `STITCH_TEST_APP_ID`
+- `STITCH_TEST_SERVICE_NAME`
 
 These can be gotten from the mongosh-test cluster in the Compass Atlas
 clusters.
