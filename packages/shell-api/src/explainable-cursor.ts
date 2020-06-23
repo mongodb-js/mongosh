@@ -15,10 +15,10 @@ export default class ExplainableCursor extends Cursor {
     this.verbosity = verbosity;
   }
 
-  async toReplString(): Promise<any> {
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  async asPrintable(): Promise<any> {
     return await this.cursor.explain(this.verbosity);
-  }
-  shellApiType(): string {
-    return 'ExplainableCursor'; // required otherwise inherits Cursor's method
   }
 }

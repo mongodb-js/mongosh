@@ -13,5 +13,6 @@ _global = {
     DeleteResult: ShellApi.DeleteResult,
     UpdateResult: ShellApi.UpdateResult,
     BulkWriteResult: ShellApi.BulkWriteResult,
-    CommandResult: ShellApi.CommandResult
+    CommandResult: ShellApi.CommandResult,
+    asPrintableSymbol: ShellApi.asPrintable
 };

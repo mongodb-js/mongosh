@@ -18,7 +18,7 @@ class FindCursor<out T> internal constructor(private val cursor: Value, private 
         cursor.invokeMember("batchSize", size)
     }
 
-    override fun toReplString(): String {
-        return context.extract(cursor.invokeMember("toReplString")).toReplString()
+    override fun asPrintable(): String {
+        return context.extract(cursor.invokeMember("asPrintable")).asPrintable()
     }
 }

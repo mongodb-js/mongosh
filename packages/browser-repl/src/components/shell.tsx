@@ -82,7 +82,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     maxOutputLength: PropTypes.number,
     maxHistoryLength: PropTypes.number,
     initialOutput: PropTypes.arrayOf(PropTypes.shape({
-      type: PropTypes.string.isRequired,
+      format: PropTypes.string.isRequired,
       value: PropTypes.any.isRequired
     })),
     initialHistory: PropTypes.arrayOf(PropTypes.string)
@@ -121,13 +121,13 @@ export class Shell extends Component<ShellProps, ShellState> {
     try {
       const result = await this.props.runtime.evaluate(code);
       outputLine = {
-        type: 'output',
-        shellApiType: result.shellApiType,
+        format: 'output',
+        type: result.type,
         value: result.value
       };
     } catch (error) {
       outputLine = {
-        type: 'error',
+        format: 'error',
         value: error
       };
     }
@@ -164,7 +164,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private onInput = async(code: string): Promise<void> => {
     const inputLine: ShellOutputEntry = {
-      type: 'input',
+      format: 'input',
       value: code
     };
 

@@ -39,7 +39,10 @@ export default class Mongo extends ShellApiClass {
     this.serviceProvider = this.internalState.initialServiceProvider;
   }
 
-  toReplString(): any {
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  asPrintable(): string {
     return retractPassword(this.uri);
   }
 

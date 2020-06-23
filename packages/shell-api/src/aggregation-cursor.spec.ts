@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { signatures } from './decorators';
 import AggregationCursor from './aggregation-cursor';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 
 describe('AggregationCursor', () => {
   describe('help', () => {
     const apiClass: any = new AggregationCursor({}, {});
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -33,14 +33,16 @@ describe('AggregationCursor', () => {
     let cursor;
     beforeEach(() => {
       wrappee = {
-        map: sinon.spy()
+        map: sinon.spy(),
+        isClosed: (): boolean => true
       };
       cursor = new AggregationCursor({}, wrappee);
     });
 
-    it('sets dynamic properties', () => {
-      expect(cursor.shellApiType()).to.equal('AggregationCursor');
-      expect(cursor.help.shellApiType()).to.equal('Help');
+    it('sets dynamic properties', async() => {
+      expect((await cursor[asShellResult]()).type).to.equal('AggregationCursor');
+      expect((await ((await cursor[asShellResult]()).value)[asShellResult]()).type).to.equal('CursorIterationResult');
+      expect((await cursor.help[asShellResult]()).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {

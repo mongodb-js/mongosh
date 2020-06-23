@@ -1,17 +1,13 @@
 import { Preprocessor } from './preprocessor';
+import { ShellResult } from '@mongosh/shell-api';
 
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
 
 export type ContextValue = any;
 
-export type EvaluationResult = {
-  shellApiType: string;
-  value: ContextValue;
-};
-
 export interface InterpreterEnvironment {
-  sloppyEval(code: string): EvaluationResult;
+  sloppyEval(code: string): ShellResult;
   getContextObject(): ContextValue;
 }
 
@@ -29,7 +25,7 @@ export class Interpreter {
     });
   }
 
-  async evaluate(code: string): Promise<EvaluationResult> {
+  async evaluate(code: string): Promise<ShellResult> {
     let result;
     const contextObjext = this.environment.getContextObject();
 

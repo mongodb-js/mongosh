@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import ShellApi from './shell-api';
 import { signatures } from './index';
 import Cursor from './cursor';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
@@ -68,9 +68,9 @@ describe('ShellApi', () => {
   });
   describe('help', () => {
     const apiClass: any = new ShellApi({} as any);
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('commands', () => {
@@ -111,7 +111,7 @@ describe('ShellApi', () => {
       it('returns empty result if no current cursor', async() => {
         internalState.currentCursor = null;
         const res: any = await internalState.shellApi.it();
-        expect(res.shellApiType()).to.deep.equal('CursorIterationResult');
+        expect((await res[asShellResult]()).type).to.deep.equal('CursorIterationResult');
       });
       it('calls _it on current Cursor', async() => {
         internalState.currentCursor = stubInterface<Cursor>();
@@ -125,7 +125,7 @@ describe('ShellApi', () => {
       });
       it('returns a new Mongo object', async() => {
         const m = await internalState.shellApi.Mongo('localhost:27017');
-        expect(m.shellApiType()).to.equal('Mongo');
+        expect((await m[asShellResult]()).type).to.equal('Mongo');
         expect(m.uri).to.equal('mongodb://localhost:27017/test');
       });
       it('fails for non-CLI', async() => {
@@ -150,7 +150,7 @@ describe('ShellApi', () => {
       it('returns a new DB', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.shellApi.connect('localhost:27017', 'username', 'pwd');
-        expect(db.shellApiType()).to.equal('Database');
+        expect((await db[asShellResult]()).type).to.equal('Database');
         expect(db.getMongo().uri).to.equal('mongodb://localhost:27017/test');
       });
       it('fails with no arg', async() => {
@@ -185,9 +185,9 @@ describe('ShellApi', () => {
       internalState.setCtx({});
       internalState.currentDb.mongo = mongo;
     });
-    it('calls help function', () => {
-      expect(internalState.context.use.help().shellApiType()).to.equal('Help');
-      expect(internalState.context.use.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await internalState.context.use.help()[asShellResult]()).type).to.equal('Help');
+      expect((await internalState.context.use.help[asShellResult]()).type).to.equal('Help');
     });
     describe('use', () => {
       beforeEach(() => {
@@ -209,7 +209,7 @@ describe('ShellApi', () => {
       it('returns empty result if no current cursor', async() => {
         internalState.currentCursor = null;
         const res: any = await internalState.context.it();
-        expect(res.shellApiType()).to.deep.equal('CursorIterationResult');
+        expect((await res[asShellResult]()).type).to.deep.equal('CursorIterationResult');
       });
       it('calls _it on current Cursor', async() => {
         internalState.currentCursor = stubInterface<Cursor>();
@@ -223,7 +223,7 @@ describe('ShellApi', () => {
       });
       it('returns a new Mongo object', async() => {
         const m = await internalState.context.Mongo('mongodb://127.0.0.1:27017');
-        expect(m.shellApiType()).to.equal('Mongo');
+        expect((await m[asShellResult]()).type).to.equal('Mongo');
         expect(m.uri).to.equal('mongodb://127.0.0.1:27017');
       });
       it('fails for non-CLI', async() => {
@@ -240,13 +240,13 @@ describe('ShellApi', () => {
       it('returns a new DB', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017');
-        expect(db.shellApiType()).to.equal('Database');
+        expect((await db[asShellResult]()).type).to.equal('Database');
         expect(db.getMongo().uri).to.equal('mongodb://127.0.0.1:27017');
       });
       it('handles username/pwd', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
-        expect(db.shellApiType()).to.equal('Database');
+        expect((await db[asShellResult]()).type).to.equal('Database');
         expect(db.getMongo().uri).to.equal('mongodb://127.0.0.1:27017');
         expect(db.getMongo().options).to.deep.equal({ auth: { username: 'username', password: 'pwd' } });
       });

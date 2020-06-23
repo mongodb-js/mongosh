@@ -1,20 +1,16 @@
 import { Completion } from './autocompleter/autocompleter';
+import { ShellResult } from '@mongosh/shell-api';
 
 export type ContextValue = any;
-
-export type EvaluationResult = {
-  shellApiType: string;
-  value: any;
-};
 
 export interface Runtime {
   /**
    * Evaluates code
    *
    * @param {string} code - A string of code
-   * @return {Promise<EvaluationResult>} the result of the evaluation
+   * @return {Promise<ShellResult>} the result of the evaluation
    */
-  evaluate(code: string): Promise<EvaluationResult>;
+  evaluate(code: string): Promise<ShellResult>;
 
   /**
    * Get shell api completions give a code prefix

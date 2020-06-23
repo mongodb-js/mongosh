@@ -22,8 +22,8 @@ type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
 
 
 export interface ShellOutputEntry {
-  type: 'input' | 'output' | 'error';
-  shellApiType?: string;
+  format: 'input' | 'output' | 'error';
+  type?: string;
   value: ShellOutputEntryValue;
 }
 
@@ -37,10 +37,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   };
 
   private renderValue(): JSX.Element {
-    const { shellApiType, value, type } = this.props.entry;
+    const { type, value, format } = this.props.entry;
 
-    if (type === 'input' ||
-      this.isPreformattedResult(value, shellApiType)) {
+    if (format === 'input' ||
+      this.isPreformattedResult(value, type)) {
       return <pre>{value}</pre>;
     }
 
@@ -48,23 +48,23 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <SimpleTypeOutput value={value} />;
     }
 
-    if (shellApiType === 'Help') {
+    if (type === 'Help') {
       return <HelpOutput value={value} />;
     }
 
-    if (shellApiType === 'ShowDatabasesResult') {
+    if (type === 'ShowDatabasesResult') {
       return <ShowDbsOutput value={value} />;
     }
 
-    if (shellApiType === 'ShowCollectionsResult') {
+    if (type === 'ShowCollectionsResult') {
       return <ShowCollectionsOutput value={value} />;
     }
 
-    if (shellApiType === 'Cursor') {
+    if (type === 'Cursor') {
       return <CursorOutput value={value} />;
     }
 
-    if (shellApiType === 'CursorIterationResult') {
+    if (type === 'CursorIterationResult') {
       return <CursorIterationResultOutput value={value} />;
     }
 
@@ -79,10 +79,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     return typeof value.message === 'string' && typeof value.stack === 'string';
   }
 
-  private isPreformattedResult(value: any, shellApiType: string): boolean {
+  private isPreformattedResult(value: any, type: string): boolean {
     return typeof value === 'string' &&
-    shellApiType === 'Database' ||
-    shellApiType === 'Collection';
+    type === 'Database' ||
+    type === 'Collection';
   }
 
   private isPrimitiveOrFunction(value: any): boolean {
@@ -93,13 +93,13 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   }
 
   private getIconGlyph(): Glyph {
-    const { type } = this.props.entry;
+    const { format } = this.props.entry;
 
-    if (type === 'input') {
+    if (format === 'input') {
       return 'ChevronRight';
     }
 
-    if (type === 'error') {
+    if (format === 'error') {
       return 'XWithCircle';
     }
 
@@ -107,11 +107,11 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   }
 
   render(): JSX.Element {
-    const { type } = this.props.entry;
+    const { format } = this.props.entry;
 
     const className = classnames(
       styles['shell-output-line'],
-      styles[`shell-output-line-${type}`]
+      styles[`shell-output-line-${format}`]
     );
 
     const icon = (<Icon

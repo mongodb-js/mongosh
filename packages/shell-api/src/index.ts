@@ -22,13 +22,16 @@ import {
 import Mongo from './mongo';
 import ShellBson from './shell-bson';
 import {
-  signatures
+  signatures,
+  ShellResult
 } from './decorators';
 import {
   Topologies,
   ServerVersions,
   ReadPreference,
-  DBQueryOption
+  DBQueryOption,
+  shellApiType,
+  asShellResult
 } from './enums';
 
 export {
@@ -57,5 +60,8 @@ export {
   ReadPreference,
   ShellApi,
   ServerVersions,
-  Topologies
+  Topologies,
+  shellApiType,
+  asShellResult,
+  ShellResult
 };

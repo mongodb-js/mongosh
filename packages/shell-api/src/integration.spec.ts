@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
-import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi } from './index';
+import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi, asShellResult } from './index';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('Shell API (integration)', function() {
@@ -113,9 +113,9 @@ describe('Shell API (integration)', function() {
           });
         });
 
-        describe('when calling toReplString on the cursor', () => {
+        describe('when calling asShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect(await cursor.toReplString()).to.deep.equal([{ doc: 2 }]);
+            expect((await cursor[asShellResult]()).value).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -786,12 +786,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('find', () => {
-      it('returns a cursor that has the explain as result of toReplString', async() => {
+      it('returns a cursor that has the explain as result of asShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.toReplString();
-        expect(result).to.have.keys([
+        const result = await cursor[asShellResult]();
+        expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'
@@ -800,12 +800,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      it('returns a cursor that has the explain as result of toReplString', async() => {
+      it('returns a cursor that has the explain as result of asShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.toReplString();
-        expect(result).to.have.keys([
+        const result = await cursor[asShellResult]();
+        expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'

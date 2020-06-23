@@ -22,6 +22,7 @@
     "start": "npm run start-cli",
     "precompile-exec": "npm run compile-cli",
     "compile-exec": "node scripts/compile-exec.js",
+    "compile-all": "npm run compile-ts && npm run compile-compass && npm run compile-exec",
     "prerelease": "npm run compile-cli",
     "release": "node scripts/release.js",
     "publish-npm": "lerna publish --force-publish",

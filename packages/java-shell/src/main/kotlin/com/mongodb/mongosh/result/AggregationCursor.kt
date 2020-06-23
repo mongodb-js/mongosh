@@ -14,7 +14,7 @@ class AggregationCursor<out T> internal constructor(private val cursor: Value, p
         return context.extract(cursor.invokeMember("next")).value as T
     }
 
-    override fun toReplString(): String {
-        return context.extract(cursor.invokeMember("toReplString")).toReplString()
+    override fun asPrintable(): String {
+        return context.extract(cursor.invokeMember("asPrintable")).asPrintable()
     }
 }

@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { signatures } from './decorators';
 import Cursor from './cursor';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions, asShellResult } from './enums';
 
 describe('Cursor', () => {
   describe('help', () => {
     const apiClass: any = new Cursor({}, {});
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -33,14 +33,16 @@ describe('Cursor', () => {
     let cursor;
     beforeEach(() => {
       wrappee = {
-        map: sinon.spy()
+        map: sinon.spy(),
+        isClosed: (): boolean => true
       };
       cursor = new Cursor({}, wrappee);
     });
 
-    it('sets dynamic properties', () => {
-      expect(cursor.shellApiType()).to.equal('Cursor');
-      expect(cursor.help.shellApiType()).to.equal('Help');
+    it('sets dynamic properties', async() => {
+      expect((await cursor[asShellResult]()).type).to.equal('Cursor');
+      expect((await ((await cursor[asShellResult]()).value)[asShellResult]()).type).to.equal('CursorIterationResult');
+      expect((await cursor.help[asShellResult]()).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {

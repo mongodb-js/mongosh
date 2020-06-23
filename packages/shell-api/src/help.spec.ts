@@ -1,6 +1,7 @@
 import sinon from 'ts-sinon';
 import Help from './help';
 import { expect } from 'chai';
+import { asShellResult } from './enums';
 
 describe('Help', () => {
   let translate;
@@ -9,21 +10,22 @@ describe('Help', () => {
     translate = sinon.fake((x) => `translated: ${x}`);
   });
 
-  describe('#shellApiType', () => {
-    it('returns Help', () => {
-      expect(new Help({ help: 'help' }, { translate }).shellApiType()).to.equal('Help');
+  describe('#asShellResult', () => {
+    it('returns Help', async() => {
+      expect((await new Help({ help: 'help' }, { translate })[asShellResult]()).type).to.equal('Help');
     });
   });
 
-  describe('#toReplString', () => {
+  describe('#asShellResult', () => {
     it('returns the Help a plain object', () => {
       const properties = {
         help: 'help'
       };
 
       const help = new Help(properties, { translate });
-      expect(help.toReplString().constructor.name).to.equal('Object');
-      expect(help.toReplString()).to.not.equal(help);
+      const result = help[asShellResult]();
+      expect(result.value.constructor.name).to.equal('Object');
+      expect(result.value).to.not.equal(help);
     });
 
     it('returns translated help', () => {
@@ -33,7 +35,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          [asShellResult]()
+          .value
           .help
       ).to.equal('translated: help');
     });
@@ -46,7 +49,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          [asShellResult]()
+          .value
           .docs
       ).to.equal('translated: https://example.com');
     });
@@ -58,7 +62,7 @@ describe('Help', () => {
 
       const help = new Help(properties, { translate });
 
-      expect(help.toReplString().attr).to.deep.equal([]);
+      expect(help[asShellResult]().value.attr).to.deep.equal([]);
     });
 
     it('returns attr with translated description', () => {
@@ -69,7 +73,8 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .toReplString()
+          [asShellResult]()
+          .value
           .attr
       ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);
     });

@@ -8,7 +8,8 @@ import {
   signatures,
   ShellBson,
   toIterator,
-  ShellApi
+  ShellApi,
+  shellApiType
 } from './index';
 import { EventEmitter } from 'events';
 import { Document, ServiceProvider, DEFAULT_DB } from '@mongosh/service-provider-core';
@@ -88,9 +89,9 @@ export default class ShellInternalState {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg): Promise<void> => {
-      if (arg.toReplString) {
+      if (arg.asPrintable) {
         // eslint-disable-next-line no-console
-        console.log(await arg.toReplString());
+        console.log(await arg.asPrintable());
       } else {
         // eslint-disable-next-line no-console
         console.log(arg);
@@ -124,7 +125,7 @@ export default class ShellInternalState {
     this.asyncWriter.symbols.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
-      if (newDb.shellApiType === undefined || newDb.shellApiType() !== 'Database') {
+      if (newDb[shellApiType] !== 'Database') {
         throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
       }
       return this.setDbFunc(newDb);

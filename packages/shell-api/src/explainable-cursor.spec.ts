@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions, asShellResult } from './enums';
 import { signatures } from './decorators';
 import ExplainableCursor from './explainable-cursor';
 
 describe('ExplainableCursor', () => {
   describe('help', () => {
     const apiClass: any = new ExplainableCursor({}, {}, 'verbosity');
-    it('calls help function', () => {
-      expect(apiClass.help().shellApiType()).to.equal('Help');
-      expect(apiClass.help.shellApiType()).to.equal('Help');
+    it('calls help function', async() => {
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -40,10 +40,10 @@ describe('ExplainableCursor', () => {
     });
 
     it('sets dynamic properties', async() => {
-      expect(eCursor.shellApiType()).to.equal('ExplainableCursor');
-      expect(eCursor.help.shellApiType()).to.equal('Help');
+      expect((await eCursor[asShellResult]()).type).to.equal('ExplainableCursor');
+      expect((await eCursor.help[asShellResult]()).type).to.equal('Help');
+      expect((await eCursor[asShellResult]()).value).to.deep.equal({ ok: 'verbosity' });
       expect(eCursor.verbosity).to.equal('verbosity');
-      expect(await eCursor.toReplString()).to.deep.equal({ ok: 'verbosity' });
     });
 
     it('returns the same ExplainableCursor', () => {
