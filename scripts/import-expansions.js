@@ -13,8 +13,7 @@ const importExpansions = () => {
   }
 
   if (!fs.existsSync(expansionsPath)) {
-    console.info('Skip importExpansions: file not found.');
-    return;
+    throw new Error(`importExpansions failed: file ${expansionsPath} not found`);
   }
 
   const data = fs.readFileSync(expansionsPath, 'utf8');
