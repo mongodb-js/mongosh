@@ -90,9 +90,10 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          set -e
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-          echo "${EVERGREEN_EXPANSIONS_PATH}"
+          echo "Expansions path is set to: ${EVERGREEN_EXPANSIONS_PATH}"
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
@@ -108,6 +109,8 @@ functions:
         script: |
           .\.evergreen\SetupEnv
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path '..' 'tmp' 'expansions.yaml' -Resolve)
+          ls ..\tmp\
+          Write-Host "Expansions path is set to: $Env:EVERGREEN_EXPANSIONS_PATH"
           $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
           $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
           npm run test-ci

@@ -1,16 +1,17 @@
 const YAML = require('yaml');
 const fs = require('fs');
+const path = require('path');
 
 /**
  * Imports expansions written to disk to the process env so
  * we don't getting logging of our keys in Evergreen.
  */
 const importExpansions = () => {
-  const expansionsPath = process.env.EVERGREEN_EXPANSIONS_PATH;
-
-  if (!expansionsPath) {
+  if (!process.env.EVERGREEN_EXPANSIONS_PATH) {
     return;
   }
+
+  const expansionsPath = path.resolve(process.env.EVERGREEN_EXPANSIONS_PATH);
 
   if (!fs.existsSync(expansionsPath)) {
     throw new Error(`importExpansions failed: file ${expansionsPath} not found`);
