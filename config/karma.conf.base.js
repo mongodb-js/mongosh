@@ -40,8 +40,8 @@ const configure = (config) => {
       bundlerOptions: {
         constants: {
           "process.env": {
-            'MONGOSH_STITCH_TEST_APP_ID': process.env.MONGOSH_STITCH_TEST_APP_ID,
-            'MONGOSH_STITCH_TEST_SERVICE_NAME': process.env.MONGOSH_STITCH_TEST_SERVICE_NAME,
+            'STITCH_TEST_APP_ID': process.env.STITCH_TEST_APP_ID,
+            'STITCH_TEST_SERVICE_NAME': process.env.STITCH_TEST_SERVICE_NAME,
             'PLATFORM': os.platform()
           }
         }
