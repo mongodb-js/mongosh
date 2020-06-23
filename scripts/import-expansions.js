@@ -27,7 +27,7 @@ const importExpansions = () => {
   const data = fs.readFileSync(expansionsPath, 'utf8');
   const expansions = YAML.parse(data);
   Object.keys(expansions).forEach((key) => {
-    process.env[key] = expansions[key];
+    process.env[key.toUpperCase()] = expansions[key];
   });
 
   console.info('Imported expansions:', Object.keys(expansions).join(', '));
