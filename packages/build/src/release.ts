@@ -1,17 +1,17 @@
 import { Octokit } from '@octokit/rest';
-import semver from 'semver';
 import compileExec from './compile-exec';
 import Config from './config';
 import uploadDownloadCenterConfig from './download-center';
+import runOnlyOnOnePlatform from './execute-once';
 import uploadArtifactToEvergreen from './evergreen';
 import { GithubRepo } from './github-repo';
 import uploadArtifactToDownloadCenter from './upload-artifact';
 import { zip, ZipFile } from './zip';
-import Platform from './platform';
 
 /**
  * Run the release process.
- *
+ * zip, release internally on evergreen, and, if applicable do a public release
+ * (download centre and github.
  * @param {Config} config - the configuration, usually config/build.config.js.
  */
 export default async function release(config: Config): Promise<void> {
@@ -31,15 +31,15 @@ export default async function release(config: Config): Promise<void> {
   console.log('mongosh: created zipfile:', zipFile);
 
   // Always release internally.
-  await releaseIntenally(zipFile, config);
+  await releaseInternally(zipFile, config);
   console.log('mongosh: internal release completed.');
 
   // Only release to public from master and when tagged with the right version.
-  if (await shouldDoPublicRelease(githubRepo, config)) {
+  if (await githubRepo.shouldDoPublicRelease(config)) {
     console.log('mongosh: start public release.');
 
     await releaseToDownloadCenter(zipFile, config);
-    await releaseToGithub(zipFile, githubRepo, config);
+    await githubRepo.releaseToGithub(zipFile, config);
   }
 
   console.log('mongosh: finished release process.');
@@ -79,10 +79,13 @@ async function compileAndZipExecutable(config: Config): Promise<ZipFile> {
     config.version
   );
 
+  // add artifcats for .rpm and .deb and .msi
+
   return artifact;
 }
 
-async function releaseIntenally(artifact: ZipFile, config: Config): Promise<void> {
+// Uploads artifacts to evergreen on every commit
+async function releaseInternally(artifact: ZipFile, config: Config): Promise<void> {
   await uploadArtifactToEvergreen(
     artifact.path,
     config.evgAwsKey,
@@ -92,31 +95,8 @@ async function releaseIntenally(artifact: ZipFile, config: Config): Promise<void
   );
 }
 
-async function shouldDoPublicRelease(githubRepo: GithubRepo, config: Config): Promise<boolean> {
-  if (config.branch === 'master') {
-    console.log('mongosh: skip public release: is not master');
-    return false;
-  }
-
-  const commitTag = await githubRepo.getTagByCommitSha(config.revision);
-
-  if (!commitTag) {
-    console.log('mongosh: skip public release: commit is not tagged');
-    return false;
-  }
-
-  if (semver.neq(commitTag.name, config.version)) {
-    console.log(
-      'mongosh: skip public release: the commit tag', commitTag.name,
-      'is different from the release version', config.version
-    );
-
-    return false;
-  }
-
-  return true;
-}
-
+// Upload tarballs and Downloads Center config file.
+// Config file only gets uploaded once.
 async function releaseToDownloadCenter(artifact: ZipFile, config: Config): Promise<void> {
   await uploadArtifactToDownloadCenter(
     artifact.path,
@@ -133,41 +113,4 @@ async function releaseToDownloadCenter(artifact: ZipFile, config: Config): Promi
       config.downloadCenterAwsSecret
     );
   });
-}
-
-async function releaseToGithub(artifact: ZipFile, githubRepo: GithubRepo, config: Config): Promise<void> {
-  const githubRelease = {
-    name: config.version,
-    tag: `v${config.version}`,
-    notes: `Release notes [in Jira](${jiraReleaseNotesLink(config.version)})`
-  };
-
-  await githubRepo.createReleaseIfNotExists(githubRelease);
-  await githubRepo.uploadReleaseAssetIfNotExists(githubRelease, artifact);
-}
-
-function jiraReleaseNotesLink(version: string): string {
-  return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
-}
-
-function runOnlyOnOnePlatform(codeSectionLabel, config, fn: Function): any {
-  // Since evergreen runs everything with a matrix strategy we
-  // have to run the parts of the code that can't run more than once
-  // only on the mac os runner.
-
-  const platformForSingleRun = Platform.MacOs;
-
-  if (config.platform === platformForSingleRun) {
-    console.log(
-      'mongosh: running', codeSectionLabel,
-      'since platform ===', platformForSingleRun
-    );
-    return fn();
-  }
-
-  console.log(
-    'mongosh: skipping', codeSectionLabel,
-    'since platform !==', platformForSingleRun
-  );
-  return;
 }

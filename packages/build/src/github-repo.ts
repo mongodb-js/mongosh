@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Octokit } from '@octokit/rest';
+import { ZipFile } from './zip';
+import Config from './config';
+import semver from 'semver';
 import path from 'path';
 import util from 'util';
 import fs from 'fs';
@@ -59,7 +62,7 @@ export class GithubRepo {
    * @returns {Promise<void>}
    * @memberof GithubRepo
    */
-  async createReleaseIfNotExists(release: Release): Promise<void> {
+  async createRelease(release: Release): Promise<void> {
     const params = {
       ...this.repo,
       tag_name: release.tag,
@@ -80,7 +83,7 @@ export class GithubRepo {
    * @returns {Promise<void>}
    * @memberof GithubRepo
    */
-  async uploadReleaseAssetIfNotExists(release: Release, asset: Asset): Promise<void> {
+  async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
     const { data: releaseDetails } = await this.octokit.repos.getReleaseByTag({
       ...this.repo,
       tag: release.tag
@@ -98,6 +101,53 @@ export class GithubRepo {
 
     await this.octokit.request(params)
       .catch(this._ignoreAlreadyExistsError);
+  }
+
+  // Creates release notes and uploads assets if they are not yet uploaded to
+  // Github.
+  async releaseToGithub(artifact: ZipFile, config: Config): Promise<void> {
+    const githubRelease = {
+      name: config.version,
+      tag: `v${config.version}`,
+      notes: `Release notes [in Jira](${this.jiraReleaseNotesLink(config.version)})`
+    };
+    await this.createRelease(githubRelease);
+    await this.uploadReleaseAsset(githubRelease, artifact);
+  }
+
+  /**
+  * Checks if current build needs to be released to github and the downloads
+  * centre.
+  * Returns true if current branch is not master, there is a commit tag, and if
+  * current version matches current revision.
+  */
+  async shouldDoPublicRelease(config: Config): Promise<boolean> {
+    if (config.branch !== 'master') {
+      console.log('mongosh: skip public release: is not master');
+      return false;
+    }
+
+    const commitTag = await this.getTagByCommitSha(config.revision);
+
+    if (!commitTag) {
+      console.log('mongosh: skip public release: commit is not tagged');
+      return false;
+    }
+
+    if (semver.neq(commitTag.name, config.version)) {
+      console.log(
+        'mongosh: skip public release: the commit tag', commitTag.name,
+        'is different from the release version', config.version
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  jiraReleaseNotesLink(version: string): string {
+    return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
   }
 
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {
