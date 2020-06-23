@@ -6,7 +6,7 @@ import {
   returnsPromise,
   returnType,
   ShellApiClass,
-  shellApiClassDefault, ShellResult
+  shellApiClassDefault
 } from './decorators';
 import { ReplPlatform, generateUri } from '@mongosh/service-provider-core';
 import Database from './database';
@@ -39,11 +39,11 @@ export default class Mongo extends ShellApiClass {
     this.serviceProvider = this.internalState.initialServiceProvider;
   }
 
-  asShellResult(): ShellResult {
-    return {
-      type: 'Mongo',
-      value: retractPassword(this.uri)
-    };
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  asPrintable(): string {
+    return retractPassword(this.uri);
   }
 
   async connect(): Promise<void> {

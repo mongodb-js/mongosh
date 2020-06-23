@@ -2,7 +2,7 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass, ShellResult,
+  ShellApiClass
 } from './decorators';
 
 import {
@@ -29,11 +29,11 @@ export default class Shard extends ShellApiClass {
     return proxy;
   }
 
-  asShellResult(): ShellResult {
-    return {
-      type: 'Shard',
-      value: `Shard class connected to ${this.mongo.uri}`
-    };
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  asPrintable(): string {
+    return `Shard class connected to ${this.mongo.uri}`;
   }
 
   /**

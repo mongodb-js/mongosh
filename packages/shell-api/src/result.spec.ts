@@ -42,6 +42,7 @@ describe('Results', () => {
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.value).to.deep.equal({ ok: 1 });
+      expect(r.type).to.equal('commandType');
     });
     it('asShellResult', async() => {
       expect((await r.asShellResult()).type).to.equal('commandType');

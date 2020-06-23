@@ -11,6 +11,7 @@ import { MongoshInternalError } from '@mongosh/errors';
 
 export interface ShellApiInterface {
   asShellResult: Function;
+  asPrintable: Function;
   serverVersions?: [string, string];
   topologies?: Topologies[];
   help?: Help;
@@ -27,6 +28,9 @@ export class ShellApiClass implements ShellApiInterface {
   asShellResult(): any {
     throw new MongoshInternalError('Shell API Type did not use decorators');
   }
+  asPrintable(): any {
+    return Object.assign({}, this);
+  }
 }
 
 interface TypeSignature {
@@ -42,7 +46,7 @@ interface Signatures {
 }
 const signatures = {} as Signatures;
 
-export const toIgnore = ['asShellResult', 'constructor'];
+export const toIgnore = ['asShellResult', 'asPrintable', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -134,11 +138,14 @@ export function shellApiClassDefault(constructor: Function): void {
   const help = new Help(classHelp);
   constructor.prototype.help = (): Help => (help);
   Object.setPrototypeOf(constructor.prototype.help, help);
+  constructor.prototype.asPrintable =
+    constructor.prototype.asPrintable ||
+    function(): any { return Object.assign({}, this); };
   if (!constructor.prototype.hasOwnProperty('asShellResult')) {
     constructor.prototype.asShellResult = async function(): Promise<ShellResult> {
       return {
         type: className,
-        value: Object.assign({}, this)
+        value: await this.asPrintable()
       };
     };
   }

@@ -37,11 +37,21 @@ export default class Help {
       );
   }
 
-  asShellResult(): ShellResult {
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  asPrintable(): any {
     const { help, docs, attr } = this;
+    return { help, docs, attr };
+  }
+
+  /**
+   * Since this class doesn't use the decorator.
+   */
+  asShellResult(): ShellResult {
     return {
       type: 'Help',
-      value: { help, docs, attr }
+      value: this.asPrintable()
     };
   }
 }

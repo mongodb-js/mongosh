@@ -1,4 +1,4 @@
-import { ShellResult, ShellApiClass, shellApiClassDefault } from './decorators';
+import { ShellApiClass, shellApiClassDefault, ShellResult } from './decorators';
 import { shellApiSymbol } from './enums';
 
 @shellApiClassDefault
@@ -10,11 +10,19 @@ export class CommandResult extends ShellApiClass {
     this.type = type;
     this.value = value;
   }
+
+  /**
+   * Because the type is not the same as the constructor in this case.
+   */
   asShellResult(): ShellResult {
-    return {
-      type: this.type,
-      value: this.value
-    };
+    return this;
+  }
+
+  /**
+   * Internal method to determine what is printed for this class. In this case, used only in the java shell.
+   */
+  asPrintable(): string {
+    return this.value;
   }
 }
 
@@ -95,16 +103,28 @@ export class DeleteResult extends ShellApiClass {
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
   asShellResult: () => string;
+  asPrintable: () => this;
   [shellApiSymbol]: 'CursorIterationResult';
 
   constructor(...args) {
     super(...args);
 
+    /**
+     * Internal method to determine what is printed for this class.
+     */
+    Object.defineProperty(this, 'asPrintable', {
+      value: () => { return this; },
+      enumerable: false
+    });
+
+    /**
+     * Because this does not inherit from ShellApi, need to set asShellResult manually
+     */
     Object.defineProperty(this, 'asShellResult', {
       value: () => {
         return {
           type: 'CursorIterationResult',
-          value: this
+          value: this.asPrintable()
         };
       },
       enumerable: false

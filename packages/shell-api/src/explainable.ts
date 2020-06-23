@@ -6,7 +6,7 @@ import {
   returnsPromise,
   returnType,
   ShellApiClass,
-  shellApiClassDefault, ShellResult
+  shellApiClassDefault
 } from './decorators';
 import { validateExplainableVerbosity } from './helpers';
 import { Document } from '@mongosh/service-provider-core';
@@ -24,11 +24,11 @@ export default class Explainable extends ShellApiClass {
     this.verbosity = verbosity;
   }
 
-  asShellResult(): ShellResult {
-    return {
-      type: 'Explainable',
-      value: `Explainable(${this.collection.getFullName()})`
-    };
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  asPrintable(): string {
+    return `Explainable(${this.collection.getFullName()})`;
   }
 
   /**

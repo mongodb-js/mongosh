@@ -89,10 +89,9 @@ export default class ShellInternalState {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg): Promise<void> => {
-      if (arg.asShellResult) {
-        const result = await arg.asShellResult();
+      if (arg.asPrintable) {
         // eslint-disable-next-line no-console
-        console.log(result.value);
+        console.log(await arg.asPrintable());
       } else {
         // eslint-disable-next-line no-console
         console.log(arg);
