@@ -9,7 +9,7 @@ import {
   ShellBson,
   toIterator,
   ShellApi,
-  shellApiSymbol
+  shellApiType
 } from './index';
 import { EventEmitter } from 'events';
 import { Document, ServiceProvider, DEFAULT_DB } from '@mongosh/service-provider-core';
@@ -125,7 +125,7 @@ export default class ShellInternalState {
     this.asyncWriter.symbols.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
-      if (newDb[shellApiSymbol] !== 'Database') {
+      if (newDb[shellApiType] !== 'Database') {
         throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
       }
       return this.setDbFunc(newDb);

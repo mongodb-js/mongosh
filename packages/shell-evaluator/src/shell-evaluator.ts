@@ -1,6 +1,7 @@
 import {
   ShellInternalState,
-  shellApiSymbol,
+  shellApiType,
+  asShellResult,
   ShellResult
 } from '@mongosh/shell-api';
 
@@ -93,8 +94,8 @@ class ShellEvaluator {
       filename
     );
 
-    if (evaluationResult !== undefined && evaluationResult[shellApiSymbol] !== undefined) {
-      return await evaluationResult.asShellResult();
+    if (evaluationResult !== undefined && evaluationResult[shellApiType] !== undefined) {
+      return await evaluationResult[asShellResult]();
     }
 
     return { value: evaluationResult, type: null };

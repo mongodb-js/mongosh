@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { signatures } from './decorators';
 import Database from './database';
 import Cursor from './cursor';
@@ -15,8 +15,8 @@ describe('Explainable', () => {
   describe('help', () => {
     const apiClass: any = new Explainable({}, {}, 'verbosity');
     it('calls help function', async() => {
-      expect((await apiClass.help().asShellResult()).type).to.equal('Help');
-      expect((await apiClass.help.asShellResult()).type).to.equal('Help');
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -43,7 +43,7 @@ describe('Explainable', () => {
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'verbosity');
     it('asShellResult', async() => {
-      const result = await explainable.asShellResult();
+      const result = await explainable[asShellResult]();
       expect(result.type).to.equal('Explainable');
       expect(result.value).to.equal('Explainable(myDB.myCollection)');
     });
@@ -122,7 +122,7 @@ describe('Explainable', () => {
       });
 
       it('returns an cursor that has asShellResult when evaluated', async() => {
-        expect((await cursorStub.asShellResult()).type).to.equal('ExplainableCursor');
+        expect((await cursorStub[asShellResult]()).type).to.equal('ExplainableCursor');
       });
 
       context('when calling asShellResult.value on the result', () => {
@@ -132,7 +132,7 @@ describe('Explainable', () => {
 
         it('returns the explain result', async() => {
           expect(
-            (await cursorStub.asShellResult()).value
+            (await cursorStub[asShellResult]()).value
           ).to.equal(explainResult);
         });
       });

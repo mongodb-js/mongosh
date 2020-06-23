@@ -44,7 +44,7 @@ export default class AggregationCursor extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  async toPrintable(): Promise<any> {
+  async asPrintable(): Promise<any> {
     return await this._it();
   }
 

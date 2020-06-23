@@ -1,6 +1,6 @@
 import i18n from '@mongosh/i18n';
 import { ShellResult } from './decorators';
-import { shellApiSymbol } from './enums';
+import { shellApiType, asShellResult } from './enums';
 
 type HelpProperties = {
   help: string;
@@ -27,7 +27,7 @@ export default class Help {
   constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
     this.help = options.translate(properties.help);
     this.docs = options.translate(properties.docs);
-    this[shellApiSymbol] = 'Help';
+    this[shellApiType] = 'Help';
     this.attr = (properties.attr || [])
       .map((attr) => ({
         name: attr.name,
@@ -48,7 +48,7 @@ export default class Help {
   /**
    * Since this class doesn't use the decorator.
    */
-  asShellResult(): ShellResult {
+  [asShellResult](): ShellResult {
     return {
       type: 'Help',
       value: this.asPrintable()

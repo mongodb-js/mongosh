@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { signatures } from './decorators';
 import Database from './database';
 import Collection from './collection';
@@ -13,12 +13,12 @@ describe('Database', () => {
   describe('help', () => {
     const apiClass: any = new Database({}, 'name');
     it('calls help function', async() => {
-      expect((await apiClass.help().asShellResult()).type).to.equal('Help');
-      expect((await apiClass.help.asShellResult()).type).to.equal('Help');
+      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
     });
     it('calls help function for methods', async() => {
-      expect((await apiClass.runCommand.help().asShellResult()).type).to.equal('Help');
-      expect((await apiClass.runCommand.help.asShellResult()).type).to.equal('Help');
+      expect((await apiClass.runCommand.help()[asShellResult]()).type).to.equal('Help');
+      expect((await apiClass.runCommand.help[asShellResult]()).type).to.equal('Help');
     });
   });
   describe('collections', () => {
@@ -83,10 +83,10 @@ describe('Database', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
       it('value', async() => {
-        expect((await db.asShellResult()).value).to.equal('myDB');
+        expect((await db[asShellResult]()).value).to.equal('myDB');
       });
       it('type', async() => {
-        expect((await db.asShellResult()).type).to.equal('Database');
+        expect((await db[asShellResult]()).type).to.equal('Database');
       });
     });
   });
@@ -94,7 +94,7 @@ describe('Database', () => {
     const mongo = sinon.spy();
     const db = new Database(mongo, 'myDB') as any;
     it('creates new collection for attribute', async() => {
-      expect((await db.coll.asShellResult()).type).to.equal('Collection');
+      expect((await db.coll[asShellResult]()).type).to.equal('Collection');
     });
   });
   describe('commands', () => {
@@ -270,7 +270,7 @@ describe('Database', () => {
           {}
         );
 
-        expect((await cursor.asShellResult()).type).to.equal('AggregationCursor');
+        expect((await cursor[asShellResult]()).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });

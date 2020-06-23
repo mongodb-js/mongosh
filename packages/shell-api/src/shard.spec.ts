@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import Shard from './shard';
+// import { asShellResult } from './enums';
 
 describe('Shard', () => {
   describe('unimplemented', () => {
@@ -17,8 +18,8 @@ describe('Shard', () => {
   // describe('help', () => {
   //   const apiClass: any = new Shard({});
   //   it('calls help function', async() => {
-  //     expect((await apiClass.help().asShellResult()).type).to.equal('Help');
-  //     expect((await apiClass.help.asShellResult()).type).to.equal('Help');
+  //     expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+  //     expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
   //   });
   // });
 });

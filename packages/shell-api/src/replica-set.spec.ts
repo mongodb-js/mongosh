@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import ReplicaSet from './replica-set';
+// import { asShellResult } from './enums';
 
 describe('ReplicaSet', () => {
   describe('unimplemented', () => {
@@ -17,8 +18,8 @@ describe('ReplicaSet', () => {
   // describe('help', () => {
   //   const apiClass: any = new ReplicaSet({});
   //   it('calls help function', async() => {
-  //     expect((await apiClass.help().asShellResult()).type).to.equal('Help');
-  //     expect((await apiClass.help.asShellResult()).type).to.equal('Help');
+  //     expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
+  //     expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
   //   });
   // });
 });

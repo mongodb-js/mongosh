@@ -37,4 +37,7 @@ export const DBQuery = {
   Option: DBQueryOption
 };
 
-export const shellApiSymbol = Symbol('shellApiSymbol');
+export const shellApiType = Symbol('shellApiType');
+// TODO: Would require changes to java-shell
+// export const asPrintable = Symbol('asPrintable');
+export const asShellResult = Symbol('asShellResult');

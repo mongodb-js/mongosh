@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
-import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi } from './index';
+import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi, asShellResult } from './index';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('Shell API (integration)', function() {
@@ -115,7 +115,7 @@ describe('Shell API (integration)', function() {
 
         describe('when calling asShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect((await cursor.asShellResult()).value).to.deep.equal([{ doc: 2 }]);
+            expect((await cursor[asShellResult]()).value).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -790,7 +790,7 @@ describe('Shell API (integration)', function() {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.asShellResult();
+        const result = await cursor[asShellResult]();
         expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',
@@ -804,7 +804,7 @@ describe('Shell API (integration)', function() {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor.asShellResult();
+        const result = await cursor[asShellResult]();
         expect(result.value).to.have.keys([
           'ok',
           'queryPlanner',

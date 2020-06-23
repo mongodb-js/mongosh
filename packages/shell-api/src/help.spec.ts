@@ -1,6 +1,7 @@
 import sinon from 'ts-sinon';
 import Help from './help';
 import { expect } from 'chai';
+import { asShellResult } from './enums';
 
 describe('Help', () => {
   let translate;
@@ -11,7 +12,7 @@ describe('Help', () => {
 
   describe('#asShellResult', () => {
     it('returns Help', async() => {
-      expect((await new Help({ help: 'help' }, { translate }).asShellResult()).type).to.equal('Help');
+      expect((await new Help({ help: 'help' }, { translate })[asShellResult]()).type).to.equal('Help');
     });
   });
 
@@ -22,7 +23,7 @@ describe('Help', () => {
       };
 
       const help = new Help(properties, { translate });
-      const result = help.asShellResult();
+      const result = help[asShellResult]();
       expect(result.value.constructor.name).to.equal('Object');
       expect(result.value).to.not.equal(help);
     });
@@ -34,7 +35,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asShellResult()
+          [asShellResult]()
           .value
           .help
       ).to.equal('translated: help');
@@ -48,7 +49,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asShellResult()
+          [asShellResult]()
           .value
           .docs
       ).to.equal('translated: https://example.com');
@@ -61,7 +62,7 @@ describe('Help', () => {
 
       const help = new Help(properties, { translate });
 
-      expect(help.asShellResult().value.attr).to.deep.equal([]);
+      expect(help[asShellResult]().value.attr).to.deep.equal([]);
     });
 
     it('returns attr with translated description', () => {
@@ -72,7 +73,7 @@ describe('Help', () => {
 
       expect(
         new Help(properties, { translate })
-          .asShellResult()
+          [asShellResult]()
           .value
           .attr
       ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);

@@ -90,7 +90,7 @@ private fun getActualValue(result: MongoShellResult<*>, options: CompareOptions)
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
     if (options.commands.isEmpty()) {
-        sb.append(result.toReplString())
+        sb.append(result.asPrintable())
         return sb.toString()
     }
     var unwrapped = result.value

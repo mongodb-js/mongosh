@@ -1,5 +1,5 @@
 import { ShellApiClass, shellApiClassDefault, ShellResult } from './decorators';
-import { shellApiSymbol } from './enums';
+import { shellApiType, asShellResult } from './enums';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {
@@ -14,7 +14,7 @@ export class CommandResult extends ShellApiClass {
   /**
    * Because the type is not the same as the constructor in this case.
    */
-  asShellResult(): ShellResult {
+  [asShellResult](): ShellResult {
     return this;
   }
 
@@ -102,9 +102,9 @@ export class DeleteResult extends ShellApiClass {
 // NOTE: because this is inherited, the decorator does not add attributes. So no help() function.
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
-  asShellResult: () => string;
+  [asShellResult]: () => string;
   asPrintable: () => this;
-  [shellApiSymbol]: 'CursorIterationResult';
+  [shellApiType]: 'CursorIterationResult';
 
   constructor(...args) {
     super(...args);
@@ -120,7 +120,7 @@ export class CursorIterationResult extends Array {
     /**
      * Because this does not inherit from ShellApi, need to set asShellResult manually
      */
-    Object.defineProperty(this, 'asShellResult', {
+    Object.defineProperty(this, asShellResult, {
       value: () => {
         return {
           type: 'CursorIterationResult',
