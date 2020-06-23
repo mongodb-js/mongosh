@@ -12,20 +12,8 @@ variables:
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         cd $(pwd)
         source .evergreen/.setup_env
-        export SEGMENT_API_KEY="${segment_api_key}"
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-        export PROJECT="${project}"
-        export REVISION="${revision}"
-        export AWS_KEY="${aws_key}"
-        export AWS_SECRET="${aws_secret}"
-        export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
-        export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
-        export GITHUB_TOKEN="${github_token}"
-        export APPLE_DEV_USER="${apple_dev_user}"
-        export APPLE_DEV_PASSWORD="${apple_dev_password}"
-        export APPLE_APP_IDENTITY="${apple_app_identity}"
-        export DEBUG="node-codesign,electron-notarize"
-        export IS_CI="${is_ci}"
+        export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
         npm run release
         RELEASE_MONGOSH
 
@@ -43,20 +31,8 @@ variables:
       shell: powershell
       script: |
         .\.evergreen\SetupEnv
-        $Env:SEGMENT_API_KEY = "${segment_api_key}"
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-        $Env:PROJECT = "${project}"
-        $Env:REVISION = "${revision}"
-        $Env:AWS_KEY = "${aws_key}"
-        $Env:AWS_SECRET = "${aws_secret}"
-        $Env:DOWNLOAD_CENTER_AWS_KEY = "${download_center_aws_key}"
-        $Env:DOWNLOAD_CENTER_AWS_SECRET = "${download_center_aws_secret}"
-        $Env:GITHUB_TOKEN = "${github_token}"
-        $Env:APPLE_DEV_USER = "${apple_dev_user}"
-        $Env:APPLE_DEV_PASSWORD = "${apple_dev_password}"
-        $Env:APPLE_APP_IDENTITY = "${apple_app_identity}"
-        $Env:DEBUG = "node-codesign"
-        $Env:IS_CI = "${is_ci}"
+        $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path '..' 'tmp' 'expansions.yaml' -Resolve)
         npm run release
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
@@ -105,22 +81,32 @@ functions:
           .\.evergreen\SetupEnv
           npm run check-ci
   test:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         script: |
           source .evergreen/.setup_env
+          export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           export MONGOSH_STITCH_TEST_APP_ID=${stitch_test_app_id}
           export MONGOSH_STITCH_TEST_SERVICE_NAME=${stitch_test_service_name}
           npm run test-ci
   test_ps:
+    - command: expansions.write
+      params:
+        file: tmp\expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src
         shell: powershell
         script: |
           .\.evergreen\SetupEnv
+          $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path '..' 'tmp' 'expansions.yaml' -Resolve)
           $Env:MONGOSH_STITCH_TEST_APP_ID = "${stitch_test_app_id}"
           $Env:MONGOSH_STITCH_TEST_SERVICE_NAME = "${stitch_test_service_name}"
           npm run test-ci
