@@ -94,6 +94,15 @@ functions:
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           npm run test-ci
+  test_cygwin: # NOTE: does not run tests that needs expansions (ie. stitch)
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          source .evergreen/.setup_env
+          npm run test-ci
   test_ps:
     - command: expansions.write
       params:
@@ -199,7 +208,7 @@ buildvariants:
     run_on: windows-64-vs2019-test
     tasks:
       - name: check
-      - name: test
+      - name: test_cygwin
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
