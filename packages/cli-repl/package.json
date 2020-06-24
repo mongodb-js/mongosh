@@ -16,8 +16,8 @@
   },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "start": "node --experimental-repl-await bin/mongosh.js start",
-    "start-async": "node --experimental-repl-await bin/mongosh.js start --async",
+    "start": "node bin/mongosh.js start",
+    "start-async": "node bin/mongosh.js start --async",
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
     "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
     "pretest-e2e": "npm run compile-ts",
