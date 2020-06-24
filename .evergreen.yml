@@ -94,7 +94,7 @@ functions:
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           npm run test-ci
-  test_cygwin: # NOTE: does not run tests that needs expansions (ie. stitch)
+  test_cygwin:
     - command: shell.exec
       params:
         working_dir: src
@@ -159,6 +159,11 @@ tasks:
       - func: checkout
       - func: install
       - func: test
+  - name: test_cygwin
+    commands:
+      - func: checkout
+      - func: install
+      - func: test_cygwin
   - name: test_ps
     commands:
       - func: checkout
