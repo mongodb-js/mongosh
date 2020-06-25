@@ -14,23 +14,7 @@ variables:
         cd $(pwd)
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-<<<<<<< HEAD
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-=======
-        export PROJECT="${project}"
-        export REVISION="${revision}"
-        export BRANCH="${branch_name}"
-        export AWS_KEY="${aws_key}"
-        export AWS_SECRET="${aws_secret}"
-        export DOWNLOAD_CENTER_AWS_KEY="${download_center_aws_key}"
-        export DOWNLOAD_CENTER_AWS_SECRET="${download_center_aws_secret}"
-        export GITHUB_TOKEN="${github_token}"
-        export APPLE_DEV_USER="${apple_dev_user}"
-        export APPLE_DEV_PASSWORD="${apple_dev_password}"
-        export APPLE_APP_IDENTITY="${apple_app_identity}"
-        export DEBUG="node-codesign,electron-notarize"
-        export IS_CI="${is_ci}"
->>>>>>> ae694f8... add branch name to build config
         npm run release
         RELEASE_MONGOSH
 
@@ -49,23 +33,7 @@ variables:
       script: |
         .\.evergreen\SetupEnv
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-<<<<<<< HEAD
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-=======
-        $Env:PROJECT = "${project}"
-        $Env:REVISION = "${revision}"
-        $Env:BRANCH = "${branch}"
-        $Env:AWS_KEY = "${aws_key}"
-        $Env:AWS_SECRET = "${aws_secret}"
-        $Env:DOWNLOAD_CENTER_AWS_KEY = "${download_center_aws_key}"
-        $Env:DOWNLOAD_CENTER_AWS_SECRET = "${download_center_aws_secret}"
-        $Env:GITHUB_TOKEN = "${github_token}"
-        $Env:APPLE_DEV_USER = "${apple_dev_user}"
-        $Env:APPLE_DEV_PASSWORD = "${apple_dev_password}"
-        $Env:APPLE_APP_IDENTITY = "${apple_app_identity}"
-        $Env:DEBUG = "node-codesign"
-        $Env:IS_CI = "${is_ci}"
->>>>>>> ae694f8... add branch name to build config
         npm run release
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
