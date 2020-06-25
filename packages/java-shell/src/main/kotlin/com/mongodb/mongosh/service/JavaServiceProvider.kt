@@ -14,7 +14,7 @@ import org.graalvm.polyglot.Value
 import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
     @JvmField
     @HostAccess.Export
@@ -524,8 +524,6 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
-
-    override fun close() = client.close()
 
     private fun <T> promise(block: () -> Either<T>): Value {
         return context.toJsPromise(block())
