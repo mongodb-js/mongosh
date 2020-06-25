@@ -1,7 +1,5 @@
 import { GithubRepo } from './github-repo';
 import { Octokit } from '@octokit/rest';
-import Platform from './platform';
-import { ZipFile } from './zip';
 import { expect } from 'chai';
 import sinon from 'ts-sinon' ;
 import path from 'path';
@@ -66,36 +64,24 @@ describe('GithubRepo', () => {
     });
   });
 
-  // describe('releaseToGithub', () => {
-  //   const platform = os.platform();
-  //   const version = '1.0.0';
-  //   const expectedZip = zipPath(__dirname, platform, version);
-  //   const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+  describe('releaseToGithub', () => {
+    const platform = os.platform();
+    const version = '1.0.0';
+    const expectedZip = zipPath(__dirname, platform, version);
+    const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
 
-  //   after((done) => {
-  //     fs.unlink(expectedZip, done);
-  //   });
+    after((done) => {
+      fs.unlink(expectedZip, done);
+    });
 
-  //   it('calls createRelease when running releaseToGithub', async() => {
-  //     const createReleaseStub = sinon.stub().resolves();
-  //     const uploadReleaseAsset = sinon.stub().resolves();
-  //     sinon.createStubInstance(GithubRepo, {
-  //         createRelease: sinon.stub(),
-  //         uploadReleaseAsset: sinon.stub(),
-  //     });
+    it('calls createRelease when running releaseToGithub', async() => {
+      githubRepo.createRelease = sinon.stub().resolves();
+      githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
-  //     const octokit = new Octokit();
+      const zipFile = await zip(inputFile, __dirname, platform, version);
 
-  //     const repo = {
-  //       owner: 'mongodb-js',
-  //       repo: 'mongosh'
-  //     };
-
-  //     const zipFile = await zip(inputFile, __dirname, platform, version);
-  //     const githubRepoStub = new GithubRepo(repo, octokit);
-
-  //     githubRepoStub.releaseToGithub(zipFile, { version: '0.0.6' })
-  //     expect(createReleaseStub).to.have.been.called;
-  //   });
-  // });
+      githubRepo.releaseToGithub(zipFile, { version: '0.0.6' })
+      expect(githubRepo.createRelease).to.have.been.called;
+    });
+  });
 });

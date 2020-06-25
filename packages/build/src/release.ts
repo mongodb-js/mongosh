@@ -1,12 +1,10 @@
-import { Octokit } from '@octokit/rest';
-import compileExec from './compile-exec';
-import Config from './config';
-import uploadDownloadCenterConfig from './download-center';
-import runOnlyOnOnePlatform from './execute-once';
+import releaseToDownloadCenter from './release-downloads-center';
 import uploadArtifactToEvergreen from './evergreen';
 import { GithubRepo } from './github-repo';
-import uploadArtifactToDownloadCenter from './upload-artifact';
+import compileExec from './compile-exec';
+import { Octokit } from '@octokit/rest';
 import { zip, ZipFile } from './zip';
+import Config from './config';
 
 /**
  * Run the release process.
@@ -26,12 +24,26 @@ export default async function release(config: Config): Promise<void> {
 
   const githubRepo = new GithubRepo(config.repo, octokit);
 
+  await releaseTasks(config, githubRepo, compileAndZipExecutable, uploadArtifactToEvergreen, releaseToDownloadCenter);
+}
+
+export async function releaseTasks(
+  config,
+  githubRepo,
+  compileAndZipExecutable,
+  uploadToEvergreen,
+  releaseToDownloadCenter): Promise<void> {
   // Build the executable.
   const zipFile = await compileAndZipExecutable(config);
   console.log('mongosh: created zipfile:', zipFile);
 
-  // Always release internally.
-  await releaseInternally(zipFile, config);
+  // Always release internally to evergreen
+  await uploadToEvergreen(
+    zipFile.path,
+    config.evgAwsKey,
+    config.evgAwsSecret,
+    config.project,
+    config.revision);
   console.log('mongosh: internal release completed.');
 
   // Only release to public from master and when tagged with the right version.
@@ -80,37 +92,5 @@ async function compileAndZipExecutable(config: Config): Promise<ZipFile> {
   );
 
   // add artifcats for .rpm and .deb and .msi
-
   return artifact;
-}
-
-// Uploads artifacts to evergreen on every commit
-async function releaseInternally(artifact: ZipFile, config: Config): Promise<void> {
-  await uploadArtifactToEvergreen(
-    artifact.path,
-    config.evgAwsKey,
-    config.evgAwsSecret,
-    config.project,
-    config.revision
-  );
-}
-
-// Upload tarballs and Downloads Center config file.
-// Config file only gets uploaded once.
-async function releaseToDownloadCenter(artifact: ZipFile, config: Config): Promise<void> {
-  await uploadArtifactToDownloadCenter(
-    artifact.path,
-    config.downloadCenterAwsKey,
-    config.downloadCenterAwsSecret,
-    config.project,
-    config.revision
-  );
-
-  await runOnlyOnOnePlatform('upload to download center', config, async() => {
-    await uploadDownloadCenterConfig(
-      config.version,
-      config.downloadCenterAwsKey,
-      config.downloadCenterAwsSecret
-    );
-  });
 }
