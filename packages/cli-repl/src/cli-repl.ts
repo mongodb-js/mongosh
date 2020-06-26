@@ -68,7 +68,7 @@ class CliRepl {
       this.setupRepl(driverUri, driverOptions).catch((error) => {
         this.bus.emit('mongosh:error', error);
         console.log(formatError(error));
-        return;
+        return process.exit();
       });
     }
   }
@@ -362,7 +362,7 @@ class CliRepl {
       this.setupRepl(driverUri, driverOptions).catch((e) => {
         this.bus.emit('mongosh:error', e);
         console.log(formatError(e));
-        return;
+        return process.exit();
       });
     });
   }
