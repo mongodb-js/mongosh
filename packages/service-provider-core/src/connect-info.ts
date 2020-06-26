@@ -7,6 +7,7 @@ interface ConnectInfo {
   is_atlas: boolean;
   is_localhost: boolean;
   server_version: string;
+  mongosh_version: string;
   server_os?: string;
   server_arch?: string;
   is_enterprise: boolean;
@@ -19,7 +20,7 @@ interface ConnectInfo {
   uri: string;
 }
 
-export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts: any, topology: any): ConnectInfo {
+export default function getConnectInfo(uri: string, mongoshVersion: string, buildInfo: any, cmdLineOpts: any, topology: any): ConnectInfo {
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
   const { isDataLake: is_data_lake, dlVersion: dl_version }
@@ -36,6 +37,8 @@ export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts:
     is_atlas: getBuildInfo.isAtlas(uri),
     is_localhost: getBuildInfo.isLocalhost(uri),
     server_version: buildInfo.version,
+    node_version: process.version,
+    mongosh_version: mongoshVersion,
     server_os,
     uri,
     server_arch,
@@ -43,7 +46,6 @@ export default function getConnectInfo(uri: string, buildInfo: any, cmdLineOpts:
     auth_type,
     is_data_lake,
     dl_version,
-    node_version: process.version,
     is_genuine,
     non_genuine_server_name
   };
