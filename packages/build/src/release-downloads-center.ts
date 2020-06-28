@@ -6,7 +6,7 @@ import Config from './config';
 
 // Upload tarballs and Downloads Center config file.
 // Config file only gets uploaded once.
-const releaseToDownloadCenter = async (artifact: ZipFile, config: Config): Promise<void> => {
+const releaseToDownloadCenter = async(artifact: ZipFile, config: Config): Promise<void> => {
   await uploadArtifactToDownloadCenter(
     artifact.path,
     config.downloadCenterAwsKey,
@@ -22,6 +22,6 @@ const releaseToDownloadCenter = async (artifact: ZipFile, config: Config): Promi
       config.downloadCenterAwsSecret
     );
   });
-}
+};
 
 export default releaseToDownloadCenter;

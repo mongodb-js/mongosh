@@ -1,7 +1,7 @@
 import { GithubRepo } from './github-repo';
 import { Octokit } from '@octokit/rest';
 import { expect } from 'chai';
-import sinon from 'ts-sinon' ;
+import sinon from 'ts-sinon';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -80,7 +80,7 @@ describe('GithubRepo', () => {
 
       const zipFile = await zip(inputFile, __dirname, platform, version);
 
-      githubRepo.releaseToGithub(zipFile, { version: '0.0.6' })
+      githubRepo.releaseToGithub(zipFile, { version: '0.0.6' });
       expect(githubRepo.createRelease).to.have.been.called;
     });
   });

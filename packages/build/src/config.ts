@@ -1,8 +1,29 @@
 /**
  * Defines the configuration interface for the build system.
  */
-interface Config {
-  [key: string]: any;
+export default interface Config {
+  version?: string;
+  bundleId?: string;
+  input?: string;
+  execInput?: string;
+  outputDir?: string;
+  analyticsConfig?: string;
+  project?: string;
+  revision?: string;
+  branch?: string;
+  evgAwsKey?: string;
+  evgAwsSecret?: string;
+  downloadCenterAwsKey?: string;
+  downloadCenterAwsSecret?: string;
+  githubToken?: string;
+  segmentKey?: string;
+  appleUser?: string;
+  applePassword?: string;
+  appleAppIdentity?: string;
+  isCi?: boolean;
+  platform?: string;
+  repo?: {
+    owner: string;
+    repo: string;
+  };
 }
-
-export default Config;
