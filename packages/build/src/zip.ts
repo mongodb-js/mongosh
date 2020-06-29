@@ -2,6 +2,7 @@ import path from 'path';
 import tar from 'tar';
 import AdmZip from 'adm-zip';
 import Platform from './platform';
+import installer from 'electron-installer-debian';
 
 /**
  * Get the path to the zip.
@@ -38,6 +39,9 @@ export const zipPosix = async(outputDir: string, filename: string): Promise<void
   const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
   await tar.c(options, [ '.' ]);
 };
+
+export const zipDebain = async(outputDir: string, filename: string): Promise<void> => {
+}
 
 /**
  * Create a zip archive for windows.
