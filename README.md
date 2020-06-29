@@ -11,6 +11,9 @@ currently available APIs and troubleshooting, go to [our wiki](https://github.co
 For our official documentation, please visit [MongoDB Docs
 page](https://docs.mongodb.com/mongodb-shell).
 
+MongoDB Shell works with MongoDB >= 3.6. However, please be aware that 3.6 is
+EOL in April 2021.
+
 ![MongoDB Shell Example](./mongosh.gif)
 
 ## Installation
