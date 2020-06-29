@@ -195,17 +195,12 @@ buildvariants:
       - name: check
       - name: test
       - name: release_linux
-  - name: windows
-    display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-test
-    tasks:
-      - name: check
-      - name: test
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
       - name: check_ps
+      - name: test
       - name: release_win_ps
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
