@@ -1,4 +1,5 @@
 const path = require('path');
+const os = require('os');
 
 /**
  * The project root.
@@ -52,6 +53,7 @@ module.exports = {
   analyticsConfig: ANALYTICS_CONFIG,
   project: process.env.PROJECT,
   revision: process.env.REVISION,
+  branch: process.env.BRANCH,
   evgAwsKey: process.env.AWS_KEY,
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
@@ -61,5 +63,10 @@ module.exports = {
   appleUser: process.env.APPLE_DEV_USER,
   applePassword: process.env.APPLE_DEV_PASSWORD,
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
-  isCi: process.env.IS_CI
+  isCi: process.env.IS_CI === 'true',
+  platform: os.platform(),
+  repo: {
+    owner: 'mongodb-js',
+    repo: 'mongosh'
+  }
 };

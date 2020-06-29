@@ -3,7 +3,8 @@ import os from 'os';
 import fs from 'fs';
 import { expect } from 'chai';
 import Platform from './platform';
-import zip, {
+import {
+  zip,
   zipPath,
   zipPosix,
   zipWindows

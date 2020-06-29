@@ -10,7 +10,7 @@ import UnsignableCompiler from './unsignable-compiler';
 enum ExecName {
   Windows = 'mongosh.exe',
   Posix = 'mongosh'
-};
+}
 
 /**
  * Determine the name of the executable based on the
@@ -25,7 +25,7 @@ const determineExecName = (platform: string): string => {
     return ExecName.Windows;
   }
   return ExecName.Posix;
-}
+};
 
 /**
  * Get the path to the executable itself.
@@ -54,7 +54,6 @@ const compileExec = async(
   platform: string,
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
-
   // Nexe has a huge problem figuring out dependencies in this project,
   // especially with all the lerna symlinking, so we use Parcel to bundle
   // up everything into a single JS under cli-repl/dist/mongosh.js

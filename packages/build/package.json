@@ -28,5 +28,8 @@
     "entries": [
       "src/**/*.js"
     ]
+  },
+  "devDependencies": {
+    "sinon-chai": "^3.5.0"
   }
 }

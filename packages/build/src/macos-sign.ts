@@ -3,7 +3,7 @@ import util from 'util';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
-import zip from './zip';
+import { zip } from './zip';
 
 /**
  * Notarizes the zipped mongosh. Will send the zip to Apple and poll apple
