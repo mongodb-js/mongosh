@@ -200,7 +200,7 @@ buildvariants:
     run_on: windows-64-vs2019-test
     tasks:
       - name: check_ps
-      - name: test_ps
+      # - name: test_ps
       - name: release_win_ps
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
