@@ -95,15 +95,6 @@ functions:
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           npm run test-ci
-  test_cygwin:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          source .evergreen/.setup_env
-          npm run test-ci
   test_ps:
     - command: expansions.write
       params:
@@ -160,11 +151,6 @@ tasks:
       - func: checkout
       - func: install
       - func: test
-  - name: test_cygwin
-    commands:
-      - func: checkout
-      - func: install
-      - func: test_cygwin
   - name: test_ps
     commands:
       - func: checkout
@@ -209,17 +195,12 @@ buildvariants:
       - name: check
       - name: test
       - name: release_linux
-  - name: windows
-    display_name: "Windows VS 2019 Cygwin"
-    run_on: windows-64-vs2019-test
-    tasks:
-      - name: check
-      - name: test_cygwin
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
       - name: check_ps
+      # - name: test_ps
       - name: release_win_ps
 #  - name: ubuntuppc
 #    display_name: "Ubuntu 18.04 PPC"
