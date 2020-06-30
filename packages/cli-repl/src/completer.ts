@@ -16,14 +16,6 @@ const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
 
 const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
-const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
-const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
-const DB_COMPLETIONS = shellSignatures.Database.attributes;
-const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
-const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;
-const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes;
-const SHARD_COMPLETE = shellSignatures.Shard.attributes;
-
 /**
  * The proect stage operator.
  */
@@ -42,6 +34,14 @@ const GROUP = '$group';
  * @returns {array} Matching Completions, Current User Input.
  */
 function completer(mdbVersion: string, line: string): [string[], string] {
+  const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
+  const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
+  const DB_COMPLETIONS = shellSignatures.Database.attributes;
+  const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
+  const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;
+  const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes;
+  const SHARD_COMPLETE = shellSignatures.Shard.attributes;
+
   // keep initial line param intact to always return in return statement
   // check for contents of line with:
   const splitLine = line.split('.');

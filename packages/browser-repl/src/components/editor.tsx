@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
@@ -11,35 +10,26 @@ import './ace-theme';
 import ace from 'brace';
 const tools = ace.acequire('ace/ext/language_tools');
 
-const noop = (): void => {
-  //
-};
+const noop = (): void => {};
 
 interface EditorProps {
   onEnter?(): void | Promise<void>;
   onArrowUpOnFirstLine?(): void | Promise<void>;
   onArrowDownOnLastLine?(): void | Promise<void>;
   onChange?(value: string): void | Promise<void>;
+  onClearCommand?(): void | Promise<void>;
   autocompleter?: Autocompleter;
   setInputRef?(ref): void;
   value?: string;
 }
 
 export class Editor extends Component<EditorProps> {
-  static propTypes = {
-    onEnter: PropTypes.func,
-    onArrowUpOnFirstLine: PropTypes.func,
-    onArrowDownOnLastLine: PropTypes.func,
-    onChange: PropTypes.func,
-    setInputRef: PropTypes.func,
-    value: PropTypes.string
-  };
-
   static defaultProps = {
     onEnter: noop,
     onArrowUpOnFirstLine: noop,
     onArrowDownOnLastLine: noop,
     onChange: noop,
+    onClearCommand: noop,
     value: ''
   };
 
@@ -60,6 +50,8 @@ export class Editor extends Component<EditorProps> {
   };
 
   render(): JSX.Element {
+    const { onClearCommand } = this.props;
+
     return (<AceEditor
       showPrintMargin={false}
       showGutter={false}
@@ -114,6 +106,11 @@ export class Editor extends Component<EditorProps> {
 
             this.props.onArrowDownOnLastLine();
           }
+        },
+        {
+          name: 'clearShell',
+          bindKey: { win: 'Ctrl-L', mac: 'Command-L' },
+          exec: onClearCommand
         }
       ]}
       width="100%"

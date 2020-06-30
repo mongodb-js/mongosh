@@ -27,6 +27,9 @@ const hotkeys = [{
   key: 'Ctrl+H',
   description: 'Erases one character. Similar to hitting backspace.'
 }, {
+  key: 'Ctrl+L',
+  description: 'Clears the screen, similar to the clear command.'
+}, {
   key: 'Ctrl+T',
   description: 'Swap the last two characters before the cursor.'
 }, {
@@ -75,7 +78,10 @@ export class InfoModal extends PureComponent {
           </div>
           <div className={styles['info-modal-shortcuts']}>
             {hotkeys.map(shortcut => (
-              <div className={styles['info-modal-shortcuts-hotkey']}>
+              <div
+                className={styles['info-modal-shortcuts-hotkey']}
+                key={`short-cut-${shortcut.key}`}
+              >
                 <span
                   className={styles['info-modal-shortcuts-hotkey-key']}
                 >{shortcut.key}</span>{shortcut.description}

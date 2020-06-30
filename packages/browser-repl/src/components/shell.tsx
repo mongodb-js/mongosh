@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
@@ -72,22 +71,6 @@ const noop = (): void => {
  * The browser-repl Shell component
  */
 export class Shell extends Component<ShellProps, ShellState> {
-  static propTypes = {
-    runtime: PropTypes.shape({
-      evaluate: PropTypes.func.isRequired
-    }).isRequired,
-    onOutputChanged: PropTypes.func,
-    onHistoryChanged: PropTypes.func,
-    redactInfo: PropTypes.bool,
-    maxOutputLength: PropTypes.number,
-    maxHistoryLength: PropTypes.number,
-    initialOutput: PropTypes.arrayOf(PropTypes.shape({
-      format: PropTypes.string.isRequired,
-      value: PropTypes.any.isRequired
-    })),
-    initialHistory: PropTypes.arrayOf(PropTypes.string)
-  };
-
   static defaultProps = {
     onHistoryChanged: noop,
     onOutputChanged: noop,
@@ -162,6 +145,15 @@ export class Shell extends Component<ShellProps, ShellState> {
     return output;
   }
 
+  private onClearCommand = (): void => {
+    const output = [];
+
+    Object.freeze(output);
+
+    this.setState({ output });
+    this.props.onOutputChanged(output);
+  };
+
   private onInput = async(code: string): Promise<void> => {
     const inputLine: ShellOutputEntry = {
       format: 'input',
@@ -212,6 +204,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         </div>
         <div ref={(el): void => { this.shellInputElement = el; }}>
           <ShellInput
+            onClearCommand={this.onClearCommand}
             onInput={this.onInput}
             history={this.state.history}
             autocompleter={this.props.runtime}
