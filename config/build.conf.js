@@ -53,7 +53,7 @@ module.exports = {
   analyticsConfig: ANALYTICS_CONFIG,
   project: process.env.PROJECT,
   revision: process.env.REVISION,
-  branch: process.env.BRANCH,
+  branch: process.env.BRANCH_NAME,
   evgAwsKey: process.env.AWS_KEY,
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
