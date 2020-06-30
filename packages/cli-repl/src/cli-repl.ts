@@ -311,7 +311,8 @@ class CliRepl {
   verifyNodeVersion(): void {
     const { engines } = require('../package.json');
     if (!semver.satisfies(process.version, engines.node)) {
-      console.log(`WARNING: mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`);
+      const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`);
+      console.log(formatError(warning));
       process.exit(1);
     }
   }
