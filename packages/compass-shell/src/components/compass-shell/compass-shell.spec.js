@@ -218,10 +218,6 @@ describe('CompassShell', () => {
       type: 'output',
       value: 'some output'
     }]);
-    console.log('shell.shellOutput', shell.shellOutput, [{
-      type: 'output',
-      value: 'some output'
-    }]);
 
     expect(shell.shellOutput).to.deep.equal([{
       type: 'output',
