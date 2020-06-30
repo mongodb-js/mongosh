@@ -16,14 +16,18 @@ const ERROR_PATTERN = /Thrown:\n([^>]*)/m;
 export class TestShell {
   private static _openShells: TestShell[] = [];
 
-  static start(options: { args: string[] } = { args: [] }): TestShell {
-    const execPath = path.resolve(__dirname, '..', 'bin', 'mongosh.js');
+  static start(options: {
+    args: string[];
+    executablePath?: string;
+  } = { args: [] }): TestShell {
+    const execPath = process.env.MONGOSH_TEST_EXECUTABLE_PATH ||
+      path.resolve(__dirname, '..', 'bin', 'mongosh.js');
 
-    const process = spawn('node', [execPath, ...options.args], {
+    const shellProcess = spawn('node', [execPath, ...options.args], {
       stdio: [ 'pipe', 'pipe', 'pipe' ]
     });
 
-    const shell = new TestShell(process);
+    const shell = new TestShell(shellProcess);
     TestShell._openShells.push(shell);
 
     return shell;
