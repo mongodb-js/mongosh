@@ -7,7 +7,8 @@ import Platform from './platform';
 enum Target {
   Windows = 'win',
   MacOs = 'macos',
-  Linux = 'linux'
+  Linux = 'linux',
+  Debian = 'debian'
 }
 
 /**
@@ -41,6 +42,7 @@ class UnsignableCompiler extends Compiler {
     switch(this.platform) {
       case Platform.Windows: return Target.Windows;
       case Platform.MacOs: return Target.MacOs;
+      case Platform.Debian: return Target.Debian;
       default: return Target.Linux;
     }
   };
