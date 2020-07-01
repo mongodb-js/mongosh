@@ -20,12 +20,17 @@ export class TestShell {
     args: string[];
     executablePath?: string;
   } = { args: [] }): TestShell {
-    const execPath = process.env.MONGOSH_TEST_EXECUTABLE_PATH ||
-      path.resolve(__dirname, '..', 'bin', 'mongosh.js');
+    let shellProcess: ChildProcess;
 
-    const shellProcess = spawn('node', [execPath, ...options.args], {
-      stdio: [ 'pipe', 'pipe', 'pipe' ]
-    });
+    if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
+      shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
+        stdio: [ 'pipe', 'pipe', 'pipe' ]
+      });
+    } else {
+      shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
+        stdio: [ 'pipe', 'pipe', 'pipe' ]
+      });
+    }
 
     const shell = new TestShell(shellProcess);
     TestShell._openShells.push(shell);
