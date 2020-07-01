@@ -18,7 +18,6 @@ export class TestShell {
 
   static start(options: {
     args: string[];
-    executablePath?: string;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
