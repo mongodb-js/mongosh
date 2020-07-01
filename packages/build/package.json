@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
