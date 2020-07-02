@@ -8,7 +8,8 @@ import stripAnsi from 'strip-ansi';
 import assert from 'assert';
 
 const PROMPT_PATTERN = /^> /m;
-const ERROR_PATTERN = /(Thrown|Uncaught):\n([^>]*)/m;
+const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/m; // node <= 12.14
+const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/m;
 
 /**
  * Test shell helper class.
@@ -125,6 +126,8 @@ export class TestShell {
   assertContainsError(expectedError: string): void {
     const allErrors = this._getAllErrors();
 
+    console.log(allErrors);
+
     if (!allErrors.find((error) => error.includes(expectedError))) {
       throw new assert.AssertionError({
         message: `Expected shell errors to include ${JSON.stringify(expectedError)}`,
@@ -140,7 +143,11 @@ export class TestShell {
   }
 
   private _getAllErrors(): string[] {
-    return [...(this._output as any).matchAll(ERROR_PATTERN)]
+    const output = (this._output as any);
+    return [
+      ...output.matchAll(ERROR_PATTERN_1),
+      ...output.matchAll(ERROR_PATTERN_2)
+    ]
       .map(m => m[1].trim());
   }
 }
