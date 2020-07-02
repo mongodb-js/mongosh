@@ -47,6 +47,7 @@ export class TestShell {
   private _process: ChildProcess;
 
   private _output: string;
+  private _onClose: Promise<number>;
 
   constructor(shellProcess: ChildProcess) {
     this._process = shellProcess;
@@ -62,6 +63,12 @@ export class TestShell {
 
     shellProcess.stderr.on('data', (chunk) => {
       this._output += stripAnsi(stderrDecoder.write(chunk));
+    });
+
+    this._onClose = new Promise((resolve) => {
+      shellProcess.once('close', (code) => {
+        resolve(code);
+      });
     });
   }
 
@@ -79,6 +86,10 @@ export class TestShell {
         });
       }
     });
+  }
+
+  waitForExit(): Promise<number> {
+    return this._onClose;
   }
 
   kill(): void {
@@ -125,8 +136,6 @@ export class TestShell {
 
   assertContainsError(expectedError: string): void {
     const allErrors = this._getAllErrors();
-
-    console.log(allErrors);
 
     if (!allErrors.find((error) => error.includes(expectedError))) {
       throw new assert.AssertionError({

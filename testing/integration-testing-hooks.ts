@@ -1,7 +1,7 @@
 const mongodbRunnerBefore = require('mongodb-runner/mocha/before');
 const mongodbRunnerAfter = require('mongodb-runner/mocha/after');
 
-export const LOCAL_INSTANCE_PORT = 27028;
+export const LOCAL_INSTANCE_PORT = 27018;
 export const LOCAL_INSTANCE_HOST = 'localhost';
 
 /**
