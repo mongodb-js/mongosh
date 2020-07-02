@@ -8,7 +8,7 @@ import stripAnsi from 'strip-ansi';
 import assert from 'assert';
 
 const PROMPT_PATTERN = /^> /m;
-const ERROR_PATTERN = /Thrown:\n([^>]*)/m;
+const ERROR_PATTERN = /(Thrown|Uncaught):\n([^>]*)/m;
 
 /**
  * Test shell helper class.
