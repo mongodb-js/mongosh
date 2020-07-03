@@ -71,6 +71,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
   async getConnectionInfo(): Promise<any> {
     const buildInfo = await this.buildInfo();
     const topology = await this.getTopology();
+    const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
       cmdLineOpts = await this.getCmdLineOpts();
@@ -79,6 +80,7 @@ class StitchServiceProviderBrowser implements ServiceProvider {
     }
     const connectInfo = getConnectInfo(
       '', // TODO: something more useful?
+      version,
       buildInfo,
       cmdLineOpts,
       topology

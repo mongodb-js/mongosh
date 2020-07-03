@@ -105,6 +105,7 @@ class CliServiceProvider implements ServiceProvider {
   async getConnectionInfo(): Promise<any> {
     const buildInfo = await this.buildInfo();
     const topology = await this.getTopology();
+    const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
       cmdLineOpts = await this.getCmdLineOpts();
@@ -113,6 +114,7 @@ class CliServiceProvider implements ServiceProvider {
     }
     const connectInfo = getConnectInfo(
       this.uri,
+      version,
       buildInfo,
       cmdLineOpts,
       topology

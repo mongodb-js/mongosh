@@ -78,6 +78,7 @@ describe('getConnectInfo', function() {
       is_atlas: true,
       is_localhost: false,
       server_version: '3.2.0-rc2',
+      mongosh_version: '0.0.6',
       is_enterprise: true,
       auth_type: 'LDAP',
       is_data_lake: false,
@@ -91,6 +92,7 @@ describe('getConnectInfo', function() {
     };
     expect(getConnectInfo(
       ATLAS_URI,
+      '0.0.6',
       BUILD_INFO,
       CMD_LINE_OPTS,
       TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
@@ -101,6 +103,7 @@ describe('getConnectInfo', function() {
       is_atlas: true,
       is_localhost: false,
       server_version: '3.2.0-rc2',
+      mongosh_version: '0.0.6',
       is_enterprise: true,
       auth_type: null,
       is_data_lake: false,
@@ -114,6 +117,7 @@ describe('getConnectInfo', function() {
     };
     expect(getConnectInfo(
       ATLAS_URI,
+      '0.0.6',
       BUILD_INFO,
       CMD_LINE_OPTS,
       TOPOLOGY_NO_CREDENTIALS)).to.deep.equal(output);
