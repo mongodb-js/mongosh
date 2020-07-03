@@ -8,7 +8,8 @@ import stripAnsi from 'strip-ansi';
 import assert from 'assert';
 
 const PROMPT_PATTERN = /^> /m;
-const ERROR_PATTERN = /Thrown:\n([^>]*)/m;
+const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/m; // node <= 12.14
+const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/m;
 
 /**
  * Test shell helper class.
@@ -16,14 +17,22 @@ const ERROR_PATTERN = /Thrown:\n([^>]*)/m;
 export class TestShell {
   private static _openShells: TestShell[] = [];
 
-  static start(options: { args: string[] } = { args: [] }): TestShell {
-    const execPath = path.resolve(__dirname, '..', 'bin', 'mongosh.js');
+  static start(options: {
+    args: string[];
+  } = { args: [] }): TestShell {
+    let shellProcess: ChildProcess;
 
-    const process = spawn('node', [execPath, ...options.args], {
-      stdio: [ 'pipe', 'pipe', 'pipe' ]
-    });
+    if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
+      shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
+        stdio: [ 'pipe', 'pipe', 'pipe' ]
+      });
+    } else {
+      shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
+        stdio: [ 'pipe', 'pipe', 'pipe' ]
+      });
+    }
 
-    const shell = new TestShell(process);
+    const shell = new TestShell(shellProcess);
     TestShell._openShells.push(shell);
 
     return shell;
@@ -38,6 +47,7 @@ export class TestShell {
   private _process: ChildProcess;
 
   private _output: string;
+  private _onClose: Promise<number>;
 
   constructor(shellProcess: ChildProcess) {
     this._process = shellProcess;
@@ -53,6 +63,12 @@ export class TestShell {
 
     shellProcess.stderr.on('data', (chunk) => {
       this._output += stripAnsi(stderrDecoder.write(chunk));
+    });
+
+    this._onClose = new Promise((resolve) => {
+      shellProcess.once('close', (code) => {
+        resolve(code);
+      });
     });
   }
 
@@ -70,6 +86,10 @@ export class TestShell {
         });
       }
     });
+  }
+
+  waitForExit(): Promise<number> {
+    return this._onClose;
   }
 
   kill(): void {
@@ -132,7 +152,11 @@ export class TestShell {
   }
 
   private _getAllErrors(): string[] {
-    return [...(this._output as any).matchAll(ERROR_PATTERN)]
+    const output = (this._output as any);
+    return [
+      ...output.matchAll(ERROR_PATTERN_1),
+      ...output.matchAll(ERROR_PATTERN_2)
+    ]
       .map(m => m[1].trim());
   }
 }

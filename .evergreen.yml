@@ -94,6 +94,9 @@ functions:
           set -e
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
+          export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
+          echo "$MONGOSH_TEST_EXECUTABLE_PATH"
+          npm run compile-exec
           npm run test-ci
   test_ps:
     - command: expansions.write
@@ -106,6 +109,8 @@ functions:
         shell: powershell
         script: |
           .\.evergreen\SetupEnv
+          $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
+          echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           npm run test-ci
   release_macos:

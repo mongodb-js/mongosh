@@ -16,12 +16,12 @@ describe('e2e', function() {
     it('shows version', async() => {
       const shell = TestShell.start({ args: [ '--version' ] });
 
-      await eventually(() => {
-        shell.assertNoErrors();
-        shell.assertContainsOutput(
-          require('../package.json').version
-        );
-      });
+      await shell.waitForExit();
+
+      shell.assertNoErrors();
+      shell.assertContainsOutput(
+        require('../package.json').version
+      );
     });
   });
 
