@@ -45,6 +45,36 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
+  describe('.getConnectionInfo', () => {
+    context('when a uri has been passed', () => {
+      it('returns the connection\'s info', async() => {
+        const instance = new CliServiceProvider(client, connectionString);
+        const connectionInfo = await instance.getConnectionInfo();
+
+        expect(Object.keys(connectionInfo)).to.deep.equal([
+          'buildInfo',
+          'topology',
+          'extraInfo'
+        ]);
+        expect(connectionInfo.buildInfo.version.length > 1);
+      });
+    });
+
+    context('when the optional uri has not been passed', () => {
+      it('returns the connection\'s info', async() => {
+        const instance = new CliServiceProvider(client);
+        const connectionInfo = await instance.getConnectionInfo();
+
+        expect(Object.keys(connectionInfo)).to.deep.equal([
+          'buildInfo',
+          'topology',
+          'extraInfo'
+        ]);
+        expect(connectionInfo.buildInfo.version.length > 1);
+      });
+    });
+  });
+
   describe('#aggregate', () => {
     context('when running against a collection', () => {
       let result;

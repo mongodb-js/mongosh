@@ -69,7 +69,7 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   private readonly mongoClient: MongoClient;
-  private readonly uri: string;
+  private readonly uri?: string;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -112,13 +112,15 @@ class CliServiceProvider implements ServiceProvider {
       // eslint-disable-next-line no-empty
     } catch (e) {
     }
+
     const connectInfo = getConnectInfo(
-      this.uri,
+      this.uri ? this.uri : '',
       version,
       buildInfo,
       cmdLineOpts,
       topology
     );
+
     return {
       buildInfo: buildInfo,
       topology: topology,
