@@ -122,4 +122,29 @@ describe('getConnectInfo', function() {
       CMD_LINE_OPTS,
       TOPOLOGY_NO_CREDENTIALS)).to.deep.equal(output);
   });
+
+  it('reports correct information when an empty uri is passed', function() {
+    const output = {
+      is_atlas: false,
+      is_localhost: false,
+      server_version: '3.2.0-rc2',
+      mongosh_version: '0.0.6',
+      is_enterprise: true,
+      auth_type: 'LDAP',
+      is_data_lake: false,
+      dl_version: null,
+      is_genuine: true,
+      non_genuine_server_name: 'mongodb',
+      server_arch: 'x86_64',
+      node_version: process.version,
+      server_os: 'osx',
+      uri: ''
+    };
+    expect(getConnectInfo(
+      '',
+      '0.0.6',
+      BUILD_INFO,
+      CMD_LINE_OPTS,
+      TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
+  });
 });
