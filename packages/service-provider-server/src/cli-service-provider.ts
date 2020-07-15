@@ -69,7 +69,7 @@ class CliServiceProvider implements ServiceProvider {
   }
 
   private readonly mongoClient: MongoClient;
-  private readonly uri: string | undefined;
+  private readonly uri?: string;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -78,7 +78,7 @@ class CliServiceProvider implements ServiceProvider {
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, uri: string | undefined) {
+  constructor(mongoClient: MongoClient, uri?: string) {
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
