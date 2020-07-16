@@ -14,8 +14,8 @@ import installer from 'electron-installer-debian';
  * @returns {string} The path.
  */
 export const zipPath = (outputDir: string, platform: string, version: string): string => {
-  const ext = (platform === Platform.Linux) ? 'tgz' : 'zip';
-  return path.join(outputDir, `mongosh-${version}-${platform}.${ext}`);
+  const ext = 'deb';
+  return path.join(outputDir, `mongosh-${version}-debian.${ext}`);
 };
 
 /**
@@ -40,16 +40,16 @@ export const zipPosix = async(outputDir: string, filename: string): Promise<void
   await tar.c(options, [ '.' ]);
 };
 
-export const zipDebian = async(outputDir: string, filename: string): Promise<void> => {
+export const zipDebian = async(input: string, filename: string, version: string): Promise<void> => {
   const options = {
-    src: filename,
-    dest: outputDir,
+    src: input,
+    dest: filename,
+    version: version,
     arch: 'amd64'
   }
 
   console.log('Writing debian package')
   await installer(options)
-  console.log(`Successfully created package at ${options.dest}`)
 }
 
 /**
@@ -86,18 +86,22 @@ export async function zip(
 
   console.info('mongosh: zipping:', filename);
 
-  // if (platform === Platform.Linux) {
-  //   await zipPosix(outputDir, filename);
+  if (platform === Platform.Linux) {
+    await zipPosix(outputDir, filename);
 
-  //   return {
-  //     path: filename,
-  //     contentType: 'application/gzip'
-  //   };
-  // }
+    return {
+      path: filename,
+      contentType: 'application/gzip'
+    };
+  }
 
-  // zipWindows(input, filename);
+  zipWindows(input, filename);
 
-  zipDebian(outputDir, filename);
+  // console.log('input', input)
+  // console.log('filename', filename)
+  // console.log('outputdir', outputDir)
+
+  // await zipDebian(input, filename, version);
 
   return {
     path: filename,
