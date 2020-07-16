@@ -1,6 +1,6 @@
 import ServiceProvider from './service-provider';
 import Document from './document';
-import Cursor from './cursor';
+import Cursor, { CursorFlag, CURSOR_FLAGS } from './cursor';
 import Result from './result';
 import BulkWriteResult from './bulk-write-result';
 import WriteConcern from './write-concern';
@@ -18,6 +18,8 @@ export {
   BulkWriteResult,
   Document,
   Cursor,
+  CursorFlag,
+  CURSOR_FLAGS,
   Result,
   ReadConcern,
   WriteConcern,
