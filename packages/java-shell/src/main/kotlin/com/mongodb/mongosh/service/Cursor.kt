@@ -71,13 +71,23 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    fun readPref(v: Value): Cursor {
+    fun setReadPreference(v: Value): Cursor {
         throw NotImplementedError("readPref is not supported")
     }
 
     @HostAccess.Export
     fun explain(v: Value): Cursor {
         throw NotImplementedError("explain is not supported")
+    }
+
+    @HostAccess.Export
+    fun addCursorFlag(v: Value): Cursor {
+        throw NotImplementedError("setting cursor flags are not supported")
+    }
+
+    @HostAccess.Export
+    fun noServiceProviderCursorTimeout(v: Value): Cursor {
+        throw NotImplementedError("noServiceProviderCursorTimeout is not supported")
     }
 
     @HostAccess.Export

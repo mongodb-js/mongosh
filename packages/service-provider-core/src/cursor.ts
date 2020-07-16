@@ -261,6 +261,6 @@ export default interface ServiceProviderCursor {
    * @param {string} verbosity - the explain verbosity.
    * @returns {Promise<any>}
    */
-  explain(verbosity?: string): Promise<any>;
+  explain(verbosity: string): Promise<any>;
 }
 
