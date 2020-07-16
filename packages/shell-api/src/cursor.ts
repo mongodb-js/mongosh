@@ -124,7 +124,7 @@ export default class Cursor extends ShellApiClass {
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.
 
-    const fullExplain: any = await this.cursor.explain();
+    const fullExplain: any = await this.cursor.explain(verbosity); // use default. TODO: internal state track verbosity?
 
     const explain: any = {
       ...fullExplain
