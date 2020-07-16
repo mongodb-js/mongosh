@@ -15,18 +15,18 @@ import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/er
 @shellApiClassDefault
 @hasAsyncChild
 export default class Cursor extends ShellApiClass {
-  mongo: Mongo;
-  cursor: ServiceProviderCursor;
+  _mongo: Mongo;
+  _cursor: ServiceProviderCursor;
   constructor(mongo, cursor) {
     super();
-    this.cursor = cursor;
-    this.mongo = mongo;
+    this._cursor = cursor;
+    this._mongo = mongo;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  async asPrintable(): Promise<any> {
+  async _asPrintable(): Promise<any> {
     return await this._it();
   }
 
@@ -56,7 +56,7 @@ export default class Cursor extends ShellApiClass {
    * @returns {void}
    */
   private addFlag(flag: CursorFlag): void {
-    this.cursor.addCursorFlag(flag, true);
+    this._cursor.addCursorFlag(flag, true);
   }
 
   @returnType('Cursor')
@@ -72,7 +72,7 @@ export default class Cursor extends ShellApiClass {
       throw new MongoshUnimplementedError('the slaveOk option is not yet supported.');
     }
 
-    this.cursor.addCursorFlag(optionFlag, true);
+    this._cursor.addCursorFlag(optionFlag, true);
     return this;
   }
 
@@ -84,38 +84,38 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   batchSize(size: number): Cursor {
-    this.cursor.batchSize(size);
+    this._cursor.batchSize(size);
     return this;
   }
 
   @returnType('Cursor')
   clone(): Cursor {
-    return new Cursor(this.mongo, this.cursor.clone());
+    return new Cursor(this._mongo, this._cursor.clone());
   }
 
   @returnsPromise
   async close(options: Document): Promise<void> {
-    return await this.cursor.close(options as any);
+    return await this._cursor.close(options as any);
   }
 
   @returnType('Cursor')
   @serverVersions(['3.4.0', ServerVersions.latest])
   collation(spec: Document): Cursor {
-    this.cursor.collation(spec);
+    this._cursor.collation(spec);
     return this;
   }
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   comment(cmt: string): Cursor {
-    this.cursor.comment(cmt);
+    this._cursor.comment(cmt);
     return this;
   }
 
   @serverVersions([ServerVersions.earliest, ServerVersions.latest]) // TODO: this technically deprecated
   @returnsPromise
   count(): Promise<number> {
-    return this.cursor.count();
+    return this._cursor.count();
   }
 
   @returnsPromise
@@ -124,7 +124,7 @@ export default class Cursor extends ShellApiClass {
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.
 
-    const fullExplain: any = await this.cursor.explain(verbosity); // use default. TODO: internal state track verbosity?
+    const fullExplain: any = await this._cursor.explain(verbosity); // use default. TODO: internal state track verbosity?
 
     const explain: any = {
       ...fullExplain
@@ -149,26 +149,26 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   forEach(f): Promise<void> {
-    return this.cursor.forEach(f);
+    return this._cursor.forEach(f);
   }
 
   @returnsPromise
   hasNext(): Promise<boolean> {
-    return this.cursor.hasNext();
+    return this._cursor.hasNext();
   }
 
   @returnType('Cursor')
   hint(index: string): Cursor {
-    this.cursor.hint(index);
+    this._cursor.hint(index);
     return this;
   }
 
   isClosed(): boolean {
-    return this.cursor.isClosed();
+    return this._cursor.isClosed();
   }
 
   async isExhausted(): Promise<boolean> {
-    return this.cursor.isClosed() && !await this.cursor.hasNext();
+    return this._cursor.isClosed() && !await this._cursor.hasNext();
   }
 
   @returnsPromise
@@ -185,37 +185,37 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   limit(value: number): Cursor {
-    this.cursor.limit(value);
+    this._cursor.limit(value);
     return this;
   }
 
   @returnType('Cursor')
   map(f): Cursor {
-    this.cursor.map(f);
+    this._cursor.map(f);
     return this;
   }
 
   @returnType('Cursor')
   max(indexBounds: Document): Cursor {
-    this.cursor.max(indexBounds);
+    this._cursor.max(indexBounds);
     return this;
   }
 
   @returnType('Cursor')
   maxTimeMS(value: number): Cursor {
-    this.cursor.maxTimeMS(value);
+    this._cursor.maxTimeMS(value);
     return this;
   }
 
   @returnType('Cursor')
   min(indexBounds: Document): Cursor {
-    this.cursor.min(indexBounds);
+    this._cursor.min(indexBounds);
     return this;
   }
 
   @returnsPromise
   next(): Promise<any> {
-    return this.cursor.next();
+    return this._cursor.next();
   }
 
   @returnType('Cursor')
@@ -232,7 +232,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   projection(spec: Document): Cursor {
-    this.cursor.project(spec);
+    this._cursor.project(spec);
     return this;
   }
 
@@ -242,7 +242,7 @@ export default class Cursor extends ShellApiClass {
       throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
     }
 
-    this.cursor.setReadPreference(mode as any);
+    this._cursor.setReadPreference(mode as any);
 
     return this;
   }
@@ -250,24 +250,24 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   returnKey(enabled: boolean): Cursor {
-    this.cursor.returnKey(enabled as any);
+    this._cursor.returnKey(enabled as any);
     return this;
   }
 
   @returnsPromise
   size(): Promise<number> {
-    return this.cursor.count();
+    return this._cursor.count();
   }
 
   @returnType('Cursor')
   skip(value: number): Cursor {
-    this.cursor.skip(value);
+    this._cursor.skip(value);
     return this;
   }
 
   @returnType('Cursor')
   sort(spec: Document): Cursor {
-    this.cursor.sort(spec);
+    this._cursor.sort(spec);
     return this;
   }
 
@@ -280,7 +280,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   toArray(): Promise<Document[]> {
-    return this.cursor.toArray();
+    return this._cursor.toArray();
   }
 
   @returnType('Cursor')

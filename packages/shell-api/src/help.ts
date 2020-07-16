@@ -40,7 +40,7 @@ export default class Help {
   /**
    * Internal method to determine what is printed for this class.
    */
-  asPrintable(): any {
+  _asPrintable(): any {
     const { help, docs, attr } = this;
     return { help, docs, attr };
   }
@@ -51,7 +51,7 @@ export default class Help {
   [asShellResult](): ShellResult {
     return {
       type: 'Help',
-      value: this.asPrintable()
+      value: this._asPrintable()
     };
   }
 }

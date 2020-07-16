@@ -14,21 +14,21 @@ import { Document } from '@mongosh/service-provider-core';
 @shellApiClassDefault
 @hasAsyncChild
 export default class Explainable extends ShellApiClass {
-  mongo: Mongo;
-  collection: Collection;
-  verbosity: string;
+  _mongo: Mongo;
+  _collection: Collection;
+  _verbosity: string;
   constructor(mongo, collection, verbosity) {
     super();
-    this.mongo = mongo;
-    this.collection = collection;
-    this.verbosity = verbosity;
+    this._mongo = mongo;
+    this._collection = collection;
+    this._verbosity = verbosity;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  asPrintable(): string {
-    return `Explainable(${this.collection.getFullName()})`;
+  _asPrintable(): string {
+    return `Explainable(${this._collection.getFullName()})`;
   }
 
   /**
@@ -39,48 +39,48 @@ export default class Explainable extends ShellApiClass {
    * @private
    */
   private _emitExplainableApiCall(methodName: string, methodArguments: Document = {}): void {
-    this.mongo.internalState.emitApiCall({
+    this._mongo._internalState.emitApiCall({
       method: methodName,
       class: 'Explainable',
-      db: this.collection.database.name,
-      coll: this.collection.name,
+      db: this._collection._database._name,
+      coll: this._collection._name,
       arguments: methodArguments
     });
   }
 
   getCollection(): Collection {
     this._emitExplainableApiCall('getCollection');
-    return this.collection;
+    return this._collection;
   }
 
   getVerbosity(): string {
     this._emitExplainableApiCall('getVerbosity');
-    return this.verbosity;
+    return this._verbosity;
   }
 
   setVerbosity(verbosity: string): void {
     validateExplainableVerbosity(verbosity);
     this._emitExplainableApiCall('setVerbosity', { verbosity });
-    this.verbosity = verbosity;
+    this._verbosity = verbosity;
   }
 
   @returnType('ExplainableCursor')
   find(query?: any, projection?: any): ExplainableCursor {
     this._emitExplainableApiCall('find', { query, projection });
 
-    const cursor = this.collection.find(query, projection);
-    return new ExplainableCursor(this.mongo, cursor, this.verbosity);
+    const cursor = this._collection.find(query, projection);
+    return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
   @returnsPromise
   async aggregate(pipeline?: any, options?: any): Promise<any> {
     this._emitExplainableApiCall('aggregate', { pipeline, options });
 
-    const cursor = await this.collection.aggregate(pipeline, {
+    const cursor = await this._collection.aggregate(pipeline, {
       ...options,
       explain: false
     });
 
-    return await cursor.explain(this.verbosity);
+    return await cursor.explain(this._verbosity);
   }
 }

@@ -13,11 +13,11 @@ import { MongoshUnimplementedError } from '@mongosh/errors';
 @shellApiClassDefault
 @hasAsyncChild
 export default class Shard extends ShellApiClass {
-  mongo: Mongo;
+  _mongo: Mongo;
 
   constructor(mongo) {
     super();
-    this.mongo = mongo;
+    this._mongo = mongo;
     const proxy = new Proxy(this, {
       get: (obj, prop): any => {
         if (!(prop in obj)) {
@@ -32,8 +32,8 @@ export default class Shard extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  asPrintable(): string {
-    return `Shard class connected to ${this.mongo.uri}`;
+  _asPrintable(): string {
+    return `Shard class connected to ${this._mongo._uri}`;
   }
 
   /**
@@ -44,7 +44,7 @@ export default class Shard extends ShellApiClass {
    * @private
    */
   private _emitShardApiCall(methodName: string, methodArguments: Document = {}): void {
-    this.mongo.internalState.emitApiCall({
+    this._mongo._internalState.emitApiCall({
       method: methodName,
       class: 'Shard',
       arguments: methodArguments

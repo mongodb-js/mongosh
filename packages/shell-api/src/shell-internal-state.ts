@@ -54,7 +54,7 @@ export default class ShellInternalState {
 
   async fetchConnectionInfo(): Promise<void> {
     if (!this.cliOptions.nodb) {
-      this.connectionInfo = await this.currentDb.mongo.serviceProvider.getConnectionInfo();
+      this.connectionInfo = await this.currentDb._mongo._serviceProvider.getConnectionInfo();
       this.messageBus.emit('mongosh:connect', this.connectionInfo.extraInfo);
     }
   }
@@ -67,8 +67,8 @@ export default class ShellInternalState {
 
   public setDbFunc(newDb: any): Database {
     this.currentDb = newDb;
-    this.context.rs = new ReplicaSet(this.currentDb.mongo);
-    this.context.sh = new Shard(this.currentDb.mongo);
+    this.context.rs = new ReplicaSet(this.currentDb._mongo);
+    this.context.sh = new Shard(this.currentDb._mongo);
     this.fetchConnectionInfo();
     return newDb;
   }
@@ -89,9 +89,9 @@ export default class ShellInternalState {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg): Promise<void> => {
-      if (arg.asPrintable) {
+      if (arg._asPrintable) {
         // eslint-disable-next-line no-console
-        console.log(await arg.asPrintable());
+        console.log(await arg._asPrintable());
       } else {
         // eslint-disable-next-line no-console
         console.log(arg);
@@ -111,8 +111,8 @@ export default class ShellInternalState {
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, ShellBson);
 
-    contextObject.rs = new ReplicaSet(this.currentDb.mongo);
-    contextObject.sh = new Shard(this.currentDb.mongo);
+    contextObject.rs = new ReplicaSet(this.currentDb._mongo);
+    contextObject.sh = new Shard(this.currentDb._mongo);
 
     // Add global shell objects
     const apiObjects = {

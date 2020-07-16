@@ -10,7 +10,7 @@ import java.util.regex.Pattern
 
 sealed class MongoShellResult<T> {
     abstract val value: T
-    open fun asPrintable(): String = value.toLiteral()
+    open fun _asPrintable(): String = value.toLiteral()
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -74,13 +74,13 @@ object NullResult : MongoShellResult<Any?>() {
 }
 
 object VoidResult : MongoShellResult<Unit>() {
-    override fun asPrintable(): String = ""
+    override fun _asPrintable(): String = ""
     override val value: Unit
         get() = Unit
 }
 
 class StringResult(override val value: String) : MongoShellResult<String>() {
-    override fun asPrintable(): String = value
+    override fun _asPrintable(): String = value
 }
 
 class ArrayResult(override val value: List<Any?>) : MongoShellResult<List<Any?>>()
@@ -100,14 +100,14 @@ class InsertManyResult(val acknowledged: Boolean, val insertedIds: List<String>)
 }
 
 class CollectionResult internal constructor(override val value: MongoShellCollection) : MongoShellResult<MongoShellCollection>() {
-    override fun asPrintable() = value.asPrintable()
+    override fun _asPrintable() = value._asPrintable()
 }
 
 class DatabaseResult internal constructor(override val value: MongoShellDatabase) : MongoShellResult<MongoShellDatabase>() {
-    override fun asPrintable() = value.asPrintable()
+    override fun _asPrintable() = value._asPrintable()
 
     override fun toString(): String {
-        return "${javaClass.simpleName}(${value.asPrintable().quote()})"
+        return "${javaClass.simpleName}(${value._asPrintable().quote()})"
     }
 }
 
@@ -140,11 +140,11 @@ class CommandResult(val type: String, val response: Any?) : MongoShellResult<Map
 
 abstract class CursorResult<T : Cursor<*>>(override val value: T) : MongoShellResult<T>()
 class FindCursorResult internal constructor(cursor: FindCursor<*>) : CursorResult<FindCursor<*>>(cursor) {
-    override fun asPrintable(): String = value.asPrintable()
+    override fun _asPrintable(): String = value._asPrintable()
 }
 
 class AggregationCursorResult internal constructor(cursor: AggregationCursor<*>) : CursorResult<AggregationCursor<*>>(cursor) {
-    override fun asPrintable(): String = value.asPrintable()
+    override fun _asPrintable(): String = value._asPrintable()
 }
 
 

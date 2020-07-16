@@ -3,7 +3,7 @@ package com.mongodb.mongosh.result
 import org.graalvm.polyglot.Value
 
 class MongoShellCollection internal constructor(private val db: Value) {
-    fun asPrintable(): String = db.getMember("asPrintable").execute().asString()
-    fun name(): String = asPrintable()
-    override fun toString(): String = asPrintable()
+    fun _asPrintable(): String = db.getMember("_asPrintable").execute().asString()
+    fun _name(): String = _asPrintable()
+    override fun toString(): String = _asPrintable()
 }

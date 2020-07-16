@@ -5,15 +5,15 @@ describe('NoDatabase', () => {
   let nodb;
   beforeEach(() => {
     nodb = new NoDatabase();
-    nomongo = nodb.mongo;
+    nomongo = nodb._mongo;
   });
   it('throws for show', () => {
     try {
-      nodb.mongo.show('dbs');
+      nodb._mongo.show('dbs');
     } catch (e) {
       return expect(e.name).to.equal('MongoshInvalidInputError');
     }
-    expect.fail('no error thrown for NoDb.mongo.use');
+    expect.fail('no error thrown for NoDb._mongo.use');
   });
   it('throws for nomongo.use', () => {
     try {

@@ -22,16 +22,16 @@ import { MongoshInvalidInputError } from '@mongosh/errors';
 @shellApiClassDefault
 @hasAsyncChild
 export default class Database extends ShellApiClass {
-  mongo: Mongo;
-  name: string;
-  collections: any;
+  _mongo: Mongo;
+  _name: string;
+  _collections: any;
 
   constructor(mongo, name) {
     super();
-    this.mongo = mongo;
-    this.name = name;
+    this._mongo = mongo;
+    this._name = name;
     const collections = {};
-    this.collections = collections;
+    this._collections = collections;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
         if (prop in target) {
@@ -59,8 +59,8 @@ export default class Database extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  asPrintable(): string {
-    return this.name;
+  _asPrintable(): string {
+    return this._name;
   }
 
   /**
@@ -71,17 +71,17 @@ export default class Database extends ShellApiClass {
    * @private
    */
   private _emitDatabaseApiCall(methodName: string, methodArguments: Document = {}): void {
-    this.mongo.internalState.emitApiCall({
+    this._mongo._internalState.emitApiCall({
       method: methodName,
       class: 'Database',
-      db: this.name,
+      db: this._name,
       arguments: methodArguments
     });
   }
 
   @returnType('Mongo')
   getMongo(): Mongo {
-    return this.mongo;
+    return this._mongo;
   }
 
   /**
@@ -108,8 +108,8 @@ export default class Database extends ShellApiClass {
   @serverVersions(['3.0.0', ServerVersions.latest])
   async getCollectionInfos(filter: Document = {}, options: Document = {}): Promise<any> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
-    return await this.mongo.serviceProvider.listCollections(
-      this.name,
+    return await this._mongo._serviceProvider.listCollections(
+      this._name,
       filter,
       options
     );
@@ -125,7 +125,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async runCommand(cmd: any): Promise<any> {
     this._emitDatabaseApiCall('runCommand', { cmd });
-    return this.mongo.serviceProvider.runCommand(this.name, cmd);
+    return this._mongo._serviceProvider.runCommand(this._name, cmd);
   }
 
   /**
@@ -139,7 +139,7 @@ export default class Database extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   adminCommand(cmd: any): Promise<any> {
     this._emitDatabaseApiCall( 'adminCommand', { cmd });
-    return this.mongo.serviceProvider.runCommand('admin', cmd);
+    return this._mongo._serviceProvider.runCommand('admin', cmd);
   }
 
   /**
@@ -160,8 +160,8 @@ export default class Database extends ShellApiClass {
       explain
     } = adaptAggregateOptions(options);
 
-    const providerCursor = this.mongo.serviceProvider.aggregateDb(
-      this.name,
+    const providerCursor = this._mongo._serviceProvider.aggregateDb(
+      this._name,
       pipeline,
       providerOptions,
       dbOptions
@@ -172,14 +172,14 @@ export default class Database extends ShellApiClass {
       return await cursor.explain('queryPlanner'); // TODO: set default or use optional argument
     }
 
-    this.mongo.internalState.currentCursor = cursor;
+    this._mongo._internalState.currentCursor = cursor;
     return cursor;
   }
 
   @returnType('Database')
   getSiblingDB(db: string): Database {
     this._emitDatabaseApiCall('getSiblingDB', { db });
-    return this.mongo._getDb(db);
+    return this._mongo._getDb(db);
   }
 
   @returnType('Collection')
@@ -194,10 +194,10 @@ export default class Database extends ShellApiClass {
       throw new MongoshInvalidInputError('Collection name cannot be empty.');
     }
 
-    const collections: Record<string, Collection> = this.collections;
+    const collections: Record<string, Collection> = this._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new Collection(this.mongo, this, coll);
+      collections[coll] = new Collection(this._mongo, this, coll);
     }
 
     return collections[coll];
@@ -205,8 +205,8 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async dropDatabase(writeConcern?: WriteConcern): Promise<any> {
-    return await this.mongo.serviceProvider.dropDatabase(
-      this.name,
+    return await this._mongo._serviceProvider.dropDatabase(
+      this._name,
       writeConcern
     );
   }
