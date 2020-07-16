@@ -40,11 +40,12 @@ export const zipPosix = async(outputDir: string, filename: string): Promise<void
   await tar.c(options, [ '.' ]);
 };
 
-export const zipDebian = async(input: string, filename: string, version: string): Promise<void> => {
+export const zipDebian = async(input: string, filename: string, version: string, outputDir: string): Promise<void> => {
   const options = {
-    src: input,
+    inputFile: input,
     dest: filename,
     version: version,
+    stagingDir: outputDir,
     arch: 'amd64'
   }
 
@@ -86,22 +87,18 @@ export async function zip(
 
   console.info('mongosh: zipping:', filename);
 
-  if (platform === Platform.Linux) {
-    await zipPosix(outputDir, filename);
+  // if (platform === Platform.Linux) { await zipPosix(outputDir, filename); return { path: filename,
+  //         contentType: 'application/gzip'
+  //   };
+  // }
 
-    return {
-      path: filename,
-      contentType: 'application/gzip'
-    };
-  }
+  // zipWindows(input, filename);
 
-  zipWindows(input, filename);
+  console.log('input', input)
+  console.log('filename', filename)
+  console.log('outputdir', outputDir)
 
-  // console.log('input', input)
-  // console.log('filename', filename)
-  // console.log('outputdir', outputDir)
-
-  // await zipDebian(input, filename, version);
+  await zipDebian(input, filename, version, outputDir);
 
   return {
     path: filename,

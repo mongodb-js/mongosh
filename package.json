@@ -3,6 +3,13 @@
   "description": "The MongoDB Shell",
   "main": "index.js",
   "bin": "packages/cli-repl/bin/mongosh.js",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "contributors": [
+    "Anna Herlihy <herlihyap@gmail.com>",
+    "Durran Jordan <durran@gmail.com>",
+    "Irina Shestak <shestak.irina@gmail.com>",
+    "Maurizio Casimirri <maurizio.cas@gmail.com>"
+  ],
   "scripts": {
     "prebootstrap-with-chromium": "npm install",
     "bootstrap-with-chromium": "lerna bootstrap --concurrency=1",
@@ -103,5 +110,6 @@
     "typescript": "^3.7.2",
     "uuid": "^3.3.3",
     "yaml": "^1.10.0"
-  }
+  },
+  "dependencies": {}
 }
