@@ -5,20 +5,20 @@ import { Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core'
 
 @shellApiClassDefault
 export default class ExplainableCursor extends Cursor {
-  mongo: Mongo;
-  cursor: ServiceProviderCursor;
-  verbosity: string;
+  _mongo: Mongo;
+  _cursor: ServiceProviderCursor;
+  _verbosity: string;
   constructor(mongo, cursor, verbosity) {
     super(mongo, cursor);
-    this.cursor = cursor;
-    this.mongo = mongo;
-    this.verbosity = verbosity;
+    this._cursor = cursor;
+    this._mongo = mongo;
+    this._verbosity = verbosity;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  async asPrintable(): Promise<any> {
-    return await this.cursor.explain(this.verbosity);
+  async _asPrintable(): Promise<any> {
+    return await this._cursor.explain(this._verbosity);
   }
 }

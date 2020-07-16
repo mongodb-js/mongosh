@@ -38,7 +38,7 @@ describe('Explainable', () => {
     });
   });
   describe('metadata', () => {
-    const mongo = { internalState: { emitApiCall: sinon.spy() } };
+    const mongo = { _internalState: { emitApiCall: sinon.spy() } };
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'verbosity');
@@ -85,9 +85,9 @@ describe('Explainable', () => {
 
     describe('setVerbosity', () => {
       it('sets the explainable verbosity', () => {
-        expect(explainable.verbosity).not.to.equal('allPlansExecution');
+        expect(explainable._verbosity).not.to.equal('allPlansExecution');
         explainable.setVerbosity('allPlansExecution');
-        expect(explainable.verbosity).to.equal('allPlansExecution');
+        expect(explainable._verbosity).to.equal('allPlansExecution');
       });
 
       it('validates the verbosity', () => {
@@ -127,7 +127,7 @@ describe('Explainable', () => {
 
       context('when calling asShellResult.value on the result', () => {
         it('calls explain with verbosity', async() => {
-          expect(cursorStub.verbosity).to.equal('queryPlanner');
+          expect(cursorStub._verbosity).to.equal('queryPlanner');
         });
 
         it('returns the explain result', async() => {

@@ -20,11 +20,11 @@ import { retractPassword } from '@mongosh/history';
 @classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {
-  public serviceProvider: ServiceProvider;
-  public databases: any;
-  public internalState: ShellInternalState;
-  public uri: string;
-  private options: any;
+  public _serviceProvider: ServiceProvider;
+  public _databases: any;
+  public _internalState: ShellInternalState;
+  public _uri: string;
+  private _options: any;
 
   constructor(
     internalState: ShellInternalState,
@@ -32,22 +32,22 @@ export default class Mongo extends ShellApiClass {
     fleOptions?
   ) {
     super();
-    this.internalState = internalState;
-    this.databases = {};
-    this.uri = generateUri({ _: [uri] });
-    this.options = fleOptions;
-    this.serviceProvider = this.internalState.initialServiceProvider;
+    this._internalState = internalState;
+    this._databases = {};
+    this._uri = generateUri({ _: [uri] });
+    this._options = fleOptions;
+    this._serviceProvider = this._internalState.initialServiceProvider;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  asPrintable(): string {
-    return retractPassword(this.uri);
+  _asPrintable(): string {
+    return retractPassword(this._uri);
   }
 
   async connect(): Promise<void> {
-    this.serviceProvider = await this.serviceProvider.getNewConnection(this.uri, this.options);
+    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, this._options);
   }
 
   _getDb(name: string): Database {
@@ -60,42 +60,42 @@ export default class Mongo extends ShellApiClass {
       throw new MongoshInvalidInputError('Database name cannot be empty.');
     }
 
-    if (!(name in this.databases)) {
-      this.databases[name] = new Database(this, name);
+    if (!(name in this._databases)) {
+      this._databases[name] = new Database(this, name);
     }
-    return this.databases[name];
+    return this._databases[name];
   }
 
   @returnType('Database')
   getDB(db): Database {
-    this.internalState.messageBus.emit( 'mongosh:getDB', { db });
+    this._internalState.messageBus.emit( 'mongosh:getDB', { db });
     return this._getDb(db);
   }
 
   use(db: string): string {
-    this.internalState.messageBus.emit( 'mongosh:use', { db });
-    this.internalState.context.db = this._getDb(db);
+    this._internalState.messageBus.emit( 'mongosh:use', { db });
+    this._internalState.context.db = this._getDb(db);
     return `switched to db ${db}`;
   }
 
   @returnsPromise
   async show(arg): Promise<CommandResult> {
-    this.internalState.messageBus.emit( 'mongosh:show', { method: `show ${arg}` });
+    this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${arg}` });
 
     switch (arg) {
       case 'databases':
       case 'dbs':
-        const result = await this.serviceProvider.listDatabases('admin');
+        const result = await this._serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
           const err = new MongoshInternalError('Got invalid result from "listDatabases"');
-          this.internalState.messageBus.emit('mongosh:error', err);
+          this._internalState.messageBus.emit('mongosh:error', err);
           throw err;
         }
 
         return new CommandResult('ShowDatabasesResult', result.databases);
       case 'collections':
       case 'tables':
-        const collectionNames = await this.internalState.currentDb.getCollectionNames();
+        const collectionNames = await this._internalState.currentDb.getCollectionNames();
         return new CommandResult('ShowCollectionsResult', collectionNames);
       default:
         const validArguments = [
@@ -109,11 +109,11 @@ export default class Mongo extends ShellApiClass {
           `'${arg}' is not a valid argument for "show".\nValid arguments are: ${validArguments.join(', ')}`
         );
 
-        this.internalState.messageBus.emit('mongosh:error', err);
+        this._internalState.messageBus.emit('mongosh:error', err);
         throw err;
     }
   }
   async close(p): Promise<void> {
-    return await this.serviceProvider.close(p);
+    return await this._serviceProvider.close(p);
   }
 }

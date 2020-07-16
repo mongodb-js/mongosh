@@ -29,7 +29,7 @@ fun main(vararg args: String) {
         if (line == null || line == "exit") return
         try {
             val result = repl.eval(line)
-            println(result.asPrintable())
+            println(result._asPrintable())
         } catch (e: Exception) {
             e.printStackTrace()
         }

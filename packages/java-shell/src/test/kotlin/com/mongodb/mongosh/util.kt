@@ -90,7 +90,7 @@ private fun getActualValue(result: MongoShellResult<*>, options: CompareOptions)
     val sb = StringBuilder()
     if (options.checkResultClass) sb.append(result.javaClass.simpleName).append(": ")
     if (options.commands.isEmpty()) {
-        sb.append(result.asPrintable())
+        sb.append(result._asPrintable())
         return sb.toString()
     }
     var unwrapped = result.value
@@ -121,7 +121,7 @@ private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
-    val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value.name() else null
+    val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value._name() else null
     if (name != null) shell.eval("use $name")
 
     block()

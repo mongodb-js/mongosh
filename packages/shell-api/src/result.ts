@@ -21,7 +21,7 @@ export class CommandResult extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class. In this case, used only in the java shell.
    */
-  asPrintable(): string {
+  _asPrintable(): string {
     return this.value;
   }
 }
@@ -103,7 +103,7 @@ export class DeleteResult extends ShellApiClass {
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
   [asShellResult]: () => string;
-  asPrintable: () => this;
+  _asPrintable: () => this;
   [shellApiType]: 'CursorIterationResult';
 
   constructor(...args) {
@@ -112,7 +112,7 @@ export class CursorIterationResult extends Array {
     /**
      * Internal method to determine what is printed for this class.
      */
-    Object.defineProperty(this, 'asPrintable', {
+    Object.defineProperty(this, '_asPrintable', {
       value: () => { return this; },
       enumerable: false
     });
@@ -124,7 +124,7 @@ export class CursorIterationResult extends Array {
       value: () => {
         return {
           type: 'CursorIterationResult',
-          value: this.asPrintable()
+          value: this._asPrintable()
         };
       },
       enumerable: false

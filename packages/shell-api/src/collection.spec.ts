@@ -81,8 +81,8 @@ describe('Collection', () => {
         );
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           [{ $piplelineStage: {} }],
           {}
         );
@@ -91,8 +91,8 @@ describe('Collection', () => {
         await collection.aggregate();
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           [],
           {}
         );
@@ -105,8 +105,8 @@ describe('Collection', () => {
         );
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           [{ $option1: 1 }, { $option2: 2 }, { $option3: 3 }],
           {}
         );
@@ -118,8 +118,8 @@ describe('Collection', () => {
           { options: true });
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           [{ $piplelineStage: {} }],
           { options: true }
         );
@@ -155,8 +155,8 @@ describe('Collection', () => {
         );
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           [],
           { otherOption: true },
           { readConcern: { level: 'majority' }, w: 1 }
@@ -637,8 +637,8 @@ describe('Collection', () => {
         });
 
         expect(serviceProvider.findAndModify).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           { query: 1 },
           { sort: 1 },
           { update: 1 },
@@ -667,8 +667,8 @@ describe('Collection', () => {
         await collection.renameCollection('newName');
 
         expect(serviceProvider.renameCollection).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           'newName',
           { dropTarget: false }
         );
@@ -678,8 +678,8 @@ describe('Collection', () => {
         await collection.renameCollection('newName', true);
 
         expect(serviceProvider.renameCollection).to.have.been.calledWith(
-          collection.database.name,
-          collection.name,
+          collection._database._name,
+          collection._name,
           'newName',
           { dropTarget: true }
         );
@@ -734,9 +734,9 @@ describe('Collection', () => {
         });
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          collection.database.name,
+          collection._database._name,
           {
-            someCommand: collection.name,
+            someCommand: collection._name,
             someOption: 1
           }
         );
@@ -746,9 +746,9 @@ describe('Collection', () => {
         await collection.runCommand('someCommand');
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          collection.database.name,
+          collection._database._name,
           {
-            someCommand: collection.name
+            someCommand: collection._name
           }
         );
       });
@@ -777,15 +777,15 @@ describe('Collection', () => {
 
       it('accepts valid verbosity', () => {
         expect(
-          collection.explain('queryPlanner').verbosity
+          collection.explain('queryPlanner')._verbosity
         ).to.equal('queryPlanner');
 
         expect(
-          collection.explain('executionStats').verbosity
+          collection.explain('executionStats')._verbosity
         ).to.equal('executionStats');
 
         expect(
-          collection.explain('allPlansExecution').verbosity
+          collection.explain('allPlansExecution')._verbosity
         ).to.equal('allPlansExecution');
       });
 
@@ -797,7 +797,7 @@ describe('Collection', () => {
 
       it('sets the right default verbosity', () => {
         const explainable = collection.explain();
-        expect(explainable.verbosity).to.equal('queryPlanner');
+        expect(explainable._verbosity).to.equal('queryPlanner');
       });
     });
   });

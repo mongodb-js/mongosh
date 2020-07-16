@@ -43,7 +43,7 @@ describe('ExplainableCursor', () => {
       expect((await eCursor[asShellResult]()).type).to.equal('ExplainableCursor');
       expect((await eCursor.help[asShellResult]()).type).to.equal('Help');
       expect((await eCursor[asShellResult]()).value).to.deep.equal({ ok: 'verbosity' });
-      expect(eCursor.verbosity).to.equal('verbosity');
+      expect(eCursor._verbosity).to.equal('verbosity');
     });
 
     it('returns the same ExplainableCursor', () => {

@@ -27,12 +27,12 @@ export default class ShellApi extends ShellApiClass {
   }
 
   use(db): any {
-    return this.internalState.currentDb.mongo.use(db);
+    return this.internalState.currentDb._mongo.use(db);
   }
 
   @returnsPromise
   async show(arg): Promise<CommandResult> {
-    return await this.internalState.currentDb.mongo.show(arg);
+    return await this.internalState.currentDb._mongo.show(arg);
   }
 
   @returnsPromise
@@ -75,7 +75,7 @@ export default class ShellApi extends ShellApiClass {
     if (user) options.username = user;
     if (pwd) options.password = pwd;
     const mongo = await this.Mongo(uri, Object.keys(options).length ? { auth: options } : {});
-    const db = mongo.serviceProvider.initialDb || DEFAULT_DB;
+    const db = mongo._serviceProvider.initialDb || DEFAULT_DB;
     return mongo.getDB(db);
   }
 

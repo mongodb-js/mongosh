@@ -15,12 +15,12 @@ import { CursorIterationResult } from './result';
 @shellApiClassDefault
 @hasAsyncChild
 export default class AggregationCursor extends ShellApiClass {
-  mongo: Mongo;
-  cursor: ServiceProviderCursor;
+  _mongo: Mongo;
+  _cursor: ServiceProviderCursor;
   constructor(mongo, cursor) {
     super();
-    this.cursor = cursor;
-    this.mongo = mongo;
+    this._cursor = cursor;
+    this._mongo = mongo;
   }
 
   async _it(): Promise<any> {
@@ -44,57 +44,57 @@ export default class AggregationCursor extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  async asPrintable(): Promise<any> {
+  async _asPrintable(): Promise<any> {
     return await this._it();
   }
 
   @returnsPromise
   close(options: Document): Promise<void> {
-    return this.cursor.close(options);
+    return this._cursor.close(options);
   }
 
   @returnsPromise
   forEach(f): Promise<void> {
-    return this.cursor.forEach(f);
+    return this._cursor.forEach(f);
   }
 
   @returnsPromise
   hasNext(): Promise<boolean> {
-    return this.cursor.hasNext();
+    return this._cursor.hasNext();
   }
 
   isClosed(): boolean {
-    return this.cursor.isClosed();
+    return this._cursor.isClosed();
   }
 
   isExhausted(): Promise<boolean> {
-    return this.cursor.isExhausted();
+    return this._cursor.isExhausted();
   }
 
   @returnsPromise
   itcount(): Promise<number> {
-    return this.cursor.itcount();
+    return this._cursor.itcount();
   }
 
   @returnType('AggregationCursor')
   map(f): AggregationCursor {
-    this.cursor.map(f);
+    this._cursor.map(f);
     return this;
   }
 
   @returnsPromise
   next(): Promise<any> {
-    return this.cursor.next();
+    return this._cursor.next();
   }
 
   @returnsPromise
   toArray(): Promise<Document[]> {
-    return this.cursor.toArray();
+    return this._cursor.toArray();
   }
 
   @returnsPromise
   explain(verbosity: string): Promise<any> {
-    return this.cursor.explain(verbosity);
+    return this._cursor.explain(verbosity);
   }
 
   @returnType('AggregationCursor')

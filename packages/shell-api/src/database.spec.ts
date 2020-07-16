@@ -25,7 +25,7 @@ describe('Database', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
       const database: any = new Database({}, 'db1');
       expect(database.someCollection).to.have.instanceOf(Collection);
-      expect(database.someCollection.name).to.equal('someCollection');
+      expect(database.someCollection._name).to.equal('someCollection');
     });
 
     it('reuses collections', () => {
@@ -52,12 +52,12 @@ describe('Database', () => {
 
     it('allows to access _name', () => {
       const database: any = new Database({}, 'db1');
-      expect(database.name).to.equal('db1');
+      expect(database._name).to.equal('db1');
     });
 
     it('allows to access collections', () => {
       const database: any = new Database({}, 'db1');
-      expect(database.collections).to.deep.equal({});
+      expect(database._collections).to.deep.equal({});
     });
   });
   describe('signatures', () => {
@@ -146,7 +146,7 @@ describe('Database', () => {
         await database.runCommand({ someCommand: 'someCollection' });
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database.name,
+          database._name,
           {
             someCommand: 'someCollection'
           }
@@ -208,7 +208,7 @@ describe('Database', () => {
           [{ $piplelineStage: {} }], { options: true });
 
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
-          database.name,
+          database._name,
           [{ $piplelineStage: {} }],
           { options: true }
         );
@@ -241,7 +241,7 @@ describe('Database', () => {
         );
 
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
-          database.name,
+          database._name,
           [],
           { otherOption: true },
           { readConcern: { level: 'majority' }, w: 1 }
@@ -278,7 +278,7 @@ describe('Database', () => {
       it('returns a database', async() => {
         const otherDb = await database.getSiblingDB('otherdb');
         expect(otherDb).to.be.instanceOf(Database);
-        expect(otherDb.name).to.equal('otherdb');
+        expect(otherDb._name).to.equal('otherdb');
       });
 
       it('throws if name is not a string', () => {
@@ -305,8 +305,8 @@ describe('Database', () => {
       it('returns a collection for the database', async() => {
         const coll = database.getCollection('coll');
         expect(coll).to.be.instanceOf(Collection);
-        expect(coll.name).to.equal('coll');
-        expect(coll.database).to.equal(database);
+        expect(coll._name).to.equal('coll');
+        expect(coll._database).to.equal(database);
       });
 
       it('throws if name is not a string', () => {
@@ -324,13 +324,13 @@ describe('Database', () => {
       it('allows to use collection names that would collide with methods', () => {
         const coll = database.getCollection('getCollection');
         expect(coll).to.be.instanceOf(Collection);
-        expect(coll.name).to.equal('getCollection');
+        expect(coll._name).to.equal('getCollection');
       });
 
       it('allows to use collection names that starts with _', () => {
         const coll = database.getCollection('_coll1');
         expect(coll).to.be.instanceOf(Collection);
-        expect(coll.name).to.equal('_coll1');
+        expect(coll._name).to.equal('_coll1');
       });
 
       it('reuses collections', () => {
@@ -345,7 +345,7 @@ describe('Database', () => {
         await database.dropDatabase({ w: 1 });
 
         expect(serviceProvider.dropDatabase).to.have.been.calledWith(
-          database.name,
+          database._name,
           { w: 1 }
         );
       });
