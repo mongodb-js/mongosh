@@ -1,44 +1,85 @@
 import Document from './document';
 
-export default interface Cursor {
+/**
+ * This is the interface based on the Node driver cursor.
+ * For future stitch cursors we will need to write a wrapper layer that
+ * makes the API the same as the Node driver.
+ */
+/**
+ * Enum for the available cursor flags.
+ */
+export const enum CursorFlag {
+  Tailable = 'tailable',
+  SlaveOk = 'slaveOk',
+  OplogReplay = 'oplogReplay',
+  NoTimeout = 'noCursorTimeout',
+  AwaitData = 'awaitData',
+  Exhaust = 'exhaust',
+  Partial = 'partial'
+}
+
+/**
+ * The cursor flags.
+ */
+export const CURSOR_FLAGS = {
+  2: CursorFlag.Tailable,
+  4: CursorFlag.SlaveOk,
+  8: CursorFlag.OplogReplay,
+  16: CursorFlag.NoTimeout,
+  32: CursorFlag.AwaitData,
+  64: CursorFlag.Exhaust,
+  128: CursorFlag.Partial
+};
+
+export default interface ServiceProviderCursor {
+  addCursorFlag(flag: CursorFlag, value: boolean): any;
   /**
    * Add a cursor flag as an option to the cursor.
    *
    * @param {number} option - The flag number.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  addOption(option: number): Cursor;
+  addOption(option: number): ServiceProviderCursor;
+
+  /**
+   * Set the read preference.
+   *
+   * @param {string | ReadPreference } mode - the new read preference.
+   *
+   * @returns {ServiceProviderCursor}
+   */
+  setReadPreference(mode: any): ServiceProviderCursor;
 
   /**
    * Set cursor to allow partial results.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  allowPartialResults(): Cursor;
+  allowPartialResults(): ServiceProviderCursor;
 
   /**
    * Set the cursor batch size.
    *
    * @param {number} size - The batch size.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  batchSize(size: number): Cursor;
+  batchSize(size: number): ServiceProviderCursor;
 
   /**
    * Close the cursor.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
   close(options: Document): Promise<void>;
 
   /**
    * Clone the cursor.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  clone(): Cursor;
+  clone(): ServiceProviderCursor;
 
   /**
    * Determine if the cursor has been closed.
@@ -52,18 +93,18 @@ export default interface Cursor {
    *
    * @param {Document} spec - The collation.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  collation(spec: Document): Cursor;
+  collation(spec: Document): ServiceProviderCursor;
 
   /**
    * Add a comment to the cursor.
    *
    * @param {string} cmt - The comment.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  comment(cmt: string): Cursor;
+  comment(cmt: string): ServiceProviderCursor;
 
   /**
    * Get the count from the cursor.
@@ -87,9 +128,9 @@ export default interface Cursor {
    *
    * @param {string} index - The index hint.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  hint(index: string): Cursor;
+  hint(index: string): ServiceProviderCursor;
 
   /**
    * cursor.isExhausted() returns true if the cursor is closed and there are no
@@ -106,72 +147,72 @@ export default interface Cursor {
    *
    * @param {number} value - The limit value.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  limit(value: number): Cursor;
+  limit(value: number): ServiceProviderCursor;
 
-  map(f): Cursor;
+  map(f): ServiceProviderCursor;
 
   /**
    * Set the max index bounds.
    *
    * @param {Document} indexBounds - The max bounds.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  max(indexBounds: Document): Cursor;
+  max(indexBounds: Document): ServiceProviderCursor;
 
   /**
    * Set the maxTimeMS value.
    *
    * @param {number} The maxTimeMS value.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  maxTimeMS(value: number): Cursor;
+  maxTimeMS(value: number): ServiceProviderCursor;
 
   /**
    * Set the min index bounds.
    *
    * @param {Document} indexBounds - The min bounds.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  min(indexBounds: Document): Cursor;
+  min(indexBounds: Document): ServiceProviderCursor;
 
   next(): Promise<any>;
 
   /**
    * Tell the cursor not to timeout.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  noCursorTimeout(): Cursor;
+  noServiceProviderCursorTimeout(): ServiceProviderCursor;
 
   /**
-   * Flag the cursor as an oplog replay.
+   * CursorFlag the cursor as an oplog replay.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  oplogReplay(): Cursor;
+  oplogReplay(): ServiceProviderCursor;
 
   /**
    * Set the projection on the cursor.
    *
    * @param {Document} spec - The projection.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  projection(spec: Document): Cursor;
+  project(spec: Document): ServiceProviderCursor;
 
   /**
    * Set the cursor to return the index field.
    *
    * @param {boolean} enabled - Whether to enable return key.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  returnKey(enabled: boolean): Cursor;
+  returnKey(enabled: boolean): ServiceProviderCursor;
 
   size(): Promise<number>;
 
@@ -180,34 +221,34 @@ export default interface Cursor {
    *
    * @param {number} value - The number of docs to skip.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  skip(value: number): Cursor;
+  skip(value: number): ServiceProviderCursor;
 
   /**
    * Set the sort on the cursor.
    *
    * @param {Document} spec - The sort.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  sort(spec: Document): Cursor;
+  sort(spec: Document): ServiceProviderCursor;
 
   /**
-   * Flag the cursor as tailable.
+   * CursorFlag the cursor as tailable.
    *
-   * @returns {Cursor} The cursor.
+   * @returns {ServiceProviderCursor} The cursor.
    */
-  tailable(): Cursor;
+  tailable(): ServiceProviderCursor;
 
   /**
    * Set read preference for the cursor.
    *
    * @param {string} mode - the read preference mode
    * @param {Document[]} [tagSet] - the tag set
-   * @returns {Cursor}
+   * @returns {ServiceProviderCursor}
    */
-  readPref(mode: string, tagSet?: Document[]): Cursor;
+  readPref(mode: string, tagSet?: Document[]): ServiceProviderCursor;
 
   /**
    * Get the documents from the cursor as an array of objects.
@@ -220,6 +261,6 @@ export default interface Cursor {
    * @param {string} verbosity - the explain verbosity.
    * @returns {Promise<any>}
    */
-  explain(verbosity: string): Promise<any>;
+  explain(verbosity?: string): Promise<any>;
 }
 

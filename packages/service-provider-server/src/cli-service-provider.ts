@@ -18,7 +18,6 @@ import {
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
-import NodeCursor from './node/node-cursor';
 
 type DropDatabaseResult = {
   ok: 0 | 1;
@@ -234,11 +233,9 @@ class CliServiceProvider implements ServiceProvider {
     pipeline: Document[] = [],
     options: Document = {},
     dbOptions?: DatabaseOptions): Cursor {
-    return new NodeCursor(
-      this.db(database, dbOptions)
-        .collection(collection)
-        .aggregate(pipeline, options)
-    );
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .aggregate(pipeline, options);
   }
 
   /**
@@ -265,7 +262,7 @@ class CliServiceProvider implements ServiceProvider {
     options: Document = {},
     dbOptions?: DatabaseOptions): Cursor {
     const db: any = (this.db(database, dbOptions) as any);
-    return new NodeCursor(db.aggregate(pipeline, options));
+    return db.aggregate(pipeline, options);
   }
 
   /**
@@ -469,11 +466,9 @@ class CliServiceProvider implements ServiceProvider {
     if ('tailable' in findOptions) {
       findOptions.cursorType = findOptions.tailable ? 'TAILABLE' : 'NON_TAILABLE'; // TODO
     }
-    return new NodeCursor(
-      this.db(database, dbOptions)
-        .collection(collection)
-        .find(filter, options)
-    );
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .find(filter, options);
   }
 
   /**

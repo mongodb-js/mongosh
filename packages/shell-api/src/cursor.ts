@@ -9,7 +9,8 @@ import {
   shellApiClassDefault
 } from './decorators';
 import { ServerVersions } from './enums';
-import { Cursor as ServiceProviderCursor, Document } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, CursorFlag, CURSOR_FLAGS, Document } from '@mongosh/service-provider-core';
+import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -47,16 +48,37 @@ export default class Cursor extends ShellApiClass {
     return results;
   }
 
+  /**
+   * Add a flag and return the cursor.
+   *
+   * @param {CursorFlag} flag - The cursor flag.
+   *
+   * @returns {void}
+   */
+  private addFlag(flag: CursorFlag): void {
+    this.cursor.addCursorFlag(flag, true);
+  }
+
   @returnType('Cursor')
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  addOption(option: number): Cursor {
-    this.cursor.addOption(option);
+  addOption(optionFlagNumber: number): Cursor {
+    const optionFlag = CURSOR_FLAGS[optionFlagNumber];
+
+    if (!optionFlag) {
+      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
+    }
+
+    if (optionFlag === CursorFlag.SlaveOk) {
+      throw new MongoshUnimplementedError('the slaveOk option is not yet supported.');
+    }
+
+    this.cursor.addCursorFlag(optionFlag, true);
     return this;
   }
 
   @returnType('Cursor')
   allowPartialResults(): Cursor {
-    this.cursor.allowPartialResults();
+    this.addFlag(CursorFlag.Partial);
     return this;
   }
 
@@ -72,8 +94,8 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  close(options: Document): Promise<void> {
-    return this.cursor.close(options);
+  async close(options: Document): Promise<void> {
+    return await this.cursor.close(options as any);
   }
 
   @returnType('Cursor')
@@ -97,8 +119,32 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  explain(verbosity: string): Promise<any> {
-    return this.cursor.explain(verbosity);
+  async explain(verbosity: string): Promise<any> {
+    // TODO: @maurizio we should probably move this in the Explain class?
+    // NOTE: the node driver always returns the full explain plan
+    // for Cursor and the queryPlanner explain for AggregationCursor.
+
+    const fullExplain: any = await this.cursor.explain();
+
+    const explain: any = {
+      ...fullExplain
+    };
+
+    if (
+      verbosity !== 'executionStats' &&
+      verbosity !== 'allPlansExecution' &&
+      explain.executionStats
+    ) {
+      delete explain.executionStats;
+    }
+
+    if (verbosity === 'executionStats' &&
+      explain.executionStats &&
+      explain.executionStats.allPlansExecution) {
+      delete explain.executionStats.allPlansExecution;
+    }
+
+    return explain;
   }
 
   @returnsPromise
@@ -121,13 +167,20 @@ export default class Cursor extends ShellApiClass {
     return this.cursor.isClosed();
   }
 
-  isExhausted(): Promise<boolean> {
-    return this.cursor.isExhausted();
+  async isExhausted(): Promise<boolean> {
+    return this.cursor.isClosed() && !await this.cursor.hasNext();
   }
 
   @returnsPromise
-  itcount(): Promise<number> {
-    return this.cursor.itcount();
+  async itcount(): Promise<number> {
+    let count = 0;
+
+    while (await this.hasNext()) {
+      await this.next();
+      count++;
+    }
+
+    return count;
   }
 
   @returnType('Cursor')
@@ -167,38 +220,43 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   noCursorTimeout(): Cursor {
-    this.cursor.noCursorTimeout();
+    this.addFlag(CursorFlag.NoTimeout);
     return this;
   }
 
   @returnType('Cursor')
   oplogReplay(): Cursor {
-    this.cursor.oplogReplay();
+    this.addFlag(CursorFlag.OplogReplay);
     return this;
   }
 
   @returnType('Cursor')
   projection(spec: Document): Cursor {
-    this.cursor.projection(spec);
+    this.cursor.project(spec);
     return this;
   }
 
   @returnType('Cursor')
-  readPref(preference: string): Cursor {
-    this.cursor.readPref(preference);
+  readPref(mode: string, tagSet?: Document[]): Cursor {
+    if (tagSet) {
+      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
+    }
+
+    this.cursor.setReadPreference(mode as any);
+
     return this;
   }
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   returnKey(enabled: boolean): Cursor {
-    this.cursor.returnKey(enabled);
+    this.cursor.returnKey(enabled as any);
     return this;
   }
 
   @returnsPromise
   size(): Promise<number> {
-    return this.cursor.size();
+    return this.cursor.count();
   }
 
   @returnType('Cursor')
@@ -216,7 +274,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   tailable(): Cursor {
-    this.cursor.tailable();
+    this.addFlag(CursorFlag.Tailable);
     return this;
   }
 
