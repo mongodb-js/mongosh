@@ -16,10 +16,15 @@ export default {
   DBRef: function(...args): bson.DBRef {
     return new bson.DBRef(...args);
   },
-  DBPointer: function(...args): bson.DBPointer {
-    return new bson.DBPointer(...args);
+  // Classes not available in the bson 1.x library
+  // Depreciated since 1.6
+  // DBPointer: function(...args): bson.DBPointer {
+  //   return new bson.DBPointer(...args);
+  // },
+  // Map: bson.Map,
+  bsonsize: function(object): any {
+    return bson.calculateObjectSize(object);
   },
-  Map: bson.Map,
   MaxKey: function(...args): bson.MaxKey {
     return new bson.MaxKey(...args);
   },
@@ -30,7 +35,7 @@ export default {
     return new bson.ObjectID(...args);
   },
   Symbol: function(...args): bson.Symbol {
-    return new bson.BSONSymbol(...args);
+    return new bson.Symbol(...args);
   },
   Timestamp: function(...args): bson.Timestamp {
     return new bson.Timestamp(...args);
@@ -44,7 +49,7 @@ export default {
     }
     return bson.Decimal128.fromString(s.toString());
   },
-  NumberInt: function(s): any {
+  NumberInt: function(s): any { // TODO: use bson.Int32?
     return parseInt(s, 10);
   },
   NumberLong: function(v): bson.Long {
@@ -78,8 +83,5 @@ export default {
   MD5: function(hexstr): bson.Binary {
     const buffer = Buffer.from(hexstr, 'hex');
     return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
-  },
-  bsonsize: function(object): any {
-    return bson.calculateObjectSize(object);
   }
 };
