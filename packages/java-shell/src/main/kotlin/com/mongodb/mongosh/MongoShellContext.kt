@@ -77,6 +77,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                 eval("new MinKey().constructor"),
                 eval("new ObjectId().constructor"),
                 eval("new NumberDecimal().constructor"),
+                eval("new NumberInt().constructor"),
                 eval("new Timestamp().constructor"),
                 eval("new Code().constructor"),
                 eval("new DBRef('').constructor"),
@@ -207,6 +208,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(bsonTypes.minKey) -> MinKeyResult()
             v.instanceOf(bsonTypes.objectId) -> ObjectIdResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readObjectId())
             v.instanceOf(bsonTypes.numberDecimal) -> Decimal128Result(JsonReader(v.invokeMember("toExtendedJSON").toString()).readDecimal128())
+            v.instanceOf(bsonTypes.numberInt) -> IntResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt32())
             v.instanceOf(bsonTypes.symbol) -> SymbolResult(Symbol(JsonReader(v.invokeMember("toExtendedJSON").toString()).readSymbol()))
             v.instanceOf(bsonTypes.timestamp) -> {
                 val timestamp = JsonReader(extract(v.invokeMember("toExtendedJSON")).value.toLiteral()).readTimestamp()
@@ -300,6 +302,7 @@ private data class BsonTypes(
         val minKey: Value,
         val objectId: Value,
         val numberDecimal: Value,
+        val numberInt: Value,
         val timestamp: Value,
         val code: Value,
         val dbRef: Value,

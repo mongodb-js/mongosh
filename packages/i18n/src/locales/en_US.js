@@ -1578,7 +1578,120 @@ const translations = {
             description: 'Returns the specified Database of the Mongo object.'
           }
         }
-      }
+      },
+      DBRef: {
+        help: {
+          description: 'The DBRef BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/DBRef.html'
+        },
+        attributes: {}
+      },
+      MaxKey: {
+        help: {
+          description: 'The MaxKey BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MaxKey.html'
+        },
+        attributes: {}
+      },
+      MinKey: {
+        help: {
+          description: 'The MinKey BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MinKey.html'
+        },
+        attributes: {}
+      },
+      ObjectId: {
+        help: {
+          description: 'The ObjectId BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectID.html'
+        },
+        attributes: {}
+      },
+      Symbol: {
+        help: {
+          description: 'The Symbol BSON Class. Deprecated since 1.6',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html'
+        },
+        attributes: {}
+      },
+      Timestamp: {
+        help: {
+          description: 'The Timestamp BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Timestamp.html'
+        },
+        attributes: {}
+      },
+      Code: {
+        help: {
+          description: 'The Code BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Code.html'
+        },
+        attributes: {}
+      },
+      NumberDecimal: {
+        help: {
+          description: 'The Decimal128 BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Decimal128.html'
+        },
+        attributes: {}
+      },
+      NumberInt: {
+        help: {
+          description: 'The 32-bit Integer BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html'
+        },
+        attributes: {}
+      },
+      NumberLong: {
+        help: {
+          description: 'The Long BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html'
+        },
+        attributes: {}
+      },
+      Date: {
+        help: {
+          description: 'The Date Class'
+        },
+        attributes: {}
+      },
+      ISODate: {
+        help: {
+          description: 'Helper method for creating dates using ISO'
+        },
+        attributes: {}
+      },
+      BinData: {
+        help: {
+          description: 'The Binary BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Binary.html'
+        },
+        attributes: {}
+      },
+      HexData: {
+        help: {
+          description: 'Helper method to create BinData with subtype hex. Accepts hex string'
+        },
+        attributes: {}
+      },
+      UUID: {
+        help: {
+          description: 'Helper method to create BinData with subtype UUID. Accepts hex string'
+        },
+        attributes: {}
+      },
+      MD5: {
+        help: {
+          description: 'Helper method to create BinData with subtype MD5. Accepts hex string'
+        },
+        attributes: {}
+      },
+      bsonsize: {
+        help: {
+          description: 'Helper method to calculate object size'
+        },
+        attributes: {}
+      },
     }
   },
   'transport-browser': {
