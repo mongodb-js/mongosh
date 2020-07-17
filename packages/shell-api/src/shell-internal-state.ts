@@ -17,6 +17,8 @@ import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
+import modifyBson from './modify-bson';
+import bson from 'bson';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -34,6 +36,7 @@ export default class ShellInternalState {
   public shellApi: ShellApi;
   public cliOptions: any;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
+    modifyBson(bson, initialServiceProvider.platform);
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
 import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi, asShellResult } from './index';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 

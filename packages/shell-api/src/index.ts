@@ -10,6 +10,7 @@ import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
+import modifyBson from './modify-bson';
 import {
   BulkWriteResult,
   CommandResult,
@@ -63,5 +64,6 @@ export {
   Topologies,
   shellApiType,
   asShellResult,
-  ShellResult
+  ShellResult,
+  modifyBson
 };
