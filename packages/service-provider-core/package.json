@@ -28,7 +28,9 @@
   },
   "dependencies": {
     "@mongosh/i18n": "^0.0.8",
-    "mongodb-build-info": "^1.0.0"
+    "@mongosh/errors": "^0.0.8",
+    "mongodb-build-info": "^1.0.0",
+    "bson": "4.0.4"
   },
   "dependency-check": {
     "entries": [

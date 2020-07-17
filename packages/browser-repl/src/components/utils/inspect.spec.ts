@@ -1,4 +1,4 @@
-import { ObjectId } from 'bson';
+import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { inspect } from './inspect';
 
@@ -42,7 +42,7 @@ describe('inspect', () => {
   context('with BSON types', () => {
     it('inspects ObjectId', () => {
       expect(
-        inspect(new ObjectId('0000007b3db627730e26fd0b'))
+        inspect(new bson.ObjectId('0000007b3db627730e26fd0b'))
       ).to.equal('ObjectID("0000007b3db627730e26fd0b")');
     });
   });

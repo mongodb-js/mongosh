@@ -10,7 +10,8 @@ import {
   WriteConcern,
   getConnectInfo,
   ReplPlatform,
-  DEFAULT_DB
+  DEFAULT_DB,
+  ServiceProviderCore
 } from '@mongosh/service-provider-core';
 
 import StitchTransport from './stitch-transport';
@@ -20,7 +21,8 @@ import {
   AnonymousCredential,
   RemoteMongoClient,
   Stitch,
-  StitchAppClient
+  StitchAppClient,
+  BSON
 } from 'mongodb-stitch-browser-sdk';
 
 import { MongoshUnimplementedError } from '@mongosh/errors';
@@ -39,7 +41,7 @@ const ATLAS = 'mongodb-atlas';
  * Encapsulates logic for communicating with a MongoDB instance via
  * Stitch in the browser.
  */
-class StitchServiceProviderBrowser implements ServiceProvider {
+class StitchServiceProviderBrowser extends ServiceProviderCore implements ServiceProvider {
   readonly stitchTransport: StitchTransport<StitchAppClient, RemoteMongoClient>;
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
@@ -147,10 +149,14 @@ class StitchServiceProviderBrowser implements ServiceProvider {
    * @param {String} serviceName - The Mongo service name.
    */
   constructor(stitchClient: StitchAppClient, serviceName: string = ATLAS) {
-    const mongoClient = stitchClient.
-      getServiceClient(RemoteMongoClient.factory, serviceName);
-    this.stitchTransport =
-      new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
+    super(BSON);
+    const mongoClient = stitchClient.getServiceClient(
+      RemoteMongoClient.factory,
+      serviceName
+    );
+    this.stitchTransport = new StitchTransport<StitchAppClient, RemoteMongoClient>(
+      stitchClient, mongoClient
+    );
     this.platform = ReplPlatform.Browser;
     this.initialDb = DEFAULT_DB;
   }
