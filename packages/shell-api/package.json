@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,14 +33,14 @@
     "build"
   ],
   "dependencies": {
-    "@mongosh/async-rewriter": "^0.0.7",
-    "@mongosh/errors": "^0.0.7",
-    "@mongosh/history": "^0.0.7",
-    "@mongosh/i18n": "^0.0.7",
-    "@mongosh/service-provider-core": "^0.0.7",
+    "@mongosh/async-rewriter": "^0.0.8",
+    "@mongosh/errors": "^0.0.8",
+    "@mongosh/history": "^0.0.8",
+    "@mongosh/i18n": "^0.0.8",
+    "@mongosh/service-provider-core": "^0.0.8",
     "bson": "^4.0.4"
   },
   "devDependencies": {
-    "@mongosh/service-provider-server": "^0.0.7"
+    "@mongosh/service-provider-server": "^0.0.8"
   }
 }
