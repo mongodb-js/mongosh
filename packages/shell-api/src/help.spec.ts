@@ -34,8 +34,7 @@ describe('Help', () => {
       };
 
       expect(
-        new Help(properties, { translate })
-          [asShellResult]()
+        new Help(properties, { translate })[asShellResult]()
           .value
           .help
       ).to.equal('translated: help');
@@ -48,8 +47,7 @@ describe('Help', () => {
       };
 
       expect(
-        new Help(properties, { translate })
-          [asShellResult]()
+        new Help(properties, { translate })[asShellResult]()
           .value
           .docs
       ).to.equal('translated: https://example.com');
@@ -72,8 +70,7 @@ describe('Help', () => {
       };
 
       expect(
-        new Help(properties, { translate })
-          [asShellResult]()
+        new Help(properties, { translate })[asShellResult]()
           .value
           .attr
       ).to.deep.equal([{ name: 'key', description: 'translated: description' }]);
