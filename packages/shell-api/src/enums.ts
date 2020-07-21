@@ -15,11 +15,6 @@ export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.lat
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
 export const ALL_PLATFORMS = [ ReplPlatform.Compass, ReplPlatform.Browser, ReplPlatform.CLI ];
 
-export const toStringMethods = {};
-toStringMethods[ReplPlatform.Compass] = 'TODO';
-toStringMethods[ReplPlatform.Browser] = 'TODO';
-toStringMethods[ReplPlatform.CLI] = Symbol.for('nodejs.util.inspect.custom');
-
 export enum ReadPreference {
   PRIMARY = 0,
   PRIMARY_PREFERRED = 1,
