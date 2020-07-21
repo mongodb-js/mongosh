@@ -224,9 +224,9 @@ describe('Shell BSON', () => {
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
-  // describe('bsonsize', () => {
-  //   it('calculates empty doc size', () => {
-  //     expect(shellBson.bsonsize({})).to.equal(5);
-  //   });
-  // });
+  describe('bsonsize', () => {
+    it('calculates empty doc size', () => {
+      expect(shellBson.bsonsize({})).to.equal(5);
+    });
+  });
 });
