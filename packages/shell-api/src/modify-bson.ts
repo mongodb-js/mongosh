@@ -6,11 +6,7 @@ import {
   toStringMethods
 } from './enums';
 import Help from './help';
-/**
- * This method modifies the BSON class passed in as argument. This is required so that
- * we can have the driver return our BSON classes without having to write our own serializer.
- * @param {Object} bson
- */
+
 function constructHelp(className): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp = {
@@ -21,10 +17,15 @@ function constructHelp(className): Help {
   return new Help(classHelp);
 }
 
+/**
+ * This method modifies the BSON class passed in as argument. This is required so that
+ * we can have the driver return our BSON classes without having to write our own serializer.
+ * @param {Object} bson
+ */
 export default function(bson, platform): void {
   [
-    'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', /* 'Double',*/
-    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Symbol'
+    'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long',
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Symbol', 'Map'
   ].forEach((className) => {
     bson[className].prototype.serverVersions = ALL_SERVER_VERSIONS;
     bson[className].prototype.platforms = ALL_PLATFORMS;
@@ -37,8 +38,12 @@ export default function(bson, platform): void {
 
   const toString = toStringMethods[platform];
 
+  bson.ObjectId.prototype[toString] = function(): string {
+    return `ObjectId("${this.toHexString()}")`;
+  };
+
   bson.DBRef.prototype[toString] = function(): string {
-    return `DBRef(${this.toJSON()})`;
+    return `DBRef("${this.namespace}", ${this.oid[toString]()}${this.db ? `, "${this.db}"` : ''})`;
   };
 
   bson.MaxKey.prototype[toString] = function(): string {
@@ -49,36 +54,30 @@ export default function(bson, platform): void {
     return '{ "$minKey" : 1 }';
   };
 
-  bson.ObjectId.prototype[toString] = function(): string {
-    return `ObjectID('${this.toHexString()}')`;
+  bson.Timestamp.prototype[toString] = function(): string {
+    return `Timestamp(${this.getLowBits().toString()}, ${this.getHighBits().toString()})`;
   };
 
+  // The old shell could not print Symbols so this was undefined behavior
   bson.Symbol.prototype[toString] = function(): string {
-    return `'${this.valueOf()}'`;
+    return `"${this.valueOf()}"`;
   };
   bson.Symbol.prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
 
-  bson.Timestamp.prototype[toString] = function(): string {
-    return `Timestamp(${this.low}, ${this.high})`;
-  };
-
   bson.Code.prototype[toString] = function(): string {
-    return this.toJSON();
+    const j = this.toJSON();
+    return `{ "code" : "${j.code}"${j.scope ? `, "scope" : ${JSON.stringify(j.scope)}` : ''} }`;
   };
 
   bson.Decimal128.prototype[toString] = function(): string {
-    return `NumberDecimal('${this.toString()}')`;
+    return `NumberDecimal("${this.toString()}")`;
   };
   const helpDecimal = constructHelp('NumberDecimal');
   bson.Decimal128.prototype.help = (): Help => (helpDecimal);
   Object.setPrototypeOf(bson.Decimal128.prototype.help, helpDecimal);
 
-  // bson.Double.prototype[toString] = function(): string {
-  //   return this.valueOf();
-  // };
-
   bson.Int32.prototype[toString] = function(): string {
-    return this.valueOf();
+    return `NumberInt(${this.valueOf()})`;
   };
   const helpInt = constructHelp('NumberInt');
   bson.Int32.prototype.help = (): Help => (helpInt);
@@ -92,7 +91,7 @@ export default function(bson, platform): void {
   Object.setPrototypeOf(bson.Long.prototype.help, helpLong);
 
   bson.Binary.prototype[toString] = function(): string {
-    return `BinData(${this.value()})`;
+    return `BinData(${this.sub_type}, "${this.value()}")`;
   };
   const helpBinData = constructHelp('BinData');
   bson.Binary.prototype.help = (): Help => (helpBinData);
