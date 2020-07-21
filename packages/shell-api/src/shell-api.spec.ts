@@ -9,6 +9,7 @@ import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
+import bson from 'bson';
 
 describe('ShellApi', () => {
   describe('signatures', () => {
@@ -85,6 +86,7 @@ describe('ShellApi', () => {
       newSP.initialDb = 'test';
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
       serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       internalState = new ShellInternalState(serviceProvider, bus);
@@ -179,6 +181,7 @@ describe('ShellApi', () => {
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
       serviceProvider.initialDb = 'test';
       serviceProvider.platform = ReplPlatform.CLI;
+      serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       internalState = new ShellInternalState(serviceProvider, bus);

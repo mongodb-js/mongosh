@@ -10,7 +10,6 @@ import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
-import modifyBson from './modify-bson';
 import {
   BulkWriteResult,
   CommandResult,
@@ -21,7 +20,6 @@ import {
   UpdateResult
 } from './result';
 import Mongo from './mongo';
-import ShellBson from './shell-bson';
 import {
   signatures,
   ShellResult
@@ -53,7 +51,6 @@ export {
   Mongo,
   Shard,
   ReplicaSet,
-  ShellBson,
   UpdateResult,
   toIterator,
   signatures,
@@ -64,6 +61,5 @@ export {
   Topologies,
   shellApiType,
   asShellResult,
-  ShellResult,
-  modifyBson
+  ShellResult
 };

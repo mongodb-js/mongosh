@@ -10,6 +10,7 @@ import Collection from './collection';
 import Explainable from './explainable';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
+import bson from 'bson';
 
 describe('Explainable', () => {
   describe('help', () => {
@@ -61,6 +62,7 @@ describe('Explainable', () => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');
