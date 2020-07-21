@@ -1,5 +1,7 @@
 import {
-  MongoClient,
+  MongoClient
+} from 'mongodb';
+import {
   DBRef,
   MaxKey,
   MinKey,
@@ -9,7 +11,7 @@ import {
   Code,
   Decimal128,
   Binary
-} from 'mongodb';
+} from 'bson';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 import {
@@ -45,6 +47,42 @@ describe('BSON e2e', function() {
       await db.dropDatabase();
 
       client.close();
+    });
+    it('Entire doc prints when returned from the server', async() => {
+      const buffer = Buffer.from('MTIzNA==', 'base64');
+      const inputDoc = {
+        ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
+        DBRef: new DBRef('a', 'o'),
+        MinKey: new MinKey(),
+        MaxKey: new MaxKey(),
+        // NumberInt: NumberInt(32),
+        // NumberLong: NumberLong("64"),
+        Timestamp: new Timestamp(1, 100),
+        Symbol: new Symbol('abc'),
+        Code: new Code('abc'),
+        NumberDecimal: Decimal128.fromString('1'),
+        BinData: new Binary(buffer, 128)
+      };
+      const outputDoc = {
+        ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
+        DBRef: 'DBRef("a", "o")',
+        MinKey: '{ "$minKey" : 1 }',
+        MaxKey: '{ "$maxKey" : 1 }',
+        NumberInt: 'NumberInt(32)',
+        NumberLong: 'NumberLong("64")',
+        Timestamp: 'Timestamp(1, 100)',
+        Symbol: '"abc"',
+        Code: '{ "code" : "abc" }',
+        NumberDecimal: 'NumberDecimal("1")',
+        BinData: 'BinData(128, "1234")'
+      };
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne(inputDoc);
+      await shell.writeInputLine('db.test.findOne()');
+      await eventually(() => {
+        shell.assertContainsOutput(outputDoc.ObjectId);
+      });
+      shell.assertNoErrors();
     });
     it('ObjectId prints when returned from the server', async() => {
       const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
@@ -178,10 +216,10 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('NumberLong prints when created by user', async() => {
-      const value = 'NumberLong("1")';
+      const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong(1)');
+        shell.assertContainsOutput('NumberLong(64)');
       });
       shell.assertNoErrors();
     });
