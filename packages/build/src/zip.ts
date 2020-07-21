@@ -42,10 +42,10 @@ export const zipPosix = async(outputDir: string, filename: string): Promise<void
 
 export const zipDebian = async(input: string, filename: string, version: string, outputDir: string): Promise<void> => {
   const options = {
-    inputFile: input,
-    dest: filename,
+    outputDir: outputDir,
+    sourceDir: input,
     version: version,
-    stagingDir: outputDir,
+    dest: filename,
     arch: 'amd64'
   }
 
