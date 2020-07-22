@@ -8,9 +8,8 @@ import Cursor from './cursor';
 import Mongo from './mongo';
 import Collection from './collection';
 import Explainable from './explainable';
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ServiceProvider, bson } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
-import bson from 'bson';
 
 describe('Explainable', () => {
   describe('help', () => {
