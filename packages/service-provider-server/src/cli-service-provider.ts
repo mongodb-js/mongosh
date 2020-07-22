@@ -1,8 +1,7 @@
-import {
+import mongodb, {
   MongoClient,
   Db
 } from 'mongodb';
-import bson from 'bson';
 
 import {
   ServiceProvider,
@@ -16,7 +15,7 @@ import {
   getConnectInfo,
   ReplPlatform,
   DEFAULT_DB,
-  ServiceProviderCore
+  ServiceProviderCore,
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -80,7 +79,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {string} uri - optional URI for telemetry.
    */
   constructor(mongoClient: MongoClient, uri?: string) {
-    super(bson);
+    super(mongodb);
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;

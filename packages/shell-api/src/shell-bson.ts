@@ -1,6 +1,6 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
-// import bsonLib from 'bson';
+import { bson as BSON } from '@mongosh/service-provider-core';
 
 function constructHelp(className): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -30,9 +30,9 @@ function dateHelper(...args: DateConstructorArguments): Date {
  * @param {Object} bson
  */
 export default function constructShellBson(bson: any) {
-  // if (bson === undefined) { // TODO: could get rid of this entirely
-  //   bson = bsonLib;
-  // }
+  if (bson === undefined) {
+    bson = BSON;
+  }
   [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Symbol', 'Map'
@@ -62,8 +62,7 @@ export default function constructShellBson(bson: any) {
   bson.Binary.prototype.help = (): Help => (helpBinData);
   Object.setPrototypeOf(bson.Binary.prototype.help, helpBinData);
 
-  // eslint-disable-next-line new-cap
-  const extbson = new bson();
+  const extbson = new BSON(); // NOTE: always uses BSON from SP-core for objsize
   return {
     RegExp: RegExp,
     DBRef: function(...args): any {

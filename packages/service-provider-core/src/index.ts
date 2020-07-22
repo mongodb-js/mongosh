@@ -12,6 +12,7 @@ import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
 import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
+import bson from 'bson';
 
 export {
   ServiceProvider,
@@ -31,5 +32,6 @@ export {
   generateUri,
   Scheme,
   DEFAULT_DB,
-  ServiceProviderCore
+  ServiceProviderCore,
+  bson
 };
