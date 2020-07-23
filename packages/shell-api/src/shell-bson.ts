@@ -34,6 +34,7 @@ export default function constructShellBson(bson: any): any {
   if (bson === undefined) {
     bson = BSON;
   }
+  const helps: any = {};
   [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
@@ -46,6 +47,7 @@ export default function constructShellBson(bson: any): any {
     bson[className].prototype.topologies = ALL_TOPOLOGIES;
 
     const help = constructHelp(className);
+    helps[className] = help;
     bson[className].prototype.help = (): Help => (help);
     Object.setPrototypeOf(bson[className].prototype.help, help);
   });
@@ -56,6 +58,7 @@ export default function constructShellBson(bson: any): any {
     bson[className].prototype.topologies = ALL_TOPOLOGIES;
 
     const help = constructHelp('Symbol');
+    helps[className] = help;
     bson[className].prototype.help = (): Help => (help);
     Object.setPrototypeOf(bson[className].prototype.help, help);
     bson[className].help = (): Help => (help);
@@ -76,7 +79,8 @@ export default function constructShellBson(bson: any): any {
   Object.setPrototypeOf(bson.Binary.prototype.help, helpBinData);
 
   const extbson = new BSON(); // NOTE: always uses BSON from SP-core for objsize
-  return {
+
+  const bsonPkg = {
     RegExp: RegExp,
     DBRef: function(...args): any {
       return new bson.DBRef(...args);
@@ -151,4 +155,29 @@ export default function constructShellBson(bson: any): any {
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     }
   };
+  (bsonPkg.ObjectId as any).help = (): Help => (helps.ObjectId);
+  Object.setPrototypeOf((bsonPkg.ObjectId as any).help, helps.ObjectId);
+  (bsonPkg.Code as any).help = (): Help => (helps.Code);
+  Object.setPrototypeOf((bsonPkg.Code as any).help, helps.Code);
+  (bsonPkg.DBRef as any).help = (): Help => (helps.DBRef);
+  Object.setPrototypeOf((bsonPkg.DBRef as any).help, helps.DBRef);
+  (bsonPkg.MaxKey as any).help = (): Help => (helps.MaxKey);
+  Object.setPrototypeOf((bsonPkg.MaxKey as any).help, helps.MaxKey);
+  (bsonPkg.MinKey as any).help = (): Help => (helps.MinKey);
+  Object.setPrototypeOf((bsonPkg.MinKey as any).help, helps.MinKey);
+  (bsonPkg.Timestamp as any).help = (): Help => (helps.Timestamp);
+  Object.setPrototypeOf((bsonPkg.Timestamp as any).help, helps.Timestamp);
+  (bsonPkg.Map as any).help = (): Help => (helps.Map);
+  Object.setPrototypeOf((bsonPkg.Map as any).help, helps.Map);
+  (bsonPkg.NumberDecimal as any).help = (): Help => (helpDecimal);
+  Object.setPrototypeOf((bsonPkg.NumberDecimal as any).help, helpDecimal);
+  (bsonPkg.Symbol as any).help = (): Help => (helps.Symbol);
+  Object.setPrototypeOf((bsonPkg.Symbol as any).help, helps.Symbol);
+  (bsonPkg.NumberInt as any).help = (): Help => (helpInt);
+  Object.setPrototypeOf((bsonPkg.NumberInt as any).help, helpInt);
+  (bsonPkg.NumberLong as any).help = (): Help => (helpLong);
+  Object.setPrototypeOf((bsonPkg.NumberLong as any).help, helpLong);
+  (bsonPkg.BinData as any).help = (): Help => (helpBinData);
+  Object.setPrototypeOf((bsonPkg.BinData as any).help, helpBinData);
+  return bsonPkg;
 }
