@@ -9,6 +9,7 @@
   "scripts": {
     "build": "webpack --config ./config/webpack.config.prod.js",
     "build:stats": "webpack --config ./config/webpack.config.stats.js",
+    "clean": "rimraf ./lib",
     "preprepublish": "rimraf ./lib",
     "prepublish": "npm run build",
     "start": "npm run storybook",

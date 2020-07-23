@@ -5,6 +5,7 @@ chai.use(sinonChai);
 const { expect } = chai;
 
 import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { bson } from '@mongosh/service-provider-core';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
 
@@ -15,6 +16,7 @@ describe('Electron runtime', function() {
 
   beforeEach(async() => {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
+    serviceProvider.bsonLibrary = bson;
     messageBus = sinon.createStubInstance(EventEmitter);
     electronRuntime = new ElectronRuntime(serviceProvider, messageBus);
   });
@@ -22,6 +24,10 @@ describe('Electron runtime', function() {
   it('can evaluate simple js', async() => {
     const result = await electronRuntime.evaluate('2 + 2');
     expect(result.value).to.equal(4);
+  });
+  it('prints BSON help correctly', async() => {
+    const result = await electronRuntime.evaluate('ObjectId().help');
+    expect(result.type).to.equal('Help');
   });
 
   it('allows do declare variables', async() => {

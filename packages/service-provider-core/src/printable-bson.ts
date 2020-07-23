@@ -1,9 +1,13 @@
+import BSON from 'bson';
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have the driver return our BSON classes without having to write our own serializer.
  * @param {Object} bson
  */
 export default function(bson): void {
+  if (!bson) {
+    bson = BSON;
+  }
   const toString = require('util').inspect.custom || 'inspect';
 
   bson.ObjectId.prototype[toString] = function(): string {
@@ -33,9 +37,16 @@ export default function(bson): void {
   bson.Timestamp.prototype.asPrintable = bson.Timestamp.prototype[toString];
 
   // The old shell could not print Symbols so this was undefined behavior
-  bson.Symbol.prototype[toString] = function(): string {
-    return `"${this.valueOf()}"`;
-  };
+  if ('Symbol' in bson) {
+    bson.Symbol.prototype[toString] = function(): string {
+      return `"${this.valueOf()}"`;
+    };
+  }
+  if ('BSONSymbol' in bson) {
+    bson.BSONSymbol.prototype[toString] = function(): string {
+      return `"${this.valueOf()}"`;
+    };
+  }
 
   bson.Code.prototype[toString] = function(): string {
     const j = this.toJSON();
