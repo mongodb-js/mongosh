@@ -26,7 +26,7 @@ export const USAGE = `
         --norc                                 ${i18n.__('cli-repl.args.norc')}
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
         --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
-        --disableImplicitSessions              ${i18n.__('cli-repl.args.disableImplicitSessions')}
+${''/* TODO:        --disableImplicitSessions              ${i18n.__('cli-repl.args.disableImplicitSessions')}*/}
 
   ${clr(i18n.__('cli-repl.args.authenticationOptions'), ['bold', 'yellow'])}
 
@@ -73,5 +73,5 @@ export const USAGE = `
         ${i18n.__('cli-repl.args.connectionExampleWithDatabase')}
         ${clr('$ mongosh mongodb://192.168.0.5:9999/ships', 'green')}
 
-  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr('https://docs.mongodb.com/manual/mongo/', 'green')}.
+  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr('https://docs.mongodb.com/mongodb-shell', 'green')}.
 `.replace(/\n$/, '').replace(/^\n/, '');
