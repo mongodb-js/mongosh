@@ -1,4 +1,4 @@
-import ServiceProvider, { ServiceProviderCore } from './service-provider';
+import ServiceProvider from './service-provider';
 import Document from './document';
 import Cursor, { CursorFlag, CURSOR_FLAGS } from './cursor';
 import Result from './result';
@@ -30,6 +30,5 @@ export {
   CliOptions,
   generateUri,
   Scheme,
-  DEFAULT_DB,
-  ServiceProviderCore
+  DEFAULT_DB
 };

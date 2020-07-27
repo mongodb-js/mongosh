@@ -6,17 +6,19 @@ import {
   ReplicaSet,
   Shard,
   signatures,
+  ShellBson,
   toIterator,
   ShellApi,
   shellApiType
 } from './index';
-import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
 import { Document, ServiceProvider, DEFAULT_DB } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
+import modifyBson from './modify-bson';
+import bson from 'bson';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -32,14 +34,13 @@ export default class ShellInternalState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
-  public shellBson: any;
   public cliOptions: any;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
+    modifyBson(bson);
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
     this.shellApi = new ShellApi(this);
-    this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary);
     this.mongos = [];
     this.connectionInfo = { buildInfo: {} };
     if (!cliOptions.nodb) {
@@ -111,7 +112,7 @@ export default class ShellInternalState {
     contextObject.quit = contextObject.exit;
     contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
-    Object.assign(contextObject, this.shellBson);
+    Object.assign(contextObject, ShellBson);
 
     contextObject.rs = new ReplicaSet(this.currentDb._mongo);
     contextObject.sh = new Shard(this.currentDb._mongo);

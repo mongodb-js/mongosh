@@ -15,9 +15,9 @@ import {
   CommandOptions,
   getConnectInfo,
   ReplPlatform,
-  DEFAULT_DB,
-  ServiceProviderCore
+  DEFAULT_DB
 } from '@mongosh/service-provider-core';
+import { modifyBson } from '@mongosh/shell-api';
 
 import NodeOptions from './node/node-options';
 
@@ -37,7 +37,7 @@ const DEFAULT_OPTIONS = Object.freeze({
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
-class CliServiceProvider extends ServiceProviderCore implements ServiceProvider {
+class CliServiceProvider implements ServiceProvider {
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
   /**
@@ -80,10 +80,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {string} uri - optional URI for telemetry.
    */
   constructor(mongoClient: MongoClient, uri?: string) {
-    super(bson);
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
+    modifyBson(bson);
     try {
       this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
     } catch (err) {
