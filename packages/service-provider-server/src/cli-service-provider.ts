@@ -83,7 +83,7 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
-    modifyBson(bson);
+    modifyBson(bson, this.platform);
     try {
       this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
     } catch (err) {

@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { ALL_SERVER_VERSIONS, asShellResult } from './enums';
 import modifyBson from './modify-bson';
 import bson from 'bson';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
 const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';
@@ -11,7 +12,7 @@ const utf_1234 = '1234';
 
 describe('Shell BSON', () => {
   before(() => {
-    modifyBson(bson);
+    modifyBson(bson, ReplPlatform.CLI);
   });
   describe('DBRef', () => {
     it('without new', () => {

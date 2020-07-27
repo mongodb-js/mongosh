@@ -47,9 +47,4 @@ export default interface Admin {
    * The initial database
    */
   initialDb: string;
-
-  /**
-   * The BSON package
-   */
-  bsonLibrary: any;
 }

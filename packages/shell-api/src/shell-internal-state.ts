@@ -36,7 +36,7 @@ export default class ShellInternalState {
   public shellApi: ShellApi;
   public cliOptions: any;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
-    modifyBson(bson);
+    modifyBson(bson, initialServiceProvider.platform);
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
