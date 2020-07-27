@@ -48,7 +48,7 @@ const publish = async(executable: string, artifact: string, platform: string, co
   await sign(executable, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
   console.log('mongosh: notarizing and zipping:', executable);
-  await zip(executable, config.outputDir, platform, config.version);
+  await zip(executable, config.outputDir, platform, config.version, config.rootDir);
   await notarize(
     config.bundleId,
     artifact,

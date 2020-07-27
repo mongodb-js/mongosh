@@ -42,6 +42,7 @@ function safeToLogConfig(config: Config): any {
   return {
     version: config.version,
     bundleId: config.bundleId,
+    rootDir: config.rootDir,
     input: config.input,
     execInput: config.execInput,
     outputDir: config.outputDir,

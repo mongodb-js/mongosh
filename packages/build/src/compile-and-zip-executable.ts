@@ -17,7 +17,8 @@ export default async function compileAndZipExecutable(config: Config): Promise<Z
     executable,
     config.outputDir,
     config.platform,
-    config.version
+    config.version,
+    config.rootDir
   );
 
   // add artifcats for .rpm and .deb and .msi

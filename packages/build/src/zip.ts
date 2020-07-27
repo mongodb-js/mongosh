@@ -1,8 +1,8 @@
-import path from 'path';
 import tar from 'tar';
+import path from 'path';
 import AdmZip from 'adm-zip';
+import pkgDeb from 'pkg-deb';
 import Platform from './platform';
-import installer from 'electron-installer-debian';
 
 /**
  * Get the path to the zip.
@@ -40,17 +40,18 @@ export const zipPosix = async(outputDir: string, filename: string): Promise<void
   await tar.c(options, [ '.' ]);
 };
 
-export const zipDebian = async(input: string, filename: string, version: string, outputDir: string): Promise<void> => {
+export const zipDebian = async(input: string, outputDir: string, version: string, rootDir: string): Promise<void> => {
   const options = {
-    outputDir: outputDir,
     version: version,
-    dest: filename,
+    name: 'mongosh',
+    dest: outputDir,
+    src: rootDir, // pkg-deb will look for package.json in src to get info
     input: input,
-    arch: 'amd64'
+    arch: 'x64'
   }
 
   console.log('Writing debian package')
-  await installer(options)
+  await pkgDeb(options)
 }
 
 /**
@@ -81,7 +82,8 @@ export async function zip(
   input: string,
   outputDir: string,
   platform: string,
-  version: string
+  version: string,
+  rootDir: string
 ): Promise<ZipFile> {
   const filename = zipPath(outputDir, platform, version);
 
@@ -94,11 +96,7 @@ export async function zip(
 
   // zipWindows(input, filename);
 
-  console.log('input', input)
-  console.log('filename', filename)
-  console.log('outputdir', outputDir)
-
-  await zipDebian(input, filename, version, outputDir);
+  await zipDebian(input, outputDir, version, rootDir);
 
   return {
     path: filename,

@@ -8,6 +8,7 @@ export default interface Config {
   execInput?: string;
   outputDir?: string;
   analyticsConfig?: string;
+  rootDir?: string;
   project?: string;
   revision?: string;
   branch?: string;

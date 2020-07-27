@@ -30,7 +30,6 @@
     ]
   },
   "devDependencies": {
-    "electron-installer-debian": "^3.1.0",
     "sinon-chai": "^3.5.0"
   }
 }

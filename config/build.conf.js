@@ -47,6 +47,7 @@ const BUNDLE_ID = 'com.mongodb.mongosh';
 module.exports = {
   version: CONFIG.version,
   bundleId: BUNDLE_ID,
+  rootDir: ROOT,
   input: INPUT,
   execInput: EXEC_INPUT,
   outputDir: OUTPUT_DIR,
