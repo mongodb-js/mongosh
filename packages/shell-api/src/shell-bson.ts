@@ -1,7 +1,6 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
 import { bson as BSON } from '@mongosh/service-provider-core';
-import { MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
 
 function constructHelp(className): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -30,17 +29,14 @@ function dateHelper(...args: DateConstructorArguments): Date {
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
  * @param {Object} bson
  */
-export default function constructShellBson(bson: any): any {
+export default function constructShellBson(bson: any) {
   if (bson === undefined) {
     bson = BSON;
   }
   [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long',
-    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Symbol', 'Map'
   ].forEach((className) => {
-    if (!(className in bson)) {
-      throw new MongoshInternalError(`CLASS ${className} does not exist in BSON. This is an internal error, please file a ticket!`);
-    }
     bson[className].prototype.serverVersions = ALL_SERVER_VERSIONS;
     bson[className].prototype.platforms = ALL_PLATFORMS;
     bson[className].prototype.topologies = ALL_TOPOLOGIES;
@@ -48,20 +44,11 @@ export default function constructShellBson(bson: any): any {
     const help = constructHelp(className);
     bson[className].prototype.help = (): Help => (help);
     Object.setPrototypeOf(bson[className].prototype.help, help);
-  });
-  if ('Symbol' in bson || 'BSONSymbol' in bson) {
-    const className = 'Symbol' in bson ? 'Symbol' : 'BSONSymbol';
-    bson[className].prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
-    bson[className].prototype.platforms = ALL_PLATFORMS;
-    bson[className].prototype.topologies = ALL_TOPOLOGIES;
-
-    const help = constructHelp('Symbol');
-    bson[className].prototype.help = (): Help => (help);
-    Object.setPrototypeOf(bson[className].prototype.help, help);
     bson[className].help = (): Help => (help);
-  }
+  });
 
   // Non-standard classes
+  bson.Symbol.prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
   const helpDecimal = constructHelp('NumberDecimal');
   bson.Decimal128.prototype.help = (): Help => (helpDecimal);
   Object.setPrototypeOf(bson.Decimal128.prototype.help, helpDecimal);
@@ -96,12 +83,7 @@ export default function constructShellBson(bson: any): any {
       return new bson.ObjectID(...args);
     },
     Symbol: function(...args): any {
-      if ('Symbol' in bson) {
-        return new bson.Symbol(...args);
-      } else if ('BSONSymbol' in bson) {
-        return new bson.BSONSymbol(...args);
-      }
-      throw new MongoshUnimplementedError('Symbol not supported by this platform. Please file a ticket!');
+      return new bson.Symbol(...args);
     },
     Timestamp: function(...args): any {
       return new bson.Timestamp(...args);

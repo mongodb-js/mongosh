@@ -1,7 +1,6 @@
 import { IframeRuntime } from './iframe-runtime';
 import { expect } from '../../testing/chai';
-import { ServiceProvider /* TODO: bson */ } from '@mongosh/service-provider-core';
-import bson from 'bson';
+import { ServiceProvider } from '@mongosh/service-provider-core';
 
 describe('IframeRuntime', () => {
   let runtime;
@@ -9,7 +8,7 @@ describe('IframeRuntime', () => {
 
   beforeEach(() => {
     document.body.innerHTML = '';
-    serviceProvider = { bsonLibrary: bson };
+    serviceProvider = {};
     runtime = new IframeRuntime(serviceProvider);
   });
 
@@ -47,7 +46,7 @@ describe('IframeRuntime', () => {
     });
 
     it('does not interfere with other instances', async() => {
-      const other = new IframeRuntime({ bsonLibrary: bson } as ServiceProvider);
+      const other = new IframeRuntime({} as ServiceProvider);
       await runtime.evaluate('x = 1');
       await other.evaluate('x = 2');
 
