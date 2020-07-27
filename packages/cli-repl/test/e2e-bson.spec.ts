@@ -1,7 +1,17 @@
 import {
   MongoClient
 } from 'mongodb';
-import { bson } from '@mongosh/service-provider-core';
+import {
+  DBRef,
+  MaxKey,
+  MinKey,
+  ObjectId,
+  Symbol,
+  Timestamp,
+  Code,
+  Decimal128,
+  Binary
+} from 'bson';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 import {
@@ -38,73 +48,39 @@ describe('BSON e2e', function() {
 
       client.close();
     });
-    const outputDoc = {
-      ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
-      DBRef: 'DBRef("a", "o", "db")',
-      MinKey: '{ "$minKey" : 1 }',
-      MaxKey: '{ "$maxKey" : 1 }',
-      NumberInt: 'NumberInt(32)',
-      NumberLong: 'NumberLong("64")',
-      Timestamp: 'Timestamp(1, 100)',
-      Symbol: '"abc"',
-      Code: '{ "code" : "abc" }',
-      NumberDecimal: 'NumberDecimal("1")',
-      BinData: 'BinData(128, "1234")'
-    };
     it('Entire doc prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const inputDoc = {
-        ObjectId: new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new bson.DBRef('a', 'o', 'db'),
-        MinKey: new bson.MinKey(),
-        MaxKey: new bson.MaxKey(),
-        Timestamp: new bson.Timestamp(1, 100),
-        Symbol: new bson.Symbol('abc'),
-        Code: new bson.Code('abc'),
-        NumberDecimal: bson.Decimal128.fromString('1'),
-        BinData: new bson.Binary(buffer, 128)
+        ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
+        DBRef: new DBRef('a', 'o'),
+        MinKey: new MinKey(),
+        MaxKey: new MaxKey(),
+        // NumberInt: NumberInt(32),
+        // NumberLong: NumberLong("64"),
+        Timestamp: new Timestamp(1, 100),
+        Symbol: new Symbol('abc'),
+        Code: new Code('abc'),
+        NumberDecimal: Decimal128.fromString('1'),
+        BinData: new Binary(buffer, 128)
+      };
+      const outputDoc = {
+        ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
+        DBRef: 'DBRef("a", "o")',
+        MinKey: '{ "$minKey" : 1 }',
+        MaxKey: '{ "$maxKey" : 1 }',
+        NumberInt: 'NumberInt(32)',
+        NumberLong: 'NumberLong("64")',
+        Timestamp: 'Timestamp(1, 100)',
+        Symbol: '"abc"',
+        Code: '{ "code" : "abc" }',
+        NumberDecimal: 'NumberDecimal("1")',
+        BinData: 'BinData(128, "1234")'
       };
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne(inputDoc);
       await shell.writeInputLine('db.test.findOne()');
       await eventually(() => {
         shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef);
-        shell.assertContainsOutput(outputDoc.MinKey);
-        shell.assertContainsOutput(outputDoc.MaxKey);
-        shell.assertContainsOutput(outputDoc.Timestamp);
-        shell.assertContainsOutput(outputDoc.Symbol);
-        shell.assertContainsOutput(outputDoc.Code);
-        shell.assertContainsOutput(outputDoc.NumberDecimal);
-        shell.assertContainsOutput(outputDoc.BinData);
-      });
-      shell.assertNoErrors();
-    });
-    it('Entire doc prints when created by user', async() => {
-      const value = `doc = {
-        ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new DBRef('a', 'o', 'db'),
-        MinKey: new MinKey(),
-        MaxKey: new MaxKey(),
-        NumberInt: NumberInt(32),
-        NumberLong: NumberLong("64"),
-        Timestamp: new Timestamp(1, 100),
-        Symbol: new Symbol('abc'),
-        Code: new Code('abc'),
-        NumberDecimal: NumberDecimal('1'),
-        BinData: BinData(128, 'MTIzNA==')
-      }\n`;
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef);
-        shell.assertContainsOutput(outputDoc.MinKey);
-        shell.assertContainsOutput(outputDoc.MaxKey);
-        shell.assertContainsOutput(outputDoc.Timestamp);
-        shell.assertContainsOutput(outputDoc.Symbol);
-        shell.assertContainsOutput(outputDoc.Code);
-        shell.assertContainsOutput(outputDoc.NumberDecimal);
-        shell.assertContainsOutput(outputDoc.BinData);
       });
       shell.assertNoErrors();
     });
@@ -119,17 +95,17 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('DBRef prints when returned from the server', async() => {
-      const value = new bson.DBRef('coll', new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'));
+      const value = new DBRef('coll', new ObjectId('5f16b8bebe434dc98cdfc9ca'));
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('DBRef("coll", "5f16b8bebe434dc98cdfc9ca")');
+        shell.assertContainsOutput('DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))');
       });
       shell.assertNoErrors();
     });
     it('MinKey prints when returned from the server', async() => {
-      const value = new bson.MinKey();
+      const value = new MinKey();
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -139,7 +115,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('MaxKey prints when returned from the server', async() => {
-      const value = new bson.MaxKey();
+      const value = new MaxKey();
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -149,7 +125,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Timestamp prints when returned from the server', async() => {
-      const value = new bson.Timestamp(0, 100);
+      const value = new Timestamp(0, 100);
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -159,7 +135,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Symbol prints when returned from the server', async() => {
-      const value = new bson.Symbol('abc');
+      const value = new Symbol('abc');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -169,7 +145,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Code prints when returned from the server', async() => {
-      const value = new bson.Code('abc');
+      const value = new Code('abc');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -179,7 +155,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 prints when returned from the server', async() => {
-      const value = bson.Decimal128.fromString('1');
+      const value = Decimal128.fromString('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -190,7 +166,7 @@ describe('BSON e2e', function() {
     });
     it('BinData prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
-      const value = new bson.Binary(buffer, 128);
+      const value = new Binary(buffer, 128);
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
@@ -208,7 +184,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('DBRef prints when created by user', async() => {
-      const value = 'DBRef("coll", "5f16b8bebe434dc98cdfc9ca")';
+      const value = 'DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput(value);
@@ -326,7 +302,7 @@ describe('BSON e2e', function() {
     });
     // NOTE: the driver returns regular JS objects for Int32, Long
     it('ObjectId has help when returned from the server', async() => {
-      const value = new bson.ObjectId();
+      const value = new ObjectId();
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');
@@ -336,7 +312,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('DBRef has help when returned from the server', async() => {
-      const value = new bson.DBRef('coll', new bson.ObjectId());
+      const value = new DBRef('coll', new ObjectId());
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help');
@@ -346,7 +322,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('MinKey has help when returned from the server', async() => {
-      const value = new bson.MinKey();
+      const value = new MinKey();
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');
@@ -356,7 +332,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('MaxKey has help when returned from the server', async() => {
-      const value = new bson.MaxKey();
+      const value = new MaxKey();
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help');
@@ -366,7 +342,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Timestamp has help when returned from the server', async() => {
-      const value = new bson.Timestamp(0, 100);
+      const value = new Timestamp(0, 100);
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');
@@ -376,7 +352,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Symbol has help when returned from the server', async() => {
-      const value = new bson.Symbol('1');
+      const value = new Symbol('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help');
@@ -386,7 +362,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Code has help when returned from the server', async() => {
-      const value = new bson.Code('1');
+      const value = new Code('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help');
@@ -396,7 +372,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 has help when returned from the server', async() => {
-      const value = bson.Decimal128.fromString('1');
+      const value = Decimal128.fromString('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');
@@ -407,7 +383,7 @@ describe('BSON e2e', function() {
     });
     it('Binary has help when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
-      const value = new bson.Binary(buffer, 128);
+      const value = new Binary(buffer, 128);
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help');

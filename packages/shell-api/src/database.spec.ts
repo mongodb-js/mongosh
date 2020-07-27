@@ -6,8 +6,9 @@ import { signatures } from './decorators';
 import Database from './database';
 import Collection from './collection';
 import Mongo from './mongo';
-import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
+import bson from 'bson';
 
 describe('Database', () => {
   describe('help', () => {

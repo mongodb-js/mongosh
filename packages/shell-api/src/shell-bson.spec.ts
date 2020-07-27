@@ -2,8 +2,8 @@
 import constructShellBson from './shell-bson';
 import { expect } from 'chai';
 import { ALL_SERVER_VERSIONS, asShellResult } from './enums';
-import { bson } from '@mongosh/service-provider-core';
-const shellBson = constructShellBson(bson);
+import bsonLib from 'bson';
+const shellBson = constructShellBson(bsonLib);
 
 const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';

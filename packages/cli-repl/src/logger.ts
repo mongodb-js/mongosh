@@ -3,7 +3,7 @@
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
 import { retractPassword } from '@mongosh/history';
-import { bson } from '@mongosh/service-provider-core';
+import { ObjectId } from 'bson';
 import pino from 'pino';
 import path from 'path';
 
@@ -58,7 +58,7 @@ NoopAnalytics.prototype.identify = function(): void {};
 NoopAnalytics.prototype.track = function(): void {};
 
 export default function logger(bus: any, logDir: string): void {
-  const session_id = new bson.ObjectId(Date.now()).toString();
+  const session_id = new ObjectId(Date.now()).toString();
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
   console.log(`Current sessionID:  ${session_id}`);

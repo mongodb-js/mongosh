@@ -150,13 +150,10 @@ class StitchServiceProviderBrowser extends ServiceProviderCore implements Servic
    */
   constructor(stitchClient: StitchAppClient, serviceName: string = ATLAS) {
     super(BSON);
-    const mongoClient = stitchClient.getServiceClient(
-      RemoteMongoClient.factory,
-      serviceName
-    );
-    this.stitchTransport = new StitchTransport<StitchAppClient, RemoteMongoClient>(
-      stitchClient, mongoClient
-    );
+    const mongoClient = stitchClient.
+      getServiceClient(RemoteMongoClient.factory, serviceName);
+    this.stitchTransport =
+      new StitchTransport<StitchAppClient, RemoteMongoClient>(stitchClient, mongoClient);
     this.platform = ReplPlatform.Browser;
     this.initialDb = DEFAULT_DB;
   }

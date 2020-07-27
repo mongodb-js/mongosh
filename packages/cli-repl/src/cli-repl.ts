@@ -13,7 +13,7 @@ import { REPLServer, Recoverable } from 'repl';
 import jsonParse from 'fast-json-parse';
 import completer from './completer';
 import i18n from '@mongosh/i18n';
-import { bson } from '@mongosh/service-provider-core';
+import { ObjectId } from 'bson';
 import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
 import logger from './logger';
@@ -41,7 +41,7 @@ class CliRepl {
   private internalState: ShellInternalState;
   private enableTelemetry: boolean;
   private disableGreetingMessage: boolean;
-  private userId: bson.ObjectId;
+  private userId: ObjectId;
   private options: CliOptions;
   private mongoshDir: string;
   private lineByLineInput: LineByLineInput;
@@ -220,7 +220,7 @@ class CliRepl {
 
     try {
       fd = fs.openSync(configPath, 'wx');
-      this.userId = new bson.ObjectId(Date.now()).toString();
+      this.userId = new ObjectId(Date.now()).toString();
       this.enableTelemetry = true;
       this.disableGreetingMessage = false;
       this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);

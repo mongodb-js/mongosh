@@ -2,8 +2,7 @@ import Readable from './readable';
 import Writable from './writable';
 import Closable from './closable';
 import Admin from './admin';
-import makePrintableBson from './printable-bson';
-import bson from 'bson';
+import modifyBson from './modify-bson';
 
 /**
  * Interface for all service providers.
@@ -13,10 +12,7 @@ export default interface ServiceProvider extends Readable, Writable, Closable, A
 export class ServiceProviderCore {
   public bsonLibrary;
   constructor(bsonLibrary) {
-    if (bsonLibrary === undefined) {
-      bsonLibrary = bson;
-    }
-    makePrintableBson(bsonLibrary);
+    modifyBson(bsonLibrary);
     this.bsonLibrary = bsonLibrary;
   }
 }

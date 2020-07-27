@@ -6,9 +6,10 @@ import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ReplPlatform, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
+import bson from 'bson';
 
 describe('ShellApi', () => {
   describe('signatures', () => {
