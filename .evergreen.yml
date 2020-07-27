@@ -223,38 +223,10 @@ buildvariants:
       - name: check_ps
       # - name: test_ps
       - name: release_win_ps
- - name: debian
-   display_name: "Debian 10"
-   run_on: debian10-large
-   tasks:
-     - name: check
-     - name: test
-     - name: release_debian
-#  - name: ubuntuz
-#    display_name: "Ubuntu 18.04 Z Series"
-#    run_on: ubuntu1804-zseries-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhel7
-#    display_name: "RHEL 7.6"
-#    run_on: rhel76-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhelppc
-#    display_name: "RHEL 7.1 PPC"
-#    run_on: rhel71-power8-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
-#  - name: rhelz
-#    display_name: "RHEL 7.2 Z Series"
-#    run_on: rhel72-zseries-test
-#    tasks:
-#      - name: check
-#      - name: test
-#      - name: release_linux
+  - name: debian
+    display_name: "Debian 10"
+    run_on: debian10-large
+    tasks:
+      - name: check
+      - name: test
+      - name: release_debian
