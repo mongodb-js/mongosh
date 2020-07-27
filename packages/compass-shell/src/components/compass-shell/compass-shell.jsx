@@ -4,6 +4,7 @@ import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
+import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 import { Shell } from '@mongosh/browser-repl';
 
@@ -30,11 +31,13 @@ export class CompassShell extends Component {
     isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
-    historyStorage: PropTypes.object
+    historyStorage: PropTypes.object,
+    onOpenShellPlugin: PropTypes.func
   };
 
   static defaultProps = {
-    runtime: null
+    runtime: null,
+    onOpenShellPlugin: () => {}
   };
   constructor(props) {
     super(props);
@@ -99,6 +102,8 @@ export class CompassShell extends Component {
         height: defaultShellHeightClosed
       });
     } else {
+      this.props.onOpenShellPlugin();
+
       this.resizableRef.updateSize({
         width: '100%',
         height: this.lastOpenHeight
@@ -172,5 +177,9 @@ export default connect(
   (state) => ({
     runtime: state.runtime ? state.runtime.runtime : null
   }),
-  {}
+  (dispatch) => ({
+    onOpenShellPlugin: () => dispatch(
+      globalAppRegistryEmit('compass:compass-shell:opened')
+    )
+  })
 )(CompassShell);

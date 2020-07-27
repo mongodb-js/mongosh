@@ -21,6 +21,29 @@ describe('CompassShell', () => {
       const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded={false} />);
       expect(wrapper.find(Shell)).to.have.lengthOf(0);
     });
+
+    context('when is it expanded', () => {
+      it('calls the function prop onOpenShellPlugin', () => {
+        let calledFunc = false;
+        const mockOnOpenShellPlugin = () => {
+          calledFunc = true;
+        };
+
+        const shell = new CompassShell({
+          isExpanded: false,
+          onOpenShellPlugin: mockOnOpenShellPlugin
+        });
+        shell.resizableRef = {
+          sizeStyle: {
+            height: 100
+          },
+          updateSize: () => {}
+        };
+        shell.shellToggleClicked();
+
+        expect(calledFunc).to.equal(true);
+      });
+    });
   });
 
   context('when the prop isExpanded is true', () => {
@@ -138,7 +161,10 @@ describe('CompassShell', () => {
 
       context('when it is expanded again', () => {
         it('resumes its previous height', () => {
-          const shell = new CompassShell({ isExpanded: true });
+          const shell = new CompassShell({
+            isExpanded: true,
+            onOpenShellPlugin: () => {}
+          });
           shell.setState = stateUpdate => {
             shell.state = {
               ...shell.state,

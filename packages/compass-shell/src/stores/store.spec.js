@@ -12,6 +12,13 @@ describe('CompassShellStore [Store]', () => {
     store.onActivated(appRegistry);
   });
 
+  describe('appRegistry', () => {
+    it('sets the global appregistry', () => {
+      expect(store.reduxStore.getState().appRegistry).to.not.equal(null);
+      expect(store.reduxStore.getState().appRegistry.globalAppRegistry).to.not.equal(null);
+    });
+  });
+
   describe('runtime', () => {
     const getRuntimeState = () => store.reduxStore.getState().runtime;
 

@@ -55,7 +55,8 @@
   "@mongosh/browser-repl": "^0.0.8",
   "@mongosh/browser-runtime-electron": "^0.0.8",
   "@mongosh/service-provider-server": "^0.0.8",
-  "hadron-react-buttons": "^4.0.4"
+  "hadron-react-buttons": "^4.0.4",
+  "mongodb-redux-common": "0.0.2"
  },
  "peerDependencies": {
   "hadron-ipc": "^1.1.0",
