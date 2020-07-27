@@ -1,4 +1,4 @@
-import mongodb, {
+import {
   MongoClient,
   Db
 } from 'mongodb';
@@ -16,7 +16,6 @@ import {
   ReplPlatform,
   DEFAULT_DB
 } from '@mongosh/service-provider-core';
-import { modifyBson } from '@mongosh/shell-api';
 
 import NodeOptions from './node/node-options';
 
@@ -82,7 +81,6 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
-    modifyBson(mongodb, this.platform);
     try {
       this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
     } catch (err) {
