@@ -6,7 +6,7 @@ import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ReplPlatform, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 
@@ -85,7 +85,6 @@ describe('ShellApi', () => {
       newSP.initialDb = 'test';
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
       serviceProvider.initialDb = 'test';
-      serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       internalState = new ShellInternalState(serviceProvider, bus);
@@ -180,7 +179,6 @@ describe('ShellApi', () => {
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
       serviceProvider.initialDb = 'test';
       serviceProvider.platform = ReplPlatform.CLI;
-      serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       internalState = new ShellInternalState(serviceProvider, bus);

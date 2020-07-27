@@ -8,7 +8,7 @@ import Mongo from './mongo';
 import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
 import Explainable from './explainable';
-import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 
 const sinonChai = require('sinon-chai'); // weird with import
@@ -63,7 +63,6 @@ describe('Collection', () => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
-      serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');

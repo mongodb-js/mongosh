@@ -1,4 +1,4 @@
-import ServiceProvider, { ServiceProviderCore } from './service-provider';
+import ServiceProvider from './service-provider';
 import Document from './document';
 import Cursor, { CursorFlag, CURSOR_FLAGS } from './cursor';
 import Result from './result';
@@ -12,7 +12,6 @@ import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
 import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
-import bson from 'bson';
 
 export {
   ServiceProvider,
@@ -31,7 +30,5 @@ export {
   CliOptions,
   generateUri,
   Scheme,
-  DEFAULT_DB,
-  ServiceProviderCore,
-  bson
+  DEFAULT_DB
 };

@@ -1,4 +1,4 @@
-import mongodb, {
+import {
   MongoClient,
   Db
 } from 'mongodb';
@@ -14,8 +14,7 @@ import {
   CommandOptions,
   getConnectInfo,
   ReplPlatform,
-  DEFAULT_DB,
-  ServiceProviderCore,
+  DEFAULT_DB
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -36,7 +35,7 @@ const DEFAULT_OPTIONS = Object.freeze({
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
-class CliServiceProvider extends ServiceProviderCore implements ServiceProvider {
+class CliServiceProvider implements ServiceProvider {
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
   /**
@@ -79,7 +78,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {string} uri - optional URI for telemetry.
    */
   constructor(mongoClient: MongoClient, uri?: string) {
-    super(mongodb);
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;

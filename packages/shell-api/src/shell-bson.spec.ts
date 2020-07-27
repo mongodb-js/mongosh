@@ -1,9 +1,6 @@
 /* eslint @typescript-eslint/camelcase: 0, new-cap: 0 */
-import constructShellBson from './shell-bson';
+import shellBson from './shell-bson';
 import { expect } from 'chai';
-import { ALL_SERVER_VERSIONS, asShellResult } from './enums';
-import { bson } from '@mongosh/service-provider-core';
-const shellBson = constructShellBson(bson);
 
 const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';
@@ -19,12 +16,6 @@ describe('Shell BSON', () => {
       const s = new (shellBson.DBRef as any)('namespace', 'oid');
       expect(s._bsontype).to.equal('DBRef');
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.DBRef('namespace', 'oid');
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('MaxKey', () => {
     it('without new', () => {
@@ -35,12 +26,6 @@ describe('Shell BSON', () => {
       const s = new (shellBson.MaxKey as any)();
       expect(s._bsontype).to.equal('MaxKey');
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.MaxKey();
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('MinKey', () => {
     it('without new', () => {
@@ -50,12 +35,6 @@ describe('Shell BSON', () => {
     it('with new', () => {
       const s = new (shellBson.MinKey as any)();
       expect(s._bsontype).to.equal('MinKey');
-    });
-    it('has help and other metadata', () => {
-      const s = shellBson.MinKey();
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('ObjectId', () => {
@@ -69,12 +48,6 @@ describe('Shell BSON', () => {
       expect(s._bsontype).to.equal('ObjectID');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.ObjectId();
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('Symbol', () => {
     it('without new', () => {
@@ -87,11 +60,6 @@ describe('Shell BSON', () => {
       expect(s._bsontype).to.equal('Symbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.Symbol('5ebbe8e2905bb493d6981b6b');
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-    });
   });
   describe('Timestamp', () => {
     it('without new', () => {
@@ -102,24 +70,12 @@ describe('Shell BSON', () => {
       const s = new (shellBson.Timestamp as any)(0, 100);
       expect(s._bsontype).to.equal('Timestamp');
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.Timestamp(0, 100);
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('Code', () => {
     it('expects arguments in order', () => {
       const code = shellBson.Code('code', { k: 'v' });
       expect(code.code).to.equal('code');
       expect(code.scope).to.deep.equal({ k: 'v' });
-    });
-    it('has help and other metadata', () => {
-      const s = shellBson.Code('code', { k: 'v' });
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('Date', () => {
@@ -156,12 +112,6 @@ describe('Shell BSON', () => {
     it('expects strings as base 64', () => {
       expect(b.value()).to.equal(utf_1234);
     });
-    it('has help and other metadata', () => {
-      const s = shellBson.BinData(128, b64_1234);
-      expect(s.help[asShellResult]().type).to.equal('Help');
-      expect(s.help()[asShellResult]().type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('HexData', () => {
     const b = shellBson.BinData(128, b64_1234);
@@ -175,11 +125,6 @@ describe('Shell BSON', () => {
     });
     it('has subtype', () => {
       expect(h.sub_type).to.equal(128);
-    });
-    it('has help and other metadata', () => {
-      expect(h.help[asShellResult]().type).to.equal('Help');
-      expect(h.help()[asShellResult]().type).to.equal('Help');
-      expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('UUID', () => {
@@ -195,11 +140,6 @@ describe('Shell BSON', () => {
     it('has subtype', () => {
       expect(h.sub_type).to.equal(4);
     });
-    it('has help and other metadata', () => {
-      expect(h.help[asShellResult]().type).to.equal('Help');
-      expect(h.help()[asShellResult]().type).to.equal('Help');
-      expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
-    });
   });
   describe('MD5', () => {
     const b = shellBson.BinData(5, b64_1234);
@@ -213,11 +153,6 @@ describe('Shell BSON', () => {
     });
     it('has subtype', () => {
       expect(h.sub_type).to.equal(5);
-    });
-    it('has help and other metadata', () => {
-      expect(h.help[asShellResult]().type).to.equal('Help');
-      expect(h.help()[asShellResult]().type).to.equal('Help');
-      expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('bsonsize', () => {
