@@ -1586,6 +1586,20 @@ const translations = {
         },
         attributes: {}
       },
+      // DBPointer: {
+      //   help: {
+      //     description: 'The DBPointer BSON Class. Deprecated since 1.6',
+      //     link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/DBPointer.html'
+      //   },
+      //   attributes: {}
+      // },
+      // Map: {
+      //   help: {
+      //     description: 'The Map BSON Class.',
+      //     link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Map.html'
+      //   },
+      //   attributes: {}
+      // },
       MaxKey: {
         help: {
           description: 'The MaxKey BSON Class.',
@@ -1603,7 +1617,7 @@ const translations = {
       ObjectId: {
         help: {
           description: 'The ObjectId BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectID.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectId.html'
         },
         attributes: {}
       },
@@ -1637,8 +1651,7 @@ const translations = {
       },
       NumberInt: {
         help: {
-          description: 'The 32-bit Integer BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html'
+          description: 'The Integer BSON Class. Regular JavaScript Integer'
         },
         attributes: {}
       },

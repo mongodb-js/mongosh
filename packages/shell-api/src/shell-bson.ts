@@ -1,6 +1,4 @@
 import bson from 'bson';
-// eslint-disable-next-line new-cap
-const extbson = new bson();
 
 type DateConstructorArguments = [ any?, any?, ...any[] ];
 
@@ -18,10 +16,14 @@ export default {
   DBRef: function(...args): bson.DBRef {
     return new bson.DBRef(...args);
   },
-  // DBPointer not available in the bson 1.x library, but depreciated since 1.6
-  Map: bson.Map,
+  // Classes not available in the bson 1.x library
+  // Depreciated since 1.6
+  // DBPointer: function(...args): bson.DBPointer {
+  //   return new bson.DBPointer(...args);
+  // },
+  // Map: bson.Map,
   bsonsize: function(object): any {
-    return extbson.calculateObjectSize(object);
+    return bson.calculateObjectSize(object);
   },
   MaxKey: function(...args): bson.MaxKey {
     return new bson.MaxKey(...args);
@@ -47,8 +49,8 @@ export default {
     }
     return bson.Decimal128.fromString(s.toString());
   },
-  NumberInt: function(s): any {
-    return new bson.Int32(parseInt(s, 10));
+  NumberInt: function(s): any { // TODO: use bson.Int32?
+    return parseInt(s, 10);
   },
   NumberLong: function(v): bson.Long {
     if (v === undefined) {
