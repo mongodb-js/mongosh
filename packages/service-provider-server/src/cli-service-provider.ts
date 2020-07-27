@@ -1,8 +1,7 @@
-import {
+import mongodb, {
   MongoClient,
   Db
 } from 'mongodb';
-import bson from 'bson';
 
 import {
   ServiceProvider,
@@ -83,7 +82,7 @@ class CliServiceProvider implements ServiceProvider {
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
-    modifyBson(bson, this.platform);
+    modifyBson(mongodb, this.platform);
     try {
       this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
     } catch (err) {
