@@ -17,6 +17,8 @@ export default class CompassShellStore {
   onActivated(appRegistry) {
     debug('activated');
 
+    this.globalAppRegistry = appRegistry;
+
     appRegistry.on(
       'data-service-connected',
       this.onDataServiceConnected
@@ -34,12 +36,14 @@ export default class CompassShellStore {
   onDataServiceConnected = (error, dataService) => {
     this.reduxStore.dispatch(setupRuntime(
       error,
-      dataService
+      dataService,
+      this.globalAppRegistry
     ));
   }
 
   onDataServiceDisconnected = () => {
     this.reduxStore.dispatch(setupRuntime(
+      null,
       null,
       null
     ));

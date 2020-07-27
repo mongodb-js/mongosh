@@ -13,9 +13,9 @@ describe('CompassShellStore [Store]', () => {
   });
 
   describe('appRegistry', () => {
-    it('sets the global appregistry', () => {
+    it('sets the global appRegistry', () => {
       expect(store.reduxStore.getState().appRegistry).to.not.equal(null);
-      expect(store.reduxStore.getState().appRegistry.globalAppRegistry).to.not.equal(null);
+      expect(store.reduxStore.getState().appRegistry.globalAppRegistry).to.be.instanceOf(EventEmitter);
     });
   });
 
@@ -36,6 +36,33 @@ describe('CompassShellStore [Store]', () => {
 
       expect(runtimeState.error).to.equal(null);
       expect(runtimeState.runtime).to.be.instanceOf(ElectronRuntime);
+    });
+
+    it('emits mongosh events to the appRegistry', () => {
+      appRegistry.emit('data-service-connected', null, {client: {client: {
+        db: () => ({
+          admin: () => ({
+            listDatabases: () => Promise.resolve({
+              databases: [
+                { name: 'db1', sizeOnDisk: 10000, empty: false }
+              ],
+              totalSize: 50000,
+              ok: 1
+            })
+          })
+        })
+      }}});
+      let eventRecieved = false;
+      appRegistry.on('mongosh:show', () => {
+        eventRecieved = true;
+      });
+
+      const runtimeState = getRuntimeState();
+
+      
+      runtimeState.runtime.evaluate('show dbs;');
+
+      expect(eventRecieved).to.equal(true);
     });
 
     it('sets error if data-service-connected has one', () => {

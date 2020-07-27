@@ -46,7 +46,8 @@ function reduceSetupRuntime(state, action) {
   }
 
   const runtime = new ElectronRuntime(
-    CompassServiceProvider.fromDataService(action.dataService)
+    CompassServiceProvider.fromDataService(action.dataService),
+    action.appRegistry
   );
 
   return {
@@ -61,11 +62,13 @@ function reduceSetupRuntime(state, action) {
  *
  * @param {Error} error - The connection error.
  * @param {DataService} dataService - The data service.
+ * @param {EventEmitter} appRegistry - A message bus for runtime events.
  *
  * @returns {Object} The data service connected action.
  */
-export const setupRuntime = (error, dataService) => ({
+export const setupRuntime = (error, dataService, appRegistry) => ({
   type: SETUP_RUNTIME,
-  error: error,
-  dataService: dataService
+  error,
+  dataService,
+  appRegistry
 });
