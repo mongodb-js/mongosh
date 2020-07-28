@@ -340,24 +340,23 @@ describe('Shell API (integration)', function() {
       });
 
       it('returns indexes for the collection', () => {
-        expect(result).to.deep.equal([
+        expect(result.length).to.equal(2);
+        expect(result[0]).to.deep.include(
           {
             key: {
               _id: 1
             },
             name: '_id_',
-            ns: `${dbName}.${collectionName}`,
             v: 2
-          },
+          });
+        expect(result[1]).to.deep.include(
           {
             key: {
               x: 1
             },
             name: 'x_1',
-            ns: `${dbName}.${collectionName}`,
             v: 2
-          }
-        ]);
+          });
       });
     });
 
@@ -391,17 +390,15 @@ describe('Shell API (integration)', function() {
         ).to.deep.include({
           nIndexesWas: 1,
           nIndexes: 1,
-          indexes: [
-            {
-              v: 2,
-              key: {
-                '_id': 1
-              },
-              name: '_id_',
-              ns: `${dbName}.${collectionName}`
-            }
-          ],
           ok: 1
+        });
+        expect(result.indexes.length).to.equal(1);
+        expect(result.indexes[0]).to.deep.include({
+          v: 2,
+          key: {
+            '_id': 1
+          },
+          name: '_id_'
         });
       });
     });
