@@ -6,6 +6,7 @@ import BulkWriteResult from './bulk-write-result';
 import WriteConcern from './write-concern';
 import ReadConcern from './read-concern';
 import CommandOptions from './command-options';
+import BaseOptions from './base-options';
 import DatabaseOptions from './database-options';
 import getConnectInfo from './connect-info';
 import { ReplPlatform } from './platform';
@@ -24,6 +25,7 @@ export {
   ReadConcern,
   WriteConcern,
   CommandOptions,
+  BaseOptions,
   DatabaseOptions,
   getConnectInfo,
   ReplPlatform,
