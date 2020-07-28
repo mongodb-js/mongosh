@@ -131,12 +131,42 @@ describe('e2e', function() {
       shell.assertContainsError('SyntaxError: Unterminated string constant');
     });
 
-    it('does not throw for valid input', async() => {
-      await shell.executeLine('1');
-      shell.assertNoErrors();
+    describe('literals', async() => {
+      it('number', async() => {
+        await shell.executeLine('1');
+        shell.assertNoErrors();
 
-      await eventually(() => {
-        shell.assertContainsOutput('1');
+        await eventually(() => {
+          shell.assertContainsOutput('1');
+        });
+        it('string', async() => {
+          await shell.executeLine('"string"');
+          shell.assertNoErrors();
+
+          await eventually(() => {
+            shell.assertContainsOutput('string');
+          });
+        });
+        it('undefined', async() => {
+          await shell.executeLine('undefined');
+          shell.assertNoErrors();
+        });
+        it('null', async() => {
+          await shell.executeLine('null');
+          shell.assertNoErrors();
+
+          await eventually(() => {
+            shell.assertContainsOutput('1');
+          });
+        });
+        it('bool', async() => {
+          await shell.executeLine('true');
+          shell.assertNoErrors();
+
+          await eventually(() => {
+            shell.assertContainsOutput('true');
+          });
+        });
       });
     });
     it('throws when a syntax error is encountered', async() => {

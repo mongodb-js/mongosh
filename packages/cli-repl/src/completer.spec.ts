@@ -34,6 +34,17 @@ describe('completer.completer', () => {
         'db.getSiblingDB',
         'db.getCollection',
         'db.dropDatabase',
+        'db.createUser',
+        'db.updateUser',
+        'db.changeUserPassword',
+        'db.logout',
+        'db.dropUser',
+        'db.dropAllUsers',
+        'db.auth',
+        'db.grantRolesToUser',
+        'db.revokeRolesFromUser',
+        'db.getUser',
+        'db.getUsers'
       ], i]);
     });
 

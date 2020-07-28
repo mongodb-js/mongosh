@@ -16,6 +16,7 @@ import {
   ReplPlatform,
   DEFAULT_DB,
   ServiceProviderCore,
+  AuthOptions
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -72,11 +73,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ) :
       new MongoClient(uri, clientOptions);
 
-    return new CliServiceProvider(mongoClient, uri);
+    return new CliServiceProvider(mongoClient, clientOptions, uri);
   }
 
-  private readonly mongoClient: MongoClient;
+  private mongoClient: MongoClient;
   private readonly uri?: string;
+  private initialOptions: any;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -85,7 +87,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, uri?: string) {
+  constructor(mongoClient: MongoClient, clientOptions = {}, uri?: string) {
     super(mongodb);
     this.mongoClient = mongoClient;
     this.uri = uri;
@@ -95,6 +97,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     } catch (err) {
       this.initialDb = DEFAULT_DB;
     }
+    this.initialOptions = clientOptions;
   }
 
   async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
@@ -968,7 +971,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Reindex all indexes on the collection.
+   * Reindex all indexes on the collection.i
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
@@ -1005,6 +1008,29 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.db(database, dbOptions)
       .collection(collection)
       .drop();
+  }
+
+  /**
+   * Authenticate
+   *
+   * @param authDoc
+   */
+  async authenticate(
+    authDoc: AuthOptions
+  ): Promise<any> {
+    // NOTE: we keep all the original options and just overwrite the auth ones.
+    const clientOptions: any = {
+      ...DEFAULT_DRIVER_OPTIONS,
+      ...this.initialOptions,
+      auth: { user: authDoc.user, password: authDoc.pwd },
+      authMechanism: authDoc.mechanism,
+      authSource: authDoc.authDb
+    };
+    this.mongoClient = await MongoClient.connect(
+      this.uri,
+      clientOptions
+    );
+    return { ok: 1 };
   }
 }
 

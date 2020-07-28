@@ -1,7 +1,23 @@
 import Result from './result';
 import { ReplPlatform } from './platform';
+import AuthOptions from './auth-options';
 
 export default interface Admin {
+  /**
+   * What platform (Compass/CLI/Browser)
+   */
+  platform: ReplPlatform;
+
+  /**
+   * The initial database
+   */
+  initialDb: string;
+
+  /**
+   * The BSON package
+   */
+  bsonLibrary: any;
+
    /**
    * Returns buildInfo.
    *
@@ -39,17 +55,7 @@ export default interface Admin {
   getConnectionInfo(): Promise<any>;
 
   /**
-   * What platform (Compass/CLI/Browser)
+   * Authenticate
    */
-  platform: ReplPlatform;
-
-  /**
-   * The initial database
-   */
-  initialDb: string;
-
-  /**
-   * The BSON package
-   */
-  bsonLibrary: any;
+  authenticate(authDoc: AuthOptions): Promise<any>;
 }

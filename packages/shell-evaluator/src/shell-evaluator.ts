@@ -94,7 +94,11 @@ class ShellEvaluator {
       filename
     );
 
-    if (evaluationResult !== undefined && evaluationResult[shellApiType] !== undefined) {
+    if (
+      evaluationResult !== undefined &&
+      evaluationResult !== null &&
+      evaluationResult[shellApiType] !== undefined
+    ) {
       return await evaluationResult[asShellResult]();
     }
 
