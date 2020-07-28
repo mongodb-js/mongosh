@@ -8,8 +8,11 @@ import Collection from './collection';
 import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
+import crypto from 'crypto';
+
 
 describe('Database', () => {
+  const MD5_HASH = crypto.createHash('md5').update('anna:mongo:pwd').digest('hex');
   describe('help', () => {
     const apiClass: any = new Database({}, 'name');
     it('calls help function', async() => {
@@ -362,6 +365,472 @@ describe('Database', () => {
         const expectedError = new Error();
         serviceProvider.dropDatabase.rejects(expectedError);
         const catchedError = await database.dropDatabase()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('createUser', () => {
+      it('calls serviceProvider.runCommand on the database with extra fields but not digestPassword', async() => {
+        await database.createUser({
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            createUser: 'anna',
+            pwd: 'pwd',
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 }
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+        await database.createUser({
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: [],
+          passwordDigestor: 'server'
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            createUser: 'anna',
+            pwd: 'pwd',
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 },
+            digestPassword: true
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=client', async() => {
+        await database.createUser({
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: [],
+          passwordDigestor: 'client'
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            createUser: 'anna',
+            pwd: MD5_HASH,
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 },
+            digestPassword: false
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.createUser({
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.createUser({
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('updateUser', () => {
+      it('calls serviceProvider.runCommand on the database with extra fields and no passwordDigestor', async() => {
+        await database.updateUser('anna', {
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateUser: 'anna',
+            pwd: 'pwd',
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 }
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=client', async() => {
+        await database.updateUser('anna', {
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: [],
+          passwordDigestor: 'client'
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateUser: 'anna',
+            pwd: MD5_HASH,
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 },
+            digestPassword: false
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+        await database.updateUser('anna', {
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: [],
+          passwordDigestor: 'server'
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateUser: 'anna',
+            pwd: 'pwd',
+            customData: { anything: true },
+            roles: [],
+            writeConcern: { w: 1 },
+            digestPassword: true
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.updateUser('anna', {
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.updateUser('anna', {
+          user: 'anna',
+          pwd: 'pwd',
+          customData: { anything: true },
+          roles: []
+        }, { w: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('changeUserPassword', () => {
+      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+        await database.changeUserPassword('anna', 'pwd');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateUser: 'anna',
+            pwd: 'pwd',
+            writeConcern: {}
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.changeUserPassword('anna', 'pwd');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.changeUserPassword('anna', 'pwd')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('logout', () => {
+      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+        await database.logout();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { logout: 1 }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.logout();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.logout()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('dropUser', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.dropUser('anna');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { dropUser: 'anna', writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.dropUser('anna');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.dropUser('anna')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('dropAllUsers', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.dropAllUsers();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { dropAllUsersFromDatabase: 1, writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.dropAllUsers();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.dropAllUsers()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('auth', () => {
+      it('calls serviceProvider.authenticate on the database when one arg provided', async() => {
+        await database.auth({
+          user: 'anna',
+          pwd: 'pwd',
+          mechanism: 'mech'
+        });
+
+        expect(serviceProvider.authenticate).to.have.been.calledWith(
+          {
+            user: 'anna',
+            pwd: 'pwd',
+            mechanism: 'mech',
+            authDb: 'db1'
+          }
+        );
+      });
+      it('calls serviceProvider.authenticate on the database when two args provided', async() => {
+        await database.auth('anna', 'pwd');
+
+        expect(serviceProvider.authenticate).to.have.been.calledWith(
+          {
+            user: 'anna',
+            pwd: 'pwd',
+            authDb: 'db1'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.authenticate returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.authenticate.resolves(expectedResult);
+        const result = await database.auth('anna', 'pwd');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.authenticate.rejects(expectedError);
+        const catchedError = await database.auth('anna', 'pwd')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('grantRolesToUser', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.grantRolesToUser('anna', [ 'role1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { grantRolesToUser: 'anna', roles: ['role1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.grantRolesToUser('anna', [ 'role1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.grantRolesToUser('anna', [ 'role1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('revokeRolesFromUser', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.revokeRolesFromUser('anna', [ 'role1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { revokeRolesFromUser: 'anna', roles: ['role1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.revokeRolesFromUser('anna', [ 'role1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.revokeRolesFromUser('anna', [ 'role1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getUser', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        const expectedResult = { ok: 1, users: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        await database.getUser('anna');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { usersInfo: { user: 'anna', db: 'db1' } }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        const expectedResult = { ok: 1, users: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        await database.getUser('anna', {
+          showCredentials: false,
+          showPrivileges: true,
+          filter: { f: 1 }
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            usersInfo: { user: 'anna', db: 'db1' },
+            showCredentials: false,
+            showPrivileges: true,
+            filter: { f: 1 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1, users: [ { user: 'anna' }] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getUser('anna');
+        expect(result).to.deep.equal({ user: 'anna' });
+      });
+      it('returns whatever serviceProvider.runCommand returns if user does not exist', async() => {
+        const expectedResult = { ok: 1, users: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getUser('anna');
+        expect(result).to.deep.equal(null);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getUser('anna')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getUsers', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        await database.getUsers();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { usersInfo: 1 }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.getUsers({
+          showCredentials: false,
+          filter: {}
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            usersInfo: 1,
+            showCredentials: false,
+            filter: {}
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getUsers();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getUsers()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });

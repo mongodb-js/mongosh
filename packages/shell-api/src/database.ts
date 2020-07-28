@@ -9,7 +9,12 @@ import {
   serverVersions
 } from './decorators';
 import { ServerVersions } from './enums';
-import { adaptAggregateOptions } from './helpers';
+import {
+  adaptAggregateOptions,
+  adaptOptions,
+  checkUndefinedUpdate,
+  processDigestPassword
+} from './helpers';
 
 import {
   Cursor as ServiceProviderCursor,
@@ -17,7 +22,7 @@ import {
   WriteConcern
 } from '@mongosh/service-provider-core';
 import { AggregationCursor } from './index';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -208,6 +213,180 @@ export default class Database extends ShellApiClass {
     return await this._mongo._serviceProvider.dropDatabase(
       this._name,
       writeConcern
+    );
+  }
+
+  @returnsPromise
+  async createUser(user: Document, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(user);
+    checkUndefinedUpdate(user.user, user.roles, user.pwd);
+    this._emitDatabaseApiCall('createUser', {});
+    if (user.createUser) {
+      throw new MongoshInvalidInputError('Cannot set createUser field in helper method');
+    }
+    const command = adaptOptions(
+      { user: 'createUser', passwordDigestor: null },
+      {
+        writeConcern: writeConcern
+      },
+      user
+    );
+    const digestPwd = processDigestPassword(user.user, user.passwordDigestor, command);
+    const orderedCmd = { createUser: command.createUser, ...command, ...digestPwd };
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      orderedCmd
+    );
+  }
+
+  @returnsPromise
+  async updateUser(username: string, userDoc: Document, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(username, userDoc);
+    this._emitDatabaseApiCall('updateUser', {});
+    if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
+      throw new MongoshInvalidInputError(`Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`);
+    }
+
+    const command = adaptOptions(
+      { passwordDigestor: null },
+      {
+        updateUser: username,
+        writeConcern: writeConcern
+      },
+      userDoc
+    );
+    const digestPwd = processDigestPassword(username, userDoc.passwordDigestor, command);
+    const orderedCmd = { updateUser: command.updateUser, ...command, ...digestPwd };
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      orderedCmd
+    );
+  }
+
+  @returnsPromise
+  async changeUserPassword(username: string, password: string, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(username, password);
+    this._emitDatabaseApiCall('changeUserPassword', {});
+    const command = adaptOptions(
+      {},
+      {
+        updateUser: username,
+        pwd: password,
+        writeConcern: writeConcern
+      },
+      {}
+    );
+    const orderedCmd = { updateUser: command.updateUser, ...command };
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      orderedCmd
+    );
+  }
+
+  @returnsPromise
+  async logout(): Promise<any> {
+    this._emitDatabaseApiCall('logout', {});
+    return await this._mongo._serviceProvider.runCommand(this._name, { logout: 1 });
+  }
+
+  @returnsPromise
+  async dropUser(username: string, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(username);
+    this._emitDatabaseApiCall('dropUser', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { dropUser: username, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async dropAllUsers(writeConcern: WriteConcern = {}): Promise<any> {
+    this._emitDatabaseApiCall('dropAllUsers', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { dropAllUsersFromDatabase: 1, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async auth(...args): Promise<any> {
+    this._emitDatabaseApiCall('auth', {});
+    let authDoc;
+    if (args.length === 1) {
+      authDoc = args[0];
+    } else if (args.length === 2) {
+      authDoc = {
+        user: args[0],
+        pwd: args[1]
+      };
+    } else {
+      throw new MongoshInvalidInputError('auth expects (username), (username, password), or ({ user: username, pwd: password })');
+    }
+    if (!authDoc.user || !authDoc.pwd) {
+      throw new MongoshInvalidInputError('auth expects user document with \'user\' and \'pwd\' fields');
+    }
+    if ('digestPassword' in authDoc) {
+      throw new MongoshUnimplementedError('digestPassword is not supported for authentication.');
+    }
+    authDoc.authDb = this._name;
+    return await this._mongo._serviceProvider.authenticate(authDoc);
+  }
+
+  @returnsPromise
+  async grantRolesToUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(username, roles);
+    this._emitDatabaseApiCall('grantRolesToUser', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { grantRolesToUser: username, writeConcern: writeConcern, roles: roles }
+    );
+  }
+
+  @returnsPromise
+  async revokeRolesFromUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(username, roles);
+    this._emitDatabaseApiCall('revokeRolesFromUser', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { revokeRolesFromUser: username, writeConcern: writeConcern, roles: roles }
+    );
+  }
+
+  @returnsPromise
+  async getUser(username: string, options: Document = {}): Promise<any> {
+    checkUndefinedUpdate(username);
+    this._emitDatabaseApiCall('getUser', { username: username });
+    const command = adaptOptions(
+      { },
+      { usersInfo: { user: username, db: this._name } },
+      options
+    );
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      command
+    );
+    if (!result.ok) {
+      return result;
+    }
+    for (let i = 0; i < result.users.length; i++) {
+      if (result.users[i].user === username) {
+        return result.users[i];
+      }
+    }
+    return null;
+  }
+
+  @returnsPromise
+  async getUsers(options: any = {}): Promise<any> {
+    this._emitDatabaseApiCall('getUsers', { options: options });
+    const command = adaptOptions(
+      { },
+      { usersInfo: 1 },
+      options
+    );
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      command
     );
   }
 }

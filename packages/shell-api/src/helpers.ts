@@ -6,6 +6,7 @@
  */
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
+import crypto from 'crypto';
 
 export function adaptAggregateOptions(options: any = {}): {
   providerOptions: Document;
@@ -51,6 +52,53 @@ export function validateExplainableVerbosity(verbosity: string): void {
 
 export function checkUndefinedUpdate(...args: any): void {
   if (args.some(a => a === undefined)) {
-    throw new MongoshInvalidInputError('Cannot pass an undefined argument to a command');
+    throw new MongoshInvalidInputError('Missing required argument');
   }
+}
+
+/**
+ * Helper method to adapt objects that are slightly different from Shell to SP API.
+ *
+ * @param {Object} shellToCommand - a map of the shell key to the command key. If null, then omit.
+ * @param {Object} shellDoc - the document to be adapted
+ */
+export function adaptOptions(shellToCommand: any, additions: any, shellDoc: any): any {
+  return Object.keys(shellDoc).reduce((result, shellKey) => {
+    if (shellToCommand[shellKey] === null) {
+      return result;
+    }
+    result[ shellToCommand[shellKey] || shellKey ] = shellDoc[shellKey];
+    return result;
+  }, additions);
+}
+
+/**
+ * Optionally digest password if passwordDigestor field set to 'client'. If it's false,
+ * then hash the password.
+ *
+ * @param username
+ * @param passwordDigestor
+ * @param {Object} command
+ */
+export function processDigestPassword(username, passwordDigestor, command): any {
+  if (passwordDigestor === undefined) {
+    return {};
+  }
+  if (passwordDigestor !== 'server' && passwordDigestor !== 'client') {
+    throw new MongoshInvalidInputError(
+      `Invalid field: passwordDigestor must be 'client' or 'server', got ${passwordDigestor}`
+    );
+  }
+  if (passwordDigestor === 'client') {
+    if (typeof command.pwd !== 'string') {
+      throw new MongoshInvalidInputError(
+        `User passwords must be of type string. Was given password with type ${typeof command.pwd}`
+      );
+    }
+    const hash = crypto.createHash('md5');
+    hash.update(`${username}:mongo:${command.pwd}`);
+    const digested = hash.digest('hex');
+    return { digestPassword: false, pwd: digested };
+  }
+  return { digestPassword: true };
 }

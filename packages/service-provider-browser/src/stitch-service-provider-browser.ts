@@ -11,7 +11,7 @@ import {
   getConnectInfo,
   ReplPlatform,
   DEFAULT_DB,
-  ServiceProviderCore
+  ServiceProviderCore, AuthOptions
 } from '@mongosh/service-provider-core';
 
 import StitchTransport from './stitch-transport';
@@ -474,6 +474,12 @@ class StitchServiceProviderBrowser extends ServiceProviderCore implements Servic
    */
   get userId(): string {
     return this.stitchTransport.userId;
+  }
+
+  authenticate(
+    authDoc: AuthOptions
+  ): Promise<any> {
+    throw new MongoshUnimplementedError('Authentication not supported via Browser');
   }
 }
 
