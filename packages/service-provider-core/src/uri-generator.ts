@@ -63,6 +63,7 @@ function generateHost(options: CliOptions): string {
     if (options.host.includes(':')) {
       return options.host.split(':')[0];
     }
+    return options.host;
   }
   return DEFAULT_HOST;
 }

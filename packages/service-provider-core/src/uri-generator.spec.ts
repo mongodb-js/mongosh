@@ -24,7 +24,7 @@ describe('uri-generator.generate-uri', () => {
       expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018');
     });
     it('throws if host has port AND port set to other value', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018', port: '27019' })).to.throw();
+      expect(generateUri.bind({ _: [], host: 'localhost:27018', port: '27019' })).to.throw();
     });
     it('handles host has port AND port set to equal value', () => {
       expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018');
