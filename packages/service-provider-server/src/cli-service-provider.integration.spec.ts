@@ -599,17 +599,15 @@ describe('CliServiceProvider [integration]', function() {
       ).to.deep.include({
         nIndexesWas: 1,
         nIndexes: 1,
-        indexes: [
-          {
-            v: 2,
-            key: {
-              '_id': 1
-            },
-            name: '_id_',
-            ns: `${dbName}.${collName}`
-          }
-        ],
         ok: 1
+      });
+      expect(result.indexes.length).to.equal(1);
+      expect(result.indexes[0]).to.deep.include({
+        v: 2,
+        key: {
+          '_id': 1
+        },
+        name: '_id_'
       });
     });
   });
