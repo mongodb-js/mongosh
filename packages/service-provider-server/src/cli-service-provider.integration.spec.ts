@@ -76,6 +76,32 @@ describe('CliServiceProvider [integration]', function() {
   });
 
   describe('#aggregate', () => {
+    // NOTE: this will only run on 4.4+, so if we change mongodb-runner to a different version we should be aware this will fail.
+    context('when passing a $function to be serialized by the driver', () => {
+      let result;
+
+      beforeEach(async() => {
+        const pipeline = [
+          {
+            '$addFields': {
+              'attr.namespace': {
+                '$function': {
+                  'body': function(value) { if (value) { return value; } },
+                  'args': [ '$attr.namespace' ],
+                  'lang': 'js'
+                }
+              }
+            }
+          }
+        ];
+        result = await serviceProvider.aggregate('music', 'bands', pipeline);
+      });
+
+      it('executes the command and resolves the result', async() => {
+        const docs = await result.toArray();
+        expect(docs).to.deep.equal([]);
+      });
+    });
     context('when running against a collection', () => {
       let result;
 
