@@ -3,6 +3,7 @@
 import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
 import { DEFAULT_DB } from './index';
+import { MongoshInvalidInputError } from '@mongosh/errors';
 
 /**
  * URI schemes.
@@ -58,7 +59,12 @@ function validateConflicts(options: CliOptions): any {
  * @returns {string} The host.
  */
 function generateHost(options: CliOptions): string {
-  return options.host ? options.host : DEFAULT_HOST;
+  if (options.host) {
+    if (options.host.includes(':')) {
+      return options.host.split(':')[0];
+    }
+  }
+  return DEFAULT_HOST;
 }
 
 /**
@@ -69,6 +75,13 @@ function generateHost(options: CliOptions): string {
  * @returns {string} The port.
  */
 function generatePort(options: CliOptions): string {
+  if (options.host && options.host.includes(':')) {
+    const port = options.host.split(':')[1];
+    if (!options.port || options.port === port) {
+      return port;
+    }
+    throw new MongoshInvalidInputError('Connection string bears different port than provided by --port');
+  }
   return options.port ? options.port : DEFAULT_PORT;
 }
 

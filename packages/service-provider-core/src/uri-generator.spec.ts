@@ -17,6 +17,18 @@ describe('uri-generator.generate-uri', () => {
     it('handles port', () => {
       expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018');
     });
+    it('handles both host and port', () => {
+      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018');
+    });
+    it('handles host with port included', () => {
+      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018');
+    });
+    it('throws if host has port AND port set to other value', () => {
+      expect(generateUri({ _: [], host: 'localhost:27018', port: '27019' })).to.throw();
+    });
+    it('handles host has port AND port set to equal value', () => {
+      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018');
+    });
   });
 
   context('when a full URI is provided', () => {
