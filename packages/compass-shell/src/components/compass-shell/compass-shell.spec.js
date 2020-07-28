@@ -19,11 +19,11 @@ describe('CompassShell', () => {
     it('does not render a shell', () => {
       const fakeRuntime = {};
       const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded={false} />);
-      expect(wrapper.find(Shell)).to.have.lengthOf(0);
+      expect(wrapper.find(Shell).exists()).to.equal(false);
     });
 
     context('when is it expanded', () => {
-      it('calls the function prop onOpenShellPlugin', () => {
+      it('calls the function prop emitShellPluginOpened', () => {
         let calledFunc = false;
         const mockOnOpenShellPlugin = () => {
           calledFunc = true;
@@ -31,7 +31,7 @@ describe('CompassShell', () => {
 
         const shell = new CompassShell({
           isExpanded: false,
-          onOpenShellPlugin: mockOnOpenShellPlugin
+          emitShellPluginOpened: mockOnOpenShellPlugin
         });
         shell.resizableRef = {
           sizeStyle: {
@@ -50,7 +50,7 @@ describe('CompassShell', () => {
     context('when runtime property is not present', () => {
       it('does not render a shell if runtime is null', () => {
         const wrapper = shallow(<CompassShell runtime={null} isExpanded />);
-        expect(wrapper.find(Shell)).to.have.lengthOf(0);
+        expect(wrapper.find(Shell).exists()).to.equal(false);
       });
     });
 
@@ -163,7 +163,7 @@ describe('CompassShell', () => {
         it('resumes its previous height', () => {
           const shell = new CompassShell({
             isExpanded: true,
-            onOpenShellPlugin: () => {}
+            emitShellPluginOpened: () => {}
           });
           shell.setState = stateUpdate => {
             shell.state = {

@@ -59,7 +59,6 @@ describe('CompassShellStore [Store]', () => {
 
       const runtimeState = getRuntimeState();
 
-      
       runtimeState.runtime.evaluate('show dbs;');
 
       expect(eventRecieved).to.equal(true);

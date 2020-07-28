@@ -4,7 +4,6 @@ import styles from './compass-shell.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
-import { globalAppRegistryEmit } from 'mongodb-redux-common/app-registry';
 
 import { Shell } from '@mongosh/browser-repl';
 
@@ -28,16 +27,16 @@ const defaultShellHeightOpened = 240;
 
 export class CompassShell extends Component {
   static propTypes = {
+    emitShellPluginOpened: PropTypes.func,
     isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
-    historyStorage: PropTypes.object,
-    onOpenShellPlugin: PropTypes.func
+    historyStorage: PropTypes.object
   };
 
   static defaultProps = {
-    runtime: null,
-    onOpenShellPlugin: () => {}
+    emitShellPluginOpened: () => {},
+    runtime: null
   };
   constructor(props) {
     super(props);
@@ -102,7 +101,7 @@ export class CompassShell extends Component {
         height: defaultShellHeightClosed
       });
     } else {
-      this.props.onOpenShellPlugin();
+      this.props.emitShellPluginOpened();
 
       this.resizableRef.updateSize({
         width: '100%',
@@ -175,11 +174,11 @@ export class CompassShell extends Component {
 
 export default connect(
   (state) => ({
+    emitShellPluginOpened: () => {
+      if (state.appRegistry && state.appRegistry.globalAppRegistry) {
+        state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
+      }
+    },
     runtime: state.runtime ? state.runtime.runtime : null
-  }),
-  (dispatch) => ({
-    onOpenShellPlugin: () => dispatch(
-      globalAppRegistryEmit('compass:compass-shell:opened')
-    )
   })
 )(CompassShell);
