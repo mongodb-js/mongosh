@@ -27,6 +27,7 @@
     "node": "^12.4.0"
   },
   "dependencies": {
+    "@mongosh/errors": "^0.0.8",
     "@mongosh/i18n": "^0.0.8",
     "mongodb-build-info": "^1.0.0"
   },
