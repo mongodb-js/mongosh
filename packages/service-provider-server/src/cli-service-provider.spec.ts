@@ -6,6 +6,8 @@ import sinon from 'ts-sinon';
 
 import CliServiceProvider from './cli-service-provider';
 
+const DEFAULT_BASE_OPTS = { serializeFunctions: true };
+
 /**
  * Create a client stub from the provided collection stub.
  *
@@ -136,7 +138,7 @@ describe('CliServiceProvider', () => {
   describe('#distinct', () => {
     const distinctResult = [ 'Aphex Twin' ];
     const distinctMock = sinon.mock().once().
-      withArgs('name', {}, {}).resolves(distinctResult);
+      withArgs('name', {}, DEFAULT_BASE_OPTS).resolves(distinctResult);
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -154,7 +156,7 @@ describe('CliServiceProvider', () => {
 
   describe('#estimatedDocumentCount', () => {
     const countResult = 10;
-    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
+    const countMock = sinon.mock().once().withArgs(DEFAULT_BASE_OPTS).resolves(countResult);
 
     beforeEach(() => {
       const collectionStub = sinon.createStubInstance(Collection, {
@@ -190,6 +192,29 @@ describe('CliServiceProvider', () => {
       (findMock as any).verify();
     });
   });
+  describe('#find with options', () => {
+    const filter = { name: 'Aphex Twin' };
+    const findResult = [{ name: 'Aphex Twin' }];
+    const options = { allowPartialResults: true, noCursorTimeout: true, tailable: true };
+    const findMock = sinon.mock().withArgs(
+      filter,
+      { ...DEFAULT_BASE_OPTS, ...options, partial: true, timeout: true, cursorType: 'TAILABLE' }
+    ).returns({ toArray: () => Promise.resolve(findResult) });
+
+    beforeEach(() => {
+      const collectionStub = sinon.createStubInstance(Collection, {
+        find: findMock
+      });
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+    });
+
+    it('executes the command against the database', async() => {
+      const cursor = await serviceProvider.find('music', 'bands', filter, options);
+      const result = await cursor.toArray();
+      expect(result).to.deep.equal(findResult);
+      (findMock as any).verify();
+    });
+  });
 
   describe('#findAndModify', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
@@ -197,7 +222,7 @@ describe('CliServiceProvider', () => {
       { query: 1 },
       { sort: 1 },
       { update: 1 },
-      { options: 1 }
+      { ...DEFAULT_BASE_OPTS, options: 1 }
     ).resolves(commandResult);
 
     beforeEach(() => {
@@ -482,7 +507,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({ buildInfo: 1 }, {})
+        .withArgs({ buildInfo: 1 }, DEFAULT_BASE_OPTS)
         .resolves(buildInfoResult);
 
       const dbStub = sinon.createStubInstance(Db, {
@@ -528,7 +553,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({ getCmdLineOpts: 1 }, {})
+        .withArgs({ getCmdLineOpts: 1 }, DEFAULT_BASE_OPTS)
         .resolves(cmdLineOptsResult);
 
       const dbStub = sinon.createStubInstance(Db, {
@@ -699,7 +724,7 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       commandMock = sinon.mock()
-        .withArgs({}, {})
+        .withArgs({}, DEFAULT_BASE_OPTS)
         .returns({
           toArray: () => {
             return Promise.resolve([
@@ -744,7 +769,7 @@ describe('CliServiceProvider', () => {
     let statsMock;
 
     beforeEach(() => {
-      options = { scale: 1 };
+      options = { ...DEFAULT_BASE_OPTS, scale: 1 };
       expectedResult = { ok: 1 };
       statsMock = sinon.mock().once().withArgs(options).
         resolves(expectedResult);
@@ -806,6 +831,7 @@ describe('CliServiceProvider', () => {
           'coll1',
           'newName',
           {
+            ...DEFAULT_BASE_OPTS,
             dropTarget: true,
             session: 1
           })
