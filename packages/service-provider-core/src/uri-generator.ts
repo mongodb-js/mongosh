@@ -47,7 +47,7 @@ const CONFLICT = 'cli-repl.uri-generator.no-host-port';
  */
 function validateConflicts(options: CliOptions): any {
   if (options.host || options.port) {
-    throw new Error(i18n.__(CONFLICT));
+    throw new MongoshInvalidInputError(i18n.__(CONFLICT));
   }
 }
 
@@ -81,7 +81,7 @@ function generatePort(options: CliOptions): string {
     if (!options.port || options.port === port) {
       return port;
     }
-    throw new MongoshInvalidInputError('Connection string bears different port than provided by --port');
+    throw new MongoshInvalidInputError(i18n.__(CONFLICT));
   }
   return options.port ? options.port : DEFAULT_PORT;
 }
