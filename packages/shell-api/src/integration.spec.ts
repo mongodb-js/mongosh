@@ -347,6 +347,7 @@ describe('Shell API (integration)', function() {
               _id: 1
             },
             name: '_id_',
+            ns: `${dbName}.${collectionName}`,
             v: 2
           });
         expect(result[1]).to.deep.include(
@@ -355,6 +356,7 @@ describe('Shell API (integration)', function() {
               x: 1
             },
             name: 'x_1',
+            ns: `${dbName}.${collectionName}`,
             v: 2
           });
       });
