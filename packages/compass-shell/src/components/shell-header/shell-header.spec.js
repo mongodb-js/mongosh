@@ -37,7 +37,7 @@ describe('ShellHeader', () => {
         showInfoModal={() => {}}
       />);
 
-      expect(wrapper.find(`.${styles['compass-shell-header-right-actions']}`)).to.be.present();
+      expect(wrapper.find(`.${styles['compass-shell-header-right-actions']}`).exists()).to.equal(true);
     });
   });
 

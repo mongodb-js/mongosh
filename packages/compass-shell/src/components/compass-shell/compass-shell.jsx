@@ -27,6 +27,7 @@ const defaultShellHeightOpened = 240;
 
 export class CompassShell extends Component {
   static propTypes = {
+    emitShellPluginOpened: PropTypes.func,
     isExpanded: PropTypes.bool,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
@@ -34,6 +35,7 @@ export class CompassShell extends Component {
   };
 
   static defaultProps = {
+    emitShellPluginOpened: () => {},
     runtime: null
   };
   constructor(props) {
@@ -99,6 +101,8 @@ export class CompassShell extends Component {
         height: defaultShellHeightClosed
       });
     } else {
+      this.props.emitShellPluginOpened();
+
       this.resizableRef.updateSize({
         width: '100%',
         height: this.lastOpenHeight
@@ -170,7 +174,11 @@ export class CompassShell extends Component {
 
 export default connect(
   (state) => ({
+    emitShellPluginOpened: () => {
+      if (state.appRegistry && state.appRegistry.globalAppRegistry) {
+        state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
+      }
+    },
     runtime: state.runtime ? state.runtime.runtime : null
-  }),
-  {}
+  })
 )(CompassShell);
