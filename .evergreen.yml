@@ -215,7 +215,7 @@ buildvariants:
     tasks:
       - name: check
       - name: test
-      - name: release_linux
+      - name: release_debian
   - name: windows_ps
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
@@ -223,10 +223,3 @@ buildvariants:
       - name: check_ps
       # - name: test_ps
       - name: release_win_ps
-  - name: debian
-    display_name: "Debian 10"
-    run_on: ubuntu1804-test
-    tasks:
-      - name: check
-      - name: test
-      - name: release_debian

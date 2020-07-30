@@ -98,13 +98,13 @@ export async function zip(
   console.info('mongosh: zipping:', filename);
 
   if (platform === Platform.Linux) {
-    await zipPosix(outputDir, filename);
+  //   await zipPosix(outputDir, filename);
 
-    return {
-      path: filename,
-      contentType: 'application/gzip'
-    };
-  } else if (platform === Platform.Debian) {
+  //   return {
+  //     path: filename,
+  //     contentType: 'application/gzip'
+  //   };
+  // } else if (platform === Platform.Debian) {
     await zipDebian(input, outputDir, version, rootDir);
 
     return {
