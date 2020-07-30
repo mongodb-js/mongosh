@@ -26,12 +26,12 @@ describe('zip module', () => {
       });
     });
 
-    context('when the platform is linux', () => {
-      it('returns the tarball name', () => {
-        expect(zipPath('', Platform.Linux, '1.0.0')).
-          to.equal('mongosh-1.0.0-linux.tgz');
-      });
-    });
+    // context('when the platform is linux', () => {
+    //   it('returns the tarball name', () => {
+    //     expect(zipPath('', Platform.Linux, '1.0.0')).
+    //       to.equal('mongosh-1.0.0-linux.tgz');
+    //   });
+    // });
   });
 
   describe('.zipPosix', () => {
