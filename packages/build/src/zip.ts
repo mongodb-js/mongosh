@@ -20,7 +20,7 @@ export const zipPath = (outputDir: string, platform: string, version: string): s
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
     // sometimes there is also revision number, but we can add that later.
-    return path.join(outputDir, `mongosh_${version}_x64.deb`);
+    return path.join(outputDir, `mongosh_${version}_amd64.deb`);
   } else {
     return path.join(outputDir, `mongosh-${version}-${platform}.zip`);
   }
@@ -55,7 +55,7 @@ export const zipDebian = async(input: string, outputDir: string, version: string
     dest: outputDir,
     src: rootDir, // pkg-deb will look for package.json in src to get info
     input: input,
-    arch: 'x64'
+    arch: 'amd64'
   }
 
   console.log('Writing debian package')
