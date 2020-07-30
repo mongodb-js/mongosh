@@ -15,8 +15,8 @@ import Platform from './platform';
  */
 export const zipPath = (outputDir: string, platform: string, version: string): string => {
   if (platform === Platform.Linux) {
-    return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
-  } else if (platform === Platform.Debian) {
+  //   return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
+  // } else if (platform === Platform.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
     // sometimes there is also revision number, but we can add that later.
