@@ -44,6 +44,12 @@ const CONFIG = `
           "os": "linux",
           "name": "Linux 64-bit",
           "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-linux.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "debian",
+          "name": "Debian 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh_{{version}}_debian.deb"
         }
       ]
     }

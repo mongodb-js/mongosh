@@ -8,7 +8,7 @@ enum Target {
   Windows = 'win',
   MacOs = 'macos',
   Linux = 'linux',
-  Debian = 'debian'
+  Debian = 'linux'
 }
 
 /**

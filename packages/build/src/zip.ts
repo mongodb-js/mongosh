@@ -14,8 +14,16 @@ import Platform from './platform';
  * @returns {string} The path.
  */
 export const zipPath = (outputDir: string, platform: string, version: string): string => {
-  const ext = 'deb';
-  return path.join(outputDir, `mongosh-${version}-debian.${ext}`);
+  if (platform === Platform.Linux) {
+    return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
+  } else if (platform === Platform.Debian) {
+    // debian packages are required to be separated by _ and have arch in the
+    // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
+    // sometimes there is also revision number, but we can add that later.
+    return path.join(outputDir, `mongosh_${version}_x64.deb`);
+  } else {
+    return path.join(outputDir, `mongosh-${version}-${platform}.zip`);
+  }
 };
 
 /**
@@ -89,14 +97,24 @@ export async function zip(
 
   console.info('mongosh: zipping:', filename);
 
-  // if (platform === Platform.Linux) { await zipPosix(outputDir, filename); return { path: filename,
-  //         contentType: 'application/gzip'
-  //   };
-  // }
+  if (platform === Platform.Linux) {
+    await zipPosix(outputDir, filename);
 
-  // zipWindows(input, filename);
+    return {
+      path: filename,
+      contentType: 'application/gzip'
+    };
+  } else if (platform === Platform.Debian) {
+    await zipDebian(input, outputDir, version, rootDir);
 
-  await zipDebian(input, outputDir, version, rootDir);
+    return {
+      path: filename,
+      // this might have to be application/gzip MIME type
+      contentType: 'application/vnd.debian.binary-package'
+    }
+  }
+
+  zipWindows(input, filename);
 
   return {
     path: filename,
