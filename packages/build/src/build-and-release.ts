@@ -17,23 +17,23 @@ export default async function buildAndRelease(
   const zipFile = await compileAndZipExecutable(config);
   console.log('mongosh: created zipfile:', zipFile);
 
-  // // Always release internally to evergreen
-  // await uploadToEvergreen(
-  //   zipFile.path,
-  //   config.evgAwsKey,
-  //   config.evgAwsSecret,
-  //   config.project,
-  //   config.revision
-  // );
-  // console.log('mongosh: internal release completed.');
+  // Always release internally to evergreen
+  await uploadToEvergreen(
+    zipFile.path,
+    config.evgAwsKey,
+    config.evgAwsSecret,
+    config.project,
+    config.revision
+  );
+  console.log('mongosh: internal release completed.');
 
-  // // Only release to public from master and when tagged with the right version.
-  // if (await githubRepo.shouldDoPublicRelease(config)) {
-  //   console.log('mongosh: start public release.');
+  // Only release to public from master and when tagged with the right version.
+  if (await githubRepo.shouldDoPublicRelease(config)) {
+    console.log('mongosh: start public release.');
 
-  //   await releaseToDownloadCenter(zipFile, config);
-  //   await githubRepo.releaseToGithub(zipFile, config);
-  // }
+    await releaseToDownloadCenter(zipFile, config);
+    await githubRepo.releaseToGithub(zipFile, config);
+  }
 
   console.log('mongosh: finished release process.');
 }

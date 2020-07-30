@@ -80,9 +80,10 @@ describe('zip module', () => {
     const version = '1.0.0';
     const expectedZip = zipPath(__dirname, platform, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+    const rootDir = path.join(__dirname, '../../..');
 
     before(() => {
-      return zip(inputFile, __dirname, platform, version);
+      return zip(inputFile, __dirname, platform, version, rootDir);
     });
 
     after((done) => {

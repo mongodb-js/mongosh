@@ -69,6 +69,7 @@ describe('GithubRepo', () => {
     const version = '1.0.0';
     const expectedZip = zipPath(__dirname, platform, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+    const rootDir = path.join(__dirname, '../../..');
 
     after((done) => {
       fs.unlink(expectedZip, done);
@@ -78,7 +79,7 @@ describe('GithubRepo', () => {
       githubRepo.createRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
-      const zipFile = await zip(inputFile, __dirname, platform, version);
+      const zipFile = await zip(inputFile, __dirname, platform, version, rootDir);
 
       githubRepo.releaseToGithub(zipFile, { version: '0.0.6' });
       expect(githubRepo.createRelease).to.have.been.called;
