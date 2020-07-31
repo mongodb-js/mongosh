@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { signatures } from '../../shell-api';
 
+const IGNORED_TYPES = [
+  'unknown',
+  'ExplainableCursor'
+];
+
 const localesDir = path.resolve(__dirname, 'locales');
 
 // eslint-disable-next-line no-sync
@@ -11,7 +16,7 @@ const localeFiles = fs.readdirSync(localesDir)
   });
 
 const typeNames = Object.keys(signatures)
-  .filter((typeName) => typeName !== 'unknown');
+  .filter((typeName) => !IGNORED_TYPES.includes(typeName));
 
 localeFiles.forEach((localeFile) => {
   const locale = require(path.join(localesDir, localeFile)).default;
