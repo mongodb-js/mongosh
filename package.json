@@ -9,7 +9,7 @@
     "prebootstrap": "npm install",
     "bootstrap": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 lerna bootstrap --ignore-prepublish --concurrency=1",
     "prebootstrap-without-compass": "npm install",
-    "bootstrap-without-compass": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 lerna bootstrap --ignore @mongodb-js/compass-shell --concurrency=1",
+    "bootstrap-without-compass": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 lerna bootstrap --ignore @mongodb-js/compass-shell --ignore-prepublish --concurrency=1",
     "prebootstrap-ci": "npm ci",
     "bootstrap-ci": "lerna bootstrap --ci --concurrency=1",
     "clean": "lerna clean -y && rm -Rf node_modules",
