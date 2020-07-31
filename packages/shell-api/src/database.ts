@@ -560,4 +560,19 @@ export default class Database extends ShellApiClass {
       command
     );
   }
+
+  @returnsPromise
+  async version(): Promise<any> {
+    this._emitDatabaseApiCall('version', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      'ad`min',
+      {
+        buildInfo: 1,
+      }
+    );
+    if ('version' in result) {
+      return result.version;
+    }
+    return { ok: 0 };
+  }
 }
