@@ -24,7 +24,10 @@ describe('completer.completer', () => {
   context('when no version is passed to completer', () => {
     it('matches all db completions', () => {
       const i = 'db.';
-      expect(completer(undefined, i)).to.deep.equal([[
+      const c = completer(undefined, i);
+      expect(c.length).to.equal(2);
+      expect(c[1]).to.equal(i);
+      expect(c[0]).to.include.members([
         'db.getMongo',
         'db.getName',
         'db.getCollectionNames',
@@ -58,7 +61,7 @@ describe('completer.completer', () => {
         'db.revokePrivilegesFromRole',
         'db.getRole',
         'db.getRoles'
-      ], i]);
+      ]);
     });
 
     it('does not have a match', () => {
