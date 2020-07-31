@@ -915,6 +915,31 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getRoles',
               description: 'Returns information for all the roles in the database.',
               example: 'db.getRoles(<options>)'
+            },
+            currentOp: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.currentOp',
+              description: 'Calls the currentOp command. Returns a document that contains information on in-progress operations for the database instance. The db.currentOp() method wraps the database command currentOp.',
+              example: 'db.currentOp()'
+            },
+            killOp: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.killOp',
+              description: 'Calls the killOp command. Terminates an operation as specified by the operation ID. To find operations and their corresponding IDs, see $currentOp or db.currentOp().',
+              example: 'db.killOp(<options>)'
+            },
+            shutdownServer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.shutdownServer',
+              description: 'Calls the shutdown command. Shuts down the current mongod or mongos process cleanly and safely. You must issue the db.shutdownServer() operation against the admin database.',
+              example: 'db.shutdownServer(<options>)'
+            },
+            fsyncLock: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.fsyncLock',
+              description: 'Calls the fsync command. Forces the mongod to flush all pending write operations to disk and locks the entire mongod instance to prevent additional writes until the user releases the lock with a corresponding db.fsyncUnlock() command.',
+              example: 'db.fsyncLock(<options>)'
+            },
+            fsyncUnlock: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.fsyncUnlock',
+              description: 'Calls the fsyncUnlock command. Reduces the lock taken by db.fsyncLock() on a mongod instance by 1.',
+              example: 'db.fsyncUnlock(<options>)'
             }
           }
         }

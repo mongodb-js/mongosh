@@ -560,4 +560,64 @@ export default class Database extends ShellApiClass {
       command
     );
   }
+
+  @returnsPromise
+  async currentOp(opts: any = {}): Promise<any> {
+    this._emitDatabaseApiCall('currentOp', { opts: opts });
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        currentOp: 1,
+        ...opts
+      }
+    );
+  }
+
+  @returnsPromise
+  async killOp(opId: number): Promise<any> {
+    checkUndefinedUpdate(opId);
+    this._emitDatabaseApiCall('killOp', { opId });
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        killOp: 1,
+        op: opId
+      }
+    );
+  }
+
+  @returnsPromise
+  async shutdownServer(opts: any = {}): Promise<any> {
+    this._emitDatabaseApiCall('shutdownServer', { opts: opts });
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        shutdown: 1,
+        ...opts
+      }
+    );
+  }
+
+  @returnsPromise
+  async fsyncLock(): Promise<any> {
+    this._emitDatabaseApiCall('fsyncLock', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        fsync: 1,
+        lock: true
+      }
+    );
+  }
+
+  @returnsPromise
+  async fsyncUnlock(): Promise<any> {
+    this._emitDatabaseApiCall('fsyncUnlock', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        fsyncUnlock: 1
+      }
+    );
+  }
 }

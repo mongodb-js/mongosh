@@ -1292,6 +1292,174 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('currentOp', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        await database.currentOp();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { currentOp: 1 }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.currentOp({
+          $ownOps: true,
+          $all: true,
+          filter: 1
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            currentOp: 1,
+            $ownOps: true,
+            $all: true,
+            filter: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.currentOp();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.currentOp()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('killOp', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.killOp(123);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            killOp: 1, op: 123
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.killOp(123);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.killOp(123)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('shutdownServer', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        await database.shutdownServer();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { shutdown: 1 }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.shutdownServer({
+          force: true,
+          timeoutSecs: 1
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            shutdown: 1,
+            force: true,
+            timeoutSecs: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.shutdownServer();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.shutdownServer()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('fsyncLock', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.fsyncLock();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            fsync: 1, lock: true
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.fsyncLock();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.fsyncLock()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('fsyncUnlock', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.fsyncUnlock();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            fsyncUnlock: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.fsyncUnlock();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.fsyncUnlock()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 
