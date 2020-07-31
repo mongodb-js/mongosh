@@ -1531,6 +1531,56 @@ const translations = {
               description: 'Create new view',
               example: 'db.createCollection(\'viewName\', \'source\', [])',
               parameters: {}
+            },
+            createRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.createRole',
+              description: 'Creates a new role.',
+              example: 'db.createRole(role, writeConcern)'
+            },
+            updateRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.updateRole',
+              description: 'Updates the role’s profile on the database on which you run the method. An update to a field completely replaces the previous field’s values.',
+              example: 'db.updateRole(rolename, update, writeConcern)'
+            },
+            dropRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropRole',
+              description: 'Removes the role from the current database.',
+              example: 'db.dropRole(rolename, writeConcern)'
+            },
+            dropAllRoles: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropAllRoles',
+              description: 'Removes all roles from the current database.',
+              example: 'db.dropAllRoles(writeConcern)'
+            },
+            grantRolesToRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.grantRolesToRole',
+              description: 'Grants additional roles to a role.',
+              example: 'db.grantRolesToRole( "<rolename>", [ <roles> ], { <writeConcern> } )'
+            },
+            revokeRolesFromRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.revokeRolesFromRole',
+              description: 'Removes a one or more roles from a role on the current database.',
+              example: 'db.revokeRolesFromRole( "<rolename>", [ <roles> ], { <writeConcern> } )'
+            },
+            grantPrivilegesToRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.grantPrivilegesToRole',
+              description: 'Grants additional privileges to a role.',
+              example: 'db.grantPrivilegesToRole( "<rolename>", [ <privileges> ], { <writeConcern> } )'
+            },
+            revokePrivilegesFromRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.revokePrivilegesFromRole',
+              description: 'Removes a one or more privileges from a role on the current database.',
+              example: 'db.revokeRolesFromRole( "<rolename>", [ <privileges> ], { <writeConcern> } )'
+            },
+            getRole: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getRole',
+              description: 'Returns role information for a specified role. Run this method on the role’s database. The role must exist on the database on which the method runs.',
+              example: 'db.getRole(rolename, args)'
+            },
+            getRoles: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getRoles',
+              description: 'Returns information for all the roles in the database.',
+              example: 'db.getRoles(<options>)'
             }
           }
         }
