@@ -82,6 +82,9 @@ functions:
         shell: powershell
         script: |
           .\.evergreen\SetupEnv
+          echo "---- check_ps ----"
+          node --version
+          npm --version
           npm run check-ci
   test:
     - command: expansions.write
