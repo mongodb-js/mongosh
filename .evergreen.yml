@@ -32,6 +32,8 @@ variables:
       shell: powershell
       script: |
         .\.evergreen\SetupEnv
+        node --version
+        npm --version
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
         npm run release

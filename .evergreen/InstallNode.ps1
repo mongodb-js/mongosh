@@ -32,5 +32,8 @@ npm --version
 
 & $SetupEnv
 
+echo "PATH:"
+echo $Env:PATH
+
 npm --version
-npm run bootstrap
+npm run bootstrap-ci
