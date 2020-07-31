@@ -55,7 +55,7 @@ export default class Cursor extends ShellApiClass {
    *
    * @returns {void}
    */
-  private addFlag(flag: CursorFlag): void {
+  private _addFlag(flag: CursorFlag): void {
     this._cursor.addCursorFlag(flag, true);
   }
 
@@ -78,7 +78,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   allowPartialResults(): Cursor {
-    this.addFlag(CursorFlag.Partial);
+    this._addFlag(CursorFlag.Partial);
     return this;
   }
 
@@ -220,13 +220,13 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   noCursorTimeout(): Cursor {
-    this.addFlag(CursorFlag.NoTimeout);
+    this._addFlag(CursorFlag.NoTimeout);
     return this;
   }
 
   @returnType('Cursor')
   oplogReplay(): Cursor {
-    this.addFlag(CursorFlag.OplogReplay);
+    this._addFlag(CursorFlag.OplogReplay);
     return this;
   }
 
@@ -274,7 +274,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   tailable(): Cursor {
-    this.addFlag(CursorFlag.Tailable);
+    this._addFlag(CursorFlag.Tailable);
     return this;
   }
 

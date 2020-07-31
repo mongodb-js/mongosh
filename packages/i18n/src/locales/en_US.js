@@ -755,7 +755,7 @@ const translations = {
             },
             getIndices: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
-              description: 'Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
+              description: 'Alias for getIndexes. Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
               example: 'db.collection.getIndices()'
             },
             insert: {
@@ -1074,10 +1074,9 @@ const translations = {
               parameters: {}
             },
             getIndexSpecs: {
-              link: '',
-              description: '',
-              example: '',
-              parameters: {}
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
+              description: 'Alias for getIndexes. Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
+              example: 'db.collection.getIndexSpecs()'
             },
             totalIndexSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalIndexSize',
@@ -1531,6 +1530,61 @@ const translations = {
               description: 'Create new view',
               example: 'db.createCollection(\'viewName\', \'source\', [])',
               parameters: {}
+            },
+            createUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.createUser',
+              description: 'Creates a new user for the database on which the method is run. db.createUser() returns a duplicate user error if the user already exists on the database.',
+              example: 'db.createUser(user, writeConcern)'
+            },
+            updateUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.updateUser',
+              description: 'Updates the user’s profile on the database on which you run the method. An update to a field completely replaces the previous field’s values. This includes updates to the user’s roles array.',
+              example: 'db.updateUser(username, update, writeConcern)'
+            },
+            changeUserPassword: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.changeUserPassword',
+              description: 'Updates a user’s password. Run the method in the database where the user is defined, i.e. the database you created the user.',
+              example: 'db.changeUserPassword(username, password)'
+            },
+            logout: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.logout',
+              description: 'Ends the current authentication session. This function has no effect if the current session is not authenticated.',
+              example: 'db.logout()'
+            },
+            dropUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropUser',
+              description: 'Removes the user from the current database.',
+              example: 'db.dropUser(username, writeConcern)'
+            },
+            dropAllUsers: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.dropAllUsers',
+              description: 'Removes all users from the current database.',
+              example: 'db.dropAllUsers(writeConcern)'
+            },
+            auth: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.auth',
+              description: 'Allows a user to authenticate to the database from within the shell.',
+              example: 'db.auth(username, password)'
+            },
+            grantRolesToUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.grantRolesToUser',
+              description: 'Grants additional roles to a user.',
+              example: 'db.grantRolesToUser( "<username>", [ <roles> ], { <writeConcern> } )'
+            },
+            revokeRolesFromUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.revokeRolesFromUser',
+              description: 'Removes a one or more roles from a user on the current database.',
+              example: 'db.revokeRolesFromUser( "<username>", [ <roles> ], { <writeConcern> } )'
+            },
+            getUser: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getUser',
+              description: 'Returns user information for a specified user. Run this method on the user’s database. The user must exist on the database on which the method runs.',
+              example: 'db.getUser(username, args)'
+            },
+            getUsers: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getUsers',
+              description: 'Returns information for all the users in the database.',
+              example: 'db.getUsers(<options>)'
             }
           }
         }
@@ -1594,13 +1648,21 @@ const translations = {
       Mongo: {
         help: {
           description: 'The Mongo Class. Represents a connection to a server',
-          link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo'
-        },
-        attributes: {
-          getDB: {
-            description: 'Returns the specified Database of the Mongo object.'
+          link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo',
+          attributes: {
+            getDB: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDB',
+              description: 'Returns the specified Database of the Mongo object.'
+            },
+            connect: {
+              link: 'https://docs.mongodb.com/manual/reference/method/connect',
+              description: 'Creates a connection to a MongoDB instance and returns the reference to the database.'
+            },
+            close: {
+              description: 'Closes a Mongo object, disposing of related resources and closing the underlying connection.'
+            }
           }
-        }
+        },
       },
       DBRef: {
         help: {
