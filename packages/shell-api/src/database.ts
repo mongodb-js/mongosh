@@ -89,6 +89,10 @@ export default class Database extends ShellApiClass {
     return this._mongo;
   }
 
+  getName(): string {
+    return this._name;
+  }
+
   /**
    * Returns an array of collection names
    *

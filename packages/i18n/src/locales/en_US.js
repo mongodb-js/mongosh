@@ -1185,6 +1185,11 @@ const translations = {
                 }
               },
               returns: ''
+            },
+            getMongo: {
+              description: 'Returns the Mongo object.',
+              example: 'db.collection.getMongo()',
+              parameters: {}
             }
           }
         }
@@ -1507,6 +1512,12 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getMongo/',
               description: 'Returns the current database connection',
               example: 'connection = db.getMongo()',
+              parameters: {}
+            },
+            getName: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getName',
+              description: 'Returns the name of the DB',
+              example: 'db.getName()',
               parameters: {}
             }
           }

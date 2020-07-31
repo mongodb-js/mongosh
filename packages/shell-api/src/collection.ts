@@ -1112,6 +1112,17 @@ export default class Collection extends ShellApiClass {
   }
 
   /**
+   * Returns the collection mongo
+   *
+   * @return {Mongo}
+   */
+  @returnType('Mongo')
+  getMongo(): Mongo {
+    this._emitCollectionApiCall('getMongo');
+    return this._mongo;
+  }
+
+  /**
    * Get all the collection statistics.
    *
    * @param {Object} options - The stats options.

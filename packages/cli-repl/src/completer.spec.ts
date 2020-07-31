@@ -26,6 +26,7 @@ describe('completer.completer', () => {
       const i = 'db.';
       expect(completer(undefined, i)).to.deep.equal([[
         'db.getMongo',
+        'db.getName',
         'db.getCollectionNames',
         'db.getCollectionInfos',
         'db.runCommand',
