@@ -160,7 +160,7 @@ const translations = {
             objsLeftInBatch: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.objsLeftInBatch',
               description: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
-              example: 'db.collection.aggregate(pipeline, options).objsLeftInBatch()',
+              example: 'db.collection.aggregate(pipeline, options).objsLeftInBatch()'
             },
             toArray: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
@@ -282,150 +282,22 @@ const translations = {
             aggregate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.aggregate',
               description: 'Calculates aggregate values for the data in a collection or a view.',
-              example: 'db.collection.aggregate(pipeline, options)',
-              parameters: {
-                pipeline: {
-                  type: 'array',
-                  description: 'A sequence of data aggregation operations or stages.'
-                },
-                options: {
-                  type: 'document',
-                  description: 'The aggregate options',
-                  values: {
-                    explain: {
-                      type: 'boolean'
-                    },
-                    allowDiskUse: {
-                      type: 'boolean'
-                    },
-                    cursor: {
-                      type: 'document'
-                    },
-                    maxTimeMS: {
-                      type: 'int32'
-                    },
-                    bypassDocumentValidation: {
-                      type: 'boolean'
-                    },
-                    readConcern: {
-                      type: 'document'
-                    },
-                    collation: {
-                      type: 'document'
-                    },
-                    hint: {
-                      type: 'document'
-                    },
-                    comment: {
-                      type: 'string'
-                    },
-                    writeConcern: {
-                      type: 'document'
-                    }
-                  }
-                }
-              },
-              returns: 'A cursor to the documents produced by the final stage of the aggregation pipeline operation, or if you include the explain option, the document that provides details on the processing of the aggregation operation. If the pipeline includes the $out operator, aggregate() returns an empty cursor.'
+              example: 'db.collection.aggregate(pipeline, options)'
             },
             bulkWrite: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.bulkWrite',
               description: 'Performs multiple write operations with controls for order of execution.',
-              example: 'db.collection.bulkWrite(operations, options)',
-              parameters: {
-                operations: {
-                  type: 'array',
-                  description: 'An array of bulkWrite() write operations'
-                },
-                options: {
-                  type: 'document',
-                  description: 'The bulk write options',
-                  values: {
-                    writeConcern: {
-                      type: 'document'
-                    },
-                    ordered: {
-                      type: 'boolean'
-                    }
-                  }
-                }
-              },
-              returns: 'A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled. A count for each write operation. An array containing an _id for each successfully inserted or upserted documents.'
+              example: 'db.collection.bulkWrite(operations, options)'
             },
             countDocuments: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.countDocuments',
               description: 'Returns the count of documents that match the query for a collection or view.',
-              example: 'db.collection.countDocuments(query, options)',
-              parameters: {
-                query: {
-                  type: 'document',
-                  description: 'The query selection criteria. To count all documents, specify an empty document.'
-                },
-                options: {
-                  type: 'document',
-                  description: 'The count options',
-                  values: {
-                    limit: {
-                      type: 'int32',
-                      description: 'The maximum number of documents to count.'
-                    },
-                    skip: {
-                      type: 'int32',
-                      description: 'The number of documents to skip before counting.'
-                    },
-                    hint: {
-                      type: 'string|document',
-                      description: 'An index name or the index specification to use for the query.'
-                    },
-                    maxTimeMS: {
-                      type: 'int32',
-                      description: 'The maximum amount of time to allow the count to run.'
-                    }
-                  }
-                }
-              },
-              returns: 'The count.'
+              example: 'db.collection.countDocuments(query, options)'
             },
             count: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.count',
               description: 'Returns the count of documents that would match a find() query for the collection or view.',
-              example: 'db.collection.count(query, options)',
-              parameters: {
-                query: {
-                  type: 'document',
-                  description: 'The query selection criteria.'
-                },
-                options: {
-                  type: 'document',
-                  description: 'The count options',
-                  values: {
-                    limit: {
-                      type: 'int32',
-                      description: 'The maximum number of documents to count.'
-                    },
-                    skip: {
-                      type: 'int32',
-                      description: 'The number of documents to skip before counting.'
-                    },
-                    hint: {
-                      type: 'string|document',
-                      description: 'An index name or the index specification to use for the query.'
-                    },
-                    maxTimeMS: {
-                      type: 'int32',
-                      description: 'The maximum amount of time to allow the count to run.'
-                    },
-                    readConcern: {
-                      type: 'string',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'The count.'
+              example: 'db.collection.count(query, options)'
             },
             dataSize: {
               link: 'hhttps://docs.mongodb.com/manual/reference/method/db.collection.dataSize',
@@ -435,318 +307,52 @@ const translations = {
             deleteMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany',
               description: 'Removes all documents that match the filter from a collection.',
-              example: 'db.collection.deleteMany()',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'Specifies deletion criteria using query operators.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'A document containing a boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled deletedCount containing the number of deleted documents'
+              example: 'db.collection.deleteMany()'
             },
             deleteOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne',
               description: 'Removes a single document from a collection.',
-              example: 'db.collection.deleteOne(filter, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'Specifies deletion criteria using query operators.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'A document containing a boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled deletedCount containing the number of deleted documents'
+              example: 'db.collection.deleteOne(filter, options)'
             },
             distinct: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.distinct',
               description: 'Finds the distinct values for a specified field across a single collection or view and returns the results in an array.',
-              example: 'db.collection.distinct(field, query, options)',
-              parameters: {
-                field: {
-                  type: 'string',
-                  description: 'The field for which to return distinct values.'
-                },
-                query: {
-                  type: 'document',
-                  description: 'A query that specifies the documents from which to retrieve the distinct values.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'The results in an array.'
+              example: 'db.collection.distinct(field, query, options)'
             },
             estimatedDocumentCount: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount',
               description: 'Returns the count of all documents in a collection or view.',
-              example: 'db.collection.estimatedDocumentCount(options)',
-              parameters: {
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    maxTimeMS: {
-                      type: 'int32',
-                      description: 'The maximum amount of time to allow the count to run.'
-                    }
-                  }
-                }
-              },
-              returns: 'count as an integer'
+              example: 'db.collection.estimatedDocumentCount(options)'
             },
             find: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.find',
               description: 'Selects documents in a collection or view.',
-              example: 'db.collection.find(query, projection)',
-              parameters: {
-                query: {
-                  type: 'document',
-                  description: 'Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).'
-                },
-                projection: {
-                  type: 'document',
-                  description: 'Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.'
-                }
-              },
-              returns: 'A cursor to the documents that match the query criteria.'
+              example: 'db.collection.find(query, projection)'
             },
             findAndModify: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.findAndModify',
               description: 'Modifies and returns a single document.',
-              example: 'db.collection.findAndModify(spec)',
-              parameters: {
-                spec: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    query: {
-                      type: 'document',
-                      description: ''
-                    },
-                    sort: {
-                      type: 'document',
-                      description: ''
-                    },
-                    remove: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    update: {
-                      type: 'document|array',
-                      description: ''
-                    },
-                    new: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    fields: {
-                      type: 'document',
-                      description: ''
-                    },
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    bypassDocumentValidation: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    arrayFilters: {
-                      type: 'array',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'For remove operations, if the query matches a document, findAndModify() returns the removed document. If the query does not match a document to remove, findAndModify() returns null.'
+              example: 'db.collection.findAndModify(spec)'
             },
             findOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.findOne',
               description: 'Selects documents in a collection or view.',
-              example: 'db.collection.findOne(query, projection)',
-              parameters: {
-                query: {
-                  type: 'document',
-                  description: 'Specifies selection filter using query operators. To return all documents in a collection, omit this parameter or pass an empty document ({}).'
-                },
-                projection: {
-                  type: 'document',
-                  description: 'Specifies the fields to return in the documents that match the query filter. To return all fields in the matching documents, omit this parameter.'
-                }
-              },
-              returns: 'A cursor to the documents that match the query criteria.'
+              example: 'db.collection.findOne(query, projection)'
             },
             findOneAndDelete: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndDelete',
               description: 'Deletes a single document based on the filter and sort criteria, returning the deleted document.',
-              example: 'db.collection.findOneAndDelete(filter, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    projection: {
-                      type: 'document',
-                      description: ''
-                    },
-                    sort: {
-                      type: 'document',
-                      description: ''
-                    },
-                    maxTimeMS: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'Returns the deleted document.'
+              example: 'db.collection.findOneAndDelete(filter, options)'
             },
             findOneAndReplace: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndReplace',
               description: 'Modifies and replaces a single document based on the filter and sort criteria.',
-              example: 'db.collection.findOneAndReplace(filter, replacement, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                replacement: {
-                  type: 'document',
-                  description: 'The replacement document.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    projection: {
-                      type: 'document',
-                      description: ''
-                    },
-                    sort: {
-                      type: 'document',
-                      description: ''
-                    },
-                    maxTimeMS: {
-                      type: 'int32',
-                      description: ''
-                    },
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    returnNewDocument: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'Returns either the original document or, if returnNewDocument: true, the replacement document.'
+              example: 'db.collection.findOneAndReplace(filter, replacement, options)'
             },
             findOneAndUpdate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndUpdate',
               description: 'Updates a single document based on the filter and sort criteria.',
-              example: 'db.collection.findOneAndUpdate(filter, update, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                update: {
-                  type: 'document|array',
-                  description: 'The update document or, starting in MongoDB 4.2, an aggregation pipeline.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    projection: {
-                      type: 'document',
-                      description: ''
-                    },
-                    sort: {
-                      type: 'document',
-                      description: ''
-                    },
-                    maxTimeMS: {
-                      type: 'int32',
-                      description: ''
-                    },
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    returnNewDocument: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    arrayFilters: {
-                      type: 'array',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'Returns either the original document or, if returnNewDocument: true, the updated document.'
+              example: 'db.collection.findOneAndUpdate(filter, update, options)'
             },
             getIndexes: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
@@ -761,135 +367,32 @@ const translations = {
             insert: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insert',
               description: 'Inserts a document or documents into a collection.',
-              example: 'db.collection.insert(document, options)',
-              parameters: {
-                document: {
-                  type: 'document|array',
-                  description: 'A document or array of documents to insert into the collection.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    ordered: {
-                      type: 'boolean',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: ''
+              example: 'db.collection.insert(document, options)'
             },
             insertMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insertMany',
               description: 'Inserts multiple documents into a collection.',
-              example: 'db.collection.insertMany(documents, options)',
-              parameters: {
-                documents: {
-                  type: 'array',
-                  description: 'An array of documents to insert into the collection.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    ordered: {
-                      type: 'boolean',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'A document containing a boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled and An array of _id for each successfully inserted documents'
+              example: 'db.collection.insertMany(documents, options)'
             },
             insertOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insertOne',
               description: 'Inserts a document into a collection.',
-              example: 'db.collection.insertOne(document, options)',
-              parameters: {
-                document: {
-                  type: 'document',
-                  description: 'A document to insert into the collection.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'A document containing a boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled.  A field insertedId with the _id value of the inserted document.'
+              example: 'db.collection.insertOne(document, options)'
             },
             isCapped: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.isCapped',
               description: 'Checks if a collection is capped',
-              example: 'db.collection.isCapped()',
-              parameters: {},
-              returns: 'Returns true if the collection is a capped collection, otherwise returns false.'
+              example: 'db.collection.isCapped()'
             },
             remove: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.remove',
               description: 'Removes documents from a collection.',
-              example: 'db.collection.remove(query, options)',
-              parameters: {
-                query: {
-                  type: 'document',
-                  description: ''
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    justOne: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'The status of the operation.'
+              example: 'db.collection.remove(query, options)'
             },
             save: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.save',
               description: 'Updates an existing document or inserts a new document, depending on its document parameter.',
-              example: 'db.collection.save(document, options)',
-              parameters: {
-                document: {
-                  type: 'document',
-                  description: ''
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: 'A WriteResult object that contains the status of the operation. Changed in version 2.6: The save() returns an object that contains the status of the operation.'
+              example: 'db.collection.save(document, options)'
             },
             stats: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.stats',
@@ -904,40 +407,7 @@ const translations = {
             replaceOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.replaceOne',
               description: 'Replaces a single document within the collection based on the filter.',
-              example: 'db.collection.replaceOne(filter, replacement, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                replacement: {
-                  type: 'document',
-                  description: 'The replacement document.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    hint: {
-                      type: 'document|string',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: ''
+              example: 'db.collection.replaceOne(filter, replacement, options)'
             },
             totalSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalSize',
@@ -947,131 +417,42 @@ const translations = {
             update: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.update',
               description: 'Modifies an existing document or documents in a collection.',
-              example: 'db.collection.update(query, update, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                update: {
-                  type: 'document',
-                  description: 'The modifications to apply.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    multi: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    arrayFilters: {
-                      type: 'array',
-                      description: ''
-                    },
-                    hint: {
-                      type: 'document|string',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: ''
+              example: 'db.collection.update(query, update, options)'
             },
             updateMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateMany',
               description: 'Updates all documents that match the specified filter for a collection.',
-              example: 'db.collection.updateMany(filter, update, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                update: {
-                  type: 'document',
-                  description: 'The modifications to apply.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    arrayFilters: {
-                      type: 'array',
-                      description: ''
-                    },
-                    hint: {
-                      type: 'document|string',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: ''
+              example: 'db.collection.updateMany(filter, update, options)'
             },
             convertToCapped: {
               link: '',
               description: "calls {convertToCapped:'coll', size:maxBytes}} command",
-              example: 'db.coll.convertToCapped(10000)',
-              parameters: {
-                size: {
-                  type: 'number',
-                  description: 'The maximum size, in bytes, for the capped collection.'
-                }
-              }
+              example: 'db.coll.convertToCapped(10000)'
             },
             createIndexes: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createIndexes',
               description: 'Creates one or more indexes on a collection',
-              example: "db.coll.createIndexes([{ category: 1 }], { name: 'index-1' })",
-              parameters: {}
+              example: "db.coll.createIndexes([{ category: 1 }], { name: 'index-1' })"
             },
             createIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createIndex',
               description: 'Creates one index on a collection',
-              example: "db.coll.createIndex({ category: 1 }, { name: 'index-1' })",
-              parameters: {}
+              example: "db.coll.createIndex({ category: 1 }, { name: 'index-1' })"
             },
             ensureIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.ensureIndex',
               description: 'Creates one index on a collection',
-              example: "db.coll.ensureIndex({ category: 1 }, { name: 'index-1' })",
-              parameters: {}
+              example: "db.coll.ensureIndex({ category: 1 }, { name: 'index-1' })"
             },
             getDB: {
               link: '',
               description: 'Get current database.',
-              example: 'db.collection.getDB()',
-              parameters: {}
+              example: 'db.collection.getDB()'
             },
             getIndexKeys: {
               link: '',
               description: 'Return an array of key patterns for indexes defined on collection',
-              example: 'db.collection.getIndexKeys()',
-              parameters: {}
+              example: 'db.collection.getIndexKeys()'
             },
             getIndexSpecs: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getIndexes',
@@ -1081,26 +462,22 @@ const translations = {
             totalIndexSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalIndexSize',
               description: 'Reports the total size used by the indexes on a collection.',
-              example: 'db.collection.totalIndexSize()',
-              parameters: {}
+              example: 'db.collection.totalIndexSize()'
             },
             dropIndexes: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropIndexes',
               description: 'Drops the specified index or indexes (except the index on the _id field) from a collection.',
-              example: 'db.collection.dropIndexes()',
-              parameters: {}
+              example: 'db.collection.dropIndexes()'
             },
             dropIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropIndex',
               description: 'Drops or removes the specified index from a collection.',
-              example: 'db.collection.dropIndex()',
-              parameters: {}
+              example: 'db.collection.dropIndex()'
             },
             reIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.reIndex',
               description: 'Rebuilds all existing indexes on a collection.',
-              example: '',
-              parameters: {}
+              example: ''
             },
             drop: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.drop',
@@ -1110,85 +487,41 @@ const translations = {
             exists: {
               link: '',
               description: 'Returns collection infos if the collection exists or null otherwise.',
-              example: 'db.coll.exists()',
-              parameters: {}
+              example: 'db.coll.exists()'
             },
             getFullName: {
               link: '',
               description: 'Returns the name of the collection prefixed with the database name.',
-              example: 'db.coll.getFullName()',
-              parameters: {}
+              example: 'db.coll.getFullName()'
             },
             getName: {
               link: '',
               description: 'Returns the name of the collection.',
-              example: 'db.coll.getName()',
-              parameters: {}
+              example: 'db.coll.getName()'
             },
             renameCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.renameCollection/',
               description: 'Renames a collection.',
-              example: 'db.coll.renameCollection("newName")',
-              parameters: {}
+              example: 'db.coll.renameCollection("newName")'
             },
             runCommand: {
               link: '',
               description: 'Runs a db command with the given name where the first param is the collection name.',
-              example: 'db.collection.runCommand("text", { search: "searchKeywords" })',
-              parameters: {}
+              example: 'db.collection.runCommand("text", { search: "searchKeywords" })'
             },
             explain: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
               description: 'Returns information on the query plan.',
-              example: 'db.collection.explain().<method(...)>',
-              parameters: {}
+              example: 'db.collection.explain().<method(...)>'
             },
             updateOne: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateOne',
               description: 'Updates a single document within the collection based on the filter.',
-              example: 'db.collection.updateOne(filter, update, options)',
-              parameters: {
-                filter: {
-                  type: 'document',
-                  description: 'The selection criteria for the update.'
-                },
-                update: {
-                  type: 'document',
-                  description: 'The modifications to apply.'
-                },
-                options: {
-                  type: 'document',
-                  description: '',
-                  values: {
-                    upsert: {
-                      type: 'boolean',
-                      description: ''
-                    },
-                    writeConcern: {
-                      type: 'document',
-                      description: ''
-                    },
-                    collation: {
-                      type: 'document',
-                      description: ''
-                    },
-                    arrayFilters: {
-                      type: 'array',
-                      description: ''
-                    },
-                    hint: {
-                      type: 'document|string',
-                      description: ''
-                    }
-                  }
-                }
-              },
-              returns: ''
+              example: 'db.collection.updateOne(filter, update, options)'
             },
             getMongo: {
               description: 'Returns the Mongo object.',
-              example: 'db.collection.getMongo()',
-              parameters: {}
+              example: 'db.collection.getMongo()'
             }
           }
         }
@@ -1204,177 +537,148 @@ const translations = {
             addOption: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.addOption',
               description: 'Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries. Accepts: DBQuery.Option fields tailable, slaveOk, noTimeout, awaitData, exhaust, partial.',
-              example: 'db.collection.find(query, projection).addOption(flag)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).addOption(flag)'
             },
             allowPartialResults: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.allowPartialResults',
               description: "Sets the 'partial' option to true.",
-              example: 'db.collection.find(query, projection).allowPartialResults()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).allowPartialResults()'
             },
             batchSize: {
               link: '',
               description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
-              example: 'db.collection.find(query, projection).',
-              parameters: {}
+              example: 'db.collection.find(query, projection).'
             },
             clone: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',
               description: 'Clone the cursor.',
-              example: 'db.collection.find(query, projection).batchSize(10)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).batchSize(10)'
             },
             close: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.close',
               description: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
-              example: 'db.collection.find(query, projection).close()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).close()'
             },
             collation: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.collation',
               description: 'Specifies the collation for the cursor returned by the db.collection.find(). To use, append to the db.collection.find().',
-              example: 'db.collection.find(query, projection).collation(collationDocument)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).collation(collationDocument)'
             },
             comment: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.comment',
               description: 'Adds a comment field to the query.',
-              example: 'db.collection.find(query, projection).comment(\'Comment\')',
-              parameters: {}
+              example: 'db.collection.find(query, projection).comment(\'Comment\')'
             },
             count: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.count',
               description: 'Counts the number of documents referenced by a cursor.',
-              example: 'db.collection.find(query, projection).count()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).count()'
             },
             explain: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
               description: 'Provides information on the query plan for the db.collection.find() method.',
-              example: 'db.collection.find(query, projection).explain()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).explain()'
             },
             forEach: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.forEach',
               description: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
-              example: 'db.collection.find(query, projection).forEach(function)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).forEach(function)'
             },
             getQueryPlan: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
               description: 'Runs cursor.explain()',
-              example: 'db.collection.find(query, projection).getQueryPlan()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).getQueryPlan()'
             },
             hasNext: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
               description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.',
-              example: 'db.collection.find(query, projection).hasNext()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).hasNext()'
             },
             hint: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.hint',
               description: 'Call this method on a query to override MongoDB’s default index selection and query optimization process. Use db.collection.getIndexes() to return the list of current indexes on a collection.',
-              example: 'db.collection.find(query, projection).hint(index)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).hint(index)'
             },
             isClosed: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.isClosed',
               description: 'Returns true if the cursor is closed.',
-              example: 'db.collection.find(query, projection).isClosed()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).isClosed()'
             },
             isExhausted: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.isExhausted',
               description: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
-              example: 'db.collection.find(query, projection).isExhausted()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).isExhausted()'
             },
             itcount: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.itcount',
               description: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
-              example: 'db.collection.find(query, projection).itcount()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).itcount()'
             },
             length: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.count',
               description: 'Runs cursor.count()',
-              example: 'db.collection.find(query, projection).length()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).length()'
             },
             limit: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit',
               description: 'Use the limit() method on a cursor to specify the maximum number of documents the cursor will return.',
-              example: 'db.collection.find(query, projection).limit(2)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).limit(2)'
             },
             map: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.map',
               description: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
-              example: 'db.collection.find(query, projection).map(function)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).map(function)'
             },
             max: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.max',
               description: 'Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.',
-              example: 'db.collection.find(query, projection).max(indexBoundsDocument)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).max(indexBoundsDocument)'
             },
             // this is deprecated, leave empty.
             maxScan: {
               link: '',
               description: '',
-              example: '',
-              parameters: {}
+              example: ''
             },
             maxTimeMS: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS',
               description: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
-              example: 'db.collection.find(query, projection).maxTimeMS(timeLimit)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).maxTimeMS(timeLimit)'
             },
             min: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.min',
               description: 'Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.',
-              example: 'db.collection.find(query, projection).min(indexBoundsDocument)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).min(indexBoundsDocument)'
             },
             modifiers: {
               link: '',
               description: 'Get query modifiers.',
-              example: 'db.collection.find(query, projection).modifiers()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).modifiers()'
             },
             next: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
               description: 'The next document in the cursor returned by the db.collection.find() method.',
-              example: 'db.collection.find(query, projection).next()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).next()'
             },
             noCursorTimeout: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.noCursorTimeout',
               description: 'Instructs the server to avoid closing a cursor automatically after a period of inactivity.',
-              example: 'db.collection.find(query, projection).noCursorTimeout()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).noCursorTimeout()'
             },
             objsLeftInBatch: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.objsLeftInBatch',
               description: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
-              example: 'db.collection.find(query, projection).objsLeftInBatch()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).objsLeftInBatch()'
             },
             oplogReplay: {
               link: '',
               description: 'Sets oplogReplay cursor flag to true.',
-              example: 'db.collection.find(query, projection).oplogReplay()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).oplogReplay()'
             },
             projection: {
               link: '',
               description: 'Sets a field projection for the query.',
-              example: 'db.collection.find(query, projection).projection(field)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).projection(field)'
             },
             // don't document since everything is currently pretty printed
             pretty: {
@@ -1383,74 +687,62 @@ const translations = {
             readConcern: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.readConcern',
               description: 'Specify a read concern for the db.collection.find() method.',
-              example: 'db.collection.find(query, projection).readConcern(level)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).readConcern(level)'
             },
             readonly: {
               link: '',
               description: '',
-              example: '',
-              parameters: {}
+              example: ''
             },
             readPref: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.readPref',
               description: 'Append readPref() to a cursor to control how the client routes the query to members of the replica set.',
-              example: 'db.collection.find(query, projection).readPref(mode, tagSet)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).readPref(mode, tagSet)'
             },
             returnKey: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.returnKey',
               description: 'Modifies the cursor to return index keys rather than the documents.',
-              example: 'db.collection.find(query, projection).returnKey()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).returnKey()'
             },
             showDiskLoc: {
               link: '',
               description: 'The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY style find.',
-              example: 'db.collection.find(query, projection).showDiskLoc()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).showDiskLoc()'
             },
             showRecordId: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.showRecordId',
               description: 'Modifies the output of a query by adding a field $recordId to matching documents. $recordId is the internal key which uniquely identifies a document in a collection.',
-              example: 'db.collection.find(query, projection).showRecordId',
-              parameters: {}
+              example: 'db.collection.find(query, projection).showRecordId'
             },
             size: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.size',
               description: 'A count of the number of documents that match the db.collection.find() query after applying any cursor.skip() and cursor.limit() methods.',
-              example: 'db.collection.find(query, projection).size()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).size()'
             },
             skip: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip',
               description: 'Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.',
-              example: 'db.collection.find(query, projection).skip(offsetNumber)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).skip(offsetNumber)'
             },
             snapshot: {
               link: '',
               description: 'The $snapshot operator prevents the cursor from returning a document more than once because an intervening write operation results in a move of the document',
-              example: 'db.collection.find(query, projection).snapshot()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).snapshot()'
             },
             sort: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort',
               description: 'Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.',
-              example: 'db.collection.find(query, projection).sort(sortDocument)',
-              parameters: {}
+              example: 'db.collection.find(query, projection).sort(sortDocument)'
             },
             tailable: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.tailable',
               description: 'Marks the cursor as tailable.',
-              example: 'db.collection.find(query, projection).tailable({ awaitData: true })',
-              parameters: {}
+              example: 'db.collection.find(query, projection).tailable({ awaitData: true })'
             },
             toArray: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
               description: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
-              example: 'db.collection.find(query, projection).toArray()',
-              parameters: {}
+              example: 'db.collection.find(query, projection).toArray()'
             }
           }
         }
@@ -1462,74 +754,62 @@ const translations = {
             aggregate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.aggregate',
               description: 'Runs a specified admin/diagnostic pipeline which does not require an underlying collection.',
-              example: 'db.aggregate(pipeline, options)',
-              parameters: {}
+              example: 'db.aggregate(pipeline, options)'
             },
             runCommand: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.runCommand',
               description: 'Runs an arbitrary command on the database.',
-              example: 'db.runCommand({ text: "myCollection", search: "searchKeywords" })',
-              parameters: {}
+              example: 'db.runCommand({ text: "myCollection", search: "searchKeywords" })'
             },
             dropDatabase: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.dropDatabase',
               description: 'Removes the current database, deleting the associated data files.',
-              example: 'db.dropDatabase([writeConcern])',
-              parameters: {}
+              example: 'db.dropDatabase([writeConcern])'
             },
             adminCommand: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.adminCommand',
               description: 'Runs an arbitrary command against the admin database.',
-              example: 'db.adminCommand({ serverStatus: 1 })',
-              parameters: {}
+              example: 'db.adminCommand({ serverStatus: 1 })'
             },
             getCollectionInfos: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getCollectionInfos',
               description: 'Returns an array of documents with collection information, i.e. collection name and options, for the current database.',
-              example: 'db.getCollectionInfos()',
-              parameters: {}
+              example: 'db.getCollectionInfos()'
             },
             getCollectionNames: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getCollectionNames',
               description: 'Returns an array containing the names of all collections in the current database.',
-              example: 'db.getCollectionNames',
-              parameters: {}
+              example: 'db.getCollectionNames'
             },
             getSiblingDB: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getSiblingDB',
               description: 'Returns another database without modifying the db variable in the shell environment.',
-              example: 'db.getSiblingDB(name)',
-              parameters: {}
+              example: 'db.getSiblingDB(name)'
             },
             getCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.dropDatabase',
               description: 'Removes the current database, deleting the associated data files.',
-              example: 'db.dropDatabase()',
-              parameters: {}
+              example: 'db.dropDatabase()'
             },
             getMongo: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getMongo/',
               description: 'Returns the current database connection',
-              example: 'connection = db.getMongo()',
-              parameters: {}
+              example: 'connection = db.getMongo()'
             },
             getName: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getName',
               description: 'Returns the name of the DB',
-              example: 'db.getName()',
-              parameters: {}
+              example: 'db.getName()'
             },
             createCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createCollection/',
               description: 'Create new collection',
-              example: 'db.createCollection(\'collName\')',
-              parameters: {}
+              example: 'db.createCollection(\'collName\')'
             },
             createView: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createView/',
               description: 'Create new view',
-              example: 'db.createCollection(\'viewName\', \'source\', [])',
-              parameters: {}
+              example: 'db.createCollection(\'viewName\', \'source\', [])'
             },
             createUser: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createUser',
@@ -1596,32 +876,27 @@ const translations = {
             aggregate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
               description: 'Provides information on the query plan for db.collection.aggregate() method.',
-              example: 'db.coll.explain().aggregate()',
-              parameters: {}
+              example: 'db.coll.explain().aggregate()'
             },
             find: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
               description: 'Returns information on the query plan.',
-              example: 'db.coll.explain().find()',
-              parameters: {}
+              example: 'db.coll.explain().find()'
             },
             getCollection: {
               link: '',
               description: 'Returns the explainable collection.',
-              example: 'db.coll.explain().getCollection()',
-              parameters: {}
+              example: 'db.coll.explain().getCollection()'
             },
             getVerbosity: {
               link: '',
               description: 'Returns the explainable verbosity.',
-              example: 'db.coll.explain().getVerbosity()',
-              parameters: {}
+              example: 'db.coll.explain().getVerbosity()'
             },
             setVerbosity: {
               link: '',
               description: 'Sets the explainable verbosity.',
-              example: 'db.coll.explain().setVerbosity("queryPlanner")',
-              parameters: {}
+              example: 'db.coll.explain().setVerbosity("queryPlanner")'
             }
           }
         }
