@@ -45,7 +45,9 @@ describe('completer.completer', () => {
         'db.grantRolesToUser',
         'db.revokeRolesFromUser',
         'db.getUser',
-        'db.getUsers'
+        'db.getUsers',
+        'db.createCollection',
+        'db.createView'
       ], i]);
     });
 
