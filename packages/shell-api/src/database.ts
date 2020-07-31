@@ -421,4 +421,143 @@ export default class Database extends ShellApiClass {
       ccOpts
     );
   }
+
+  @returnsPromise
+  async createRole(role: Document, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(role);
+    checkUndefinedUpdate(role.role, role.privileges, role.roles);
+    this._emitDatabaseApiCall('createRole', {});
+    if (role.createRole) {
+      throw new MongoshInvalidInputError('Cannot set createRole field in helper method');
+    }
+    const command = adaptOptions(
+      { role: 'createRole' },
+      {
+        writeConcern: writeConcern
+      },
+      role
+    );
+    const orderedCmd = { createRole: command.createRole, ...command };
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      orderedCmd
+    );
+  }
+
+  @returnsPromise
+  async updateRole(rolename: string, roleDoc: Document, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename, roleDoc);
+    this._emitDatabaseApiCall('updateRole', {});
+    const command = adaptOptions(
+      {},
+      {
+        updateRole: rolename,
+        writeConcern: writeConcern
+      },
+      roleDoc
+    );
+    const orderedCmd = { updateRole: command.updateRole, ...command };
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      orderedCmd
+    );
+  }
+
+  @returnsPromise
+  async dropRole(rolename: string, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename);
+    this._emitDatabaseApiCall('dropRole', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { dropRole: rolename, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async dropAllRoles(writeConcern: WriteConcern = {}): Promise<any> {
+    this._emitDatabaseApiCall('dropAllRoles', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { dropAllRolesFromDatabase: 1, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async grantRolesToRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename, roles);
+    this._emitDatabaseApiCall('grantRolesToRole', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { grantRolesToRole: rolename, roles: roles, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async revokeRolesFromRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename, roles);
+    this._emitDatabaseApiCall('revokeRolesFromRole', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { revokeRolesFromRole: rolename, roles: roles, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async grantPrivilegesToRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename, privileges);
+    this._emitDatabaseApiCall('grantPrivilegesToRole', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { grantPrivilegesToRole: rolename, privileges: privileges, writeConcern: writeConcern }
+    );
+  }
+
+  @returnsPromise
+  async revokePrivilegesFromRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
+    checkUndefinedUpdate(rolename, privileges);
+    this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      { revokePrivilegesFromRole: rolename, privileges: privileges, writeConcern: writeConcern }
+    );
+  }
+
+
+  @returnsPromise
+  async getRole(rolename: string, options: Document = {}): Promise<any> {
+    checkUndefinedUpdate(rolename);
+    this._emitDatabaseApiCall('getRole', { rolename: rolename });
+    const command = adaptOptions(
+      { },
+      { rolesInfo: { role: rolename, db: this._name } },
+      options
+    );
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      command
+    );
+    if (!result.ok) {
+      return result;
+    }
+    for (let i = 0; i < result.roles.length; i++) {
+      if (result.roles[i].role === rolename) {
+        return result.roles[i];
+      }
+    }
+    return null;
+  }
+
+  @returnsPromise
+  async getRoles(options: any = {}): Promise<any> {
+    this._emitDatabaseApiCall('getRoles', { options: options });
+    const command = adaptOptions(
+      { },
+      { rolesInfo: 1 },
+      options
+    );
+    return await this._mongo._serviceProvider.runCommand(
+      this._name,
+      command
+    );
+  }
 }
