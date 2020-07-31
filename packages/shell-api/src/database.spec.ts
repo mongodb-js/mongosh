@@ -145,6 +145,12 @@ describe('Database', () => {
       });
     });
 
+    describe('getName', () => {
+      it('returns the name of the DB', async() => {
+        expect(database.getName()).to.equal('db1');
+      });
+    });
+
     describe('runCommand', () => {
       it('calls serviceProvider.runCommand on the database', async() => {
         await database.runCommand({ someCommand: 'someCollection' });
