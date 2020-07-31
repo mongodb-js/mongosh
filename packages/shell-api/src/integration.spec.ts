@@ -769,6 +769,63 @@ describe('Shell API (integration)', function() {
         ).to.deep.equal({ 'dropped': dbName, 'ok': 1 });
       });
     });
+
+    describe('createCollection', () => {
+      it('creates a collection without options', async() => {
+        await database.createCollection('newcoll');
+        const stats = await serviceProvider.runCommand(dbName, { collStats: 'newcoll' });
+        expect(stats.nindexes).to.equal(1);
+      });
+      it('creates a collection with options', async() => {
+        await database.createCollection('newcoll', {
+          capped: true,
+          size: 1024,
+          max: 5000
+        });
+        const stats = await serviceProvider.runCommand(dbName, { collStats: 'newcoll' });
+        expect(stats.nindexes).to.equal(1);
+        expect(stats.capped).to.equal(true);
+        expect(stats.maxSize).to.equal(1024);
+        expect(stats.max).to.equal(5000);
+      });
+    });
+    describe('createView', () => {
+      it('creates a view without options', async() => {
+        expect(
+          await database.createView(
+            'view',
+            'source',
+            [{ $match: { x: 1 } }]
+          )
+        ).to.deep.equal({ ok: 1 });
+        const views = await serviceProvider.find(dbName, 'system.views', {}).toArray();
+        expect(views).to.deep.equal([
+          {
+            _id: `${dbName}.view`,
+            viewOn: 'source',
+            pipeline: [ { $match: { x: 1 } } ]
+          }
+        ]);
+      });
+      it('creates a view with options', async() => {
+        expect(
+          await database.createView(
+            'view',
+            'source',
+            [{ $match: { x: 1 } }],
+            { collation: { locale: 'simple' } }
+          )
+        ).to.deep.equal({ ok: 1 });
+        const views = await serviceProvider.find(dbName, 'system.views', {}).toArray();
+        expect(views).to.deep.equal([
+          {
+            _id: `${dbName}.view`,
+            viewOn: 'source',
+            pipeline: [ { $match: { x: 1 } } ]
+          }
+        ]);
+      });
+    });
   });
 
   describe('explainable', () => {

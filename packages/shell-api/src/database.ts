@@ -393,4 +393,32 @@ export default class Database extends ShellApiClass {
       command
     );
   }
+
+  @returnsPromise
+  async createCollection(name: string, options: any = {}): Promise<any> {
+    this._emitDatabaseApiCall('createCollection', { name: name, options: options });
+    return await this._mongo._serviceProvider.createCollection(
+      this._name,
+      name,
+      options
+    );
+  }
+
+  @returnsPromise
+  async createView(name: string, source: string, pipeline: any, options: any = {}): Promise<any> {
+    checkUndefinedUpdate(name, source, pipeline);
+    this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
+    const ccOpts = {
+      viewOn: source,
+      pipeline: pipeline,
+    } as any;
+    if (options.collation) {
+      ccOpts.collation = options.collation;
+    }
+    return await this._mongo._serviceProvider.createCollection(
+      this._name,
+      name,
+      ccOpts
+    );
+  }
 }

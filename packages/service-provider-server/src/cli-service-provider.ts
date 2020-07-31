@@ -1032,6 +1032,26 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     );
     return { ok: 1 };
   }
+
+  async createCollection(
+    dbName: string,
+    collName: string,
+    options: any,
+    dbOptions?: any
+  ): Promise<any> {
+    try {
+      await this.db(dbName, dbOptions).createCollection(
+        collName, options
+      );
+      return { ok: 1 };
+    } catch (e) {
+      return {
+        ok: 0,
+        errmsg: e.message,
+        code: e.code
+      };
+    }
+  }
 }
 
 export default CliServiceProvider;
