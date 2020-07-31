@@ -1,4 +1,4 @@
-const setupTestBrowser = require('../../../config/setup-test-browser');
+const setupTestBrowser = require('./setup-test-browser');
 const browser = setupTestBrowser();
 
 const webpackConfigTest = require('./webpack.config.test');
@@ -37,6 +37,12 @@ module.exports = (config) => {
     reporters: [
       'mocha'
     ],
+    customLaunchers: {
+      HeadlessChrome: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
     browsers: [ browser ],
     singleRun: true,
     client: {
