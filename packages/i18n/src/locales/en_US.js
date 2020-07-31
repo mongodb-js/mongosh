@@ -1519,6 +1519,18 @@ const translations = {
               description: 'Returns the name of the DB',
               example: 'db.getName()',
               parameters: {}
+            },
+            createCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.createCollection/',
+              description: 'Create new collection',
+              example: 'db.createCollection(\'collName\')',
+              parameters: {}
+            },
+            createView: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.createView/',
+              description: 'Create new view',
+              example: 'db.createCollection(\'viewName\', \'source\', [])',
+              parameters: {}
             }
           }
         }

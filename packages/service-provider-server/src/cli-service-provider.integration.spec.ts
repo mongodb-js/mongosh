@@ -86,7 +86,7 @@ describe('CliServiceProvider [integration]', function() {
             '$addFields': {
               'attr.namespace': {
                 '$function': {
-                  'body': function(value) { if (value) { return value; } },
+                  'body': function(value): any { if (value) { return value; } },
                   'args': [ '$attr.namespace' ],
                   'lang': 'js'
                 }

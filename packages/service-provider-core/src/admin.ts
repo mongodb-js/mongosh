@@ -1,6 +1,8 @@
 import Result from './result';
 import { ReplPlatform } from './platform';
 import AuthOptions from './auth-options';
+import CollectionOptions from './collection-options';
+import DatabaseOptions from './database-options';
 
 export default interface Admin {
   /**
@@ -58,4 +60,9 @@ export default interface Admin {
    * Authenticate
    */
   authenticate(authDoc: AuthOptions): Promise<any>;
+
+  /**
+   * createCollection
+   */
+  createCollection(dbName: string, collName: string, opts: CollectionOptions, dbOptions?: DatabaseOptions): Promise<any>;
 }

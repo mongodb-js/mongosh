@@ -847,6 +847,91 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('createCollection', () => {
+      it('calls serviceProvider.createCollection on the database without options', async() => {
+        await database.createCollection('newcoll');
+
+        expect(serviceProvider.createCollection).to.have.been.calledWith(
+          database._name,
+          'newcoll',
+          {}
+        );
+      });
+      it('calls serviceProvider.createCollection on the database with options', async() => {
+        await database.createCollection('newcoll', {
+          capped: false,
+          max: 100,
+          writeConcern: { w: 1 }
+        });
+
+        expect(serviceProvider.createCollection).to.have.been.calledWith(
+          database._name,
+          'newcoll',
+          {
+            capped: false,
+            max: 100,
+            writeConcern: { w: 1 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.createCollection returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.createCollection.resolves(expectedResult);
+        const result = await database.createCollection('newcoll');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.createCollection rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.createCollection.rejects(expectedError);
+        const catchedError = await database.createCollection('newcoll')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('createView', () => {
+      it('calls serviceProvider.createCollection on the database without options', async() => {
+        await database.createView('newcoll', 'sourcecoll', [{ $match: { x: 1 } }]);
+
+        expect(serviceProvider.createCollection).to.have.been.calledWith(
+          database._name,
+          'newcoll',
+          {
+            viewOn: 'sourcecoll',
+            pipeline: [{ $match: { x: 1 } }]
+          }
+        );
+      });
+      it('calls serviceProvider.createCollection on the database with options', async() => {
+        await database.createView('newcoll', 'sourcecoll', [], { collation: { x: 1 } });
+
+        expect(serviceProvider.createCollection).to.have.been.calledWith(
+          database._name,
+          'newcoll',
+          {
+            viewOn: 'sourcecoll',
+            pipeline: [],
+            collation: { x: 1 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.createCollection returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.createCollection.resolves(expectedResult);
+        const result = await database.createView('newcoll', 'sourcecoll', []);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.createCollection rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.createCollection.rejects(expectedError);
+        const catchedError = await database.createView('newcoll', 'sourcecoll', [])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 
