@@ -1,10 +1,16 @@
 import fs from 'fs';
 import path from 'path';
-import { signatures } from '../../shell-api';
+import { signatures } from '../../shell-api/src/index';
 
 const IGNORED_TYPES = [
   'unknown',
-  'ExplainableCursor'
+  'ExplainableCursor', // inherits cursor
+  'CursorIterationResult' // internal / presentation only
+];
+
+const IGNORED_ATTRIBUTES = [
+  'Mongo.show', // documented as top level command
+  'Mongo.use' // documented as top level command
 ];
 
 const localesDir = path.resolve(__dirname, 'locales');
@@ -36,7 +42,9 @@ localeFiles.forEach((localeFile) => {
         return;
       }
 
-      const attributeNames = Object.keys(signatures[typeName].attributes);
+      const attributeNames = Object.keys(signatures[typeName].attributes)
+        .filter((attributeName) => !IGNORED_ATTRIBUTES.includes(`${typeName}.${attributeName}`));
+
       attributeNames.forEach((attributeName) => {
         it(`has translations for ${typeName}.${attributeName} attribute`, () => {
           const attributeHelp = typeHelp.help.attributes && typeHelp.help.attributes[attributeName];
