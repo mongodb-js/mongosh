@@ -21,6 +21,27 @@ function createAssertUserExists(db, dbName): Function {
   };
 }
 
+function createAssertRoleExists(db, dbName): Function {
+  return async(roles, privileges, rolename = 'anna'): Promise<void> => {
+    const result = await db.command({ rolesInfo: 1, showPrivileges: true, showBuiltinRoles: false });
+    expect(result.roles.length).to.equal(1);
+    const role = result.roles[0];
+    expect(role.role).to.equal(rolename);
+    expect(role.db).to.equal(dbName);
+    expect(role.isBuiltin).to.be.false;
+    expect(role.roles.length).to.equal(roles.length);
+    expect(role.privileges.length).to.equal(privileges.length);
+
+    roles.forEach(r => {
+      expect(role.roles).to.deep.contain(r);
+    });
+    privileges.forEach(r => {
+      expect(role.privileges).to.deep.contain(r);
+    });
+  };
+}
+
+
 function createAssertUserAuth(db, connectionString, dbName): Function {
   return async(pwd = 'pwd', username = 'anna', keepClient = false): Promise<any> => {
     try {
@@ -47,11 +68,14 @@ describe('Auth e2e', function() {
   const connectionString = startTestServer();
   let assertUserExists;
   let assertUserAuth;
+  let assertRoleExists;
 
   let db;
   let client;
   let shell: TestShell;
   let dbName;
+  let examplePrivilege1;
+  let examplePrivilege2;
 
   describe('with regular URI', () => {
     beforeEach(async() => {
@@ -66,6 +90,9 @@ describe('Auth e2e', function() {
       db = client.db(dbName);
       assertUserExists = createAssertUserExists(db, dbName);
       assertUserAuth = createAssertUserAuth(db, connectionString, dbName);
+      assertRoleExists = createAssertRoleExists(db, dbName);
+      examplePrivilege1 = { resource: { db: dbName, collection: 'coll' }, actions: ['killCursors'] };
+      examplePrivilege2 = { resource: { db: dbName, collection: 'coll2' }, actions: ['find'] };
 
       await shell.waitForPrompt();
       shell.assertNoErrors();
@@ -354,6 +381,309 @@ describe('Auth e2e', function() {
           );
           await eventually(async() => {
             shell.assertContainsOutput('user: \'anna\'');
+          });
+          shell.assertNoErrors();
+        });
+      });
+    });
+    describe('role management', () => {
+      describe('createRole', async() => {
+        it('all arguments', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.createRole({ role: "anna", privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"], authenticationRestrictions: [ { serverAddress: {}} ] })`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [{ role: 'dbAdmin', db: dbName }],
+            [examplePrivilege1]
+          );
+          shell.assertNoErrors();
+        });
+        it('default arguments', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.createRole({ role: "anna", roles: [], privileges: []})'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists([], []);
+          shell.assertNoErrors();
+        });
+      });
+      describe('updateRole', async() => {
+        beforeEach(async() => {
+          const r = await db.command({
+            createRole: 'anna',
+            privileges: [],
+            roles: []
+          });
+          expect(r.ok).to.equal(1, 'Unable to create role to initialize test');
+          await assertRoleExists([], []);
+        });
+        afterEach(async() => {
+          await db.command({ dropAllRolesFromDatabase: 1 });
+        });
+        it('all arguments', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.updateRole("anna", { privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"] })`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [{ role: 'dbAdmin', db: dbName }],
+            [examplePrivilege1]
+          );
+          shell.assertNoErrors();
+        });
+        it('just privileges', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.updateRole("anna", { privileges: ${JSON.stringify([examplePrivilege1])} })`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [],
+            [examplePrivilege1]
+          );
+          shell.assertNoErrors();
+        });
+      });
+      describe('delete roles', async() => {
+        beforeEach(async() => {
+          const r = await db.command({
+            createRole: 'anna',
+            roles: [],
+            privileges: []
+          });
+          expect(r.ok).to.equal(1, 'Unable to create role to initialize test');
+          const r2 = await db.command({
+            createRole: 'anna2',
+            roles: [],
+            privileges: []
+          });
+          expect(r2.ok).to.equal(1, 'Unable to create role to initialize test');
+          const result = await db.command({ rolesInfo: 1 });
+          expect(result.roles.length).to.equal(2);
+        });
+        afterEach(async() => {
+          await db.command({ dropAllRolesFromDatabase: 1 });
+        });
+        it('dropRole', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.dropRole("anna2")'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists([], []);
+          shell.assertNoErrors();
+        });
+        it('dropAllRoles', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.dropAllRoles()'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ n: 2, ok: 1 }');
+          });
+          const result = await db.command({ rolesInfo: 1 });
+          expect(result.roles.length).to.equal(0);
+          shell.assertNoErrors();
+        });
+      });
+      describe('grant/remove roles/privileges', async() => {
+        beforeEach(async() => {
+          const r = await db.command({
+            createRole: 'anna',
+            roles: [ { role: 'dbAdmin', db: dbName }],
+            privileges: [examplePrivilege1]
+          });
+          expect(r.ok).to.equal(1, 'Unable to create role to initialize test');
+          await assertRoleExists(
+            [{ role: 'dbAdmin', db: dbName }],
+            [examplePrivilege1]
+          );
+        });
+        afterEach(async() => {
+          await db.command({ dropAllRolesFromDatabase: 1 });
+        });
+        it('grantRolesToRole', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.grantRolesToRole("anna", [ "dbOwner" ])'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists([
+            { role: 'dbAdmin', db: dbName },
+            { role: 'dbOwner', db: dbName }
+          ], [examplePrivilege1]);
+          shell.assertNoErrors();
+        });
+        it('revokeRolesFrom', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.revokeRolesFromRole("anna", [ "dbAdmin" ])'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [],
+            [examplePrivilege1]
+          );
+          shell.assertNoErrors();
+        });
+        it('grantPrivilegesToRole', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.grantPrivilegesToRole("anna", ${JSON.stringify([examplePrivilege2])})`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [{ role: 'dbAdmin', db: dbName }],
+            [ examplePrivilege1, examplePrivilege2 ]
+          );
+          shell.assertNoErrors();
+        });
+        it('revokePrivilegesFrom', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.revokePrivilegesFromRole("anna", ${JSON.stringify([examplePrivilege1])})`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('{ ok: 1 }');
+          });
+          await assertRoleExists(
+            [{ role: 'dbAdmin', db: dbName }],
+            []
+          );
+          shell.assertNoErrors();
+        });
+      });
+      describe('get role info', () => {
+        beforeEach(async() => {
+          const r = await db.command({
+            createRole: 'anna',
+            roles: [ 'dbAdmin' ],
+            privileges: []
+          });
+          expect(r.ok).to.equal(1, 'Unable to create role to initialize test');
+          const r2 = await db.command({
+            createRole: 'anna2',
+            roles: [],
+            privileges: []
+          });
+          expect(r2.ok).to.equal(1, 'Unable to create role to initialize test');
+          const result = await db.command({ rolesInfo: 1 });
+          expect(result.roles.length).to.equal(2);
+        });
+        afterEach(async() => {
+          await db.command({ dropAllRolesFromDatabase: 1 });
+        });
+        it('getRole when custom role exists', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRole("anna2")'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('role: \'anna2\'');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRole when custom role exists with showPrivileges', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRole("anna2", { showPrivileges: true })'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('role: \'anna2\'');
+            shell.assertContainsOutput('privileges: []');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRole when role does not exist', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRole("anna3")'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('null');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRole for built-in role with showBuiltinRoles=true', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRole("dbAdmin", { showBuiltinRoles: true })'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('role: \'dbAdmin\'');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRoles', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRoles()'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('roles: [');
+            shell.assertContainsOutput('role: \'anna\'');
+            shell.assertContainsOutput('role: \'anna2\'');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRoles with rolesInfo field', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRoles( {rolesInfo: { db: "other", role: "anna" } })'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('roles: []');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRoles with rolesInfo field', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            `db.getRoles( {rolesInfo: { db: "${dbName}", role: "anna" } })`
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('roles: [');
+            shell.assertContainsOutput('role: \'anna\'');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRoles with showPrivileges', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRoles({ showPrivileges: true })'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('privileges: []');
+          });
+          shell.assertNoErrors();
+        });
+        it('getRoles with showBuiltinRoles', async() => {
+          await shell.writeInputLine(`use ${dbName}`);
+          await shell.writeInputLine(
+            'db.getRoles({ showBuiltinRoles: true })'
+          );
+          await eventually(async() => {
+            shell.assertContainsOutput('role: \'read\'');
           });
           shell.assertNoErrors();
         });

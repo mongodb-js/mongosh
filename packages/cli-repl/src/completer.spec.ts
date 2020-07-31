@@ -47,7 +47,17 @@ describe('completer.completer', () => {
         'db.getUser',
         'db.getUsers',
         'db.createCollection',
-        'db.createView'
+        'db.createView',
+        'db.createRole',
+        'db.updateRole',
+        'db.dropRole',
+        'db.dropAllRoles',
+        'db.grantRolesToRole',
+        'db.revokeRolesFromRole',
+        'db.grantPrivilegesToRole',
+        'db.revokePrivilegesFromRole',
+        'db.getRole',
+        'db.getRoles'
       ], i]);
     });
 

@@ -932,6 +932,366 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('createRole', () => {
+      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+        await database.createRole({
+          role: 'anna',
+          roles: [ { role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
+          privileges: [ 'remove', 'update', 'find' ],
+          authenticationRestrictions: [ 1, 2 ]
+        }, { w: 2 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            createRole: 'anna',
+            roles: [ { role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
+            privileges: [ 'remove', 'update', 'find' ],
+            authenticationRestrictions: [ 1, 2 ],
+            writeConcern: { w: 2 }
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database without extra fields', async() => {
+        await database.createRole({
+          role: 'anna',
+          roles: [],
+          privileges: []
+        }, { w: 3 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            createRole: 'anna',
+            roles: [],
+            privileges: [],
+            writeConcern: { w: 3 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.createRole({
+          role: 'anna',
+          roles: [],
+          privileges: []
+        }, { w: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.createRole({
+          role: 'anna',
+          roles: [],
+          privileges: []
+        }, { w: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('updateRole', () => {
+      it('calls serviceProvider.runCommand on the database with no extra fields', async() => {
+        await database.updateRole('anna', {
+          roles: []
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateRole: 'anna',
+            roles: [],
+            writeConcern: { w: 1 }
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+        await database.updateRole('anna', {
+          roles: [ { role: 'dbAdmin', db: 'db1' }],
+          privileges: [ 'find' ],
+          authenticationRestrictions: [ 1 ]
+        }, { w: 1 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            updateRole: 'anna',
+            roles: [ { role: 'dbAdmin', db: 'db1' }],
+            privileges: [ 'find' ],
+            authenticationRestrictions: [ 1 ],
+            writeConcern: { w: 1 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.updateRole('anna', {
+          role: 'anna',
+          privileges: [],
+          roles: []
+        }, { w: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.updateRole('anna', {
+          role: 'anna',
+          privileges: [],
+          roles: []
+        }, { w: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('dropRole', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.dropRole('anna');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { dropRole: 'anna', writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.dropRole('anna');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.dropRole('anna')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('dropAllRoles', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.dropAllRoles();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { dropAllRolesFromDatabase: 1, writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.dropAllRoles();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.dropAllRoles()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('grantRolesToRole', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.grantRolesToRole('anna', [ 'role1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { grantRolesToRole: 'anna', roles: ['role1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.grantRolesToRole('anna', [ 'role1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.grantRolesToRole('anna', [ 'role1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('revokeRolesFromRole', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.revokeRolesFromRole('anna', [ 'role1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { revokeRolesFromRole: 'anna', roles: ['role1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.revokeRolesFromRole('anna', [ 'role1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.revokeRolesFromRole('anna', [ 'role1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('grantPrivilegesToRole', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { grantPrivilegesToRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.grantPrivilegesToRole('anna', [ 'privilege1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('revokePrivilegesFromRole', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { revokePrivilegesFromRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ])
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getRole', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        const expectedResult = { ok: 1, roles: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        await database.getRole('anna');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { rolesInfo: { role: 'anna', db: 'db1' } }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        const expectedResult = { ok: 1, roles: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        await database.getRole('anna', {
+          showBuiltinRoles: false,
+          showPrivileges: true
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            rolesInfo: { role: 'anna', db: 'db1' },
+            showBuiltinRoles: false,
+            showPrivileges: true
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1, roles: [ { role: 'anna' }] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getRole('anna');
+        expect(result).to.deep.equal({ role: 'anna' });
+      });
+      it('returns whatever serviceProvider.runCommand returns if role does not exist', async() => {
+        const expectedResult = { ok: 1, roles: [] };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getRole('anna');
+        expect(result).to.deep.equal(null);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getRole('anna')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getRoles', () => {
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        await database.getRoles();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { rolesInfo: 1 }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.getRoles({
+          showCredentials: false,
+          filter: {}
+        });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            rolesInfo: 1,
+            showCredentials: false,
+            filter: {}
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getRoles();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getRoles()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 
