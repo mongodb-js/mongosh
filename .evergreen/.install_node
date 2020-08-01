@@ -1,34 +1,20 @@
 export NODE_JS_VERSION='12.4.0'
 
-if [[ $OSTYPE == "cygwin" ]]; then
-  echo "Installing nodejs v$NODE_JS_VERSION for windows..."
-  mkdir .deps
-  curl -fs \
-  -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
-  --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-win-x64.zip"
-  cd .deps
-  unzip -q node-v$NODE_JS_VERSION-win-x64.zip
-  mv node-v$NODE_JS_VERSION-win-x64/* .
-  rm -rf node-v$NODE_JS_VERSION-win-x64
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
 
-  echo "Installing npm@latest..."
-  rm -rf npm npx npm.cmd npx.cmd
-  mv node_modules/npm node_modules/npm2
-  chmod +x ./node.exe
+echo "Setting NVM environment home: $NVM_DIR"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-  ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@latest
-  rm -rf node_modules/npm2/
-  chmod +x npm.cmd npm
-  cd ..
-  npm run bootstrap-ci
-else
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-  export NVM_DIR="$HOME/.nvm"
-  echo "Setting NVM environment home: $NVM_DIR"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  nvm install $NODE_JS_VERSION
-  nvm alias default $NODE_JS_VERSION
-  npm install -g npm@latest
-  npm run bootstrap-ci
-fi
+nvm install $NODE_JS_VERSION
+nvm alias default $NODE_JS_VERSION
+npm install -g npm@latest
+
+echo "Using node version:"
+node --version
+
+echo "Using npm version:"
+npm --version
+
+npm run bootstrap-ci

@@ -28,12 +28,5 @@ Set-Location -Path $PSScriptRoot\..\
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 $SetupEnv = "$scriptPath\SetupEnv.ps1"
 
-npm --version
-
 & $SetupEnv
-
-echo "PATH:"
-echo $Env:PATH
-
-npm --version
 npm run bootstrap-ci
