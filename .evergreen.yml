@@ -113,13 +113,12 @@ functions:
         working_dir: src
         shell: powershell
         script: |
-          docker --version
-          mongo --version
           .\.evergreen\SetupEnv
           $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
           echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           $Env:MONGODB_VERSION = "4.2.8"
+          npm run compile-exec
           npm run test-ci
   release_macos:
     - command: expansions.write
