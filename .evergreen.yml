@@ -113,6 +113,8 @@ functions:
         working_dir: src
         shell: powershell
         script: |
+          docker --version
+          mongo --version
           .\.evergreen\SetupEnv
           $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
           echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
