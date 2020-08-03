@@ -1,9 +1,11 @@
+/* eslint-disable no-console */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassShellPlugin, { activate } from 'plugin';
+import { MongoClient } from 'mongodb';
 
 // Import global less file. Note: these styles WILL NOT be used in compass, as compass provides its own set
 // of global styles. If you are wishing to style a given component, you should be writing a less file per
@@ -51,41 +53,28 @@ const render = Component => {
 render(CompassShellPlugin);
 
 // // Data service initialization and connection.
-import Connection from 'mongodb-connection-model';
-import DataService from 'mongodb-data-service';
 
-const connection = new Connection({
-  hostname: '127.0.0.1',
-  port: 27017,
-  ns: 'test',
-  // mongodb_database_name: 'admin',
-  // mongodb_username: '<user>',
-  // mongodb_password: '<password>'
-});
-const dataService = new DataService(connection);
+// Note: the dataservice is not really used by the shell plugin, only the
+// mongoclient is. For that reason we can use a mocked one, this avoid
+// the dependency to keytar:
+//
+const localUri = 'mongodb://localhost:27017/test';
+MongoClient.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true }, (error, client) => {
+  const dataService = { client: { client } };
+  appRegistry.emit('data-service-initialized', dataService);
+  appRegistry.emit('data-service-connected', error, dataService);
 
-appRegistry.emit('data-service-initialized', dataService);
-dataService.connect((error, ds) => {
-  appRegistry.emit('data-service-connected', error, ds);
-  appRegistry.emit('collection-changed', 'test.coll1');
-  appRegistry.emit('database-changed', 'test');
+  if (error) {
+    console.error('Unable to connect to', localUri, error);
+    return;
+  }
+
+  console.info('Connected to', localUri);
+
+  appRegistry.emit('data-service-initialized', dataService);
+  appRegistry.emit('data-service-connected', error, dataService);
 });
 
 if (module.hot) {
-  /**
-   * Warning from React Router, caused by react-hot-loader.
-   * The warning can be safely ignored, so filter it from the console.
-   * Otherwise you'll see it every time something changes.
-   * See https://github.com/gaearon/react-hot-loader/issues/298
-   */
-  const orgError = console.error; // eslint-disable-line no-console
-
-  console.error = (message) => { // eslint-disable-line no-console
-    if (message && message.indexOf('You cannot change <Router routes>;') === -1) {
-      // Log the error as normally
-      orgError.apply(console, [message]);
-    }
-  };
-
   module.hot.accept('plugin', () => render(CompassShellPlugin));
 }
