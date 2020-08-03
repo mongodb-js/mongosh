@@ -43,6 +43,20 @@ describe('<Editor />', () => {
     expect(aceEditor.getValue()).to.equal('some value');
   });
 
+  it('is not readonly by default', () => {
+    const wrapper = mount(<Editor />);
+    const aceEditor = getAceEditorInstance(wrapper);
+
+    expect(aceEditor.getOption('readOnly')).to.equal(false);
+  });
+
+  it('allows to set the editor as readonly', () => {
+    const wrapper = mount(<Editor readOnly />);
+    const aceEditor = getAceEditorInstance(wrapper);
+
+    expect(aceEditor.getOption('readOnly')).to.equal(true);
+  });
+
   it('calls onChange when the content changes', () => {
     const spy = sinon.spy();
     const wrapper = mount(<Editor onChange={spy} />);
@@ -183,3 +197,4 @@ describe('<Editor />', () => {
     expect(spy.args[0][0].editor).to.equal(aceEditor);
   });
 });
+

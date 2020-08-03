@@ -21,6 +21,7 @@ interface EditorProps {
   autocompleter?: Autocompleter;
   setInputRef?(ref): void;
   value?: string;
+  readOnly?: boolean;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -30,7 +31,8 @@ export class Editor extends Component<EditorProps> {
     onArrowDownOnLastLine: noop,
     onChange: noop,
     onClearCommand: noop,
-    value: ''
+    value: '',
+    readOnly: false
   };
 
   private editor: any;
@@ -57,6 +59,7 @@ export class Editor extends Component<EditorProps> {
       showGutter={false}
       highlightActiveLine
       setOptions={{
+        readOnly: !!this.props.readOnly,
         enableBasicAutocompletion: !!this.props.autocompleter,
         enableLiveAutocompletion: !!this.props.autocompleter,
         enableSnippets: false,
