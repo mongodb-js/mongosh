@@ -112,12 +112,12 @@ export async function zip(
       // this might have to be application/gzip MIME type
       contentType: 'application/vnd.debian.binary-package'
     }
+  } else {
+    zipWindows(input, filename);
+
+    return {
+      path: filename,
+      contentType: 'application/zip'
+    };
   }
-
-  zipWindows(input, filename);
-
-  return {
-    path: filename,
-    contentType: 'application/zip'
-  };
 }
