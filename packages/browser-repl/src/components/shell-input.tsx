@@ -17,11 +17,13 @@ interface ShellInputProps {
 
 interface ShellInputState {
   currentValue: string;
+  readOnly: boolean;
 }
 
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   readonly state: ShellInputState = {
-    currentValue: ''
+    currentValue: '',
+    readOnly: false
   };
 
   private historyNavigationEntries: string[];
@@ -87,18 +89,23 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.syncCurrentValueWithHistoryNavigation();
   };
 
-  private onEnter = (): void => {
+  private onEnter = async(): Promise<void> => {
     const currentValue = this.state.currentValue;
     if (!currentValue || currentValue.trim() === '') {
       return;
     }
 
+    this.setState({
+      readOnly: true
+    });
+
     if (this.props.onInput) {
-      this.props.onInput(currentValue);
+      await this.props.onInput(currentValue);
     }
 
     this.setState({
-      currentValue: ''
+      currentValue: '',
+      readOnly: false
     });
   };
 
@@ -117,6 +124,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onClearCommand={this.props.onClearCommand}
       setInputRef={this.props.setInputRef}
       value={this.state.currentValue}
+      readOnly={this.state.readOnly}
     />);
 
     const className = classnames(styles['shell-input']);

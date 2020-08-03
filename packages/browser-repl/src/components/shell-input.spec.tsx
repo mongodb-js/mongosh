@@ -46,6 +46,34 @@ describe('<ShellInput />', () => {
     expect(onInput).to.not.have.been.called;
   });
 
+  it('sets the editor as readOnly while onInput is executed', async() => {
+    let onInputDone;
+
+    const onInput = (): any => {
+      return new Promise((resolve) => {
+        onInputDone = resolve;
+      });
+    };
+
+    const wrapper = shallow(<ShellInput onInput={onInput}/>);
+    changeValue(wrapper, 'value');
+    enter(wrapper);
+    wrapper.update();
+
+    expect(wrapper.find('Editor').prop('readOnly')).to.equal(true);
+    onInputDone();
+
+    await new Promise((resolve) => setTimeout(resolve));
+
+    wrapper.update();
+    expect(wrapper.find('Editor').prop('readOnly')).to.equal(false);
+  });
+
+  it('does not set the editor as readOnly by default', () => {
+    const wrapper = shallow(<ShellInput />);
+    expect(wrapper.find('Editor').prop('readOnly')).to.equal(false);
+  });
+
   describe('history', () => {
     it('navigates history backward on ArrowUp', () => {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
