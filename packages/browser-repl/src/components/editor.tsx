@@ -22,6 +22,7 @@ interface EditorProps {
   setInputRef?(ref): void;
   value?: string;
   readOnly?: boolean;
+  moveCursorToTheEndOfInput?: boolean;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -32,7 +33,8 @@ export class Editor extends Component<EditorProps> {
     onChange: noop,
     onClearCommand: noop,
     value: '',
-    readOnly: false
+    readOnly: false,
+    moveCursorToTheEndOfInput: false
   };
 
   private editor: any;
@@ -50,6 +52,18 @@ export class Editor extends Component<EditorProps> {
       tools.setCompleters([new AceAutocompleterAdapter(this.props.autocompleter)]);
     }
   };
+
+  componentDidUpdate(): void {
+    if (this.props.moveCursorToTheEndOfInput) {
+      this.moveCursorToTheEndOfInput();
+    }
+  }
+
+  private moveCursorToTheEndOfInput(): void {
+    const row = this.editor.session.getLength() - 1;
+    const column = this.editor.session.getLine(row).length;
+    this.editor.gotoLine(row + 1, column);
+  }
 
   render(): JSX.Element {
     const { onClearCommand } = this.props;
