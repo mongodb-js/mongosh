@@ -9,6 +9,7 @@ import Mongo from './mongo';
 import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 import crypto from 'crypto';
+import { ADMIN_DB } from './enums';
 
 
 describe('Database', () => {
@@ -1298,7 +1299,7 @@ describe('Database', () => {
         await database.currentOp();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           { currentOp: 1 }
         );
       });
@@ -1310,7 +1311,7 @@ describe('Database', () => {
         });
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           {
             currentOp: 1,
             $ownOps: true,
@@ -1341,7 +1342,7 @@ describe('Database', () => {
         await database.killOp(123);
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           {
             killOp: 1, op: 123
           }
@@ -1369,7 +1370,7 @@ describe('Database', () => {
         await database.shutdownServer();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           { shutdown: 1 }
         );
       });
@@ -1380,7 +1381,7 @@ describe('Database', () => {
         });
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           {
             shutdown: 1,
             force: true,
@@ -1410,7 +1411,7 @@ describe('Database', () => {
         await database.fsyncLock();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           {
             fsync: 1, lock: true
           }
@@ -1438,7 +1439,7 @@ describe('Database', () => {
         await database.fsyncUnlock();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
-          database._name,
+          ADMIN_DB,
           {
             fsyncUnlock: 1
           }

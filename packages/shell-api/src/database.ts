@@ -8,7 +8,7 @@ import {
   ShellApiClass,
   serverVersions
 } from './decorators';
-import { ServerVersions } from './enums';
+import { ServerVersions, ADMIN_DB } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -23,7 +23,6 @@ import {
 } from '@mongosh/service-provider-core';
 import { AggregationCursor } from './index';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-const ADMIN_DB = 'admin';
 
 @shellApiClassDefault
 @hasAsyncChild
