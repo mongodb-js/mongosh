@@ -8,7 +8,7 @@ import {
   serverVersions
 } from './decorators';
 import { ServerVersions } from './enums';
-import { adaptAggregateOptions, validateExplainableVerbosity, checkUndefinedUpdate } from './helpers';
+import { adaptAggregateOptions, validateExplainableVerbosity, assertArgsDefined } from './helpers';
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -122,7 +122,7 @@ export default class Collection extends ShellApiClass {
     operations: Document,
     options: Document = {}
   ): Promise<BulkWriteResult> {
-    checkUndefinedUpdate(options);
+    assertArgsDefined(options);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall(
       'bulkWrite',
@@ -210,7 +210,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async deleteMany(filter, options: any = {}): Promise<DeleteResult> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('deleteMany', { filter, options });
 
@@ -246,7 +246,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async deleteOne(filter, options: any = {}): Promise<DeleteResult> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('deleteOne', { filter, options });
 
@@ -344,7 +344,7 @@ export default class Collection extends ShellApiClass {
       arrayFilters?: Document[];
     } = {}
   ): Promise<any> {
-    checkUndefinedUpdate(options.query);
+    assertArgsDefined(options.query);
     this._emitCollectionApiCall(
       'findAndModify',
       { options: { ...options, update: !!options.update } }
@@ -398,7 +398,7 @@ export default class Collection extends ShellApiClass {
     newName: string,
     dropTarget?: boolean
   ): Promise<any> {
-    checkUndefinedUpdate(newName);
+    assertArgsDefined(newName);
     if (typeof newName !== 'string') {
       throw new MongoshInvalidInputError('The "newName" argument must be a string.');
     }
@@ -441,7 +441,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndDelete(filter, options = {}): Promise<Document> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
       this._database._name,
@@ -470,7 +470,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndReplace(filter, replacement, options = {}): Promise<any> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const findOneAndReplaceOptions: any = { ...options };
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
@@ -505,7 +505,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndUpdate(filter, update, options = {}): Promise<any> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const findOneAndUpdateOptions: any = { ...options };
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
@@ -537,7 +537,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async insert(docs, options: any = {}): Promise<InsertManyResult> {
-    checkUndefinedUpdate(docs);
+    assertArgsDefined(docs);
     const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
     const dbOptions: DatabaseOptions = {};
 
@@ -576,7 +576,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertMany(docs, options: any = {}): Promise<InsertManyResult> {
-    checkUndefinedUpdate(docs);
+    assertArgsDefined(docs);
     const dbOptions: DatabaseOptions = {};
 
     if ('writeConcern' in options) {
@@ -614,7 +614,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertOne(doc, options: any = {}): Promise<InsertOneResult> {
-    checkUndefinedUpdate(doc);
+    assertArgsDefined(doc);
     const dbOptions: DatabaseOptions = {};
 
     if ('writeConcern' in options) {
@@ -662,7 +662,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   remove(query, options: any = {}): Promise<any> {
-    checkUndefinedUpdate(query);
+    assertArgsDefined(query);
     const dbOptions: DatabaseOptions = {};
 
 
@@ -690,7 +690,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   save(doc, options: any = {}): Promise<any> {
-    checkUndefinedUpdate(doc);
+    assertArgsDefined(doc);
     const dbOptions: DatabaseOptions = {};
 
     this._emitCollectionApiCall('save', { options });
@@ -719,7 +719,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async replaceOne(filter, replacement, options: any = {}): Promise<UpdateResult> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
 
     this._emitCollectionApiCall('replaceOne', { filter, options });
@@ -746,7 +746,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async update(filter, update, options: any = {}): Promise<UpdateResult> {
-    checkUndefinedUpdate(update);
+    assertArgsDefined(update);
     this._emitCollectionApiCall('update', { filter, options });
     let result;
 
@@ -792,7 +792,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async updateMany(filter, update, options: any = {}): Promise<UpdateResult> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('updateMany', { filter, options });
     if ('writeConcern' in options) {
@@ -836,7 +836,7 @@ export default class Collection extends ShellApiClass {
     update: Document,
     options: Document = {}
   ): Promise<UpdateResult> {
-    checkUndefinedUpdate(filter);
+    assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('updateOne', { filter, options });
     if ('writeConcern' in options) {
@@ -893,7 +893,7 @@ export default class Collection extends ShellApiClass {
     keyPatterns: Document[],
     options: Document = {}
   ): Promise<any> {
-    checkUndefinedUpdate(keyPatterns);
+    assertArgsDefined(keyPatterns);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
     }
@@ -923,7 +923,7 @@ export default class Collection extends ShellApiClass {
     keys: Document,
     options: Document = {}
   ): Promise<any> {
-    checkUndefinedUpdate(keys);
+    assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
     }
@@ -949,7 +949,7 @@ export default class Collection extends ShellApiClass {
     keys: Document,
     options: Document = {}
   ): Promise<any> {
-    checkUndefinedUpdate(keys);
+    assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
     }
@@ -1019,7 +1019,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async dropIndexes(indexes: string|string[]|Document|Document[]): Promise<any> {
-    checkUndefinedUpdate(indexes);
+    assertArgsDefined(indexes);
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
       return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, indexes);
@@ -1045,7 +1045,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async dropIndex(index: string|Document): Promise<any> {
-    checkUndefinedUpdate(index);
+    assertArgsDefined(index);
     this._emitCollectionApiCall('dropIndex', { index });
     if (index === '*') {
       throw new MongoshInvalidInputError('To drop indexes in the collection using \'*\', use db.collection.dropIndexes().');

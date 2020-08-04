@@ -12,7 +12,7 @@ import { ServerVersions, ADMIN_DB } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
-  checkUndefinedUpdate,
+  assertArgsDefined,
   processDigestPassword
 } from './helpers';
 
@@ -133,6 +133,7 @@ export default class Database extends ShellApiClass {
    */
   @returnsPromise
   async runCommand(cmd: any): Promise<any> {
+    assertArgsDefined(cmd);
     this._emitDatabaseApiCall('runCommand', { cmd });
     return this._mongo._serviceProvider.runCommand(this._name, cmd);
   }
@@ -147,6 +148,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   adminCommand(cmd: any): Promise<any> {
+    assertArgsDefined(cmd);
     this._emitDatabaseApiCall( 'adminCommand', { cmd });
     return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd);
   }
@@ -161,6 +163,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   @returnType('AggregationCursor')
   async aggregate(pipeline: Document[], options?: Document): Promise<AggregationCursor> {
+    assertArgsDefined(pipeline);
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const {
@@ -187,12 +190,14 @@ export default class Database extends ShellApiClass {
 
   @returnType('Database')
   getSiblingDB(db: string): Database {
+    assertArgsDefined(db);
     this._emitDatabaseApiCall('getSiblingDB', { db });
     return this._mongo._getDb(db);
   }
 
   @returnType('Collection')
   getCollection(coll: string): Collection {
+    assertArgsDefined(coll);
     this._emitDatabaseApiCall('getCollection', { coll });
     if (typeof coll !== 'string') {
       throw new MongoshInvalidInputError(
@@ -222,8 +227,8 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createUser(user: Document, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(user);
-    checkUndefinedUpdate(user.user, user.roles, user.pwd);
+    assertArgsDefined(user);
+    assertArgsDefined(user.user, user.roles, user.pwd);
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
       throw new MongoshInvalidInputError('Cannot set createUser field in helper method');
@@ -245,7 +250,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async updateUser(username: string, userDoc: Document, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(username, userDoc);
+    assertArgsDefined(username, userDoc);
     this._emitDatabaseApiCall('updateUser', {});
     if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
       throw new MongoshInvalidInputError(`Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`);
@@ -269,7 +274,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async changeUserPassword(username: string, password: string, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(username, password);
+    assertArgsDefined(username, password);
     this._emitDatabaseApiCall('changeUserPassword', {});
     const command = adaptOptions(
       {},
@@ -295,7 +300,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async dropUser(username: string, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(username);
+    assertArgsDefined(username);
     this._emitDatabaseApiCall('dropUser', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -338,7 +343,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantRolesToUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(username, roles);
+    assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('grantRolesToUser', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -348,7 +353,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokeRolesFromUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(username, roles);
+    assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('revokeRolesFromUser', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -358,7 +363,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async getUser(username: string, options: Document = {}): Promise<any> {
-    checkUndefinedUpdate(username);
+    assertArgsDefined(username);
     this._emitDatabaseApiCall('getUser', { username: username });
     const command = adaptOptions(
       { },
@@ -396,6 +401,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createCollection(name: string, options: any = {}): Promise<any> {
+    assertArgsDefined(name);
     this._emitDatabaseApiCall('createCollection', { name: name, options: options });
     return await this._mongo._serviceProvider.createCollection(
       this._name,
@@ -406,7 +412,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createView(name: string, source: string, pipeline: any, options: any = {}): Promise<any> {
-    checkUndefinedUpdate(name, source, pipeline);
+    assertArgsDefined(name, source, pipeline);
     this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
     const ccOpts = {
       viewOn: source,
@@ -424,8 +430,8 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createRole(role: Document, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(role);
-    checkUndefinedUpdate(role.role, role.privileges, role.roles);
+    assertArgsDefined(role);
+    assertArgsDefined(role.role, role.privileges, role.roles);
     this._emitDatabaseApiCall('createRole', {});
     if (role.createRole) {
       throw new MongoshInvalidInputError('Cannot set createRole field in helper method');
@@ -446,7 +452,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async updateRole(rolename: string, roleDoc: Document, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename, roleDoc);
+    assertArgsDefined(rolename, roleDoc);
     this._emitDatabaseApiCall('updateRole', {});
     const command = adaptOptions(
       {},
@@ -465,7 +471,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async dropRole(rolename: string, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename);
+    assertArgsDefined(rolename);
     this._emitDatabaseApiCall('dropRole', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -484,7 +490,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantRolesToRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename, roles);
+    assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('grantRolesToRole', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -494,7 +500,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokeRolesFromRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename, roles);
+    assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('revokeRolesFromRole', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -504,7 +510,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantPrivilegesToRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename, privileges);
+    assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('grantPrivilegesToRole', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -514,7 +520,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokePrivilegesFromRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
-    checkUndefinedUpdate(rolename, privileges);
+    assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
     return await this._mongo._serviceProvider.runCommand(
       this._name,
@@ -525,7 +531,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async getRole(rolename: string, options: Document = {}): Promise<any> {
-    checkUndefinedUpdate(rolename);
+    assertArgsDefined(rolename);
     this._emitDatabaseApiCall('getRole', { rolename: rolename });
     const command = adaptOptions(
       { },
@@ -575,7 +581,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async killOp(opId: number): Promise<any> {
-    checkUndefinedUpdate(opId);
+    assertArgsDefined(opId);
     this._emitDatabaseApiCall('killOp', { opId });
     return await this._mongo._serviceProvider.runCommand(
       ADMIN_DB,
