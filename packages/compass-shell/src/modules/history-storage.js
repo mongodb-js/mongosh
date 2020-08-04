@@ -18,7 +18,14 @@ export class HistoryStorage {
    */
   async save(history) {
     const targetDir = path.dirname(this.filePath);
-    await fs.promises.mkdir(targetDir, { recursive: true });
+    try {
+      await fs.promises.mkdir(targetDir, { recursive: true });
+    } catch (error) {
+      if (error.code !== 'EEXIST') {
+        throw error;
+      }
+    }
+
     await fs.promises.writeFile(this.filePath, JSON.stringify(history));
   }
 
