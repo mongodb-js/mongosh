@@ -90,23 +90,25 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   private onEnter = async(): Promise<void> => {
-    const currentValue = this.state.currentValue;
-    if (!currentValue || currentValue.trim() === '') {
-      return;
+    try {
+      const currentValue = this.state.currentValue;
+      if (!currentValue || currentValue.trim() === '') {
+        return;
+      }
+
+      this.setState({
+        readOnly: true
+      });
+
+      if (this.props.onInput) {
+        await this.props.onInput(currentValue);
+      }
+    } finally {
+      this.setState({
+        currentValue: '',
+        readOnly: false
+      });
     }
-
-    this.setState({
-      readOnly: true
-    });
-
-    if (this.props.onInput) {
-      await this.props.onInput(currentValue);
-    }
-
-    this.setState({
-      currentValue: '',
-      readOnly: false
-    });
   };
 
   render(): JSX.Element {

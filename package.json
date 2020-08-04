@@ -22,6 +22,7 @@
     "prestart-cli": "npm run compile-cli",
     "start-cli": "lerna exec npm start --scope @mongosh/cli-repl",
     "compile-browser": "lerna run build --scope @mongosh/browser-repl",
+    "prestart-browser": "npm run compile-browser",
     "start-browser": "lerna exec npm start --scope @mongosh/browser-repl",
     "compile-compass": "npm run compile-browser && lerna run compile --scope @mongodb-js/compass-shell",
     "start-compass": "lerna run start-compass --scope @mongodb-js/compass-shell",
