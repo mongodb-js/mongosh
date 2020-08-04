@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import { Editor } from './editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
-import { LineWithIcon } from './utils/line-with-icon';
 import Icon from '@leafygreen-ui/icon';
+
+import { Editor } from './editor';
+import { LineWithIcon } from './utils/line-with-icon';
+import Loader from './shell-loader';
 
 const styles = require('./shell-input.less');
 
@@ -12,6 +14,7 @@ interface ShellInputProps {
   history?: readonly string[];
   onClearCommand?(): void | Promise<void>;
   onInput?(code: string): void | Promise<void>;
+  operationInProgress?: boolean;
   setInputRef?(ref): void;
 }
 
@@ -93,26 +96,21 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   private onEnter = async(): Promise<void> => {
-    try {
-      const currentValue = this.state.currentValue;
-
-      this.setState({
-        readOnly: true
-      });
-
-      if (this.props.onInput) {
-        await this.props.onInput(currentValue);
-      }
-    } finally {
-      this.setState({
-        currentValue: '',
-        readOnly: false
-      });
+    if (this.props.onInput) {
+      await this.props.onInput(this.state.currentValue);
     }
+
+    this.setState({
+      currentValue: ''
+    });
   };
 
   render(): JSX.Element {
-    const icon = (<Icon
+    const icon = this.props.operationInProgress ? (
+      <Loader
+        size={10}
+      />
+    ) : (<Icon
       size={12}
       glyph={'ChevronRight'}
     />);
@@ -126,7 +124,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onClearCommand={this.props.onClearCommand}
       setInputRef={this.props.setInputRef}
       value={this.state.currentValue}
-      readOnly={this.state.readOnly}
+      operationInProgress={this.props.operationInProgress}
       moveCursorToTheEndOfInput={this.state.didLoadHistoryItem}
     />);
 

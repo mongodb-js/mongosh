@@ -59,6 +59,7 @@ interface ShellProps {
 }
 
 interface ShellState {
+  operationInProgress: boolean;
   output: readonly ShellOutputEntry[];
   history: readonly string[];
 }
@@ -86,6 +87,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   readonly state: ShellState = {
+    operationInProgress: false,
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
     history: this.props.initialHistory.slice(0, this.props.maxHistoryLength)
   };
@@ -160,11 +162,14 @@ export class Shell extends Component<ShellProps, ShellState> {
       return;
     }
 
-
     const inputLine: ShellOutputEntry = {
       format: 'input',
       value: code
     };
+
+    this.setState({
+      operationInProgress: true
+    });
 
     const outputLine = await this.evaluate(code);
 
@@ -175,7 +180,11 @@ export class Shell extends Component<ShellProps, ShellState> {
 
     const history = this.addEntryToHistory(code);
 
-    this.setState({ output, history });
+    this.setState({
+      operationInProgress: false,
+      output,
+      history
+    });
 
     this.props.onOutputChanged(output);
     this.props.onHistoryChanged(history);
@@ -223,10 +232,11 @@ export class Shell extends Component<ShellProps, ShellState> {
         </div>
         <div ref={(el): void => { this.shellInputElement = el; }}>
           <ShellInput
+            autocompleter={this.props.runtime}
+            history={this.state.history}
             onClearCommand={this.onClearCommand}
             onInput={this.onInput}
-            history={this.state.history}
-            autocompleter={this.props.runtime}
+            operationInProgress={this.state.operationInProgress}
             setInputRef={(ref): void => { this.shellInputRef = ref;}}
           />
         </div>

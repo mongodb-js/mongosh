@@ -13,16 +13,16 @@ const tools = ace.acequire('ace/ext/language_tools');
 const noop = (): void => {};
 
 interface EditorProps {
+  autocompleter?: Autocompleter;
+  moveCursorToTheEndOfInput?: boolean;
   onEnter?(): void | Promise<void>;
   onArrowUpOnFirstLine?(): void | Promise<void>;
   onArrowDownOnLastLine?(): void | Promise<void>;
   onChange?(value: string): void | Promise<void>;
   onClearCommand?(): void | Promise<void>;
-  autocompleter?: Autocompleter;
+  operationInProgress?: boolean;
   setInputRef?(ref): void;
   value?: string;
-  readOnly?: boolean;
-  moveCursorToTheEndOfInput?: boolean;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -32,8 +32,8 @@ export class Editor extends Component<EditorProps> {
     onArrowDownOnLastLine: noop,
     onChange: noop,
     onClearCommand: noop,
+    operationInProgress: false,
     value: '',
-    readOnly: false,
     moveCursorToTheEndOfInput: false
   };
 
@@ -56,7 +56,7 @@ export class Editor extends Component<EditorProps> {
   };
 
   componentDidUpdate(): void {
-    if (this.props.readOnly) {
+    if (this.props.operationInProgress) {
       this.hideCursor();
     } else {
       this.showCursor();
@@ -82,14 +82,12 @@ export class Editor extends Component<EditorProps> {
   }
 
   render(): JSX.Element {
-    const { onClearCommand } = this.props;
-
     return (<AceEditor
       showPrintMargin={false}
       showGutter={false}
       highlightActiveLine
       setOptions={{
-        readOnly: !!this.props.readOnly,
+        readOnly: !!this.props.operationInProgress,
         enableBasicAutocompletion: !!this.props.autocompleter,
         enableLiveAutocompletion: !!this.props.autocompleter,
         enableSnippets: false,
@@ -143,7 +141,7 @@ export class Editor extends Component<EditorProps> {
         {
           name: 'clearShell',
           bindKey: { win: 'Ctrl-L', mac: 'Command-L' },
-          exec: onClearCommand
+          exec: this.props.onClearCommand
         }
       ]}
       width="100%"

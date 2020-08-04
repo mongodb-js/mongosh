@@ -50,8 +50,8 @@ describe('<Editor />', () => {
     expect(aceEditor.getOption('readOnly')).to.equal(false);
   });
 
-  it('allows to set the editor as readonly', () => {
-    const wrapper = mount(<Editor readOnly />);
+  it('allows to set the editor as readonly when operationInProgress is true', () => {
+    const wrapper = mount(<Editor operationInProgress />);
     const aceEditor = getAceEditorInstance(wrapper);
 
     expect(aceEditor.getOption('readOnly')).to.equal(true);

@@ -21,7 +21,7 @@ class DemoServiceProvider {
   }
 
   async listDatabases(): Promise<any> {
-    await delay(1000);
+    await delay(2000);
 
     return {
       databases: [

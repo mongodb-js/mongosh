@@ -1,7 +1,9 @@
 import React from 'react';
 import sinon from 'sinon';
+
 import { expect } from '../../testing/chai';
 import { shallow, mount, ShallowWrapper, ReactWrapper } from '../../testing/enzyme';
+
 import { Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
@@ -64,6 +66,10 @@ describe('<Shell />', () => {
 
   it('passes runtime as autocompleter to ShellInput', () => {
     expect(wrapper.find(ShellInput).prop('autocompleter')).to.equal(fakeRuntime);
+  });
+
+  it('does not set the editor as readOnly by default', () => {
+    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
   });
 
   context('when initialOutput is set', () => {
@@ -231,6 +237,36 @@ describe('<Shell />', () => {
     });
   });
 
+
+  it('sets the editor as readOnly/operationInProgress true while onInput is executed', async() => {
+    let onInputDone;
+    wrapper = shallow(<Shell
+      runtime={{
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        evaluate: (code: string): Promise<any> => {
+          return new Promise(resolve => {
+            onInputDone = resolve;
+          });
+        }
+      } as any}
+    />);
+
+    const onInputStub = wrapper.find(ShellInput).prop('onInput');
+    onInputStub('ok');
+
+    // Check operationInProgress is true while eval is called
+    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(true);
+
+    // Fufill eval.
+    onInputDone();
+    await wait();
+
+    wrapper.update();
+
+    // Ensure operationInProgress is false.
+    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
+  });
+
   context('when an input is entered and it causes an error', () => {
     let error;
 
@@ -248,6 +284,10 @@ describe('<Shell />', () => {
         { format: 'input', value: 'some code' },
         { format: 'error', value: error }
       ]);
+    });
+
+    it('sets the editor as operationInProgress false after the execution', async() => {
+      expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
     });
 
     it('calls onOutputChanged with output', () => {
