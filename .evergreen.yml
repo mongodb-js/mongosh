@@ -108,7 +108,7 @@ functions:
     - command: host.create
       params:
         provider: docker
-        distro: rhel70-small
+        distro: rhel70-docker
         image: mongo:latest
         publish_ports: true
     - command: host.list
