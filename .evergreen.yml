@@ -127,6 +127,12 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - <<: *compile_and_release
+  release_debian:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - <<: *compile_and_release
   release_win_ps:
     - command: expansions.write
       params:
@@ -179,6 +185,13 @@ tasks:
       - func: checkout
       - func: install
       - func: release_linux
+  - name: release_debian
+    depends_on:
+      - name: check
+    commands:
+      - func: checkout
+      - func: install
+      - func: release_debian
   - name: release_win_ps
     depends_on:
       - name: check_ps
@@ -214,4 +227,4 @@ buildvariants:
     run_on: debian10-large
     tasks:
       - name: check
-      - name: release_linux
+      - name: release_debian
