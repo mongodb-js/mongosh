@@ -89,22 +89,22 @@ export type ZipFile = { path: string; contentType: string };
 export async function zip(
   input: string,
   outputDir: string,
-  platform: string,
+  buildVariant: string,
   version: string,
   rootDir: string
 ): Promise<ZipFile> {
-  const filename = zipPath(outputDir, platform, version);
+  const filename = zipPath(outputDir, buildVariant, version);
 
   console.info('mongosh: zipping:', filename);
 
-  if (platform === Platform.Linux) {
+  if (buildVariant === Platform.Linux) {
     await zipPosix(outputDir, filename);
 
     return {
       path: filename,
       contentType: 'application/gzip'
     };
-  } else if (platform === Platform.Debian) {
+  } else if (buildVariant === Platform.Debian) {
     await zipDebian(input, outputDir, version, rootDir);
 
     return {

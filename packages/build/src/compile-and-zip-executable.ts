@@ -16,7 +16,7 @@ export default async function compileAndZipExecutable(config: Config): Promise<Z
   const artifact = await zip(
     executable,
     config.outputDir,
-    config.platform,
+    config.buildVariant,
     config.version,
     config.rootDir
   );

@@ -44,6 +44,7 @@ function safeToLogConfig(config: Config): any {
     bundleId: config.bundleId,
     rootDir: config.rootDir,
     input: config.input,
+    buildVariant: config.buildVariant,
     execInput: config.execInput,
     outputDir: config.outputDir,
     project: config.project,

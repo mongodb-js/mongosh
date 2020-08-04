@@ -23,6 +23,7 @@ export default interface Config {
   appleAppIdentity?: string;
   isCi?: boolean;
   platform?: string;
+  buildVariant?: string;
   repo?: {
     owner: string;
     repo: string;
