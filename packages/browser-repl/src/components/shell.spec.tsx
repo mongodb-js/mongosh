@@ -211,6 +211,26 @@ describe('<Shell />', () => {
     });
   });
 
+  context('when empty input is entered', () => {
+    beforeEach(async() => {
+      await onInput('');
+    });
+
+    it('does not evaluate the input with runtime', () => {
+      expect(fakeRuntime.evaluate).not.to.have.been.calledWith('');
+    });
+
+    it('adds a blank line to the output', () => {
+      expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
+        { format: 'input', value: ' ' },
+      ]);
+    });
+
+    it('does not update the history', async() => {
+      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([]);
+    });
+  });
+
   context('when an input is entered and it causes an error', () => {
     let error;
 
@@ -229,7 +249,6 @@ describe('<Shell />', () => {
         { format: 'error', value: error }
       ]);
     });
-
 
     it('calls onOutputChanged with output', () => {
       expect(onOutputChangedSpy).to.have.been.calledWith([

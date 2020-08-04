@@ -39,13 +39,6 @@ describe('<ShellInput />', () => {
     expect(onInput).to.have.been.calledWith('value');
   });
 
-  it('does not call onInput if the input is empty', () => {
-    const onInput = sinon.spy();
-    const wrapper = shallow(<ShellInput onInput={onInput}/>);
-    enter(wrapper);
-    expect(onInput).to.not.have.been.called;
-  });
-
   it('sets the editor as readOnly while onInput is executed', async() => {
     let onInputDone;
 

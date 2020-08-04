@@ -155,6 +155,12 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private onInput = async(code: string): Promise<void> => {
+    if (!code || code.trim() === '') {
+      this.appendEmptyInput();
+      return;
+    }
+
+
     const inputLine: ShellOutputEntry = {
       format: 'input',
       value: code
@@ -174,6 +180,19 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.props.onOutputChanged(output);
     this.props.onHistoryChanged(history);
   };
+
+  private appendEmptyInput(): void {
+    const inputLine: ShellOutputEntry = {
+      format: 'input',
+      value: ' '
+    };
+
+    const output = this.addEntriesToOutput([
+      inputLine
+    ]);
+
+    this.setState({ output });
+  }
 
   private scrollToBottom(): void {
     if (!this.shellInputElement) {
