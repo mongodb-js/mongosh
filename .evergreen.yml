@@ -108,7 +108,7 @@ functions:
     - command: host.create
       params:
         provider: docker
-        distro: rhel70-docker
+        distro: archlinux-parent
         image: mongo:latest
         publish_ports: true
     - command: host.list
