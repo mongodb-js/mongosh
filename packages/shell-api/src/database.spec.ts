@@ -301,7 +301,7 @@ describe('Database', () => {
       it('throws if name is not a string', () => {
         expect(() => {
           database.getSiblingDB(undefined);
-        }).to.throw('Database name must be a string. Received undefined.');
+        }).to.throw('Missing required argument');
       });
 
       it('throws if name is empty', () => {
@@ -329,7 +329,7 @@ describe('Database', () => {
       it('throws if name is not a string', () => {
         expect(() => {
           database.getCollection(undefined);
-        }).to.throw('Collection name must be a string. Received undefined.');
+        }).to.throw('Missing required argument');
       });
 
       it('throws if name is empty', () => {
