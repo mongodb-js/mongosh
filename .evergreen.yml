@@ -105,6 +105,17 @@ functions:
       params:
         file: tmp\expansions.yaml
         redacted: true
+    - command: host.create
+      params:
+        provider: docker
+        distro: rhel70-small
+        image: mongo:latest
+        publish_ports: true
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: tmp\hosts.yaml
+        timeout_seconds: 600
     - command: shell.exec
       params:
         working_dir: src
@@ -114,7 +125,9 @@ functions:
           $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
           echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
+          $Env:HOST_MAPPINGS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/hosts.yaml' -Resolve)
           $Env:MONGODB_VERSION = "4.2.8"
+          cat $Env:HOST_MAPPINGS_PATH
           npm run compile-exec
           npm run test-ci
   release_macos:
