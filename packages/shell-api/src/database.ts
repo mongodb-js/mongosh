@@ -23,6 +23,7 @@ import {
 } from '@mongosh/service-provider-core';
 import { AggregationCursor } from './index';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+const ADMIN_DB = 'admin';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -148,7 +149,7 @@ export default class Database extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   adminCommand(cmd: any): Promise<any> {
     this._emitDatabaseApiCall( 'adminCommand', { cmd });
-    return this._mongo._serviceProvider.runCommand('admin', cmd);
+    return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd);
   }
 
   /**
@@ -565,7 +566,7 @@ export default class Database extends ShellApiClass {
   async currentOp(opts: any = {}): Promise<any> {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
     return await this._mongo._serviceProvider.runCommand(
-      this._name,
+      ADMIN_DB,
       {
         currentOp: 1,
         ...opts
@@ -578,7 +579,7 @@ export default class Database extends ShellApiClass {
     checkUndefinedUpdate(opId);
     this._emitDatabaseApiCall('killOp', { opId });
     return await this._mongo._serviceProvider.runCommand(
-      this._name,
+      ADMIN_DB,
       {
         killOp: 1,
         op: opId
@@ -590,7 +591,7 @@ export default class Database extends ShellApiClass {
   async shutdownServer(opts: any = {}): Promise<any> {
     this._emitDatabaseApiCall('shutdownServer', { opts: opts });
     return await this._mongo._serviceProvider.runCommand(
-      this._name,
+      ADMIN_DB,
       {
         shutdown: 1,
         ...opts
@@ -602,7 +603,7 @@ export default class Database extends ShellApiClass {
   async fsyncLock(): Promise<any> {
     this._emitDatabaseApiCall('fsyncLock', {});
     return await this._mongo._serviceProvider.runCommand(
-      this._name,
+      ADMIN_DB,
       {
         fsync: 1,
         lock: true
@@ -614,7 +615,7 @@ export default class Database extends ShellApiClass {
   async fsyncUnlock(): Promise<any> {
     this._emitDatabaseApiCall('fsyncUnlock', {});
     return await this._mongo._serviceProvider.runCommand(
-      this._name,
+      ADMIN_DB,
       {
         fsyncUnlock: 1
       }
