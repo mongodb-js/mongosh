@@ -38,9 +38,11 @@ export class Editor extends Component<EditorProps> {
   };
 
   private editor: any;
+  private visibleCursorDisplayStyle: string;
 
   private onEditorLoad = (editor: any): void => {
     this.editor = editor;
+    this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
 
     if (this.props.autocompleter) {
       editor.commands.on('afterExec', function(e) {
@@ -54,9 +56,23 @@ export class Editor extends Component<EditorProps> {
   };
 
   componentDidUpdate(): void {
+    if (this.props.readOnly) {
+      this.hideCursor();
+    } else {
+      this.showCursor();
+    }
+
     if (this.props.moveCursorToTheEndOfInput) {
       this.moveCursorToTheEndOfInput();
     }
+  }
+
+  private hideCursor(): void {
+    this.editor.renderer.$cursorLayer.element.style.display = 'none';
+  }
+
+  private showCursor(): void {
+    this.editor.renderer.$cursorLayer.element.style.display = this.visibleCursorDisplayStyle;
   }
 
   private moveCursorToTheEndOfInput(): void {
