@@ -50,7 +50,7 @@ export function validateExplainableVerbosity(verbosity: string): void {
   }
 }
 
-export function checkUndefinedUpdate(...args: any): void {
+export function assertArgsDefined(...args: any): void {
   if (args.some(a => a === undefined)) {
     throw new MongoshInvalidInputError('Missing required argument');
   }

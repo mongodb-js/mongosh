@@ -12,7 +12,7 @@ import Mongo from './mongo';
 import Database from './database';
 import { CommandResult } from './result';
 import ShellInternalState from './shell-internal-state';
-import { checkUndefinedUpdate } from './helpers';
+import { assertArgsDefined } from './helpers';
 import { ReplPlatform, DEFAULT_DB } from '@mongosh/service-provider-core';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 
@@ -70,7 +70,7 @@ export default class ShellApi extends ShellApiClass {
   @returnType('Database')
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri, user?, pwd?): Promise<Database> {
-    checkUndefinedUpdate(uri);
+    assertArgsDefined(uri);
     const options = {} as any;
     if (user) options.username = user;
     if (pwd) options.password = pwd;
