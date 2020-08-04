@@ -108,7 +108,7 @@ functions:
     - command: host.create
       params:
         provider: docker
-        distro: archlinux-parent
+        distro: ubuntu1604-container
         image: mongo:latest
         publish_ports: true
     - command: host.list
