@@ -29,7 +29,7 @@ describe('tarball module', () => {
 
     context('when the build variant is linux', () => {
       it('returns the tarball name', () => {
-        expect(tarballPath('', BuildVariant.Ubuntu, '1.0.0')).
+        expect(tarballPath('', BuildVariant.Linux, '1.0.0')).
           to.equal('mongosh-1.0.0-linux.tgz');
       });
     });
@@ -44,7 +44,7 @@ describe('tarball module', () => {
 
   describe('.tarballPosix', () => {
     const version = '1.0.0';
-    const expectedTarball = tarballPath(__dirname, BuildVariant.Ubuntu, version);
+    const expectedTarball = tarballPath(__dirname, BuildVariant.Linux, version);
 
     before(() => {
       return tarballPosix(__dirname, expectedTarball);
