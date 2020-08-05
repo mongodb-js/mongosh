@@ -62,7 +62,7 @@ export const tarballDebian = async(
     input: input,
     // for debugging pkgDeb, uncomment the next line:
     // loggger: console.log,
-    arch: 'amd64'
+    arch: 'amd64' // this might need to be 'all'
   }
 
   console.log('Writing debian package')

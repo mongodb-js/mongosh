@@ -1,7 +1,6 @@
 import path from 'path';
 import generateInput from './generate-input';
 import Platform from './platform';
-import SignableCompiler from './signable-compiler';
 import UnsignableCompiler from './unsignable-compiler';
 
 /**

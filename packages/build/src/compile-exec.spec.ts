@@ -1,8 +1,5 @@
-import path from 'path';
-import os from 'os';
-import fs from 'fs';
 import { expect } from 'chai';
-import compileExec, {
+import {
   ExecName,
   determineExecName,
   executablePath
