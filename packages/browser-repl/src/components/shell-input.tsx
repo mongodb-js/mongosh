@@ -108,7 +108,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   render(): JSX.Element {
     const icon = this.props.operationInProgress ? (
       <Loader
-        size={10}
+        size={12}
       />
     ) : (<Icon
       size={12}
