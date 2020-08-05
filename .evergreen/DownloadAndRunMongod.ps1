@@ -9,7 +9,7 @@ $dataPath = "$versionPath\data\db"
 $logDir = "$versionPath\logs"
 
 if (!(Test-Path $binaryPath)) {
-  $url = "https://fastdl.mongodb.org/$platform/$name.zip";
+  $url = "https://fastdl.mongodb.org/$platform/$version.zip";
   $output = "$PSScriptRoot\mongodb.zip"
   Write-Output "Downloading $url"
 
@@ -18,7 +18,7 @@ if (!(Test-Path $binaryPath)) {
 
   Write-Output "Downloaded $url"
 
-  Expand-Archive $output -DestinationPath $platformPath
+  Microsoft.PowerShell.Archive\Expand-Archive $output -DestinationPath $platformPath
 } else {
   Write-Output "$binaryPath already exists, skipping download"
 }
