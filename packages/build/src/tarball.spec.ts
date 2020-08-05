@@ -107,8 +107,7 @@ describe('tarball module', () => {
   });
 
   describe('.tarball', () => {
-    const platform = process.env.BUILD_VARIANT;
-    console.log(platform)
+    const platform = os.platform();
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, platform, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
