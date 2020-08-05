@@ -1,8 +1,8 @@
 import compileExec from './compile-exec';
-import { zip, ZipFile } from './zip';
+import { tarball, TarballFile } from './tarball';
 import Config from './config';
 
-export default async function compileAndZipExecutable(config: Config): Promise<ZipFile> {
+export default async function compileAndZipExecutable(config: Config): Promise<TarballFile> {
   const executable = await compileExec(
     config.input,
     config.execInput,
@@ -13,7 +13,7 @@ export default async function compileAndZipExecutable(config: Config): Promise<Z
   );
 
   // Zip the executable.
-  const artifact = await zip(
+  const artifact = await tarball(
     executable,
     config.outputDir,
     config.buildVariant,
@@ -21,6 +21,6 @@ export default async function compileAndZipExecutable(config: Config): Promise<Z
     config.rootDir
   );
 
-  // add artifcats for .rpm and .deb and .msi
+  // add artifcats for .rpm and .msi
   return artifact;
 }

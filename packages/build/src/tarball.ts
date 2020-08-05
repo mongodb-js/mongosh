@@ -2,10 +2,10 @@ import tar from 'tar';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import pkgDeb from 'pkg-deb';
-import Platform from './platform';
+import BuildVariant from './build-variant';
 
 /**
- * Get the path to the zip.
+ * Get the path to the tarball.
  *
  * @param {string} outputDir - The output directory.
  * @param {string} platform - The platform.
@@ -13,10 +13,10 @@ import Platform from './platform';
  *
  * @returns {string} The path.
  */
-export const zipPath = (outputDir: string, platform: string, version: string): string => {
-  if (platform === Platform.Linux) {
+export const tarballPath = (outputDir: string, platform: string, version: string): string => {
+  if (platform === BuildVariant.Linux) {
     return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
-  } else if (platform === Platform.Debian) {
+  } else if (platform === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
     // sometimes there is also revision number, but we can add that later.
@@ -38,23 +38,30 @@ const filterOut = (pathToFilter: string): boolean => {
 };
 
 /**
- * Create a zip archive for posix.
+ * Create a tarball archive for posix.
  *
  * @param {string} outputDir - The output directory.
- * @param {string} filename - the zip filename.
+ * @param {string} filename - the tarball filename.
  */
-export const zipPosix = async(outputDir: string, filename: string): Promise<void> => {
-  const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
+export const tarballPosix = async(outputDir: string, filename: string): Promise<void> => {
+  const options = { gtarball: true, file: filename, cwd: outputDir, filter: filterOut };
   await tar.c(options, [ '.' ]);
 };
 
-export const zipDebian = async(input: string, outputDir: string, version: string, rootDir: string): Promise<void> => {
+export const tarballDebian = async(
+  input: string,
+  outputDir: string,
+  version: string,
+  rootDir: string
+): Promise<void> => {
   const options = {
     version: version,
     name: 'mongosh',
     dest: outputDir,
     src: rootDir, // pkg-deb will look for package.json in src to get info
     input: input,
+    // for debugging pkgDeb, uncomment the next line:
+    // loggger: console.log,
     arch: 'amd64'
   }
 
@@ -63,57 +70,57 @@ export const zipDebian = async(input: string, outputDir: string, version: string
 }
 
 /**
- * Create a zip archive for windows.
+ * Create a tarball archive for windows.
  *
- * @param {string} input - The file to zip.
- * @param {string} filename - the zip filename.
+ * @param {string} input - The file to tarball.
+ * @param {string} filename - the tarball filename.
  */
-export const zipWindows = (input: string, filename: string): void => {
+export const tarballWindows = (input: string, filename: string): void => {
   const admZip = new AdmZip();
   admZip.addLocalFile(input);
   admZip.writeZip(filename);
 };
 
-export type ZipFile = { path: string; contentType: string };
+export type TarballFile = { path: string; contentType: string };
 
 /**
- * Create a gzipped tarball or zip for the provided options.
+ * Create a gtarballped tarball or zip for the provided options.
  *
- * @param {string} input - The file location to zip.
- * @param {string} outputDir - Where to save the zip.
- * @param {string} platform - The platform.
+ * @param {string} input - The file location to tarball.
+ * @param {string} outputDir - Where to save the tarball.
+ * @param {string} buildVariant- The build variant.
  * @param {string} version - The version.
  *
- * @returns {ZipFile} The path and type of the zip.
+ * @returns {TarballFile} The path and type of the tarball.
  */
-export async function zip(
+export async function tarball(
   input: string,
   outputDir: string,
   buildVariant: string,
   version: string,
   rootDir: string
-): Promise<ZipFile> {
-  const filename = zipPath(outputDir, buildVariant, version);
+): Promise<TarballFile> {
+  const filename = tarballPath(outputDir, buildVariant, version);
 
-  console.info('mongosh: zipping:', filename);
+  console.info('mongosh: tarballping:', filename);
 
-  if (buildVariant === Platform.Linux) {
-    await zipPosix(outputDir, filename);
+  if (buildVariant === BuildVariant.Linux) {
+    await tarballPosix(outputDir, filename);
 
     return {
       path: filename,
       contentType: 'application/gzip'
     };
-  } else if (buildVariant === Platform.Debian) {
-    await zipDebian(input, outputDir, version, rootDir);
+  } else if (buildVariant === BuildVariant.Debian) {
+    await tarballDebian(input, outputDir, version, rootDir);
 
     return {
       path: filename,
-      // this might have to be application/gzip MIME type
+      // this might have to be application/gtarball MIME type
       contentType: 'application/vnd.debian.binary-package'
     }
   } else {
-    zipWindows(input, filename);
+    tarballWindows(input, filename);
 
     return {
       path: filename,

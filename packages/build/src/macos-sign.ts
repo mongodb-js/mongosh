@@ -3,14 +3,14 @@ import util from 'util';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
-import { zip } from './zip';
+import { tarball } from './tarball';
 
 /**
- * Notarizes the zipped mongosh. Will send the zip to Apple and poll apple
+ * Notarizes the zipped mongosh. Will send the tarball to Apple and poll apple
  * for the notarization result.
  *
  * @param {string} bundleId - The bundle id (com.mongodb.mongosh)
- * @param {string} artifact - The path to the zip.
+ * @param {string} artifact - The path to the tarball.
  * @param {string} user - The apple dev account user.
  * @param {string} password - The apple dev account password.
  */
@@ -42,13 +42,13 @@ const sign = (executable: string, identity: string) => {
 };
 
 const publish = async(executable: string, artifact: string, platform: string, config: Config) => {
-  console.log('mongosh: removing unsigned zip:', artifact);
+  console.log('mongosh: removing unsigned tarball:', artifact);
   await util.promisify(fs.unlink)(artifact);
   console.log('mongosh: signing:', executable);
   await sign(executable, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
-  console.log('mongosh: notarizing and zipping:', executable);
-  await zip(executable, config.outputDir, platform, config.version, config.rootDir);
+  console.log('mongosh: notarizing and creating tarball:', executable);
+  await tarball(executable, config.outputDir, platform, config.version, config.rootDir);
   await notarize(
     config.bundleId,
     artifact,

@@ -6,9 +6,9 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import {
-  zip,
-  zipPath,
-} from './zip';
+  tarball,
+  tarballPath,
+} from './tarball';
 
 describe('GithubRepo', () => {
   let githubRepo: GithubRepo;
@@ -67,21 +67,21 @@ describe('GithubRepo', () => {
   describe('releaseToGithub', () => {
     const platform = os.platform();
     const version = '1.0.0';
-    const expectedZip = zipPath(__dirname, platform, version);
+    const expectedTarball = tarballPath(__dirname, platform, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
     const rootDir = path.join(__dirname, '../../..');
 
     after((done) => {
-      fs.unlink(expectedZip, done);
+      fs.unlink(expectedTarball, done);
     });
 
     it('calls createRelease when running releaseToGithub', async() => {
       githubRepo.createRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
-      const zipFile = await zip(inputFile, __dirname, platform, version, rootDir);
+      const tarballFile = await tarball(inputFile, __dirname, platform, version, rootDir);
 
-      githubRepo.releaseToGithub(zipFile, { version: '0.0.6' });
+      githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
       expect(githubRepo.createRelease).to.have.been.called;
     });
   });

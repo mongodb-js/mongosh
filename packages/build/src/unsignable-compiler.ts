@@ -41,9 +41,6 @@ class UnsignableCompiler extends Compiler {
     switch(this.platform) {
       case Platform.Windows: return Target.Windows;
       case Platform.MacOs: return Target.MacOs;
-      // There is no specific node build for debian, so just use the linux
-      // target. Keeping it as explicit so we don't forget this.
-      case Platform.Debian: return Target.Linux;
       default: return Target.Linux;
     }
   };
