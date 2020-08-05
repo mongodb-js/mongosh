@@ -4,19 +4,19 @@ import BuildVariant from './build-variant';
 describe('BuildVariant', () => {
   describe('BuildVariant.Windows', () => {
     it('returns win32', () => {
-      expect(BuildVariant.Windows).to.equal('win32');
+      expect(BuildVariant.Windows).to.equal('windows_ps');
     });
   });
 
   describe('BuildVariant.MacOs', () => {
     it('returns darwin', () => {
-      expect(BuildVariant.MacOs).to.equal('darwin');
+      expect(BuildVariant.MacOs).to.equal('macos');
     });
   });
 
   describe('BuildVariant.Linux', () => {
     it('returns linux', () => {
-      expect(BuildVariant.Linux).to.equal('linux');
+      expect(BuildVariant.Linux).to.equal('ubuntu');
     });
   });
 

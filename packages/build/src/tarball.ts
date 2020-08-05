@@ -14,7 +14,7 @@ import BuildVariant from './build-variant';
  * @returns {string} The path.
  */
 export const tarballPath = (outputDir: string, platform: string, version: string): string => {
-  if (platform === BuildVariant.Linux) {
+  if (platform === BuildVariant.Ubuntu) {
     return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
   } else if (platform === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
@@ -104,7 +104,7 @@ export async function tarball(
 
   console.info('mongosh: tarballping:', filename);
 
-  if (buildVariant === BuildVariant.Linux) {
+  if (buildVariant === BuildVariant.Ubuntu) {
     await tarballPosix(outputDir, filename);
 
     return {

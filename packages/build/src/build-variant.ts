@@ -5,9 +5,9 @@
  * build variant is the host evergreen is building on.
  */
 enum BuildVariant {
-  Windows = 'win32',
-  MacOs = 'darwin',
-  Linux = 'linux',
+  Windows = 'windows_ps',
+  MacOs = 'macos',
+  Ubuntu = 'ubuntu',
   Debian = 'debian'
 }
 
