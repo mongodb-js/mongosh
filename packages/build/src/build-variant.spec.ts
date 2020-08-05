@@ -14,9 +14,9 @@ describe('BuildVariant', () => {
     });
   });
 
-  describe('BuildVariant.Linux', () => {
+  describe('BuildVariant.Ubuntu', () => {
     it('returns linux', () => {
-      expect(BuildVariant.Linux).to.equal('ubuntu');
+      expect(BuildVariant.Ubuntu).to.equal('ubuntu');
     });
   });
 
