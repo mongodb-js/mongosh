@@ -153,6 +153,20 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.include('metadata');
   });
 
+  it('renders ListCommandsResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      format: 'output',
+      type: 'ListCommandsResult',
+      value: {
+        c1: { metadata: 1, help: 'help string' },
+      }
+    }}/>);
+
+    expect(wrapper.text()).to.include('help string');
+    expect(wrapper.text()).to.include('c1');
+    expect(wrapper.text()).to.include('metadata');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: err }} />);

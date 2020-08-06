@@ -129,6 +129,20 @@ describe('formatOutput', () => {
     });
   });
 
+  context('when the result is ListCommandsResult', () => {
+    it('returns the formatted list', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          c1: { metadata1: 1, help: 'help1' },
+          c2: { metadata2: 2, help: 'help2' }
+        },
+        type: 'ListCommandsResult'
+      }));
+
+      expect(output).to.contain('c1:  metadata1\nhelp1\n\nc2:  metadata2\nhelp2');
+    });
+  });
+
   context('when the result is Help', () => {
     it('returns help text', () => {
       const output = stripAnsiColors(format({

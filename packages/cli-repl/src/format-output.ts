@@ -49,6 +49,10 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatStats(value);
   }
 
+  if (type === 'ListCommandsResult') {
+    return formatListCommands(value);
+  }
+
   if (type === 'Error') {
     return formatError(value);
   }
@@ -79,6 +83,23 @@ function formatStats(output): string {
   return Object.keys(output).map((c) => {
     return `${clr(c, ['bold', 'yellow'])}\n${inspect(output[c])}`;
   }).join('\n---\n');
+}
+
+function formatListCommands(output): string {
+  const tableEntries = Object.keys(output).map(
+    (cmd) => {
+      const val = output[cmd];
+      let result = Object.keys(val).filter(k => k !== 'help').reduce((str, k) => {
+        if (val[k]) {
+          return `${str} ${clr(k, ['bold', 'white'])}`;
+        }
+        return str;
+      }, `${clr(cmd, ['bold', 'yellow'])}: `);
+      result += val.help ? `\n${clr(val.help, 'green')}` : '';
+      return result;
+    }
+  );
+  return tableEntries.join('\n\n');
 }
 
 export function formatError(error): string {

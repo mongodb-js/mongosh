@@ -1936,6 +1936,64 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('commandHelp', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.commandHelp('listDatabases');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            listDatabases: 1,
+            help: true
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand().help returns', async() => {
+        const expectedResult = { ok: 1, help: 'help string' };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.commandHelp('listDatabases');
+        expect(result).to.deep.equal('help string');
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.commandHelp('listDatabases')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('listCommands', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        await database.listCommands();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            listCommands: 1
+          }
+        );
+      });
+
+      it('returns ListCommandsResult', async() => {
+        const expectedResult = { ok: 1, commands: { c1: { requiresAuth: false, slaveOk: true, adminOnly: false, help: 'help string' } } };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.listCommands();
+        expect(result.value).to.deep.equal(expectedResult.commands);
+        expect(result.type).to.equal('ListCommandsResult');
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.listCommands()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 

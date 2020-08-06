@@ -1020,6 +1020,16 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getLogComponents',
               description: 'returns the db getLogComponents. uses the getParameter command',
               example: 'db.getLogComponents()'
+            },
+            listCommands: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.listCommands',
+              description: 'Calls the listCommands command',
+              example: 'db.listCommands()'
+            },
+            commandHelp: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.commandHelp',
+              description: 'returns the db commandHelp. uses the passed in command with help: true',
+              example: 'db.commandHelp(<command>)',
             }
           }
         }
