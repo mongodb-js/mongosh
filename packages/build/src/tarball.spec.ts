@@ -1,10 +1,11 @@
 import os from 'os';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { expect } from 'chai';
+import Platform from './platform';
 import BuildVariant from './build-variant';
 import {
-  tarball,
+  createTarball,
   tarballPath,
   tarballPosix,
   tarballDebian,
@@ -46,43 +47,47 @@ describe('tarball module', () => {
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, BuildVariant.Linux, version);
 
-    before(() => {
-      return tarballPosix(__dirname, expectedTarball);
+    after(async() => {
+      await fs.unlink(expectedTarball);
     });
 
-    after((done) => {
-      fs.unlink(expectedTarball, done);
-    });
+    it('builds the executable', async() => {
+      await tarballPosix(__dirname, expectedTarball);
 
-    it('builds the executable', (done) => {
-      fs.stat(expectedTarball, (error) => {
-        expect(error).to.equal(null);
-        done();
-      });
+      let accessErr;
+      try {
+        fs.access(expectedTarball);
+      } catch (err) {
+        accessErr = err;
+      }
+
+      expect(accessErr).to.be.undefined;
     });
   });
 
   // macos and windows build variants does not come with installed 'dpkg' so
-  // this test fails. Run this test only on linux.
-  if (os.platform() === BuildVariant.Linux) {
+  // this test fails. Run this test only on linux platforms.
+  if (os.platform() === Platform.Linux) {
     describe('.tarballDebian', () => {
       const version = '1.0.0';
       const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
       const expectedTarball = tarballPath(__dirname, BuildVariant.Debian, version);
 
-      before(() => {
-        return tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
+      after(async () => {
+        await fs.unlink(expectedTarball);
       });
 
-      after((done) => {
-        fs.unlink(expectedTarball, done);
-      });
+      it('builds the executable', async() => {
+        await tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
 
-      it('builds the executable', (done) => {
-        fs.stat(expectedTarball, (error) => {
-          expect(error).to.equal(null);
-          done();
-        });
+        let accessErr;
+        try {
+          fs.access(expectedTarball);
+        } catch (err) {
+          accessErr = err;
+        }
+
+        expect(accessErr).to.be.undefined;
       });
     });
   }
@@ -92,42 +97,46 @@ describe('tarball module', () => {
     const expectedTarball = tarballPath(__dirname, BuildVariant.Windows, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
 
-    before(() => {
-      return tarballWindows(inputFile, expectedTarball);
+    after(async() => {
+      await fs.unlink(expectedTarball);
     });
 
-    after((done) => {
-      fs.unlink(expectedTarball, done);
-    });
+    it('builds the executable', async() => {
+      await tarballWindows(inputFile, expectedTarball);
 
-    it('builds the executable', (done) => {
-      fs.stat(expectedTarball, (error) => {
-        expect(error).to.equal(null);
-        done();
-      });
+      let accessErr;
+      try {
+        fs.access(expectedTarball);
+      } catch (err) {
+        accessErr = err;
+      }
+
+      expect(accessErr).to.be.undefined;
     });
   });
 
   describe('.tarball', () => {
-    const platform = os.platform();
+    const buildVariant = process.env.BUILD_VARIANT;
     const version = '1.0.0';
-    const expectedTarball = tarballPath(__dirname, platform, version);
+    const expectedTarball = tarballPath(__dirname, buildVariant, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
     const rootDir = path.join(__dirname, '../../..');
 
-    before(() => {
-      return tarball(inputFile, __dirname, platform, version, rootDir);
+    after(async () =>{
+      await fs.unlink(expectedTarball);
     });
 
-    after((done) => {
-      fs.unlink(expectedTarball, done);
-    });
+    it('builds the executable', async () => {
+      await createTarball(inputFile, __dirname, buildVariant, version, rootDir);
 
-    it('builds the executable', (done) => {
-      fs.stat(expectedTarball, (error) => {
-        expect(error).to.equal(null);
-        done();
-      });
+      let accessErr;
+      try {
+        fs.access(expectedTarball);
+      } catch (err) {
+        accessErr = err;
+      }
+
+      expect(accessErr).to.be.undefined;
     });
   });
 });

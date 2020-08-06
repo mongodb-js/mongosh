@@ -12,7 +12,7 @@ Current build and release flow is as follows:
 
 - A commit triggers an evergreen build based on currently available build
   variants: MacOS, Windows, Linux, Debiam.
-- MacOS and Linux run three tasks: check, test, and release. Windows and Debian
+- MacOS, Linux and Windows run three tasks: check, test, and release. Debian
   runs two tasks: check and release.
 - Identical bundle and binary are built on all three variants.
 - Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`). Type of tarball is
@@ -127,7 +127,7 @@ const downloadCentreConfig = createDownloadCenterConfig('1.3.2')
 ```
 
 
-#### await tarball(input, outputDir, buildVariant, version, rootDir)
+#### await createTarball(input, outputDir, buildVariant, version, rootDir)
 Creates a tarball for a given binary and build variant. Different build variants
 will create different tarballs - `.tgz`, `.zip`, or `.deb`.
 
@@ -147,7 +147,7 @@ const config = {
   rootDir: 'path/to/root/directory',
 }
 
-const artifact = await tarball(
+const artifact = await createTarball(
   executable,
   config.outputDir,
   config.buildVariant,

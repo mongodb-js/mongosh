@@ -8,21 +8,21 @@ import BuildVariant from './build-variant';
  * Get the path to the tarball.
  *
  * @param {string} outputDir - The output directory.
- * @param {string} platform - The platform.
+ * @param {string} build variant - The Build Variant.
  * @param {string} version - The version.
  *
  * @returns {string} The path.
  */
-export const tarballPath = (outputDir: string, platform: string, version: string): string => {
-  if (platform === BuildVariant.Linux) {
-    return path.join(outputDir, `mongosh-${version}-${platform}.tgz`);
-  } else if (platform === BuildVariant.Debian) {
+export const tarballPath = (outputDir: string, buildVariant: string, version: string): string => {
+  if (buildVariant === BuildVariant.Linux) {
+    return path.join(outputDir, `mongosh-${version}-${buildVariant}.tgz`);
+  } else if (buildVariant === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
     // sometimes there is also revision number, but we can add that later.
     return path.join(outputDir, `mongosh_${version}_amd64.deb`);
   } else {
-    return path.join(outputDir, `mongosh-${version}-${platform}.zip`);
+    return path.join(outputDir, `mongosh-${version}-${buildVariant}.zip`);
   }
 };
 
@@ -93,7 +93,7 @@ export type TarballFile = { path: string; contentType: string };
  *
  * @returns {TarballFile} The path and type of the tarball.
  */
-export async function tarball(
+export async function createTarball(
   input: string,
   outputDir: string,
   buildVariant: string,

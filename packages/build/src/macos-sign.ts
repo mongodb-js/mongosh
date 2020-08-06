@@ -3,7 +3,7 @@ import util from 'util';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
-import { tarball } from './tarball';
+import { createTarball } from './tarball';
 
 /**
  * Notarizes the zipped mongosh. Will send the tarball to Apple and poll apple
@@ -48,7 +48,7 @@ const publish = async(executable: string, artifact: string, platform: string, co
   await sign(executable, config.appleAppIdentity).
     catch((e) => { console.error(e); throw e; });
   console.log('mongosh: notarizing and creating tarball:', executable);
-  await tarball(executable, config.outputDir, platform, config.version, config.rootDir);
+  await createTarball(executable, config.outputDir, platform, config.version, config.rootDir);
   await notarize(
     config.bundleId,
     artifact,

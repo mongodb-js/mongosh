@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import {
-  tarball,
+  createTarball,
   tarballPath,
 } from './tarball';
 
@@ -79,7 +79,7 @@ describe('GithubRepo', () => {
       githubRepo.createRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
-      const tarballFile = await tarball(inputFile, __dirname, platform, version, rootDir);
+      const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
       githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
       expect(githubRepo.createRelease).to.have.been.called;
