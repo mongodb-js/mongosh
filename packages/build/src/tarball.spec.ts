@@ -62,28 +62,30 @@ describe('tarball module', () => {
     });
   });
 
-  // macos build variant does not come with installed 'dpkg' so this test fails
-  // on macos. 
-  // describe('.tarballDebian', () => {
-  //   const version = '1.0.0';
-  //   const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
-  //   const expectedTarball = tarballPath(__dirname, BuildVariant.Debian, version);
+  // macos and windows build variants does not come with installed 'dpkg' so
+  // this test fails. Run this test only on linux.
+  if (os.platform() === BuildVariant.Linux) {
+    describe('.tarballDebian', () => {
+      const version = '1.0.0';
+      const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+      const expectedTarball = tarballPath(__dirname, BuildVariant.Debian, version);
 
-  //   before(() => {
-  //     return tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
-  //   });
+      before(() => {
+        return tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
+      });
 
-  //   after((done) => {
-  //     fs.unlink(expectedTarball, done);
-  //   });
+      after((done) => {
+        fs.unlink(expectedTarball, done);
+      });
 
-  //   it('builds the executable', (done) => {
-  //     fs.stat(expectedTarball, (error) => {
-  //       expect(error).to.equal(null);
-  //       done();
-  //     });
-  //   });
-  // });
+      it('builds the executable', (done) => {
+        fs.stat(expectedTarball, (error) => {
+          expect(error).to.equal(null);
+          done();
+        });
+      });
+    });
+  }
 
   describe('.tarballWindows', () => {
     const version = '1.0.0';
