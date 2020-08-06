@@ -21,8 +21,8 @@ import {
   Document,
   WriteConcern
 } from '@mongosh/service-provider-core';
-import { AggregationCursor } from './index';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { AggregationCursor, CommandResult } from './index';
+import { MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -625,5 +625,130 @@ export default class Database extends ShellApiClass {
         fsyncUnlock: 1
       }
     );
+  }
+
+  @returnsPromise
+  async version(): Promise<any> {
+    this._emitDatabaseApiCall('version', {});
+    const info = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        buildInfo: 1,
+      }
+    );
+    if (!info || !info.ok) {
+      throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
+    }
+    return info.version;
+  }
+
+  @returnsPromise
+  async serverBits(): Promise<any> {
+    this._emitDatabaseApiCall('serverBits', {});
+    const info = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        buildInfo: 1,
+      }
+    );
+    if (!info || !info.ok) {
+      throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
+    }
+    return info.bits;
+  }
+
+  @returnsPromise
+  async isMaster(): Promise<any> {
+    this._emitDatabaseApiCall('isMaster', {});
+    const info = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        isMaster: 1,
+      }
+    );
+    if (!info || !info.ok) {
+      throw new MongoshRuntimeError(`Error running command isMaster ${info ? info.errmsg || '' : ''}`);
+    }
+    return info;
+  }
+
+  @returnsPromise
+  async serverBuildInfo(): Promise<any> {
+    this._emitDatabaseApiCall('serverBuildInfo', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        buildInfo: 1,
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command buildInfo ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async stats(scale: any): Promise<any> {
+    assertArgsDefined(scale);
+    this._emitDatabaseApiCall('stats', { scale: scale });
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        dbStats: 1,
+        scale: scale
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command dbStats ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async hostInfo(): Promise<any> {
+    this._emitDatabaseApiCall('hostInfo', {});
+    const info = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        hostInfo: 1,
+      }
+    );
+    if (!info || !info.ok) {
+      throw new MongoshRuntimeError(`Error running command hostInfo ${info ? info.errmsg || '' : ''}`);
+    }
+    return info;
+  }
+
+  @returnsPromise
+  async serverCmdLineOpts(): Promise<any> {
+    this._emitDatabaseApiCall('serverCmdLineOpts', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        getCmdLineOpts: 1,
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command serverCmdLineOpts ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async printCollectionStats(scale = 1): Promise<any> {
+    if (typeof scale !== 'number' || scale < 1) {
+      throw new MongoshInvalidInputError(`scale has to be a number >=1, got ${scale}`);
+    }
+    this._emitDatabaseApiCall('printCollectionStats', { scale: scale });
+    const colls = await this.getCollectionNames();
+    const result = {};
+    for (const c of colls) {
+      try {
+        result[c] = await this.getCollection(c).stats(scale);
+      } catch (error) {
+        result[c] = { ok: 0, errmsg: error.message };
+      }
+    }
+    return new CommandResult('StatsResult', result);
   }
 }

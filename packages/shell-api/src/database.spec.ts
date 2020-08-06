@@ -113,6 +113,7 @@ describe('Database', () => {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
+      serviceProvider.runCommand.resolves({ ok: 1 });
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');
@@ -1457,6 +1458,201 @@ describe('Database', () => {
         const expectedError = new Error();
         serviceProvider.runCommand.rejects(expectedError);
         const catchedError = await database.fsyncUnlock()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('version', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.version();
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            buildInfo: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1, version: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.version();
+        expect(result).to.deep.equal(1);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.version()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('serverBits', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.serverBits();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            buildInfo: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, bits: 3 });
+        const result = await database.serverBits();
+        expect(result).to.deep.equal(3);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.serverBits()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('isMaster', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.isMaster();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            isMaster: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.isMaster();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.isMaster()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('serverBuildInfo', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.serverBuildInfo();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            buildInfo: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.serverBuildInfo();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.serverBuildInfo()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('stats', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.stats(1);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            dbStats: 1,
+            scale: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.stats(1);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.stats(1)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('hostInfo', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.hostInfo();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            hostInfo: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.hostInfo();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.hostInfo()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('serverCmdLineOpts', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.serverCmdLineOpts();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            getCmdLineOpts: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.serverCmdLineOpts();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.serverCmdLineOpts()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });

@@ -449,8 +449,26 @@ describe('Shell API (integration)', function() {
         await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
       });
 
-      it('returns stats', async() => {
+      it('returns stats without indexDetails', async() => {
         const stats = await collection.stats();
+        expect(stats).to.contain.keys(
+          'avgObjSize',
+          'capped',
+          'count',
+          'indexBuilds',
+          'indexSizes',
+          'nindexes',
+          'ns',
+          'ok',
+          'scaleFactor',
+          'size',
+          'storageSize',
+          'totalIndexSize',
+          'wiredTiger'
+        );
+      });
+      it('returns stats with indexDetails', async() => {
+        const stats = await collection.stats({ indexDetails: true });
         expect(stats).to.contain.keys(
           'avgObjSize',
           'capped',
