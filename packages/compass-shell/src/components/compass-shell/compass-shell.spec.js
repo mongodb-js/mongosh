@@ -34,7 +34,7 @@ describe('CompassShell', () => {
           emitShellPluginOpened: mockOnOpenShellPlugin
         });
         shell.resizableRef = {
-          sizeStyle: {
+          size: {
             height: 100
           },
           updateSize: () => {}
@@ -125,7 +125,7 @@ describe('CompassShell', () => {
         const shell = new CompassShell({ isExpanded: true });
         let sizeSetTo = {};
         shell.resizableRef = {
-          sizeStyle: {
+          size: {
             height: 100
           },
           updateSize: newSize => {
@@ -149,7 +149,7 @@ describe('CompassShell', () => {
           };
         };
         shell.resizableRef = {
-          sizeStyle: {
+          size: {
             height: 100
           },
           updateSize: () => { }
@@ -173,7 +173,7 @@ describe('CompassShell', () => {
           };
           let sizeSetTo = {};
           shell.resizableRef = {
-            sizeStyle: {
+            size: {
               height: 99
             },
             updateSize: newSize => {

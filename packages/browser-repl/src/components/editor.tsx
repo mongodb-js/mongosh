@@ -13,12 +13,14 @@ const tools = ace.acequire('ace/ext/language_tools');
 const noop = (): void => {};
 
 interface EditorProps {
+  autocompleter?: Autocompleter;
+  moveCursorToTheEndOfInput?: boolean;
   onEnter?(): void | Promise<void>;
   onArrowUpOnFirstLine?(): void | Promise<void>;
   onArrowDownOnLastLine?(): void | Promise<void>;
   onChange?(value: string): void | Promise<void>;
   onClearCommand?(): void | Promise<void>;
-  autocompleter?: Autocompleter;
+  operationInProgress?: boolean;
   setInputRef?(ref): void;
   value?: string;
 }
@@ -30,13 +32,17 @@ export class Editor extends Component<EditorProps> {
     onArrowDownOnLastLine: noop,
     onChange: noop,
     onClearCommand: noop,
-    value: ''
+    operationInProgress: false,
+    value: '',
+    moveCursorToTheEndOfInput: false
   };
 
   private editor: any;
+  private visibleCursorDisplayStyle: string;
 
   private onEditorLoad = (editor: any): void => {
     this.editor = editor;
+    this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
 
     if (this.props.autocompleter) {
       editor.commands.on('afterExec', function(e) {
@@ -49,14 +55,39 @@ export class Editor extends Component<EditorProps> {
     }
   };
 
-  render(): JSX.Element {
-    const { onClearCommand } = this.props;
+  componentDidUpdate(): void {
+    if (this.props.operationInProgress) {
+      this.hideCursor();
+    } else {
+      this.showCursor();
+    }
 
+    if (this.props.moveCursorToTheEndOfInput) {
+      this.moveCursorToTheEndOfInput();
+    }
+  }
+
+  private hideCursor(): void {
+    this.editor.renderer.$cursorLayer.element.style.display = 'none';
+  }
+
+  private showCursor(): void {
+    this.editor.renderer.$cursorLayer.element.style.display = this.visibleCursorDisplayStyle;
+  }
+
+  private moveCursorToTheEndOfInput(): void {
+    const row = this.editor.session.getLength() - 1;
+    const column = this.editor.session.getLine(row).length;
+    this.editor.gotoLine(row + 1, column);
+  }
+
+  render(): JSX.Element {
     return (<AceEditor
       showPrintMargin={false}
       showGutter={false}
       highlightActiveLine
       setOptions={{
+        readOnly: !!this.props.operationInProgress,
         enableBasicAutocompletion: !!this.props.autocompleter,
         enableLiveAutocompletion: !!this.props.autocompleter,
         enableSnippets: false,
@@ -110,7 +141,7 @@ export class Editor extends Component<EditorProps> {
         {
           name: 'clearShell',
           bindKey: { win: 'Ctrl-L', mac: 'Command-L' },
-          exec: onClearCommand
+          exec: this.props.onClearCommand
         }
       ]}
       width="100%"

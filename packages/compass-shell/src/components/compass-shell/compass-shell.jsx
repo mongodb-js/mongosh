@@ -94,7 +94,9 @@ export class CompassShell extends Component {
 
   shellToggleClicked = () => {
     if (this.state.isExpanded) {
-      this.lastOpenHeight = this.resizableRef.sizeStyle.height;
+      // Apply bounds to height to ensure it's always visible to the user.
+      const heightToResume = Math.max(60, this.resizableRef.size.height);
+      this.lastOpenHeight = heightToResume;
 
       this.resizableRef.updateSize({
         width: '100%',
@@ -105,7 +107,7 @@ export class CompassShell extends Component {
 
       this.resizableRef.updateSize({
         width: '100%',
-        height: this.lastOpenHeight
+        height: Math.min(this.lastOpenHeight, window.innerHeight - 40)
       });
     }
 

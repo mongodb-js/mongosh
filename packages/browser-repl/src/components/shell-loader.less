@@ -1,0 +1,17 @@
+@import '~@leafygreen-ui/palette/dist/ui-colors.less';
+
+.shell-loader {
+  border: 2px solid @leafygreen__gray--light-3;
+  border-top: 2px solid @leafygreen__green--base;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  animation: shell-loader-spin 500ms linear infinite;
+}
+
+@keyframes shell-loader-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

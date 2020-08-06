@@ -1,11 +1,11 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from '../../testing/chai';
-import { shallow } from '../../testing/enzyme';
+import { shallow, mount } from '../../testing/enzyme';
 
 import { ShellInput } from './shell-input';
 import { Editor } from './editor';
-import { Completion } from '../autocompleter/autocompleter';
+import Loader from './shell-loader';
 
 function changeValue(wrapper, value): void {
   wrapper.find(Editor).prop('onChange')(value);
@@ -39,11 +39,9 @@ describe('<ShellInput />', () => {
     expect(onInput).to.have.been.calledWith('value');
   });
 
-  it('does not call onInput if the input is empty', () => {
-    const onInput = sinon.spy();
-    const wrapper = shallow(<ShellInput onInput={onInput}/>);
-    enter(wrapper);
-    expect(onInput).to.not.have.been.called;
+  it('does not set the editor as readOnly by default', () => {
+    const wrapper = shallow(<ShellInput />);
+    expect(wrapper.find('Editor').prop('operationInProgress')).to.equal(false);
   });
 
   describe('history', () => {
@@ -112,11 +110,29 @@ describe('<ShellInput />', () => {
       arrowDown(wrapper);
       expect(wrapper.state('currentValue')).to.equal('value3');
     });
+
+    it('shows a loader when operationInProgress is true ', () => {
+      const wrapper = mount(<ShellInput
+        history={['value2', 'value1']}
+        operationInProgress
+      />);
+
+      expect(wrapper.find(Loader).exists()).to.equal(true);
+    });
+
+    it('does not show a loader when operationInProgress is fase ', () => {
+      const wrapper = shallow(<ShellInput
+        history={['value2', 'value1']}
+        operationInProgress={false}
+      />);
+
+      expect(wrapper.find(Loader).exists()).to.equal(false);
+    });
   });
 
   describe('autocompletion', () => {
     it('forwards an autocompleter to the editor', () => {
-      const autocompleter = { getCompletions: (): Promise<Completion[]> => Promise.resolve([]) };
+      const autocompleter = { getCompletions: (): Promise<any[]> => Promise.resolve([]) };
       const wrapper = shallow(<ShellInput autocompleter={autocompleter} />);
       expect(wrapper.find('Editor').prop('autocompleter')).to.equal(autocompleter);
     });

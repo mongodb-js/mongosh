@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import { Editor } from './editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
-import { LineWithIcon } from './utils/line-with-icon';
 import Icon from '@leafygreen-ui/icon';
+
+import { Editor } from './editor';
+import { LineWithIcon } from './utils/line-with-icon';
+import Loader from './shell-loader';
 
 const styles = require('./shell-input.less');
 
@@ -12,16 +14,21 @@ interface ShellInputProps {
   history?: readonly string[];
   onClearCommand?(): void | Promise<void>;
   onInput?(code: string): void | Promise<void>;
+  operationInProgress?: boolean;
   setInputRef?(ref): void;
 }
 
 interface ShellInputState {
   currentValue: string;
+  readOnly: boolean;
+  didLoadHistoryItem: boolean;
 }
 
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   readonly state: ShellInputState = {
-    currentValue: ''
+    currentValue: '',
+    readOnly: false,
+    didLoadHistoryItem: false
   };
 
   private historyNavigationEntries: string[];
@@ -52,7 +59,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private onChange = (value: string): void => {
-    this.setState({ currentValue: value });
+    this.setState({ currentValue: value, didLoadHistoryItem: false });
   };
 
   private syncCurrentValueWithHistoryNavigation(): void {
@@ -63,7 +70,8 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     }
 
     this.setState({
-      currentValue: value
+      currentValue: value,
+      didLoadHistoryItem: true
     });
   }
 
@@ -87,14 +95,9 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.syncCurrentValueWithHistoryNavigation();
   };
 
-  private onEnter = (): void => {
-    const currentValue = this.state.currentValue;
-    if (!currentValue || currentValue.trim() === '') {
-      return;
-    }
-
+  private onEnter = async(): Promise<void> => {
     if (this.props.onInput) {
-      this.props.onInput(currentValue);
+      await this.props.onInput(this.state.currentValue);
     }
 
     this.setState({
@@ -103,7 +106,11 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   render(): JSX.Element {
-    const icon = (<Icon
+    const icon = this.props.operationInProgress ? (
+      <Loader
+        size={12}
+      />
+    ) : (<Icon
       size={12}
       glyph={'ChevronRight'}
     />);
@@ -117,6 +124,8 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       onClearCommand={this.props.onClearCommand}
       setInputRef={this.props.setInputRef}
       value={this.state.currentValue}
+      operationInProgress={this.props.operationInProgress}
+      moveCursorToTheEndOfInput={this.state.didLoadHistoryItem}
     />);
 
     const className = classnames(styles['shell-input']);
