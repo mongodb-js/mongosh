@@ -1779,6 +1779,163 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('getProfilingStatus', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.getProfilingStatus();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            profile: -1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getProfilingStatus();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getProfilingStatus()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('setProfilingLevel', () => {
+      it('calls serviceProvider.runCommand on the database no options', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.setProfilingLevel(1);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            profile: 1
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database w number options', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.setProfilingLevel(1, 100);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            profile: 1,
+            slowms: 100
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database w doc options', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.setProfilingLevel(1, { slowms: 100, sampleRate: 0.5 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            profile: 1,
+            slowms: 100,
+            sampleRate: 0.5
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.setProfilingLevel(1);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.setProfilingLevel(1)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('setLogLevel', () => {
+      it('calls serviceProvider.runCommand on the database with no component', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.setLogLevel(2);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setParameter: 1,
+            logComponentVerbosity: { verbosity: 2 }
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database with string component', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.setLogLevel(2, 'a.b.c');
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setParameter: 1,
+            logComponentVerbosity: { a: { b: { c: { verbosity: 2 } } } }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.setLogLevel(2);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.setLogLevel(2)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('getLogComponents', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.getLogComponents();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            getParameter: 1,
+            logComponentVerbosity: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1, logComponentVerbosity: 100 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getLogComponents();
+        expect(result).to.deep.equal(100);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getLogComponents()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 

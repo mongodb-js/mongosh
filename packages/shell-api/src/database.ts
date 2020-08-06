@@ -822,4 +822,99 @@ export default class Database extends ShellApiClass {
     }
     return result;
   }
+
+  @returnsPromise
+  async getProfilingStatus(): Promise<any> {
+    this._emitDatabaseApiCall('getProfilingStatus', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        profile: -1,
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command profile ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async setProfilingLevel(level: number, opts: any = {}): Promise<any> {
+    assertArgsDefined(level);
+    if (level < 0 || level > 2) {
+      throw new MongoshInvalidInputError(`Input level ${level} is out of range [0..2]`);
+    }
+    if (typeof opts === 'number') {
+      opts = { slowms: opts };
+    }
+    this._emitDatabaseApiCall('setProfilingLevel', { opts: opts });
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        profile: level,
+        ...opts
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command profile ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async setLogLevel(logLevel: number, component?: any): Promise<any> {
+    assertArgsDefined(logLevel);
+    this._emitDatabaseApiCall('setLogLevel', { logLevel: logLevel, component: component });
+    let componentNames = [];
+    if (typeof component === 'string') {
+      componentNames = component.split('.');
+    } else if (component !== undefined) {
+      throw new MongoshInvalidInputError(`setLogLevel component must be a string: got ${typeof component}`);
+    }
+    let vDoc = { verbosity: logLevel };
+
+    // nest vDoc
+    for (let key, obj; componentNames.length > 0;) {
+      obj = {};
+      key = componentNames.pop();
+      obj[key] = vDoc;
+      vDoc = obj;
+    }
+
+    const cmdObj = { setParameter: 1, logComponentVerbosity: vDoc };
+
+    // TODO: when we implement sessions
+    // if (driverSession._isExplicit || !jsTest.options().disableImplicitSessions) {
+    //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
+    // }
+
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      cmdObj
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command setParameter ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async getLogComponents(): Promise<any> {
+    this._emitDatabaseApiCall('getLogComponents', {});
+    const cmdObj = { getParameter: 1, logComponentVerbosity: 1 };
+
+    // TODO: when we implement sessions
+    // if (driverSession._isExplicit || !jsTest.options().disableImplicitSessions) {
+    //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
+    // }
+
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      cmdObj
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command  ${result ? result.errmsg || '' : ''}`);
+    }
+    return result.logComponentVerbosity;
+  }
 }
