@@ -47,6 +47,7 @@ const BUNDLE_ID = 'com.mongodb.mongosh';
 module.exports = {
   version: CONFIG.version,
   bundleId: BUNDLE_ID,
+  rootDir: ROOT,
   input: INPUT,
   execInput: EXEC_INPUT,
   outputDir: OUTPUT_DIR,
@@ -65,6 +66,7 @@ module.exports = {
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
   isCi: process.env.IS_CI === 'true',
   platform: os.platform(),
+  buildVariant: process.env.BUILD_VARIANT,
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'

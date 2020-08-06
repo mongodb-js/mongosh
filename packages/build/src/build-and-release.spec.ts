@@ -3,7 +3,7 @@ import buildAndRelease from './build-and-release';
 import chai, { expect } from 'chai';
 import Config from './config';
 import sinon from 'ts-sinon';
-import { ZipFile } from './zip';
+import { TarballFile } from './tarball';
 
 chai.use(require('sinon-chai'));
 
@@ -13,10 +13,10 @@ function createStubRepo(overrides?: any): GithubRepo {
 
 describe('buildAndRelease', () => {
   let config: Config;
-  let zipFile: ZipFile;
-  let compileAndZipExecutable: (Config) => Promise<ZipFile>;
+  let tarballFile: TarballFile;
+  let compileAndZipExecutable: (Config) => Promise<TarballFile>;
   let uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>;
-  let releaseToDownloadCenter: (ZipFile, Config) => Promise<void>;
+  let releaseToDownloadCenter: (TarballFile, Config) => Promise<void>;
   let githubRepo: GithubRepo;
 
   beforeEach(() => {
@@ -41,14 +41,15 @@ describe('buildAndRelease', () => {
       appleAppIdentity: 'appleAppIdentity',
       isCi: true,
       platform: 'platform',
+      buildVariant: 'linux',
       repo: {
         owner: 'owner',
         repo: 'repo',
       }
     };
 
-    zipFile = { path: 'path', contentType: 'application/gzip' };
-    compileAndZipExecutable = sinon.stub().resolves(zipFile);
+    tarballFile = { path: 'path', contentType: 'application/gzip' };
+    compileAndZipExecutable = sinon.stub().resolves(tarballFile);
     uploadToEvergreen = sinon.spy();
     releaseToDownloadCenter = sinon.spy();
     githubRepo = createStubRepo();
@@ -69,7 +70,7 @@ describe('buildAndRelease', () => {
       );
 
       expect(uploadToEvergreen).to.have.been.calledWith(
-        zipFile.path,
+        tarballFile.path,
         config.evgAwsKey,
         config.evgAwsSecret,
         config.project,
@@ -91,7 +92,7 @@ describe('buildAndRelease', () => {
       releaseToDownloadCenter
     );
 
-    expect(releaseToDownloadCenter).to.have.been.calledWith(zipFile, config);
+    expect(releaseToDownloadCenter).to.have.been.calledWith(tarballFile, config);
   });
 
   it('releases to downloads centre if a public release', async() => {
@@ -108,6 +109,6 @@ describe('buildAndRelease', () => {
       releaseToDownloadCenter
     );
 
-    expect(githubRepo.releaseToGithub).to.have.been.calledWith(zipFile, config);
+    expect(githubRepo.releaseToGithub).to.have.been.calledWith(tarballFile, config);
   });
 });

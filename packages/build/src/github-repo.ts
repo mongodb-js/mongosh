@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Octokit } from '@octokit/rest';
-import { ZipFile } from './zip';
+import { TarballFile } from './tarball';
 import Config from './config';
 import semver from 'semver';
 import path from 'path';
@@ -105,7 +105,7 @@ export class GithubRepo {
 
   // Creates release notes and uploads assets if they are not yet uploaded to
   // Github.
-  async releaseToGithub(artifact: ZipFile, config: Config): Promise<void> {
+  async releaseToGithub(artifact: TarballFile, config: Config): Promise<void> {
     const githubRelease = {
       name: config.version,
       tag: `v${config.version}`,

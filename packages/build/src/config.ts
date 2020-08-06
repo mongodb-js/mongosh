@@ -8,6 +8,7 @@ export default interface Config {
   execInput?: string;
   outputDir?: string;
   analyticsConfig?: string;
+  rootDir?: string;
   project?: string;
   revision?: string;
   branch?: string;
@@ -22,6 +23,7 @@ export default interface Config {
   appleAppIdentity?: string;
   isCi?: boolean;
   platform?: string;
+  buildVariant?: string;
   repo?: {
     owner: string;
     repo: string;
