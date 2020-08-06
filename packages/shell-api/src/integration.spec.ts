@@ -715,7 +715,7 @@ describe('Shell API (integration)', function() {
           { serverStatus: 1 }
         );
         expect(result.ok).to.equal(1);
-        expect(result.process).to.match(/^mongo/);
+        expect(result.process).to.match(/mongo/);
       });
     });
 

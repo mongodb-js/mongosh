@@ -17,3 +17,4 @@ node_modules/
 .cache/
 expansions.yaml
 tmp/expansions.yaml
+.evergreen/mongodb

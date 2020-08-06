@@ -1,7 +1,7 @@
 import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 
 describe('CliServiceProvider [integration]', function() {
   const connectionString = startTestServer();
@@ -76,8 +76,9 @@ describe('CliServiceProvider [integration]', function() {
   });
 
   describe('#aggregate', () => {
-    // NOTE: this will only run on 4.4+, so if we change mongodb-runner to a different version we should be aware this will fail.
-    context('when passing a $function to be serialized by the driver', () => {
+    context('when passing a $function to be serialized by the driver', function() {
+      skipIfServerVersion('< 4.4');
+
       let result;
 
       beforeEach(async() => {
@@ -102,6 +103,7 @@ describe('CliServiceProvider [integration]', function() {
         expect(docs).to.deep.equal([]);
       });
     });
+
     context('when running against a collection', () => {
       let result;
 

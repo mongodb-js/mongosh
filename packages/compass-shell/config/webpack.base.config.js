@@ -2,6 +2,7 @@ const path = require('path');
 const project = require('./project');
 
 module.exports = {
+  stats: 'errors-only',
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.json', '.less', '.wasm'],
