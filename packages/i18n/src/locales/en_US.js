@@ -522,7 +522,12 @@ const translations = {
             getMongo: {
               description: 'Returns the Mongo object.',
               example: 'db.collection.getMongo()'
-            }
+            },
+            latencyStats: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.latencyStats',
+              description: 'returns the $latencyStats aggregation for the collection. Takes an options document with an optional boolean \'histograms\' field.',
+              example: 'db.latencyStats({ histograms: true })'
+            },
           }
         }
       },
@@ -940,6 +945,46 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.fsyncUnlock',
               description: 'Calls the fsyncUnlock command. Reduces the lock taken by db.fsyncLock() on a mongod instance by 1.',
               example: 'db.fsyncUnlock(<options>)'
+            },
+            version: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.version',
+              description: 'returns the db version. uses the buildinfo command',
+              example: 'db.version()'
+            },
+            serverBits: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.serverBits',
+              description: 'returns the db serverBits. uses the buildInfo command',
+              example: 'db.serverBits()',
+            },
+            isMaster: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.isMaster',
+              description: 'Calls the isMaster command',
+              example: 'db.isMaster()'
+            },
+            serverBuildInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.serverBuildInfo',
+              description: 'returns the db serverBuildInfo. uses the buildInfo command',
+              example: 'db.serverBuildInfo()',
+            },
+            stats: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.stats',
+              description: 'returns the db stats. uses the dbStats command',
+              example: 'db.stats(<scale>)',
+            },
+            hostInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.hostInfo',
+              description: 'Calls the hostInfo command',
+              example: 'db.hostInfo()'
+            },
+            serverCmdLineOpts: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.serverCmdLineOpts',
+              description: 'returns the db serverCmdLineOpts. uses the getCmdLineOpts command',
+              example: 'db.serverCmdLineOpts()',
+            },
+            printCollectionStats: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.printCollectionStats',
+              description: 'Prints the collection.stats for each collection in the db.',
+              example: 'db.printCollectionStats(scale)',
             }
           }
         }

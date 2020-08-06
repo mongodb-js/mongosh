@@ -56,6 +56,13 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <ShowDbsOutput value={value} />;
     }
 
+    if (type === 'StatsResult') {
+      const res = Object.keys(value).reduce((str, c) => {
+        return `${str}\n${c}\n${value[c]}\n---\n`;
+      }, '');
+      return <pre>{res}</pre>;
+    }
+
     if (type === 'ShowCollectionsResult') {
       return <ShowCollectionsOutput value={value} />;
     }

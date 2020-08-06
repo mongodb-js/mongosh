@@ -45,6 +45,10 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatCollections(value);
   }
 
+  if (type === 'StatsResult') {
+    return formatStats(value);
+  }
+
   if (type === 'Error') {
     return formatError(value);
   }
@@ -69,6 +73,12 @@ function formatDatabases(output): string {
   );
 
   return textTable(tableEntries, { align: ['l', 'r'] });
+}
+
+function formatStats(output): string {
+  return Object.keys(output).reduce((str, c) => {
+    return `${str}\n${c}\n${inspect(output[c])}\n---\n`;
+  }, '');
 }
 
 export function formatError(error): string {

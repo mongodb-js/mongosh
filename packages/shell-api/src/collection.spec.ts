@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
@@ -62,6 +63,7 @@ describe('Collection', () => {
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, bus);
@@ -514,16 +516,78 @@ describe('Collection', () => {
     });
 
     describe('stats', () => {
-      let result;
+      it('calls serviceProvider.runCommand on the database with no options', async() => {
+        await collection.stats();
 
-      beforeEach(() => {
-        result = {};
-        serviceProvider.stats.resolves(result);
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { collStats: 'coll1', scale: 1 } // ensure simple collname
+        );
       });
 
-      it('returns stats', async() => {
-        expect(await collection.stats({ scale: 1 })).to.equal(result);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1', { scale: 1 });
+      it('calls serviceProvider.runCommand on the database with scale option', async() => {
+        await collection.stats({ scale: 2 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { collStats: collection._name, scale: 2 }
+        );
+      });
+
+      it('calls serviceProvider.runCommand on the database with legacy scale', async() => {
+        await collection.stats(2);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          { collStats: collection._name, scale: 2 }
+        );
+      });
+
+      context('indexDetails', () => {
+        let expectedResult;
+        let indexesResult;
+        beforeEach(() => {
+          expectedResult = { ok: 1, indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } } };
+          indexesResult = [ { v: 2, key: { k1: 1 }, name: 'k1_1' }, { v: 2, key: { k2: 1 }, name: 'k2_1' }];
+          serviceProvider.runCommand.resolves(expectedResult);
+          serviceProvider.getIndexes.resolves(indexesResult);
+        });
+        it('not returned when no args', async() => {
+          const result = await collection.stats();
+          expect(result).to.deep.equal({ ok: 1 });
+        });
+        it('not returned when options indexDetails: false', async() => {
+          const result = await collection.stats({ indexDetails: false });
+          expect(result).to.deep.equal({ ok: 1 });
+        });
+        it('returned all when true, even if no key/name set', async() => {
+          const result = await collection.stats({ indexDetails: true });
+          expect(result).to.deep.equal(expectedResult);
+        });
+        it('returned only 1 when indexDetailsName set', async() => {
+          const result = await collection.stats({ indexDetails: true, indexDetailsName: 'k2_1' });
+          expect(result).to.deep.equal({ ok: 1, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
+        });
+        it('returned all when indexDetailsName set but not found', async() => {
+          const result = await collection.stats({ indexDetails: true, indexDetailsName: 'k3_1' });
+          expect(result).to.deep.equal(expectedResult);
+        });
+        it('returned only 1 when indexDetailsKey set', async() => {
+          const result = await collection.stats({ indexDetails: true, indexDetailsKey: indexesResult[1].key });
+          expect(result).to.deep.equal({ ok: 1, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
+        });
+        it('returned all when indexDetailsKey set but not found', async() => {
+          const result = await collection.stats({ indexDetails: true, indexDetailsKey: { other: 1 } });
+          expect(result).to.deep.equal(expectedResult);
+        });
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await collection.stats()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
       });
     });
 
@@ -799,6 +863,36 @@ describe('Collection', () => {
       it('sets the right default verbosity', () => {
         const explainable = collection.explain();
         expect(explainable._verbosity).to.equal('queryPlanner');
+      });
+    });
+
+    describe('latencyStats', () => {
+      it('calls serviceProvider.aggregate on the database with options', async() => {
+        serviceProvider.aggregate.returns({ toArray: async() => ([]) } as any);
+        await collection.latencyStats({ histograms: true });
+
+        expect(serviceProvider.aggregate).to.have.been.calledWith(
+          database._name,
+          collection._name,
+          [{
+            $collStats: { latencyStats: { histograms: true } }
+          }],
+          {}
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        serviceProvider.aggregate.returns({ toArray: async() => ([{ 1: 'db1' }]) } as any);
+        const result = await collection.latencyStats();
+        expect(result).to.deep.equal([{ 1: 'db1' }]);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.aggregate.throws(expectedError);
+        const catchedError = await collection.latencyStats()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
       });
     });
   });

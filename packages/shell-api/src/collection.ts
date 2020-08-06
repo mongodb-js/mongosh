@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import Mongo from './mongo';
 import {
   shellApiClassDefault,
@@ -21,7 +22,7 @@ import {
   InsertOneResult,
   UpdateResult
 } from './index';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1123,18 +1124,6 @@ export default class Collection extends ShellApiClass {
   }
 
   /**
-   * Get all the collection statistics.
-   *
-   * @param {Object} options - The stats options.
-   * @return {Promise} returns Promise
-   */
-  @returnsPromise
-  async stats(options: Document = {}): Promise<any> {
-    this._emitCollectionApiCall('stats', { options });
-    return await this._mongo._serviceProvider.stats(this._database._name, this._name, options);
-  }
-
-  /**
    * Get the collection dataSize.
    *
    * @return {Promise} returns Promise
@@ -1253,5 +1242,87 @@ export default class Collection extends ShellApiClass {
     validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
     return new Explainable(this._mongo, this, verbosity);
+  }
+
+  @returnsPromise
+  async stats(options: any = {}): Promise<any> {
+    if (typeof options === 'number') {
+      options = {
+        scale: options
+      };
+    }
+    if (options.indexDetailsKey && options.indexDetailsName) {
+      throw new MongoshInvalidInputError('Cannot filter indexDetails on both indexDetailsKey and indexDetailsName');
+    }
+    if (options.indexDetailsKey && typeof options.indexDetailsKey !== 'object') {
+      throw new MongoshInvalidInputError(`Expected options.indexDetailsKey to be a document, got ${typeof options.indexDetailsKey}`);
+    }
+    if (options.indexDetailsName && typeof options.indexDetailsName !== 'string') {
+      throw new MongoshInvalidInputError(`Expected options.indexDetailsName to be a string, got ${typeof options.indexDetailsName}`);
+    }
+    options.scale = options.scale || 1;
+    options.indexDetails = options.indexDetails || false;
+
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._database._name,
+      {
+        collStats: this._name, scale: options.scale
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running collStats command ${result ? result.errmsg : ''}`);
+    }
+    let filterIndexName = options.indexDetailsName;
+    if (!filterIndexName && options.indexDetailsKey) {
+      const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+      indexes.forEach((spec) => {
+        if (JSON.stringify(spec.key) === JSON.stringify(options.indexDetailsKey)) {
+          filterIndexName = spec.name;
+        }
+      });
+    }
+
+    /**
+     * Remove indexDetails if options.indexDetails is true. From the old shell code.
+     * @param stats
+     */
+    const updateStats = (stats): void => {
+      if (!stats.indexDetails) {
+        return;
+      }
+      if (!options.indexDetails) {
+        delete stats.indexDetails;
+        return;
+      }
+      if (!filterIndexName) {
+        return;
+      }
+      for (const key of Object.keys(stats.indexDetails)) {
+        if (key === filterIndexName) {
+          continue;
+        }
+        delete stats.indexDetails[key];
+      }
+    };
+    updateStats(result);
+
+    if (result.sharded) {
+      for (const shardName of result.shards) {
+        updateStats(result.shards[shardName]);
+      }
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async latencyStats(options = {}): Promise<any> {
+    const pipeline = [{ $collStats: { latencyStats: options } }];
+    const providerCursor = this._mongo._serviceProvider.aggregate(
+      this._database._name,
+      this._name,
+      pipeline,
+      {}
+    );
+    return await providerCursor.toArray();
   }
 }
