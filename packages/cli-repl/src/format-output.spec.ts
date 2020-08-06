@@ -115,6 +115,20 @@ describe('formatOutput', () => {
     });
   });
 
+  context('when the result is StatsResult', () => {
+    it('returns the --- separated list', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          c1: { metadata: 1 },
+          c2: { metadata: 2 }
+        },
+        type: 'StatsResult'
+      }));
+
+      expect(output).to.contain('c1\n{ metadata: 1 }\n---\nc2\n{ metadata: 2 }');
+    });
+  });
+
   context('when the result is Help', () => {
     it('returns help text', () => {
       const output = stripAnsiColors(format({

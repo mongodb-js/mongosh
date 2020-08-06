@@ -14,6 +14,7 @@ import { CursorIterationResultOutput } from './types/cursor-iteration-result-out
 import { ObjectOutput } from './types/object-output';
 import { SimpleTypeOutput } from './types/simple-type-output';
 import { ErrorOutput } from './types/error-output';
+import { inspect } from './utils/inspect';
 
 const styles = require('./shell-output-line.less');
 
@@ -57,10 +58,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     }
 
     if (type === 'StatsResult') {
-      const res = Object.keys(value).reduce((str, c) => {
-        return `${str}\n${c}\n${value[c]}\n---\n`;
-      }, '');
-      return <pre>{res}</pre>;
+      const res = Object.keys(value).map(c => {
+        return `${c}\n${inspect(value[c])}`;
+      }).join('\n---\n');
+      return <SimpleTypeOutput value={res} />;
     }
 
     if (type === 'ShowCollectionsResult') {

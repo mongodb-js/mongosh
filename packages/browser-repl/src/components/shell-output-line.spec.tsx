@@ -139,6 +139,20 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
   });
 
+  it('renders StatsResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      format: 'output',
+      type: 'StatsResult',
+      value: {
+        c1: { metadata: 1 },
+        c2: { metadata: 2 }
+      }
+    }} />);
+
+    expect(wrapper.text()).to.include('---');
+    expect(wrapper.text()).to.include('metadata');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: err }} />);

@@ -76,9 +76,9 @@ function formatDatabases(output): string {
 }
 
 function formatStats(output): string {
-  return Object.keys(output).reduce((str, c) => {
-    return `${str}\n${c}\n${inspect(output[c])}\n---\n`;
-  }, '');
+  return Object.keys(output).map((c) => {
+    return `${clr(c, ['bold', 'yellow'])}\n${inspect(output[c])}`;
+  }).join('\n---\n');
 }
 
 export function formatError(error): string {
