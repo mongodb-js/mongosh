@@ -1000,6 +1000,26 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.disableFreeMonitoring',
               description: 'returns the db disableFreeMonitoring. uses the setFreeMonitoring command',
               example: 'db.disableFreeMonitoring()',
+            },
+            getProfilingStatus: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getProfilingStatus',
+              description: 'returns the db getProfilingStatus. uses the profile command',
+              example: 'db.getProfilingStatus()',
+            },
+            setProfilingLevel: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.setProfilingLevel',
+              description: 'returns the db setProfilingLevel. uses the profile command',
+              example: 'db.setProfilingLevel(level, <options>)',
+            },
+            setLogLevel: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.setLogLevel',
+              description: 'returns the db setLogLevel. uses the setParameter command',
+              example: 'db.setLogLevel(logLevel, <component>)',
+            },
+            getLogComponents: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getLogComponents',
+              description: 'returns the db getLogComponents. uses the getParameter command',
+              example: 'db.getLogComponents()'
             }
           }
         }
