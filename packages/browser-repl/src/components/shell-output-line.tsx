@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
@@ -62,6 +63,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
         return `${c}\n${inspect(value[c])}`;
       }).join('\n---\n');
       return <SimpleTypeOutput value={res} />;
+    }
+
+    if (type === 'ListCommandsResult)') {
+      return <SimpleTypeOutput value={value} />;
     }
 
     if (type === 'ShowCollectionsResult') {

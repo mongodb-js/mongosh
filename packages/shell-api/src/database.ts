@@ -917,4 +917,36 @@ export default class Database extends ShellApiClass {
     }
     return result.logComponentVerbosity;
   }
+
+  async commandHelp(name: string): Promise<any> {
+    assertArgsDefined(name);
+    this._emitDatabaseApiCall('commandHelp', { name: name });
+    const command = {} as any;
+    command[name] = 1;
+    command.help = true;
+
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      command
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command listComands ${result ? result.errmsg || '' : ''}`);
+    }
+    return result.help;
+  }
+
+  @returnsPromise
+  async listCommands(): Promise<any> {
+    this._emitDatabaseApiCall('listCommands', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      this._name,
+      {
+        listCommands: 1,
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command listCommands ${result ? result.errmsg || '' : ''}`);
+    }
+    return new CommandResult('ListCommandsResult', result.commands);
+  }
 }
