@@ -1657,6 +1657,128 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('getFreeMonitoringStatus', () => {
+      it('calls serviceProvider.runCommand on the database', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.getFreeMonitoringStatus();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            getFreeMonitoringStatus: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getFreeMonitoringStatus();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getFreeMonitoringStatus()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('disableFreeMonitoring', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1 });
+        await database.disableFreeMonitoring();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setFreeMonitoring: 1,
+            action: 'disable'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.disableFreeMonitoring();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.disableFreeMonitoring()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
+    describe('enableFreeMonitoring', () => {
+      it('throws if serviceProvider isMaster is false', async() => {
+        serviceProvider.runCommand.resolves({ ismaster: false });
+        const catchedError = await database.enableFreeMonitoring()
+          .catch(e => e);
+        expect(catchedError.name).to.equal('MongoshInvalidInputError');
+      });
+
+      it('calls serviceProvider.runCommand on the database', async() => {
+        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1, state: 'enabled' });
+        await database.enableFreeMonitoring();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setFreeMonitoring: 1,
+            action: 'enable'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns if enabled', async() => {
+        const expectedResult = { ok: 1, state: 'enabled' };
+        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
+        serviceProvider.runCommand.onCall(1).resolves(expectedResult);
+        const result = await database.enableFreeMonitoring();
+        expect(result).to.deep.equal(expectedResult);
+      });
+      it('returns warning if not enabled', async() => {
+        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1, enabled: false });
+        serviceProvider.runCommand.onCall(2).resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
+        const result = await database.enableFreeMonitoring();
+        expect(result).to.include('URL');
+      });
+
+      it('returns warning if returns ok: 0 with auth error', async() => {
+        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 0, codeName: 'Unauthorized' });
+        const result = await database.enableFreeMonitoring();
+        expect(result).to.be.a('string');
+        expect(result).to.include('privilege');
+      });
+      it('returns warning if throws with auth error', async() => {
+        const expectedError = new Error();
+        (expectedError as any).codeName = 'Unauthorized';
+        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
+        serviceProvider.runCommand.onCall(1).rejects(expectedError);
+        const result = await database.enableFreeMonitoring();
+        expect(result).to.be.a('string');
+        expect(result).to.include('privilege');
+      });
+
+      it('throws if serviceProvider.runCommand rejects without auth error', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.enableFreeMonitoring()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 

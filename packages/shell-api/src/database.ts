@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import Mongo from './mongo';
 import Collection from './collection';
 import {
@@ -750,5 +751,75 @@ export default class Database extends ShellApiClass {
       }
     }
     return new CommandResult('StatsResult', result);
+  }
+
+  @returnsPromise
+  async getFreeMonitoringStatus(): Promise<any> {
+    this._emitDatabaseApiCall('getFreeMonitoringStatus', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        getFreeMonitoringStatus: 1,
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command getFreeMonitoringStatus ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async disableFreeMonitoring(): Promise<any> {
+    this._emitDatabaseApiCall('disableFreeMonitoring', {});
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        setFreeMonitoring: 1,
+        action: 'disable'
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async enableFreeMonitoring(): Promise<any> {
+    this._emitDatabaseApiCall('enableFreeMonitoring', {});
+    const isMaster = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 });
+    if (!isMaster.ismaster) {
+      throw new MongoshInvalidInputError('db.enableFreeMonitoring() may only be run on a primary');
+    }
+
+    let result;
+    let error;
+    try {
+      result = await this._mongo._serviceProvider.runCommand(
+        ADMIN_DB,
+        {
+          setFreeMonitoring: 1,
+          action: 'enable'
+        }
+      );
+    } catch (err) {
+      error = err;
+    }
+    if (error && error.codeName === 'Unauthorized' || (result && !result.ok && result.codeName === 'Unauthorized')) {
+      return 'Unable to determine status as you lack the \'checkFreeMonitoringStatus\' privilege.';
+    } else if (error || !result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`);
+    }
+    if (result.state !== 'enabled') {
+      const urlResult = await this._mongo._serviceProvider.runCommand(
+        ADMIN_DB,
+        {
+          getParameter: 1,
+          cloudFreeMonitoringEndpointURL: 1
+        }
+      );
+      return `Unable to get immediate response from the Cloud Monitoring service. Please check your firewall settings to ensure that mongod can communicate with '${urlResult.cloudFreeMonitoringEndpointURL || '<unknown>'}'`;
+    }
+    return result;
   }
 }
