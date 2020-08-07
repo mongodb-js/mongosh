@@ -298,7 +298,7 @@ class CliRepl {
     // This checks for error instances.
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
-    if (result && result.message && typeof result.stack === 'string') {
+    if (result && (result.message || result.errmsg) && typeof result.stack === 'string') {
       this.bus.emit('mongosh:error', result);
       this.shellEvaluator.revertState();
 

@@ -895,5 +895,33 @@ describe('Collection', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('initializeUnorderedBulkOp', () => {
+      it('calls serviceProvider.aggregate on the database with options', async() => {
+        await collection.initializeUnorderedBulkOp();
+
+        expect(serviceProvider.initializeBulkOp).to.have.been.calledWith(
+          database._name,
+          collection._name,
+          false,
+          {}
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { result: 1 };
+        serviceProvider.initializeBulkOp.resolves(expectedResult);
+        const result = await collection.initializeUnorderedBulkOp();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.initializeBulkOp.throws(expectedError);
+        const catchedError = await collection.initializeUnorderedBulkOp()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });

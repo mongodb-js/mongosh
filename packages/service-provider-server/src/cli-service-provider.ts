@@ -1052,6 +1052,19 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       };
     }
   }
+
+  async initializeBulkOp(
+    dbName: string,
+    collName: string,
+    ordered: boolean,
+    options = {},
+    dbOptions?: any
+  ): Promise<any> {
+    if (ordered) {
+      return await this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
+    }
+    return await this.db(dbName, dbOptions).collection(collName).initializeUnorderedBulkOp(options);
+  }
 }
 
 export default CliServiceProvider;
