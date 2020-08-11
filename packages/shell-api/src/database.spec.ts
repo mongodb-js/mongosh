@@ -1602,6 +1602,44 @@ describe('Database', () => {
       });
     });
 
+    describe('serverStatus', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.serverStatus({ repl: 0, metrics: 0, locks: 0 });
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            serverStatus: 1, repl: 0, metrics: 0, locks: 0
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the database without options', async() => {
+        await database.serverStatus();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            serverStatus: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.serverStatus();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.serverStatus()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+
     describe('hostInfo', () => {
       it('calls serviceProvider.runCommand on the database with options', async() => {
         await database.hostInfo();

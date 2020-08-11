@@ -966,6 +966,11 @@ const translations = {
               description: 'returns the db serverBuildInfo. uses the buildInfo command',
               example: 'db.serverBuildInfo()',
             },
+            serverStatus: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.serverStatus',
+              description: 'returns the server stats. uses the serverStatus command',
+              example: 'db.serverStatus(<opts>)',
+            },
             stats: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.stats',
               description: 'returns the db stats. uses the dbStats command',
