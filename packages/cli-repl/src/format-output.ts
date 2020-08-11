@@ -82,12 +82,9 @@ function formatStats(output): string {
 }
 
 export function formatError(error): string {
-  console.log('formatError');
-  console.log(error);
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `;
   if (error.message) result += error.message;
-  if (!error.message && error.errmsg) result += error.errmsg;
   // leave a bit of breathing room after the syntax error message output
   if (error.name === 'SyntaxError') result += '\n\n';
 

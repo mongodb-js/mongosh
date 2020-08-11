@@ -298,11 +298,12 @@ class CliRepl {
     // This checks for error instances.
     // The writer gets called immediately by the internal `this.repl.eval`
     // in case of errors.
-    if (result && (result.message || result.errmsg) && typeof result.stack === 'string') {
-      this.bus.emit('mongosh:error', result);
+    if (result && (result.message || result.errmsg)) {
       this.shellEvaluator.revertState();
 
-      return formatOutput({ type: 'Error', value: result });
+      const output = { ...result, message: result.message || result.errmsg, name: result.name || 'MongoshInternalError' };
+      this.bus.emit('mongosh:error', output);
+      return formatOutput({ type: 'Error', value: output });
     }
 
     return formatOutput(result);

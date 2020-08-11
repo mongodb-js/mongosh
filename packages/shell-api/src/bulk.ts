@@ -9,8 +9,7 @@ import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
 
 @shellApiClassDefault
-@hasAsyncChild
-class BulkFindOp {
+export class BulkFindOp {
   _innerFind: any;
   _parentBulk: Bulk;
   _hint: any;
@@ -57,7 +56,7 @@ class BulkFindOp {
   }
 
   replaceOne(replacement: Document): Bulk {
-    this._parentBulk._batchCounts.nRemoveOps++;
+    this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefined(replacement);
     const op = { ...replacement };
     if (this._hint) {
@@ -156,7 +155,6 @@ export default class Bulk extends ShellApiClass {
     }
     this._batches = [...this._innerBulk.s.batches];
     this._batches.push(this._innerBulk.s.currentBatch);
-    // TODO: error does not get awaited
     const result = await this._innerBulk.execute();
     this._executed = true;
     this._emitBulkApiCall('execute', { operations: this._batches, writeConcern: writeConcern });
