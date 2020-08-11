@@ -689,6 +689,21 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  async serverStatus(opts = {}): Promise<any> {
+    this._emitDatabaseApiCall('serverStatus', { options: opts });
+    const result = await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        serverStatus: 1, ...opts
+      }
+    );
+    if (!result || !result.ok) {
+      throw new MongoshRuntimeError(`Error running command serverStatus ${result ? result.errmsg || '' : ''}`);
+    }
+    return result;
+  }
+
+  @returnsPromise
   async stats(scale: any): Promise<any> {
     assertArgsDefined(scale);
     this._emitDatabaseApiCall('stats', { scale: scale });
