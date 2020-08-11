@@ -1237,51 +1237,6 @@ const translations = {
               description: 'Adds a find to the bulk operation.',
               example: 'bulkOp.find(<filter>)',
             },
-            'find.arrayFilter': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.arrayFilter/',
-              description: 'Adds an arrayFilter to the bulk operation.',
-              example: 'bulkOp.find(...).arrayFilter(<array of filters)',
-            },
-            'find.hint': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.hint/',
-              description: 'Adds an hint to the bulk operation.',
-              example: 'bulkOp.find(...).hint(<hintd document>)',
-            },
-            'find.collation': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.collation/',
-              description: 'Not currently implemented, use db.collection.bulkWrite as an alternative',
-              example: 'bulkOp.find(...).collation(<collation doc>)',
-            },
-            'find.remove': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.remove/',
-              description: 'Adds an remove to the bulk operation.',
-              example: 'bulkOp.find(...).remove()',
-            },
-            'find.removeOne': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.removeOne/',
-              description: 'Adds an removeOne to the bulk operation.',
-              example: 'bulkOp.find(...).removeOne()',
-            },
-            'find.replaceOne': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.replaceOne/',
-              description: 'Adds an replaceOne to the bulk operation.',
-              example: 'bulkOp.find(...).replaceOne(<document>)',
-            },
-            'find.updateOne': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.updateOne/',
-              description: 'Adds an updateOne to the bulk operation.',
-              example: 'bulkOp.find(...).updateOne(<document>)',
-            },
-            'find.update': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.update/',
-              description: 'Adds an update to the bulk operation.',
-              example: 'bulkOp.find(...).update(<document>)',
-            },
-            'find.upsert': {
-              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.upsert/',
-              description: 'Adds an upsert to the bulk operation updates for this find(...).',
-              example: 'bulkOp.find(...).upsert()',
-            },
             getOperations: {
               link: 'https://docs.mongodb.com/manual/reference/method/Bulk.getOperations/',
               description: 'Returns the batches executed by the bulk write.',
@@ -1296,6 +1251,59 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/Bulk.toString/',
               description: 'Returns as a string a JSON document that contains the number of operations and batches in the Bulk() object.',
               example: 'bulkOp.toString()',
+            }
+          }
+        }
+      },
+      BulkFindOp: {
+        help: {
+          link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find',
+          description: 'Bulk operations builder returned after Bulk.find()',
+          attributes: {
+            'arrayFilters': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.arrayFilters/',
+              description: 'Adds an arrayFilter to the bulk operation.',
+              example: 'bulkOp.find(...).arrayFilters(<array of filters)',
+            },
+            'hint': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.hint/',
+              description: 'Adds an hint to the bulk operation.',
+              example: 'bulkOp.find(...).hint(<hintd document>)',
+            },
+            'collation': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.collation/',
+              description: 'Not currently implemented, use db.collection.bulkWrite as an alternative',
+              example: 'bulkOp.find(...).collation(<collation doc>)',
+            },
+            'remove': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.remove/',
+              description: 'Adds an remove to the bulk operation.',
+              example: 'bulkOp.find(...).remove()',
+            },
+            'removeOne': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.removeOne/',
+              description: 'Adds an removeOne to the bulk operation.',
+              example: 'bulkOp.find(...).removeOne()',
+            },
+            'replaceOne': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.replaceOne/',
+              description: 'Adds an replaceOne to the bulk operation.',
+              example: 'bulkOp.find(...).replaceOne(<document>)',
+            },
+            'updateOne': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.updateOne/',
+              description: 'Adds an updateOne to the bulk operation.',
+              example: 'bulkOp.find(...).updateOne(<document>)',
+            },
+            'update': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.update/',
+              description: 'Adds an update to the bulk operation.',
+              example: 'bulkOp.find(...).update(<document>)',
+            },
+            'upsert': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.upsert/',
+              description: 'Adds an upsert to the bulk operation updates for this find(...).',
+              example: 'bulkOp.find(...).upsert()',
             }
           }
         }
