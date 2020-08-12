@@ -1,6 +1,6 @@
 import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
 import Mongo from './mongo';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
   Document,
   WriteConcern
@@ -23,6 +23,7 @@ export class BulkFindOp {
     return 'BulkFindOp';
   }
 
+  // Blocked by NODE-2757
   collation(): void {
     throw new MongoshUnimplementedError(
       'collation method on fluent Bulk API is not currently supported. ' +
@@ -31,10 +32,11 @@ export class BulkFindOp {
     );
   }
 
-  arrayFilters(filters: any[]): BulkFindOp {
-    assertArgsDefined(filters);
-    this._arrayFilters = filters;
-    return this;
+  // Blocked by NODE-2751
+  arrayFilters(): BulkFindOp {
+    throw new MongoshUnimplementedError(
+      'arrayFilters method on fluent Bulk API is not currently supported.'
+    );
   }
 
   hint(hintDoc: Document): BulkFindOp {
@@ -94,10 +96,10 @@ export class BulkFindOp {
     return this._parentBulk;
   }
 
-  upsert(): Bulk {
+  upsert(): BulkFindOp {
     assertArgsDefined();
     this._innerFind.upsert();
-    return this._parentBulk;
+    return this;
   }
 }
 
@@ -110,13 +112,14 @@ export default class Bulk extends ShellApiClass {
   _batchCounts: any;
   _executed: boolean;
   _batches: any;
-  private _innerBulk: any;
+  _innerBulk: any;
 
   constructor(collection, innerBulk) {
     super();
     this._collection = collection;
     this._mongo = collection._mongo;
     this._innerBulk = innerBulk;
+    this._batches = [];
     this._batchCounts = {
       nInsertOps: 0,
       nUpdateOps: 0,
@@ -153,8 +156,11 @@ export default class Bulk extends ShellApiClass {
     if (this._executed) {
       throw new MongoshInvalidInputError('A bulk operation cannot be re-executed');
     }
-    this._batches = [...this._innerBulk.s.batches];
-    this._batches.push(this._innerBulk.s.currentBatch);
+
+    if (this._innerBulk.s !== undefined && Array.isArray(this._innerBulk.s.batches)) {
+      this._batches = [...this._innerBulk.s.batches];
+      this._batches.push(this._innerBulk.s.currentBatch);
+    }
     const result = await this._innerBulk.execute();
     this._executed = true;
     this._emitBulkApiCall('execute', { operations: this._batches, writeConcern: writeConcern });
@@ -195,6 +201,9 @@ export default class Bulk extends ShellApiClass {
   }
 
   getOperations(): any {
+    if (this._innerBulk.s === undefined || !Array.isArray(this._innerBulk.s.batches)) {
+      throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
+    }
     if (!this._executed) {
       throw new MongoshInvalidInputError('Cannot call getOperations on an unexecuted Bulk operation');
     }
