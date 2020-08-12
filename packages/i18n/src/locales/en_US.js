@@ -792,9 +792,9 @@ const translations = {
               example: 'db.getSiblingDB(name)'
             },
             getCollection: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.dropDatabase',
-              description: 'Removes the current database, deleting the associated data files.',
-              example: 'db.dropDatabase()'
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getCollection',
+              description: 'Returns a collection or a view object that is functionally equivalent to using the db.<collectionName>.',
+              example: 'db.getCollection(name)'
             },
             getMongo: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getMongo/',
