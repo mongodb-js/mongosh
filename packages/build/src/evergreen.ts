@@ -35,9 +35,9 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
   return upload(uploadParams, s3);
 };
 
-const getArtifactPath = (project: string, revision: string, artifact: string): string => {
-  return `https://s3/amazoonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`
+const getArtifactUrl = (project: string, revision: string, artifact: string): string => {
+  return `https://s3.amazonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`
 };
 
 export default uploadArtifactToEvergreen;
-export { getArtifactPath };
+export { getArtifactUrl };

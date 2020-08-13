@@ -1,11 +1,14 @@
-import { GithubRepo } from './github-repo';
-import Config from './config';
-import { TarballFile } from './tarball';
 import { redactConfig } from './redact-config';
+import { getArtifactUrl } from './evergreen';
+import { GithubRepo } from './github-repo';
+import { TarballFile } from './tarball';
+import { Barque } from './barque';
+import Config from './config';
 
 export default async function buildAndUpload(
   config: Config,
   githubRepo: GithubRepo,
+  barque: Barque,
   compileAndZipExecutable: (Config) => Promise<TarballFile>,
   uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>,
   uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
@@ -30,6 +33,8 @@ export default async function buildAndUpload(
   );
   console.log('mongosh: internal release completed.');
 
+  const evergreenTarball = getArtifactUrl(config.project, config.revision, tarballFile.path);
+
   // Only release to public from master and when tagged with the right version.
   if (await githubRepo.shouldDoPublicRelease(config)) {
     console.log('mongosh: start public release.');
@@ -39,6 +44,9 @@ export default async function buildAndUpload(
       config.downloadCenterAwsKey,
       config.downloadCenterAwsSecret
     );
+
+    await barque.releaseToBarque(evergreenTarball);
+    console.log('mongosh: submitting to barque complete');
 
     await githubRepo.releaseToGithub(tarballFile, config);
   }
