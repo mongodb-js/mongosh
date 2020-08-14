@@ -807,15 +807,20 @@ export default class Database extends ShellApiClass {
       throw new MongoshInvalidInputError('db.enableFreeMonitoring() may only be run on a primary');
     }
 
+    // driver should check that ok: 1
+    await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        setFreeMonitoring: 1,
+        action: 'enable'
+      }
+    );
     let result;
     let error;
     try {
       result = await this._mongo._serviceProvider.runCommand(
         ADMIN_DB,
-        {
-          setFreeMonitoring: 1,
-          action: 'enable'
-        }
+        { getFreeMonitoringStatus: 1 }
       );
     } catch (err) {
       error = err;
