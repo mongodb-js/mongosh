@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
-import { Cursor, Explainable, AggregationCursor, ShellInternalState, Mongo, ShellApi, asShellResult } from './index';
+import ShellInternalState from './shell-internal-state';
+import Cursor from './cursor';
+import Explainable from './explainable';
+import AggregationCursor from './aggregation-cursor';
+import ShellApi from './shell-api';
+import { asShellResult } from './enums';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('Shell API (integration)', function() {
@@ -63,8 +68,7 @@ describe('Shell API (integration)', function() {
 
     internalState = new ShellInternalState(serviceProvider);
     shellApi = new ShellApi(internalState);
-    mongo = new Mongo(internalState);
-    mongo.use(dbName);
+    mongo = internalState.currentDb.getMongo();
     database = mongo.getDB(dbName);
     collection = database.getCollection(collectionName);
     await database.dropDatabase();
@@ -882,6 +886,371 @@ describe('Shell API (integration)', function() {
           'queryPlanner',
           'serverInfo'
         ]);
+      });
+    });
+  });
+
+  describe('Bulk API', async() => {
+    let bulk;
+    ['initializeUnorderedBulkOp', 'initializeOrderedBulkOp'].forEach((m) => {
+      describe(m, () => {
+        describe('insert', () => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              bulk.insert({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(0);
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 1000, nUpdateOps: 0, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(1000);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(1);
+            expect(op.operations.length).to.equal(1000);
+            expect(op.operations[99].x).to.equal(99);
+          });
+        });
+        describe('remove', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            bulk.find({ x: { $mod: [ 2, 0 ] } }).remove();
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(500);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(3);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('removeOne', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            bulk.find({ x: { $mod: [ 2, 0 ] } }).removeOne();
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(999);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(3);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('replaceOne', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            bulk.find({ x: 2 }).replaceOne({ x: 1 });
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments({ x: 1 })).to.equal(2);
+            expect(await collection.countDocuments({ x: 2 })).to.equal(0);
+            expect(await collection.countDocuments()).to.equal(1000);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('updateOne', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            bulk.find({ x: 2 }).updateOne({ x: 1 });
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments({ x: 1 })).to.equal(2);
+            expect(await collection.countDocuments({ x: 2 })).to.equal(0);
+            expect(await collection.countDocuments()).to.equal(1000);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('update', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            bulk.find({ x: { $mod: [ 2, 0 ] } }).update({ $inc: { x: 1 } });
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(1000);
+            expect(await collection.countDocuments({ x: { $mod: [ 2, 0 ] } })).to.equal(0);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('upsert().update', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+            bulk.find({ y: 0 }).upsert().update({ $set: { y: 1 } });
+            await bulk.execute();
+          });
+          afterEach(async() => {
+            await collection.drop();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(1001);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(1);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('upsert().updateOne', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+            bulk.find({ y: 0 }).upsert().updateOne({ $set: { y: 1 } });
+            await bulk.execute();
+          });
+          it('tojson returns correctly', async() => {
+            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(1001);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(1);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
+        describe('update without upsert', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              await collection.insertOne({ x: i });
+            }
+            expect(await collection.countDocuments()).to.equal(1000);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+            bulk.find({ y: 0 }).update({ $set: { y: 1 } });
+            await bulk.execute();
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(1000);
+            expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+          });
+        });
+        describe('multiple batches', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              bulk.insert({ x: 1 });
+            }
+            expect(bulk.tojson().nBatches).to.equal(1);
+            bulk.find({ x: 1 }).remove();
+            expect(bulk.tojson().nBatches).to.equal(2);
+            bulk.find({ x: 2 }).update({ $inc: { x: 1 } });
+            expect(bulk.tojson().nBatches).to.equal(3);
+            for (let i = 0; i < 1000; i++) {
+              bulk.insert({ x: 1 });
+            }
+          });
+          it('updates count depending on ordered or not', () => {
+            expect(bulk.tojson().nBatches).to.equal(m === 'initializeUnorderedBulkOp' ? 3 : 4);
+          });
+        });
+        // NOTE: blocked by NODE-2751
+        // describe('arrayFilters().update', async() => {
+        //   beforeEach(async() => {
+        //     bulk = await collection[m]();
+        //     for (let i = 0; i < 10; i++) {
+        //       await collection.insertOne({ x: i, array: [1, -1] });
+        //     }
+        //     expect(await collection.countDocuments({ x: { $exists: true } })).to.equal(10);
+        //     bulk.find({ x: { $exists: true } }).arrayFilters([{ element: { $gte: 0 } }]).update({ $set: { 'arr.$[element]': 1 } });
+        //     await bulk.execute();
+        //   });
+        //   afterEach(async() => {
+        //     await collection.drop();
+        //   });
+        //   it('tojson returns correctly', async() => {
+        //     expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+        //   });
+        //   it('executes', async() => {
+        //     expect(await collection.countDocuments()).to.equal(10);
+        //     expect(await collection.countDocuments({ arr: [ -1, -1 ] })).to.equal(10);
+        //     expect(await collection.countDocuments({ arr: [ 1, -1 ] })).to.equal(0);
+        //   });
+        //   it('getOperations returns correctly', () => {
+        //     const ops = bulk.getOperations();
+        //     expect(ops.length).to.equal(1);
+        //     const op = ops[0];
+        //     expect(op.originalZeroIndex).to.equal(0);
+        //     expect(op.batchType).to.equal(2);
+        //     expect(op.operations.length).to.equal(1);
+        //   });
+        // });
+        describe('error states', () => {
+          it('cannot be executed twice', async() => {
+            bulk = await collection[m]();
+            bulk.insert({ x: 1 });
+            await bulk.execute();
+            try {
+              await bulk.execute();
+            } catch (err) {
+              expect(err.name).to.equal('BulkWriteError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('getOperations fails before execute', async() => {
+            bulk = await collection[m]();
+            bulk.insert({ x: 1 });
+            try {
+              bulk.getOperations();
+            } catch (err) {
+              expect(err.name).to.equal('MongoshInvalidInputError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('No ops', async() => {
+            bulk = await collection[m]();
+            try {
+              await bulk.execute();
+            } catch (err) {
+              expect(err.name).to.equal('MongoError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('Driver error', async() => {
+            bulk = await collection[m]();
+            bulk.find({}).update({ x: 1 });
+            try {
+              await bulk.execute();
+            } catch (err) {
+              expect(err.name).to.equal('BulkWriteError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('Driver structure change', async() => {
+            bulk = await collection[m]();
+            bulk.insert({});
+            await bulk.execute();
+            bulk._serviceProviderBulkOp.s = undefined;
+            try {
+              bulk.getOperations();
+            } catch (err) {
+              expect(err.name).to.equal('MongoshInternalError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('collation', async() => {
+            bulk = await collection[m]();
+            try {
+              await bulk.find({}).collation({});
+            } catch (err) {
+              expect(err.name).to.equal('MongoshUnimplementedError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+          it('arrayFilters', async() => {
+            bulk = await collection[m]();
+            try {
+              await bulk.find({}).arrayFilters([{}]);
+            } catch (err) {
+              expect(err.name).to.equal('MongoshUnimplementedError');
+              return;
+            }
+            expect.fail('Error not thrown');
+          });
+        });
       });
     });
   });

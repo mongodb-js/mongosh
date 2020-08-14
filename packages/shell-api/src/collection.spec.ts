@@ -895,5 +895,60 @@ describe('Collection', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('initializeUnorderedBulkOp', () => {
+      it('calls serviceProvider.aggregate on the database with options', async() => {
+        await collection.initializeUnorderedBulkOp();
+
+        expect(serviceProvider.initializeBulkOp).to.have.been.calledWith(
+          database._name,
+          collection._name,
+          false
+        );
+      });
+
+      it('returns Bulk wrapping whatever serviceProvider returns', async() => {
+        const expectedResult = { s: { batches: [] } };
+        serviceProvider.initializeBulkOp.resolves(expectedResult);
+        const result = await collection.initializeUnorderedBulkOp();
+        expect((await result[asShellResult]()).type).to.equal('Bulk');
+        expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.initializeBulkOp.throws(expectedError);
+        const catchedError = await collection.initializeUnorderedBulkOp()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('initializeOrderedBulkOp', () => {
+      it('calls serviceProvider.aggregate on the database with options', async() => {
+        await collection.initializeOrderedBulkOp();
+
+        expect(serviceProvider.initializeBulkOp).to.have.been.calledWith(
+          database._name,
+          collection._name,
+          true
+        );
+      });
+
+      it('returns Bulk wrapped in whatever serviceProvider returns', async() => {
+        const expectedResult = { s: { batches: [] } };
+        serviceProvider.initializeBulkOp.resolves(expectedResult);
+        const result = await collection.initializeOrderedBulkOp();
+        expect((await result[asShellResult]()).type).to.equal('Bulk');
+        expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.initializeBulkOp.throws(expectedError);
+        const catchedError = await collection.initializeOrderedBulkOp()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });

@@ -400,5 +400,22 @@ export default interface Writable {
     newName: string,
     options?: Document,
     dbOptions?: DatabaseOptions): Promise<Result>;
+
+  /**
+   * Initialize a bulk operation.
+   *
+   * @param dbName
+   * @param collName
+   * @param ordered
+   * @param options
+   * @param dbOptions
+   */
+  initializeBulkOp(
+    dbName: string,
+    collName: string,
+    ordered: boolean,
+    options?: any,
+    dbOptions?: any
+  ): Promise<any>;
 }
 

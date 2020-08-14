@@ -23,6 +23,7 @@ import {
   UpdateResult
 } from './index';
 import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import Bulk from './bulk';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1263,6 +1264,7 @@ export default class Collection extends ShellApiClass {
     options.scale = options.scale || 1;
     options.indexDetails = options.indexDetails || false;
 
+    this._emitCollectionApiCall('stats', { options });
     const result = await this._mongo._serviceProvider.runCommand(
       this._database._name,
       {
@@ -1316,6 +1318,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   async latencyStats(options = {}): Promise<any> {
+    this._emitCollectionApiCall('latencyStats', { options });
     const pipeline = [{ $collStats: { latencyStats: options } }];
     const providerCursor = this._mongo._serviceProvider.aggregate(
       this._database._name,
@@ -1324,5 +1327,29 @@ export default class Collection extends ShellApiClass {
       {}
     );
     return await providerCursor.toArray();
+  }
+
+  @returnsPromise
+  @returnType('Bulk')
+  async initializeOrderedBulkOp(): Promise<Bulk> {
+    this._emitCollectionApiCall('initializeOrderedBulkOp');
+    const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
+      this._database._name,
+      this._name,
+      true
+    );
+    return new Bulk(this, innerBulk, true);
+  }
+
+  @returnsPromise
+  @returnType('Bulk')
+  async initializeUnorderedBulkOp(): Promise<Bulk> {
+    this._emitCollectionApiCall('initializeUnorderedBulkOp');
+    const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
+      this._database._name,
+      this._name,
+      false
+    );
+    return new Bulk(this, innerBulk);
   }
 }
