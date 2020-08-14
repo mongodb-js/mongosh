@@ -1765,7 +1765,7 @@ describe('Database', () => {
 
       it('calls serviceProvider.runCommand on the database', async() => {
         serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1, state: 'enabled' });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
         await database.enableFreeMonitoring();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
@@ -1778,23 +1778,27 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.runCommand returns if enabled', async() => {
-        const expectedResult = { ok: 1, state: 'enabled' };
+        const expectedFMState = { ok: 1, state: 'enabled' };
+
         serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves(expectedResult);
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(2).resolves(expectedFMState);
         const result = await database.enableFreeMonitoring();
-        expect(result).to.deep.equal(expectedResult);
+        expect(result).to.deep.equal(expectedFMState);
       });
       it('returns warning if not enabled', async() => {
         serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1, enabled: false });
-        serviceProvider.runCommand.onCall(2).resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(2).resolves({ ok: 1, enabled: false });
+        serviceProvider.runCommand.onCall(3).resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
         const result = await database.enableFreeMonitoring();
         expect(result).to.include('URL');
       });
 
       it('returns warning if returns ok: 0 with auth error', async() => {
         serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 0, codeName: 'Unauthorized' });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(2).resolves({ ok: 0, codeName: 'Unauthorized' });
         const result = await database.enableFreeMonitoring();
         expect(result).to.be.a('string');
         expect(result).to.include('privilege');
@@ -1803,7 +1807,8 @@ describe('Database', () => {
         const expectedError = new Error();
         (expectedError as any).codeName = 'Unauthorized';
         serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).rejects(expectedError);
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(2).rejects(expectedError);
         const result = await database.enableFreeMonitoring();
         expect(result).to.be.a('string');
         expect(result).to.include('privilege');
