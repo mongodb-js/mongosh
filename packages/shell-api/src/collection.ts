@@ -1338,7 +1338,7 @@ export default class Collection extends ShellApiClass {
       this._name,
       true
     );
-    return new Bulk(this, innerBulk);
+    return new Bulk(this, innerBulk, true);
   }
 
   @returnsPromise

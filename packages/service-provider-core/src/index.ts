@@ -15,6 +15,7 @@ import CliOptions from './cli-options';
 import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
 import bson from 'bson';
+import ServiceProviderBulkOp, { ServiceProviderBulkFindOp, BulkBatch } from './bulk';
 
 export {
   ServiceProvider,
@@ -37,5 +38,8 @@ export {
   Scheme,
   DEFAULT_DB,
   ServiceProviderCore,
-  bson
+  bson,
+  ServiceProviderBulkFindOp,
+  ServiceProviderBulkOp,
+  BulkBatch
 };

@@ -3,19 +3,22 @@ import Mongo from './mongo';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
   Document,
-  WriteConcern
+  WriteConcern,
+  ServiceProviderBulkOp,
+  ServiceProviderBulkFindOp,
+  BulkBatch
 } from '@mongosh/service-provider-core';
 import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
 
 @shellApiClassDefault
 export class BulkFindOp {
-  _innerFind: any;
+  _serviceProviderBulkFindOp: ServiceProviderBulkFindOp;
   _parentBulk: Bulk;
-  _hint: any;
-  _arrayFilters: any;
-  constructor(innerFind: any, parentBulk: Bulk) {
-    this._innerFind = innerFind;
+  _hint: Document;
+  _arrayFilters: Document[];
+  constructor(innerFind: ServiceProviderBulkFindOp, parentBulk: Bulk) {
+    this._serviceProviderBulkFindOp = innerFind;
     this._parentBulk = parentBulk;
   }
 
@@ -24,7 +27,7 @@ export class BulkFindOp {
   }
 
   // Blocked by NODE-2757
-  collation(): void {
+  collation(): BulkFindOp {
     throw new MongoshUnimplementedError(
       'collation method on fluent Bulk API is not currently supported. ' +
       'As an alternative, consider using the \'db.collection.bulkWrite(...)\' helper ' +
@@ -47,13 +50,13 @@ export class BulkFindOp {
 
   remove(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
-    this._innerFind.remove();
+    this._serviceProviderBulkFindOp.remove();
     return this._parentBulk;
   }
 
   removeOne(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
-    this._innerFind.removeOne();
+    this._serviceProviderBulkFindOp.removeOne();
     return this._parentBulk;
   }
 
@@ -64,7 +67,7 @@ export class BulkFindOp {
     if (this._hint) {
       op.hint = this._hint;
     }
-    this._innerFind.replaceOne(op);
+    this._serviceProviderBulkFindOp.replaceOne(op);
     return this._parentBulk;
   }
 
@@ -78,7 +81,7 @@ export class BulkFindOp {
     if (this._arrayFilters) {
       op.arrayFilters = this._arrayFilters;
     }
-    this._innerFind.updateOne(op);
+    this._serviceProviderBulkFindOp.updateOne(op);
     return this._parentBulk;
   }
 
@@ -92,13 +95,13 @@ export class BulkFindOp {
     if (this._arrayFilters) {
       op.arrayFilters = this._arrayFilters;
     }
-    this._innerFind.update(op);
+    this._serviceProviderBulkFindOp.update(op);
     return this._parentBulk;
   }
 
   upsert(): BulkFindOp {
     assertArgsDefined();
-    this._innerFind.upsert();
+    this._serviceProviderBulkFindOp.upsert();
     return this;
   }
 }
@@ -111,26 +114,56 @@ export default class Bulk extends ShellApiClass {
   _collection: any; // to avoid circular ref
   _batchCounts: any;
   _executed: boolean;
-  _batches: any;
-  _innerBulk: any;
+  _batches: BulkBatch[];
+  _serviceProviderBulkOp: ServiceProviderBulkOp;
+  _ordered: boolean;
 
-  constructor(collection, innerBulk) {
+  constructor(collection: any, innerBulk: ServiceProviderBulkOp, ordered = false) {
     super();
     this._collection = collection;
     this._mongo = collection._mongo;
-    this._innerBulk = innerBulk;
+    this._serviceProviderBulkOp = innerBulk;
     this._batches = [];
     this._batchCounts = {
       nInsertOps: 0,
       nUpdateOps: 0,
       nRemoveOps: 0
     };
+    this._executed = false;
+    this._ordered = ordered;
+  }
+
+  private _checkInternalShape(innerBulkState): boolean {
+    return (
+      innerBulkState !== undefined &&
+      Array.isArray(innerBulkState.batches)
+    );
+  }
+
+  private _getBatches(): BulkBatch[] {
+    const batches = [...this._serviceProviderBulkOp.s.batches];
+    if (this._ordered) {
+      if (this._serviceProviderBulkOp.s.currentBatch) {
+        batches.push(this._serviceProviderBulkOp.s.currentBatch);
+      }
+      return batches;
+    }
+    if (this._serviceProviderBulkOp.s.currentInsertBatch) {
+      batches.push(this._serviceProviderBulkOp.s.currentInsertBatch);
+    }
+    if (this._serviceProviderBulkOp.s.currentUpdateBatch) {
+      batches.push(this._serviceProviderBulkOp.s.currentUpdateBatch);
+    }
+    if (this._serviceProviderBulkOp.s.currentRemoveBatch) {
+      batches.push(this._serviceProviderBulkOp.s.currentRemoveBatch);
+    }
+    return batches;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  _asPrintable(): any {
     return this.tojson();
   }
 
@@ -153,17 +186,12 @@ export default class Bulk extends ShellApiClass {
 
   @returnsPromise
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    if (this._executed) {
-      throw new MongoshInvalidInputError('A bulk operation cannot be re-executed');
+    if (!this._executed && this._checkInternalShape(this._serviceProviderBulkOp.s)) {
+      this._batches = this._getBatches();
     }
-
-    if (this._innerBulk.s !== undefined && Array.isArray(this._innerBulk.s.batches)) {
-      this._batches = [...this._innerBulk.s.batches];
-      this._batches.push(this._innerBulk.s.currentBatch);
-    }
-    const result = await this._innerBulk.execute();
+    const result = await this._serviceProviderBulkOp.execute();
     this._executed = true;
-    this._emitBulkApiCall('execute', { operations: this._batches, writeConcern: writeConcern });
+    this._emitBulkApiCall('execute', { writeConcern: writeConcern });
     return new BulkWriteResult(
       !!result.result.ok, // acknowledged
       result.result.nInserted,
@@ -178,30 +206,34 @@ export default class Bulk extends ShellApiClass {
 
   find(query: Document): BulkFindOp {
     assertArgsDefined(query);
-    return new BulkFindOp(this._innerBulk.find(query), this);
+    return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
 
   insert(document: Document): Bulk {
     this._batchCounts.nInsertOps++;
     assertArgsDefined(document);
-    this._innerBulk.insert(document);
+    this._serviceProviderBulkOp.insert(document);
     return this;
   }
 
-  tojson(): any {
-    const batches = this._innerBulk.s.batches.length + Number(this._innerBulk.s.currentBatch !== null);
+  tojson(): Record<'nInsertOps' | 'nUpdateOps' | 'nRemoveOps' | 'nBatches', number> {
+    let batches = -1;
+    if (this._checkInternalShape(this._serviceProviderBulkOp.s)) {
+      batches = this._getBatches().length;
+    }
+
     return {
       ...this._batchCounts,
-      nBatches: batches
+      nBatches: batches < 0 ? 'unknown' : batches
     };
   }
 
-  toString(): any {
+  toString(): string {
     return JSON.stringify(this.tojson());
   }
 
-  getOperations(): any {
-    if (this._innerBulk.s === undefined || !Array.isArray(this._innerBulk.s.batches)) {
+  getOperations(): BulkBatch[] {
+    if (!this._checkInternalShape(this._serviceProviderBulkOp.s)) {
       throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
     }
     if (!this._executed) {

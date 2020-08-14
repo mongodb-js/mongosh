@@ -912,7 +912,7 @@ describe('Collection', () => {
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeUnorderedBulkOp();
         expect((await result[asShellResult]()).type).to.equal('Bulk');
-        expect(result._innerBulk).to.deep.equal(expectedResult);
+        expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommand rejects', async() => {
@@ -939,7 +939,7 @@ describe('Collection', () => {
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeOrderedBulkOp();
         expect((await result[asShellResult]()).type).to.equal('Bulk');
-        expect(result._innerBulk).to.deep.equal(expectedResult);
+        expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider rejects', async() => {

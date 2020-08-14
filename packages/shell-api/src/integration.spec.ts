@@ -1122,6 +1122,25 @@ describe('Shell API (integration)', function() {
             expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
           });
         });
+        describe('multiple batches', async() => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 1000; i++) {
+              bulk.insert({ x: 1 });
+            }
+            expect(bulk.tojson().nBatches).to.equal(1);
+            bulk.find({ x: 1 }).remove();
+            expect(bulk.tojson().nBatches).to.equal(2);
+            bulk.find({ x: 2 }).update({ $inc: { x: 1 } });
+            expect(bulk.tojson().nBatches).to.equal(3);
+            for (let i = 0; i < 1000; i++) {
+              bulk.insert({ x: 1 });
+            }
+          });
+          it('updates count depending on ordered or not', () => {
+            expect(bulk.tojson().nBatches).to.equal(m === 'initializeUnorderedBulkOp' ? 3 : 4);
+          });
+        });
         // NOTE: blocked by NODE-2751
         // describe('arrayFilters().update', async() => {
         //   beforeEach(async() => {
@@ -1161,7 +1180,7 @@ describe('Shell API (integration)', function() {
             try {
               await bulk.execute();
             } catch (err) {
-              expect(err.name).to.equal('MongoshInvalidInputError');
+              expect(err.name).to.equal('BulkWriteError');
               return;
             }
             expect.fail('Error not thrown');
@@ -1202,7 +1221,7 @@ describe('Shell API (integration)', function() {
             bulk = await collection[m]();
             bulk.insert({});
             await bulk.execute();
-            bulk._innerBulk.s = undefined;
+            bulk._serviceProviderBulkOp.s = undefined;
             try {
               bulk.getOperations();
             } catch (err) {

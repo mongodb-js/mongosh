@@ -124,6 +124,20 @@ describe('e2e', function() {
       client.close();
     });
 
+    describe('error formatting', () => {
+      it('throws when a syntax error is encountered', async() => {
+        await shell.executeLine('<x');
+        shell.assertContainsError('SyntaxError: Unexpected token');
+      });
+      it('throws a runtime error', async() => {
+        await shell.executeLine('throw new Error(\'a errmsg\')');
+        shell.assertContainsError('Error: a errmsg');
+      });
+      it('recognizes a driver error as error', async() => {
+        await shell.executeLine('db.coll.initializeOrderedBulkOp().find({}).update({}, {}).execute()');
+        shell.assertContainsOutput('MongoshInternalError: multi update is not supported for replacement-style update');
+      });
+    });
     it('throws multiline input with a single line string', async() => {
       // this is an unterminated string constant and should throw, since it does
       // not pass: https://www.ecma-international.org/ecma-262/#sec-line-terminators
@@ -169,11 +183,6 @@ describe('e2e', function() {
         });
       });
     });
-    it('throws when a syntax error is encountered', async() => {
-      await shell.executeLine('<x');
-      shell.assertContainsError('SyntaxError: Unexpected token');
-    });
-
     it('runs an unterminated function', async() => {
       await shell.writeInputLine('function x () {\nconsole.log(\'y\')\n }');
       shell.assertNoErrors();
