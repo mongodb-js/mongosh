@@ -1,28 +1,28 @@
 import redactInfo from 'mongodb-redact';
-import redactPwd from './redact-pwd';
+
+export const HIDDEN_COMMANDS = 'createUser|auth|updateUser|changeUserPassword|connect|Mongo';
 
 /**
- * Modifies command history array based on sensitive information.
+ * Modifies the history based on sensitive information.
  * If redact option is passed, also redacts sensitive info.
  *
- * @param {array} History - Array of commands, where the first command is the
- * most recent.
- *
- * @param {boolean} Redact - Option to redact sensitive info.
+ * @param {String} history - Command string.
+ * @param {boolean} redact - Option to redact sensitive info.
  */
 export function changeHistory(history: string[], redact = false): void {
-  const hiddenCommands =
-    RegExp('createUser|auth|updateUser|changeUserPassword|connect', 'g');
+  const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
 
   if (hiddenCommands.test(history[0])) {
     history.shift();
-    return;
+  } else {
+    history[0] = removeCommand(history[0], redact);
   }
-  if (/Mongo\(([^+)]+)\)/g.test(history[0])) {
-    history[0] = history[0].replace(/Mongo\(([^+)]+)\)/g, (substr) => redactPwd(substr));
-    return;
-  }
+}
 
-  if (redact) history[0] = redactInfo(history[0]);
+export function removeCommand(history: string, redact = false): string {
+  if (redact) {
+    return redactInfo(history);
+  }
+  return history;
 }
 

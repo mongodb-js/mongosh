@@ -19,12 +19,12 @@ describe('changeHistory', () => {
     it('removes URI having Mongo from history', () => {
       const i = ['m = new Mongo(\'mongodb://anna:anna@127.0.0.1:27017/test\')', 'db.shipwrecks.findOne()', 'use ships'];
       changeHistory(i);
-      expect(i).to.deep.equal(['m = new Mongo(\'mongodb://<credentials>@127.0.0.1:27017/test\')'].concat(history));
+      expect(i).to.deep.equal(history);
     });
     it('removes URI having Mongo from history for srv', () => {
       const i = ['m = new Mongo(\'mongodb+srv://admin:catscat3ca1s@cats-data-sets-e08dy.mongodb.net/admin\')', 'db.shipwrecks.findOne()', 'use ships'];
       changeHistory(i);
-      expect(i).to.deep.equal(['m = new Mongo(\'mongodb+srv://admin:catscat3ca1s@cats-data-sets-e08dy.mongodb.net/admin\')'].concat(history));
+      expect(i).to.deep.equal(history);
     });
 
     it('leaves history as is if command is not sensitive', () => {
