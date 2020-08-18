@@ -17,6 +17,7 @@ import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
+import redactInfo from 'mongodb-redact';
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -57,7 +58,10 @@ export default class ShellInternalState {
   async fetchConnectionInfo(): Promise<void> {
     if (!this.cliOptions.nodb) {
       this.connectionInfo = await this.currentDb._mongo._serviceProvider.getConnectionInfo();
-      this.messageBus.emit('mongosh:connect', this.connectionInfo.extraInfo);
+      this.messageBus.emit('mongosh:connect', {
+        ...this.connectionInfo.extraInfo,
+        uri: redactInfo(this.connectionInfo.extraInfo.uri)
+      });
     }
   }
 
