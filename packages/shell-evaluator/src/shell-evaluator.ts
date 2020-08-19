@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {
   ShellInternalState,
   shellApiType,
@@ -8,6 +9,8 @@ import {
 interface Container {
   toggleTelemetry(boolean): void;
 }
+
+import { HIDDEN_COMMANDS, removeCommand } from '@mongosh/history';
 
 class ShellEvaluator {
   private internalState: ShellInternalState;
@@ -64,10 +67,13 @@ class ShellEvaluator {
         this.saveState();
         const rewrittenInput = this.internalState.asyncWriter.process(input);
 
-        this.internalState.messageBus.emit(
-          'mongosh:rewritten-async-input',
-          { original: input.trim(), rewritten: rewrittenInput.trim() }
-        );
+        const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
+        if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
+          this.internalState.messageBus.emit(
+            'mongosh:rewritten-async-input',
+            { original: removeCommand(input.trim()), rewritten: removeCommand(rewrittenInput.trim()) }
+          );
+        }
         try {
           return await originalEval(rewrittenInput, context, filename);
         } catch (err) {
