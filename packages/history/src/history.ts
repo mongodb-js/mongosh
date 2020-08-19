@@ -10,7 +10,7 @@ export const HIDDEN_COMMANDS = 'createUser|auth|updateUser|changeUserPassword|co
  * @param {boolean} redact - Option to redact sensitive info.
  */
 export function changeHistory(history: string[], redact = false): void {
-  const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
+  const hiddenCommands = new RegExp(HIDDEN_COMMANDS, 'g');
 
   if (hiddenCommands.test(history[0])) {
     history.shift();

@@ -24,6 +24,7 @@ import {
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
 import { MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import { HIDDEN_COMMANDS } from '@mongosh/history';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -135,7 +136,10 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async runCommand(cmd: any): Promise<any> {
     assertArgsDefined(cmd);
-    this._emitDatabaseApiCall('runCommand', { cmd });
+    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
+    if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
+      this._emitDatabaseApiCall('runCommand', { cmd });
+    }
     return this._mongo._serviceProvider.runCommand(this._name, cmd);
   }
 
@@ -150,7 +154,10 @@ export default class Database extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   adminCommand(cmd: any): Promise<any> {
     assertArgsDefined(cmd);
-    this._emitDatabaseApiCall( 'adminCommand', { cmd });
+    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
+    if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
+      this._emitDatabaseApiCall('adminCommand', { cmd });
+    }
     return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd);
   }
 

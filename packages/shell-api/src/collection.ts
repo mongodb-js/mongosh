@@ -24,6 +24,7 @@ import {
 } from './index';
 import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import Bulk from './bulk';
+import { HIDDEN_COMMANDS } from '@mongosh/history';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1228,7 +1229,11 @@ export default class Collection extends ShellApiClass {
       throw new MongoshInvalidInputError('The "commandName" argument cannot be passed as an option to "runCommand".');
     }
 
-    this._emitCollectionApiCall('runCommand', { commandName });
+
+    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
+    if (!hiddenCommands.test(commandName)) {
+      this._emitCollectionApiCall('runCommand', { commandName });
+    }
     return await this._mongo._serviceProvider.runCommand(
       this._database._name,
       {
