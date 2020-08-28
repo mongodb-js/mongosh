@@ -1,9 +1,10 @@
 /* eslint no-console: 0, no-empty-function: 0, camelcase: 0, @typescript-eslint/camelcase: 0 */
 
+import { bson } from '@mongosh/service-provider-core';
+import { retractPassword } from '@mongosh/history';
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
-import { retractPassword } from '@mongosh/history';
-import { bson } from '@mongosh/service-provider-core';
+import Nanobounce from 'nanobounce';
 import pino from 'pino';
 import path from 'path';
 
@@ -72,6 +73,8 @@ export default function logger(bus: any, logDir: string): void {
   } catch (e) {
     bus.emit('mongosh:error', e);
   }
+
+  const nanobounce = new Nanobounce(1000);
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = retractPassword(args.uri);
@@ -156,6 +159,7 @@ export default function logger(bus: any, logDir: string): void {
     log.info('mongosh:setCtx', args);
   });
 
+
   bus.on('mongosh:api-call', function(args: ApiEvent) {
     log.info('mongosh:api-call', redactInfo(args));
 
@@ -167,10 +171,12 @@ export default function logger(bus: any, logDir: string): void {
     if (args.arguments) properties.arguments = properties.arguments;
 
     if (telemetry) {
-      analytics.track({
-        userId,
-        event: 'Api Call',
-        properties: redactInfo(properties)
+      nanobounce(function() {
+        analytics.track({
+          userId,
+          event: 'Api Call',
+          properties: redactInfo(properties)
+        });
       });
     }
   });
