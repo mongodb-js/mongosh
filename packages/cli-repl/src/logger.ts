@@ -74,6 +74,8 @@ export default function logger(bus: any, logDir: string): void {
     bus.emit('mongosh:error', e);
   }
 
+  // Use Nanobounce to debounce some of our analytics calls.
+  // Current timer is set to 1000ms.
   const nanobounce = new Nanobounce(1000);
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
