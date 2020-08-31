@@ -158,20 +158,5 @@ export default function logger(bus: any, logDir: string): void {
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
     log.info('mongosh:api-call', redactInfo(args));
-
-    // analytics properties to include if they are present in an api-call
-    const properties: ApiEvent = {};
-    properties.arguments = {};
-    if (args.method) properties.method = args.method;
-    if (args.class) properties.class = args.class;
-    if (args.arguments) properties.arguments = properties.arguments;
-
-    if (telemetry) {
-      analytics.track({
-        userId,
-        event: 'Api Call',
-        properties: redactInfo(properties)
-      });
-    }
   });
 }
