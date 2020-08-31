@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "config": {
@@ -38,8 +38,8 @@
     ]
   },
   "dependencies": {
-    "@mongosh/errors": "^0.1.0",
-    "@mongosh/service-provider-core": "^0.1.0",
+    "@mongosh/errors": "^0.2.0",
+    "@mongosh/service-provider-core": "^0.2.0",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
     "mongodb": "3.5.3 || ^3.5.5"
