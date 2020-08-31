@@ -36,7 +36,8 @@
     "release": "node scripts/release.js",
     "publish-npm": "lerna publish --force-publish",
     "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
-    "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api"
+    "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api",
+    "generate-homebrew-formula": "node scripts/generate-homebrew-formula"
   },
   "config": {
     "unsafe-perm": true
