@@ -44,7 +44,7 @@ const filterOut = (pathToFilter: string): boolean => {
  * @param {string} filename - the tarball filename.
  */
 export const tarballPosix = async(outputDir: string, filename: string): Promise<void> => {
-  const options = { gtarball: true, file: filename, cwd: outputDir, filter: filterOut };
+  const options = { gzip: true, file: filename, cwd: outputDir, filter: filterOut };
   await tar.c(options, [ '.' ]);
 };
 
