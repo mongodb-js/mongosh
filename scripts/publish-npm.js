@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
@@ -7,15 +7,17 @@ const readline = require('readline');
 const rootPath = path.resolve('__dirname', '..');
 
 function requireSegmentApiKey() {
-  const MONGOSH_SEGMENT_API_KEY = process.env.MONGOSH_SEGMENT_API_KEY || '';
+  const { MONGOSH_SEGMENT_API_KEY } = process.env;
 
-  if (!MONGOSH_SEGMENT_API_KEY) {
-    throw new Error('MONGOSH_SEGMENT_API_KEY environment variable must be set');
-  }
+  assert(
+    MONGOSH_SEGMENT_API_KEY,
+    'MONGOSH_SEGMENT_API_KEY environment variable must be set'
+  );
 
-  if (MONGOSH_SEGMENT_API_KEY.length !== 32) {
-    throw new Error('MONGOSH_SEGMENT_API_KEY does not seem to have the proper format');
-  }
+  assert(
+    MONGOSH_SEGMENT_API_KEY.length === 32,
+    'MONGOSH_SEGMENT_API_KEY does not seem to have the proper format'
+  );
 
   return MONGOSH_SEGMENT_API_KEY;
 }
@@ -25,12 +27,15 @@ function gitClone(repo, dest) {
 }
 
 function getGitRemoteUrl() {
-  return execSync('git config --get remote.origin.url', {cwd: rootPath}).toString().trim();
+  return execSync(
+    'git config --get remote.origin.url',
+    { cwd: rootPath }
+  ).toString().trim();
 }
 
 function getGitRemoteHeadSHA(remoteUrl) {
   return execSync(
-    `git ls-remote ${remoteUrl} HEAD`, {cwd: rootPath}
+    `git ls-remote ${remoteUrl} HEAD`, { cwd: rootPath }
   ).toString().split(/\s+/)[0].trim();
 }
 
@@ -53,11 +58,11 @@ function writeSegmentApiKey(segmentApiKey, releaseDirPath) {
   assert.equal(require(analyticsConfigPath).SEGMENT_API_KEY, segmentApiKey);
 }
 
-function isDone(task, releaseDirPath) {
+function isTaskDone(task, releaseDirPath) {
   return fs.existsSync(`${releaseDirPath}-${task}.done`);
 }
 
-function done(task, releaseDirPath) {
+function markTaskAsDone(task, releaseDirPath) {
   fs.writeFileSync(`${releaseDirPath}-${task}.done`, '');
 }
 
@@ -67,36 +72,44 @@ function publish() {
   const remoteHeadSha = getGitRemoteHeadSHA(remoteUrl);
   const releaseDirPath = path.resolve(rootPath, 'tmp', 'releases', remoteHeadSha);
 
-  if (!isDone('clone', releaseDirPath)) {
+  if (!isTaskDone('clone', releaseDirPath)) {
     console.info(`cloning '${remoteUrl}' to '${releaseDirPath}'`);
     gitClone(remoteUrl, releaseDirPath);
-    done('clone', releaseDirPath);
+    markTaskAsDone('clone', releaseDirPath);
   } else {
     console.info('already cloned .. skipping');
   }
 
-  if (!isDone('bootstrap', releaseDirPath)) {
-    execSync('npm run bootstrap-ci', {cwd: releaseDirPath, stdio: 'inherit'});
-    done('bootstrap', releaseDirPath);
+  if (!isTaskDone('bootstrap', releaseDirPath)) {
+    execSync(
+      'npm run bootstrap-ci',
+      {cwd: releaseDirPath, stdio: 'inherit'}
+    );
+    markTaskAsDone('bootstrap', releaseDirPath);
   } else {
     console.info('already bootstrapped .. skipping');
   }
 
-  if (!isDone('write-segment-api-key', releaseDirPath)) {
+  if (!isTaskDone('write-segment-api-key', releaseDirPath)) {
     writeSegmentApiKey(segmentApiKey, releaseDirPath);
-    done('write-segment-api-key', releaseDirPath);
+    markTaskAsDone('write-segment-api-key', releaseDirPath);
   } else {
     console.info('already written segment api key .. skipping');
   }
 
-  if (!isDone('lerna-publish', releaseDirPath)) {
-    execSync('npm run publish-npm-lerna', {cwd: releaseDirPath, stdio: 'inherit'});
-    done('lerna-publish', releaseDirPath);
+  if (!isTaskDone('lerna-publish', releaseDirPath)) {
+    const lerna = path.resolve(releaseDirPath, 'node_modules', '.bin', 'lerna');
+    execFileSync(
+      lerna,
+      ['publish', '--force-publish'],
+      { cwd: releaseDirPath, stdio: 'inherit' }
+    );
+    markTaskAsDone('lerna-publish', releaseDirPath);
   } else {
     console.info('already published to npm .. skipping');
   }
 
-  console.info('done');
+  console.info('done, now you can remove', releaseDirPath);
 }
 
 function main() {

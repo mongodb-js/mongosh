@@ -35,7 +35,6 @@
     "prerelease": "npm run compile-cli",
     "release": "node scripts/release.js",
     "publish-npm": "node scripts/publish-npm.js",
-    "publish-npm-lerna": "lerna publish --force-publish",
     "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api"
   },
