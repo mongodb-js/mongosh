@@ -1,6 +1,10 @@
 const https = require('https');
 const crypto = require('crypto');
+const path = require('path');
+
+const { getLatestVersion, gitClone, confirm } = require('./utils');
 const { execSync } = require('child_process');
+const { writeFileSync, readFileSync } = require('fs');
 
 function httpsSha256(url) {
   return new Promise((resolve, reject) => {
@@ -18,6 +22,7 @@ function render(context) {
 
 class Mongosh < Formula
   desc "The MongoDB Shell"
+
   homepage "https://github.com/mongodb-js/mongosh#readme"
   url "https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${context.version}.tgz"
   version "${context.version}"
@@ -40,16 +45,52 @@ end
 `
 }
 
-function getLatestVersion() {
-  return execSync(`npm view @mongosh/cli-repl .dist-tags.latest`).toString().trim();
-}
-
-async function main() {
+async function generateHomebrewFormula() {
   const version = getLatestVersion();
   const url = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${version}.tgz`;
   const sha = await httpsSha256(url);
-  const formula = await render({version, sha})
+  const formula = await render({version, sha});
+
   console.log(formula);
+
+  if (!await confirm('Do you want to make a PR for the mongodb tap?')) {
+    return;
+  }
+
+  const cloneDir = path.resolve(__dirname, '..', 'tmp', 'homebrew-brew', `${Date.now()}`);
+
+  gitClone(
+    'git@github.com:mongodb/homebrew-brew.git',
+    cloneDir
+  )
+
+  const branchName = `mongosh-${version}-${sha}`;
+  execSync(`git checkout -b ${branchName}`, { cwd: cloneDir, stdio: 'inherit' });
+
+  const formulaPath = path.resolve(cloneDir, 'Formula', 'mongosh.rb');
+
+  const currentContent = readFileSync(formulaPath, 'utf-8');
+
+  if (currentContent === formula) {
+    console.log('There are no changes to commit.');
+    return;
+  }
+
+  writeFileSync(
+    formulaPath,
+    formula
+  );
+
+  execSync('git add .', { cwd: cloneDir, stdio: 'inherit' });
+  execSync(`git commit -m "mongosh ${version}"`, { cwd: cloneDir, stdio: 'inherit' });
+  execSync(`git push origin ${branchName}`, { cwd: cloneDir, stdio: 'inherit' });
+
+  console.info('\n\n', `Create a PR by visiting: https://github.com/mongodb/homebrew-brew/pull/new/${branchName}`);
 }
 
-main();
+if (require.main === module) {
+  generateHomebrewFormula();
+} else {
+  module.exports = generateHomebrewFormula;
+}
+

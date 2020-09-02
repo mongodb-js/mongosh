@@ -2,7 +2,8 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const readline = require('readline');
+const {gitClone, getLatestVersion, confirm} = require('./utils');
+const generateHomebrewFormula = require('./generate-homebrew-formula');
 
 const rootPath = path.resolve(__dirname, '..');
 
@@ -20,10 +21,6 @@ function requireSegmentApiKey() {
   );
 
   return MONGOSH_SEGMENT_API_KEY;
-}
-
-function gitClone(repo, dest) {
-  return execSync(`git clone ${repo} ${dest}`);
 }
 
 function getGitRemoteUrl() {
@@ -66,7 +63,7 @@ function markTaskAsDone(task, releaseDirPath) {
   fs.writeFileSync(`${releaseDirPath}-${task}.done`, '');
 }
 
-function publish() {
+async function publish() {
   const segmentApiKey = requireSegmentApiKey();
   const remoteUrl = getGitRemoteUrl();
   const remoteHeadSha = getGitRemoteHeadSHA(remoteUrl);
@@ -83,7 +80,7 @@ function publish() {
   if (!isTaskDone('bootstrap', releaseDirPath)) {
     execSync(
       'npm run bootstrap-ci',
-      {cwd: releaseDirPath, stdio: 'inherit'}
+      { cwd: releaseDirPath, stdio: 'inherit' }
     );
     markTaskAsDone('bootstrap', releaseDirPath);
   } else {
@@ -98,37 +95,47 @@ function publish() {
   }
 
   if (!isTaskDone('lerna-publish', releaseDirPath)) {
+    const versionBefore = getLatestVersion();
     const lerna = path.resolve(releaseDirPath, 'node_modules', '.bin', 'lerna');
     execFileSync(
       lerna,
       ['publish', '--force-publish'],
       { cwd: releaseDirPath, stdio: 'inherit' }
     );
+
+    const versionAfter = getLatestVersion();
+
+    assert.notEqual(
+      versionBefore,
+      versionAfter,
+      'The published version should have been changed'
+    );
+
     markTaskAsDone('lerna-publish', releaseDirPath);
   } else {
     console.info('already published to npm .. skipping');
   }
 
+  if (!isTaskDone('homebrew-formula', releaseDirPath)) {
+    await generateHomebrewFormula();
+  } else {
+    console.info('already generated .. skipping');
+  }
+
   console.info('done, now you can remove', releaseDirPath);
 }
 
-function main() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  console.log(
+async function main() {
+  console.info(
     'NOTE: This will publish what is currently pushed on the main branch of the remote. ' +
-    ' ie. Any change not pushed or in a different branch will be ignored.\n'
+    'ie. Any change not pushed or in a different branch will be ignored.\n'
   );
 
-  rl.question('Is that what you want? Y/[N]: ', (answer) => {
-    rl.close();
-    if (answer.match(/^[yY]$/)) {
-      publish();
-    }
-  });
+  if (!await confirm('Is that what you want?')) {
+    return;
+  }
+
+  publish();
 }
 
 main();
