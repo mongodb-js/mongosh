@@ -976,4 +976,35 @@ export default class Database extends ShellApiClass {
     }
     return new CommandResult('ListCommandsResult', result.commands);
   }
+
+  @returnsPromise
+  async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<any> {
+    this._emitDatabaseApiCall('getLastErrorObj', { w: w, wTimeout: wTimeout, j: j });
+
+    const cmd = { getlasterror: 1 } as any;
+    if (w) {
+      cmd.w = w;
+    }
+    if (wTimeout) {
+      cmd.wtimeout = wTimeout;
+    }
+    if (j) {
+      cmd.j = j;
+    }
+    try {
+      return await this._mongo._serviceProvider.runCommand(
+        this._name,
+        cmd
+      );
+    } catch (e) {
+      return e;
+    }
+  }
+
+  @returnsPromise
+  async getLastError(w?: number|string, wTimeout?: number): Promise<any> {
+    this._emitDatabaseApiCall('getLastError', { w: w, wTimeout: wTimeout });
+    const result = await this.getLastErrorObj(w, wTimeout);
+    return result.err || null;
+  }
 }

@@ -1045,6 +1045,16 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.commandHelp',
               description: 'returns the db commandHelp. uses the passed in command with help: true',
               example: 'db.commandHelp(<command>)',
+            },
+            getLastError: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getLastError',
+              description: 'Calls the getLastError command',
+              example: 'db.getLastError(<w>, <wTimeout>)'
+            },
+            getLastErrorObj: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getLastErrorObj',
+              description: 'Calls the getLastError command',
+              example: 'db.getLastErrorObj(<w>, <wTimeout>, <j>)'
             }
           }
         }

@@ -2037,6 +2037,65 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('getLastError', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.getLastError(1, 100);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            getlasterror: 1,
+            w: 1,
+            wtimeout: 100
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getLastError();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getLastError()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getLastErrorObj', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await database.getLastErrorObj(1, 100, false);
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          database._name,
+          {
+            getlasterror: 1,
+            w: 1,
+            wtimeout: 100,
+            j: false
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await database.getLastErrorObj();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await database.getLastErrorObj()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
 
