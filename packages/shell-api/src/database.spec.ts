@@ -2040,7 +2040,6 @@ describe('Database', () => {
     describe('getLastError', () => {
       it('calls serviceProvider.runCommand on the database with options', async() => {
         await database.getLastError(1, 100);
-
         expect(serviceProvider.runCommand).to.have.been.calledWith(
           database._name,
           {
@@ -2052,18 +2051,17 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.runCommand returns', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1, err: 'message' };
         serviceProvider.runCommand.resolves(expectedResult);
         const result = await database.getLastError();
-        expect(result).to.deep.equal(expectedResult);
+        expect(result).to.deep.equal('message');
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
-        const expectedError = new Error();
+      it('returns what serviceProvider.runCommand rejects', async() => {
+        const expectedError = { err: 'message' };
         serviceProvider.runCommand.rejects(expectedError);
-        const catchedError = await database.getLastError()
-          .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        const result = await database.getLastError();
+        expect(result).to.deep.equal('message');
       });
     });
     describe('getLastErrorObj', () => {
@@ -2089,11 +2087,10 @@ describe('Database', () => {
       });
 
       it('throws if serviceProvider.runCommand rejects', async() => {
-        const expectedError = new Error();
+        const expectedError = { err: 'message' };
         serviceProvider.runCommand.rejects(expectedError);
-        const catchedError = await database.getLastErrorObj()
-          .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        const result = await database.getLastErrorObj();
+        expect(result).to.deep.equal(expectedError);
       });
     });
   });

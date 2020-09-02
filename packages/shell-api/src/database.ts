@@ -988,7 +988,7 @@ export default class Database extends ShellApiClass {
     if (wTimeout) {
       cmd.wtimeout = wTimeout;
     }
-    if (j) {
+    if (j !== undefined) {
       cmd.j = j;
     }
     try {
