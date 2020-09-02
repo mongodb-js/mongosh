@@ -104,9 +104,13 @@ const translations = {
             Mongo: {
               description: 'Create a new connection and return the Mongo object. Usage: new Mongo(URI, options [optional])',
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo'
+            },
+            version: {
+              description: 'Shell version',
+              link: 'https://docs.mongodb.com/manual/reference/method/version/'
             }
           }
-        }
+        },
       },
       AggregationCursor: {
         help: {

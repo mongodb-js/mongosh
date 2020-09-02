@@ -86,4 +86,9 @@ export default class ShellApi extends ShellApiClass {
     }
     return await this.internalState.currentCursor._it();
   }
+
+  version(): string {
+    const version = require('../package.json').version;
+    return version;
+  }
 }
