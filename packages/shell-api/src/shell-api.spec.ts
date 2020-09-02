@@ -166,6 +166,14 @@ describe('ShellApi', () => {
         expect.fail('MongoshInvalidInputError not thrown for connect');
       });
     });
+    describe('version', () => {
+      it('returns a string for the version', () => {
+        const version = internalState.shellApi.version();
+        const expected = require('../package.json').version;
+        expect(version).to.be.a('string');
+        expect(version).to.equal(expected);
+      });
+    });
   });
   describe('from context', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -251,6 +259,14 @@ describe('ShellApi', () => {
         expect((await db[asShellResult]()).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017');
         expect(db.getMongo()._options).to.deep.equal({ auth: { username: 'username', password: 'pwd' } });
+      });
+    });
+    describe('version', () => {
+      it('returns a string for the version', () => {
+        const version = internalState.context.version();
+        const expected = require('../package.json').version;
+        expect(version).to.be.a('string');
+        expect(version).to.equal(expected);
       });
     });
   });

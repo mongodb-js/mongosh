@@ -124,6 +124,12 @@ describe('e2e', function() {
       client.close();
     });
 
+    describe('version', async() => {
+      const expected = require('../package.json').version;
+      await shell.executeLine('version()');
+      shell.assertContainsOutput(expected);
+    });
+
     describe('error formatting', () => {
       it('throws when a syntax error is encountered', async() => {
         await shell.executeLine('<x');
