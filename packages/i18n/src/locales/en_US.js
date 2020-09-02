@@ -108,6 +108,9 @@ const translations = {
             version: {
               description: 'Shell version',
               link: 'https://docs.mongodb.com/manual/reference/method/version/'
+            },
+            load: {
+              description: 'Load a file into the shell context. Not currently implemented, if running mongosh from the CLI you can use .load <filename> as an alternative'
             }
           }
         },

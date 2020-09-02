@@ -91,4 +91,10 @@ export default class ShellApi extends ShellApiClass {
     const version = require('../package.json').version;
     return version;
   }
+
+  load(): void {
+    throw new MongoshUnimplementedError(
+      'load is not currently implemented. If you are running mongosh from the CLI ' +
+      'then you can use .load <filename> as an alternative.');
+  }
 }
