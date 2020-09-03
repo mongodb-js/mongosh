@@ -4,7 +4,7 @@ const path = require('path');
 const assert = require('assert');
 const readline = require('readline');
 
-const rootPath = path.resolve('__dirname', '..');
+const rootPath = path.resolve(__dirname, '..');
 
 function requireSegmentApiKey() {
   const { MONGOSH_SEGMENT_API_KEY } = process.env;
