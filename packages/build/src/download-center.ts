@@ -1,6 +1,27 @@
 import handlebars from 'handlebars';
 import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';
+import fetch from 'node-fetch';
+
+async function verifyDownloadCenterConfig(downloadCenterJson: Record<string, any>): Promise<void> {
+  const errors = {};
+
+  for (const version of downloadCenterJson.versions) {
+    for (const platform of version.platform) {
+      const response = await fetch(platform.download_link, {
+        method: 'HEAD'
+      });
+
+      if (!response.ok) {
+        errors[platform.download_link] = response.status;
+      }
+    }
+  }
+
+  if (Object.keys(errors).length) {
+    throw new Error(`Download center urls broken: ${JSON.stringify(errors)}`);
+  }
+}
 
 /**
  * The filename in the download center.
@@ -49,7 +70,7 @@ const CONFIG = `
           "arch": "x64",
           "os": "debian",
           "name": "Debian 64-bit",
-          "download_link": "https://downloads.mongodb.com/compass/mongosh_{{version}}_debian.deb"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh_{{version}}_amd64.deb"
         }
       ]
     }
@@ -102,14 +123,21 @@ const uploadToDownloadCenter = (s3: S3, config: string): Promise<any> => {
  *
  * @returns {Promise} The promise.
  */
-const uploadDownloadCenterConfig = (version: string, awsKey: string, awsSecret: string): Promise<any> => {
+const uploadDownloadCenterConfig = async(version: string, awsKey: string, awsSecret: string): Promise<any> => {
   const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
   });
   const config = createDownloadCenterConfig(version);
-  return uploadToDownloadCenter(s3, config);
+
+  await verifyDownloadCenterConfig(JSON.parse(config));
+
+  return await uploadToDownloadCenter(s3, config);
 };
 
 export default uploadDownloadCenterConfig;
-export { createDownloadCenterConfig, uploadToDownloadCenter };
+export {
+  createDownloadCenterConfig,
+  verifyDownloadCenterConfig,
+  uploadToDownloadCenter
+};
