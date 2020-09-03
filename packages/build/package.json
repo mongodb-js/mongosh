@@ -30,6 +30,10 @@
     ]
   },
   "devDependencies": {
+    "nock": "^13.0.4",
     "sinon-chai": "^3.5.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
   }
 }
