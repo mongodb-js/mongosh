@@ -55,12 +55,16 @@ function writeSegmentApiKey(segmentApiKey, releaseDirPath) {
   assert.equal(require(analyticsConfigPath).SEGMENT_API_KEY, segmentApiKey);
 }
 
+function taskDoneFilePath(task, releaseDirPath) {
+  return path.join(releaseDirPath, `${task}.done`);
+}
+
 function isTaskDone(task, releaseDirPath) {
-  return fs.existsSync(`${releaseDirPath}-${task}.done`);
+  return fs.existsSync(taskDoneFilePath(task, releaseDirPath));
 }
 
 function markTaskAsDone(task, releaseDirPath) {
-  fs.writeFileSync(`${releaseDirPath}-${task}.done`, '');
+  fs.writeFileSync(taskDoneFilePath(task, releaseDirPath), '');
 }
 
 async function publish() {
@@ -68,10 +72,11 @@ async function publish() {
   const remoteUrl = getGitRemoteUrl();
   const remoteHeadSha = getGitRemoteHeadSHA(remoteUrl);
   const releaseDirPath = path.resolve(rootPath, 'tmp', 'releases', remoteHeadSha);
+  const cloneDirPath = path.resolve(releaseDirPath, 'mongosh');
 
   if (!isTaskDone('clone', releaseDirPath)) {
     console.info(`cloning '${remoteUrl}' to '${releaseDirPath}'`);
-    gitClone(remoteUrl, releaseDirPath);
+    gitClone(remoteUrl, cloneDirPath);
     markTaskAsDone('clone', releaseDirPath);
   } else {
     console.info('already cloned .. skipping');
@@ -80,7 +85,7 @@ async function publish() {
   if (!isTaskDone('bootstrap', releaseDirPath)) {
     execSync(
       'npm run bootstrap-ci',
-      { cwd: releaseDirPath, stdio: 'inherit' }
+      { cwd: cloneDirPath, stdio: 'inherit' }
     );
     markTaskAsDone('bootstrap', releaseDirPath);
   } else {
@@ -88,7 +93,7 @@ async function publish() {
   }
 
   if (!isTaskDone('write-segment-api-key', releaseDirPath)) {
-    writeSegmentApiKey(segmentApiKey, releaseDirPath);
+    writeSegmentApiKey(segmentApiKey, cloneDirPath);
     markTaskAsDone('write-segment-api-key', releaseDirPath);
   } else {
     console.info('already written segment api key .. skipping');
@@ -96,11 +101,11 @@ async function publish() {
 
   if (!isTaskDone('lerna-publish', releaseDirPath)) {
     const versionBefore = getLatestVersion();
-    const lerna = path.resolve(releaseDirPath, 'node_modules', '.bin', 'lerna');
+    const lerna = path.resolve(cloneDirPath, 'node_modules', '.bin', 'lerna');
     execFileSync(
       lerna,
       ['publish', '--force-publish'],
-      { cwd: releaseDirPath, stdio: 'inherit' }
+      { cwd: cloneDirPath, stdio: 'inherit' }
     );
 
     const versionAfter = getLatestVersion();
@@ -117,7 +122,10 @@ async function publish() {
   }
 
   if (!isTaskDone('homebrew-formula', releaseDirPath)) {
-    await generateHomebrewFormula();
+    await generateHomebrewFormula(
+      releaseDirPath,
+      getLatestVersion()
+    );
   } else {
     console.info('already generated .. skipping');
   }

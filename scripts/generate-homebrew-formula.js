@@ -45,8 +45,7 @@ end
 `
 }
 
-async function generateHomebrewFormula() {
-  const version = getLatestVersion();
+async function generateHomebrewFormula(releaseDirPath, version) {
   const url = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${version}.tgz`;
   const sha = await httpsSha256(url);
   const formula = await render({version, sha});
@@ -57,7 +56,7 @@ async function generateHomebrewFormula() {
     return;
   }
 
-  const cloneDir = path.resolve(__dirname, '..', 'tmp', 'homebrew-brew', `${Date.now()}`);
+  const cloneDir = path.resolve(releaseDirPath, 'homebrew-brew');
 
   gitClone(
     'git@github.com:mongodb/homebrew-brew.git',
@@ -89,8 +88,14 @@ async function generateHomebrewFormula() {
 }
 
 if (require.main === module) {
-  generateHomebrewFormula();
+  const version = getLatestVersion();
+
+  generateHomebrewFormula(
+    path.resolve(
+      __dirname, '..', 'tmp', 'homebrew-brew', `${Date.now()}`,
+      version
+    )
+  );
 } else {
   module.exports = generateHomebrewFormula;
 }
-
