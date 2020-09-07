@@ -124,7 +124,7 @@ describe('e2e', function() {
       client.close();
     });
 
-    describe('version', async() => {
+    it('version', async() => {
       const expected = require('../package.json').version;
       await shell.executeLine('version()');
       shell.assertContainsOutput(expected);
