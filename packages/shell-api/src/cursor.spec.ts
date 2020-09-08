@@ -628,5 +628,20 @@ describe('Cursor', () => {
         });
       });
     });
+
+    describe('#maxScan', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = sinon.createStubInstance(ServiceProviderCursor);
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('throws a helpful exception regarding its removal', () => {
+        expect(() => shellApiCursor.maxScan()).to.throw(
+          '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+      });
+    });
   });
 });

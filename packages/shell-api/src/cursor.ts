@@ -287,4 +287,9 @@ export default class Cursor extends ShellApiClass {
   pretty(): Cursor {
     return this;
   }
+
+  maxScan(): void {
+    throw new MongoshUnimplementedError(
+      '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+  }
 }
