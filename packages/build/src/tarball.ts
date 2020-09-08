@@ -18,7 +18,7 @@ export const tarballPath = (outputDir: string, buildVariant: string, version: st
   if (buildVariant === BuildVariant.Linux) {
     return path.join(outputDir, `mongosh-${version}-${buildVariant}.tgz`);
   } else if (buildVariant === BuildVariant.Redhat) {
-    return path.join(outputDir, `mongosh-${version}-${buildVariant}.rpm`);
+    return path.join(outputDir, `mongosh-${version}-amd64.rpm`);
   } else if (buildVariant === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
