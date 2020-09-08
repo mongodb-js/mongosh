@@ -67,10 +67,16 @@ const CONFIG = `
           "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-linux.tgz"
         },
         {
-          "arch": "x64",
+          "arch": "amd64",
           "os": "debian",
           "name": "Debian 64-bit",
           "download_link": "https://downloads.mongodb.com/compass/mongosh_{{version}}_amd64.deb"
+        }
+        {
+          "arch": "amd64",
+          "os": "rhel",
+          "name": "Redhat 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-amd64.deb"
         }
       ]
     }

@@ -2,6 +2,7 @@ import tar from 'tar';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import pkgDeb from 'pkg-deb';
+import pkgRpm from 'pkg-rpm';
 import BuildVariant from './build-variant';
 
 /**
@@ -16,6 +17,8 @@ import BuildVariant from './build-variant';
 export const tarballPath = (outputDir: string, buildVariant: string, version: string): string => {
   if (buildVariant === BuildVariant.Linux) {
     return path.join(outputDir, `mongosh-${version}-${buildVariant}.tgz`);
+  } else if (buildVariant === BuildVariant.Redhat) {
+    return path.join(outputDir, `mongosh-${version}-${buildVariant}.rpm`);
   } else if (buildVariant === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
@@ -48,6 +51,14 @@ export const tarballPosix = async(outputDir: string, filename: string): Promise<
   await tar.c(options, [ '.' ]);
 };
 
+/**
+ * Create a tarball archive for debian.
+ *
+ * @param {string} input - The mongosh binary.
+ * @param {string} outputDir - The directory to write the tarball.
+ * @param {string} version - The current version.
+ * @param {string} rootDir - The root directory of this project.
+ */
 export const tarballDebian = async(
   input: string,
   outputDir: string,
@@ -65,8 +76,36 @@ export const tarballDebian = async(
     arch: 'amd64' // this might need to be 'all'
   }
 
-  console.log('Writing debian package')
+  console.log('mongosh: writing debian package')
   await pkgDeb(options)
+}
+
+
+/**
+ * Create a tarball archive for redhat.
+ *
+ * @param {string} input - The mongosh binary.
+ * @param {string} outputDir - The directory to write the tarball.
+ * @param {string} version - The current version.
+ * @param {string} rootDir - The root directory of this project.
+ */
+export const tarballRedhat = async(
+  input: string,
+  outputDir: string,
+  version: string,
+  rootDir: string
+): Promise<void> => {
+  const options = {
+    version: version,
+    name: 'mongosh',
+    dest: outputDir,
+    src: rootDir, // pkg-rpm will look for package.json in src to get info
+    input: input,
+    arch: 'amd64' // should this be x86_64?
+  }
+
+  console.log('mongosh: writing redhat package')
+  await pkgRpm(options)
 }
 
 /**
@@ -84,7 +123,7 @@ export const tarballWindows = (input: string, filename: string): void => {
 export type TarballFile = { path: string; contentType: string };
 
 /**
- * Create a gtarballped tarball or zip for the provided options.
+ * Create a gzipped tarball or zip for the provided options.
  *
  * @param {string} input - The file location to tarball.
  * @param {string} outputDir - Where to save the tarball.
@@ -111,12 +150,19 @@ export async function createTarball(
       path: filename,
       contentType: 'application/gzip'
     };
+  } else if (buildVariant === BuildVariant.Redhat) {
+    await tarballRedhat(input, outputDir, version, rootDir);
+
+    return {
+      path: filename,
+      contentType: 'application/x-rpm'
+    }
   } else if (buildVariant === BuildVariant.Debian) {
     await tarballDebian(input, outputDir, version, rootDir);
 
     return {
       path: filename,
-      // this might have to be application/gtarball MIME type
+      // this might have to be application/gzip MIME type
       contentType: 'application/vnd.debian.binary-package'
     }
   } else {

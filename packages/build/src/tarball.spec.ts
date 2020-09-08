@@ -92,6 +92,33 @@ describe('tarball module', () => {
     });
   }
 
+  // macos and windows build variants does not come with installed 'rpmbuild' so
+  // this test fails. Run this test only on linux platforms.
+  if (os.platform() === Platform.Linux) {
+    describe('.tarballRedhat', () => {
+      const version = '1.0.0';
+      const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+      const expectedTarball = tarballPath(__dirname, BuildVariant.Redhat, version);
+
+      after(async () => {
+        await fs.unlink(expectedTarball);
+      });
+
+      it('builds the executable', async() => {
+        await tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
+
+        let accessErr;
+        try {
+          fs.access(expectedTarball);
+        } catch (err) {
+          accessErr = err;
+        }
+
+        expect(accessErr).to.be.undefined;
+      });
+    });
+  }
+
   describe('.tarballWindows', () => {
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, BuildVariant.Windows, version);
