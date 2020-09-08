@@ -269,5 +269,20 @@ describe('ShellApi', () => {
         expect(version).to.equal(expected);
       });
     });
+    describe('DBQuery', () => {
+      it('throws for shellBatchSize', () => {
+        try {
+          internalState.context.DBQuery.shellBatchSize();
+        } catch (e) {
+          expect(e.message).to.contain('deprecated');
+          expect(e.message).to.contain('find().batchSize');
+          return;
+        }
+        expect.fail();
+      });
+      it('throws for asPrintable', () => {
+        expect(internalState.context.DBQuery._asPrintable()).to.contain('deprecated');
+      });
+    });
   });
 });

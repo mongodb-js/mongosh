@@ -15,15 +15,18 @@ import ShellInternalState from './shell-internal-state';
 import { assertArgsDefined } from './helpers';
 import { ReplPlatform, DEFAULT_DB } from '@mongosh/service-provider-core';
 import { MongoshUnimplementedError } from '@mongosh/errors';
+import { DBQuery } from './deprecated';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class ShellApi extends ShellApiClass {
   readonly internalState: ShellInternalState;
+  public DBQuery;
 
   constructor(internalState) {
     super();
     this.internalState = internalState;
+    this.DBQuery = new DBQuery();
   }
 
   use(db): any {

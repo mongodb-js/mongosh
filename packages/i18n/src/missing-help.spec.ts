@@ -5,7 +5,8 @@ import { signatures } from '../../shell-api/src/index';
 const IGNORED_TYPES = [
   'unknown',
   'ExplainableCursor', // inherits cursor
-  'CursorIterationResult' // internal / presentation only
+  'CursorIterationResult', // internal / presentation only
+  'DeprecatedClass' // internal
 ];
 
 const IGNORED_ATTRIBUTES = [
