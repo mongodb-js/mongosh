@@ -80,7 +80,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async show(cmd, arg?): Promise<any> {
+  async show(cmd, arg?): Promise<CommandResult> {
     this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
