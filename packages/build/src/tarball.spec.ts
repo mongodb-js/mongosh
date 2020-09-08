@@ -1,8 +1,6 @@
-import os from 'os';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { expect } from 'chai';
-import Platform from './platform';
 import BuildVariant from './build-variant';
 import {
   createTarball,
@@ -67,7 +65,7 @@ describe('tarball module', () => {
 
   // macos and windows build variants does not come with installed 'dpkg' so
   // this test fails. Run this test only on linux platforms.
-  if (os.platform() === Platform.Linux) {
+  if (process.env.BUILD_VARIANT  === BuildVariant.Debian) {
     describe('.tarballDebian', () => {
       const version = '1.0.0';
       const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
@@ -94,7 +92,7 @@ describe('tarball module', () => {
 
   // macos and windows build variants does not come with installed 'rpmbuild' so
   // this test fails. Run this test only on linux platforms.
-  if (os.platform() === Platform.Linux) {
+  if (process.env.BUILD_VARIANT  === BuildVariant.Redhat) {
     describe('.tarballRedhat', () => {
       const version = '1.0.0';
       const inputFile = path.join(__dirname, '..', 'examples', 'input.js');

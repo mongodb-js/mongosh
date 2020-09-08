@@ -101,7 +101,7 @@ export const tarballRedhat = async(
     dest: outputDir,
     src: rootDir, // pkg-rpm will look for package.json in src to get info
     input: input,
-    loggger: console.log,
+    logger: console.log,
     arch: 'amd64' // should this be x86_64?
   }
 
