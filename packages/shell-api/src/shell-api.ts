@@ -31,8 +31,8 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @returnsPromise
-  async show(arg): Promise<CommandResult> {
-    return await this.internalState.currentDb._mongo.show(arg);
+  async show(cmd, arg?): Promise<CommandResult> {
+    return await this.internalState.currentDb._mongo.show(cmd, arg);
   }
 
   @returnsPromise

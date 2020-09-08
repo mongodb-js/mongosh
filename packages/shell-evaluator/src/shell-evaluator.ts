@@ -47,7 +47,7 @@ class ShellEvaluator {
       case 'use':
         return this.internalState.shellApi.use(argv[0]);
       case 'show':
-        return this.internalState.shellApi.show(argv[0]);
+        return this.internalState.shellApi.show(argv[0], argv[1]);
       case 'it':
         return this.internalState.shellApi.it();
       case 'exit':

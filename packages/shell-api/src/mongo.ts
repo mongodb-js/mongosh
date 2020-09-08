@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import {
   classPlatforms,
@@ -79,10 +80,10 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async show(arg): Promise<CommandResult> {
-    this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${arg}` });
+  async show(cmd, arg?): Promise<any> {
+    this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${cmd}` });
 
-    switch (arg) {
+    switch (cmd) {
       case 'databases':
       case 'dbs':
         const result = await this._serviceProvider.listDatabases('admin');
@@ -97,18 +98,32 @@ export default class Mongo extends ShellApiClass {
       case 'tables':
         const collectionNames = await this._internalState.currentDb.getCollectionNames();
         return new CommandResult('ShowCollectionsResult', collectionNames);
+      case 'profile':
+        const sysprof = this._internalState.currentDb.getCollection('system.profile');
+        const profiles = { count: await sysprof.countDocuments({}) } as any;
+        if (profiles.count !== 0) {
+          profiles.result = await (sysprof.find({ millis: { $gt: 0 } })
+            .sort({ $natural: -1 })
+            .limit(5)
+            .toArray());
+        }
+        return new CommandResult('ShowProfileResult', profiles);
+      case 'users':
+        const users = await this._internalState.currentDb.getUsers();
+        return new CommandResult('ShowResult', users.users);
+      case 'roles':
+        const roles = await this._internalState.currentDb.getRoles({ showBuiltinRoles: true });
+        return new CommandResult('ShowResult', roles.roles);
+      case 'log':
+        const log = await this._internalState.currentDb.adminCommand({ getLog: arg || 'global' });
+        return new CommandResult('ShowResult', log.log);
+      case 'logs':
+        const logs = await this._internalState.currentDb.adminCommand({ getLog: '*' });
+        return new CommandResult('ShowResult', logs.names);
       default:
-        const validArguments = [
-          'databases',
-          'dbs',
-          'collections',
-          'tables'
-        ];
-
         const err = new MongoshInvalidInputError(
-          `'${arg}' is not a valid argument for "show".\nValid arguments are: ${validArguments.join(', ')}`
+          `'${cmd}' is not a valid argument for "show".`
         );
-
         this._internalState.messageBus.emit('mongosh:error', err);
         throw err;
     }

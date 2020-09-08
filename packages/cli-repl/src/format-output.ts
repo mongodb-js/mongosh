@@ -53,6 +53,38 @@ export default function formatOutput(evaluationResult: EvaluationResult): string
     return formatListCommands(value);
   }
 
+  if (type === 'ShowProfileResult') {
+    if (value.count === 0) {
+      return clr(`db.system.profile is empty.
+Use db.setProfilingLevel(2) will enable profiling.
+Use db.getCollection('system.profile').find() to show raw profile entries.`, 'yellow');
+    }
+    // direct from old shell
+    return value.result.map(function(x) {
+      const res = `${x.op}\t${x.ns} ${x.millis}ms ${String(x.ts).substring(0, 24)}\n`;
+      let l = '';
+      for (const z in x) {
+        if (z === 'op' || z === 'ns' || z === 'millis' || z === 'ts') {
+          continue;
+        }
+
+        const val = x[z];
+        const mytype = typeof (val);
+
+        if (mytype === 'string' || mytype === 'number') {
+          l += z + ':' + val + ' ';
+        } else if (mytype === 'object') {
+          l += z + ':' + formatSimpleType(val) + ' ';
+        } else if (mytype === 'boolean') {
+          l += z + ' ';
+        } else {
+          l += z + ':' + val + ' ';
+        }
+      }
+      return `${res}${l}`;
+    }).join('\n');
+  }
+
   if (type === 'Error') {
     return formatError(value);
   }
