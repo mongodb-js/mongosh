@@ -109,7 +109,7 @@ describe('tarball module', () => {
 
         let accessErr;
         try {
-          fs.access(expectedTarball);
+          await fs.access(expectedTarball);
         } catch (err) {
           accessErr = err;
         }
