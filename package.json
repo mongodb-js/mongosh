@@ -98,7 +98,7 @@
     "parcel-bundler": "^1.12.4",
     "pkg": "^4.4.3",
     "pkg-deb": "^1.1.1",
-    "pkg-rpm": "mongodb-js/pkg-rpm",
+    "pkg-rpm": "^1.0.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
     "sinon": "^7.5.0",
