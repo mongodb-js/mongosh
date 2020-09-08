@@ -99,7 +99,7 @@ export const tarballRedhat = async(
     version: version,
     name: 'mongosh',
     dest: outputDir,
-    src: rootDir, // pkg-rpm will look for package.json in src to get info
+    src: rootDir,
     input: input,
     logger: console.log,
     arch: 'x86_64'
@@ -153,6 +153,7 @@ export async function createTarball(
     };
   } else if (buildVariant === BuildVariant.Redhat) {
     await tarballRedhat(input, outputDir, version, rootDir);
+    console.info('mongosh: built redhat tarball');
 
     return {
       path: filename,
