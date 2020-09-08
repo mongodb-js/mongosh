@@ -71,9 +71,7 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
         const val = x[z];
         const mytype = typeof (val);
 
-        if (mytype === 'string' || mytype === 'number') {
-          l += z + ':' + val + ' ';
-        } else if (mytype === 'object') {
+        if (mytype === 'object') {
           l += z + ':' + formatSimpleType(val) + ' ';
         } else if (mytype === 'boolean') {
           l += z + ' ';
