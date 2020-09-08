@@ -18,7 +18,7 @@ export const tarballPath = (outputDir: string, buildVariant: string, version: st
   if (buildVariant === BuildVariant.Linux) {
     return path.join(outputDir, `mongosh-${version}-${buildVariant}.tgz`);
   } else if (buildVariant === BuildVariant.Redhat) {
-    return path.join(outputDir, `mongosh-${version}-amd64.rpm`);
+    return path.join(outputDir, `mongosh-${version}-x86_64.rpm`);
   } else if (buildVariant === BuildVariant.Debian) {
     // debian packages are required to be separated by _ and have arch in the
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
@@ -102,7 +102,7 @@ export const tarballRedhat = async(
     src: rootDir, // pkg-rpm will look for package.json in src to get info
     input: input,
     logger: console.log,
-    arch: 'amd64' // should this be x86_64?
+    arch: 'x86_64'
   }
 
   console.log('mongosh: writing redhat package')

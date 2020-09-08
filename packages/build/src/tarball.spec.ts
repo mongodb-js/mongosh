@@ -103,7 +103,7 @@ describe('tarball module', () => {
       });
 
       it('builds the executable', async() => {
-        await tarballDebian(inputFile, __dirname, version, path.join(__dirname, '../../..'));
+        await tarballRedhat(inputFile, __dirname, version, path.join(__dirname, '../../..'));
 
         let accessErr;
         try {
