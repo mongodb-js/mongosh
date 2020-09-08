@@ -101,6 +101,7 @@ export const tarballRedhat = async(
     dest: outputDir,
     src: rootDir, // pkg-rpm will look for package.json in src to get info
     input: input,
+    loggger: console.log,
     arch: 'amd64' // should this be x86_64?
   }
 
@@ -141,7 +142,7 @@ export async function createTarball(
 ): Promise<TarballFile> {
   const filename = tarballPath(outputDir, buildVariant, version);
 
-  console.info('mongosh: tarballping:', filename);
+  console.info('mongosh: gzipping:', filename);
 
   if (buildVariant === BuildVariant.Linux) {
     await tarballPosix(outputDir, filename);
@@ -162,7 +163,6 @@ export async function createTarball(
 
     return {
       path: filename,
-      // this might have to be application/gzip MIME type
       contentType: 'application/vnd.debian.binary-package'
     }
   } else {
