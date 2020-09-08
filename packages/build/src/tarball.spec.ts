@@ -6,6 +6,7 @@ import {
   createTarball,
   tarballPath,
   tarballPosix,
+  tarballRedhat,
   tarballDebian,
   tarballWindows
 } from './tarball';
