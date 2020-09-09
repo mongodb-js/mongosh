@@ -1,7 +1,7 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
 import { bson as BSON } from '@mongosh/service-provider-core';
-import { MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 
 function constructHelp(className): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -110,16 +110,34 @@ export default function constructShellBson(bson: any): any {
       if (s === undefined) {
         s = '0';
       }
+
+      if (typeof s !== 'string') {
+        throw new MongoshInvalidInputError(
+          'NumberDecimal can only be constructed from a string, received: ' + (typeof s)
+        );
+      }
+
       return bson.Decimal128.fromString(s.toString());
     },
-    NumberInt: function(s): any {
-      return new bson.Int32(parseInt(s, 10));
-    },
-    NumberLong: function(v): any {
+    NumberInt: function(v): any {
       if (v === undefined) {
         v = 0;
       }
-      return bson.Long.fromNumber(v);
+
+      return new bson.Int32(parseInt(v, 10));
+    },
+    NumberLong: function(v): any {
+      if (v === undefined) {
+        v = '0';
+      }
+
+      if (typeof v !== 'string') {
+        throw new MongoshInvalidInputError(
+          'NumberLong can only be constructed from a string, received: ' + (typeof v)
+        );
+      }
+
+      return bson.Long.fromString(v);
     },
     Date: function(...args: DateConstructorArguments): Date | string {
       const date = dateHelper(...args);
