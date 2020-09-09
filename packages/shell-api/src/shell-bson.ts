@@ -25,6 +25,15 @@ function dateHelper(...args: DateConstructorArguments): Date {
   return new Date(Date.UTC(...args));
 }
 
+function requireStringAsConstructorArgument(typeName, arg): void {
+  const argumentType = typeof(arg);
+  if (argumentType !== 'string') {
+    throw new MongoshInvalidInputError(
+      `${typeName} can only be constructed from a string, received: ${argumentType}. Please use ${typeName}(string).`
+    );
+  }
+}
+
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
@@ -111,11 +120,7 @@ export default function constructShellBson(bson: any): any {
         s = '0';
       }
 
-      if (typeof s !== 'string') {
-        throw new MongoshInvalidInputError(
-          'NumberDecimal can only be constructed from a string, received: ' + (typeof s)
-        );
-      }
+      requireStringAsConstructorArgument('NumberDecimal', s);
 
       return bson.Decimal128.fromString(s.toString());
     },
@@ -126,18 +131,14 @@ export default function constructShellBson(bson: any): any {
 
       return new bson.Int32(parseInt(v, 10));
     },
-    NumberLong: function(v): any {
-      if (v === undefined) {
-        v = '0';
+    NumberLong: function(s): any {
+      if (s === undefined) {
+        s = '0';
       }
 
-      if (typeof v !== 'string') {
-        throw new MongoshInvalidInputError(
-          'NumberLong can only be constructed from a string, received: ' + (typeof v)
-        );
-      }
+      requireStringAsConstructorArgument('NumberLong', s);
 
-      return bson.Long.fromString(v);
+      return bson.Long.fromString(s);
     },
     Date: function(...args: DateConstructorArguments): Date | string {
       const date = dateHelper(...args);

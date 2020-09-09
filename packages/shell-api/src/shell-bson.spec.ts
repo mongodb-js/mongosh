@@ -236,7 +236,7 @@ describe('Shell BSON', () => {
     it('throws if the argument is not a string', () => {
       expect(() => {
         shellBson.NumberLong(123);
-      }).to.throw('NumberLong can only be constructed from a string, received: number');
+      }).to.throw('NumberLong can only be constructed from a string, received: number. Please use NumberLong(string).');
     });
 
     it('constructs 0 if the argument is not provided', () => {
@@ -258,7 +258,7 @@ describe('Shell BSON', () => {
     it('throws if the argument is not a string', () => {
       expect(() => {
         shellBson.NumberDecimal(123.1);
-      }).to.throw('NumberDecimal can only be constructed from a string, received: number');
+      }).to.throw('NumberDecimal can only be constructed from a string, received: number. Please use NumberDecimal(string).');
     });
 
     it('constructs 0 if the argument is not provided', () => {
