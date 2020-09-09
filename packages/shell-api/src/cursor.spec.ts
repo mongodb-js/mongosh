@@ -469,6 +469,26 @@ describe('Cursor', () => {
       });
     });
 
+    describe('#showRecordId', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+      let mock;
+      const value = true;
+
+      beforeEach(() => {
+        mock = sinon.mock().withArgs(value);
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          showRecordId: mock
+        });
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('fluidly sets the return key value', () => {
+        expect(shellApiCursor.showRecordId()).to.equal(shellApiCursor);
+        mock.verify();
+      });
+    });
+
     describe('#skip', () => {
       let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
