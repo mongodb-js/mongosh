@@ -292,4 +292,11 @@ export default class Cursor extends ShellApiClass {
     throw new MongoshUnimplementedError(
       '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
   }
+
+  @returnType('Cursor')
+  @serverVersions(['3.2.0', ServerVersions.latest])
+  showRecordId(): Cursor {
+    this._cursor.showRecordId(true);
+    return this;
+  }
 }

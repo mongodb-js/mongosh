@@ -262,5 +262,10 @@ export default interface ServiceProviderCursor {
    * @returns {Promise<any>}
    */
   explain(verbosity: string): Promise<any>;
+
+  /**
+   * Set the showRecordId flag to true.
+   */
+  showRecordId(recordId: boolean): ServiceProviderCursor;
 }
 
