@@ -167,6 +167,67 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.include('metadata');
   });
 
+  it('renders ShowProfileResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      format: 'output',
+      type: 'ShowProfileResult',
+      value: {
+        count: 0
+      }
+    }}/>);
+    expect(wrapper.text()).to.include('db.system.profile is empty');
+  });
+
+  it('renders ShowProfileResult', () => {
+    const wrapper = mount(<ShellOutputLine entry={{
+      format: 'output',
+      type: 'ShowProfileResult',
+      value: {
+        count: 1,
+        result: [
+          {
+            op: 'command',
+            ns: 'test.system.profile',
+            command: {
+              aggregate: 'system.profile',
+              pipeline: [
+                { '$match': {} },
+                { '$group': { _id: 1, n: { '$sum': 1 } } }
+              ],
+              cursor: {},
+              lsid: { id: 'bin' },
+              '$db': 'test'
+            },
+            keysExamined: 0,
+            docsExamined: 6,
+            cursorExhausted: true,
+            numYield: 0,
+            nreturned: 1,
+            locks: {
+              ReplicationStateTransition: { acquireCount: { w: 2 } },
+              Global: { acquireCount: { r: 2 } },
+              Database: { acquireCount: { r: 2 } },
+              Collection: { acquireCount: { r: 2 } },
+              Mutex: { acquireCount: { r: 2 } }
+            },
+            flowControl: {},
+            responseLength: 132,
+            protocol: 'op_msg',
+            millis: 1,
+            planSummary: 'COLLSCAN',
+            ts: 'ts',
+            client: '127.0.0.1',
+            appName: 'mongosh 0.2.2',
+            allUsers: [],
+            user: ''
+          }
+        ]
+      }
+    }}/>);
+    expect(wrapper.text()).to.contain('command    test.system.profile 1ms ts');
+    expect(wrapper.text()).to.contain('aggregate');
+  });
+
   it('renders an error', () => {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: err }} />);
