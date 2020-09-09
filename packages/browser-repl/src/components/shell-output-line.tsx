@@ -16,6 +16,7 @@ import { ObjectOutput } from './types/object-output';
 import { SimpleTypeOutput } from './types/simple-type-output';
 import { ErrorOutput } from './types/error-output';
 import { inspect } from './utils/inspect';
+import { ShowProfileOutput } from './types/show-profile-output';
 
 const styles = require('./shell-output-line.less');
 
@@ -79,6 +80,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
 
     if (type === 'CursorIterationResult') {
       return <CursorIterationResultOutput value={value} />;
+    }
+
+    if (type === 'ShowProfileResult') {
+      return <ShowProfileOutput value={value} />;
     }
 
     if (this.isError(value)) {

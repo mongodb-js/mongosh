@@ -143,6 +143,67 @@ describe('formatOutput', () => {
     });
   });
 
+  context('when the result is a ShowProfileResult', () => {
+    it('returns the warning if empty', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          count: 0
+        },
+        type: 'ShowProfileResult'
+      }));
+
+      expect(output).to.contain('db.system.profile is empty');
+    });
+    it('returns the formatted list if not empty', () => {
+      const output = stripAnsiColors(format({
+        value: {
+          count: 2,
+          result: [
+            {
+              op: 'command',
+              ns: 'test.system.profile',
+              command: {
+                aggregate: 'system.profile',
+                pipeline: [
+                  { '$match': {} },
+                  { '$group': { _id: 1, n: { '$sum': 1 } } }
+                ],
+                cursor: {},
+                lsid: { id: 'bin' },
+                '$db': 'test'
+              },
+              keysExamined: 0,
+              docsExamined: 6,
+              cursorExhausted: true,
+              numYield: 0,
+              nreturned: 1,
+              locks: {
+                ReplicationStateTransition: { acquireCount: { w: 2 } },
+                Global: { acquireCount: { r: 2 } },
+                Database: { acquireCount: { r: 2 } },
+                Collection: { acquireCount: { r: 2 } },
+                Mutex: { acquireCount: { r: 2 } }
+              },
+              flowControl: {},
+              responseLength: 132,
+              protocol: 'op_msg',
+              millis: 1,
+              planSummary: 'COLLSCAN',
+              ts: 'ts',
+              client: '127.0.0.1',
+              appName: 'mongosh 0.2.2',
+              allUsers: [],
+              user: ''
+            }
+          ]
+        },
+        type: 'ShowProfileResult'
+      }));
+      expect(output).to.contain('command\ttest.system.profile 1ms ts');
+      expect(output).to.contain('aggregate: \'system.profile\',');
+    });
+  });
+
   context('when the result is Help', () => {
     it('returns help text', () => {
       const output = stripAnsiColors(format({
