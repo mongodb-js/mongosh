@@ -489,6 +489,22 @@ describe('Cursor', () => {
       });
     });
 
+    describe('#objsLeftInBatch', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          bufferedCount: 100
+        });
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('returns the count', () => {
+        expect(shellApiCursor.objsLeftInBatch()).to.equal(100);
+      });
+    });
+
     describe('#skip', () => {
       let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;

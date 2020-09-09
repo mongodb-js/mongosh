@@ -267,5 +267,10 @@ export default interface ServiceProviderCursor {
    * Set the showRecordId flag to true.
    */
   showRecordId(recordId: boolean): ServiceProviderCursor;
+
+  /**
+   * Current buffered documents length.
+   */
+  bufferedCount(): number;
 }
 
