@@ -288,7 +288,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 prints when created by user', async() => {
-      const value = 'NumberDecimal(100)';
+      const value = 'NumberDecimal("100")';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('NumberDecimal("100")');
