@@ -299,4 +299,12 @@ export default class Cursor extends ShellApiClass {
     this._cursor.showRecordId(true);
     return this;
   }
+
+  objsLeftInBatch(): number {
+    return this._cursor.bufferedCount();
+  }
+
+  readConcern(): Cursor {
+    throw new MongoshUnimplementedError('Setting readConcern on the cursor is not currently supported. See NODE-2806');
+  }
 }
