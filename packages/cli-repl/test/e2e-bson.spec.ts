@@ -247,6 +247,14 @@ describe('BSON e2e', function() {
       });
       shell.assertNoErrors();
     });
+    it('NumberLong prints when created by user (> MAX_SAFE_INTEGER)', async() => {
+      const value = 'NumberLong("345678654321234561")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput('NumberLong(345678654321234561)');
+      });
+      shell.assertNoErrors();
+    });
     it('Timestamp prints when created by user', async() => {
       const value = 'Timestamp(0, 100)';
       await shell.writeInputLine(value);
