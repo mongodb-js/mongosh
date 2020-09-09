@@ -167,7 +167,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.include('metadata');
   });
 
-  it('renders ShowProfileResult', () => {
+  it('renders ShowProfileResult with count = 0', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowProfileResult',
@@ -178,7 +178,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.include('db.system.profile is empty');
   });
 
-  it('renders ShowProfileResult', () => {
+  it('renders ShowProfileResult with count > 0', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowProfileResult',

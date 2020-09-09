@@ -16,6 +16,7 @@ import { ObjectOutput } from './types/object-output';
 import { SimpleTypeOutput } from './types/simple-type-output';
 import { ErrorOutput } from './types/error-output';
 import { inspect } from './utils/inspect';
+import { ShowProfileOutput } from './types/show-profile-output';
 
 const styles = require('./shell-output-line.less');
 
@@ -82,32 +83,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     }
 
     if (type === 'ShowProfileResult') {
-      if (value.count === 0) {
-        return <SimpleTypeOutput value='db.system.profile is empty.\nUse db.setProfilingLevel(2) will enable profiling.\nUse db.getCollection("system.profile").find() to show raw profile entries.'/>;
-      }
-      // direct from old shell
-      const toret = value.result.map(function(x) {
-        const res = `${x.op}    ${x.ns} ${x.millis}ms ${String(x.ts).substring(0, 24)}\n`;
-        let l = '';
-        for (const z in x) {
-          if (z === 'op' || z === 'ns' || z === 'millis' || z === 'ts') {
-            continue;
-          }
-
-          const val = x[z];
-          const mytype = typeof (val);
-
-          if (mytype === 'object') {
-            l += z + ':' + inspect(val) + ' ';
-          } else if (mytype === 'boolean') {
-            l += z + ' ';
-          } else {
-            l += z + ':' + val + ' ';
-          }
-        }
-        return `${res}${l}`;
-      });
-      return <SimpleTypeOutput value={toret}/>;
+      return <ShowProfileOutput value={value} />;
     }
 
     if (this.isError(value)) {
