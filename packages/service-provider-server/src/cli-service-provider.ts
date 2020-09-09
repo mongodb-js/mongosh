@@ -1,6 +1,7 @@
 import mongodb, {
   MongoClient,
-  Db
+  Db,
+  ReadPreference as DriverReadPreference
 } from 'mongodb';
 
 import {
@@ -16,7 +17,9 @@ import {
   ReplPlatform,
   DEFAULT_DB,
   ServiceProviderCore,
-  AuthOptions
+  AuthOptions,
+  ReadConcern,
+  ReadPreference
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
@@ -1064,6 +1067,46 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       return await this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
     }
     return await this.db(dbName, dbOptions).collection(collName).initializeUnorderedBulkOp(options);
+  }
+
+  getReadPreference(): ReadPreference {
+    return this.mongoClient.readPreference;
+  }
+
+  getReadConcern(): ReadConcern | undefined {
+    // return this.mongoClient.readConcern; TODO: this is only on latest driver.
+    return this.mongoClient.s.options.readConcern;
+  }
+
+  getWriteConcern(): WriteConcern | undefined {
+    return this.mongoClient.writeConcern;
+  }
+
+  /**
+   * For instances where a user wants to set a option that requires a new MongoClient.
+   *
+   * @param options
+   */
+  async resetConnectionOptions(options: Document): Promise<boolean> {
+    // NOTE: we keep all the original options and just overwrite the passed.
+    if ('readPreference' in options) {
+      const pr = new DriverReadPreference(
+        options.readPreference.mode,
+        options.readPreference.tagSet,
+        options.hedgeOptions
+      );
+      options.readPreference = pr;
+    }
+    const clientOptions: any = {
+      ...DEFAULT_DRIVER_OPTIONS,
+      ...this.initialOptions,
+      ...options
+    };
+    this.mongoClient = await MongoClient.connect(
+      this.uri,
+      clientOptions
+    );
+    return true;
   }
 }
 

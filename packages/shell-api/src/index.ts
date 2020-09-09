@@ -27,8 +27,6 @@ import {
 import {
   Topologies,
   ServerVersions,
-  ReadPreference,
-  DBQueryOption,
   shellApiType,
   asShellResult
 } from './enums';
@@ -54,8 +52,6 @@ export {
   UpdateResult,
   toIterator,
   signatures,
-  DBQueryOption,
-  ReadPreference,
   ShellApi,
   ServerVersions,
   Topologies,

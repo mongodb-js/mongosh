@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import { ReadPreference, ServiceProvider } from '@mongosh/service-provider-core';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -9,11 +9,16 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { ReplPlatform, generateUri } from '@mongosh/service-provider-core';
+import {
+  ReplPlatform,
+  generateUri,
+  ReadPreferenceMode,
+  ReadConcernLevel
+} from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { retractPassword } from '@mongosh/history';
 
 @shellApiClassDefault
@@ -130,5 +135,43 @@ export default class Mongo extends ShellApiClass {
   }
   async close(p): Promise<void> {
     return await this._serviceProvider.close(p);
+  }
+
+  getReadPrefMode(): ReadPreferenceMode {
+    // return this._serviceProvider.getReadPreference().mode;
+    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+  }
+
+  getReadPrefTagSet(): Record<string, string>[] {
+    // return this._serviceProvider.getReadPreference().tags;
+    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+  }
+
+  getReadPref(): ReadPreference {
+    // return this._serviceProvider.getReadPreference();
+    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+  }
+
+  getReadConcern(): ReadConcernLevel | undefined {
+    const rc = this._serviceProvider.getReadConcern();
+    return rc ? rc.level : undefined;
+  }
+
+  @returnsPromise
+  async setReadPref(mode: string, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
+    const ok = await this._serviceProvider.resetConnectionOptions({
+      readPreference: { mode: mode, tagSet: tagSet, hedgeOptions: hedgeOptions }
+    });
+    if (!ok) {
+      throw new MongoshInternalError('Error setting read preference');
+    }
+  }
+
+  @returnsPromise
+  async setReadConcern(level: string): Promise<void> {
+    const ok = await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
+    if (!ok) {
+      throw new MongoshInternalError('Error setting read concern');
+    }
   }
 }
