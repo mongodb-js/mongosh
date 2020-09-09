@@ -114,6 +114,35 @@ const uploadToDownloadCenter = (s3: S3, config: string): Promise<any> => {
   return upload(uploadParams, s3);
 };
 
+const delay = (msecs): any => new Promise((resolve) => {
+  setTimeout(resolve, msecs);
+});
+
+const waitAllDownloadAssetsAvailable = async(config): Promise<void> => {
+  const configObject = JSON.parse(config);
+  const checkInterval = 60 * 1000; // 1 minute
+
+  let attemptsRemaining = 60; // try for 1 hour
+  let succeded = false;
+
+  while (attemptsRemaining >= 0) {
+    attemptsRemaining--;
+
+    try {
+      await verifyDownloadCenterConfig(configObject);
+      succeded = true;
+      break;
+    } catch (error) {
+      console.error('verifyDownloadCenterConfig: attempt failed.', error);
+      await delay(checkInterval);
+    }
+  }
+
+  if (!succeded) {
+    throw new Error('verifyDownloadCenterConfig: all the attempts failed.');
+  }
+};
+
 /**
  * Upload the download center config to s3.
  *
@@ -130,7 +159,7 @@ const uploadDownloadCenterConfig = async(version: string, awsKey: string, awsSec
   });
   const config = createDownloadCenterConfig(version);
 
-  await verifyDownloadCenterConfig(JSON.parse(config));
+  await waitAllDownloadAssetsAvailable(config);
 
   return await uploadToDownloadCenter(s3, config);
 };
