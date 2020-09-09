@@ -1980,6 +1980,15 @@ describe('Database', () => {
       });
     });
 
+    describe('cloneDatabase, cloneCollection, copyDatabase', () => {
+      it('throws a helpful exception regarding their removal', () => {
+        ['cloneDatabase', 'cloneCollection', 'copyDatabase'].forEach((method) => {
+          expect(() => database[method]()).to.throw(
+            `\`${method}()\` was removed because it was deprecated in MongoDB 4.0`);
+        });
+      });
+    });
+
     describe('commandHelp', () => {
       it('calls serviceProvider.runCommand on the database with options', async() => {
         await database.commandHelp('listDatabases');

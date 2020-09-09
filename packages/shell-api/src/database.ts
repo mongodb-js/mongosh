@@ -945,6 +945,21 @@ export default class Database extends ShellApiClass {
     return result.logComponentVerbosity;
   }
 
+  cloneDatabase(): void {
+    throw new MongoshUnimplementedError(
+      '`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
+  }
+
+  cloneCollection(): void {
+    throw new MongoshUnimplementedError(
+      '`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
+  }
+
+  copyDatabase(): void {
+    throw new MongoshUnimplementedError(
+      '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
+  }
+
   async commandHelp(name: string): Promise<any> {
     assertArgsDefined(name);
     this._emitDatabaseApiCall('commandHelp', { name: name });

@@ -656,11 +656,9 @@ const translations = {
               description: 'Specifies the exclusive upper bound for a specific index in order to constrain the results of find(). max() provides a way to specify an upper bound on compound key indexes.',
               example: 'db.collection.find(query, projection).max(indexBoundsDocument)'
             },
-            // this is deprecated, leave empty.
             maxScan: {
-              link: '',
-              description: '',
-              example: ''
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxScan',
+              description: 'deprecated, non-functional'
             },
             maxTimeMS: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS',
@@ -1042,6 +1040,18 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getLogComponents',
               description: 'returns the db getLogComponents. uses the getParameter command',
               example: 'db.getLogComponents()'
+            },
+            cloneDatabase: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.cloneDatabase',
+              description: 'deprecated, non-functional'
+            },
+            copyDatabase: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.copyDatabase',
+              description: 'deprecated, non-functional'
+            },
+            cloneCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.cloneCollection',
+              description: 'deprecated, non-functional'
             },
             listCommands: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.listCommands',
