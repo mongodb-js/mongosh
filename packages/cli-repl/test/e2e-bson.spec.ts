@@ -243,7 +243,15 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong(64)');
+        shell.assertContainsOutput('NumberLong("64")');
+      });
+      shell.assertNoErrors();
+    });
+    it('NumberLong prints when created by user (> MAX_SAFE_INTEGER)', async() => {
+      const value = 'NumberLong("345678654321234561")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput('NumberLong("345678654321234561")');
       });
       shell.assertNoErrors();
     });
@@ -280,7 +288,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 prints when created by user', async() => {
-      const value = 'NumberDecimal(100)';
+      const value = 'NumberDecimal("100")';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('NumberDecimal("100")');

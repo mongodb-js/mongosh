@@ -225,4 +225,66 @@ describe('Shell BSON', () => {
       expect(shellBson.bsonsize({})).to.equal(5);
     });
   });
+
+  describe('NumberLong', () => {
+    it('creates a bson.Long', () => {
+      const n = shellBson.NumberLong('123');
+      expect(n).to.be.instanceOf(bson.Long);
+      expect(bson.Long.fromString('123').eq(n)).to.be.true;
+    });
+
+    it('throws if the argument is not a string', () => {
+      expect(() => {
+        shellBson.NumberLong(123);
+      }).to.throw('NumberLong can only be constructed from a string, received: number. Please use NumberLong(string).');
+    });
+
+    it('constructs 0 if the argument is not provided', () => {
+      expect(bson.Long.fromString('0').eq(shellBson.NumberLong())).to.be.true;
+    });
+
+    it('correctly constructs numbers > MAX_SAFE_INTEGER', () => {
+      expect(shellBson.NumberLong('345678654321234552').toString()).to.equal('345678654321234552');
+    });
+  });
+
+  describe('NumberDecimal', () => {
+    it('creates a bson.Decimal128', () => {
+      const n = shellBson.NumberDecimal('123.1');
+      expect(n).to.be.instanceOf(bson.Decimal128);
+      expect(n.toString()).to.equal('123.1');
+    });
+
+    it('throws if the argument is not a string', () => {
+      expect(() => {
+        shellBson.NumberDecimal(123.1);
+      }).to.throw('NumberDecimal can only be constructed from a string, received: number. Please use NumberDecimal(string).');
+    });
+
+    it('constructs 0 if the argument is not provided', () => {
+      expect(shellBson.NumberDecimal().toString()).to.equal('0');
+    });
+
+    it('correctly constructs numbers > MAX_SAFE_INTEGER', () => {
+      expect(shellBson.NumberDecimal('345678654321234552.0').toString()).to.equal('345678654321234552.0');
+    });
+  });
+
+  describe('NumberInt', () => {
+    it('creates a bson.Int32 from string', () => {
+      const n = shellBson.NumberInt('1');
+      expect(n).to.be.instanceOf(bson.Int32);
+      expect(n.value).to.equal(1);
+    });
+
+    it('creates a bson.Int32 from number', () => {
+      const n = shellBson.NumberInt(1);
+      expect(n).to.be.instanceOf(bson.Int32);
+      expect(n.value).to.equal(1);
+    });
+
+    it('constructs 0 if the argument is not provided', () => {
+      expect(shellBson.NumberInt().value).to.equal(0);
+    });
+  });
 });
