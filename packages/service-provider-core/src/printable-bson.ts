@@ -65,7 +65,7 @@ export default function(bson): void {
   bson.Int32.prototype.asPrintable = bson.Int32.prototype[toString];
 
   bson.Long.prototype[toString] = function(): string {
-    return `NumberLong(${this.toString()})`;
+    return `NumberLong("${this.toString()}")`;
   };
   bson.Long.prototype.asPrintable = bson.Long.prototype[toString];
 

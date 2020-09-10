@@ -243,7 +243,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong(64)');
+        shell.assertContainsOutput('NumberLong("64")');
       });
       shell.assertNoErrors();
     });
@@ -251,7 +251,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("345678654321234561")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong(345678654321234561)');
+        shell.assertContainsOutput('NumberLong("345678654321234561")');
       });
       shell.assertNoErrors();
     });
