@@ -197,6 +197,7 @@ tasks:
   - name: release_debian
     depends_on:
       - name: check
+      - name: test
     commands:
       - func: checkout
       - func: install
@@ -249,4 +250,5 @@ buildvariants:
     run_on: debian10-large
     tasks:
       - name: check
+      - name: test
       - name: release_debian
