@@ -95,7 +95,13 @@ const translations = {
               description: 'Quit the MongoDB shell with quit/quit()'
             },
             show: {
-              description: '\'show databases\': Print a list of all available databases. \n\'show-collections\': Print a list of all collections for current database'
+              description: '\'show databases\'/\'show dbs\': Print a list of all available databases.\n' +
+                '\'show collections\'/\'show tables\': Print a list of all collections for current database.\n' +
+                '\'show profile\': Prints system.profile information.\n' +
+                '\'show users\': Print a list of all users for current database.\n' +
+                '\'show roles\': Print a list of all roles for current database.\n' +
+                '\'show log <type>\': log for current connection, if type is not set uses \'global\'\n' +
+                '\'show logs\': Print all logs.\n'
             },
             connect: {
               description: 'Create a new connection and return the Database object. Usage: connect(URI, username [optional], password [optional])',
@@ -1142,6 +1148,36 @@ const translations = {
             },
             close: {
               description: 'Closes a Mongo object, disposing of related resources and closing the underlying connection.'
+            },
+            getReadConcern: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getReadConcern',
+              description: 'Calls the getReadConcern command',
+              example: 'db.getReadConcern()'
+            },
+            getReadPref: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPref',
+              description: 'Returns the ReadPreference set for the connection. Not currently implemented, see NODE-2806',
+              example: 'db.getMongo().getReadPref()'
+            },
+            getReadPrefMode: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPrefMode',
+              description: 'Returns the ReadPreference Mode set for the connection. Not currently implemented, see NODE-2806',
+              example: 'db.getMongo().getReadPrefMode()'
+            },
+            getReadPrefTagSet: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPrefTagSet',
+              description: 'Returns the ReadPreference TagSet set for the connection. Not currently implemented, see NODE-2806',
+              example: 'db.getMongo().getReadPrefTagSet()'
+            },
+            setReadPref: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.setReadPref',
+              description: 'Sets the ReadPreference for the connection',
+              example: 'db.getMongo().setReadPref(mode, tagSets, hedgeOptions)'
+            },
+            setReadConcern: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.setReadConcern',
+              description: 'Sets the ReadConcern for the connection',
+              example: 'db.getMongo().setReadConcern(level)'
             }
           }
         },

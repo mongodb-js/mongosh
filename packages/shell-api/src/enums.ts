@@ -15,14 +15,6 @@ export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.lat
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
 export const ALL_PLATFORMS = [ ReplPlatform.Compass, ReplPlatform.Browser, ReplPlatform.CLI ];
 
-export enum ReadPreference {
-  PRIMARY = 0,
-  PRIMARY_PREFERRED = 1,
-  SECONDARY = 2,
-  SECONDARY_PREFERRED = 3,
-  NEAREST = 4
-}
-
 export enum DBQueryOption {
   tailable = 2,
   slaveOk = 4,
@@ -32,10 +24,6 @@ export enum DBQueryOption {
   exhaust = 64,
   partial = 128
 }
-
-export const DBQuery = {
-  Option: DBQueryOption
-};
 
 export const shellApiType = Symbol.for('@@mongosh.shellApiType');
 // TODO: Would require changes to java-shell

@@ -5,6 +5,7 @@ import Result from './result';
 import BulkWriteResult from './bulk-write-result';
 import WriteConcern from './write-concern';
 import ReadConcern from './read-concern';
+import ReadPreference, { ReadPreferenceMode } from './read-preference';
 import CommandOptions from './command-options';
 import BaseOptions from './base-options';
 import DatabaseOptions from './database-options';
@@ -27,6 +28,8 @@ export {
   Result,
   ReadConcern,
   WriteConcern,
+  ReadPreference,
+  ReadPreferenceMode,
   CommandOptions,
   BaseOptions,
   AuthOptions,

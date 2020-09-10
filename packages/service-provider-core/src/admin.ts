@@ -3,6 +3,10 @@ import { ReplPlatform } from './platform';
 import AuthOptions from './auth-options';
 import CollectionOptions from './collection-options';
 import DatabaseOptions from './database-options';
+import ReadPreference from './read-preference';
+import ReadConcern from './read-concern';
+import WriteConcern from './write-concern';
+import Document from './document';
 
 export default interface Admin {
   /**
@@ -65,4 +69,26 @@ export default interface Admin {
    * createCollection
    */
   createCollection(dbName: string, collName: string, opts: CollectionOptions, dbOptions?: DatabaseOptions): Promise<any>;
+
+  /**
+   * Return read preference for connection.
+   */
+  getReadPreference(): ReadPreference;
+
+  /**
+   * Return read concern for connection.
+   */
+  getReadConcern(): ReadConcern | undefined;
+
+  /**
+   * Return write concern for connection.
+   */
+  getWriteConcern(): WriteConcern | undefined;
+
+  /**
+   * Reset the connection to have the option specified.
+   *
+   * @param options
+   */
+  resetConnectionOptions(options: Document): Promise<void>;
 }
