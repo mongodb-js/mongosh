@@ -159,7 +159,9 @@ export default function constructShellBson(bson: any): any {
       return new bson.Binary(buffer, subtype);
     },
     UUID: function(hexstr): any {
-      const buffer = Buffer.from(hexstr, 'hex');
+      // Strip any dashes, as they occur in the standard UUID formatting
+      // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
+      const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     },
     MD5: function(hexstr): any {
