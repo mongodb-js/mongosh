@@ -148,6 +148,11 @@ functions:
         file: tmp\expansions.yaml
         redacted: true
     - <<: *compile_and_release_ps
+  update_download_centre:
+    - command: shell.exec
+    script: |
+          echo "OK!"
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -219,6 +224,12 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: release_win_ps
+  - name: update_download_centre
+    depends_on:
+      - name: release_win_ps
+      - name: release_linux
+      - name: release_macos
+
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin
@@ -254,3 +265,8 @@ buildvariants:
     tasks:
       - name: check
       - name: release_debian
+  - name: darwin-update_download_centre
+    display_name: "MacOS Update Download Centre"
+    run_on: macos-1014-codesign
+    tasks:
+      - name: update_download_centre
