@@ -76,7 +76,7 @@ const CONFIG = `
           "arch": "x64",
           "os": "rhel",
           "name": "Redhat 64-bit",
-          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-x86_64.deb"
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-{{version}}-x86_64.rpm"
         }
       ]
     }
