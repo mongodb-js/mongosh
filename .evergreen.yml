@@ -227,8 +227,11 @@ tasks:
   - name: update_download_centre
     depends_on:
       - name: release_win_ps
+        variant: win32
       - name: release_linux
+        variant: linux
       - name: release_macos
+        variant: darwin
 
 # Need to run builds for every possible build variant.
 buildvariants:
