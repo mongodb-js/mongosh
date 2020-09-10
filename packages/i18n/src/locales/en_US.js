@@ -544,13 +544,18 @@ const translations = {
             initializeUnorderedBulkOp: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.initializeUnorderedBulkOp',
               description: 'Initializes an unordered bulk command. Returns an instance of Bulk',
-              example: 'db.initializeUnorderedBulkOp()'
+              example: 'db.coll.initializeUnorderedBulkOp()'
             },
             initializeOrderedBulkOp: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.initializeOrderedBulkOp',
               description: 'Initializes an ordered bulk command. Returns an instance of Bulk',
-              example: 'db.initializeOrderedBulkOp()'
-            }
+              example: 'db.coll.initializeOrderedBulkOp()'
+            },
+            getPlanCache: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getPlanCache/',
+              description: 'Returns an interface to access the query plan cache for a collection. The interface provides methods to view and clear the query plan cache.',
+              example: 'db.coll.getPlanCache()'
+            },
           }
         }
       },
@@ -1382,6 +1387,35 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.upsert/',
               description: 'Adds an upsert to the bulk operation updates for this find(...).',
               example: 'bulkOp.find(...).upsert()',
+            }
+          }
+        }
+      },
+      PlanCache: {
+        help: {
+          link: 'https://docs.mongodb.com/manual/reference/method/js-plan-cache/',
+          description: 'An interface to access the query plan cache object and associated PlanCache methods for a collection.',
+          attributes: {
+            clear: {
+              link: 'https://docs.mongodb.com/manual/reference/method/PlanCache.clear',
+              description: 'Removes cached query plan(s) for a collection.',
+              example: 'db.coll.getPlanCache().clear()'
+            },
+            clearPlansByQuery: {
+              link: 'https://docs.mongodb.com/manual/reference/method/PlanCache.clearPlansByQuery',
+              description: 'Removes cached query plan(s) for a collection of the specified query shape.',
+              example: 'db.coll.getPlanCache().clearPlansByQuery(<query>, <projection?>, <sort?>)'
+            },
+            list: {
+              link: 'https://docs.mongodb.com/manual/reference/method/PlanCache.list',
+              description: 'Lists cached query plan(s) for a collection.',
+              example: 'db.coll.getPlanCache().list(<pipeline>)'
+            },
+            getPlansByQuery: {
+              description: 'Deprecated. Please use PlanCache.list instead'
+            },
+            planCacheQueryShapes: {
+              description: 'Deprecated. Please use PlanCache.list instead'
             }
           }
         }

@@ -25,6 +25,7 @@ import {
 import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
+import PlanCache from './plan-cache';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -78,7 +79,7 @@ export default class Collection extends ShellApiClass {
       pipeline = args[0] || [];
     } else {
       options = {};
-      pipeline = args;
+      pipeline = args || [];
     }
     this._emitCollectionApiCall(
       'aggregate',
@@ -1237,8 +1238,8 @@ export default class Collection extends ShellApiClass {
     return await this._mongo._serviceProvider.runCommand(
       this._database._name,
       {
-        ...options,
-        [commandName]: this._name
+        [commandName]: this._name,
+        ...options
       }
     );
   }
@@ -1356,5 +1357,11 @@ export default class Collection extends ShellApiClass {
       false
     );
     return new Bulk(this, innerBulk);
+  }
+
+  @returnType('PlanCache')
+  getPlanCache(): PlanCache {
+    this._emitCollectionApiCall('getPlanCache');
+    return new PlanCache(this);
   }
 }

@@ -46,6 +46,26 @@ describe('Shell API (integration)', function() {
     await serviceProvider.deleteOne(dbName, collectionName, { _id: now });
   };
 
+  const loadQueryCache = async(collection): Promise<any> => {
+    const res = await collection.insertMany([
+      { '_id': 1, 'item': 'abc', 'price': 12, 'quantity': 2, 'type': 'apparel' },
+      { '_id': 2, 'item': 'jkl', 'price': 20, 'quantity': 1, 'type': 'electronics' },
+      { '_id': 3, 'item': 'abc', 'price': 10, 'quantity': 5, 'type': 'apparel' },
+      { '_id': 4, 'item': 'abc', 'price': 8, 'quantity': 10, 'type': 'apparel' },
+      { '_id': 5, 'item': 'jkl', 'price': 15, 'quantity': 15, 'type': 'electronics' }
+    ]);
+    expect(res.acknowledged).to.equal(1);
+    expect((await collection.createIndex({ item: 1 })).ok).to.equal(1);
+    expect((await collection.createIndex({ item: 1, quantity: 1 })).ok).to.equal(1);
+    expect((await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } })).ok).to.equal(1);
+    expect((await collection.createIndex({ quantity: 1 })).ok).to.equal(1);
+    expect((await collection.createIndex({ quantity: 1, type: 1 })).ok).to.equal(1);
+    await collection.find( { item: 'abc', price: { $gte: 10 } } ).toArray();
+    await collection.find( { item: 'abc', price: { $gte: 5 } } ).toArray();
+    await collection.find( { quantity: { $gte: 20 } } ).toArray();
+    await collection.find( { quantity: { $gte: 5 }, type: 'apparel' } ).toArray();
+  };
+
   before(async() => {
     serviceProvider = await CliServiceProvider.connect(connectionString);
   });
@@ -1276,6 +1296,55 @@ describe('Shell API (integration)', function() {
         expect(oldMC.isConnected()).to.equal(false);
         expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
         expect(serviceProvider.mongoClient.s.options.readPreference.mode).to.equal('secondaryPreferred');
+      });
+    });
+  });
+  describe('PlanCache', () => {
+    describe('list', async() => {
+      it('lists all without args', async() => {
+        await loadQueryCache(collection);
+        const planCache = collection.getPlanCache();
+        const res = await planCache.list();
+        expect(res.length).to.equal(4);
+        expect(res[0].createdFromQuery).to.deep.equal({
+          query: { quantity: { $gte: 5 }, type: 'apparel' },
+          sort: {},
+          projection: {}
+        });
+      });
+      it('lists projection with args', async() => {
+        await loadQueryCache(collection);
+        const planCache = collection.getPlanCache();
+        const res = await planCache.list([{ $project: { createdFromQuery: 1, queryHash: 1 } }]);
+        expect(res).to.deep.equal([
+          { createdFromQuery: { query: { quantity: { $gte: 5 }, type: 'apparel' }, sort: { }, projection: { } }, queryHash: '4D151C4C' },
+          { createdFromQuery: { query: { quantity: { $gte: 20 } }, sort: { }, projection: { } }, queryHash: '23B19B75' },
+          { createdFromQuery: { query: { item: 'abc', price: { $gte: 5 } }, sort: { }, projection: { } }, queryHash: '117A6B10' },
+          { createdFromQuery: { query: { item: 'abc', price: { $gte: 10 } }, sort: { }, projection: { } }, queryHash: '117A6B10' }
+        ]);
+      });
+    });
+    describe('clear', () => {
+      it('clears list', async() => {
+        await loadQueryCache(collection);
+        const planCache = collection.getPlanCache();
+        expect((await planCache.list()).length).to.equal(4);
+        const clearRes = await planCache.clear();
+        expect(clearRes.ok).to.equal(1);
+        expect((await planCache.list()).length).to.equal(0);
+      });
+    });
+    describe('clearPlansByQuery', () => {
+      it('only clears some queries', async() => {
+        const query = { quantity: { $gte: 5 }, type: 'apparel' };
+        await loadQueryCache(collection);
+        const planCache = collection.getPlanCache();
+        expect((await planCache.list()).length).to.equal(4);
+        expect((await planCache.list())[0].createdFromQuery.query).to.deep.equal(query);
+        const clearRes = await planCache.clearPlansByQuery(query);
+        expect(clearRes.ok).to.equal(1);
+        expect((await planCache.list()).length).to.equal(3);
+        expect((await planCache.list())[0].createdFromQuery.query).to.not.deep.equal(query);
       });
     });
   });
