@@ -167,11 +167,13 @@ class CliRepl {
 
             const evalResult = this.shellEvaluator.customEval(originalEval, input, context, filename);
 
+            process.once('SIGINT', sigintListener);
             evalResult.then(resolve, reject);
           });
         } finally {
           // Remove our 'SIGINT' listener and re-install the REPL one(s).
           this.repl.removeListener('SIGINT', sigintListener);
+          process.removeListener('SIGINT', sigintListener);
           for (const listener of previousSigintListeners) {
             this.repl.on('SIGINT', listener);
           }

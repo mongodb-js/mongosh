@@ -238,5 +238,26 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
   });
+
+  describe('Ctrl+C aka SIGINT', () => {
+    let shell;
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ '--nodb' ] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+    });
+    it('interrupts sync execution', async() => {
+      const result = shell.executeLine('while(true);');
+      setTimeout(() => shell.kill('SIGINT'), 1000);
+      await result;
+      shell.assertContainsError('interrupted');
+    });
+    it('interrupts async awaiting', async() => {
+      const result = shell.executeLine('new Promise(() => {});');
+      setTimeout(() => shell.kill('SIGINT'), 1000);
+      await result;
+      shell.assertContainsError('interrupted');
+    });
+  });
 });
 
