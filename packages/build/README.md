@@ -56,7 +56,8 @@ const config = {
   repo: {
     owner: 'owner',
     repo: 'repo',
-  }
+  },
+  dryRun: false
 }
 
 const runRelease = async() => {
@@ -82,6 +83,10 @@ const release = require('@mongosh/build');
 const configObject = {};
 await release(config);
 ```
+
+If `config.dryRun` is set, this will only package a tarball and skip all later
+steps.
+
 #### await compileExec()
 Create a compiled down binary. Binary is created for the provided platform (e.g.
 windows will build `mongosh.exe`). Before we compile the binary, we bundle

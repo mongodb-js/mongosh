@@ -167,6 +167,12 @@ Compile the standalone executable:
 npm run compile-exec
 ```
 
+Compile a specific package, e.g. the `.deb` for Debian:
+
+```shell
+npm run release -- --dry --build-variant=Debian
+```
+
 ## Contributing
 For issues, please create a ticket in our [JIRA Pr
 ject](https://jira.mongodb.org/browse/MONGOSH).

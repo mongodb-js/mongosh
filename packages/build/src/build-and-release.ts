@@ -17,6 +17,8 @@ export default async function buildAndRelease(
   const tarballFile = await compileAndZipExecutable(config);
   console.log('mongosh: created tarball:', tarballFile);
 
+  if (config.dryRun) return;
+
   // Always release internally to evergreen
   await uploadToEvergreen(
     tarballFile.path,
