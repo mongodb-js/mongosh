@@ -49,6 +49,11 @@ variables:
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win_ps - Publishes the npm packages and uploads the tarballs.
 functions:
+  update_download_centre:
+    - command: shell.exec
+      params:
+        script: |
+          echo "OK!"
   checkout:
     - command: git.get_project
       params:
@@ -148,10 +153,6 @@ functions:
         file: tmp\expansions.yaml
         redacted: true
     - <<: *compile_and_release_ps
-  update_download_centre:
-    - command: shell.exec
-    script: |
-          echo "OK!"
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
@@ -232,6 +233,8 @@ tasks:
         variant: linux
       - name: release_macos
         variant: darwin
+    commands:
+      - func: update_download_centre
 
 # Need to run builds for every possible build variant.
 buildvariants:
