@@ -285,5 +285,108 @@ describe('Mongo', () => {
         });
       });
     });
+    describe('getReadPrefMode', () => {
+      it('throws unimplemented error for now', () => {
+        try {
+          mongo.getReadPrefMode();
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshUnimplementedError');
+        }
+        expect.fail();
+      });
+    });
+    describe('getReadPref', () => {
+      it('throws unimplemented error for now', () => {
+        try {
+          mongo.getReadPref();
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshUnimplementedError');
+        }
+        expect.fail();
+      });
+    });
+    describe('getReadPrefTagSet', () => {
+      it('throws unimplemented error for now', () => {
+        try {
+          mongo.getReadPrefTagSet();
+        } catch (e) {
+          return expect(e.name).to.equal('MongoshUnimplementedError');
+        }
+        expect.fail();
+      });
+    });
+    describe('getReadConcern', () => {
+      it('calls serviceProvider.getReadConcern', async() => {
+        const expectedResult = { level: 'majority' };
+        serviceProvider.getReadConcern.returns(expectedResult);
+        const res = await mongo.getReadConcern();
+        expect(serviceProvider.getReadConcern).to.have.been.calledWith();
+        expect(res).to.equal('majority');
+      });
+
+      it('returns undefined if not set', async() => {
+        serviceProvider.getReadConcern.returns(undefined);
+        const res = await mongo.getReadConcern();
+        expect(serviceProvider.getReadConcern).to.have.been.calledWith();
+        expect(res).to.equal(undefined);
+      });
+
+      it('throws InternalError if getReadConcern errors', async() => {
+        const expectedError = new Error();
+        serviceProvider.getReadConcern.throws(expectedError);
+        try {
+          mongo.getReadConcern();
+        } catch (catchedError) {
+          return expect(catchedError.name).to.equal('MongoshInternalError');
+        }
+        expect.fail();
+      });
+    });
+    describe('setReadPref', () => {
+      it('calls serviceProvider.restConnectionOptions', async() => {
+        serviceProvider.resetConnectionOptions.resolves();
+        await mongo.setReadPref('primaryPreferred', []);
+        expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith({
+          readPreference: {
+            mode: 'primaryPreferred',
+            tagSet: [],
+            hedgeOptions: undefined
+          }
+        });
+      });
+
+      it('throws if resetConnectionOptions errors', async() => {
+        const expectedError = new Error();
+        serviceProvider.resetConnectionOptions.throws(expectedError);
+        try {
+          await mongo.setReadPref('primary');
+        } catch (catchedError) {
+          return expect(catchedError).to.equal(expectedError);
+        }
+        expect.fail();
+      });
+    });
+    describe('setReadConcern', () => {
+      it('calls serviceProvider.restConnectionOptions', async() => {
+        serviceProvider.resetConnectionOptions.resolves();
+        await mongo.setReadConcern('majority');
+        expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith({
+          readConcern: {
+            level: 'majority'
+          }
+        });
+      });
+
+      it('throws if resetConnectionOptions errors', async() => {
+        const expectedError = new Error();
+        serviceProvider.resetConnectionOptions.throws(expectedError);
+        try {
+          await mongo.setReadConcern('majority');
+        } catch (catchedError) {
+          return expect(catchedError).to.equal(expectedError);
+        }
+        expect.fail();
+      });
+    });
   });
 });

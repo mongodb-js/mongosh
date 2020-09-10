@@ -90,5 +90,5 @@ export default interface Admin {
    *
    * @param options
    */
-  resetConnectionOptions(options: Document): Promise<boolean>;
+  resetConnectionOptions(options: Document): Promise<void>;
 }

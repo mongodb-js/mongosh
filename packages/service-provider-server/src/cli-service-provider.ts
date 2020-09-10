@@ -79,7 +79,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return new CliServiceProvider(mongoClient, clientOptions, uri);
   }
 
-  private mongoClient: MongoClient;
+  public mongoClient: MongoClient; // public for testing
   private readonly uri?: string;
   private initialOptions: any;
 
@@ -1070,11 +1070,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   getReadPreference(): ReadPreference {
-    return this.mongoClient.readPreference;
+    return this.mongoClient.readPreference; // TODO: node driver bug always returns primary NODE-2806
   }
 
   getReadConcern(): ReadConcern | undefined {
-    // return this.mongoClient.readConcern; TODO: this is only on latest driver.
+    // return this.mongoClient.readConcern; TODO: this is only on latest driver, for now use workaround
     return this.mongoClient.s.options.readConcern;
   }
 
@@ -1087,7 +1087,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @param options
    */
-  async resetConnectionOptions(options: Document): Promise<boolean> {
+  async resetConnectionOptions(options: Document): Promise<void> {
     // NOTE: we keep all the original options and just overwrite the passed.
     if ('readPreference' in options) {
       const pr = new DriverReadPreference(
@@ -1102,11 +1102,15 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ...this.initialOptions,
       ...options
     };
-    this.mongoClient = await MongoClient.connect(
+    try {
+      await this.mongoClient.close();
+      // eslint-disable-next-line no-empty
+    } catch {}
+    const mc = await MongoClient.connect(
       this.uri,
       clientOptions
     );
-    return true;
+    this.mongoClient = mc;
   }
 }
 

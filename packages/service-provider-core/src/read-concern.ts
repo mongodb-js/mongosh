@@ -7,5 +7,5 @@ export enum ReadConcernLevel {
 }
 
 export default interface ReadConcern {
-  level: ReadConcernLevel;
+  level: string;
 }

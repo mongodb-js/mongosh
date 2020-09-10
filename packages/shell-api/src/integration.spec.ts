@@ -1254,4 +1254,29 @@ describe('Shell API (integration)', function() {
       });
     });
   });
+
+  describe('mongo', () => {
+    describe('setReadConcern', () => {
+      it('reconnects', async() => {
+        const oldMC = serviceProvider.mongoClient;
+        expect(oldMC.isConnected()).to.equal(true);
+        expect(mongo.getReadConcern()).to.equal(undefined);
+        await mongo.setReadConcern('local');
+        expect(mongo.getReadConcern()).to.equal('local');
+        expect(oldMC.isConnected()).to.equal(false);
+        expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
+      });
+    });
+    describe('setReadPref', () => {
+      it('reconnects', async() => {
+        const oldMC = serviceProvider.mongoClient;
+        expect(oldMC.isConnected()).to.equal(true);
+        expect(serviceProvider.mongoClient.s.options.readPreference.mode).to.deep.equal('primary');
+        await mongo.setReadPref('secondaryPreferred');
+        expect(oldMC.isConnected()).to.equal(false);
+        expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
+        expect(serviceProvider.mongoClient.s.options.readPreference.mode).to.equal('secondaryPreferred');
+      });
+    });
+  });
 });

@@ -12,8 +12,7 @@ import {
 import {
   ReplPlatform,
   generateUri,
-  ReadPreferenceMode,
-  ReadConcernLevel
+  ReadPreferenceMode
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -152,26 +151,24 @@ export default class Mongo extends ShellApiClass {
     throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
   }
 
-  getReadConcern(): ReadConcernLevel | undefined {
-    const rc = this._serviceProvider.getReadConcern();
-    return rc ? rc.level : undefined;
+  getReadConcern(): string {
+    try {
+      const rc = this._serviceProvider.getReadConcern();
+      return rc ? rc.level : undefined;
+    } catch {
+      throw new MongoshInternalError('Error retrieving ReadConcern. Please file a JIRA ticket in the MONGOSH project');
+    }
   }
 
   @returnsPromise
   async setReadPref(mode: string, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
-    const ok = await this._serviceProvider.resetConnectionOptions({
+    await this._serviceProvider.resetConnectionOptions({
       readPreference: { mode: mode, tagSet: tagSet, hedgeOptions: hedgeOptions }
     });
-    if (!ok) {
-      throw new MongoshInternalError('Error setting read preference');
-    }
   }
 
   @returnsPromise
   async setReadConcern(level: string): Promise<void> {
-    const ok = await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
-    if (!ok) {
-      throw new MongoshInternalError('Error setting read concern');
-    }
+    await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
   }
 }

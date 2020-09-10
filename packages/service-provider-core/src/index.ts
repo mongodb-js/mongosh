@@ -4,7 +4,7 @@ import Cursor, { CursorFlag, CURSOR_FLAGS } from './cursor';
 import Result from './result';
 import BulkWriteResult from './bulk-write-result';
 import WriteConcern from './write-concern';
-import ReadConcern, { ReadConcernLevel } from './read-concern';
+import ReadConcern from './read-concern';
 import ReadPreference, { ReadPreferenceMode } from './read-preference';
 import CommandOptions from './command-options';
 import BaseOptions from './base-options';
@@ -30,7 +30,6 @@ export {
   WriteConcern,
   ReadPreference,
   ReadPreferenceMode,
-  ReadConcernLevel,
   CommandOptions,
   BaseOptions,
   AuthOptions,
