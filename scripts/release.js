@@ -8,10 +8,14 @@ const config = require(path.join(__dirname, '..', 'config', 'build.conf.js'));
  * Run the release process.
  */
 const runRelease = async() => {
-  if (process.argv.includes('--dry')) config.dryRun = true;
+  if (process.argv.includes('--dry')) {
+    config.dryRun = true;
+  }
   const cliBuildVariant =
     process.argv.map((arg) => arg.match(/^--build-variant=(.+)$/)).filter(Boolean)[0];
-  if (cliBuildVariant !== undefined) config.buildVariant = cliBuildVariant[1];
+  if (cliBuildVariant !== undefined) {
+    config.buildVariant = cliBuildVariant[1];
+  }
 
   // Resolve 'Windows' to 'win32' etc.
   if (BuildVariant[config.buildVariant])
