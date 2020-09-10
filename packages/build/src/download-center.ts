@@ -19,7 +19,10 @@ async function verifyDownloadCenterConfig(downloadCenterJson: Record<string, any
   }
 
   if (Object.keys(errors).length) {
-    throw new Error(`Download center urls broken: ${JSON.stringify(errors)}`);
+    const error = new Error(`Download center urls broken: ${JSON.stringify(errors)}`);
+    (error as any).retry = true;
+
+    throw error;
   }
 }
 
@@ -134,6 +137,11 @@ const waitAllDownloadAssetsAvailable = async(config): Promise<void> => {
       break;
     } catch (error) {
       console.error('verifyDownloadCenterConfig: attempt failed.', error);
+
+      if (!error.retry) {
+        break;
+      }
+
       await delay(checkInterval);
     }
   }
