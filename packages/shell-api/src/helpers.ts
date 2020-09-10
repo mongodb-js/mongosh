@@ -50,9 +50,17 @@ export function validateExplainableVerbosity(verbosity: string): void {
   }
 }
 
-export function assertArgsDefined(...args: any): void {
+export function assertArgsDefined(...args: any[]): void {
   if (args.some(a => a === undefined)) {
     throw new MongoshInvalidInputError('Missing required argument');
+  }
+}
+
+export function assertKeysDefined(object: object, keys: string[]): void {
+  for (const key of keys) {
+    if (object[key] === undefined) {
+      throw new MongoshInvalidInputError(`Missing required property: ${JSON.stringify(key)}`);
+    }
   }
 }
 

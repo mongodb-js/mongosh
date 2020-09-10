@@ -14,6 +14,7 @@ import {
   adaptAggregateOptions,
   adaptOptions,
   assertArgsDefined,
+  assertKeysDefined,
   processDigestPassword
 } from './helpers';
 
@@ -236,7 +237,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async createUser(user: Document, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(user);
-    assertArgsDefined(user.user, user.roles, user.pwd);
+    assertKeysDefined(user, ['user', 'roles', 'pwd']);
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
       throw new MongoshInvalidInputError('Cannot set createUser field in helper method');
@@ -439,7 +440,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async createRole(role: Document, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(role);
-    assertArgsDefined(role.role, role.privileges, role.roles);
+    assertKeysDefined(role, ['role', 'privileges', 'roles']);
     this._emitDatabaseApiCall('createRole', {});
     if (role.createRole) {
       throw new MongoshInvalidInputError('Cannot set createRole field in helper method');

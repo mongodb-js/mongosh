@@ -472,6 +472,16 @@ describe('Database', () => {
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
+
+      it('throws if roles is not provided', async() => {
+        const catchedError = await database.createUser({
+          user: 'anna',
+          pwd: 'pwd'
+        })
+          .catch(e => e);
+        expect(catchedError.message).to.equal('Missing required property: "roles"');
+        expect(catchedError.name).to.equal('MongoshInvalidInputError');
+      });
     });
     describe('updateUser', () => {
       it('calls serviceProvider.runCommand on the database with extra fields and no passwordDigestor', async() => {

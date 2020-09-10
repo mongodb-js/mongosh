@@ -9,7 +9,7 @@ import {
   serverVersions
 } from './decorators';
 import { ServerVersions } from './enums';
-import { adaptAggregateOptions, validateExplainableVerbosity, assertArgsDefined } from './helpers';
+import { adaptAggregateOptions, validateExplainableVerbosity, assertArgsDefined, assertKeysDefined } from './helpers';
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -347,7 +347,7 @@ export default class Collection extends ShellApiClass {
       arrayFilters?: Document[];
     } = {}
   ): Promise<any> {
-    assertArgsDefined(options.query);
+    assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall(
       'findAndModify',
       { options: { ...options, update: !!options.update } }
