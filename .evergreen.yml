@@ -241,6 +241,10 @@ tasks:
         variant: win32
       - name: release_linux
         variant: linux
+      - name: release_rhel
+        variant: rhel
+      - name: release_debian
+        variant: debian
       - name: release_macos
         variant: darwin
     commands:
