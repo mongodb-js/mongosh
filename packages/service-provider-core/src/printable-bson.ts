@@ -70,7 +70,25 @@ export default function(bson): void {
   bson.Long.prototype.asPrintable = bson.Long.prototype[toString];
 
   bson.Binary.prototype[toString] = function(): string {
-    return `BinData(${this.sub_type}, "${this.value()}")`;
+    const asBuffer = this.value(true);
+    switch (this.sub_type) {
+      case bson.Binary.SUBTYPE_MD5:
+        return `MD5("${asBuffer.toString('hex')}")`;
+      case bson.Binary.SUBTYPE_UUID:
+        if (asBuffer.length === 16) {
+          // Format '0123456789abcdef0123456789abcdef' into
+          // '01234567-89ab-cdef-0123-456789abcdef'.
+          const hex = asBuffer.toString('hex');
+          const asUUID = hex.match(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/)
+            .slice(1, 6).join('-');
+          return `UUID("${asUUID}")`;
+        }
+        // Fall through in case somebody did something weird and used an UUID
+        // with a non-standard length.
+        // eslint-disable-next-line no-fallthrough
+      default:
+        return `BinData(${this.sub_type}, "${asBuffer.toString('base64')}")`;
+    }
   };
   bson.Binary.prototype.asPrintable = bson.Binary.prototype[toString];
 }

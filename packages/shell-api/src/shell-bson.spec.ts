@@ -200,6 +200,10 @@ describe('Shell BSON', () => {
       expect(h.help()[asShellResult]().type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
+    it('strips dashes from input', () => {
+      expect(shellBson.UUID('01234567-89ab-cdef-0123-456789abcdef').value())
+        .to.equal(shellBson.UUID('0123456789abcdef0123456789abcdef').value());
+    });
   });
   describe('MD5', () => {
     const b = shellBson.BinData(5, b64_1234);

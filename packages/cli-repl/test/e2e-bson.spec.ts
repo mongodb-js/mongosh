@@ -49,7 +49,7 @@ describe('BSON e2e', function() {
       Symbol: '"abc"',
       Code: '{ "code" : "abc" }',
       NumberDecimal: 'NumberDecimal("1")',
-      BinData: 'BinData(128, "1234")'
+      BinData: 'BinData(128, "MTIzNA==")'
     };
     it('Entire doc prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
@@ -195,7 +195,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('BinData(128, "1234")');
+        shell.assertContainsOutput('BinData(128, "MTIzNA==")');
       });
       shell.assertNoErrors();
     });
@@ -301,7 +301,31 @@ describe('BSON e2e', function() {
       const value = 'BinData(128, "MTIzNA==")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('BinData(128, "1234")');
+        shell.assertContainsOutput(value);
+      });
+      shell.assertNoErrors();
+    });
+    it('BinData prints as UUID when created by user as such', async() => {
+      const value = 'UUID("01234567-89ab-cdef-0123-456789abcdef")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput(value);
+      });
+      shell.assertNoErrors();
+    });
+    it('BinData prints as MD5 when created by user as such', async() => {
+      const value = 'MD5("0123456789abcdef0123456789abcdef")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput(value);
+      });
+      shell.assertNoErrors();
+    });
+    it('BinData prints as BinData when created as invalid UUID', async() => {
+      const value = 'UUID("abcdef")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput('BinData(4, "q83v")');
       });
       shell.assertNoErrors();
     });
