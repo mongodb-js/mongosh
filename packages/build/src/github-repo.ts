@@ -116,13 +116,30 @@ export class GithubRepo {
     await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  async getReleaseByTag(tag: string) {
+    const releases = await this.octokit
+      .paginate(
+        'GET /repos/:owner/:repo/releases',
+        this.repo,
+      );
+
+    return releases.find(({ tag_name }) => tag_name === tag);
+  }
+
   async promoteRelease(config: Config): Promise<void> {
     const tag = `v${config.version}`;
 
-    const { data: releaseDetails } = await this.octokit.repos.getReleaseByTag({
-      ...this.repo,
-      tag
-    });
+    const releaseDetails = await this.getReleaseByTag(tag);
+
+    if (!releaseDetails) {
+      throw new Error(`Release for ${tag} not found.`);
+    }
+
+    if (!releaseDetails.draft) {
+      console.info(`Release for ${tag} is already public.`);
+      return;
+    }
 
     const params = {
       ...this.repo,

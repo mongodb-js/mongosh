@@ -91,31 +91,59 @@ describe('GithubRepo', () => {
   });
 
   describe('promoteRelease', () => {
-    beforeEach(() => {
-      octokit = {
-        repos: {
-          getReleaseByTag: sinon.stub().resolves({ data: { id: '123' } }),
-          updateRelease: sinon.stub().resolves()
-        }
-      } as any;
+    describe('when release exists and is in draft', () => {
+      beforeEach(() => {
+        octokit = {
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: true }]),
+          repos: {
+            updateRelease: sinon.stub().resolves()
+          }
+        } as any;
 
-      repo = {
-        owner: 'mongodb-js',
-        repo: 'mongosh'
-      };
+        repo = {
+          owner: 'mongodb-js',
+          repo: 'mongosh'
+        };
 
-      githubRepo = new GithubRepo(repo, octokit);
+        githubRepo = new GithubRepo(repo, octokit);
+      });
+
+      it('finds the release corresponding to config.version and sets draft to false', async() => {
+        await githubRepo.promoteRelease({ version: '0.0.6' });
+
+        expect(octokit.repos.updateRelease).to.have.been.calledWith({
+          draft: false,
+          owner: 'mongodb-js',
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          release_id: '123',
+          repo: 'mongosh'
+        });
+      });
     });
 
-    it('finds the release corresponding to config.version and sets draft to false', async() => {
-      await githubRepo.promoteRelease({ version: '0.0.6' });
+    describe('when release exists but is not in draft', () => {
+      beforeEach(() => {
+        octokit = {
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: false }]),
+          repos: {
+            updateRelease: sinon.stub().resolves()
+          }
+        } as any;
 
-      expect(octokit.repos.updateRelease).to.have.been.calledWith({
-        draft: false,
-        owner: 'mongodb-js',
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        release_id: '123',
-        repo: 'mongosh'
+        repo = {
+          owner: 'mongodb-js',
+          repo: 'mongosh'
+        };
+
+        githubRepo = new GithubRepo(repo, octokit);
+      });
+
+      it('does nothing', async() => {
+        await githubRepo.promoteRelease({ version: '0.0.6' });
+
+        expect(octokit.repos.updateRelease).not.to.have.been.called;
       });
     });
   });
