@@ -198,6 +198,7 @@ tasks:
     depends_on:
       - name: check
       - name: test
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -205,6 +206,8 @@ tasks:
   - name: release_rhel
     depends_on:
       - name: check
+      - name: test
+        variant: linux
     commands:
       - func: checkout
       - func: install
