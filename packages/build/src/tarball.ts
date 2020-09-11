@@ -152,7 +152,6 @@ export async function createTarball(
     };
   } else if (buildVariant === BuildVariant.Redhat) {
     await tarballRedhat(input, outputDir, version, rootDir);
-    console.info('mongosh: built redhat tarball');
 
     return {
       path: filename,
