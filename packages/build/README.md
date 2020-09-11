@@ -10,7 +10,7 @@ root of the project.
 
 Current build and release flow is as follows:
 
-- package:
+- `npm run evergreen-release package
   - A commit triggers an evergreen build based on currently available build
     variants: MacOS, Windows, Linux, Debian, and RedHat.
   - MacOS, Linux and Windows run three tasks: check, test, and release. Debian and
