@@ -99,7 +99,7 @@ describe('tarball module', () => {
 
     // Apt does not have `rpmbuild` package, so we will not able to install it
     // on ubuntu's build variant. We can, however, uncomment this test once we
-    // specifically test on redhat80-large.
+    // specifically test on rhel80-large.
 
     // describe('.tarballRedhat', () => {
     //   const version = '1.0.0';
