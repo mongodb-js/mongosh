@@ -101,6 +101,7 @@ export const tarballRedhat = async(
     dest: outputDir,
     src: rootDir,
     input: input,
+    loggger: console.log,
     arch: 'x86_64'
   }
 
