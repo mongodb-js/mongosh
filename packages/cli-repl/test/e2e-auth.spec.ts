@@ -758,7 +758,7 @@ describe('Auth e2e', function() {
             'db.auth("anna", "pwd2")'
           );
           await eventually(async() => {
-            shell.assertContainsError('MongoServerSelectionError: Authentication failed');
+            shell.assertContainsError('Authentication failed');
           }, { timeout: 40000 });
           await shell.writeInputLine(
             'db.runCommand({connectionStatus: 1})'

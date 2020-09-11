@@ -360,8 +360,8 @@ describe('Bulk API', () => {
       });
       describe('updateOne', () => {
         it('calls serviceProviderBulkOp.updateOne and returns parent', () => {
-          bulkFindOp.updateOne({ updateOneDoc: 1 });
-          expect(innerStub.updateOne).to.have.been.calledWith({ updateOneDoc: 1 });
+          bulkFindOp.updateOne({ $inc: { x: 1 } } );
+          expect(innerStub.updateOne).to.have.been.calledWith({ $inc: { x: 1 } });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
