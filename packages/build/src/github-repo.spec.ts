@@ -64,7 +64,7 @@ describe('GithubRepo', () => {
     });
   });
 
-  describe('releaseToGithub', () => {
+  describe.only('releaseToGithub', () => {
     const platform = os.platform();
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, platform, version);
@@ -75,14 +75,18 @@ describe('GithubRepo', () => {
       fs.unlink(expectedTarball, done);
     });
 
-    it('calls createRelease when running releaseToGithub', async() => {
-      githubRepo.createRelease = sinon.stub().resolves();
+    it('calls createDraftRelease when running releaseToGithub', async() => {
+      githubRepo.createDraftRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
       const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
       githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
-      expect(githubRepo.createRelease).to.have.been.called;
+      expect(githubRepo.createDraftRelease).to.have.been.calledWith({
+        name: '0.0.6',
+        notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
+        tag: 'v0.0.6'
+      });
     });
   });
 });

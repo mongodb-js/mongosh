@@ -62,12 +62,13 @@ export class GithubRepo {
    * @returns {Promise<void>}
    * @memberof GithubRepo
    */
-  async createRelease(release: Release): Promise<void> {
+  async createDraftRelease(release: Release): Promise<void> {
     const params = {
       ...this.repo,
       tag_name: release.tag,
       name: release.name,
-      body: release.notes
+      body: release.notes,
+      draft: true
     };
 
     await this.octokit.repos.createRelease(params)
@@ -111,7 +112,7 @@ export class GithubRepo {
       tag: `v${config.version}`,
       notes: `Release notes [in Jira](${this.jiraReleaseNotesLink(config.version)})`
     };
-    await this.createRelease(githubRelease);
+    await this.createDraftRelease(githubRelease);
     await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
