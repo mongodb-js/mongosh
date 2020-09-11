@@ -115,7 +115,8 @@ class CliRepl {
       prompt: '> ',
       writer: this.writer,
       completer: completer.bind(null, version),
-      terminal: true
+      terminal: true,
+      breakEvalOnSigint: true,
     });
 
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
@@ -147,7 +148,36 @@ class CliRepl {
       let result;
 
       try {
-        result = await this.shellEvaluator.customEval(originalEval, input, context, filename);
+        let sigintListener: () => void;
+        let previousSigintListeners: any[];
+        try {
+          result = await new Promise((resolve, reject) => {
+            // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
+            // by racing a listener for 'SIGINT' against the evalResult Promise.
+            // We remove all 'SIGINT' listeners and install our own.
+            sigintListener = (): void => {
+              // Reject with an exception similar to one thrown by Node.js
+              // itself if the `customEval` itself is interrupted.
+              reject(new Error('Asynchronous execution was interrupted by `SIGINT`'));
+            };
+            previousSigintListeners = this.repl.rawListeners('SIGINT');
+
+            this.repl.removeAllListeners('SIGINT');
+            this.repl.once('SIGINT', sigintListener);
+
+            const evalResult = this.shellEvaluator.customEval(originalEval, input, context, filename);
+
+            process.once('SIGINT', sigintListener);
+            evalResult.then(resolve, reject);
+          });
+        } finally {
+          // Remove our 'SIGINT' listener and re-install the REPL one(s).
+          this.repl.removeListener('SIGINT', sigintListener);
+          process.removeListener('SIGINT', sigintListener);
+          for (const listener of previousSigintListeners) {
+            this.repl.on('SIGINT', listener);
+          }
+        }
       } catch (err) {
         if (isRecoverableError(input)) {
           return callback(new Recoverable(err));

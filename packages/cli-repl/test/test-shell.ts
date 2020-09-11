@@ -7,6 +7,8 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import assert from 'assert';
 
+type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
+
 const PROMPT_PATTERN = /^> /m;
 const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/m; // node <= 12.14
 const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/m;
@@ -92,8 +94,8 @@ export class TestShell {
     return this._onClose;
   }
 
-  kill(): void {
-    this._process.kill();
+  kill(signal?: SignalType): void {
+    this._process.kill(signal);
   }
 
   writeInput(chars: string): void {
