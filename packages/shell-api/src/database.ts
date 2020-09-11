@@ -251,7 +251,7 @@ export default class Database extends ShellApiClass {
     );
     const digestPwd = processDigestPassword(user.user, user.passwordDigestor, command);
     const orderedCmd = { createUser: command.createUser, ...command, ...digestPwd };
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       orderedCmd
     );
@@ -275,7 +275,7 @@ export default class Database extends ShellApiClass {
     );
     const digestPwd = processDigestPassword(username, userDoc.passwordDigestor, command);
     const orderedCmd = { updateUser: command.updateUser, ...command, ...digestPwd };
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       orderedCmd
     );
@@ -295,7 +295,7 @@ export default class Database extends ShellApiClass {
       {}
     );
     const orderedCmd = { updateUser: command.updateUser, ...command };
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       orderedCmd
     );
@@ -304,14 +304,14 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async logout(): Promise<any> {
     this._emitDatabaseApiCall('logout', {});
-    return await this._mongo._serviceProvider.runCommand(this._name, { logout: 1 });
+    return await this._mongo._serviceProvider.runCommandWithCheck(this._name, { logout: 1 });
   }
 
   @returnsPromise
   async dropUser(username: string, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(username);
     this._emitDatabaseApiCall('dropUser', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { dropUser: username, writeConcern: writeConcern }
     );
@@ -320,7 +320,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async dropAllUsers(writeConcern: WriteConcern = {}): Promise<any> {
     this._emitDatabaseApiCall('dropAllUsers', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { dropAllUsersFromDatabase: 1, writeConcern: writeConcern }
     );
@@ -354,7 +354,7 @@ export default class Database extends ShellApiClass {
   async grantRolesToUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('grantRolesToUser', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { grantRolesToUser: username, writeConcern: writeConcern, roles: roles }
     );
@@ -364,7 +364,7 @@ export default class Database extends ShellApiClass {
   async revokeRolesFromUser(username: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('revokeRolesFromUser', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { revokeRolesFromUser: username, writeConcern: writeConcern, roles: roles }
     );
@@ -379,13 +379,10 @@ export default class Database extends ShellApiClass {
       { usersInfo: { user: username, db: this._name } },
       options
     );
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
-    if (!result.ok) {
-      return result;
-    }
     for (let i = 0; i < result.users.length; i++) {
       if (result.users[i].user === username) {
         return result.users[i];
@@ -402,7 +399,7 @@ export default class Database extends ShellApiClass {
       { usersInfo: 1 },
       options
     );
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
@@ -453,7 +450,7 @@ export default class Database extends ShellApiClass {
       role
     );
     const orderedCmd = { createRole: command.createRole, ...command };
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       orderedCmd
     );
@@ -472,7 +469,7 @@ export default class Database extends ShellApiClass {
       roleDoc
     );
     const orderedCmd = { updateRole: command.updateRole, ...command };
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       orderedCmd
     );
@@ -482,7 +479,7 @@ export default class Database extends ShellApiClass {
   async dropRole(rolename: string, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(rolename);
     this._emitDatabaseApiCall('dropRole', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { dropRole: rolename, writeConcern: writeConcern }
     );
@@ -491,7 +488,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async dropAllRoles(writeConcern: WriteConcern = {}): Promise<any> {
     this._emitDatabaseApiCall('dropAllRoles', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { dropAllRolesFromDatabase: 1, writeConcern: writeConcern }
     );
@@ -501,7 +498,7 @@ export default class Database extends ShellApiClass {
   async grantRolesToRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('grantRolesToRole', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { grantRolesToRole: rolename, roles: roles, writeConcern: writeConcern }
     );
@@ -511,7 +508,7 @@ export default class Database extends ShellApiClass {
   async revokeRolesFromRole(rolename: string, roles: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('revokeRolesFromRole', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { revokeRolesFromRole: rolename, roles: roles, writeConcern: writeConcern }
     );
@@ -521,7 +518,7 @@ export default class Database extends ShellApiClass {
   async grantPrivilegesToRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('grantPrivilegesToRole', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { grantPrivilegesToRole: rolename, privileges: privileges, writeConcern: writeConcern }
     );
@@ -531,7 +528,7 @@ export default class Database extends ShellApiClass {
   async revokePrivilegesFromRole(rolename: string, privileges: any, writeConcern: WriteConcern = {}): Promise<any> {
     assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       { revokePrivilegesFromRole: rolename, privileges: privileges, writeConcern: writeConcern }
     );
@@ -547,13 +544,10 @@ export default class Database extends ShellApiClass {
       { rolesInfo: { role: rolename, db: this._name } },
       options
     );
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
-    if (!result.ok) {
-      return result;
-    }
     for (let i = 0; i < result.roles.length; i++) {
       if (result.roles[i].role === rolename) {
         return result.roles[i];
@@ -570,7 +564,7 @@ export default class Database extends ShellApiClass {
       { rolesInfo: 1 },
       options
     );
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
@@ -579,7 +573,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async currentOp(opts: any = {}): Promise<any> {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         currentOp: 1,
@@ -592,7 +586,7 @@ export default class Database extends ShellApiClass {
   async killOp(opId: number): Promise<any> {
     assertArgsDefined(opId);
     this._emitDatabaseApiCall('killOp', { opId });
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         killOp: 1,
@@ -604,7 +598,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async shutdownServer(opts: any = {}): Promise<any> {
     this._emitDatabaseApiCall('shutdownServer', { opts: opts });
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         shutdown: 1,
@@ -616,7 +610,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async fsyncLock(): Promise<any> {
     this._emitDatabaseApiCall('fsyncLock', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         fsync: 1,
@@ -628,7 +622,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async fsyncUnlock(): Promise<any> {
     this._emitDatabaseApiCall('fsyncUnlock', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         fsyncUnlock: 1
@@ -639,13 +633,13 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async version(): Promise<any> {
     this._emitDatabaseApiCall('version', {});
-    const info = await this._mongo._serviceProvider.runCommand(
+    const info = await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         buildInfo: 1,
       }
     );
-    if (!info || !info.ok) {
+    if (!info || info.version === undefined) {
       throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
     }
     return info.version;
@@ -654,13 +648,13 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async serverBits(): Promise<any> {
     this._emitDatabaseApiCall('serverBits', {});
-    const info = await this._mongo._serviceProvider.runCommand(
+    const info = await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         buildInfo: 1,
       }
     );
-    if (!info || !info.ok) {
+    if (!info || info.bits === undefined) {
       throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
     }
     return info.bits;
@@ -669,93 +663,71 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async isMaster(): Promise<any> {
     this._emitDatabaseApiCall('isMaster', {});
-    const info = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       {
         isMaster: 1,
       }
     );
-    if (!info || !info.ok) {
-      throw new MongoshRuntimeError(`Error running command isMaster ${info ? info.errmsg || '' : ''}`);
-    }
-    return info;
   }
 
   @returnsPromise
   async serverBuildInfo(): Promise<any> {
     this._emitDatabaseApiCall('serverBuildInfo', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         buildInfo: 1,
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command buildInfo ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
   async serverStatus(opts = {}): Promise<any> {
     this._emitDatabaseApiCall('serverStatus', { options: opts });
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         serverStatus: 1, ...opts
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command serverStatus ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
   async stats(scale: any): Promise<any> {
     assertArgsDefined(scale);
     this._emitDatabaseApiCall('stats', { scale: scale });
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+
       ADMIN_DB,
       {
         dbStats: 1,
         scale: scale
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command dbStats ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
   async hostInfo(): Promise<any> {
     this._emitDatabaseApiCall('hostInfo', {});
-    const info = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         hostInfo: 1,
       }
     );
-    if (!info || !info.ok) {
-      throw new MongoshRuntimeError(`Error running command hostInfo ${info ? info.errmsg || '' : ''}`);
-    }
-    return info;
   }
 
   @returnsPromise
   async serverCmdLineOpts(): Promise<any> {
     this._emitDatabaseApiCall('serverCmdLineOpts', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+
       ADMIN_DB,
       {
         getCmdLineOpts: 1,
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command serverCmdLineOpts ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
@@ -779,32 +751,26 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async getFreeMonitoringStatus(): Promise<any> {
     this._emitDatabaseApiCall('getFreeMonitoringStatus', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+
       ADMIN_DB,
       {
         getFreeMonitoringStatus: 1,
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command getFreeMonitoringStatus ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
   async disableFreeMonitoring(): Promise<any> {
     this._emitDatabaseApiCall('disableFreeMonitoring', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+
       ADMIN_DB,
       {
         setFreeMonitoring: 1,
         action: 'disable'
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
@@ -854,16 +820,13 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async getProfilingStatus(): Promise<any> {
     this._emitDatabaseApiCall('getProfilingStatus', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+
       this._name,
       {
         profile: -1,
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command profile ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
@@ -876,17 +839,13 @@ export default class Database extends ShellApiClass {
       opts = { slowms: opts };
     }
     this._emitDatabaseApiCall('setProfilingLevel', { opts: opts });
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       {
         profile: level,
         ...opts
       }
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command profile ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
@@ -916,14 +875,10 @@ export default class Database extends ShellApiClass {
     //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
     // }
 
-    const result = await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       cmdObj
     );
-    if (!result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command setParameter ${result ? result.errmsg || '' : ''}`);
-    }
-    return result;
   }
 
   @returnsPromise
@@ -936,11 +891,11 @@ export default class Database extends ShellApiClass {
     //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
     // }
 
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       cmdObj
     );
-    if (!result || !result.ok) {
+    if (!result || result.logComponentVerbosity === undefined) {
       throw new MongoshRuntimeError(`Error running command  ${result ? result.errmsg || '' : ''}`);
     }
     return result.logComponentVerbosity;
@@ -968,11 +923,11 @@ export default class Database extends ShellApiClass {
     command[name] = 1;
     command.help = true;
 
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
-    if (!result || !result.ok) {
+    if (!result || result.help === undefined) {
       throw new MongoshRuntimeError(`Error running command listComands ${result ? result.errmsg || '' : ''}`);
     }
     return result.help;
@@ -981,13 +936,13 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async listCommands(): Promise<any> {
     this._emitDatabaseApiCall('listCommands', {});
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       {
         listCommands: 1,
       }
     );
-    if (!result || !result.ok) {
+    if (!result || result.commands === undefined) {
       throw new MongoshRuntimeError(`Error running command listCommands ${result ? result.errmsg || '' : ''}`);
     }
     return new CommandResult('ListCommandsResult', result.commands);

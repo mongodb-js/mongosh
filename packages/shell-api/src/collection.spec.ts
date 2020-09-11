@@ -64,6 +64,7 @@ describe('Collection', () => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, bus);
@@ -516,28 +517,28 @@ describe('Collection', () => {
     });
 
     describe('stats', () => {
-      it('calls serviceProvider.runCommand on the database with no options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with no options', async() => {
         await collection.stats();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { collStats: 'coll1', scale: 1 } // ensure simple collname
         );
       });
 
-      it('calls serviceProvider.runCommand on the database with scale option', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with scale option', async() => {
         await collection.stats({ scale: 2 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { collStats: collection._name, scale: 2 }
         );
       });
 
-      it('calls serviceProvider.runCommand on the database with legacy scale', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with legacy scale', async() => {
         await collection.stats(2);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { collStats: collection._name, scale: 2 }
         );
@@ -549,7 +550,7 @@ describe('Collection', () => {
         beforeEach(() => {
           expectedResult = { ok: 1, indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } } };
           indexesResult = [ { v: 2, key: { k1: 1 }, name: 'k1_1' }, { v: 2, key: { k2: 1 }, name: 'k2_1' }];
-          serviceProvider.runCommand.resolves(expectedResult);
+          serviceProvider.runCommandWithCheck.resolves(expectedResult);
           serviceProvider.getIndexes.resolves(indexesResult);
         });
         it('not returned when no args', async() => {
@@ -582,9 +583,9 @@ describe('Collection', () => {
         });
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await collection.stats()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -881,13 +882,13 @@ describe('Collection', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.aggregate returns', async() => {
         serviceProvider.aggregate.returns({ toArray: async() => ([{ 1: 'db1' }]) } as any);
         const result = await collection.latencyStats();
         expect(result).to.deep.equal([{ 1: 'db1' }]);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.aggregate rejects', async() => {
         const expectedError = new Error();
         serviceProvider.aggregate.throws(expectedError);
         const catchedError = await collection.latencyStats()
@@ -915,7 +916,7 @@ describe('Collection', () => {
         expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.initializeBulkOp rejects', async() => {
         const expectedError = new Error();
         serviceProvider.initializeBulkOp.throws(expectedError);
         const catchedError = await collection.initializeUnorderedBulkOp()

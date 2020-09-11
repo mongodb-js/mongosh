@@ -25,6 +25,20 @@ export default interface Writable {
   ): Promise<Result>;
 
   /**
+   * @param {String} db - the db name
+   * @param spec
+   * @param options
+   * @param {DatabaseOptions} dbOptions - The database options
+   * @return {Promise<Result>}
+   */
+  runCommandWithCheck(
+    db: string,
+    spec: Document,
+    options?: CommandOptions,
+    dbOptions?: DatabaseOptions
+  ): Promise<Result>;
+
+  /**
    * Drop a database
    *
    * @param {String} database - The database name.

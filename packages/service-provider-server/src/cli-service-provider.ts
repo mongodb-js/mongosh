@@ -24,6 +24,8 @@ import {
 
 import NodeOptions from './node/node-options';
 
+import { MongoshCommandFailed } from '@mongosh/errors';
+
 type DropDatabaseResult = {
   ok: 0 | 1;
   dropped?: string;
@@ -186,7 +188,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     dbOptions?: DatabaseOptions
   ): Promise<any> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    const result: any = await this.runCommand(
+    const result: any = await this.runCommandWithCheck(
       database,
       {
         convertToCapped: collection,
@@ -720,6 +722,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {String} database - The database name.
    * @param {Object} spec - The command specification.
    * @param {Object} options - The database options.
+   * @param {Object} dbOptions - The connection-wide database options.
    *
    * @returns {Promise} The promise of command results.
    */
@@ -735,6 +738,34 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       spec,
       options
     );
+  }
+
+  /**
+   * Run a command against the database and check the results for ok: 0.
+   *
+   * @param {String} database - The database name.
+   * @param {Object} spec - The command specification.
+   * @param {Object} options - The database options.
+   * @param {Object} dbOptions - The connection-wide database options.
+   *
+   * @returns {Promise} The promise of command results.
+   */
+  async runCommandWithCheck(
+    database: string,
+    spec: Document = {},
+    options: CommandOptions = {},
+    dbOptions?: DatabaseOptions
+  ): Promise<Result> {
+    options = { ...DEFAULT_BASE_OPTIONS, ...options };
+    const db: any = this.db(database, dbOptions);
+    const result = await db.command(
+      spec,
+      options
+    );
+    if (result.ok === 0) {
+      throw new MongoshCommandFailed(JSON.stringify(spec));
+    }
+    return result;
   }
 
   /**
@@ -813,7 +844,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} buildInfo.
    */
   async buildInfo(): Promise<Result> {
-    const result: any = await this.runCommand(
+    const result: any = await this.runCommandWithCheck(
       'admin',
       {
         buildInfo: 1
@@ -832,7 +863,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} buildInfo.
    */
   async getCmdLineOpts(): Promise<Result> {
-    const result: any = await this.runCommand(
+    const result: any = await this.runCommandWithCheck(
       'admin', { getCmdLineOpts: 1 }, {}
     );
 
@@ -925,7 +956,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options: CommandOptions = {},
     dbOptions?: DatabaseOptions): Promise<Result> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    return await this.runCommand(database, {
+    return await this.runCommandWithCheck(database, {
       dropIndexes: collection,
       index: indexes,
     }, options, dbOptions);
@@ -989,7 +1020,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     dbOptions?: DatabaseOptions
   ): Promise<Result> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    return await this.runCommand(database, {
+    return await this.runCommandWithCheck(database, {
       reIndex: collection
     }, options, dbOptions);
   }
