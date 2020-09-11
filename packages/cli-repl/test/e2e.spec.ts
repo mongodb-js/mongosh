@@ -240,6 +240,12 @@ describe('e2e', function() {
   });
 
   describe('Ctrl+C aka SIGINT', () => {
+    before(function() {
+      if (process.platform === 'win32') {
+        this.skip(); // There is no SIGINT on Windows.
+      }
+    });
+
     let shell;
     beforeEach(async() => {
       shell = TestShell.start({ args: [ '--nodb' ] });
