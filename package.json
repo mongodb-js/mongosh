@@ -75,6 +75,7 @@
     "axios": "^0.19.2",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
+    "command-exists": "^1.2.9",
     "cross-env": "^6.0.3",
     "electron-notarize": "mongodb-js/electron-notarize",
     "eslint": "^6.8.0",
