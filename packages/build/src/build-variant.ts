@@ -8,7 +8,8 @@ enum BuildVariant {
   Windows = 'win32',
   MacOs = 'darwin',
   Linux = 'linux',
-  Debian = 'debian'
+  Debian = 'debian',
+  Redhat = 'rhel'
 }
 
 export default BuildVariant;

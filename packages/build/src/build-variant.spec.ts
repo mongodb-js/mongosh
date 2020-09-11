@@ -25,4 +25,10 @@ describe('BuildVariant', () => {
       expect(BuildVariant.Debian).to.equal('debian');
     });
   });
+
+  describe('BuildVariant.Redhat', () => {
+    it('returns rhel', () => {
+      expect(BuildVariant.Redhat).to.equal('rhel');
+    });
+  });
 });

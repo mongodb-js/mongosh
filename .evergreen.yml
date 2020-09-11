@@ -136,6 +136,12 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - <<: *compile_and_release
+  release_rhel:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - <<: *compile_and_release
   release_win_ps:
     - command: expansions.write
       params:
@@ -191,10 +197,21 @@ tasks:
   - name: release_debian
     depends_on:
       - name: check
+      - name: test
+        variant: linux
     commands:
       - func: checkout
       - func: install
       - func: release_debian
+  - name: release_rhel
+    depends_on:
+      - name: check
+      - name: test
+        variant: linux
+    commands:
+      - func: checkout
+      - func: install
+      - func: release_rhel
   - name: release_win_ps
     depends_on:
       - name: check_ps
@@ -218,6 +235,12 @@ buildvariants:
       - name: check
       - name: test
       - name: release_linux
+  - name: rhel
+    display_name: "RHEL 8.0"
+    run_on: rhel80-large
+    tasks:
+      - name: check
+      - name: release_rhel
   - name: win32
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test

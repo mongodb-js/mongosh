@@ -1,13 +1,15 @@
-import os from 'os';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { expect } from 'chai';
-import Platform from './platform';
 import BuildVariant from './build-variant';
+import commandExists from 'command-exists';
+import { promises as fs } from 'fs';
+import Platform from './platform';
+import { expect } from 'chai';
+import path from 'path';
+import os from 'os';
 import {
   createTarball,
   tarballPath,
   tarballPosix,
+  tarballRedhat,
   tarballDebian,
   tarballWindows
 } from './tarball';
@@ -56,7 +58,7 @@ describe('tarball module', () => {
 
       let accessErr;
       try {
-        fs.access(expectedTarball);
+        await fs.access(expectedTarball);
       } catch (err) {
         accessErr = err;
       }
@@ -82,7 +84,50 @@ describe('tarball module', () => {
 
         let accessErr;
         try {
-          fs.access(expectedTarball);
+          await fs.access(expectedTarball);
+        } catch (err) {
+          accessErr = err;
+        }
+
+        expect(accessErr).to.be.undefined;
+      });
+    });
+
+    describe('.tarballRedhat', () => {
+      const version = '1.0.0';
+      const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
+      const expectedTarball = tarballPath(__dirname, BuildVariant.Redhat, version);
+
+      // Our ubuntu box, which for the time being runs this test, does not come
+      // with `rpmbuild` installed, so we end up getting:
+
+      // Error: spawn rpmbuild ENOENT
+
+      // Apt does not have `rpmbuild` package, so we will not able to install it
+      // on ubuntu's build variant. We can, however, run this test fully once we
+      // specifically test on rhel80-large. For now just skip if `rpmbuild` is
+      // not available.
+      beforeEach(function() {
+        if(!commandExists.sync('rpmbuild')) {
+          this.skip();
+        }
+      });
+
+      afterEach(async () => {
+        // only run this afterEach if we have rpmbuild command available, i.e.
+        // this test was not skipped.
+        if(commandExists.sync('rpmbuild')) {
+          await fs.unlink(expectedTarball);
+        }
+      });
+
+      it('builds the executable', async() => {
+        await tarballRedhat(inputFile, __dirname, version, path.join(__dirname, '../../..'));
+        console.log('tarball built')
+
+        let accessErr;
+        try {
+          await fs.access(expectedTarball);
         } catch (err) {
           accessErr = err;
         }
@@ -106,7 +151,7 @@ describe('tarball module', () => {
 
       let accessErr;
       try {
-        fs.access(expectedTarball);
+        await fs.access(expectedTarball);
       } catch (err) {
         accessErr = err;
       }
@@ -131,7 +176,7 @@ describe('tarball module', () => {
 
       let accessErr;
       try {
-        fs.access(expectedTarball);
+        await fs.access(expectedTarball);
       } catch (err) {
         accessErr = err;
       }

@@ -11,18 +11,19 @@ root of the project.
 Current build and release flow is as follows:
 
 - A commit triggers an evergreen build based on currently available build
-  variants: MacOS, Windows, Linux, Debiam.
-- MacOS, Linux and Windows run three tasks: check, test, and release. Debian
-  runs two tasks: check and release.
-- Identical bundle and binary are built on all three variants.
-- Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`). Type of tarball is
-  determined by the current build variant.
+  variants: MacOS, Windows, Linux, Debian, and RedHat.
+- MacOS, Linux and Windows run three tasks: check, test, and release. Debian and
+  Redhat run two tasks: check and release. Debian and Redhat also depend on
+  tests to pass on Linux.
+- Identical bundle and binary are built on all five variants.
+- Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
+  tarball is determined by the current build variant.
 - Each variant uploads its own tarball to Evergreen’s AWS.
 - MacOS build variant uploads config file with information about the new version
   for each platform to Downloads Centre. This only happens on a tagged commit.
 - MacOS build variant creates a github release. This only happens on a tagged
   commit.
-- The three build variants run in parallel.
+- The five build variants run in parallel.
 
 ![build flow][build-img]
 
