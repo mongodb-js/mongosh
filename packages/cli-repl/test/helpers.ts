@@ -1,7 +1,7 @@
 export async function eventually(fn: Function, options: { frequency?: number; timeout?: number } = {}): Promise<any> {
   options = {
     frequency: 100,
-    timeout: process.env.IS_CI ? 10000 : 1000,
+    timeout: 10000,
     ...options
   };
 
