@@ -89,4 +89,34 @@ describe('GithubRepo', () => {
       });
     });
   });
+
+  describe('promoteRelease', () => {
+    beforeEach(() => {
+      octokit = {
+        repos: {
+          getReleaseByTag: sinon.stub().resolves({ data: { id: '123' } }),
+          updateRelease: sinon.stub().resolves()
+        }
+      } as any;
+
+      repo = {
+        owner: 'mongodb-js',
+        repo: 'mongosh'
+      };
+
+      githubRepo = new GithubRepo(repo, octokit);
+    });
+
+    it('finds the release corresponding to config.version and sets draft to false', async() => {
+      await githubRepo.promoteRelease({ version: '0.0.6' });
+
+      expect(octokit.repos.updateRelease).to.have.been.calledWith({
+        draft: false,
+        owner: 'mongodb-js',
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        release_id: '123',
+        repo: 'mongosh'
+      });
+    });
+  });
 });

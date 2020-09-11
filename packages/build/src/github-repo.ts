@@ -127,7 +127,7 @@ export class GithubRepo {
     const params = {
       ...this.repo,
       release_id: releaseDetails.id,
-      draft: true
+      draft: false
     };
 
     await this.octokit.repos.updateRelease(params);
