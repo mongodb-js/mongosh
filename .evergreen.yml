@@ -253,5 +253,4 @@ buildvariants:
     run_on: debian10-large
     tasks:
       - name: check
-      - name: test
       - name: release_debian
