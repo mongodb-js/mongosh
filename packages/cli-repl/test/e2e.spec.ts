@@ -141,7 +141,7 @@ describe('e2e', function() {
       });
       it('recognizes a driver error as error', async() => {
         await shell.executeLine('db.coll.initializeOrderedBulkOp().find({}).update({}, {}).execute()');
-        shell.assertContainsOutput('MongoshInternalError: multi update is not supported for replacement-style update');
+        shell.assertContainsOutput('multi update is not supported for replacement-style update');
       });
     });
     it('throws multiline input with a single line string', async() => {

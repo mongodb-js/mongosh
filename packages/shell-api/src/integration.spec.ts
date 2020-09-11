@@ -1023,7 +1023,7 @@ describe('Shell API (integration)', function() {
               await collection.insertOne({ x: i });
             }
             expect(await collection.countDocuments()).to.equal(1000);
-            bulk.find({ x: 2 }).updateOne({ x: 1 });
+            bulk.find({ x: 2 }).updateOne({ $inc: { x: -1 } });
             await bulk.execute();
           });
           it('tojson returns correctly', async() => {
