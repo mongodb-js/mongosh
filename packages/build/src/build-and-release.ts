@@ -1,6 +1,7 @@
 import { GithubRepo } from './github-repo';
 import Config from './config';
 import { TarballFile } from './tarball';
+import { redactConfig } from './redact-config';
 
 export default async function buildAndRelease(
   config: Config,
@@ -10,7 +11,7 @@ export default async function buildAndRelease(
   releaseToDownloadCenter: (TarballFile, Config) => Promise<void>): Promise<void> {
   console.log(
     'mongosh: beginning release with config:',
-    safeToLogConfig(config)
+    redactConfig(config)
   );
 
   // Build the executable.
@@ -40,20 +41,3 @@ export default async function buildAndRelease(
   console.log('mongosh: finished release process.');
 }
 
-function safeToLogConfig(config: Config): any {
-  return {
-    version: config.version,
-    bundleId: config.bundleId,
-    rootDir: config.rootDir,
-    input: config.input,
-    buildVariant: config.buildVariant,
-    execInput: config.execInput,
-    outputDir: config.outputDir,
-    project: config.project,
-    revision: config.revision,
-    branch: config.branch,
-    isCi: config.isCi,
-    platform: config.platform,
-    repo: config.repo
-  };
-}
