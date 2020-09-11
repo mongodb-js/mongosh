@@ -15,7 +15,7 @@ variables:
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-        npm run release
+        npm run evergreen-release package
         RELEASE_MONGOSH
 
         if [ `uname` == Darwin ]; then
@@ -36,7 +36,7 @@ variables:
         npm --version
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-        npm run release
+        npm run evergreen-release package
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
 #
@@ -49,11 +49,6 @@ variables:
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win_ps - Publishes the npm packages and uploads the tarballs.
 functions:
-  update_download_centre:
-    - command: shell.exec
-      params:
-        script: |
-          echo "OK!"
   checkout:
     - command: git.get_project
       params:
@@ -153,6 +148,18 @@ functions:
         file: tmp\expansions.yaml
         redacted: true
     - <<: *compile_and_release_ps
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp\expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        script: |
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
+          npm run evergreen-release publish
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
@@ -225,7 +232,7 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: release_win_ps
-  - name: update_download_centre
+  - name: release_publish
     depends_on:
       - name: release_win_ps
         variant: win32
@@ -234,7 +241,9 @@ tasks:
       - name: release_macos
         variant: darwin
     commands:
-      - func: update_download_centre
+      - func: checkout
+      - func: install
+      - func: release_publish
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -271,8 +280,8 @@ buildvariants:
     tasks:
       - name: check
       - name: release_debian
-  - name: darwin-update_download_centre
+  - name: darwin_release_publish
     display_name: "MacOS Update Download Centre"
     run_on: macos-1014-codesign
     tasks:
-      - name: update_download_centre
+      - name: release_publish
