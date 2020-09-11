@@ -158,19 +158,19 @@ export class GithubRepo {
   */
   async shouldDoPublicRelease(config: Config): Promise<boolean> {
     if (config.branch !== 'master') {
-      console.log('mongosh: skip public release: is not master');
+      console.info('mongosh: skip public release: is not master');
       return false;
     }
 
     const commitTag = await this.getTagByCommitSha(config.revision);
 
     if (!commitTag) {
-      console.log('mongosh: skip public release: commit is not tagged');
+      console.info('mongosh: skip public release: commit is not tagged');
       return false;
     }
 
     if (semver.neq(commitTag.name, config.version)) {
-      console.log(
+      console.info(
         'mongosh: skip public release: the commit tag', commitTag.name,
         'is different from the release version', config.version
       );
