@@ -151,11 +151,14 @@ functions:
   release_publish:
     - command: expansions.write
       params:
-        file: tmp\expansions.yaml
+        file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
       params:
+        working_dir: src
+        shell: bash
         script: |
+          set -e
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
@@ -281,7 +284,7 @@ buildvariants:
       - name: check
       - name: release_debian
   - name: darwin_release_publish
-    display_name: "MacOS Update Download Centre"
+    display_name: "Publish Release"
     run_on: macos-1014-codesign
     tasks:
       - name: release_publish
