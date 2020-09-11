@@ -1,11 +1,11 @@
 /* eslint-disable no-shadow */
-import releaseToDownloadCenter from './release-downloads-center';
+import uploadToDownloadCenter from './upload-to-download-center';
 import compileAndZipExecutable from './compile-and-zip-executable';
 import uploadArtifactToEvergreen from './evergreen';
 import { GithubRepo } from './github-repo';
 import { Octokit } from '@octokit/rest';
 import Config from './config';
-import buildAndRelease from './build-and-release';
+import buildAndUpload from './build-and-upload';
 
 /**
  * Run the release process.
@@ -20,11 +20,11 @@ export default async function release(config: Config): Promise<void> {
 
   const githubRepo = new GithubRepo(config.repo, octokit);
 
-  await buildAndRelease(
+  await buildAndUpload(
     config,
     githubRepo,
     compileAndZipExecutable,
     uploadArtifactToEvergreen,
-    releaseToDownloadCenter
+    uploadToDownloadCenter
   );
 }

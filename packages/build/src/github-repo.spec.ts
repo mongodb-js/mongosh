@@ -64,7 +64,7 @@ describe('GithubRepo', () => {
     });
   });
 
-  describe.only('releaseToGithub', () => {
+  describe('releaseToGithub', () => {
     const platform = os.platform();
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, platform, version);
