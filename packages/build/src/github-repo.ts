@@ -116,6 +116,23 @@ export class GithubRepo {
     await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
+  async promoteRelease(config: Config): Promise<void> {
+    const tag = `v${config.version}`;
+
+    const { data: releaseDetails } = await this.octokit.repos.getReleaseByTag({
+      ...this.repo,
+      tag
+    });
+
+    const params = {
+      ...this.repo,
+      release_id: releaseDetails.id,
+      draft: true
+    };
+
+    await this.octokit.repos.updateRelease(params);
+  }
+
   /**
   * Checks if current build needs to be released to github and the downloads
   * centre.
