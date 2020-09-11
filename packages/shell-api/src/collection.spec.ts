@@ -3,7 +3,7 @@ import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { signatures } from './decorators';
-import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, asShellResult } from './enums';
+import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, asShellResult, shellApiType } from './enums';
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';
@@ -948,6 +948,13 @@ describe('Collection', () => {
         const catchedError = await collection.initializeOrderedBulkOp()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getPlanCache', () => {
+      it('returns a PlanCache object', () => {
+        const pc = collection.getPlanCache();
+        expect(pc[shellApiType]).to.equal('PlanCache');
+        expect(pc._asPrintable()).to.equal('PlanCache for collection coll1.');
       });
     });
   });
