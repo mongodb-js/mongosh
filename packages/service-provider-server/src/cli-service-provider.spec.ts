@@ -396,6 +396,40 @@ describe('CliServiceProvider', () => {
     });
   });
 
+  describe('#runCommandWithCheck', () => {
+    let clientStub;
+    let dbStub;
+    const commandResult = { ok: 0 };
+    const commandMock = sinon.mock().withArgs({ ismaster: 1 }).resolves(commandResult);
+
+    beforeEach(() => {
+      dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    afterEach(() => {
+      dbStub = null;
+      clientStub = null;
+      serviceProvider = null;
+    });
+
+    it('executes the command against the database and throws if ok: 0', async() => {
+      try {
+        await serviceProvider.runCommandWithCheck('admin', { ismaster: 1 });
+      } catch (e) {
+        expect(e.message).to.include(JSON.stringify({ ismaster: 1 }));
+        expect(e.name).to.equal('MongoshCommandFailed');
+        return;
+      }
+      expect.fail('Error not thrown');
+    });
+  });
+
   describe('#updateOne', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
@@ -902,6 +936,42 @@ describe('CliServiceProvider', () => {
 
       (dbMock as any).verify();
       (commandMock as any).verify();
+    });
+  });
+
+  describe('Throw error on ok: 0', () => {
+    let clientStub;
+    let dbStub;
+    let commandMock;
+
+    beforeEach(() => {
+      commandMock = sinon.mock().resolves({ ok: 0 });
+      dbStub = sinon.createStubInstance(Db, {
+        command: commandMock
+      });
+      clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub)
+      });
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    afterEach(() => {
+      dbStub = null;
+      clientStub = null;
+      serviceProvider = null;
+    });
+
+    ['convertToCapped', 'buildInfo', 'getCmdLineOpts', 'dropIndexes', 'reIndex'].forEach((cmd) => {
+      it(cmd, async() => {
+        try {
+          await serviceProvider[cmd]('db', 'coll', 1);
+        } catch (e) {
+          expect(e.message).to.include(cmd);
+          expect(e.name).to.equal('MongoshCommandFailed');
+          return;
+        }
+        expect.fail(`Error not thrown for ok:0 on cmd ${cmd}`);
+      });
     });
   });
 });

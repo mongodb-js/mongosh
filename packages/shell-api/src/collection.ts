@@ -1270,13 +1270,13 @@ export default class Collection extends ShellApiClass {
     options.indexDetails = options.indexDetails || false;
 
     this._emitCollectionApiCall('stats', { options });
-    const result = await this._mongo._serviceProvider.runCommand(
+    const result = await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
       {
         collStats: this._name, scale: options.scale
       }
     );
-    if (!result || !result.ok) {
+    if (!result) {
       throw new MongoshRuntimeError(`Error running collStats command ${result ? result.errmsg : ''}`);
     }
     let filterIndexName = options.indexDetailsName;

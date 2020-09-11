@@ -36,10 +36,19 @@ class MongoshWarning extends Error {
   }
 }
 
+class MongoshCommandFailed extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = 'MongoshCommandFailed';
+    this.message = `Command ${msg} returned ok: 0. To see the raw results of the command, use 'runCommand' instead.`;
+  }
+}
+
 export {
   MongoshWarning,
   MongoshRuntimeError,
   MongoshInternalError,
   MongoshInvalidInputError,
-  MongoshUnimplementedError
+  MongoshUnimplementedError,
+  MongoshCommandFailed
 };

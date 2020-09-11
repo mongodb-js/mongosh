@@ -114,6 +114,7 @@ describe('Database', () => {
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = new Database(mongo, 'db1');
@@ -384,7 +385,7 @@ describe('Database', () => {
       });
     });
     describe('createUser', () => {
-      it('calls serviceProvider.runCommand on the database with extra fields but not digestPassword', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields but not digestPassword', async() => {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -392,7 +393,7 @@ describe('Database', () => {
           roles: []
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createUser: 'anna',
@@ -404,7 +405,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -413,7 +414,7 @@ describe('Database', () => {
           passwordDigestor: 'server'
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createUser: 'anna',
@@ -426,7 +427,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=client', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async() => {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -435,7 +436,7 @@ describe('Database', () => {
           passwordDigestor: 'client'
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createUser: 'anna',
@@ -448,9 +449,9 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -460,9 +461,9 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -484,14 +485,14 @@ describe('Database', () => {
       });
     });
     describe('updateUser', () => {
-      it('calls serviceProvider.runCommand on the database with extra fields and no passwordDigestor', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and no passwordDigestor', async() => {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
           roles: []
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateUser: 'anna',
@@ -502,7 +503,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=client', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async() => {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
@@ -510,7 +511,7 @@ describe('Database', () => {
           passwordDigestor: 'client'
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateUser: 'anna',
@@ -523,7 +524,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
@@ -531,7 +532,7 @@ describe('Database', () => {
           passwordDigestor: 'server'
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateUser: 'anna',
@@ -544,9 +545,9 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.updateUser('anna', {
           user: 'anna',
           pwd: 'pwd',
@@ -556,9 +557,9 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.updateUser('anna', {
           user: 'anna',
           pwd: 'pwd',
@@ -570,10 +571,10 @@ describe('Database', () => {
       });
     });
     describe('changeUserPassword', () => {
-      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
         await database.changeUserPassword('anna', 'pwd');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateUser: 'anna',
@@ -583,91 +584,91 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.changeUserPassword('anna', 'pwd');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.changeUserPassword('anna', 'pwd')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('logout', () => {
-      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
         await database.logout();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { logout: 1 }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.logout();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.logout()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('dropUser', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.dropUser('anna');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { dropUser: 'anna', writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropUser('anna');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.dropUser('anna')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('dropAllUsers', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.dropAllUsers();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { dropAllUsersFromDatabase: 1, writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropAllUsers();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.dropAllUsers()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -709,7 +710,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.authenticate.rejects(expectedError);
         const catchedError = await database.auth('anna', 'pwd')
@@ -718,76 +719,76 @@ describe('Database', () => {
       });
     });
     describe('grantRolesToUser', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.grantRolesToUser('anna', [ 'role1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { grantRolesToUser: 'anna', roles: ['role1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantRolesToUser('anna', [ 'role1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.grantRolesToUser('anna', [ 'role1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromUser', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.revokeRolesFromUser('anna', [ 'role1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { revokeRolesFromUser: 'anna', roles: ['role1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokeRolesFromUser('anna', [ 'role1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.revokeRolesFromUser('anna', [ 'role1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('getUser', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         const expectedResult = { ok: 1, users: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getUser('anna');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { usersInfo: { user: 'anna', db: 'db1' } }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         const expectedResult = { ok: 1, users: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getUser('anna', {
           showCredentials: false,
           showPrivileges: true,
           filter: { f: 1 }
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             usersInfo: { user: 'anna', db: 'db1' },
@@ -798,43 +799,43 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1, users: [ { user: 'anna' }] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUser('anna');
         expect(result).to.deep.equal({ user: 'anna' });
       });
-      it('returns whatever serviceProvider.runCommand returns if user does not exist', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns if user does not exist', async() => {
         const expectedResult = { ok: 1, users: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUser('anna');
         expect(result).to.deep.equal(null);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getUser('anna')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('getUsers', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         await database.getUsers();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { usersInfo: 1 }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.getUsers({
           showCredentials: false,
           filter: {}
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             usersInfo: 1,
@@ -844,16 +845,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUsers();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getUsers()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -945,7 +946,7 @@ describe('Database', () => {
       });
     });
     describe('createRole', () => {
-      it('calls serviceProvider.runCommand on the database with extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
         await database.createRole({
           role: 'anna',
           roles: [ { role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
@@ -953,7 +954,7 @@ describe('Database', () => {
           authenticationRestrictions: [ 1, 2 ]
         }, { w: 2 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createRole: 'anna',
@@ -965,14 +966,14 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database without extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without extra fields', async() => {
         await database.createRole({
           role: 'anna',
           roles: [],
           privileges: []
         }, { w: 3 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createRole: 'anna',
@@ -983,9 +984,9 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.createRole({
           role: 'anna',
           roles: [],
@@ -994,9 +995,9 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.createRole({
           role: 'anna',
           roles: [],
@@ -1007,12 +1008,12 @@ describe('Database', () => {
       });
     });
     describe('updateRole', () => {
-      it('calls serviceProvider.runCommand on the database with no extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with no extra fields', async() => {
         await database.updateRole('anna', {
           roles: []
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateRole: 'anna',
@@ -1021,14 +1022,14 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommand on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
         await database.updateRole('anna', {
           roles: [ { role: 'dbAdmin', db: 'db1' }],
           privileges: [ 'find' ],
           authenticationRestrictions: [ 1 ]
         }, { w: 1 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateRole: 'anna',
@@ -1040,9 +1041,9 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.updateRole('anna', {
           role: 'anna',
           privileges: [],
@@ -1051,9 +1052,9 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.updateRole('anna', {
           role: 'anna',
           privileges: [],
@@ -1064,100 +1065,100 @@ describe('Database', () => {
       });
     });
     describe('dropRole', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.dropRole('anna');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { dropRole: 'anna', writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropRole('anna');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.dropRole('anna')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('dropAllRoles', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.dropAllRoles();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { dropAllRolesFromDatabase: 1, writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropAllRoles();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.dropAllRoles()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('grantRolesToRole', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.grantRolesToRole('anna', [ 'role1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { grantRolesToRole: 'anna', roles: ['role1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantRolesToRole('anna', [ 'role1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.grantRolesToRole('anna', [ 'role1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromRole', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.revokeRolesFromRole('anna', [ 'role1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { revokeRolesFromRole: 'anna', roles: ['role1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokeRolesFromRole('anna', [ 'role1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.revokeRolesFromRole('anna', [ 'role1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1165,75 +1166,75 @@ describe('Database', () => {
     });
 
     describe('grantPrivilegesToRole', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { grantPrivilegesToRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.grantPrivilegesToRole('anna', [ 'privilege1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('revokePrivilegesFromRole', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
         await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { revokePrivilegesFromRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ])
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('getRole', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         const expectedResult = { ok: 1, roles: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getRole('anna');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { rolesInfo: { role: 'anna', db: 'db1' } }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         const expectedResult = { ok: 1, roles: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getRole('anna', {
           showBuiltinRoles: false,
           showPrivileges: true
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             rolesInfo: { role: 'anna', db: 'db1' },
@@ -1243,43 +1244,43 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1, roles: [ { role: 'anna' }] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRole('anna');
         expect(result).to.deep.equal({ role: 'anna' });
       });
-      it('returns whatever serviceProvider.runCommand returns if role does not exist', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns if role does not exist', async() => {
         const expectedResult = { ok: 1, roles: [] };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRole('anna');
         expect(result).to.deep.equal(null);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getRole('anna')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
     });
     describe('getRoles', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         await database.getRoles();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           { rolesInfo: 1 }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.getRoles({
           showCredentials: false,
           filter: {}
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             rolesInfo: 1,
@@ -1289,16 +1290,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRoles();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getRoles()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1306,22 +1307,22 @@ describe('Database', () => {
     });
 
     describe('currentOp', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         await database.currentOp();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           { currentOp: 1 }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.currentOp({
           $ownOps: true,
           $all: true,
           filter: 1
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             currentOp: 1,
@@ -1332,16 +1333,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.currentOp();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.currentOp()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1349,10 +1350,10 @@ describe('Database', () => {
     });
 
     describe('killOp', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.killOp(123);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             killOp: 1, op: 123
@@ -1360,16 +1361,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.killOp(123);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.killOp(123)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1377,21 +1378,21 @@ describe('Database', () => {
     });
 
     describe('shutdownServer', () => {
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         await database.shutdownServer();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           { shutdown: 1 }
         );
       });
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.shutdownServer({
           force: true,
           timeoutSecs: 1
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             shutdown: 1,
@@ -1401,16 +1402,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.shutdownServer();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.shutdownServer()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1418,10 +1419,10 @@ describe('Database', () => {
     });
 
     describe('fsyncLock', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.fsyncLock();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             fsync: 1, lock: true
@@ -1429,16 +1430,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.fsyncLock();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.fsyncLock()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1446,10 +1447,10 @@ describe('Database', () => {
     });
 
     describe('fsyncUnlock', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.fsyncUnlock();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             fsyncUnlock: 1
@@ -1457,16 +1458,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.fsyncUnlock();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.fsyncUnlock()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1474,9 +1475,11 @@ describe('Database', () => {
     });
 
     describe('version', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+        const expectedResult = { ok: 1, version: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.version();
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             buildInfo: 1
@@ -1484,16 +1487,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1, version: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.version();
         expect(result).to.deep.equal(1);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.version()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1501,10 +1504,12 @@ describe('Database', () => {
     });
 
     describe('serverBits', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+        const expectedResult = { ok: 1, bits: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.serverBits();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             buildInfo: 1
@@ -1512,15 +1517,15 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1, bits: 3 });
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, bits: 3 });
         const result = await database.serverBits();
         expect(result).to.deep.equal(3);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.serverBits()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1528,10 +1533,10 @@ describe('Database', () => {
     });
 
     describe('isMaster', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.isMaster();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             isMaster: 1
@@ -1539,16 +1544,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.isMaster();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.isMaster()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1556,10 +1561,10 @@ describe('Database', () => {
     });
 
     describe('serverBuildInfo', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.serverBuildInfo();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             buildInfo: 1
@@ -1567,16 +1572,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverBuildInfo();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.serverBuildInfo()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1584,10 +1589,10 @@ describe('Database', () => {
     });
 
     describe('stats', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.stats(1);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             dbStats: 1,
@@ -1596,16 +1601,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.stats(1);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.stats(1)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1613,20 +1618,20 @@ describe('Database', () => {
     });
 
     describe('serverStatus', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.serverStatus({ repl: 0, metrics: 0, locks: 0 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             serverStatus: 1, repl: 0, metrics: 0, locks: 0
           }
         );
       });
-      it('calls serviceProvider.runCommand on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
         await database.serverStatus();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             serverStatus: 1
@@ -1634,16 +1639,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.serverStatus()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1651,10 +1656,10 @@ describe('Database', () => {
     });
 
     describe('hostInfo', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.hostInfo();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             hostInfo: 1
@@ -1662,16 +1667,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.hostInfo();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.hostInfo()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1679,10 +1684,10 @@ describe('Database', () => {
     });
 
     describe('serverCmdLineOpts', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.serverCmdLineOpts();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             getCmdLineOpts: 1
@@ -1690,16 +1695,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverCmdLineOpts();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.serverCmdLineOpts()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1707,11 +1712,11 @@ describe('Database', () => {
     });
 
     describe('getFreeMonitoringStatus', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.getFreeMonitoringStatus();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             getFreeMonitoringStatus: 1
@@ -1719,16 +1724,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getFreeMonitoringStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getFreeMonitoringStatus()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1736,11 +1741,11 @@ describe('Database', () => {
     });
 
     describe('disableFreeMonitoring', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.disableFreeMonitoring();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             setFreeMonitoring: 1,
@@ -1749,16 +1754,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.disableFreeMonitoring();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.disableFreeMonitoring()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1834,11 +1839,11 @@ describe('Database', () => {
     });
 
     describe('getProfilingStatus', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.getProfilingStatus();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             profile: -1
@@ -1846,16 +1851,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getProfilingStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getProfilingStatus()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1863,11 +1868,11 @@ describe('Database', () => {
     });
 
     describe('setProfilingLevel', () => {
-      it('calls serviceProvider.runCommand on the database no options', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database no options', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             profile: 1
@@ -1875,11 +1880,11 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database w number options', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database w number options', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1, 100);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             profile: 1,
@@ -1888,11 +1893,11 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommand on the database w doc options', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database w doc options', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1, { slowms: 100, sampleRate: 0.5 });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             profile: 1,
@@ -1902,16 +1907,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.setProfilingLevel(1);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.setProfilingLevel(1)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1919,11 +1924,11 @@ describe('Database', () => {
     });
 
     describe('setLogLevel', () => {
-      it('calls serviceProvider.runCommand on the database with no component', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database with no component', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setLogLevel(2);
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             setParameter: 1,
@@ -1931,11 +1936,11 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommand on the database with string component', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database with string component', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setLogLevel(2, 'a.b.c');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             setParameter: 1,
@@ -1944,16 +1949,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.setLogLevel(2);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.setLogLevel(2)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1961,11 +1966,11 @@ describe('Database', () => {
     });
 
     describe('getLogComponents', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
-        serviceProvider.runCommand.resolves({ ok: 1 });
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, logComponentVerbosity: 1 });
         await database.getLogComponents();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             getParameter: 1,
@@ -1974,16 +1979,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1, logComponentVerbosity: 100 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getLogComponents();
         expect(result).to.deep.equal(100);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.getLogComponents()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -2000,10 +2005,12 @@ describe('Database', () => {
     });
 
     describe('commandHelp', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+        const expectedResult = { ok: 1, help: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.commandHelp('listDatabases');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             listDatabases: 1,
@@ -2012,16 +2019,16 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand().help returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck().help returns', async() => {
         const expectedResult = { ok: 1, help: 'help string' };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.commandHelp('listDatabases');
         expect(result).to.deep.equal('help string');
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.commandHelp('listDatabases')
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -2029,10 +2036,12 @@ describe('Database', () => {
     });
 
     describe('listCommands', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+        const expectedResult = { ok: 1, commands: [] };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.listCommands();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             listCommands: 1
@@ -2042,15 +2051,15 @@ describe('Database', () => {
 
       it('returns ListCommandsResult', async() => {
         const expectedResult = { ok: 1, commands: { c1: { requiresAuth: false, slaveOk: true, adminOnly: false, help: 'help string' } } };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.listCommands();
         expect(result.value).to.deep.equal(expectedResult.commands);
         expect(result.type).to.equal('ListCommandsResult');
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.listCommands()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
