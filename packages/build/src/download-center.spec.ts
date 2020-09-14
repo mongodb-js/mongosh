@@ -1,10 +1,23 @@
 import { expect } from 'chai';
 import nock from 'nock';
 
+import Ajv from 'ajv';
+
+import downloadCenterSchema from './download-center-schema';
+
 import {
   createDownloadCenterConfig,
   verifyDownloadCenterConfig
 } from './download-center';
+
+function validateWithSchema(obj, schema): void {
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema);
+  const valid = validate(obj);
+  if (!valid) {
+    throw new Error(ajv.errorsText(validate.errors));
+  }
+}
 
 describe('download center module', () => {
   describe('.createDownloadCenterConfig', () => {
@@ -24,6 +37,14 @@ describe('download center module', () => {
 
     it('returns the string with the win version injected', () => {
       expect(config).to.include('mongosh-1.2.2-win32.zip');
+    });
+
+    it('produces a well formed json', () => {
+      expect(() => { JSON.parse(config); }).not.to.throw();
+    });
+
+    it('produces a json valid for the download center', () => {
+      validateWithSchema(JSON.parse(config), downloadCenterSchema);
     });
   });
 
