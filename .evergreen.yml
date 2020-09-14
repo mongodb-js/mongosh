@@ -15,7 +15,7 @@ variables:
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-        npm run release
+        npm run evergreen-release package
         RELEASE_MONGOSH
 
         if [ `uname` == Darwin ]; then
@@ -36,7 +36,7 @@ variables:
         npm --version
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-        npm run release
+        npm run evergreen-release package
         Get-ChildItem -Path .\dist\
 # Functions are any command that can be run.
 #
@@ -148,6 +148,22 @@ functions:
         file: tmp\expansions.yaml
         redacted: true
     - <<: *compile_and_release_ps
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
+          npm run evergreen-release publish
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -219,6 +235,23 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: release_win_ps
+  - name: release_publish
+    depends_on:
+      - name: release_win_ps
+        variant: win32
+      - name: release_linux
+        variant: linux
+      - name: release_rhel
+        variant: rhel
+      - name: release_debian
+        variant: debian
+      - name: release_macos
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+      - func: release_publish
+
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin
@@ -254,3 +287,8 @@ buildvariants:
     tasks:
       - name: check
       - name: release_debian
+  - name: darwin_release_publish
+    display_name: "Publish Release"
+    run_on: macos-1014-codesign
+    tasks:
+      - name: release_publish

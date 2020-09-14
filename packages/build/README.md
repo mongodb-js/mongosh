@@ -10,20 +10,25 @@ root of the project.
 
 Current build and release flow is as follows:
 
-- A commit triggers an evergreen build based on currently available build
-  variants: MacOS, Windows, Linux, Debian, and RedHat.
-- MacOS, Linux and Windows run three tasks: check, test, and release. Debian and
-  Redhat run two tasks: check and release. Debian and Redhat also depend on
-  tests to pass on Linux.
-- Identical bundle and binary are built on all five variants.
-- Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
-  tarball is determined by the current build variant.
-- Each variant uploads its own tarball to Evergreen’s AWS.
-- MacOS build variant uploads config file with information about the new version
-  for each platform to Downloads Centre. This only happens on a tagged commit.
-- MacOS build variant creates a github release. This only happens on a tagged
-  commit.
-- The five build variants run in parallel.
+- `npm run evergreen-release package
+  - A commit triggers an evergreen build based on currently available build
+    variants: MacOS, Windows, Linux, Debian, and RedHat.
+  - MacOS, Linux and Windows run three tasks: check, test, and release. Debian and
+    Redhat run two tasks: check and release. Debian and Redhat also depend on
+    tests to pass on Linux.
+  - Identical bundle and binary are built on all five variants.
+  - Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
+    tarball is determined by the current build variant.
+  - Each variant uploads its own tarball to Evergreen’s AWS.
+  - MacOS build variant uploads config file with information about the new version
+    for each platform to Downloads Centre. This only happens on a tagged commit.
+  - MacOS build variant creates a github release. This only happens on a tagged
+    commit.
+  - The five build variants run in parallel.
+- `npm run evergreen-release publish`
+  - All the previous build steps succeeded.
+  - A separate MacOS build variant (darwin_publish_release) uploads config file with information about the new version for each platform to Downloads Centre. This only happens on a tagged commit.
+  - A separate MacOS build variant (darwin_publish_release) promotes the draft github release to public. This only happens on a tagged commit.
 
 ![build flow][build-img]
 
@@ -61,8 +66,10 @@ const config = {
   dryRun: false
 }
 
+const command = 'package'; // or 'publish'
+
 const runRelease = async() => {
-  await release(config);
+  await release(command, config);
 };
 
 runRelease().then(() => {
@@ -71,7 +78,7 @@ runRelease().then(() => {
 ```
 
 ### API
-#### await release(config)
+#### await release(command, config)
 Run a complete release of mongosh. This will bundle, create the binary and
 package a tarball for the current build variant. Running a release requires a
 config object which is usually obtained from evergreen. For current config, see
@@ -82,7 +89,7 @@ __config:__ config object necessary for release.
 ```js
 const release = require('@mongosh/build');
 const configObject = {};
-await release(config);
+await release(command, config);
 ```
 
 If `config.dryRun` is set, this will only package a tarball and skip all later

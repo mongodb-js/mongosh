@@ -62,12 +62,13 @@ export class GithubRepo {
    * @returns {Promise<void>}
    * @memberof GithubRepo
    */
-  async createRelease(release: Release): Promise<void> {
+  async createDraftRelease(release: Release): Promise<void> {
     const params = {
       ...this.repo,
       tag_name: release.tag,
       name: release.name,
-      body: release.notes
+      body: release.notes,
+      draft: true
     };
 
     await this.octokit.repos.createRelease(params)
@@ -111,8 +112,42 @@ export class GithubRepo {
       tag: `v${config.version}`,
       notes: `Release notes [in Jira](${this.jiraReleaseNotesLink(config.version)})`
     };
-    await this.createRelease(githubRelease);
+    await this.createDraftRelease(githubRelease);
     await this.uploadReleaseAsset(githubRelease, artifact);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  async getReleaseByTag(tag: string) {
+    const releases = await this.octokit
+      .paginate(
+        'GET /repos/:owner/:repo/releases',
+        this.repo,
+      );
+
+    return releases.find(({ tag_name }) => tag_name === tag);
+  }
+
+  async promoteRelease(config: Config): Promise<void> {
+    const tag = `v${config.version}`;
+
+    const releaseDetails = await this.getReleaseByTag(tag);
+
+    if (!releaseDetails) {
+      throw new Error(`Release for ${tag} not found.`);
+    }
+
+    if (!releaseDetails.draft) {
+      console.info(`Release for ${tag} is already public.`);
+      return;
+    }
+
+    const params = {
+      ...this.repo,
+      release_id: releaseDetails.id,
+      draft: false
+    };
+
+    await this.octokit.repos.updateRelease(params);
   }
 
   /**
@@ -123,19 +158,19 @@ export class GithubRepo {
   */
   async shouldDoPublicRelease(config: Config): Promise<boolean> {
     if (config.branch !== 'master') {
-      console.log('mongosh: skip public release: is not master');
+      console.info('mongosh: skip public release: is not master');
       return false;
     }
 
     const commitTag = await this.getTagByCommitSha(config.revision);
 
     if (!commitTag) {
-      console.log('mongosh: skip public release: commit is not tagged');
+      console.info('mongosh: skip public release: commit is not tagged');
       return false;
     }
 
     if (semver.neq(commitTag.name, config.version)) {
-      console.log(
+      console.info(
         'mongosh: skip public release: the commit tag', commitTag.name,
         'is different from the release version', config.version
       );

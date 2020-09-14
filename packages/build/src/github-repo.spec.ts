@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { GithubRepo } from './github-repo';
-import { Octokit } from '@octokit/rest';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import path from 'path';
@@ -10,56 +10,69 @@ import {
   tarballPath,
 } from './tarball';
 
+function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
+  const repo = {
+    owner: 'mongodb-js',
+    repo: 'mongosh'
+  };
+
+  return new GithubRepo(repo, octokitStub);
+}
+
 describe('GithubRepo', () => {
   let githubRepo: GithubRepo;
-  let octokit: Octokit;
-  let repo;
 
   beforeEach(() => {
-    octokit = new Octokit();
-
-    repo = {
-      owner: 'mongodb-js',
-      repo: 'mongosh'
-    };
-
-    githubRepo = new GithubRepo(repo, octokit);
+    githubRepo = getTestGithubRepo();
   });
 
   describe('shouldDoPublicRelease', () => {
-    it('skips public release when branch is master', async() => {
-      const config = { branch: 'master' };
+    it('returns false when branch is not master', async() => {
+      const config = { branch: 'feature' };
       expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
     });
 
-    it('skips public release when there is no commit tag', async() => {
-      const config = { branch: 'master', revision: 'cats' };
+    it('returns false when branch is master but not tagged', async() => {
+      githubRepo.getTagByCommitSha = sinon.stub().resolves();
+
+      const config = { branch: 'master', revision: 'sha' };
+      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+      expect(await githubRepo.getTagByCommitSha).to.have.been.calledWith('sha');
+    });
+
+    it('returns false when current version does not match commit tag', async() => {
+      githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
+
+      const config = { branch: 'master', revision: 'sha', version: '0.0.4' };
       expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
     });
 
-    it('skips public release when current version does not match commit tag', async() => {
-      const config = { branch: 'master', revision: '169e0d00bc4153b5687551e44cdd259afded699b', version: '0.0.4' };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
-    });
+    it('returns true when version matches commit tag', async() => {
+      githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
 
-    it('publishes when version matches commit tag', async() => {
-      const config = { branch: 'master', revision: '169e0d00bc4153b5687551e44cdd259afded699b', version: '0.0.6' };
+      const config = { branch: 'master', revision: 'sha', version: '0.0.3' };
       expect(await githubRepo.shouldDoPublicRelease(config)).to.be.true;
     });
   });
 
   describe('getTagByCommitSha', () => {
     it('returns tag info for a commit that has a tag', async() => {
-      const taggedCommit = '169e0d00bc4153b5687551e44cdd259afded699b';
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([{ name: 'v0.0.6', commit: { sha: 'sha' } }])
+      });
+
       expect(
-        await githubRepo.getTagByCommitSha(taggedCommit)
+        await githubRepo.getTagByCommitSha('sha')
       ).to.haveOwnProperty('name', 'v0.0.6');
     });
 
     it('returns undefined for a commit that does not have a tag', async() => {
-      const nonTaggedCommit = '5888211d6f80228b9cfbcb11bce9dafa16a5dc9d';
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([{ name: 'v0.0.6', commit: { sha: 'sha1' } }])
+      });
+
       expect(
-        await githubRepo.getTagByCommitSha(nonTaggedCommit)
+        await githubRepo.getTagByCommitSha('sha2')
       ).to.be.undefined;
     });
   });
@@ -75,14 +88,67 @@ describe('GithubRepo', () => {
       fs.unlink(expectedTarball, done);
     });
 
-    it('calls createRelease when running releaseToGithub', async() => {
-      githubRepo.createRelease = sinon.stub().resolves();
+    it('calls createDraftRelease when running releaseToGithub', async() => {
+      githubRepo.createDraftRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
       const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
       githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
-      expect(githubRepo.createRelease).to.have.been.called;
+      expect(githubRepo.createDraftRelease).to.have.been.calledWith({
+        name: '0.0.6',
+        notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
+        tag: 'v0.0.6'
+      });
+    });
+  });
+
+  describe('promoteRelease', () => {
+    describe('when release exists and is in draft', () => {
+      let octokit;
+
+      beforeEach(() => {
+        octokit = {
+          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: true }]),
+          repos: {
+            updateRelease: sinon.stub().resolves()
+          }
+        };
+        githubRepo = getTestGithubRepo(octokit);
+      });
+
+      it('finds the release corresponding to config.version and sets draft to false', async() => {
+        await githubRepo.promoteRelease({ version: '0.0.6' });
+
+        expect(octokit.repos.updateRelease).to.have.been.calledWith({
+          draft: false,
+          owner: 'mongodb-js',
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          release_id: '123',
+          repo: 'mongosh'
+        });
+      });
+    });
+
+    describe('when release exists but is not in draft', () => {
+      let octokit;
+
+      beforeEach(() => {
+        octokit = {
+          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: false }]),
+          repos: {
+            updateRelease: sinon.stub().resolves()
+          }
+        };
+
+        githubRepo = getTestGithubRepo(octokit);
+      });
+
+      it('does nothing', async() => {
+        await githubRepo.promoteRelease({ version: '0.0.6' });
+
+        expect(octokit.repos.updateRelease).not.to.have.been.called;
+      });
     });
   });
 });
