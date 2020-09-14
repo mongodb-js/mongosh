@@ -556,6 +556,16 @@ const translations = {
               description: 'Returns an interface to access the query plan cache for a collection. The interface provides methods to view and clear the query plan cache.',
               example: 'db.coll.getPlanCache()'
             },
+            validate: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.validate',
+              description: 'Calls the validate command. Default full value is false',
+              example: 'db.validate(<full>)'
+            },
+            mapReduce: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.mapReduce',
+              description: 'Calls the mapReduce command',
+              example: 'db.mapReduce(mapFn, reduceFn, options)'
+            }
           }
         }
       },

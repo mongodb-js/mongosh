@@ -1364,4 +1364,41 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('getPlanCache');
     return new PlanCache(this);
   }
+
+  @returnsPromise
+  async mapReduce(map: any, reduce: any, optionsOrOutString: Document | string): Promise<any> {
+    assertArgsDefined(map, reduce, optionsOrOutString);
+    this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
+
+    let cmd = {
+      mapReduce: this._name,
+      map: map,
+      reduce: reduce
+    } as any;
+
+    if (typeof optionsOrOutString === 'string') {
+      cmd.out = optionsOrOutString;
+    } else if (optionsOrOutString.out === undefined) {
+      throw new MongoshInvalidInputError('Missing \'out\' option');
+    } else {
+      cmd = { ...cmd, ...optionsOrOutString };
+    }
+
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+      this._database._name,
+      cmd
+    );
+  }
+
+  @returnsPromise
+  async validate(full = false): Promise<Document> {
+    this._emitCollectionApiCall('validate', { full });
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+      this._database._name,
+      {
+        validate: this._name,
+        full: full
+      }
+    );
+  }
 }
