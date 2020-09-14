@@ -146,4 +146,14 @@ describe('uri-generator.generate-uri', () => {
       });
     });
   });
+
+
+  context('when an invalid URI is provided', () => {
+    const uri = '/x';
+    const options = { _: [ uri ] };
+
+    it('returns the uri', () => {
+      expect(() => generateUri(options)).to.throw('Invalid URI: /x');
+    });
+  });
 });
