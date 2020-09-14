@@ -121,6 +121,10 @@ function generateUri(options: CliOptions): string {
   const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?[\/]?(\S+)?$/gi;
   const parts = uriMatch.exec(uri);
 
+  if (parts === null) {
+    throw new MongoshInvalidInputError(`Invalid URI: ${uri}`);
+  }
+
   let host = parts[1];
   const port = parts[2];
   let db = parts[3];
