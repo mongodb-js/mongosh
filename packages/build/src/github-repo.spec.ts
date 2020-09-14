@@ -89,12 +89,28 @@ describe('GithubRepo', () => {
     });
 
     it('calls createDraftRelease when running releaseToGithub', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves();
       githubRepo.createDraftRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
 
       const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
-      githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
+      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
+      expect(githubRepo.createDraftRelease).to.have.been.calledWith({
+        name: '0.0.6',
+        notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
+        tag: 'v0.0.6'
+      });
+    });
+
+    it('does not call createDraftRelease if the release already exists', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves();
+      githubRepo.createDraftRelease = sinon.stub().resolves();
+      githubRepo.uploadReleaseAsset = sinon.stub().resolves();
+
+      const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
+
+      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
       expect(githubRepo.createDraftRelease).to.have.been.calledWith({
         name: '0.0.6',
         notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
