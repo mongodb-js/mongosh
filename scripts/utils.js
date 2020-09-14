@@ -1,13 +1,12 @@
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
-const { resolve } = require('path');
 
 function getLatestVersion() {
   return execSync(`npm view @mongosh/cli-repl .dist-tags.latest`).toString().trim();
 }
 
 function gitClone(repo, dest) {
-  return execFileSync('git', ['clone', repo, dest]`);
+  return execFileSync('git', ['clone', repo, dest]);
 }
 
 function confirm(prompt) {
