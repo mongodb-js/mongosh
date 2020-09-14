@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-evaluator",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "MongoDB Top Level API Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -26,10 +26,10 @@
     "node": "^12.4.0"
   },
   "dependencies": {
-    "@mongosh/async-rewriter": "^0.2.2",
-    "@mongosh/history": "^0.2.2",
-    "@mongosh/service-provider-core": "^0.2.2",
-    "@mongosh/shell-api": "^0.2.2"
+    "@mongosh/async-rewriter": "^0.3.0",
+    "@mongosh/history": "^0.3.0",
+    "@mongosh/service-provider-core": "^0.3.0",
+    "@mongosh/shell-api": "^0.3.0"
   },
   "devDependencies": {
     "@types/sinon": "^7.5.1",
