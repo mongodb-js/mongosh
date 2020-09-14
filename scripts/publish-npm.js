@@ -2,7 +2,8 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const readline = require('readline');
+const {gitClone, getLatestVersion, confirm} = require('./utils');
+const generateHomebrewFormula = require('./generate-homebrew-formula');
 
 const rootPath = path.resolve(__dirname, '..');
 
@@ -20,10 +21,6 @@ function requireSegmentApiKey() {
   );
 
   return MONGOSH_SEGMENT_API_KEY;
-}
-
-function gitClone(repo, dest) {
-  return execSync(`git clone ${repo} ${dest}`);
 }
 
 function getGitRemoteUrl() {
@@ -58,23 +55,28 @@ function writeSegmentApiKey(segmentApiKey, releaseDirPath) {
   assert.equal(require(analyticsConfigPath).SEGMENT_API_KEY, segmentApiKey);
 }
 
+function taskDoneFilePath(task, releaseDirPath) {
+  return path.join(releaseDirPath, `${task}.done`);
+}
+
 function isTaskDone(task, releaseDirPath) {
-  return fs.existsSync(`${releaseDirPath}-${task}.done`);
+  return fs.existsSync(taskDoneFilePath(task, releaseDirPath));
 }
 
 function markTaskAsDone(task, releaseDirPath) {
-  fs.writeFileSync(`${releaseDirPath}-${task}.done`, '');
+  fs.writeFileSync(taskDoneFilePath(task, releaseDirPath), '');
 }
 
-function publish() {
+async function publish() {
   const segmentApiKey = requireSegmentApiKey();
   const remoteUrl = getGitRemoteUrl();
   const remoteHeadSha = getGitRemoteHeadSHA(remoteUrl);
   const releaseDirPath = path.resolve(rootPath, 'tmp', 'releases', remoteHeadSha);
+  const cloneDirPath = path.resolve(releaseDirPath, 'mongosh');
 
   if (!isTaskDone('clone', releaseDirPath)) {
     console.info(`cloning '${remoteUrl}' to '${releaseDirPath}'`);
-    gitClone(remoteUrl, releaseDirPath);
+    gitClone(remoteUrl, cloneDirPath);
     markTaskAsDone('clone', releaseDirPath);
   } else {
     console.info('already cloned .. skipping');
@@ -83,7 +85,7 @@ function publish() {
   if (!isTaskDone('bootstrap', releaseDirPath)) {
     execSync(
       'npm run bootstrap-ci',
-      {cwd: releaseDirPath, stdio: 'inherit'}
+      { cwd: cloneDirPath, stdio: 'inherit' }
     );
     markTaskAsDone('bootstrap', releaseDirPath);
   } else {
@@ -91,44 +93,57 @@ function publish() {
   }
 
   if (!isTaskDone('write-segment-api-key', releaseDirPath)) {
-    writeSegmentApiKey(segmentApiKey, releaseDirPath);
+    writeSegmentApiKey(segmentApiKey, cloneDirPath);
     markTaskAsDone('write-segment-api-key', releaseDirPath);
   } else {
     console.info('already written segment api key .. skipping');
   }
 
   if (!isTaskDone('lerna-publish', releaseDirPath)) {
-    const lerna = path.resolve(releaseDirPath, 'node_modules', '.bin', 'lerna');
+    const versionBefore = getLatestVersion();
+    const lerna = path.resolve(cloneDirPath, 'node_modules', '.bin', 'lerna');
     execFileSync(
       lerna,
       ['publish', '--force-publish'],
-      { cwd: releaseDirPath, stdio: 'inherit' }
+      { cwd: cloneDirPath, stdio: 'inherit' }
     );
+
+    const versionAfter = getLatestVersion();
+
+    assert.notEqual(
+      versionBefore,
+      versionAfter,
+      'The published version should have been changed'
+    );
+
     markTaskAsDone('lerna-publish', releaseDirPath);
   } else {
     console.info('already published to npm .. skipping');
   }
 
+  if (!isTaskDone('homebrew-formula', releaseDirPath)) {
+    await generateHomebrewFormula(
+      releaseDirPath,
+      getLatestVersion()
+    );
+  } else {
+    console.info('already generated .. skipping');
+  }
+
   console.info('done, now you can remove', releaseDirPath);
 }
 
-function main() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  console.log(
+async function main() {
+  console.info(
     'NOTE: This will publish what is currently pushed on the main branch of the remote. ' +
-    ' ie. Any change not pushed or in a different branch will be ignored.\n'
+    'ie. Any change not pushed or in a different branch will be ignored.\n'
   );
 
-  rl.question('Is that what you want? Y/[N]: ', (answer) => {
-    rl.close();
-    if (answer.match(/^[yY]$/)) {
-      publish();
-    }
-  });
+  if (!await confirm('Is that what you want?')) {
+    return;
+  }
+
+  publish();
 }
 
 main();
