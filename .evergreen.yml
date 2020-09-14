@@ -10,7 +10,9 @@ variables:
       working_dir: src
       shell: bash
       script: |
+        set -e
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
+        set -e
         cd $(pwd)
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
@@ -31,13 +33,14 @@ variables:
       working_dir: src
       shell: powershell
       script: |
+        $ErrorActionPreference = "Stop"
         .\.evergreen\SetupEnv
         node --version
         npm --version
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
         npm run evergreen-release package
-        Get-ChildItem -Path .\dist\
+
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -110,6 +113,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
+          $ErrorActionPreference = "Stop"
           .\.evergreen\SetupEnv
           .\.evergreen\DownloadAndRunMongod
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
