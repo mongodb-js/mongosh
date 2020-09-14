@@ -85,10 +85,7 @@ export class GithubRepo {
    * @memberof GithubRepo
    */
   async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
-    const { data: releaseDetails } = await this.octokit.repos.getReleaseByTag({
-      ...this.repo,
-      tag: release.tag
-    });
+    const releaseDetails = await this.getReleaseByTag(release.tag);
 
     const params = {
       method: 'POST',
@@ -107,12 +104,20 @@ export class GithubRepo {
   // Creates release notes and uploads assets if they are not yet uploaded to
   // Github.
   async releaseToGithub(artifact: TarballFile, config: Config): Promise<void> {
+    const tag = `v${config.version}`;
+
     const githubRelease = {
       name: config.version,
-      tag: `v${config.version}`,
+      tag: tag,
       notes: `Release notes [in Jira](${this.jiraReleaseNotesLink(config.version)})`
     };
-    await this.createDraftRelease(githubRelease);
+
+    const releaseDetails = await this.getReleaseByTag(tag);
+
+    if (!releaseDetails) {
+      await this.createDraftRelease(githubRelease);
+    }
+
     await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
