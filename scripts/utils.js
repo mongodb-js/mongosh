@@ -7,7 +7,7 @@ function getLatestVersion() {
 }
 
 function gitClone(repo, dest) {
-  return execSync(`git clone ${repo} ${dest}`);
+  return execFileSync('git', ['clone', repo, dest]`);
 }
 
 function confirm(prompt) {
