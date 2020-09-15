@@ -137,7 +137,7 @@ async function publish() {
     assert.notEqual(
       versionBefore,
       versionAfter,
-      'The published version should have been changed'
+      `The published version should have been changed: before ${versionBefore}, after: ${versionAfter}`
     );
 
     markTaskAsDone('lerna-publish', releaseDirPath);
