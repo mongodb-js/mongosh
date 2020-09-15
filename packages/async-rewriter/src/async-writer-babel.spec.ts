@@ -220,7 +220,7 @@ class Test {
               }
             });
           });
-          it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be descorated with that value not undefined.
+          it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be decorated with that value not undefined.
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'coll2') {
