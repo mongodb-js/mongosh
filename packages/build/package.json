@@ -30,6 +30,7 @@
     ]
   },
   "devDependencies": {
+    "ajv": "^6.12.5",
     "nock": "^13.0.4",
     "sinon-chai": "^3.5.0"
   },

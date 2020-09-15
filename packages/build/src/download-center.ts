@@ -71,7 +71,7 @@ const CONFIG = `
           "os": "debian",
           "name": "Debian 64-bit",
           "download_link": "https://downloads.mongodb.com/compass/mongosh_{{version}}_amd64.deb"
-        }
+        },
         {
           "arch": "x64",
           "os": "rhel",
