@@ -14,6 +14,7 @@ export function redactConfig(config: Config): any {
     branch: config.branch,
     isCi: config.isCi,
     platform: config.platform,
-    repo: config.repo
+    repo: config.repo,
+    isPatch: config.isPatch
   };
 }

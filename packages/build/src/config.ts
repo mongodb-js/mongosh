@@ -29,4 +29,5 @@ export default interface Config {
     repo: string;
   };
   dryRun?: boolean;
+  isPatch?: boolean;
 }

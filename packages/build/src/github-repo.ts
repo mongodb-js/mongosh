@@ -162,6 +162,11 @@ export class GithubRepo {
   * current version matches current revision.
   */
   async shouldDoPublicRelease(config: Config): Promise<boolean> {
+    if (config.isPatch) {
+      console.info('mongosh: skip public release: is a patch');
+      return false;
+    }
+
     if (config.branch !== 'master') {
       console.info('mongosh: skip public release: is not master');
       return false;
