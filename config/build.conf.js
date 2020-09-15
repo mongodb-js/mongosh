@@ -65,6 +65,7 @@ module.exports = {
   applePassword: process.env.APPLE_DEV_PASSWORD,
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
   isCi: process.env.IS_CI === 'true',
+  isPatch: process.env.IS_PATCH === 'true',
   platform: os.platform(),
   buildVariant: process.env.BUILD_VARIANT,
   repo: {

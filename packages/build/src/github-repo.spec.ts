@@ -27,6 +27,12 @@ describe('GithubRepo', () => {
   });
 
   describe('shouldDoPublicRelease', () => {
+    it('returns false when isPatch is true', async() => {
+      const config = { isPatch: true };
+      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+    });
+
+
     it('returns false when branch is not master', async() => {
       const config = { branch: 'feature' };
       expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
