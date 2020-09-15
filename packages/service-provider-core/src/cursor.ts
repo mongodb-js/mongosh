@@ -172,6 +172,15 @@ export default interface ServiceProviderCursor {
   maxTimeMS(value: number): ServiceProviderCursor;
 
   /**
+   * Set the maxAwaitTimeMS value.
+   *
+   * @param {number} The maxAwaitTimeMS value.
+   *
+   * @returns {ServiceProviderCursor} The cursor.
+   */
+  maxAwaitTimeMS(value: number): ServiceProviderCursor;
+
+  /**
    * Set the min index bounds.
    *
    * @param {Document} indexBounds - The min bounds.

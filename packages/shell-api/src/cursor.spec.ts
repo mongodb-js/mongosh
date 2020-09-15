@@ -347,6 +347,26 @@ describe('Cursor', () => {
       });
     });
 
+    describe('#maxAwaitTimeMS', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+      let mock;
+      const value = 5000;
+
+      beforeEach(() => {
+        mock = sinon.mock().withArgs(value);
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          maxAwaitTimeMS: mock
+        });
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('fluidly sets maxAwaitTimeMS', () => {
+        expect(shellApiCursor.maxAwaitTimeMS(value)).to.equal(shellApiCursor);
+        mock.verify();
+      });
+    });
+
     describe('#min', () => {
       let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;

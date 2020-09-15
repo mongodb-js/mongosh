@@ -208,6 +208,13 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
+  @serverVersions(['3.2.0', ServerVersions.latest])
+  maxAwaitTimeMS(value: number): Cursor {
+    this._cursor.maxAwaitTimeMS(value);
+    return this;
+  }
+
+  @returnType('Cursor')
   min(indexBounds: Document): Cursor {
     this._cursor.min(indexBounds);
     return this;
