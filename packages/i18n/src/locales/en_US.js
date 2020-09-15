@@ -676,6 +676,10 @@ const translations = {
               description: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
               example: 'db.collection.find(query, projection).maxTimeMS(timeLimit)'
             },
+            maxAwaitTimeMS: {
+              description: 'Set a maxAwaitTimeMS on a tailing cursor query to allow to customize the timeout value for the option awaitData (Only supported on MongoDB 3.2 or higher, ignored otherwise)',
+              example: 'db.collection.find(query, projection).maxAwaitTimeMS(timeLimit)'
+            },
             min: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.min',
               description: 'Specifies the inclusive lower bound for a specific index in order to constrain the results of find(). min() provides a way to specify lower bounds on compound key indexes.',
