@@ -67,8 +67,32 @@ function markTaskAsDone(task, releaseDirPath) {
   fs.writeFileSync(taskDoneFilePath(task, releaseDirPath), '');
 }
 
+function checkUserPermissionsToPublish() {
+  const lerna = path.resolve(rootPath, 'node_modules', '.bin', 'lerna');
+
+  const userPackagesAccess = JSON.parse(execSync(`npm access ls-packages`).toString().trim())
+  const lernaPackages = JSON.parse(execFileSync(lerna,
+    ['list', '--json', '--no-private', '--loglevel=error']).toString().trim());
+
+  const missingAccess = [];
+
+  for (const repo of lernaPackages) {
+    if (userPackagesAccess[repo.name] !== 'read-write') {
+      missingAccess.push(repo.name);
+    }
+  }
+
+  if (missingAccess.length) {
+    throw new Error(
+      `Required write access missing for the following packages: ${missingAccess.join(', ')}`
+    );
+  }
+}
+
 async function publish() {
   const segmentApiKey = requireSegmentApiKey();
+  checkUserPermissionsToPublish();
+
   const remoteUrl = getGitRemoteUrl();
   const remoteHeadSha = getGitRemoteHeadSHA(remoteUrl);
   const releaseDirPath = path.resolve(rootPath, 'tmp', 'releases', remoteHeadSha);
