@@ -237,6 +237,38 @@ describe('e2e', function() {
 
       shell.assertNoErrors();
     });
+
+    it('allows collections with .', async() => {
+      await shell.writeInputLine(`use ${dbName}`);
+
+      await db.collection('test.dot').insertMany([
+        { doc: 1 },
+        { doc: 2 },
+        { doc: 3 }
+      ]);
+
+      await shell.writeInputLine('db.test.dot.find()');
+
+      await eventually(() => {
+        shell.assertContainsOutput('doc: 1');
+        shell.assertContainsOutput('doc: 2');
+        shell.assertContainsOutput('doc: 3');
+      });
+
+      shell.assertNoErrors();
+    });
+
+    it('rewrites async for collections with .', async() => {
+      await shell.writeInputLine(`use ${dbName}`);
+      await shell.writeInputLine('const x = db.test.dot.insertOne({ d: 1 })');
+      await shell.writeInputLine('x.insertedId');
+
+      await eventually(() => {
+        shell.assertContainsOutput('ObjectId');
+      });
+
+      shell.assertNoErrors();
+    });
   });
 
   describe('Ctrl+C aka SIGINT', () => {

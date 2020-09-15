@@ -38,6 +38,23 @@ export default class Collection extends ShellApiClass {
     this._mongo = mongo;
     this._database = database;
     this._name = name;
+    const proxy = new Proxy(this, {
+      get: (target, prop): any => {
+        if (prop in target) {
+          return target[prop];
+        }
+
+        if (
+          typeof prop !== 'string' ||
+          prop.startsWith('_') ||
+          !prop.trim()
+        ) {
+          return;
+        }
+        return database.getCollection(`${name}.${prop}`);
+      }
+    });
+    return proxy;
   }
 
   /**

@@ -52,6 +52,46 @@ describe('Collection', () => {
       });
     });
   });
+  describe('.collections', () => {
+    it('allows to get a collection as property if is not one of the existing methods', () => {
+      const database = new Database({ _internalState: { emitApiCall: (): void => {} } }, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll.someCollection).to.have.instanceOf(Collection);
+      expect(coll.someCollection._name).to.equal('coll.someCollection');
+    });
+
+    it('reuses collections', () => {
+      const database: any = new Database({ _internalState: { emitApiCall: (): void => {} } }, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll.someCollection).to.equal(database.getCollection('coll.someCollection'));
+      expect(coll.someCollection).to.equal(database.coll.someCollection);
+    });
+
+    it('does not return a collection starting with _', () => {
+      // this is the behaviour in the old shell
+      const database: any = new Database({}, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll._someProperty).to.equal(undefined);
+    });
+
+    it('does not return a collection for symbols', () => {
+      const database: any = new Database({}, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll[Symbol('someProperty')]).to.equal(undefined);
+    });
+
+    it('does not return a collection with invalid name', () => {
+      const database: any = new Database({}, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll['   ']).to.equal(undefined);
+    });
+
+    it('allows to access _name', () => {
+      const database: any = new Database({}, 'db1');
+      const coll: any = new Collection({}, database, 'coll');
+      expect(coll._name).to.equal('coll');
+    });
+  });
   describe('commands', () => {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
