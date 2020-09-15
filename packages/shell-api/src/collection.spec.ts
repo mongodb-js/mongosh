@@ -958,5 +958,94 @@ describe('Collection', () => {
         expect(pc._asPrintable()).to.equal('PlanCache for collection coll1.');
       });
     });
+    describe('validate', () => {
+      it('calls serviceProvider.runCommand on the collection default', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+        await collection.validate();
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            validate: collection._name,
+            full: false
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the collection with options', async() => {
+        await collection.validate(true);
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            validate: collection._name,
+            full: true
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await collection.validate();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await collection.validate()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('mapReduce', () => {
+      let mapFn;
+      let reduceFn;
+      beforeEach(() => {
+        mapFn = function(): void {};
+        reduceFn = function(keyCustId, valuesPrices): any {
+          return valuesPrices.reduce((t, s) => (t + s));
+        };
+      });
+      it('calls serviceProvider.mapReduce on the collection with js args', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+        await collection.mapReduce(mapFn, reduceFn, { out: 'map_reduce_example' });
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            mapReduce: collection._name,
+            map: mapFn,
+            reduce: reduceFn,
+            out: 'map_reduce_example'
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the collection with string args', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+        await collection.mapReduce(mapFn.toString(), reduceFn.toString(), { out: 'map_reduce_example' });
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            mapReduce: collection._name,
+            map: mapFn.toString(),
+            reduce: reduceFn.toString(),
+            out: 'map_reduce_example'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.mapReduce returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await collection.mapReduce(mapFn, reduceFn, { out: { inline: 1 } });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.mapReduce rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await collection.mapReduce(mapFn, reduceFn, { out: { inline: 1 } })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });

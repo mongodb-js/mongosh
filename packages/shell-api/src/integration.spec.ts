@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { expect } from 'chai';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
 import ShellInternalState from './shell-internal-state';
@@ -64,6 +65,22 @@ describe('Shell API (integration)', function() {
     await collection.find( { item: 'abc', price: { $gte: 5 } } ).toArray();
     await collection.find( { quantity: { $gte: 20 } } ).toArray();
     await collection.find( { quantity: { $gte: 5 }, type: 'apparel' } ).toArray();
+  };
+
+  const loadMRExample = async(collection): Promise<any> => {
+    const res = await collection.insertMany([
+      { _id: 1, cust_id: 'Ant O. Knee', ord_date: new Date('2020-03-01'), price: 25, items: [ { sku: 'oranges', qty: 5, price: 2.5 }, { sku: 'apples', qty: 5, price: 2.5 } ], status: 'A' },
+      { _id: 2, cust_id: 'Ant O. Knee', ord_date: new Date('2020-03-08'), price: 70, items: [ { sku: 'oranges', qty: 8, price: 2.5 }, { sku: 'chocolates', qty: 5, price: 10 } ], status: 'A' },
+      { _id: 3, cust_id: 'Busby Bee', ord_date: new Date('2020-03-08'), price: 50, items: [ { sku: 'oranges', qty: 10, price: 2.5 }, { sku: 'pears', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 4, cust_id: 'Busby Bee', ord_date: new Date('2020-03-18'), price: 25, items: [ { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 5, cust_id: 'Busby Bee', ord_date: new Date('2020-03-19'), price: 50, items: [ { sku: 'chocolates', qty: 5, price: 10 } ], status: 'A' },
+      { _id: 6, cust_id: 'Cam Elot', ord_date: new Date('2020-03-19'), price: 35, items: [ { sku: 'carrots', qty: 10, price: 1.0 }, { sku: 'apples', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 7, cust_id: 'Cam Elot', ord_date: new Date('2020-03-20'), price: 25, items: [ { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 8, cust_id: 'Don Quis', ord_date: new Date('2020-03-20'), price: 75, items: [ { sku: 'chocolates', qty: 5, price: 10 }, { sku: 'apples', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 9, cust_id: 'Don Quis', ord_date: new Date('2020-03-20'), price: 55, items: [ { sku: 'carrots', qty: 5, price: 1.0 }, { sku: 'apples', qty: 10, price: 2.5 }, { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' },
+      { _id: 10, cust_id: 'Don Quis', ord_date: new Date('2020-03-23'), price: 25, items: [ { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' }
+    ]);
+    expect(res.acknowledged).to.equal(1);
   };
 
   before(async() => {
@@ -1346,6 +1363,94 @@ describe('Shell API (integration)', function() {
         expect((await planCache.list()).length).to.equal(3);
         expect((await planCache.list())[0].createdFromQuery.query).to.not.deep.equal(query);
       });
+    });
+  });
+  describe('mapReduce', () => {
+    it('accepts function args and collection name as string', async() => {
+      await loadMRExample(collection);
+      const mapFn = `function() {
+        emit(this.cust_id, this.price);
+      };`;
+      const reduceFn = function(keyCustId, valuesPrices): any {
+        return valuesPrices.reduce((s, t) => s + t);
+      };
+      const result = await collection.mapReduce(mapFn, reduceFn, 'map_reduce_example');
+      expect(result.ok).to.equal(1);
+      const outRes = await database.map_reduce_example.find().sort({ _id: 1 }).toArray();
+      expect(outRes).to.deep.equal([
+        { '_id': 'Ant O. Knee', 'value': 95 },
+        { '_id': 'Busby Bee', 'value': 125 },
+        { '_id': 'Cam Elot', 'value': 60 },
+        { '_id': 'Don Quis', 'value': 155 }
+      ]);
+    });
+    it('accepts string args and collection name as string', async() => {
+      await loadMRExample(collection);
+      const mapFn = `function() {
+        emit(this.cust_id, this.price);
+      };`;
+      const reduceFn = function(keyCustId, valuesPrices): any {
+        return valuesPrices.reduce((s, t) => s + t);
+      };
+      const result = await collection.mapReduce(mapFn, reduceFn.toString(), 'map_reduce_example');
+      expect(result.ok).to.equal(1);
+      expect(result.result).to.equal('map_reduce_example');
+      const outRes = await database.map_reduce_example.find().sort({ _id: 1 }).toArray();
+      expect(outRes).to.deep.equal([
+        { '_id': 'Ant O. Knee', 'value': 95 },
+        { '_id': 'Busby Bee', 'value': 125 },
+        { '_id': 'Cam Elot', 'value': 60 },
+        { '_id': 'Don Quis', 'value': 155 }
+      ]);
+    });
+    it('accepts inline as option', async() => {
+      await loadMRExample(collection);
+      const mapFn = `function() {
+        emit(this.cust_id, this.price);
+      };`;
+      const reduceFn = function(keyCustId, valuesPrices): any {
+        return valuesPrices.reduce((s, t) => s + t);
+      };
+      const result = await collection.mapReduce(mapFn, reduceFn.toString(), {
+        out: { inline: 1 }
+      });
+      expect(result.ok).to.equal(1);
+      expect(result.results.map(k => k._id).sort()).to.deep.equal([
+        'Ant O. Knee',
+        'Busby Bee',
+        'Cam Elot',
+        'Don Quis'
+      ]);
+      expect(result.results.map(k => k.value).sort()).to.deep.equal([
+        125,
+        155,
+        60,
+        95
+      ]);
+    });
+    it('accepts finalize as option', async() => {
+      await loadMRExample(collection);
+      const mapFn = `function() {
+        emit(this.cust_id, this.price);
+      };`;
+      const reduceFn = function(keyCustId, valuesPrices): any {
+        return valuesPrices.reduce((s, t) => s + t);
+      };
+      const finalizeFn = function(): any {
+        return 1;
+      };
+      const result = await collection.mapReduce(mapFn, reduceFn.toString(), {
+        out: { inline: 1 },
+        finalize: finalizeFn
+      });
+      expect(result.ok).to.equal(1);
+      expect(result.results.map(k => k._id).sort()).to.deep.equal([
+        'Ant O. Knee',
+        'Busby Bee',
+        'Cam Elot',
+        'Don Quis'
+      ]);
+      expect(result.results.map(k => k.value)).to.deep.equal([1, 1, 1, 1]);
     });
   });
 });
