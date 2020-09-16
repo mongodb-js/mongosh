@@ -129,7 +129,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         sType = { type: 'unknown', attributes: {} };
       } else if (rhs in lhsType.attributes) {
         sType = lhsType.attributes[rhs];
-      } else if (lhsType.type === 'Database') {
+      } else if (lhsType.type === 'Database' || lhsType.type === 'Collection') {
         sType = state.symbols.signatures.Collection;
       }
       path.node['shellType'] = sType;

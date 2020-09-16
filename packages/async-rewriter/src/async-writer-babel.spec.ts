@@ -159,7 +159,8 @@ class Test {
         writer = new AsyncWriter(signatures);
         writer.symbols.initializeApiObjects({
           db: signatures.Database,
-          c: signatures.Collection,
+          coll: signatures.Collection,
+          c: signatures.Cursor
         });
         writer.symbols.add('t', { type: 'unknown', attributes: {} });
       });
@@ -186,6 +187,43 @@ class Test {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'coll') {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', (done) => {
+            traverse(ast, {
+              MemberExpression(path) {
+                expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                done();
+              }
+            });
+          });
+        });
+        describe('with Collection lhs type', () => {
+          before(() => {
+            input = 'coll.coll2';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('coll.coll2;');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'coll') {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates node.key Identifier', (done) => { // NOTE: if this ID exists in scope will be decorated with that value not undefined.
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'coll2') {
                   expect(path.node['shellType']).to.deep.equal({ type: 'unknown', attributes: {} });
                   done();
                 }
@@ -204,17 +242,17 @@ class Test {
         describe('with non-Database known lhs type', () => {
           describe('with known rhs', () => {
             before(() => {
-              input = 'c.insertOne';
+              input = 'c.hasNext';
               ast = writer.getTransform(input).ast;
             });
             it('compiles correctly', () => {
-              expect(writer.compile(input)).to.equal('c.insertOne;');
+              expect(writer.compile(input)).to.equal('c.hasNext;');
             });
             it('decorates node.object Identifier', (done) => {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal(signatures.Cursor);
                     done();
                   }
                 }
@@ -223,7 +261,7 @@ class Test {
             it('decorates node.key Identifier', (done) => {
               traverse(ast, {
                 Identifier(path) {
-                  if (path.node.name === 'insertOne') {
+                  if (path.node.name === 'hasNext') {
                     expect(path.node['shellType']).to.deep.equal({ type: 'unknown', attributes: {} });
                     done();
                   }
@@ -233,7 +271,7 @@ class Test {
             it('decorates MemberExpression', (done) => {
               traverse(ast, {
                 MemberExpression(path) {
-                  expect(path.node['shellType']).to.deep.equal(signatures.Collection.attributes.insertOne);
+                  expect(path.node['shellType']).to.deep.equal(signatures.Cursor.attributes.hasNext);
                   done();
                 }
               });
@@ -251,7 +289,7 @@ class Test {
               traverse(ast, {
                 Identifier(path) {
                   if (path.node.name === 'c') {
-                    expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                    expect(path.node['shellType']).to.deep.equal(signatures.Cursor);
                     done();
                   }
                 }
@@ -279,11 +317,11 @@ class Test {
         });
         describe('with unknown lhs type', () => {
           before(() => {
-            input = 'x.coll';
+            input = 'x.coll2';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('x.coll;');
+            expect(writer.compile(input)).to.equal('x.coll2;');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -298,7 +336,7 @@ class Test {
           it('decorates node.key Identifier', (done) => {
             traverse(ast, {
               Identifier(path) {
-                if (path.node.name === 'coll') {
+                if (path.node.name === 'coll2') {
                   expect(path.node['shellType']).to.deep.equal({ type: 'unknown', attributes: {} });
                   done();
                 }
@@ -314,21 +352,55 @@ class Test {
             });
           });
         });
+        describe('db.system.profile', () => {
+          before(() => {
+            input = 'db.system.profile.insertOne({})';
+            ast = writer.getTransform(input).ast;
+          });
+          it('compiles correctly', () => {
+            expect(writer.compile(input)).to.equal('await db.system.profile.insertOne({});');
+          });
+          it('decorates node.object Identifier', (done) => {
+            traverse(ast, {
+              Identifier(path) {
+                if (path.node.name === 'db') {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Database);
+                  done();
+                }
+                if (path.node.name === 'system') {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  done();
+                }
+                if (path.node.name === 'profile') {
+                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  done();
+                }
+              }
+            });
+          });
+          it('decorates MemberExpression', () => {
+            traverse(ast, {
+              MemberExpression(path) {
+                expect(['Collection', 'function']).to.include(path.node['shellType'].type);
+              }
+            });
+          });
+        });
       });
       describe('bracket notation', () => {
         describe('literal property', () => {
           before(() => {
-            input = 'c[\'insertOne\']';
+            input = 'c[\'hasNext\']';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('c[\'insertOne\'];');
+            expect(writer.compile(input)).to.equal('c[\'hasNext\'];');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
               Identifier(path) {
                 if (path.node.name === 'c') {
-                  expect(path.node['shellType']).to.deep.equal(signatures.Collection);
+                  expect(path.node['shellType']).to.deep.equal(signatures.Cursor);
                   done();
                 }
               }
@@ -337,7 +409,7 @@ class Test {
           it('decorates node.key Literal', (done) => {
             traverse(ast, {
               StringLiteral(path) {
-                if (path.node.value === 'insertOne') {
+                if (path.node.value === 'hasNext') {
                   expect(path.node['shellType']).to.deep.equal({ type: 'unknown', attributes: {} });
                   done();
                 }
@@ -347,7 +419,7 @@ class Test {
           it('decorates MemberExpression', (done) => {
             traverse(ast, {
               MemberExpression(path) {
-                expect(path.node['shellType']).to.deep.equal(signatures.Collection.attributes.insertOne);
+                expect(path.node['shellType']).to.deep.equal(signatures.Cursor.attributes.hasNext);
                 done();
               }
             });
