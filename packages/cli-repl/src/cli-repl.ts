@@ -7,7 +7,7 @@ import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
 import isRecoverableError from 'is-recoverable-error';
-import { MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
 import jsonParse from 'fast-json-parse';
@@ -179,12 +179,24 @@ class CliRepl {
           }
         }
       } catch (err) {
-        if (isRecoverableError(input)) {
-          return callback(new Recoverable(err));
+        try {
+          if (isRecoverableError(input)) {
+            return callback(new Recoverable(err));
+          }
+          return callback(err);
+        } catch (callbackErr) {
+          const wrapError = new MongoshInternalError(callbackErr.message);
+          wrapError.stack = callbackErr.stack;
+          return callback(wrapError);
         }
-        return callback(err);
       }
-      callback(null, result);
+      try {
+        callback(null, result);
+      } catch (callbackErr) {
+        const wrapError = new MongoshInternalError(callbackErr.message);
+        wrapError.stack = callbackErr.stack;
+        return callback(wrapError);
+      }
     };
 
     (this.repl as any).eval = customEval;
@@ -334,7 +346,12 @@ class CliRepl {
     )) {
       this.shellEvaluator.revertState();
 
-      const output = { ...result, message: result.message || result.errmsg, name: result.name || 'MongoshInternalError' };
+      const output = {
+        ...result,
+        message: result.message || result.errmsg,
+        name: result.name || 'MongoshInternalError',
+        stack: result.stack
+      };
       this.bus.emit('mongosh:error', output);
       return formatOutput({ type: 'Error', value: output });
     }
