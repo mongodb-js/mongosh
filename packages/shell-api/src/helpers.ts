@@ -56,7 +56,7 @@ export function assertArgsDefined(...args: any[]): void {
   }
 }
 
-export function assertArgsType(args: any[], expectedTypes: any[]): void {
+export function assertArgsType(args: any[], expectedTypes: string[]): void {
   args.forEach((arg, i) => {
     if (arg !== undefined && typeof arg !== expectedTypes[i]) {
       throw new MongoshInvalidInputError(
