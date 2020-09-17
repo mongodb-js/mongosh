@@ -17,7 +17,11 @@ export default function(bson): void {
 
   bson.DBRef.prototype[toString] = function(): string {
     // NOTE: if OID is an ObjectId class it will just print the oid string.
-    return `DBRef("${this.namespace}", "${this.oid.toString()}"${this.db ? `, "${this.db}"` : ''})`;
+    return `DBRef("${this.namespace}", "${
+      this.oid === undefined || this.oid.toString === undefined ?
+        this.oid :
+        this.oid.toString()
+    }"${this.db ? `, "${this.db}"` : ''})`;
   };
   bson.DBRef.prototype.asPrintable = bson.DBRef.prototype[toString];
 

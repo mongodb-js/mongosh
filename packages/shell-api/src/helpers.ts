@@ -56,6 +56,16 @@ export function assertArgsDefined(...args: any[]): void {
   }
 }
 
+export function assertArgsType(args: any[], expectedTypes: string[]): void {
+  args.forEach((arg, i) => {
+    if (arg !== undefined && typeof arg !== expectedTypes[i]) {
+      throw new MongoshInvalidInputError(
+        `Argument at position ${i} must be of type ${expectedTypes[i]}, got ${typeof arg} instead`
+      );
+    }
+  });
+}
+
 export function assertKeysDefined(object: object, keys: string[]): void {
   for (const key of keys) {
     if (object[key] === undefined) {
