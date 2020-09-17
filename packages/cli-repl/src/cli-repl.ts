@@ -191,7 +191,7 @@ class CliRepl {
         }
       }
       try {
-        callback(null, result);
+        return callback(null, result);
       } catch (callbackErr) {
         const wrapError = new MongoshInternalError(callbackErr.message);
         wrapError.stack = callbackErr.stack;
