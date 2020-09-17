@@ -86,7 +86,7 @@ describe('BSON e2e', function() {
         DBRef: new DBRef('a', 'o', 'db'),
         MinKey: new MinKey(),
         MaxKey: new MaxKey(),
-        NumberInt: NumberInt(32),
+        NumberInt: NumberInt("32"),
         NumberLong: NumberLong("64"),
         Timestamp: new Timestamp(1, 100),
         Symbol: new Symbol('abc'),
@@ -232,7 +232,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('NumberInt prints when created by user', async() => {
-      const value = 'NumberInt(32.5)';
+      const value = 'NumberInt("32.5")';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('NumberInt(32)');
@@ -481,7 +481,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('NumberInt prints when created by user', async() => {
-      const value = 'NumberInt(32.5).help';
+      const value = 'NumberInt("32.5").help';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('BSON Class');
