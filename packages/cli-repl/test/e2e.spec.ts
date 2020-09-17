@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
@@ -295,6 +296,14 @@ describe('e2e', function() {
       setTimeout(() => shell.kill('SIGINT'), 1000);
       await result;
       shell.assertContainsError('interrupted');
+    });
+    it('behaves normally after an exception', async() => {
+      await shell.executeLine('throw new Error()');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      shell.kill('SIGINT');
+      await shell.waitForPrompt();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      assert(!/interrupted/.test(shell.output));
     });
   });
 });
