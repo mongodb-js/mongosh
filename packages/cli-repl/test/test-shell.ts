@@ -148,6 +148,17 @@ export class TestShell {
     }
   }
 
+  assertNotContainsOutput(unexpectedOutput: string): void {
+    const onlyOutputLines = this._getOutputLines();
+    if (onlyOutputLines.join('\n').includes(unexpectedOutput)) {
+      throw new assert.AssertionError({
+        message: `Expected shell output not  to include ${JSON.stringify(unexpectedOutput)}`,
+        actual: this._output,
+        expected: `NOT ${unexpectedOutput}`
+      });
+    }
+  }
+
   private _getOutputLines(): string[] {
     return this._output.split('\n')
       .filter((line) => !line.match(PROMPT_PATTERN));

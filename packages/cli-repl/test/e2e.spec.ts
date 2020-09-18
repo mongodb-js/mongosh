@@ -296,6 +296,14 @@ describe('e2e', function() {
       await result;
       shell.assertContainsError('interrupted');
     });
+    it('behaves normally after an exception', async() => {
+      await shell.executeLine('throw new Error()');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      shell.kill('SIGINT');
+      await shell.waitForPrompt();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      shell.assertNotContainsOutput('interrupted');
+    });
   });
 });
 
