@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
@@ -303,7 +302,7 @@ describe('e2e', function() {
       shell.kill('SIGINT');
       await shell.waitForPrompt();
       await new Promise((resolve) => setTimeout(resolve, 100));
-      assert(!/interrupted/.test(shell.output));
+      shell.assertNotContainsOutput('interrupted');
     });
   });
 });
