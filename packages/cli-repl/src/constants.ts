@@ -16,8 +16,7 @@ export const USAGE = `
 
   ${clr(i18n.__('cli-repl.args.options'), ['bold', 'yellow'])}
 
-    -h, --help                                 ${i18n.__('cli-repl.args.help')} 
-        --ipv6                                 ${i18n.__('cli-repl.args.ipv6')}
+    -h, --help                                 ${i18n.__('cli-repl.args.help')}
         --host [arg]                           ${i18n.__('cli-repl.args.host')}
         --port [arg]                           ${i18n.__('cli-repl.args.port')}
         --version                              ${i18n.__('cli-repl.args.version')}
@@ -37,7 +36,6 @@ export const USAGE = `
         --tlsCertificateKeyFile [arg]          ${i18n.__('cli-repl.args.tlsCertificateKeyFile')}
         --tlsCertificateKeyFilePassword [arg]  ${i18n.__('cli-repl.args.tlsCertificateKeyPassword')}
         --tlsCAFile [arg]                      ${i18n.__('cli-repl.args.tlsCAFile')}
-        --tlsCRLFile [arg]                     ${i18n.__('cli-repl.args.tlsCRFile')}
         --tlsAllowInvalidHostnames             ${i18n.__('cli-repl.args.tlsAllowInvaludHostnames')}
         --tlsAllowInvalidCertificates          ${i18n.__('cli-repl.args.tlsAllowInvalidCertificates')}
         --tlsCertificateSelector [arg]         ${i18n.__('cli-repl.args.tlsCertificateSelector')}
