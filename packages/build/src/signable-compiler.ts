@@ -1,5 +1,7 @@
 import Compiler from './compiler';
 import Platform from './platform';
+import { cpus } from 'os';
+import { promises as fs } from 'fs';
 
 /**
  * Target enum.
@@ -24,37 +26,26 @@ class SignableCompiler extends Compiler {
   async compile(exec: Function) {
     const target = this.determineTarget();
 
-    // Clean out the Nexe cache - this actuall requires an additional
-    // call to compile that doesn't actuall compile anything, but is
-    // required to have a clean slate to buld Node from source.
-    await exec({
-      build: true,
-      input: this.input,
-      clean: true,
-      targets: [ target ]
-    });
-
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
     // open ssl with asm so we revert back to the slower version.
     await exec({
       build: true,
-      mangle: false,
+      // XXX This is not set because otherwise no runnable executable is generated
+      // mangle: false,
       configure: ['--openssl-no-asm'],
+      make: [`-j${cpus().length}`],
       input: this.input,
       output: this.output,
       loglevel: 'verbose',
       targets: [ target ],
       patches: [
-        (x, next) => {
-          x.code = () => [ x.shims.join(''), x.startup ].join(';')
-          return next();
-        },
-        (compiler, next) => {
-          return compiler.setFileContentsAsync(
+        async (compiler, next) => {
+          const source = await fs.readFile(this.input, 'utf8');
+          await compiler.setFileContentsAsync(
             'lib/_third_party_main.js',
-            compiler.code()
-          ).then(next);
+            source);
+          return await next();
         }
       ]
     });
