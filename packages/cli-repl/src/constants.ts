@@ -10,6 +10,8 @@ export const MONGOSH_WIKI = `
 ${i18n.__('cli-repl.cli-repl.wiki.info')} ${clr(i18n.__('cli-repl.cli-repl.wiki.link'), 'bold')}
 `;
 
+// See this PR for the options that were removed:
+// https://github.com/mongodb-js/mongosh/pull/333
 export const USAGE = `
 
   ${clr(i18n.__('cli-repl.args.usage'), 'bold')}
