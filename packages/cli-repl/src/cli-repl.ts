@@ -140,47 +140,8 @@ class CliRepl {
       }
     });
 
-    type REPLEvalArgs = REPLServer extends {
-      eval(...args: infer T);
-    } ? T : never;
     const replEval = this.repl.eval.bind(this.repl);
-    const originalEval = util.promisify((...args: REPLEvalArgs) => {
-      const { Domain } = require('domain');
-      const origEmit = Domain.prototype.emit;
-
-      // When the Node.js core REPL encounters an exception during synchronous
-      // evaluation, it does not pass the exception value to the callback
-      // (or in this case, reject the Promise here), as one might inspect.
-      // Instead, it skips straight ahead to abandoning evaluation and acts
-      // as if the error had been thrown asynchronously. This works for them,
-      // but for us that's not great, because we rely on the core eval function
-      // calling its callback in order to be informed about a possible error
-      // that occurred (... and in order for this async function to finish at all.)
-      // We monkey-patch `process.domain.emit()` to avoid that, and instead
-      // handle a possible error ourselves:
-      // https://github.com/nodejs/node/blob/59ca56eddefc78bab87d7e8e074b3af843ab1bc3/lib/repl.js#L488-L493
-      // It's not clear why this is done this way in Node.js, however,
-      // removing the linked code does lead to failures in the Node.js test
-      // suite, so somebody sufficiently motivated could probably find out.
-      // For now, this is a hack and probably not considered officially
-      // supported, but it works.
-      // We *may* want to consider not relying on the built-in eval function
-      // at all at some point.
-      Domain.prototype.emit = function(ev, ...eventArgs): void {
-        if (ev === 'error') {
-          throw eventArgs[0];
-        }
-        return origEmit.call(this, ev, ...eventArgs);
-      };
-
-      try {
-        return replEval(...args);
-      } finally {
-        // Reset the `emit` function after synchronous evaluation, because
-        // we need the Domain functionality for the asynchronous bits.
-        Domain.prototype.emit = origEmit;
-      }
-    });
+    const originalEval = util.promisify(this.wrapNoSyncDomainError(replEval));
 
     const customEval = async(input, context, filename, callback): Promise<any> => {
       this.lineByLineInput.enableBlockOnNewLine();
@@ -459,6 +420,46 @@ class CliRepl {
         return process.exit();
       });
     });
+  }
+
+  wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => Ret) {
+    return (...args: Args): Ret => {
+      const { Domain } = require('domain');
+      const origEmit = Domain.prototype.emit;
+
+      // When the Node.js core REPL encounters an exception during synchronous
+      // evaluation, it does not pass the exception value to the callback
+      // (or in this case, reject the Promise here), as one might inspect.
+      // Instead, it skips straight ahead to abandoning evaluation and acts
+      // as if the error had been thrown asynchronously. This works for them,
+      // but for us that's not great, because we rely on the core eval function
+      // calling its callback in order to be informed about a possible error
+      // that occurred (... and in order for this async function to finish at all.)
+      // We monkey-patch `process.domain.emit()` to avoid that, and instead
+      // handle a possible error ourselves:
+      // https://github.com/nodejs/node/blob/59ca56eddefc78bab87d7e8e074b3af843ab1bc3/lib/repl.js#L488-L493
+      // It's not clear why this is done this way in Node.js, however,
+      // removing the linked code does lead to failures in the Node.js test
+      // suite, so somebody sufficiently motivated could probably find out.
+      // For now, this is a hack and probably not considered officially
+      // supported, but it works.
+      // We *may* want to consider not relying on the built-in eval function
+      // at all at some point.
+      Domain.prototype.emit = function(ev, ...eventArgs): void {
+        if (ev === 'error') {
+          throw eventArgs[0];
+        }
+        return origEmit.call(this, ev, ...eventArgs);
+      };
+
+      try {
+        return fn(...args);
+      } finally {
+        // Reset the `emit` function after synchronous evaluation, because
+        // we need the Domain functionality for the asynchronous bits.
+        Domain.prototype.emit = origEmit;
+      }
+    };
   }
 }
 
