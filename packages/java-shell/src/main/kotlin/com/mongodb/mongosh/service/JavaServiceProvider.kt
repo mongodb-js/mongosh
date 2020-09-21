@@ -29,6 +29,22 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
+    override fun runCommandWithCheck(database: String, spec: Value): Value = promise {
+        getDatabase(database, null).map { db ->
+            val res = if (spec.isString) {
+                db.runCommand(Document(spec.asString(), 1))
+            } else {
+                db.runCommand(toDocument(spec, "spec"))
+            }
+            val isOk = res["ok"] == 1.0
+            if (!isOk) {
+                throw Exception(res.toJson())
+            }
+            context.toJs(res)
+        }
+    }
+
+    @HostAccess.Export
     override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
         val document = toDocument(document, "document")
         val dbOptions = toDocument(dbOptions, "dbOptions")

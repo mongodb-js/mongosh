@@ -80,7 +80,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                 eval("new NumberInt().constructor"),
                 eval("new Timestamp().constructor"),
                 eval("new Code().constructor"),
-                eval("new DBRef('').constructor"),
+                eval("new DBRef('', '', '').constructor"),
                 eval("new Symbol('').constructor"),
                 eval("new NumberLong().constructor"),
                 eval("new BinData(0, '').constructor"),
