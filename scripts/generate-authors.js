@@ -9,9 +9,9 @@
  */
 
 const ALIASES = {
-  'Anna Henningsen <anna.henningsen@mongodb.com>': 'Anna Henningsen <addaleax@gmail.com>',
-  'Anna Henningsen <anna@addaleax.net>': 'Anna Henningsen <addaleax@gmail.com>',
-  'Anna Henningsen <github@addaleax.net>': 'Anna Henningsen <addaleax@gmail.com>',
+  'Anna Henningsen <anna.henningsen@mongodb.com>': 'Anna Henningsen <anna@addaleax.net>',
+  'Anna Henningsen <addaleax@gmail.com>': 'Anna Henningsen <anna@addaleax.net>',
+  'Anna Henningsen <github@addaleax.net>': 'Anna Henningsen <anna@addaleax.net>',
   'aherlihy <anna.herlihy@10gen.com>': 'Anna Herlihy <herlihyap@gmail.com>',
   'anna herlihy <anna.herlihy@10gen.com>': 'Anna Herlihy <herlihyap@gmail.com>',
   'Massimiliano Marcon <max.marcon@mongodb.com>': 'Massimiliano Marcon <me@marcon.me>',
