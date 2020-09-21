@@ -3,20 +3,9 @@
 /*
  * Generate an AUTHOR file on the repo root and on each lerna package based on git log.
  *
- * Add / change the ALIASES map to avoid duplications and show the correct names / emails.
- *
- * NOTE: Author lines with `users.noreply.github.com` emails are removed.
+ * Add / change aliases in .mailmap to avoid duplications and show the correct
+ * names / emails.
  */
-
-const ALIASES = {
-  'Anna Henningsen <anna.henningsen@mongodb.com>': 'Anna Henningsen <anna@addaleax.net>',
-  'Anna Henningsen <addaleax@gmail.com>': 'Anna Henningsen <anna@addaleax.net>',
-  'Anna Henningsen <github@addaleax.net>': 'Anna Henningsen <anna@addaleax.net>',
-  'aherlihy <anna.herlihy@10gen.com>': 'Anna Herlihy <herlihyap@gmail.com>',
-  'anna herlihy <anna.herlihy@10gen.com>': 'Anna Herlihy <herlihyap@gmail.com>',
-  'Massimiliano Marcon <max.marcon@mongodb.com>': 'Massimiliano Marcon <me@marcon.me>',
-  'mcasimir <maurizio.cas@gmail.com>': 'Maurizio Casimirri <maurizio.cas@gmail.com>',
-}
 
 const { execSync } = require('child_process');
 const path = require('path');
@@ -24,19 +13,37 @@ const fs = require('fs');
 
 const packageRootPath = path.resolve(__dirname, '..');
 
+
+
 function getAuthorsGitLog(packagePath) {
   return execSync(
-    `bash -c "git log --format='%aN <%aE>' -- ${packagePath} | grep -v "users.noreply.github.com" | sort -f | uniq"`,
+    `git log --format='%aN <%aE>' --use-mailmap -- ${packagePath}`,
     { cwd: packageRootPath }
   ).toString().trim().split('\n');
 }
 
-function getAuthorsWithAliases(packagePath) {
-  const authorsSet = new Set(
-    getAuthorsGitLog(packagePath).map(author => (ALIASES[author] || author)
-  ))
+function getAuthorsOrderedByCommitNumber(packagePath) {
+  const authorsMap = {};
 
-  return Array.from(authorsSet).sort();
+  for (const authorName of getAuthorsGitLog(packagePath)) {
+    authorsMap[authorName] =  authorName in authorsMap ? authorsMap[authorName] + 1 : 1;
+  }
+
+  const compareAuthors = ([name1, commitCount1], [name2, commitCount2]) => {
+    if (commitCount1 === commitCount2) {
+      return (name1 > name2) ? 1: -1;
+    }
+
+    return commitCount1 > commitCount2 ? -1 : 1;
+  };
+
+  const authors = Object.entries(authorsMap)
+    .sort(compareAuthors)
+    .map(([name]) => {
+      return name;
+    });
+
+  return authors;
 }
 
 function getAllPackages() {
@@ -53,11 +60,11 @@ const packages = getAllPackages();
 
 for (const { location } of packages) {
   const packagePath = path.relative(packageRootPath, location);
-  const authors = getAuthorsWithAliases(packagePath);
+  const authors = getAuthorsOrderedByCommitNumber(packagePath);
   fs.writeFileSync(path.resolve(packagePath, 'AUTHORS'), renderAuthorsFileContent(authors));
 }
 
 fs.writeFileSync(
   path.resolve(packageRootPath, 'AUTHORS'),
-  renderAuthorsFileContent(getAuthorsWithAliases('.'))
+  renderAuthorsFileContent(getAuthorsOrderedByCommitNumber('.'))
 );
