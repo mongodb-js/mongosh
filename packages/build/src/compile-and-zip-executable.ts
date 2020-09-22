@@ -8,6 +8,7 @@ export default async function compileAndZipExecutable(config: Config): Promise<T
     config.execInput,
     config.outputDir,
     config.platform,
+    config.signableBinary,
     config.analyticsConfig,
     config.segmentKey
   );

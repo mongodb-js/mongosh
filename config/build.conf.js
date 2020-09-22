@@ -67,6 +67,7 @@ module.exports = {
   isCi: process.env.IS_CI === 'true',
   isPatch: process.env.IS_PATCH === 'true',
   platform: os.platform(),
+  signableBinary: true,
   buildVariant: process.env.BUILD_VARIANT,
   repo: {
     owner: 'mongodb-js',
