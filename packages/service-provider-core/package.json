@@ -24,7 +24,7 @@
     "access": "public"
   },
   "engines": {
-    "node": "^12.4.0"
+    "node": ">=12.4.0"
   },
   "dependencies": {
     "@mongosh/errors": "^0.4.0",

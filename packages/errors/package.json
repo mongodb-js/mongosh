@@ -14,7 +14,7 @@
     "url": "https://github.com/mongodb-js/mongosh"
   },
   "engines": {
-    "node": "^12.4.0"
+    "node": ">=12.4.0"
   },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./*.spec.ts\"",

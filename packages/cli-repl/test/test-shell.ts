@@ -10,8 +10,8 @@ import assert from 'assert';
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
 const PROMPT_PATTERN = /^> /m;
-const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/m; // node <= 12.14
-const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/m;
+const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/mg; // node <= 12.14
+const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
 
 /**
  * Test shell helper class.
