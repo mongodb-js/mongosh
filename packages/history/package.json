@@ -23,7 +23,7 @@
     "access": "public"
   },
   "engines": {
-    "node": "^12.4.0"
+    "node": ">=12.4.0"
   },
   "dependencies": {
     "mongodb-redact": "^0.2.0"

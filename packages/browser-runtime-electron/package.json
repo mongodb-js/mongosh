@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "engines": {
-    "node": "^12.4.0"
+    "node": ">=12.4.0"
   },
   "config": {
     "unsafe-perm": true

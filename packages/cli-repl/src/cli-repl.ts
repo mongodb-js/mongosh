@@ -117,6 +117,7 @@ class CliRepl {
       completer: completer.bind(null, version),
       terminal: true,
       breakEvalOnSigint: true,
+      preview: false,
     });
 
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
