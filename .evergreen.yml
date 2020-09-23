@@ -17,7 +17,20 @@ variables:
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-        npm run evergreen-release package
+        if [ `uname` == Linux ]; then
+          mkdir -p tmp
+          cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
+          (cd scripts/docker && docker build -t ubuntu16.04-build -f ubuntu16.04-build.Dockerfile .)
+          echo Starting Docker container build
+          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
+            -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
+            -e NODE_JS_VERSION \
+            -e BUILD_VARIANT \
+            --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
+            -c 'cd /tmp/build && npm run evergreen-release package'
+        else
+          npm run evergreen-release package
+        fi
         RELEASE_MONGOSH
 
         if [ `uname` == Darwin ]; then
@@ -273,8 +286,8 @@ buildvariants:
       - name: test
       - name: release_linux
   - name: rhel
-    display_name: "RHEL 8.0"
-    run_on: rhel80-large
+    display_name: "RHEL 8.0 (in Ubuntu docker)"
+    run_on: ubuntu1804-test
     tasks:
       - name: check
       - name: release_rhel
@@ -286,8 +299,8 @@ buildvariants:
       - name: test_ps
       - name: release_win_ps
   - name: debian
-    display_name: "Debian 10"
-    run_on: debian10-large
+    display_name: "Debian 10 (in Ubuntu docker)"
+    run_on: ubuntu1804-test
     tasks:
       - name: check
       - name: release_debian

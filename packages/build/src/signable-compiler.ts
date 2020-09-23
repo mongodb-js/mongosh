@@ -27,7 +27,9 @@ class SignableCompiler {
     // Evergreen and XCode don't have up to date libraries to compile
     // open ssl with asm so we revert back to the slower version.
     await exec({
-      configureArgs: os.platform() === Platform.Windows ? ['openssl-no-asm'] : ['--openssl-no-asm'],
+      configureArgs:
+        os.platform() === Platform.Windows ? ['openssl-no-asm'] :
+        os.platform() === Platform.MacOs ? ['--openssl-no-asm'] : [],
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,
