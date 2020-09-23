@@ -161,13 +161,7 @@ Compile just the CLI:
 npm run compile-ts
 ```
 
-Compile the standalone executable (fast, but not in release mode):
-
-```shell
-npm run compile-exec -- --no-signable
-```
-
-Compile the standalone executable (slow, release mode):
+Compile the standalone executable (this may take some time):
 
 ```shell
 npm run compile-exec

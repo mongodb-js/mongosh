@@ -6,20 +6,11 @@ const config = require(path.join(__dirname, '..', 'config', 'build.conf.js'));
 const run = async() => {
   console.log(`node --version ${process.version}`);
 
-  let { signableBinary } = config;
-  if (process.argv.includes('--no-signable')) {
-    signableBinary = false;
-  }
-  if (process.argv.includes('--signable')) {
-    signableBinary = true;
-  }
-
   await compileExec(
     config.input,
     config.execInput,
     config.outputDir,
-    os.platform(),
-    signableBinary,
+    config.execNodeVersion,
     config.analyticsConfig,
     config.segmentKey
   );

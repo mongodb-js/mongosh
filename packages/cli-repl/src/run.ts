@@ -12,6 +12,12 @@ try {
     // eslint-disable-next-line no-console
     console.log(version);
   } else {
+    if (process.execPath === process.argv[1]) {
+      // Remove the built-in Node.js listener that prints e.g. deprecation
+      // warnings in single-binary release mode.
+      process.removeAllListeners('warning');
+    }
+
     process.title = 'mongosh';
     const driverOptions = mapCliToDriver(options);
     const driverUri = generateUri(options);

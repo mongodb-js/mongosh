@@ -1,7 +1,7 @@
+import os from 'os';
 import path from 'path';
 import generateInput from './generate-input';
 import Platform from './platform';
-import UnsignableCompiler from './unsignable-compiler';
 import SignableCompiler from './signable-compiler';
 
 /**
@@ -51,8 +51,7 @@ const compileExec = async(
   input: string,
   execInput: string,
   outputDir: string,
-  platform: string,
-  signable: boolean,
+  execNodeVersion: string,
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
   // We use Parcel to bundle up everything into a single JS under
@@ -60,20 +59,12 @@ const compileExec = async(
   // This JS also takes care of the analytics config file being written.
   await generateInput(input, execInput, analyticsConfig, segmentKey);
 
-  const executable = executablePath(outputDir, platform);
+  const executable = executablePath(outputDir, os.platform());
   console.log('mongosh: creating binary:', executable);
 
-  if (signable) {
-    const { compileJSFileAsBinary } = require('boxednode');
-    await new SignableCompiler(execInput, executable, platform)
-      .compile(compileJSFileAsBinary);
-  } else {
-    // pkg is faster than building from source and doesn't require build tools,
-    // so it can be nice to have it for local development.
-    const { exec } = require('pkg');
-    await new UnsignableCompiler(input, executable, platform)
-      .compile(exec);
-  }
+  const { compileJSFileAsBinary } = require('boxednode');
+  await new SignableCompiler(execInput, executable, execNodeVersion)
+    .compile(compileJSFileAsBinary);
 
   return executable;
 };

@@ -1,4 +1,4 @@
-export NODE_JS_VERSION='12.4.0'
+export NODE_JS_VERSION='12.18.4'
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
