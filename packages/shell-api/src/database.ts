@@ -187,7 +187,7 @@ export default class Database extends ShellApiClass {
       providerOptions,
       dbOptions
     ) as ServiceProviderCursor;
-    const cursor = new AggregationCursor(this, providerCursor);
+    const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
       return await cursor.explain('queryPlanner'); // TODO: set default or use optional argument
