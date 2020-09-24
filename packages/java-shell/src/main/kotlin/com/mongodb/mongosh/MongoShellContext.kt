@@ -8,7 +8,6 @@ import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.JavaServiceProvider
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
-import org.bson.BsonValue
 import org.bson.Document
 import org.bson.json.JsonReader
 import org.bson.types.*
@@ -37,62 +36,48 @@ import java.util.regex.Pattern
 internal class MongoShellContext(client: MongoClient) : Closeable {
     private val ctx: Context = Context.create()
     private val serviceProvider = JavaServiceProvider(client, this)
-    private val databaseClass: Value
-    private val collectionClass: Value
-    private val cursorClass: Value
-    private val aggregationCursorClass: Value
-    private val insertOneResultClass: Value
-    private val insertManyResultClass: Value
-    private val commandResultClass: Value
-    private val updateResultClass: Value
-    private val deleteResultClass: Value
-    private val bulkWriteResultClass: Value
+    private val shellEvaluator: Value
     private val bsonTypes: BsonTypes
 
     /** Java functions don't have js methods such as apply, bind, call etc.
      * So we need to create a real js function that wraps Java code */
-    private val functionProducer = eval("(fun) => function inner() { return fun(...arguments); }")
+    private val functionProducer = evalInner("(fun) => function inner() { return fun(...arguments); }")
 
     init {
         val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js").readText()
-        eval(setupScript, "all-standalone.js")
+        evalInner(setupScript, "all-standalone.js")
         val context = ctx.getBindings("js")
         val global = context["_global"]!!
         context.removeMember("_global")
         val shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
+        shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState)
+        val jsSymbol = context["Symbol"]!!
         shellInternalState.invokeMember("setCtx", context)
-        initContext(context)
-        databaseClass = global["Database"]!!
-        collectionClass = global["Collection"]!!
-        cursorClass = global["Cursor"]!!
-        aggregationCursorClass = global["AggregationCursor"]!!
-        insertOneResultClass = global["InsertOneResult"]!!
-        insertManyResultClass = global["InsertManyResult"]!!
-        commandResultClass = global["CommandResult"]!!
-        updateResultClass = global["UpdateResult"]!!
-        deleteResultClass = global["DeleteResult"]!!
-        bulkWriteResultClass = global["BulkWriteResult"]!!
+        initContext(context, jsSymbol)
         bsonTypes = BsonTypes(
-                eval("new MaxKey().constructor"),
-                eval("new MinKey().constructor"),
-                eval("new ObjectId().constructor"),
-                eval("new NumberDecimal().constructor"),
-                eval("new NumberInt().constructor"),
-                eval("new Timestamp().constructor"),
-                eval("new Code().constructor"),
-                eval("new DBRef('', '', '').constructor"),
-                eval("new Symbol('').constructor"),
-                eval("new NumberLong().constructor"),
-                eval("new BinData(0, '').constructor"),
-                eval("new HexData(0, '').constructor"))
+                evalInner("new MaxKey().constructor"),
+                evalInner("new MinKey().constructor"),
+                evalInner("new ObjectId().constructor"),
+                evalInner("new NumberDecimal().constructor"),
+                evalInner("new NumberInt().constructor"),
+                evalInner("new Timestamp().constructor"),
+                evalInner("new Code().constructor"),
+                evalInner("new DBRef('', '', '').constructor"),
+                evalInner("new BSONSymbol('').constructor"),
+                evalInner("new NumberLong().constructor"),
+                evalInner("new BinData(0, '').constructor"),
+                evalInner("new HexData(0, '').constructor"))
     }
 
-    private fun initContext(context: Value) {
-        context.removeMember("Date")
-        context.putMember("Date", eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
-                .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) }))
-        context.putMember("ISODate", functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) }))
-        context["Date"]!!.putMember("now", ProxyExecutable { System.currentTimeMillis() })
+    private fun initContext(context: Value, jsSymbol: Value) {
+        context.putMember("BSONSymbol", context["Symbol"])
+        context.putMember("Symbol", jsSymbol)
+        val date = evalInner("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
+                .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
+        date.putMember("now", ProxyExecutable { System.currentTimeMillis() })
+        context.putMember("Date", date)
+        val isoDate = functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) })
+        context.putMember("ISODate", isoDate)
     }
 
     private fun dateHelper(createObject: Boolean, args: List<Value>): Any {
@@ -148,36 +133,46 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         return getMember(identifier)
     }
 
-    fun extract(v: Value): MongoShellResult<*> {
+    internal fun unwrapPromise(v: Value): Value {
+        try {
+            return if (v.instanceOf("Promise"))
+                CompletableFuture<Value>().also { future ->
+                    v.invokeMember("then", ProxyExecutable { args ->
+                        future.complete(args[0])
+                    }).invokeMember("catch", ProxyExecutable { args ->
+                        val error = args[0]
+                        if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
+                            future.completeExceptionally(error.asHostObject<Any>() as Throwable)
+                        } else {
+                            val message = error.toString() + (if (error.instanceOf("Error")) "\n${error.getMember("stack").asString()}" else "")
+                            future.completeExceptionally(Exception(message))
+                        }
+                    })
+                }.get(1, TimeUnit.SECONDS)
+            else v
+        } catch (e: ExecutionException) {
+            throw e.cause ?: e
+        }
+    }
+
+    fun extract(v: Value, type: String? = null): MongoShellResult<*> {
         return when {
-            v.instanceOf("Promise") -> {
-                try {
-                    CompletableFuture<MongoShellResult<*>>().also { future ->
-                        v.invokeMember("then", ProxyExecutable { args ->
-                            future.complete(extract(args[0]))
-                        }).invokeMember("catch", ProxyExecutable { args ->
-                            val error = args[0]
-                            if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
-                                future.completeExceptionally(error.asHostObject<Any>() as Throwable)
-                            } else {
-                                val message = error.toString() + (if (error.instanceOf("Error")) "\n${error.getMember("stack").asString()}" else "")
-                                future.completeExceptionally(Exception(message))
-                            }
-                        })
-                    }.get(1, TimeUnit.SECONDS)
-                } catch (e: ExecutionException) {
-                    throw e.cause ?: e
-                }
+            v.instanceOf("Promise") -> extract(unwrapPromise(v))
+            type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
+            type == "AggregationCursor" -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
+            type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
+            type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
+            type == "UpdateResult" -> {
+                val res = if (v["acknowledged"]!!.asBoolean()) {
+                    UpdateResult.acknowledged(
+                            v["matchedCount"]!!.asLong(),
+                            v["modifiedCount"]!!.asLong(),
+                            null
+                    )
+                } else UpdateResult.unacknowledged()
+                MongoShellUpdateResult(res)
             }
-            v.instanceOf(databaseClass) -> DatabaseResult(MongoShellDatabase(v))
-            v.instanceOf(collectionClass) -> CollectionResult(MongoShellCollection(v))
-            v.instanceOf(cursorClass) -> FindCursorResult(FindCursor<Any?>(v, this))
-            v.instanceOf(aggregationCursorClass) -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
-            v.instanceOf(insertOneResultClass) -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
-            v.instanceOf(insertManyResultClass) -> InsertManyResult(v["acknowledged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
-            v.instanceOf(commandResultClass) -> CommandResult(v["type"]!!.asString(), extract(v["value"]!!).value)
-            v.instanceOf(deleteResultClass) -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
-            v.instanceOf(bulkWriteResultClass) -> BulkWriteResult(
+            type == "BulkWriteResult" -> BulkWriteResult(
                     v["acknowledged"]!!.asBoolean(),
                     v["insertedCount"]!!.asLong(),
                     v["matchedCount"]!!.asLong(),
@@ -185,17 +180,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
                     v["deletedCount"]!!.asLong(),
                     v["upsertedCount"]!!.asLong(),
                     (extract(v["upsertedIds"]!!) as ArrayResult).value)
-            v.instanceOf(updateResultClass) -> {
-                val res = if (v["acknowledged"]!!.asBoolean()) {
-                    val insertedId = v["insertedId"]
-                    UpdateResult.acknowledged(
-                            v["matchedCount"]!!.asLong(),
-                            v["modifiedCount"]!!.asLong(),
-                            if (insertedId == null || insertedId.isNull) null else insertedId.asHostObject<BsonValue>()
-                    )
-                } else UpdateResult.unacknowledged()
-                MongoShellUpdateResult(res)
-            }
+            type == "InsertManyResult" -> InsertManyResult(v["acknowledged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
             v.instanceOf("RegExp") -> {
                 val pattern = v["source"]!!.asString()
                 val flags1 = v["flags"]!!.asString()
@@ -209,7 +194,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf(bsonTypes.objectId) -> ObjectIdResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readObjectId())
             v.instanceOf(bsonTypes.numberDecimal) -> Decimal128Result(JsonReader(v.invokeMember("toExtendedJSON").toString()).readDecimal128())
             v.instanceOf(bsonTypes.numberInt) -> IntResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt32())
-            v.instanceOf(bsonTypes.symbol) -> SymbolResult(Symbol(JsonReader(v.invokeMember("toExtendedJSON").toString()).readSymbol()))
+            v.instanceOf(bsonTypes.bsonSymbol) -> SymbolResult(Symbol(JsonReader(v.invokeMember("toExtendedJSON").toString()).readSymbol()))
             v.instanceOf(bsonTypes.timestamp) -> {
                 val timestamp = JsonReader(extract(v.invokeMember("toExtendedJSON")).value.toLiteral()).readTimestamp()
                 BSONTimestampResult(BSONTimestamp(timestamp.time, timestamp.inc))
@@ -254,24 +239,31 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    fun eval(@Language("js") script: String, name: String = "Unnamed"): Value {
+    private fun evalInner(@Language("js") script: String, name: String = "Unnamed"): Value {
         return ctx.eval(Source.newBuilder("js", script, name).buildLiteral())
+    }
+
+    fun eval(@Language("js") script: String, name: String): Value {
+        val originalEval = ProxyExecutable { args ->
+            evalInner(args[0].asString(), name)
+        }
+        return shellEvaluator.invokeMember("customEval", originalEval, script)
     }
 
     fun <T> toJsPromise(promise: Either<T>): Value {
         return when (promise) {
-            is Right -> eval("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(promise.value)
-            is Left -> eval("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
+            is Right -> evalInner("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(promise.value)
+            is Left -> evalInner("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
         }
     }
 
     override fun close() = serviceProvider.close()
 
     private fun Value.instanceOf(clazz: Value?): Boolean {
-        return clazz != null && eval("(o, clazz) => o instanceof clazz", "instance_of_class_script").execute(this, clazz).asBoolean()
+        return clazz != null && evalInner("(o, clazz) => o instanceof clazz", "instance_of_class_script").execute(this, clazz).asBoolean()
     }
 
-    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = eval("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()
+    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = evalInner("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()
 
     fun toJs(o: Any?): Any? {
         return when (o) {
@@ -289,7 +281,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     }
 
     private fun toJs(list: Iterable<Any?>): Value {
-        val array = eval("[]")
+        val array = evalInner("[]")
         list.forEachIndexed { index, v ->
             array.setArrayElement(index.toLong(), toJs(v))
         }
@@ -306,7 +298,7 @@ private data class BsonTypes(
         val timestamp: Value,
         val code: Value,
         val dbRef: Value,
-        val symbol: Value,
+        val bsonSymbol: Value,
         val numberLong: Value,
         val binData: Value,
         val hexData: Value)

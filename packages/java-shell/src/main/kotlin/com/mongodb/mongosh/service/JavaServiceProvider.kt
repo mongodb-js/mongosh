@@ -17,6 +17,10 @@ import java.io.Closeable
 @Suppress("NAME_SHADOWING")
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
 
+    @JvmField
+    @HostAccess.Export
+    val platform = 3
+
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
         getDatabase(database, null).map { db ->

@@ -1,2 +1,2 @@
-// command extractProperty=value getArrayItem=0 extractProperty=name
+// command getArrayItem=0 extractProperty=name
 show databases

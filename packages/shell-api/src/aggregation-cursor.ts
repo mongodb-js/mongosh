@@ -4,13 +4,16 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass,
+  ShellResult
 } from './decorators';
 import {
   Cursor as ServiceProviderCursor,
-  Document
+  Document,
+  ReplPlatform
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
+import { asShellResult } from "./enums";
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -39,6 +42,13 @@ export default class AggregationCursor extends ShellApiClass {
     }
 
     return results;
+  }
+
+  async [asShellResult](): Promise<ShellResult> {
+    return {
+      type: 'AggregationCursor',
+      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable()
+    };
   }
 
   /**

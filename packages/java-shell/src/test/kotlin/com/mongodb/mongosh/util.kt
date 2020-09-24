@@ -3,9 +3,7 @@ package com.mongodb.mongosh
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
-import com.mongodb.mongosh.result.DatabaseResult
-import com.mongodb.mongosh.result.MongoShellResult
-import com.mongodb.mongosh.result.toLiteral
+import com.mongodb.mongosh.result.*
 import org.bson.Document
 import org.junit.Assert.*
 import org.junit.Assume.assumeFalse
@@ -69,13 +67,18 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                 if (sb.isNotEmpty()) sb.append("\n")
                 try {
                     val result = shell.eval(cmd.command)
+                    if (result is CursorResult) {
+                        (result.value as Cursor<*>).hasNext() // test that value is iterable
+                    }
                     val actualValue = getActualValue(result, cmd.options)
                     val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else replaceUUID(replaceId(actualValue)).trim()
                     sb.append(normalized)
                 } catch (e: Throwable) {
                     System.err.println("IGNORED:")
                     e.printStackTrace()
-                    sb.append(e.javaClass.name).append(": ").append(e.message)
+                    val message = e.message!!
+                    val msg = if (message.contains('\n')) message.substring(0, message.indexOf('\n')) else message
+                    sb.append(e.javaClass.name).append(": ").append(msg)
                 }
             }
             compare(testDataPath, testName, sb.toString())
@@ -121,7 +124,7 @@ private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
-    val oldDb = if (name != null) (shell.eval("db") as DatabaseResult).value._name() else null
+    val oldDb = if (name != null) (shell.eval("db") as StringResult).value else null
     if (name != null) shell.eval("use $name")
 
     block()
