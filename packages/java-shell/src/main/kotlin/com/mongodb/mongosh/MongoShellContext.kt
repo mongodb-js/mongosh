@@ -158,6 +158,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     fun extract(v: Value, type: String? = null): MongoShellResult<*> {
         return when {
             v.instanceOf("Promise") -> extract(unwrapPromise(v))
+            type == "Help" -> extract(v["attr"]!!)
             type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
             type == "AggregationCursor" -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
