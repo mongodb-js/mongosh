@@ -30,10 +30,12 @@ enum Distro {
 }
 
 /**
- * Arch enum to be used when making a curator call.
+ * Target arch enum to be used when making a curator call.
  *
  * If we were to target a different arch for these distros, make sure
  * config/repo-config.yml and packages/build/src/tarball.ts are changed accordingly.
+ *
+ * This can be also moved to /config/build.conf.js in the future.
  */
 enum Arch {
   Ubuntu = 'amd64',

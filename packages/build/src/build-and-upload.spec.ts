@@ -93,11 +93,11 @@ describe('buildAndRelease', () => {
 
   it('releases to github if a public release', async () => {
     githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(true))
+      shouldDoPublicRelease: sinon.stub().resolves(true)
     });
 
     barque = createStubBarque({
-      releaseToBarque: sinon.stub().returns(Promise.resolve(true))
+      releaseToBarque: sinon.stub().resolves(true)
     });
 
     await buildAndUpload(
@@ -114,6 +114,27 @@ describe('buildAndRelease', () => {
       config.downloadCenterAwsKey,
       config.downloadCenterAwsSecret
     );
+  });
+
+  it('does not release to github if not a public release', async () => {
+    githubRepo = createStubRepo({
+      shouldDoPublicRelease: sinon.stub().resolves(false)
+    });
+
+    barque = createStubBarque({
+      releaseToBarque: sinon.stub().resolves(true)
+    });
+
+    await buildAndUpload(
+      config,
+      githubRepo,
+      barque,
+      compileAndZipExecutable,
+      uploadToEvergreen,
+      uploadToDownloadCenter
+    );
+
+    expect(uploadToDownloadCenter).to.not.have.been.called;
   });
 
   it('releases to barque if a public release', async () => {
@@ -137,10 +158,31 @@ describe('buildAndRelease', () => {
     expect(barque.releaseToBarque).to.have.been.called;
   });
 
+  it('does not releases to barque if not a public release', async () => {
+    githubRepo = createStubRepo({
+      shouldDoPublicRelease: sinon.stub().resolves(false)
+    });
+
+    barque = createStubBarque({
+      releaseToBarque: sinon.stub().resolves(true)
+    });
+
+    await buildAndUpload(
+      config,
+      githubRepo,
+      barque,
+      compileAndZipExecutable,
+      uploadToEvergreen,
+      uploadToDownloadCenter
+    );
+
+    expect(barque.releaseToBarque).to.not.have.been.called;
+  });
+
   it('releases to downloads centre if a public release', async () => {
     githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(true)),
-      releaseToGithub: sinon.stub().returns(Promise.resolve(true))
+      shouldDoPublicRelease: sinon.stub().resolves(true),
+      releaseToGithub: sinon.stub().resolves(true)
     } as any);
 
     barque = createStubBarque({
@@ -157,5 +199,27 @@ describe('buildAndRelease', () => {
     );
 
     expect(githubRepo.releaseToGithub).to.have.been.calledWith(tarballFile, config);
+  });
+
+  it('does not release to downloads centre if not a public release', async () => {
+    githubRepo = createStubRepo({
+      shouldDoPublicRelease: sinon.stub().resolves(false),
+      releaseToGithub: sinon.stub().resolves(true)
+    } as any);
+
+    barque = createStubBarque({
+      releaseToBarque: sinon.stub().resolves(true)
+    });
+
+    await buildAndUpload(
+      config,
+      githubRepo,
+      barque,
+      compileAndZipExecutable,
+      uploadToEvergreen,
+      uploadToDownloadCenter
+    );
+
+    expect(githubRepo.releaseToGithub).to.not.have.been.called;
   });
 });
