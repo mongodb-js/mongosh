@@ -10,7 +10,7 @@ const run = async() => {
     config.input,
     config.execInput,
     config.outputDir,
-    os.platform(),
+    config.execNodeVersion,
     config.analyticsConfig,
     config.segmentKey
   );

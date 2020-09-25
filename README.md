@@ -161,7 +161,7 @@ Compile just the CLI:
 npm run compile-ts
 ```
 
-Compile the standalone executable:
+Compile the standalone executable (this may take some time):
 
 ```shell
 npm run compile-exec
@@ -170,7 +170,7 @@ npm run compile-exec
 Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
-npm run release -- --dry --build-variant=Debian
+npm run evergreen-release package -- --dry --build-variant=Debian
 ```
 
 ## Contributing

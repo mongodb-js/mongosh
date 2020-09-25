@@ -7,9 +7,9 @@ export default async function compileAndZipExecutable(config: Config): Promise<T
     config.input,
     config.execInput,
     config.outputDir,
-    config.platform,
+    config.execNodeVersion,
     config.analyticsConfig,
-    config.segmentKey
+    config.segmentKey,
   );
 
   // Zip the executable.

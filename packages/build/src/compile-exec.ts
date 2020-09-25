@@ -1,7 +1,8 @@
+import os from 'os';
 import path from 'path';
 import generateInput from './generate-input';
 import Platform from './platform';
-import UnsignableCompiler from './unsignable-compiler';
+import SignableCompiler from './signable-compiler';
 
 /**
  * The executable name enum.
@@ -50,28 +51,20 @@ const compileExec = async(
   input: string,
   execInput: string,
   outputDir: string,
-  platform: string,
+  execNodeVersion: string,
   analyticsConfig: string,
   segmentKey: string): Promise<string> => {
-  // Nexe has a huge problem figuring out dependencies in this project,
-  // especially with all the lerna symlinking, so we use Parcel to bundle
-  // up everything into a single JS under cli-repl/dist/mongosh.js
-  // that Nexe can make an executable of. This JS also takes care of the
-  // analytics config file being written.
+  // We use Parcel to bundle up everything into a single JS under
+  // cli-repl/dist/mongosh.js that the executable generator can use as input.
+  // This JS also takes care of the analytics config file being written.
   await generateInput(input, execInput, analyticsConfig, segmentKey);
 
-  const executable = executablePath(outputDir, platform);
+  const executable = executablePath(outputDir, os.platform());
   console.log('mongosh: creating binary:', executable);
 
-  if (platform === Platform.MacOs) {
-    const { exec } = require('pkg');
-    await new UnsignableCompiler(input, executable, platform)
-      .compile(exec);
-  } else {
-    const { exec } = require('pkg');
-    await new UnsignableCompiler(input, executable, platform)
-      .compile(exec);
-  }
+  const { compileJSFileAsBinary } = require('boxednode');
+  await new SignableCompiler(execInput, executable, execNodeVersion)
+    .compile(compileJSFileAsBinary);
 
   return executable;
 };
