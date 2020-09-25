@@ -30,6 +30,10 @@ variables:
             -c 'cd /tmp/build && npm run evergreen-release package'
         else
           npm run evergreen-release package
+          if [ `uname` == Darwin ]; then
+            # Verify signing
+            spctl -a -vvv -t install dist/mongosh
+          fi
         fi
         RELEASE_MONGOSH
 

@@ -64,6 +64,7 @@ module.exports = {
   appleUser: process.env.APPLE_DEV_USER,
   applePassword: process.env.APPLE_DEV_PASSWORD,
   appleAppIdentity: process.env.APPLE_APP_IDENTITY,
+  entitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
   isCi: process.env.IS_CI === 'true',
   isPatch: process.env.IS_PATCH === 'true',
   platform: os.platform(),

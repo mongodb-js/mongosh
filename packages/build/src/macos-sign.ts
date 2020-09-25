@@ -3,7 +3,7 @@ import util from 'util';
 import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
 import Config from './config';
-import { createTarball } from './tarball';
+import { createTarball, TarballFile } from './tarball';
 
 /**
  * Notarizes the zipped mongosh. Will send the tarball to Apple and poll apple
@@ -29,31 +29,29 @@ const notarize = (bundleId: string, artifact: string, user: string, password: st
  * @param {string} executable - The mongosh executable.
  * @param {string} identity - The apple developer identity.
  */
-const sign = (executable: string, identity: string) => {
-  return new Promise((resolve, reject) => {
-    codesign({ identity: identity, appPath: executable }, (err, paths) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(err);
-      }
-    });
+const sign = (executable: string, identity: string, entitlementsFile: string) => {
+  return util.promisify(codesign)({
+    identity: identity,
+    appPath: executable,
+    entitlements: entitlementsFile,
   });
 };
 
-const publish = async(executable: string, artifact: string, platform: string, config: Config) => {
-  console.log('mongosh: removing unsigned tarball:', artifact);
-  await util.promisify(fs.unlink)(artifact);
+const macOSSignAndNotarize = async(
+  executable: string,
+  config: Config,
+  runCreateTarball: () => Promise<TarballFile>): Promise<TarballFile> => {
+
   console.log('mongosh: signing:', executable);
-  await sign(executable, config.appleAppIdentity).
-    catch((e) => { console.error(e); throw e; });
+  await sign(executable, config.appleAppIdentity, config.entitlementsFile);
   console.log('mongosh: notarizing and creating tarball:', executable);
-  await createTarball(executable, config.outputDir, platform, config.version, config.rootDir);
+  const artifact = await runCreateTarball();
   await notarize(
     config.bundleId,
-    artifact,
+    artifact.path,
     config.appleUser,
-    config.applePassword).catch((e) => { console.error(e); throw e; });
+    config.applePassword);
+  return artifact;
 };
 
-export default publish;
+export default macOSSignAndNotarize;

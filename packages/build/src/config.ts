@@ -21,6 +21,7 @@ export default interface Config {
   appleUser?: string;
   applePassword?: string;
   appleAppIdentity?: string;
+  entitlementsFile?: string;
   isCi?: boolean;
   platform?: string;
   execNodeVersion?: string;
