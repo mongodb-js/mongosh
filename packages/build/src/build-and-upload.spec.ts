@@ -144,7 +144,7 @@ describe('buildAndRelease', () => {
     } as any);
 
     barque = createStubBarque({
-      releaseToBarque: sinon.stub().returns(Promise.resolve(true))
+      releaseToBarque: sinon.stub().resolves(true)
     });
 
     await buildAndUpload(
