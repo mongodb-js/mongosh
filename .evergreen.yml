@@ -27,7 +27,7 @@ variables:
             -e NODE_JS_VERSION \
             -e BUILD_VARIANT \
             --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
-            -c 'cd /tmp/build && npm run evergreen-release package'
+            -c 'cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
         else
           npm run evergreen-release package
           if [ `uname` == Darwin ]; then
