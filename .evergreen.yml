@@ -43,6 +43,7 @@ variables:
           bash ~/release_mongosh.sh
         fi
 
+        source .evergreen/.setup_env
         export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
