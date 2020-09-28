@@ -1,9 +1,9 @@
 /* eslint new-cap: 0, callback-return: 0 */
 const acorn = require('acorn');
 const walk = require('acorn-walk');
-const privateMethods = require('acorn-private-methods');
-const classFields = require('acorn-class-fields');
-const staticClassFeatures = require('acorn-static-class-features');
+import privateMethods from 'acorn-private-methods';
+import classFields from 'acorn-class-fields';
+import staticClassFeatures from 'acorn-static-class-features';
 
 const parser = acorn.Parser.extend(
   privateMethods,
