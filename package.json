@@ -19,6 +19,8 @@
     "check-ci": "lerna run check",
     "test": "lerna run test",
     "test-ci": "lerna run test-ci",
+    "test-e2e": "lerna run test-e2e",
+    "test-e2e-ci": "lerna run test-e2e-ci",
     "compile-ts": "lerna run compile-ts",
     "compile-cli": "lerna run compile-ts --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
