@@ -3,11 +3,13 @@ const acorn = require('acorn');
 const walk = require('acorn-walk');
 import privateMethods from 'acorn-private-methods';
 import classFields from 'acorn-class-fields';
+import numericSeparator from 'acorn-numeric-separator';
 import staticClassFeatures from 'acorn-static-class-features';
 
 const parser = acorn.Parser.extend(
   privateMethods,
   classFields,
+  numericSeparator,
   staticClassFeatures
 );
 
