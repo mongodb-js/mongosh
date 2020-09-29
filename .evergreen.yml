@@ -27,9 +27,13 @@ variables:
             -e NODE_JS_VERSION \
             -e BUILD_VARIANT \
             --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
-            -c 'cd /tmp/build && npm run evergreen-release package'
+            -c 'cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
         else
           npm run evergreen-release package
+          if [ `uname` == Darwin ]; then
+            # Verify signing
+            spctl -a -vvv -t install dist/mongosh
+          fi
         fi
         RELEASE_MONGOSH
 
@@ -39,7 +43,11 @@ variables:
           bash ~/release_mongosh.sh
         fi
 
-        ls -la dist/
+        source .evergreen/.setup_env
+        export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
+        echo "$MONGOSH_TEST_EXECUTABLE_PATH"
+        npm run test-e2e-ci
+
   - &compile_and_release_ps
     command: shell.exec
     params:
@@ -53,6 +61,11 @@ variables:
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
         npm run evergreen-release package
+        .\.evergreen\DownloadAndRunMongod
+        $Env:MONGOSH_TEST_SERVER_URL = "mongodb://localhost:27018"
+        $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
+        echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
+        npm run test-e2e-ci
 
 # Functions are any command that can be run.
 #
@@ -112,9 +125,6 @@ functions:
           set -e
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-          export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
-          echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-          npm run compile-exec
           npm run test-ci
   test_ps:
     - command: expansions.write
@@ -130,10 +140,7 @@ functions:
           .\.evergreen\SetupEnv
           .\.evergreen\DownloadAndRunMongod
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-          npm run compile-exec
-          $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
           $Env:MONGOSH_TEST_SERVER_URL = "mongodb://localhost:27018"
-          echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
           npm run test-ci
   release_macos:
     - command: expansions.write
