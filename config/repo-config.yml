@@ -80,6 +80,17 @@ repos:
     repos:
       - apt/ubuntu/dists/bionic/mongodb-org
 
+  - name: ubuntu2004
+    type: deb
+    code_name: "focal"
+    edition: org
+    bucket: repo.mongodb.org
+    component: multiverse
+    architectures:
+      - amd64
+    repos:
+      - apt/ubuntu/dists/focal/mongodb-org
+
   - name: rhel80
     type: rpm
     edition: org
