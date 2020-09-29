@@ -30,13 +30,13 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
     Body: fs.createReadStream(artifact)
   };
 
-  console.log(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
-  console.log(`mongosh: artifact download url: https://s3.amazonaws.com/${BUCKET}/${key}`);
+  console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
+  console.info(`mongosh: artifact download url: https://s3.amazonaws.com/${BUCKET}/${key}`);
   return upload(uploadParams, s3);
 };
 
 const getArtifactUrl = (project: string, revision: string, artifact: string): string => {
-  return `https://s3.amazonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`
+  return `https://s3.amazonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`;
 };
 
 export default uploadArtifactToEvergreen;

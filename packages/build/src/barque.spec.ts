@@ -152,11 +152,11 @@ describe('Barque', () => {
     it('creates tmp directory that exists', async() => {
       const curatorDirPath = await barque.createCuratorDir();
 
-      let accessErr
+      let accessErr;
       try {
-        await fs.access(curatorDirPath)
+        await fs.access(curatorDirPath);
       } catch (e) {
-        accessErr = e
+        accessErr = e;
       }
       // eslint-disable-next-line
       expect(accessErr).to.be.undefined
@@ -170,11 +170,11 @@ describe('Barque', () => {
 
       await barque.extractLatestCurator(curatorDirPath);
 
-      let accessErr
+      let accessErr;
       try {
-        await fs.access(curatorPath)
+        await fs.access(curatorPath);
       } catch (e) {
-        accessErr = e
+        accessErr = e;
       }
       // eslint-disable-next-line
       expect(accessErr).to.be.undefined

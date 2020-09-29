@@ -100,7 +100,7 @@ const CONFIG = `
 const createDownloadCenterConfig = (version: string): string => {
   const template = handlebars.compile(CONFIG);
   const rendered = template({ version: version });
-  console.log('mongosh: created download center template:', rendered);
+  console.info('mongosh: created download center template:', rendered);
   return rendered;
 };
 
@@ -116,7 +116,7 @@ const uploadToDownloadCenter = (s3: S3, config: string): Promise<any> => {
     Key: `${DIRECTORY}/${FILENAME}`,
     Body: config
   };
-  console.log('mongosh: uploading config to download center');
+  console.info('mongosh: uploading config to download center');
   return upload(uploadParams, s3);
 };
 

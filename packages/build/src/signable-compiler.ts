@@ -1,6 +1,5 @@
 import Platform from './platform';
 import os from 'os';
-import { promises as fs } from 'fs';
 
 /**
  * A compiler that can produce an executable that is actually
@@ -29,7 +28,7 @@ class SignableCompiler {
     await exec({
       configureArgs:
         os.platform() === Platform.Windows ? ['openssl-no-asm'] :
-        os.platform() === Platform.MacOs ? ['--openssl-no-asm'] : [],
+          os.platform() === Platform.MacOs ? ['--openssl-no-asm'] : [],
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,

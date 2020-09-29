@@ -28,7 +28,7 @@ const uploadToDownloadCenter = (artifact: string, awsKey: string, awsSecret: str
     Key: `compass/${path.basename(artifact)}`,
     Body: fs.createReadStream(artifact)
   };
-  console.log(`mongosh: uploading ${artifact} to downloads`);
+  console.info(`mongosh: uploading ${artifact} to downloads`);
   return upload(uploadParams, s3);
 };
 

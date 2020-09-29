@@ -29,7 +29,6 @@ export default async function compileAndZipExecutable(config: Config): Promise<T
   // step.
   if (os.platform() === Platform.MacOs && !config.dryRun) {
     return await macOSSignAndNotarize(executable, config, runCreateTarball);
-  } else {
-    return await runCreateTarball();
   }
+  return await runCreateTarball();
 }

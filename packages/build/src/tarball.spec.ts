@@ -75,7 +75,7 @@ describe('tarball module', () => {
       const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
       const expectedTarball = tarballPath(__dirname, BuildVariant.Debian, version);
 
-      after(async () => {
+      after(async() => {
         await fs.unlink(expectedTarball);
       });
 
@@ -108,22 +108,22 @@ describe('tarball module', () => {
       // specifically test on rhel80-large. For now just skip if `rpmbuild` is
       // not available.
       beforeEach(function() {
-        if(!commandExists.sync('rpmbuild')) {
+        if (!commandExists.sync('rpmbuild')) {
           this.skip();
         }
       });
 
-      afterEach(async () => {
+      afterEach(async() => {
         // only run this afterEach if we have rpmbuild command available, i.e.
         // this test was not skipped.
-        if(commandExists.sync('rpmbuild')) {
+        if (commandExists.sync('rpmbuild')) {
           await fs.unlink(expectedTarball);
         }
       });
 
       it('builds the executable', async() => {
         await tarballRedhat(inputFile, __dirname, version, path.join(__dirname, '../../..'));
-        console.log('tarball built')
+        console.info('tarball built');
 
         let accessErr;
         try {
@@ -167,11 +167,11 @@ describe('tarball module', () => {
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
     const rootDir = path.join(__dirname, '../../..');
 
-    after(async () =>{
+    after(async() =>{
       await fs.unlink(expectedTarball);
     });
 
-    it('builds the executable', async () => {
+    it('builds the executable', async() => {
       await createTarball(inputFile, __dirname, buildVariant, version, rootDir);
 
       let accessErr;

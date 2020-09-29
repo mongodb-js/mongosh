@@ -9,7 +9,7 @@ export default async function publish(
 ): Promise<void> {
   if (config.dryRun) return;
 
-  console.log(
+  console.info(
     'mongosh: beginning publish release with config:',
     redactConfig(config)
   );
@@ -24,7 +24,7 @@ export default async function publish(
 
   await githubRepo.promoteRelease(config);
 
-  console.log('mongosh: finished release process.');
+  console.info('mongosh: finished release process.');
 }
 
 

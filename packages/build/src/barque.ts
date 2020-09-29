@@ -1,5 +1,5 @@
 import BuildVariant from './build-variant';
-import child_process from 'child_process';
+import childProcess from 'child_process';
 import gunzip from 'gunzip-maybe';
 import Platform from './platform';
 import fetch from 'node-fetch';
@@ -12,13 +12,13 @@ import util from 'util';
 import path from 'path';
 
 const pipeline = util.promisify(stream.pipeline);
-const execFile  = util.promisify(child_process.execFile);
+const execFile = util.promisify(childProcess.execFile);
 
 const LATEST_CURATOR =
   'https://s3.amazonaws.com/boxes.10gen.com/build/curator/curator-dist-ubuntu1604-latest.tar.gz';
 
-// make sure everything written in /tmp is cleared if an uncaught exception occurs 
-tmp.setGracefulCleanup()
+// make sure everything written in /tmp is cleared if an uncaught exception occurs
+tmp.setGracefulCleanup();
 
 /**
  * Distro enum to be used when making a curator call.
@@ -180,7 +180,7 @@ export class Barque {
    *
    */
   async extractLatestCurator(dest: string): Promise<any> {
-    const response = await fetch(LATEST_CURATOR)
+    const response = await fetch(LATEST_CURATOR);
     if (response.ok) {
       return pipeline(
         response.body,
