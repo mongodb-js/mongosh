@@ -10,7 +10,7 @@ export default function runOnlyOnOnePlatform(codeSectionLabel, config, cb: Funct
   const platformForSingleRun = Platform.MacOs;
 
   if (config.platform === platformForSingleRun) {
-    console.log(
+    console.info(
       'mongosh: running', codeSectionLabel,
       'since platform ===', platformForSingleRun
     );
@@ -18,7 +18,7 @@ export default function runOnlyOnOnePlatform(codeSectionLabel, config, cb: Funct
     return cb();
   }
 
-  console.log(
+  console.info(
     'mongosh: skipping', codeSectionLabel,
     'since platform !==', platformForSingleRun
   );

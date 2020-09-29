@@ -24,9 +24,8 @@ export const tarballPath = (outputDir: string, buildVariant: string, version: st
     // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
     // sometimes there is also revision number, but we can add that later.
     return path.join(outputDir, `mongosh_${version}_amd64.deb`);
-  } else {
-    return path.join(outputDir, `mongosh-${version}-${buildVariant}.zip`);
   }
+  return path.join(outputDir, `mongosh-${version}-${buildVariant}.zip`);
 };
 
 /**
@@ -72,13 +71,13 @@ export const tarballDebian = async(
     src: rootDir, // pkg-deb will look for package.json in src to get info
     input: input,
     // for debugging pkgDeb, uncomment the next line:
-    // loggger: console.log,
+    // loggger: console.info,
     arch: 'amd64' // this might need to be 'all'
-  }
+  };
 
-  console.log('mongosh: writing debian package')
-  await pkgDeb(options)
-}
+  console.info('mongosh: writing debian package');
+  await pkgDeb(options);
+};
 
 
 /**
@@ -102,11 +101,11 @@ export const tarballRedhat = async(
     src: rootDir,
     input: input,
     arch: 'x86_64'
-  }
+  };
 
-  console.log('mongosh: writing redhat package')
-  await pkgRpm(options)
-}
+  console.info('mongosh: writing redhat package');
+  await pkgRpm(options);
+};
 
 /**
  * Create a tarball archive for windows.
@@ -156,20 +155,19 @@ export async function createTarball(
     return {
       path: filename,
       contentType: 'application/x-rpm'
-    }
+    };
   } else if (buildVariant === BuildVariant.Debian) {
     await tarballDebian(input, outputDir, version, rootDir);
 
     return {
       path: filename,
       contentType: 'application/vnd.debian.binary-package'
-    }
-  } else {
-    tarballWindows(input, filename);
-
-    return {
-      path: filename,
-      contentType: 'application/zip'
     };
   }
+  tarballWindows(input, filename);
+
+  return {
+    path: filename,
+    contentType: 'application/zip'
+  };
 }

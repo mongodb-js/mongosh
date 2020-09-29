@@ -177,11 +177,6 @@ const artifact = await createTarball(
 );
 ```
 
-## Installation
-```shell
-npm install --save @mongosh/build
-```
-
 [evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh
 [config-url]: https://github.com/mongodb-js/mongosh/blob/393b505c179b64fbb72e0481c63f1723a3c56f06/config/build.conf.js
 [build-img]: ./build.png

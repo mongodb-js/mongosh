@@ -16,7 +16,7 @@ const generateInput = async(input: string, execInput: string, analyticsConfig: s
   // cli-repl's analytics-config file.
   await writeAnalyticsConfig(analyticsConfig, segmentKey);
 
-  console.log('mongosh: creating bundle:', execInput);
+  console.info('mongosh: creating bundle:', execInput);
 
   // Parcel is the saviour here since it was the only bundling
   // tool that could figure out how to handle everything in a
