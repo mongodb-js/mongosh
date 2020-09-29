@@ -1,13 +1,14 @@
 /* eslint-disable no-shadow */
 import uploadToDownloadCenter from './upload-to-download-center';
 import compileAndZipExecutable from './compile-and-zip-executable';
+import uploadDownloadCenterConfig from './download-center';
 import uploadArtifactToEvergreen from './evergreen';
+import buildAndUpload from './build-and-upload';
 import { GithubRepo } from './github-repo';
 import { Octokit } from '@octokit/rest';
-import Config from './config';
-import buildAndUpload from './build-and-upload';
+import { Barque } from './barque';
 import publish from './publish';
-import uploadDownloadCenterConfig from './download-center';
+import Config from './config';
 
 /**
  * Run the release process.
@@ -24,11 +25,13 @@ export default async function release(
   });
 
   const githubRepo = new GithubRepo(config.repo, octokit);
+  const barque = new Barque(config);
 
   if (command === 'package') {
     await buildAndUpload(
       config,
       githubRepo,
+      barque,
       compileAndZipExecutable,
       uploadArtifactToEvergreen,
       uploadToDownloadCenter
