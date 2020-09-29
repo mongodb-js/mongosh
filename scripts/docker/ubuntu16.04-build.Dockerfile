@@ -12,9 +12,9 @@ RUN echo "deb-src https://deb.nodesource.com/node_12.x xenial main" | tee -a /et
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 
 RUN apt-get update
-RUN apt-get -y -qq install nodejs g++-9 rpm
+RUN apt-get -y -qq install nodejs g++-6 rpm
 
-ENV CC=gcc-9
-ENV CXX=g++-9
+ENV CC=gcc-6
+ENV CXX=g++-6
 
 ENTRYPOINT [ "bash" ]
