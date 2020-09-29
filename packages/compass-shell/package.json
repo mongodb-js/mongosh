@@ -41,7 +41,8 @@
  "dependency-check": {
   "ignore": [
    "@hot-loader/react-dom",
-   "debug"
+   "debug",
+   "acorn"
   ]
  },
  "license": "Apache-2.0",
@@ -54,7 +55,6 @@
   "@mongosh/browser-repl": "^0.4.0",
   "@mongosh/browser-runtime-electron": "^0.4.0",
   "@mongosh/service-provider-server": "^0.4.0",
-  "acorn": "^8.0.1",
   "hadron-react-buttons": "^4.0.4",
   "mongodb-redux-common": "0.0.2"
  },
