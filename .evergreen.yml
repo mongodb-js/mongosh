@@ -33,11 +33,6 @@ variables:
             --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
             -c 'cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
         else
-          if [ `uname` == Darwin ]; then
-            brew install sccache
-            export CC='sccache cc'
-            export CXX='sccache c++'
-          fi
           npm run evergreen-release package
           if [ `uname` == Darwin ]; then
             # Verify signing
