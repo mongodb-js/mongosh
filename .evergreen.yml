@@ -17,9 +17,6 @@ variables:
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
-        export AWS_ACCESS_KEY_ID={devtools_ci_aws_key}          # sccache
-        export AWS_SECRET_ACCESS_KEY={devtools_ci_aws_secret}   # sccache
-        export SCCACHE_BUCKET=devtools-mongosh-ci               # sccache
         if [ `uname` == Linux ]; then
           mkdir -p tmp
           cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
@@ -29,7 +26,6 @@ variables:
             -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
             -e NODE_JS_VERSION \
             -e BUILD_VARIANT \
-            -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SCCACHE_BUCKET \
             --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
             -c 'cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
         else
