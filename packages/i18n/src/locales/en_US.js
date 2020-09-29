@@ -1144,7 +1144,25 @@ const translations = {
       },
       ReplicaSet: {
         help: {
-          description: 'Replica Set Class'
+          description: 'Replica Set Class',
+          link: 'https://docs.mongodb.com/manual/reference/method/js-replication/',
+          attributes: {
+            initiate: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.initiate',
+              description: 'Initiates the replica set.',
+              example: 'rs.initiate()'
+            },
+            config: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.conf',
+              description: 'Returns a document that contains the current replica set configuration.',
+              example: 'rs.config()'
+            },
+            reconfig: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.reconfig',
+              description: 'Reconfigures an existing replica set, overwriting the existing replica set configuration.',
+              example: 'rs.reconfig()'
+            }
+          }
         }
       },
       Shard: {
