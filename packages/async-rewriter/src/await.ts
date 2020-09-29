@@ -1,10 +1,10 @@
 /* eslint new-cap: 0, callback-return: 0 */
 const acorn = require('acorn');
 const walk = require('acorn-walk');
-const privateMethods = require('acorn-private-methods');
-const classFields = require('acorn-class-fields');
-const numericSeparator = require('acorn-numeric-separator');
-const staticClassFeatures = require('acorn-static-class-features');
+import privateMethods from 'acorn-private-methods';
+import classFields from 'acorn-class-fields';
+import numericSeparator from 'acorn-numeric-separator';
+import staticClassFeatures from 'acorn-static-class-features';
 
 const parser = acorn.Parser.extend(
   privateMethods,
@@ -13,35 +13,35 @@ const parser = acorn.Parser.extend(
   staticClassFeatures
 );
 
-const noop = () => { };
+const noop = (): void => { };
 const visitorsWithoutAncestors = {
-  ClassDeclaration(node, state, c) {
+  ClassDeclaration(node, state, c): void {
     if (state.ancestors[state.ancestors.length - 2] === state.body) {
       state.prepend(node, `${node.id.name}=`);
     }
     walk.base.ClassDeclaration(node, state, c);
   },
-  ForOfStatement(node, state, c) {
+  ForOfStatement(node, state, c): void {
     if (node.await === true) {
       state.containsAwait = true;
     }
     walk.base.ForOfStatement(node, state, c);
   },
-  FunctionDeclaration(node, state, c) {
+  FunctionDeclaration(node, state): void {
     state.prepend(node, `${node.id.name}=`);
   },
   FunctionExpression: noop,
   ArrowFunctionExpression: noop,
   MethodDefinition: noop,
-  AwaitExpression(node, state, c) {
+  AwaitExpression(node, state, c): void {
     state.containsAwait = true;
     walk.base.AwaitExpression(node, state, c);
   },
-  ReturnStatement(node, state, c) {
+  ReturnStatement(node, state, c): void {
     state.containsReturn = true;
     walk.base.ReturnStatement(node, state, c);
   },
-  VariableDeclaration(node, state, c) {
+  VariableDeclaration(node, state, c): void {
     if (node.kind === 'var' ||
       state.ancestors[state.ancestors.length - 2] === state.body) {
       if (node.declarations.length === 1) {
@@ -67,7 +67,7 @@ const visitorsWithoutAncestors = {
 const visitors = {};
 for (const nodeType of Object.keys(walk.base)) {
   const callback = visitorsWithoutAncestors[nodeType] || walk.base[nodeType];
-  visitors[nodeType] = (node, state, c) => {
+  visitors[nodeType] = (node, state, c): void => {
     const isNew = node !== state.ancestors[state.ancestors.length - 1];
     if (isNew) {
       state.ancestors.push(node);
@@ -79,7 +79,7 @@ for (const nodeType of Object.keys(walk.base)) {
   };
 }
 
-function processTopLevelAwait(src) {
+function processTopLevelAwait(src): null | string {
   const wrapped = `(async () => { ${src} })()`;
   const wrappedArray = wrapped.split('');
   let root;
@@ -92,17 +92,17 @@ function processTopLevelAwait(src) {
   const state = {
     body,
     ancestors: [],
-    replace(from, to, str) {
+    replace(from, to, str): void {
       for (let i = from; i < to; i++) {
         wrappedArray[i] = '';
       }
       if (from === to) str += wrappedArray[from];
       wrappedArray[from] = str;
     },
-    prepend(node, str) {
+    prepend(node, str): void {
       wrappedArray[node.start] = str + wrappedArray[node.start];
     },
-    append(node, str) {
+    append(node, str): void {
       wrappedArray[node.end - 1] += str;
     },
     containsAwait: false,
@@ -139,4 +139,4 @@ function processTopLevelAwait(src) {
   return wrappedArray.join('');
 }
 
-module.exports = processTopLevelAwait;
+export default processTopLevelAwait;
