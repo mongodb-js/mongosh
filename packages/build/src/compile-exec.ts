@@ -60,7 +60,7 @@ const compileExec = async(
   await generateInput(input, execInput, analyticsConfig, segmentKey);
 
   const executable = executablePath(outputDir, os.platform());
-  console.log('mongosh: creating binary:', executable);
+  console.info('mongosh: creating binary:', executable);
 
   const { compileJSFileAsBinary } = require('boxednode');
   await new SignableCompiler(execInput, executable, execNodeVersion)

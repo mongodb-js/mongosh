@@ -9,14 +9,14 @@ export default async function buildAndUpload(
   compileAndZipExecutable: (Config) => Promise<TarballFile>,
   uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>,
   uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
-  console.log(
+  console.info(
     'mongosh: beginning release with config:',
     redactConfig(config)
   );
 
   // Build the executable.
   const tarballFile = await compileAndZipExecutable(config);
-  console.log('mongosh: created tarball:', tarballFile);
+  console.info('mongosh: created tarball:', tarballFile);
 
   if (config.dryRun) return;
 
@@ -28,11 +28,11 @@ export default async function buildAndUpload(
     config.project,
     config.revision
   );
-  console.log('mongosh: internal release completed.');
+  console.info('mongosh: internal release completed.');
 
   // Only release to public from master and when tagged with the right version.
   if (await githubRepo.shouldDoPublicRelease(config)) {
-    console.log('mongosh: start public release.');
+    console.info('mongosh: start public release.');
 
     await uploadToDownloadCenter(
       tarballFile.path,
@@ -43,6 +43,6 @@ export default async function buildAndUpload(
     await githubRepo.releaseToGithub(tarballFile, config);
   }
 
-  console.log('mongosh: finished release process.');
+  console.info('mongosh: finished release process.');
 }
 

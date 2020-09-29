@@ -11,12 +11,12 @@ import writeAnalyticsConfig from './analytics';
  * @param {string} analyticsConfig - The path to the analytics config file.
  * @param {string} segmentKey - The segment API key.
  */
-const generateInput = async(input: string, execInput: string, analyticsConfig: string, segmentKey: string) => {
+const generateInput = async(input: string, execInput: string, analyticsConfig: string, segmentKey: string): Promise<void> => {
   // This takes the segment api key and writes it to the
   // cli-repl's analytics-config file.
   await writeAnalyticsConfig(analyticsConfig, segmentKey);
 
-  console.log('mongosh: creating bundle:', execInput);
+  console.info('mongosh: creating bundle:', execInput);
 
   // Parcel is the saviour here since it was the only bundling
   // tool that could figure out how to handle everything in a

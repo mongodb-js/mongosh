@@ -1,4 +1,3 @@
-import path from 'path';
 import { expect } from 'chai';
 import { createAnalyticsConfig } from './analytics';
 
