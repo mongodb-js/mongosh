@@ -14,7 +14,10 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update
 RUN apt-get -y -qq install nodejs g++-6 rpm
 
-ENV CC=gcc-6
-ENV CXX=g++-6
+# Add sccache
+RUN curl -L https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz | tar -C /usr/local/bin -xzvf - --strip=1 sccache-0.2.13-x86_64-unknown-linux-musl/sccache
+
+ENV CC="sccache gcc-6"
+ENV CXX="sccache g++-6"
 
 ENTRYPOINT [ "bash" ]
