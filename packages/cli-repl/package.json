@@ -35,7 +35,6 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "@mongosh/build": "^0.4.1",
     "@mongosh/errors": "^0.4.1",
     "@mongosh/history": "^0.4.1",
     "@mongosh/i18n": "^0.4.1",
