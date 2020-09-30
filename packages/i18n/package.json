@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/i18n",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "MongoDB Shell i18n Project",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
