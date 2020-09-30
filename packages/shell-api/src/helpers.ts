@@ -149,7 +149,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
       ' be sure you are connecting to a mongos from the shell and not to a mongod.');
   }
 
-  result.shardingVersion = await versionColl.findOne();
+  result.shardingVersion = version;
 
   result.shards = await shardsColl.find().sort({ _id: 1 }).toArray();
 
@@ -243,7 +243,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
 
   // Actionlog and version checking only works on 2.7 and greater
   let versionHasActionlog = false;
-  const metaDataVersion = (await versionColl.findOne()).currentVersion;
+  const metaDataVersion = version.currentVersion;
   if (metaDataVersion > 5) {
     versionHasActionlog = true;
   }
