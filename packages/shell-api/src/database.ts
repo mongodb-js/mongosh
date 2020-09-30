@@ -694,8 +694,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async stats(scale: any): Promise<any> {
-    assertArgsDefined(scale);
+  async stats(scale = 1): Promise<any> {
     this._emitDatabaseApiCall('stats', { scale: scale });
     return await this._mongo._serviceProvider.runCommandWithCheck(
 
