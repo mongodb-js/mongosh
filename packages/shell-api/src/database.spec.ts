@@ -1601,6 +1601,18 @@ describe('Database', () => {
         );
       });
 
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+        await database.stats();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            dbStats: 1,
+            scale: 1
+          }
+        );
+      });
+
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
