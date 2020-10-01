@@ -2,10 +2,14 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const {gitClone, getLatestVersion, confirm} = require('./utils');
+const { gitClone, getLatestVersion, confirm } = require('./utils');
 const generateHomebrewFormula = require('./generate-homebrew-formula');
 
 const rootPath = path.resolve(__dirname, '..');
+
+const wait = (ms = 1000) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 
 function requireSegmentApiKey() {
   const { MONGOSH_SEGMENT_API_KEY } = process.env;
@@ -131,6 +135,9 @@ async function publish() {
       ['publish', '--force-publish'],
       { cwd: cloneDirPath, stdio: 'inherit' }
     );
+
+    // Wait 10s to ensure the npm tags are updated after the publish.
+    await wait(10000);
 
     const versionAfter = getLatestVersion();
 
