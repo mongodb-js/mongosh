@@ -205,149 +205,152 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
   const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
   result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
 
-  // Is the balancer currently enabled
   const balancerRes = {};
-  const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
-  balancerRes['Currently enabled'] = balancerEnabled === null || !balancerEnabled.stopped ? 'yes' : 'no';
-
-  // Is the balancer currently active
-  let balancerRunning = 'unknown';
-  try {
-    const balancerStatus = await configDB.adminCommand({ balancerStatus: 1 });
-    balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
-  } catch (err) {
-    // pass, ignore all error messages
-  }
-  balancerRes['Currently running'] = balancerRunning;
-
-  // Output the balancer window
-  const settings = await settingsColl.findOne({ _id: 'balancer' });
-  if (settings !== null && settings.hasOwnProperty('activeWindow')) {
-    const balSettings = settings.activeWindow;
-    balancerRes['Balancer active window is set between'] = `${balSettings.start} and ${balSettings.stop} server local time`;
-  }
-
-  // Output the list of active migrations
-  const activeLocks = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
-  const activeMigrations = [];
-  if (activeLocks !== null) {
-    activeLocks.forEach((lock) => {
-      activeMigrations.push({ _id: lock._id, when: lock.when });
-    });
-  }
-
-  if (activeMigrations.length > 0) {
-    balancerRes['Collections with active migrations'] = activeMigrations.map((migration) => {
-      return `${migration._id} started at ${migration.when}`;
-    });
-  }
-
-  // Actionlog and version checking only works on 2.7 and greater
-  let versionHasActionlog = false;
-  const metaDataVersion = version.currentVersion;
-  if (metaDataVersion > 5) {
-    versionHasActionlog = true;
-  }
-  if (metaDataVersion === 5) {
-    const verArray = (await mongo._internalState.currentDb.serverBuildInfo()).versionArray;
-    if (verArray[0] === 2 && verArray[1] > 6) {
-      versionHasActionlog = true;
-    }
-  }
-
-  if (versionHasActionlog) {
-    // Review config.actionlog for errors
-    const balErrs = await configDB.getCollection('actionlog').find({ what: 'balancer.round' }).sort({ time: -1 }).limit(5).toArray();
-    const actionReport = { count: 0, lastErr: '', lastTime: ' ' };
-    if (balErrs !== null) {
-      balErrs.forEach((r) => {
-        if (r.details.errorOccured) {
-          actionReport.count += 1;
-          if (actionReport.count === 1) {
-            actionReport.lastErr = r.details.errmsg;
-            actionReport.lastTime = r.time;
-          }
-        }
-      });
-    }
-
-    // const actionReport = sh.getRecentFailedRounds(configDB);
-    // Always print the number of failed rounds
-    balancerRes['Failed balancer rounds in last 5 attempts'] = actionReport.count;
-
-    // Only print the errors if there are any
-    if (actionReport.count > 0) {
-      balancerRes['Last reported error'] = actionReport.lastErr;
-      balancerRes['Time of Reported error'] = actionReport.lastTime;
-    }
-
-    // const migrations = sh.getRecentMigrations(configDB);
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
-
-    // Successful migrations.
-    let migrations = await (await changelogColl
-      .aggregate([
-        {
-          $match: {
-            time: { $gt: yesterday },
-            what: 'moveChunk.from',
-            'details.errmsg': { $exists: false },
-            'details.note': 'success'
-          }
-        },
-        { $group: { _id: { msg: '$details.errmsg' }, count: { $sum: 1 } } },
-        { $project: { _id: { $ifNull: ['$_id.msg', 'Success'] }, count: '$count' } }
-      ]))
-      .toArray();
-
-    // Failed migrations.
-    migrations = migrations.concat(
-      await (await changelogColl
-        .aggregate([
-          {
-            $match: {
-              time: { $gt: yesterday },
-              what: 'moveChunk.from',
-              $or: [
-                { 'details.errmsg': { $exists: true } },
-                { 'details.note': { $ne: 'success' } }
-              ]
-            }
-          },
-          {
-            $group: {
-              _id: { msg: '$details.errmsg', from: '$details.from', to: '$details.to' },
-              count: { $sum: 1 }
-            }
-          },
-          {
-            $project: {
-              _id: { $ifNull: ['$_id.msg', 'aborted'] },
-              from: '$_id.from',
-              to: '$_id.to',
-              count: '$count'
-            }
-          }
-        ]))
-        .toArray());
-
-    const migrationsRes = {};
-    migrations.forEach((x) => {
-      if (x._id === 'Success') {
-        migrationsRes[x.count] = x._id;
-      } else {
-        migrationsRes[x.count] = `Failed with error '${x._id}', from ${x.from} to ${x.to}`;
+  await Promise.all([
+    (async(): Promise<void> => {
+      // Is the balancer currently enabled
+      const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
+      balancerRes['Currently enabled'] = balancerEnabled === null || !balancerEnabled.stopped ? 'yes' : 'no';
+    })(),
+    (async(): Promise<void> => {
+      // Is the balancer currently active
+      let balancerRunning = 'unknown';
+      try {
+        const balancerStatus = await configDB.adminCommand({ balancerStatus: 1 });
+        balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
+      } catch (err) {
+        // pass, ignore all error messages
       }
-    });
-    if (migrations.length === 0) {
-      balancerRes['Migration Results for the last 24 hours'] = 'No recent migrations';
-    } else {
-      balancerRes['Migration Results for the last 24 hours'] = migrationsRes;
-    }
-  }
+      balancerRes['Currently running'] = balancerRunning;
+    })(),
+    (async(): Promise<void> => {
+      // Output the balancer window
+      const settings = await settingsColl.findOne({ _id: 'balancer' });
+      if (settings !== null && settings.hasOwnProperty('activeWindow')) {
+        const balSettings = settings.activeWindow;
+        balancerRes['Balancer active window is set between'] = `${balSettings.start} and ${balSettings.stop} server local time`;
+      }
+    })(),
+    (async() => {
+      // Output the list of active migrations
+      const activeLocks = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
+      const activeMigrations = [];
+      if (activeLocks !== null) {
+        activeLocks.forEach((lock) => {
+          activeMigrations.push({ _id: lock._id, when: lock.when });
+        });
+      }
+      if (activeMigrations.length > 0) {
+        balancerRes['Collections with active migrations'] = activeMigrations.map((migration) => {
+          return `${migration._id} started at ${migration.when}`;
+        });
+      }
+    })(),
+    (async(): Promise<void> => {
+      // Actionlog and version checking only works on 2.7 and greater
+      let versionHasActionlog = false;
+      const metaDataVersion = version.currentVersion;
+      if (metaDataVersion > 5) {
+        versionHasActionlog = true;
+      }
+      if (metaDataVersion === 5) {
+        const verArray = (await mongo._internalState.currentDb.serverBuildInfo()).versionArray;
+        if (verArray[0] === 2 && verArray[1] > 6) {
+          versionHasActionlog = true;
+        }
+      }
 
+      if (versionHasActionlog) {
+        // Review config.actionlog for errors
+        const balErrs = await configDB.getCollection('actionlog').find({ what: 'balancer.round' }).sort({ time: -1 }).limit(5).toArray();
+        const actionReport = { count: 0, lastErr: '', lastTime: ' ' };
+        if (balErrs !== null) {
+          balErrs.forEach((r) => {
+            if (r.details.errorOccured) {
+              actionReport.count += 1;
+              if (actionReport.count === 1) {
+                actionReport.lastErr = r.details.errmsg;
+                actionReport.lastTime = r.time;
+              }
+            }
+          });
+        }
+        // Always print the number of failed rounds
+        balancerRes['Failed balancer rounds in last 5 attempts'] = actionReport.count;
+
+        // Only print the errors if there are any
+        if (actionReport.count > 0) {
+          balancerRes['Last reported error'] = actionReport.lastErr;
+          balancerRes['Time of Reported error'] = actionReport.lastTime;
+        }
+        // const migrations = sh.getRecentMigrations(configDB);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+
+        // Successful migrations.
+        let migrations = await (await changelogColl
+          .aggregate([
+            {
+              $match: {
+                time: { $gt: yesterday },
+                what: 'moveChunk.from',
+                'details.errmsg': { $exists: false },
+                'details.note': 'success'
+              }
+            },
+            { $group: { _id: { msg: '$details.errmsg' }, count: { $sum: 1 } } },
+            { $project: { _id: { $ifNull: ['$_id.msg', 'Success'] }, count: '$count' } }
+          ]))
+          .toArray();
+
+        // Failed migrations.
+        migrations = migrations.concat(
+          await (await changelogColl
+            .aggregate([
+              {
+                $match: {
+                  time: { $gt: yesterday },
+                  what: 'moveChunk.from',
+                  $or: [
+                    { 'details.errmsg': { $exists: true } },
+                    { 'details.note': { $ne: 'success' } }
+                  ]
+                }
+              },
+              {
+                $group: {
+                  _id: { msg: '$details.errmsg', from: '$details.from', to: '$details.to' },
+                  count: { $sum: 1 }
+                }
+              },
+              {
+                $project: {
+                  _id: { $ifNull: ['$_id.msg', 'aborted'] },
+                  from: '$_id.from',
+                  to: '$_id.to',
+                  count: '$count'
+                }
+              }
+            ]))
+            .toArray());
+
+        const migrationsRes = {};
+        migrations.forEach((x) => {
+          if (x._id === 'Success') {
+            migrationsRes[x.count] = x._id;
+          } else {
+            migrationsRes[x.count] = `Failed with error '${x._id}', from ${x.from} to ${x.to}`;
+          }
+        });
+        if (migrations.length === 0) {
+          balancerRes['Migration Results for the last 24 hours'] = 'No recent migrations';
+        } else {
+          balancerRes['Migration Results for the last 24 hours'] = migrationsRes;
+        }
+      }
+    })()
+  ]);
   result.balancer = balancerRes;
 
   const dbRes = [];
