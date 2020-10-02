@@ -9,6 +9,7 @@ import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Mongo from './mongo';
+import { ADMIN_DB } from './enums';
 
 export function adaptAggregateOptions(options: any = {}): {
   providerOptions: Document;
@@ -135,7 +136,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
 
   // configDB is a DB object that contains the sharding metadata of interest.
   // Defaults to the db named "config" on the current connection.
-  const configDB = mongo.getDB('config');
+  const configDB = await getConfigDB(mongo);
   const mongosColl = configDB.getCollection('mongos');
   const versionColl = configDB.getCollection('version');
   const shardsColl = configDB.getCollection('shards');
@@ -440,4 +441,12 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
     }
   }
   return result;
+}
+
+export async function getConfigDB(mongo: Mongo): Promise<any> {
+  const isM = await mongo.getDB(ADMIN_DB).runCommand({ isMaster: 1 });
+  if (isM.msg !== 'isdbgrid') {
+    throw new MongoshInvalidInputError('Not connected to a mongos');
+  }
+  return mongo.getDB('config');
 }

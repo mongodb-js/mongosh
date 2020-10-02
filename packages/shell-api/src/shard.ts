@@ -2,14 +2,14 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass, returnsPromise
+  ShellApiClass, returnsPromise, serverVersions
 } from './decorators';
 
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { assertArgsDefined, assertArgsType, getPrintableShardStatus } from './helpers';
-import { ADMIN_DB } from './enums';
+import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
+import { ADMIN_DB, ServerVersions } from './enums';
 import { CommandResult } from './result';
 
 @shellApiClassDefault
@@ -55,7 +55,14 @@ export default class Shard extends ShellApiClass {
     if (primaryShard !== undefined) {
       cmd.primaryShard = primaryShard;
     }
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+    try {
+      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
+      }
+      throw error;
+    }
   }
 
   @returnsPromise
@@ -72,12 +79,91 @@ export default class Shard extends ShellApiClass {
       cmd.unique = unique;
     }
     const orderedCmd = options !== undefined ? { ...cmd, ...options } : cmd;
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+    try {
+      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
+      }
+      throw error;
+    }
   }
 
   @returnsPromise
   async status(verbose = false): Promise<any> {
+    await getConfigDB(this._mongo); // will error if not connected to mongos
     const result = await getPrintableShardStatus(this._mongo, verbose);
     return new CommandResult('StatsResult', result);
+  }
+
+  @returnsPromise
+  async addShard(url: string): Promise<any> {
+    assertArgsDefined(url);
+    await getConfigDB(this._mongo);
+    this._emitShardApiCall('addShard', { url });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      addShard: url
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async addShardToZone(shard: string, zone: string): Promise<any> {
+    assertArgsDefined(shard, zone);
+    this._emitShardApiCall('addShardToZone', { shard, zone });
+    await getConfigDB(this._mongo); // will error if not connected to mongos
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      addShardToZone: shard,
+      zone: zone
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async addShardTag(shard: string, tag: string): Promise<any> {
+    try {
+      return await this.addShardToZone(shard, tag);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to addShardToZone which exists only for server versions > 3.4.`;
+      }
+      throw error;
+    }
+  }
+
+  @returnsPromise
+  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+    assertArgsDefined(namespace, min, max, zone);
+    this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
+
+    await getConfigDB(this._mongo); // will error if not connected to mongos
+    return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      updateZoneKeyRange: namespace,
+      min,
+      max,
+      zone
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+    assertArgsDefined(namespace, min, max, zone);
+    this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
+
+    await getConfigDB(this._mongo); // will error if not connected to mongos
+    try {
+      return await this.updateZoneKeyRange(
+        namespace,
+        min,
+        max,
+        zone
+      );
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
+      }
+      throw error;
+    }
   }
 }

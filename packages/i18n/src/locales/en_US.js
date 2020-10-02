@@ -1165,6 +1165,31 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.status',
               description: 'Prints a formatted report of the sharding configuration and the information regarding existing chunks in a sharded cluster. The default behavior suppresses the detailed chunk information if the total number of chunks is greater than or equal to 20.',
               example: 'sh.status(verbose?)',
+            },
+            addShard: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.addShard',
+              description: 'Calls addShard for a sharded DB. uses the addShard command',
+              example: 'sh.addShard(url)',
+            },
+            addShardToZone: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.addShardToZone',
+              description: 'Calls addShardToZone for a sharded DB. uses the addShardToZone command',
+              example: 'sh.addShardToZone(shard, zone)',
+            },
+            addShardTag: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.addShardTag',
+              description: '3.4+ only. Calls addShardTag for a sharded DB. uses the addShardToZone command',
+              example: 'sh.addShardTag(shard, tag)',
+            },
+            updateZoneKeyRange: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.updateZoneKeyRange',
+              description: 'Calls updateZoneKeyRange for a sharded DB. uses the updateZoneKeyRange command',
+              example: 'sh.updateZoneKeyRange(ns, min, max, zone)',
+            },
+            addTagRange: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.addTagRange',
+              description: '3.4+ only. Calls addTagRange for a sharded DB. uses the updateZoneKeyRange command',
+              example: 'sh.addTagRange(ns, min, max, zone)',
             }
           }
         }
