@@ -206,12 +206,12 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
 
   const balancerRes = {};
   await Promise.all([
-    (async() => {
+    (async(): Promise<void> => {
       // Is the balancer currently enabled
       const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
       balancerRes['Currently enabled'] = balancerEnabled === null || !balancerEnabled.stopped ? 'yes' : 'no';
     })(),
-    (async() => {
+    (async(): Promise<void> => {
       // Is the balancer currently active
       let balancerRunning = 'unknown';
       try {
@@ -222,7 +222,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
       }
       balancerRes['Currently running'] = balancerRunning;
     })(),
-    (async() => {
+    (async(): Promise<void> => {
       // Output the balancer window
       const settings = await settingsColl.findOne({ _id: 'balancer' });
       if (settings !== null && settings.hasOwnProperty('activeWindow')) {
@@ -245,7 +245,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
         });
       }
     })(),
-    (async() => {
+    (async(): Promise<void> => {
       // Actionlog and version checking only works on 2.7 and greater
       let versionHasActionlog = false;
       const metaDataVersion = version.currentVersion;
