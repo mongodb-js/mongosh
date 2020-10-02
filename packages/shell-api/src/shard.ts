@@ -91,7 +91,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async status(verbose = false): Promise<any> {
-    await getConfigDB(this._mongo);
+    await getConfigDB(this._mongo); // will error if not connected to mongos
     const result = await getPrintableShardStatus(this._mongo, verbose);
     return new CommandResult('StatsResult', result);
   }
@@ -111,7 +111,7 @@ export default class Shard extends ShellApiClass {
   async addShardToZone(shard: string, zone: string): Promise<any> {
     assertArgsDefined(shard, zone);
     this._emitShardApiCall('addShardToZone', { shard, zone });
-    await getConfigDB(this._mongo); // error if not connected to mongos
+    await getConfigDB(this._mongo); // will error if not connected to mongos
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       addShardToZone: shard,
       zone: zone
@@ -125,7 +125,7 @@ export default class Shard extends ShellApiClass {
       return await this.addShardToZone(shard, tag);
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
-        error.message = `${error.message}. Are you connected to version > 3.4?`;
+        error.message = `${error.message}. This method aliases to addShardToZone which exists only for server versions > 3.4.`;
       }
       throw error;
     }
@@ -136,7 +136,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(namespace, min, max, zone);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
-    await getConfigDB(this._mongo);
+    await getConfigDB(this._mongo); // will error if not connected to mongos
     return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       updateZoneKeyRange: namespace,
       min,
@@ -151,7 +151,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(namespace, min, max, zone);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
-    await getConfigDB(this._mongo);
+    await getConfigDB(this._mongo); // will error if not connected to mongos
     try {
       return await this.updateZoneKeyRange(
         namespace,
@@ -161,7 +161,7 @@ export default class Shard extends ShellApiClass {
       );
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
-        error.message = `${error.message}. Are you connected to version > 3.4?`;
+        error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
       }
       throw error;
     }
