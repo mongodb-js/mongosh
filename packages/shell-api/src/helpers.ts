@@ -9,7 +9,7 @@ import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Mongo from './mongo';
-import {ADMIN_DB} from "./enums";
+import { ADMIN_DB } from './enums';
 
 export function adaptAggregateOptions(options: any = {}): {
   providerOptions: Document;

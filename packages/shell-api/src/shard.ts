@@ -11,7 +11,6 @@ import {
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ADMIN_DB, ServerVersions } from './enums';
 import { CommandResult } from './result';
-import { MongoshCommandFailed } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -56,7 +55,14 @@ export default class Shard extends ShellApiClass {
     if (primaryShard !== undefined) {
       cmd.primaryShard = primaryShard;
     }
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+    try {
+      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
+      }
+      throw error;
+    }
   }
 
   @returnsPromise
@@ -73,11 +79,19 @@ export default class Shard extends ShellApiClass {
       cmd.unique = unique;
     }
     const orderedCmd = options !== undefined ? { ...cmd, ...options } : cmd;
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+    try {
+      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
+      }
+      throw error;
+    }
   }
 
   @returnsPromise
   async status(verbose = false): Promise<any> {
+    await getConfigDB(this._mongo);
     const result = await getPrintableShardStatus(this._mongo, verbose);
     return new CommandResult('StatsResult', result);
   }
@@ -85,8 +99,9 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async addShard(url: string): Promise<any> {
     assertArgsDefined(url);
+    await getConfigDB(this._mongo);
     this._emitShardApiCall('addShard', { url });
-    return this._mongo._serviceProvider.runCommand(ADMIN_DB, {
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       addShard: url
     });
   }
@@ -97,30 +112,58 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(shard, zone);
     this._emitShardApiCall('addShardToZone', { shard, zone });
     await getConfigDB(this._mongo); // error if not connected to mongos
-    return this._mongo._serviceProvider.runCommand(ADMIN_DB, {
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       addShardToZone: shard,
       zone: zone
     });
   }
 
   @returnsPromise
-  @serverVersions(['3.4.0', ServerVersions.latest]) // we don't support earlier versions which had different behavior
+  @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardTag(shard: string, tag: string): Promise<any> {
-    const result = await this.addShardToZone(shard, tag);
-    if (result.code != ErrorCodes.CommandNotFound) {
-      return result;
+    try {
+      return await this.addShardToZone(shard, tag);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to version > 3.4?`;
+      }
+      throw error;
     }
+  }
 
-    const configDB = await getConfigDB(this._mongo);
-    const shards = configDB.getCollection('shards');
-    const doc = await shards.findOne({ _id: shard });
-    if (doc === null || doc === undefined) {
-      throw new MongoshCommandFailed(`Can't find a shard with name: ${shard}`);
+  @returnsPromise
+  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+    assertArgsDefined(namespace, min, max, zone);
+    this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
+
+    await getConfigDB(this._mongo);
+    return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      updateZoneKeyRange: namespace,
+      min,
+      max,
+      zone
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+    assertArgsDefined(namespace, min, max, zone);
+    this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
+
+    await getConfigDB(this._mongo);
+    try {
+      return await this.updateZoneKeyRange(
+        namespace,
+        min,
+        max,
+        zone
+      );
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to version > 3.4?`;
+      }
+      throw error;
     }
-    return shards.update(
-      { _id: shard },
-      { $addToSet: { tags: tag } },
-      { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    );
   }
 }

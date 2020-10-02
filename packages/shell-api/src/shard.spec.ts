@@ -147,5 +147,228 @@ describe('Shard', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('addShard', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.addShard('uri');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            addShard: 'uri'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.addShard('uri');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addShard('uri')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.addShard('uri')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('addShardToZone', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.addShardToZone('shard', 'zone');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            addShardToZone: 'shard',
+            zone: 'zone'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.addShardToZone('shard', 'zone');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addShardToZone('shard', 'zone')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.addShardToZone('shard', 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('addShardTag', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.addShardTag('shard', 'zone');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            addShardToZone: 'shard',
+            zone: 'zone'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.addShardTag('shard', 'zone');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addShardTag('shard', 'zone')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.addShardTag('shard', 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+
+      it('adds version suggestion if command not found', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        (expectedError as any).codeName = 'CommandNotFound';
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addShardTag('shard', 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Are you connected to version > 3.4?');
+      });
+    });
+    describe('updateZoneKeyRange', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.updateZoneKeyRange('ns', { min: 0 }, { max: 1 }, 'zone');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            updateZoneKeyRange: 'ns',
+            min: { min: 0 },
+            max: { max: 1 },
+            zone: 'zone'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.updateZoneKeyRange('ns', {}, {}, 'zone');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('addTagRange', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.addTagRange('ns', { min: 0 }, { max: 1 }, 'zone');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            updateZoneKeyRange: 'ns',
+            min: { min: 0 },
+            max: { max: 1 },
+            zone: 'zone'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.addTagRange('ns', {}, {}, 'zone');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+
+      it('adds version suggestion if command not found', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        (expectedError as any).codeName = 'CommandNotFound';
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Are you connected to version > 3.4?');
+      });
+    });
   });
 });
