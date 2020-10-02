@@ -1,7 +1,7 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
 import { bson as BSON } from '@mongosh/service-provider-core';
-import { MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
 function constructHelp(className): Help {
@@ -134,8 +134,24 @@ export default function constructShellBson(bson: any): any {
       }
       return date.toString();
     },
-    ISODate: function(...args: DateConstructorArguments): Date {
-      return dateHelper(...args);
+    ISODate: function(input?: string): Date {
+      if (!input) input = new Date().toISOString();
+      const isoDateRegex =
+        /^(?<Y>\d{4})-?(?<M>\d{2})-?(?<D>\d{2})([T ](?<h>\d{2})(:?(?<m>\d{2})(:?((?<s>\d{2})(\.(?<ms>\d+))?))?)?(?<tz>Z|([+-])(\d{2}):?(\d{2})?)?)?$/;
+      const match = input.match(isoDateRegex);
+      if (match !== null) {
+        // Normalize the representation because ISO-8601 accepts e.g.
+        // '20201002T102950Z' without : and -, but `new Date()` does not.
+        const { Y, M, D, h, m, s, ms, tz } = match.groups;
+        const normalized =
+          `${Y}-${M}-${D}T${h || '00'}:${m || '00'}:${s || '00'}.${ms || '000'}${tz || 'Z'}`;
+        const date = new Date(normalized);
+        // Make sur we're in the range 0000-01-01T00:00:00.000Z - 9999-12-31T23:59:59.999Z
+        if (date.getTime() >= -62167219200000 && date.getTime() <= 253402300799999) {
+          return date;
+        }
+      }
+      throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`);
     },
     BinData: function(subtype, b64string): any { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);
