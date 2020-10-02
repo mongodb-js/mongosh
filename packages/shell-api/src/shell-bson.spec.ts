@@ -236,9 +236,32 @@ describe('Shell BSON', () => {
       expect(typeof date2).to.equal('object');
     });
     it('accepts ISO args', () => {
-      expect((shellBson.ISODate(1) as Date).getTime()).to.equal(1);
-      expect((shellBson.ISODate(1, 2) as Date).getTime()).to.equal(-2172355200000);
-      expect((shellBson.ISODate(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
+      expect((shellBson.ISODate('2020-10-02')).getTime()).to.equal(1601596800000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50+00:00')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50+02:00')).getTime()).to.equal(1601627390000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50-02:00')).getTime()).to.equal(1601641790000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50Z')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('2020-10-02T10:29:50.124Z')).getTime()).to.equal(1601634590124);
+      expect((shellBson.ISODate('20201002T102950Z')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002T102950')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002T102950+0000')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002T102950-0000')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002T102950+0200')).getTime()).to.equal(1601627390000);
+      expect((shellBson.ISODate('20201002T102950-0200')).getTime()).to.equal(1601641790000);
+      expect((shellBson.ISODate('20201002 102950Z')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002 102950+0000')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002 102950+0200')).getTime()).to.equal(1601627390000);
+      expect((shellBson.ISODate('20201002 102950-0200')).getTime()).to.equal(1601641790000);
+      expect((shellBson.ISODate('20201002 102950')).getTime()).to.equal(1601634590000);
+      expect((shellBson.ISODate('20201002 102950.842')).getTime()).to.equal(1601634590842);
+    });
+    it('rejects non-ISO args', () => {
+      expect(() => shellBson.ISODate('1/4/1977')).to.throw('"1/4/1977" is not a valid ISODate');
+      expect(() => shellBson.ISODate('1-4-1977')).to.throw('"1-4-1977" is not a valid ISODate');
+      expect(() => shellBson.ISODate('9999-12-31T23:99:59.999Z')).to.throw('"9999-12-31T23:99:59.999Z" is not a valid ISODate');
+      expect(() => shellBson.ISODate('bah')).to.throw('"bah" is not a valid ISODate');
+      expect(() => shellBson.ISODate('"')).to.throw('"\\"" is not a valid ISODate');
     });
   });
   describe('BinData', () => {
