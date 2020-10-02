@@ -2,13 +2,15 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass, returnsPromise
 } from './decorators';
 
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { MongoshUnimplementedError } from '@mongosh/errors';
+import { assertArgsDefined, assertArgsType, getPrintableShardStatus } from './helpers';
+import { ADMIN_DB } from './enums';
+import { CommandResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -18,15 +20,6 @@ export default class Shard extends ShellApiClass {
   constructor(mongo) {
     super();
     this._mongo = mongo;
-    const proxy = new Proxy(this, {
-      get: (obj, prop): any => {
-        if (!(prop in obj)) {
-          throw new MongoshUnimplementedError('sh not currently supported');
-        }
-        return obj[prop];
-      }
-    });
-    return proxy;
   }
 
   /**
@@ -49,5 +42,42 @@ export default class Shard extends ShellApiClass {
       class: 'Shard',
       arguments: methodArguments
     });
+  }
+
+  @returnsPromise
+  async enableSharding(database: string, primaryShard?: string): Promise<any> {
+    assertArgsDefined(database);
+    this._emitShardApiCall('enableSharding', { database, primaryShard });
+
+    const cmd = {
+      enableSharding: database
+    } as any;
+    if (primaryShard !== undefined) {
+      cmd.primaryShard = primaryShard;
+    }
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+  }
+
+  @returnsPromise
+  async shardCollection(namespace: string, key: Document, unique?: boolean, options?: any): Promise<any> {
+    assertArgsDefined(namespace, key);
+    assertArgsType([namespace, key, options], ['string', 'object', 'object']);
+    this._emitShardApiCall('shardCollection', { namespace, key, unique, options });
+
+    const cmd = {
+      shardCollection: namespace,
+      key: key
+    } as any;
+    if (unique !== undefined) {
+      cmd.unique = unique;
+    }
+    const orderedCmd = options !== undefined ? { ...cmd, ...options } : cmd;
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+  }
+
+  @returnsPromise
+  async status(verbose = false): Promise<any> {
+    const result = await getPrintableShardStatus(this._mongo, verbose);
+    return new CommandResult('StatsResult', result);
   }
 }

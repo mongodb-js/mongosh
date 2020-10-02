@@ -1149,7 +1149,24 @@ const translations = {
       },
       Shard: {
         help: {
-          description: 'The Shard Class'
+          description: 'The Shard Class',
+          attributes: {
+            enableSharding: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.enableSharding',
+              description: 'Calls enableSharding for a sharded DB. uses the enableSharding command',
+              example: 'sh.enableSharding(database, primaryShard?)',
+            },
+            shardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.shardCollection',
+              description: 'Calls shardCollection for a sharded DB. uses the shardCollection command',
+              example: 'sh.shardCollection(namesapce, key, unique?, options?)',
+            },
+            status: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.status',
+              description: 'Prints a formatted report of the sharding configuration and the information regarding existing chunks in a sharded cluster. The default behavior suppresses the detailed chunk information if the total number of chunks is greater than or equal to 20.',
+              example: 'sh.status(verbose?)',
+            }
+          }
         }
       },
       Mongo: {

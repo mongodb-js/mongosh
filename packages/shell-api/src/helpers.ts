@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /**
  * Helper method to adapt aggregation pipeline options.
  * This is here so that it's not visible to the user.
@@ -7,6 +8,7 @@
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
+import Mongo from './mongo';
 
 export function adaptAggregateOptions(options: any = {}): {
   providerOptions: Document;
@@ -119,4 +121,323 @@ export function processDigestPassword(username, passwordDigestor, command): any 
     return { digestPassword: false, pwd: digested };
   }
   return { digestPassword: true };
+}
+
+
+/**
+ * Return an object which will become a ShardingStatusResult
+ * @param mongo
+ * @param configDB
+ * @param verbose
+ */
+export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): Promise<any> {
+  const result = {} as any; // use array to maintain order
+
+  // configDB is a DB object that contains the sharding metadata of interest.
+  // Defaults to the db named "config" on the current connection.
+  const configDB = mongo.getDB('config');
+  const mongosColl = configDB.getCollection('mongos');
+  const versionColl = configDB.getCollection('version');
+  const shardsColl = configDB.getCollection('shards');
+  const chunksColl = configDB.getCollection('chunks');
+  const settingsColl = configDB.getCollection('settings');
+  const changelogColl = configDB.getCollection('changelog');
+
+  const version = await versionColl.findOne();
+  if (version === null) {
+    throw new MongoshInvalidInputError('This db does not have sharding enabled.' +
+      ' be sure you are connecting to a mongos from the shell and not to a mongod.');
+  }
+
+  result.shardingVersion = version;
+
+  result.shards = await shardsColl.find().sort({ _id: 1 }).toArray();
+
+  // (most recently) active mongoses
+  const mongosActiveThresholdMs = 60000;
+  const mostRecentMongos = mongosColl.find().sort({ ping: -1 }).limit(1);
+  let mostRecentMongosTime = null;
+  let mongosAdjective = 'most recently active';
+  if (await mostRecentMongos.hasNext()) {
+    mostRecentMongosTime = (await mostRecentMongos.next()).ping;
+    // Mongoses older than the threshold are the most recent, but cannot be
+    // considered "active" mongoses. (This is more likely to be an old(er)
+    // configdb dump, or all the mongoses have been stopped.)
+    if (mostRecentMongosTime.getTime() >= Date.now() - mongosActiveThresholdMs) {
+      mongosAdjective = 'active';
+    }
+  }
+
+  mongosAdjective = `${mongosAdjective} mongoses`;
+  if (mostRecentMongosTime === null) {
+    result[mongosAdjective] = 'none';
+  } else {
+    const recentMongosQuery = {
+      ping: {
+        $gt: ((): any => {
+          const d = mostRecentMongosTime;
+          d.setTime(d.getTime() - mongosActiveThresholdMs);
+          return d;
+        })()
+      }
+    };
+
+    if (verbose) {
+      result[mongosAdjective] = await mongosColl
+        .find(recentMongosQuery)
+        .sort({ ping: -1 })
+        .toArray();
+    } else {
+      result[mongosAdjective] = (await (await mongosColl.aggregate([
+        { $match: recentMongosQuery },
+        { $group: { _id: '$mongoVersion', num: { $sum: 1 } } },
+        { $sort: { num: -1 } }
+      ])).toArray()).map((z) => {
+        const res = {};
+        res[z._id] = z.num;
+        return res;
+      });
+    }
+  }
+
+  // Is autosplit currently enabled
+  const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
+  result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
+
+  // Is the balancer currently enabled
+  const balancerRes = {};
+  const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
+  balancerRes['Currently enabled'] = balancerEnabled === null || !balancerEnabled.stopped ? 'yes' : 'no';
+
+  // Is the balancer currently active
+  let balancerRunning = 'unknown';
+  try {
+    const balancerStatus = await configDB.adminCommand({ balancerStatus: 1 });
+    balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
+  } catch (err) {
+    // pass, ignore all error messages
+  }
+  balancerRes['Currently running'] = balancerRunning;
+
+  // Output the balancer window
+  const settings = await settingsColl.findOne({ _id: 'balancer' });
+  if (settings !== null && settings.hasOwnProperty('activeWindow')) {
+    const balSettings = settings.activeWindow;
+    balancerRes['Balancer active window is set between'] = `${balSettings.start} and ${balSettings.stop} server local time`;
+  }
+
+  // Output the list of active migrations
+  const activeLocks = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
+  const activeMigrations = [];
+  if (activeLocks !== null) {
+    activeLocks.forEach((lock) => {
+      activeMigrations.push({ _id: lock._id, when: lock.when });
+    });
+  }
+
+  if (activeMigrations.length > 0) {
+    balancerRes['Collections with active migrations'] = activeMigrations.map((migration) => {
+      return `${migration._id} started at ${migration.when}`;
+    });
+  }
+
+  // Actionlog and version checking only works on 2.7 and greater
+  let versionHasActionlog = false;
+  const metaDataVersion = version.currentVersion;
+  if (metaDataVersion > 5) {
+    versionHasActionlog = true;
+  }
+  if (metaDataVersion === 5) {
+    const verArray = (await mongo._internalState.currentDb.serverBuildInfo()).versionArray;
+    if (verArray[0] === 2 && verArray[1] > 6) {
+      versionHasActionlog = true;
+    }
+  }
+
+  if (versionHasActionlog) {
+    // Review config.actionlog for errors
+    const balErrs = await configDB.getCollection('actionlog').find({ what: 'balancer.round' }).sort({ time: -1 }).limit(5).toArray();
+    const actionReport = { count: 0, lastErr: '', lastTime: ' ' };
+    if (balErrs !== null) {
+      balErrs.forEach((r) => {
+        if (r.details.errorOccured) {
+          actionReport.count += 1;
+          if (actionReport.count === 1) {
+            actionReport.lastErr = r.details.errmsg;
+            actionReport.lastTime = r.time;
+          }
+        }
+      });
+    }
+
+    // const actionReport = sh.getRecentFailedRounds(configDB);
+    // Always print the number of failed rounds
+    balancerRes['Failed balancer rounds in last 5 attempts'] = actionReport.count;
+
+    // Only print the errors if there are any
+    if (actionReport.count > 0) {
+      balancerRes['Last reported error'] = actionReport.lastErr;
+      balancerRes['Time of Reported error'] = actionReport.lastTime;
+    }
+
+    // const migrations = sh.getRecentMigrations(configDB);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+
+    // Successful migrations.
+    let migrations = await (await changelogColl
+      .aggregate([
+        {
+          $match: {
+            time: { $gt: yesterday },
+            what: 'moveChunk.from',
+            'details.errmsg': { $exists: false },
+            'details.note': 'success'
+          }
+        },
+        { $group: { _id: { msg: '$details.errmsg' }, count: { $sum: 1 } } },
+        { $project: { _id: { $ifNull: ['$_id.msg', 'Success'] }, count: '$count' } }
+      ]))
+      .toArray();
+
+    // Failed migrations.
+    migrations = migrations.concat(
+      await (await changelogColl
+        .aggregate([
+          {
+            $match: {
+              time: { $gt: yesterday },
+              what: 'moveChunk.from',
+              $or: [
+                { 'details.errmsg': { $exists: true } },
+                { 'details.note': { $ne: 'success' } }
+              ]
+            }
+          },
+          {
+            $group: {
+              _id: { msg: '$details.errmsg', from: '$details.from', to: '$details.to' },
+              count: { $sum: 1 }
+            }
+          },
+          {
+            $project: {
+              _id: { $ifNull: ['$_id.msg', 'aborted'] },
+              from: '$_id.from',
+              to: '$_id.to',
+              count: '$count'
+            }
+          }
+        ]))
+        .toArray());
+
+    const migrationsRes = {};
+    migrations.forEach((x) => {
+      if (x._id === 'Success') {
+        migrationsRes[x.count] = x._id;
+      } else {
+        migrationsRes[x.count] = `Failed with error '${x._id}', from ${x.from} to ${x.to}`;
+      }
+    });
+    if (migrations.length === 0) {
+      balancerRes['Migration Results for the last 24 hours'] = 'No recent migrations';
+    } else {
+      balancerRes['Migration Results for the last 24 hours'] = migrationsRes;
+    }
+  }
+
+  result.balancer = balancerRes;
+
+  const dbRes = [];
+  result.databases = dbRes;
+
+  const databases = await configDB.getCollection('databases').find().sort({ name: 1 }).toArray();
+
+  // Special case the config db, since it doesn't have a record in config.databases.
+  databases.push({ '_id': 'config', 'primary': 'config', 'partitioned': true });
+  databases.sort((a: any, b: any): any => {
+    return a._id > b._id;
+  });
+
+  for (const db of databases) {
+    const collList = {};
+
+    if (db.partitioned) {
+      const escapeRegex = (string): string => {
+        return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      };
+      const colls = await configDB.getCollection('collections')
+        .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') })
+        .sort({ _id: 1 })
+        .toArray();
+
+      for (const coll of colls) {
+        if (!coll.dropped) {
+          const collRes = {} as any;
+          collRes.shardKey = coll.key;
+          collRes.unique = !!coll.unique;
+          if (typeof coll.unique !== 'boolean' && typeof coll.unique !== 'undefined') {
+            collRes.unique = [ !!coll.unique, { unique: coll.unique } ];
+          }
+          collRes.balancing = !coll.noBalance;
+          if (typeof coll.noBalance !== 'boolean' && typeof coll.noBalance !== 'undefined') {
+            collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
+          }
+          const chunksRes = [];
+          const chunks = await
+          (await chunksColl.aggregate({ $match: { ns: coll._id } },
+            { $group: { _id: '$shard', cnt: { $sum: 1 } } },
+            { $project: { _id: 0, shard: '$_id', nChunks: '$cnt' } },
+            { $sort: { shard: 1 } })
+          ).toArray();
+          let totalChunks = 0;
+          chunks.forEach((z) => {
+            totalChunks += z.nChunks;
+            collRes.chunkMetadata = { shard: z.shard, nChunks: z.nChunks };
+          });
+
+          // NOTE: this will return the chunk info as a string, and will print ugly BSON
+          if (totalChunks < 20 || verbose) {
+            (await chunksColl.find({ 'ns': coll._id })
+              .sort({ min: 1 }).toArray())
+              .forEach((chunk) => {
+                const c = [
+                  JSON.stringify(chunk.min),
+                  '-->>',
+                  JSON.stringify(chunk.max),
+                  'on',
+                  JSON.stringify(chunk.shard),
+                  JSON.stringify(chunk.lastmod)
+                ];
+                if (chunk.jumbo) c.push('jumbo');
+                chunksRes.push(c.join(' '));
+              });
+          } else {
+            chunksRes.push('too many chunks to print, use verbose if you want to force print');
+          }
+
+          const tagsRes = [];
+          (await configDB.getCollection('tags')
+            .find({ ns: coll._id })
+            .sort({ min: 1 })
+            .toArray())
+            .forEach((tag) => {
+              const t = [
+                tag.tag,
+                tag.min,
+                ' -->> ',
+                tag.max
+              ];
+              tagsRes.push(t.join(' '));
+            });
+          collRes.chunks = chunksRes;
+          collRes.tags = tagsRes;
+          collList[coll._id] = collRes;
+        }
+      }
+      dbRes.push({ database: db, collections: collList });
+    }
+  }
+  return result;
 }
