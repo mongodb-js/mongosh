@@ -1457,40 +1457,42 @@ export default class Collection extends ShellApiClass {
     const totals = { numChunks: 0, size: 0, count: 0 };
     const conciseShardsStats = [];
 
-    for (const extShardStats of collStats) {
-      // Extract and store only the relevant subset of the stats for this shard
-      const shardStats = {
-        shardId: extShardStats.shard,
-        host: (await config.getCollection('shards').findOne({ _id: extShardStats.shard })).host,
-        size: extShardStats.storageStats.size,
-        count: extShardStats.storageStats.count,
-        numChunks:
-          await config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard }),
-        avgObjSize: extShardStats.storageStats.avgObjSize
-      };
+    await Promise.all(collStats.map((extShardStats) => (
+      (async() => {
+        // Extract and store only the relevant subset of the stats for this shard
+        const shardStats = {
+          shardId: extShardStats.shard,
+          host: (await config.getCollection('shards').findOne({ _id: extShardStats.shard })).host,
+          size: extShardStats.storageStats.size,
+          count: extShardStats.storageStats.count,
+          numChunks:
+            await config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard }),
+          avgObjSize: extShardStats.storageStats.avgObjSize
+        };
 
-      const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
+        const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
-      const estChunkData =
-        (shardStats.numChunks === 0) ? 0 : (shardStats.size / shardStats.numChunks);
-      const estChunkCount =
-        (shardStats.numChunks === 0) ? 0 : Math.floor(shardStats.count / shardStats.numChunks);
+        const estChunkData =
+          (shardStats.numChunks === 0) ? 0 : (shardStats.size / shardStats.numChunks);
+        const estChunkCount =
+          (shardStats.numChunks === 0) ? 0 : Math.floor(shardStats.count / shardStats.numChunks);
 
-      result[key] = {
-        data: dataFormat(shardStats.size),
-        docs: shardStats.count,
-        chunks: shardStats.numChunks,
-        'estimated data per chunk': dataFormat(estChunkData),
-        'estimated docs per chunk': estChunkCount
-      };
+        result[key] = {
+          data: dataFormat(shardStats.size),
+          docs: shardStats.count,
+          chunks: shardStats.numChunks,
+          'estimated data per chunk': dataFormat(estChunkData),
+          'estimated docs per chunk': estChunkCount
+        };
 
 
-      totals.size += shardStats.size;
-      totals.count += shardStats.count;
-      totals.numChunks += shardStats.numChunks;
+        totals.size += shardStats.size;
+        totals.count += shardStats.count;
+        totals.numChunks += shardStats.numChunks;
 
-      conciseShardsStats.push(shardStats);
-    }
+        conciseShardsStats.push(shardStats);
+      })()
+    )));
 
     const totalValue = {
       data: dataFormat(totals.size),
@@ -1498,18 +1500,21 @@ export default class Collection extends ShellApiClass {
       chunks: totals.numChunks
     } as any;
 
-    for (const shardStats of conciseShardsStats) {
-      const estDataPercent =
-        (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
-      const estDocPercent =
-        (totals.count === 0) ? 0 : (Math.floor(shardStats.count / totals.count * 10000) / 100);
+    // for (const shardStats of conciseShardsStats) {
+    await Promise.all(conciseShardsStats.map((shardStats) => (
+      (async() => {
+        const estDataPercent =
+          (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
+        const estDocPercent =
+          (totals.count === 0) ? 0 : (Math.floor(shardStats.count / totals.count * 10000) / 100);
 
-      totalValue[`Shard ${shardStats.shardId}`] = [
-        `${estDataPercent} % data`,
-        `${estDocPercent} % docs in cluster`,
-        `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
-      ];
-    }
+        totalValue[`Shard ${shardStats.shardId}`] = [
+          `${estDataPercent} % data`,
+          `${estDocPercent} % docs in cluster`,
+          `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
+        ];
+      })()
+    )));
     result.Totals = totalValue;
     return new CommandResult('StatsResult', result);
   }
