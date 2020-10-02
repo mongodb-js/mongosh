@@ -273,7 +273,7 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await shard.addShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Are you connected to version > 3.4?');
+        expect(catchedError.message).to.include('> 3.4');
       });
     });
     describe('updateZoneKeyRange', () => {
@@ -367,7 +367,7 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Are you connected to version > 3.4?');
+        expect(catchedError.message).to.include('> 3.4');
       });
     });
   });
