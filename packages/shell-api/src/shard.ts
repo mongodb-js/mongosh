@@ -2,15 +2,16 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass, returnsPromise
+  ShellApiClass, returnsPromise, serverVersions
 } from './decorators';
 
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { assertArgsDefined, assertArgsType, getPrintableShardStatus } from './helpers';
-import { ADMIN_DB } from './enums';
+import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
+import { ADMIN_DB, ServerVersions } from './enums';
 import { CommandResult } from './result';
+import { MongoshCommandFailed } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -79,5 +80,47 @@ export default class Shard extends ShellApiClass {
   async status(verbose = false): Promise<any> {
     const result = await getPrintableShardStatus(this._mongo, verbose);
     return new CommandResult('StatsResult', result);
+  }
+
+  @returnsPromise
+  async addShard(url: string): Promise<any> {
+    assertArgsDefined(url);
+    this._emitShardApiCall('addShard', { url });
+    return this._mongo._serviceProvider.runCommand(ADMIN_DB, {
+      addShard: url
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async addShardToZone(shard: string, zone: string): Promise<any> {
+    assertArgsDefined(shard, zone);
+    this._emitShardApiCall('addShardToZone', { shard, zone });
+    await getConfigDB(this._mongo); // error if not connected to mongos
+    return this._mongo._serviceProvider.runCommand(ADMIN_DB, {
+      addShardToZone: shard,
+      zone: zone
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest]) // we don't support earlier versions which had different behavior
+  async addShardTag(shard: string, tag: string): Promise<any> {
+    const result = await this.addShardToZone(shard, tag);
+    if (result.code != ErrorCodes.CommandNotFound) {
+      return result;
+    }
+
+    const configDB = await getConfigDB(this._mongo);
+    const shards = configDB.getCollection('shards');
+    const doc = await shards.findOne({ _id: shard });
+    if (doc === null || doc === undefined) {
+      throw new MongoshCommandFailed(`Can't find a shard with name: ${shard}`);
+    }
+    return shards.update(
+      { _id: shard },
+      { $addToSet: { tags: tag } },
+      { writeConcern: { w: 'majority', wtimeout: 60000 } }
+    );
   }
 }
