@@ -3,7 +3,7 @@ import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { signatures } from './decorators';
-import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, asShellResult, shellApiType } from './enums';
+import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, asShellResult, shellApiType, ADMIN_DB } from './enums';
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';
@@ -1083,6 +1083,33 @@ describe('Collection', () => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await collection.mapReduce(mapFn, reduceFn, { out: { inline: 1 } })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getShardVersion', () => {
+      it('calls serviceProvider.runCommand on the database with options', async() => {
+        await collection.getShardVersion();
+
+        expect(serviceProvider.runCommand).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            getShardVersion: `${database._name}.${collection._name}`
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves(expectedResult);
+        const result = await collection.getShardVersion();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommand.rejects(expectedError);
+        const catchedError = await collection.getShardVersion()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });

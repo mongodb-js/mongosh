@@ -559,12 +559,22 @@ const translations = {
             validate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.validate',
               description: 'Calls the validate command. Default full value is false',
-              example: 'db.validate(<full>)'
+              example: 'db.coll.validate(<full>)'
             },
             mapReduce: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.mapReduce',
               description: 'Calls the mapReduce command',
-              example: 'db.mapReduce(mapFn, reduceFn, options)'
+              example: 'db.coll.mapReduce(mapFn, reduceFn, options)'
+            },
+            getShardVersion: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getShardVersion',
+              description: 'Calls the getShardVersion command',
+              example: 'db.coll.getShardVersion()'
+            },
+            getShardDistribution: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getShardDistribution',
+              description: 'Prints the data distribution statistics for a sharded collection.',
+              example: 'db.coll.getShardDistribution()'
             }
           }
         }
@@ -1097,6 +1107,11 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getLastErrorObj',
               description: 'Calls the getLastError command',
               example: 'db.getLastErrorObj(<w>, <wTimeout>, <j>)'
+            },
+            printShardingStatus: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.printShardingStatus',
+              description: 'Calls sh.status(verbose)',
+              example: 'db.printShardingStatus(verbose?)'
             }
           }
         }

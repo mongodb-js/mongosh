@@ -14,7 +14,7 @@ import {
   adaptAggregateOptions,
   adaptOptions,
   assertArgsDefined,
-  assertKeysDefined,
+  assertKeysDefined, getPrintableShardStatus,
   processDigestPassword
 } from './helpers';
 
@@ -976,5 +976,12 @@ export default class Database extends ShellApiClass {
     this._emitDatabaseApiCall('getLastError', { w: w, wTimeout: wTimeout });
     const result = await this.getLastErrorObj(w, wTimeout);
     return result.err || null;
+  }
+
+  @returnsPromise
+  async printShardingStatus(verbose = false): Promise<any> {
+    this._emitDatabaseApiCall('printShardingStatus', { verbose });
+    const result = await getPrintableShardStatus(this._mongo, verbose);
+    return new CommandResult('StatsResult', result);
   }
 }
