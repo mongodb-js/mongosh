@@ -3,10 +3,13 @@ import sinon from 'ts-sinon';
 import { signatures } from './decorators';
 import AggregationCursor from './aggregation-cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
 describe('AggregationCursor', () => {
   describe('help', () => {
-    const apiClass: any = new AggregationCursor({}, {});
+    const apiClass: any = new AggregationCursor({
+      _serviceProvider: { platform: ReplPlatform.CLI }
+    }, {});
     it('calls help function', async() => {
       expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
       expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
@@ -36,7 +39,9 @@ describe('AggregationCursor', () => {
         map: sinon.spy(),
         isClosed: (): boolean => true
       };
-      cursor = new AggregationCursor({}, wrappee);
+      cursor = new AggregationCursor({
+        _serviceProvider: { platform: ReplPlatform.CLI }
+      }, wrappee);
     });
 
     it('sets dynamic properties', async() => {

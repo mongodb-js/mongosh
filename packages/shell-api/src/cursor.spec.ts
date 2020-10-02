@@ -1,7 +1,7 @@
 import { signatures } from './decorators';
 import Cursor from './cursor';
 import { Cursor as ServiceProviderCursor } from 'mongodb';
-import { CursorFlag } from '@mongosh/service-provider-core';
+import { CursorFlag, ReplPlatform } from '@mongosh/service-provider-core';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions, asShellResult } from './enums';
 import sinon, { SinonStubbedInstance } from 'sinon';
 import chai from 'chai';
@@ -11,7 +11,9 @@ const { expect } = chai;
 
 describe('Cursor', () => {
   describe('help', () => {
-    const apiClass: any = new Cursor({}, {});
+    const apiClass: any = new Cursor({
+      _serviceProvider: { platform: ReplPlatform.CLI }
+    }, {});
     it('calls help function', async() => {
       expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
       expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
@@ -41,7 +43,9 @@ describe('Cursor', () => {
         map: sinon.spy(),
         isClosed: (): boolean => true
       };
-      cursor = new Cursor({}, wrappee);
+      cursor = new Cursor({
+        _serviceProvider: { platform: ReplPlatform.CLI }
+      }, wrappee);
     });
 
     it('sets dynamic properties', async() => {
