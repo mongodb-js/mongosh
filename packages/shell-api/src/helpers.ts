@@ -453,3 +453,20 @@ export async function getConfigDB(mongo: Mongo): Promise<any> {
   }
   return mongo.getDB('config');
 }
+
+export function dataFormat(bytes): string {
+  if (bytes === null || bytes === undefined) {
+    return '0B';
+  }
+
+  if (bytes < 1024) {
+    return Math.floor(bytes) + 'B';
+  }
+  if (bytes < 1024 * 1024) {
+    return Math.floor(bytes / 1024) + 'KiB';
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    return Math.floor((Math.floor(bytes / 1024) / 1024) * 100) / 100 + 'MiB';
+  }
+  return Math.floor((Math.floor(bytes / (1024 * 1024)) / 1024) * 100) / 100 + 'GiB';
+}

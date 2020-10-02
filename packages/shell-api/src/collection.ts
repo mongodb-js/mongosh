@@ -8,12 +8,19 @@ import {
   returnType,
   serverVersions
 } from './decorators';
-import { ServerVersions } from './enums';
-import { adaptAggregateOptions, validateExplainableVerbosity, assertArgsDefined, assertKeysDefined } from './helpers';
+import { ADMIN_DB, ServerVersions } from './enums';
+import {
+  adaptAggregateOptions,
+  validateExplainableVerbosity,
+  assertArgsDefined,
+  assertKeysDefined,
+  dataFormat
+} from './helpers';
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
   Cursor,
+  CommandResult,
   Database,
   Explainable,
   BulkWriteResult,
@@ -1417,5 +1424,98 @@ export default class Collection extends ShellApiClass {
         full: full
       }
     );
+  }
+
+  @returnsPromise
+  async getShardVersion(): Promise<any> {
+    this._emitCollectionApiCall('getShardVersion', {});
+    return await this._mongo._serviceProvider.runCommand(
+      ADMIN_DB,
+      {
+        getShardVersion: `${this._database._name}.${this._name}`
+      }
+    );
+  }
+
+  @returnsPromise
+  async getShardDistribution(): Promise<any> {
+    this._emitCollectionApiCall('getShardDistribution', {});
+
+    const result = {} as any;
+    const config = this._mongo.getDB('config');
+
+    const isSharded = !!(await config.getCollection('collections').countDocuments({
+      _id: `${this._database._name}.${this._name}`,
+      dropped: false
+    }));
+    if (!isSharded) {
+      throw new MongoshInvalidInputError(`Collection ${this._name} is not sharded`);
+    }
+
+    const collStats = await (await this.aggregate({ '$collStats': { storageStats: {} } })).toArray();
+
+    const totals = { numChunks: 0, size: 0, count: 0 };
+    const conciseShardsStats = [];
+
+    await Promise.all(collStats.map((extShardStats) => (
+      (async() => {
+        // Extract and store only the relevant subset of the stats for this shard
+        const shardStats = {
+          shardId: extShardStats.shard,
+          host: (await config.getCollection('shards').findOne({ _id: extShardStats.shard })).host,
+          size: extShardStats.storageStats.size,
+          count: extShardStats.storageStats.count,
+          numChunks:
+            await config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard }),
+          avgObjSize: extShardStats.storageStats.avgObjSize
+        };
+
+        const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
+
+        const estChunkData =
+          (shardStats.numChunks === 0) ? 0 : (shardStats.size / shardStats.numChunks);
+        const estChunkCount =
+          (shardStats.numChunks === 0) ? 0 : Math.floor(shardStats.count / shardStats.numChunks);
+
+        result[key] = {
+          data: dataFormat(shardStats.size),
+          docs: shardStats.count,
+          chunks: shardStats.numChunks,
+          'estimated data per chunk': dataFormat(estChunkData),
+          'estimated docs per chunk': estChunkCount
+        };
+
+
+        totals.size += shardStats.size;
+        totals.count += shardStats.count;
+        totals.numChunks += shardStats.numChunks;
+
+        conciseShardsStats.push(shardStats);
+      })()
+    )));
+
+    const totalValue = {
+      data: dataFormat(totals.size),
+      docs: totals.count,
+      chunks: totals.numChunks
+    } as any;
+
+    // for (const shardStats of conciseShardsStats) {
+    await Promise.all(conciseShardsStats.map((shardStats) => (
+      (async() => {
+        const estDataPercent =
+          (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
+        const estDocPercent =
+          (totals.count === 0) ? 0 : (Math.floor(shardStats.count / totals.count * 10000) / 100);
+
+        totalValue[`Shard ${shardStats.shardId}`] = [
+          `${estDataPercent} % data`,
+          `${estDocPercent} % docs in cluster`,
+          `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
+        ];
+      })()
+    )));
+    result.Totals = totalValue;
+    return new CommandResult('StatsResult', result);
   }
 }
