@@ -1205,7 +1205,32 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addTagRange',
               description: '3.4+ only. Calls addTagRange for a sharded DB. uses the updateZoneKeyRange command',
               example: 'sh.addTagRange(ns, min, max, zone)',
-            }
+            },
+            enableAutoSplit: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.enableAutoSplit',
+              description: 'Calls update on the config.settings collection',
+              example: 'sh.enableAutoSplit()',
+            },
+            disableAutoSplit: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.disableAutoSplit',
+              description: 'Calls update on the config.settings collection',
+              example: 'sh.disableAutoSplit()',
+            },
+            splitAt: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.splitAt',
+              description: 'Splits a chunk at the shard key value specified by the query. Uses the split command',
+              example: 'sh.splitAt(ns, query)',
+            },
+            splitFind: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.splitFind',
+              description: 'Splits a chunk at the shard key value specified by the query at the median. Uses the split command',
+              example: 'sh.splitFind(ns, query)',
+            },
+            moveChunk: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.moveChunk',
+              description: 'Moves the chunk that contains the document specified by the query to the destination shard. uses the moveChunk command',
+              example: 'sh.moveChunk(ns, query, destination)',
+            },
           }
         }
       },
