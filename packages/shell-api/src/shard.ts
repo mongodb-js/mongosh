@@ -215,4 +215,61 @@ export default class Shard extends ShellApiClass {
       throw error;
     }
   }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async enableAutoSplit(): Promise<any> {
+    assertArgsDefined();
+    this._emitShardApiCall('enableAutoSplit', {});
+    const config = await getConfigDB(this._mongo);
+    return await config.getCollection('settings').updateOne(
+      { _id: 'autosplit' },
+      { $set: { enabled: true } },
+      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+    );
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async disableAutoSplit(): Promise<any> {
+    assertArgsDefined();
+    this._emitShardApiCall('disableAutoSplit', {});
+    const config = await getConfigDB(this._mongo);
+    return await config.getCollection('settings').updateOne(
+      { _id: 'autosplit' },
+      { $set: { enabled: false } },
+      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+    );
+  }
+
+  @returnsPromise
+  async splitAt(ns: string, query: Document): Promise<any> {
+    assertArgsDefined(ns, query);
+    this._emitShardApiCall('splitAt', { ns, query });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      split: ns,
+      middle: query
+    });
+  }
+
+  @returnsPromise
+  async splitFind(ns: string, query: Document): Promise<any> {
+    assertArgsDefined(ns, query);
+    this._emitShardApiCall('splitFind', { ns, query });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      split: ns,
+      find: query
+    });
+  }
+
+  @returnsPromise
+  async moveChunk(ns: string, query: Document, destination: string): Promise<any> {
+    assertArgsDefined(ns, query);
+    this._emitShardApiCall('moveChunk', { ns, query, destination });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      moveChunk: ns,
+      find: query,
+      to: destination
+    });
+  }
 }
