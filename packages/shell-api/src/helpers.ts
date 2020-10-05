@@ -231,7 +231,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
         balancerRes['Balancer active window is set between'] = `${balSettings.start} and ${balSettings.stop} server local time`;
       }
     })(),
-    (async() => {
+    (async(): Promise<void> => {
       // Output the list of active migrations
       const activeLocks = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
       const activeMigrations = [];
