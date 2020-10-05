@@ -121,6 +121,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardTag(shard: string, tag: string): Promise<any> {
+    this._emitShardApiCall('addShardTag', { shard, tag });
     try {
       return await this.addShardToZone(shard, tag);
     } catch (error) {
@@ -149,7 +150,7 @@ export default class Shard extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
     assertArgsDefined(namespace, min, max, zone);
-    this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
+    this._emitShardApiCall('addTagRange', { namespace, min, max, zone });
 
     await getConfigDB(this._mongo); // will error if not connected to mongos
     try {
@@ -162,6 +163,54 @@ export default class Shard extends ShellApiClass {
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
+      }
+      throw error;
+    }
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<any> {
+    this._emitShardApiCall('removeRangeFromZone', { ns, min, max });
+    return this.updateZoneKeyRange(ns, min, max, null);
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async removeTagRange(ns: string, min: Document, max: Document): Promise<any> {
+    this._emitShardApiCall('removeTagRange', { ns, min, max });
+    try {
+      return await this.updateZoneKeyRange(ns, min, max, null);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
+      }
+      throw error;
+    }
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async removeShardFromZone(shard: string, zone: string): Promise<any> {
+    assertArgsDefined(shard, zone);
+    this._emitShardApiCall('removeShardFromZone', { shard, zone });
+
+    await getConfigDB(this._mongo); // will error if not connected to mongos
+    return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      removeShardFromZone: shard,
+      zone: zone
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['3.4.0', ServerVersions.latest])
+  async removeShardTag(shard: string, tag: string): Promise<any> {
+    this._emitShardApiCall('removeTagRange', { shard, tag });
+    try {
+      return await this.removeShardFromZone(shard, tag);
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to removeShardFromZone which exists only for server versions > 3.4.`;
       }
       throw error;
     }

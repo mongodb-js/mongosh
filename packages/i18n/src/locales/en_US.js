@@ -1203,8 +1203,28 @@ const translations = {
             },
             addTagRange: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addTagRange',
-              description: '3.4+ only. Calls addTagRange for a sharded DB. uses the updateZoneKeyRange command',
+              description: '3.4+ only. Adds a tag range for a sharded DB. uses the updateZoneKeyRange command',
               example: 'sh.addTagRange(ns, min, max, zone)',
+            },
+            removeRangeFromZone: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.removeRangeFromZone',
+              description: '3.4+ only. Removes range from zone for a sharded DB. uses the updateZoneKeyRange command',
+              example: 'sh.removeRangeFromZone(ns, min, max)',
+            },
+            removeTagRange: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.removeTagRange',
+              description: '3.4+ only. Removes tag range for a sharded DB. uses the updateZoneKeyRange command',
+              example: 'sh.removeTagRange(ns, min, max)',
+            },
+            removeShardFromZone: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.removeShardFromZone',
+              description: '3.4+ only. Removes shard from zone for a sharded DB. uses the removeShardFromZone command',
+              example: 'sh.removeShardFromZone(shard, zone)',
+            },
+            removeShardTag: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.removeShardTag',
+              description: 'Removes a shard tag for a sharded DB. uses the removeShardFromZone command',
+              example: 'sh.removeShardTag(shard, zone)',
             }
           }
         }

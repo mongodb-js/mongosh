@@ -1458,7 +1458,7 @@ export default class Collection extends ShellApiClass {
     const conciseShardsStats = [];
 
     await Promise.all(collStats.map((extShardStats) => (
-      (async() => {
+      (async(): Promise<void> => {
         // Extract and store only the relevant subset of the stats for this shard
         const shardStats = {
           shardId: extShardStats.shard,
@@ -1502,7 +1502,7 @@ export default class Collection extends ShellApiClass {
 
     // for (const shardStats of conciseShardsStats) {
     await Promise.all(conciseShardsStats.map((shardStats) => (
-      (async() => {
+      (async(): Promise<void> => {
         const estDataPercent =
           (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
         const estDocPercent =
