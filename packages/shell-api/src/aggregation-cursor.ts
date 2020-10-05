@@ -5,7 +5,8 @@ import {
   returnType,
   hasAsyncChild,
   ShellApiClass,
-  ShellResult
+  ShellResult,
+  resultSource
 } from './decorators';
 import {
   Cursor as ServiceProviderCursor,
@@ -47,7 +48,8 @@ export default class AggregationCursor extends ShellApiClass {
   async [asShellResult](): Promise<ShellResult> {
     return {
       type: 'AggregationCursor',
-      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable()
+      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable(),
+      source: this[resultSource] ?? undefined
     };
   }
 
