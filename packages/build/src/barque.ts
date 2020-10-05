@@ -14,7 +14,7 @@ import path from 'path';
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
 
-const LATEST_CURATOR =
+export const LATEST_CURATOR =
   'https://s3.amazonaws.com/boxes.10gen.com/build/curator/curator-dist-ubuntu1604-latest.tar.gz';
 
 // make sure everything written in /tmp is cleared if an uncaught exception occurs
