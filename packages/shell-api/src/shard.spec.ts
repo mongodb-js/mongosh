@@ -7,6 +7,7 @@ import Mongo from './mongo';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
+import { UpdateResult } from './result';
 
 describe('Shard', () => {
   describe('help', () => {
@@ -556,6 +557,210 @@ describe('Shard', () => {
         const catchedError = await shard.removeShardTag('shard', 'tag')
           .catch(e => e);
         expect(catchedError.message).to.include('> 3.4');
+      });
+    });
+    describe('enableAutoSplit', () => {
+      it('calls serviceProvider.update', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.enableAutoSplit();
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'autosplit' },
+          { $set: { enabled: true } },
+          { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.enableAutoSplit();
+        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const catchedError = await shard.enableAutoSplit()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        const catchedError = await shard.enableAutoSplit()
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('disableAutoSplit', () => {
+      it('calls serviceProvider.update', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.disableAutoSplit();
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'autosplit' },
+          { $set: { enabled: false } },
+          { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.disableAutoSplit();
+        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const catchedError = await shard.disableAutoSplit()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        const catchedError = await shard.disableAutoSplit()
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('splitAt', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.splitAt('ns', { query: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            split: 'ns',
+            middle: {
+              query: 1
+            }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.splitAt('ns', { query: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.splitAt('ns', { query: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('splitFind', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.splitFind('ns', { query: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            split: 'ns',
+            find: {
+              query: 1
+            }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.splitFind('ns', { query: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.splitFind('ns', { query: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('moveChunk', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.moveChunk('ns', { query: 1 }, 'destination');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            moveChunk: 'ns', find: { query: 1 }, to: 'destination'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.moveChunk('ns', { query: 1 }, 'destination');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.moveChunk('ns', { query: 1 }, 'destination')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
       });
     });
   });
