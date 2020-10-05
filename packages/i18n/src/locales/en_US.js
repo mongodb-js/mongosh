@@ -1251,6 +1251,47 @@ const translations = {
               description: 'Moves the chunk that contains the document specified by the query to the destination shard. uses the moveChunk command',
               example: 'sh.moveChunk(ns, query, destination)',
             },
+            balancerCollectionStatus: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.balancerCollectionStatus',
+              description: 'Gets the balancer collection status for a sharded DB. Uses the balancerCollectionStatus command',
+              example: 'sh.balancerCollectionStatus(ns)',
+            },
+            enableBalancing: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.enableBalancing',
+              description: 'Enable balancing',
+              example: 'sh.enableBalancing(ns)',
+            },
+            disableBalancing: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.disableBalancing',
+              description: 'disable balancing',
+              example: 'sh.disableBalancing(ns)',
+            },
+            getBalancerState: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.getBalancerState',
+              description: 'Enables or disables the balancer. Starting in MongoDB 4.2, the method also enables auto-splitting if enabling the balancer and disables auto-splitting if disabling the balancer. ' +
+                'Use sh.getBalancerState() to determine if the balancer is currently enabled or disabled and sh.isBalancerRunning() to check its current state.',
+              example: 'sh.getBalancerState()',
+            },
+            isBalancerRunning: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.isBalancerRunning',
+              description: 'Returns true if the balancer process is currently running and migrating chunks and false if the balancer process is not running. Uses the balancerStatus command',
+              example: 'sh.isBalancerRunning()',
+            },
+            startBalancer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.startBalancer',
+              description: 'Calls startBalancer for a sharded DB. uses the balancerStart command',
+              example: 'sh.startBalancer(timeout)',
+            },
+            stopBalancer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.stopBalancer',
+              description: 'Calls stopBalancer for a sharded DB. uses the balancerStop command',
+              example: 'sh.stopBalancer(timeout)',
+            },
+            setBalancerState: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.setBalancerState',
+              description: 'Calls sh.startBalancer if state is true, otherwise calls sh.stopBalancer',
+              example: 'sh.setBalancerState(state)',
+            }
           }
         }
       },
