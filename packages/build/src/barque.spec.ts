@@ -1,4 +1,6 @@
-import { Barque } from './barque';
+import nock from 'nock';
+import fetch from 'node-fetch';
+import { Barque, LATEST_CURATOR } from './barque';
 import { expect } from 'chai';
 import Config from './config';
 import sinon from 'sinon';
@@ -163,8 +165,32 @@ describe('Barque', () => {
     });
   });
 
+  describe('LATEST_CURATOR', () => {
+    it('can be downloaded', async() => {
+      const response = await fetch(LATEST_CURATOR, {
+        method: 'HEAD'
+      });
+
+      expect(response.ok).to.be.true;
+    });
+  });
+
   describe('.extractLatestCurator', () => {
-    it('extractss latest curator to tmp directory', async() => {
+    beforeEach(() => {
+      nock.cleanAll();
+      const latestCuratorUrl = new URL(LATEST_CURATOR);
+      nock(latestCuratorUrl.origin)
+        .get(latestCuratorUrl.pathname)
+        .replyWithFile(200, path.join(__dirname, '..', 'examples', 'fake-curator.tar.gz'), {
+          'Content-Type': 'application/gzip'
+        });
+    });
+
+    afterEach(() => {
+      expect(nock.isDone(), 'HTTP calls to link urls were not done').to.be.true;
+    });
+
+    it('extracts latest curator to tmp directory', async() => {
       const curatorDirPath = await barque.createCuratorDir();
       const curatorPath = path.join(curatorDirPath, 'curator');
 
