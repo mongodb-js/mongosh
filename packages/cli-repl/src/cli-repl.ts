@@ -16,7 +16,7 @@ import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
 import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
-import logger from './logger';
+import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import mkdirp from 'mkdirp';
 import clr from './clr';
 import path from 'path';
@@ -50,25 +50,25 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
+    this.bus = new Nanobus('mongosh');
+
     this.verifyNodeVersion();
     this.options = options;
-    this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
-    this.lineByLineInput = new LineByLineInput(process.stdin);
 
+    this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
     this.createMongoshDir();
 
-    this.bus = new Nanobus('mongosh');
-    logger(this.bus, this.mongoshDir);
+    setupLoggerAndTelemetry(this.bus, this.mongoshDir);
 
     this.generateOrReadTelemetryConfig();
+
+    this.lineByLineInput = new LineByLineInput(process.stdin);
 
     if (this.isPasswordMissing(driverOptions)) {
       this.requirePassword(driverUri, driverOptions);
     } else {
       this.setupRepl(driverUri, driverOptions).catch((error) => {
-        this.bus.emit('mongosh:error', error);
-        console.log(formatError(error));
-        return process.exit();
+        return this._fatalError(error);
       });
     }
   }
@@ -245,8 +245,7 @@ class CliRepl {
     try {
       mkdirp.sync(this.mongoshDir);
     } catch (e) {
-      this.bus.emit('mongosh:error', e);
-      throw e;
+      this._fatalError(e);
     }
   }
 
@@ -367,8 +366,7 @@ class CliRepl {
     const baseNodeVersion = process.version.replace(/-.*$/, '');
     if (!semver.satisfies(baseNodeVersion, engines.node)) {
       const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`);
-      console.warn(formatError(warning));
-      process.exit(1);
+      this._fatalError(warning);
     }
   }
 
@@ -416,9 +414,7 @@ class CliRepl {
 
       driverOptions.auth.password = password;
       this.setupRepl(driverUri, driverOptions).catch((e) => {
-        this.bus.emit('mongosh:error', e);
-        console.log(formatError(e));
-        return process.exit();
+        this._fatalError(e);
       });
     });
   }
@@ -461,6 +457,15 @@ class CliRepl {
         Domain.prototype.emit = origEmit;
       }
     };
+  }
+
+  private _fatalError(error: any): void {
+    if (this.bus) {
+      this.bus.emit('mongosh:error', error);
+    }
+
+    console.error(formatError(error));
+    return process.exit(1);
   }
 }
 

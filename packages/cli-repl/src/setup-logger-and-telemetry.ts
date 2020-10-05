@@ -57,7 +57,7 @@ function NoopAnalytics(): void {}
 NoopAnalytics.prototype.identify = function(): void {};
 NoopAnalytics.prototype.track = function(): void {};
 
-export default function logger(bus: any, logDir: string): void {
+export default function setupLoggerAndTelemetry(bus: any, logDir: string): void {
   const session_id = new bson.ObjectId(Date.now()).toString();
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
@@ -70,7 +70,7 @@ export default function logger(bus: any, logDir: string): void {
     // this file gets written as a part of a release
     analytics = new Analytics(require('./analytics-config.js').SEGMENT_API_KEY);
   } catch (e) {
-    bus.emit('mongosh:error', e);
+    log.error(e);
   }
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
@@ -100,7 +100,6 @@ export default function logger(bus: any, logDir: string): void {
     if (telemetry) analytics.identify({ userId });
     log.info('mongosh:update-user', { enableTelemetry });
   });
-
 
   bus.on('mongosh:error', function(error: any) {
     log.error(error);
