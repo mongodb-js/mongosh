@@ -1643,6 +1643,13 @@ const translations = {
             }
           }
         }
+      },
+      Document: {
+        help: {
+          link: 'https://docs.mongodb.com/manual/core/document/',
+          description: 'A generic MongoDB document, without any methods.',
+          attributes: {}
+        }
       }
     }
   },

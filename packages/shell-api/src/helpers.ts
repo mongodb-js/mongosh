@@ -477,3 +477,12 @@ export function tsToSeconds(x): number {
   }
   return x / 4294967296; // low 32 bits are ordinal #s within a second
 }
+
+export function addHiddenDataProperty(target: object, key: string|symbol, value: any): void {
+  Object.defineProperty(target, key, {
+    value,
+    enumerable: false,
+    writable: true,
+    configurable: true
+  });
+}

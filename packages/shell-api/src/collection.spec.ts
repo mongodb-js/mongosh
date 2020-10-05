@@ -1114,5 +1114,67 @@ describe('Collection', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+
+    describe('return information about the collection as metadata', async() => {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+
+      beforeEach(() => {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.hasNext.resolves(true);
+        serviceProviderCursor.next.resolves({ _id: 'abc' });
+      });
+
+      it('works for find()', async() => {
+        serviceProvider.find.returns(serviceProviderCursor);
+        const cursor = await collection.find();
+        const result = await cursor[asShellResult]();
+        expect(result.type).to.equal('Cursor');
+        expect(result.value.length).to.not.equal(0);
+        expect(result.value[0]._id).to.equal('abc');
+        expect(result.source).to.deep.equal({
+          arguments: [],
+          call: 'find',
+          namespace: {
+            db: 'db1',
+            collection: 'coll1'
+          }
+        });
+      });
+
+      it('works for findOne()', async() => {
+        serviceProvider.find.returns(serviceProviderCursor);
+        const document = await collection.findOne({ hasBanana: true });
+        const result = await (document as any)[asShellResult]();
+        expect(result.type).to.equal('Document');
+        expect(result.value._id).to.equal('abc');
+        expect(result.source).to.deep.equal({
+          arguments: [ { hasBanana: true } ],
+          call: 'findOne',
+          namespace: {
+            db: 'db1',
+            collection: 'coll1'
+          }
+        });
+      });
+
+      it('works for getIndexes()', async() => {
+        const fakeIndex = { v: 2, key: { _id: 1 }, name: '_id_' };
+        serviceProvider.getIndexes.resolves([fakeIndex]);
+
+        const indexResult = await collection.getIndexes();
+        const result = await (indexResult as any)[asShellResult]();
+        expect(result.type).to.equal(null);
+        expect(result.value).to.deep.equal([ fakeIndex ]);
+        expect(result.source).to.deep.equal({
+          arguments: [],
+          call: 'getIndexes',
+          namespace: {
+            db: 'db1',
+            collection: 'coll1'
+          }
+        });
+      });
+    });
   });
 });

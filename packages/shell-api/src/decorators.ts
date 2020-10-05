@@ -9,6 +9,13 @@ import {
   asShellResult
 } from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
+import { addHiddenDataProperty } from './helpers';
+
+const addSourceToResultsSymbol = Symbol('@@mongosh.addSourceToResults');
+// The custom [asShellResult]() methods in Cursor and AggregationCursor require
+// this, but ideally, this symbol would be local to this file.
+export const resultSource = Symbol('@@mongosh.resultSource');
+export const namespaceInfo = Symbol('@@mongosh.namespaceInfo');
 
 export interface ShellApiInterface {
   [asShellResult]: Function;
@@ -19,9 +26,21 @@ export interface ShellApiInterface {
   [key: string]: any;
 }
 
+export interface Namespace {
+  db: string;
+  collection: string;
+}
+
+export interface ShellResultSourceInformation {
+  namespace: Namespace;
+  call: string;
+  arguments: any[];
+}
+
 export interface ShellResult {
   value: any;
   type: string;
+  source?: ShellResultSourceInformation;
 }
 
 export class ShellApiClass implements ShellApiInterface {
@@ -32,6 +51,55 @@ export class ShellApiClass implements ShellApiInterface {
   _asPrintable(): any {
     return Object.assign({}, this);
   }
+}
+
+// For classes like Collection, it can be useful to attach information to the
+// result about the original data source, so that downstream consumers of the
+// shell can e.g. figure out how to edit a document returned from the shell.
+// To that end, we wrap the methods of a class, and report back how the
+// result was generated.
+// We also attach the `shellApiType` and `asShellResult` properties to the
+// return type (if that is possible and they are not already present), so that
+// we can also provide sensible information for methods that do not return
+// shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
+// JavaScript object).
+function wrapWithAddSourceToResult(fn: Function, functionName: string): Function {
+  function addSource<T extends {}>(result: T, obj: any, args: any[]): T {
+    if (typeof result === 'object' && result !== null) {
+      const resultSourceInformation: ShellResultSourceInformation = {
+        namespace: obj[namespaceInfo](),
+        call: functionName,
+        arguments: args
+      };
+      addHiddenDataProperty(result, resultSource, resultSourceInformation);
+      if (result[shellApiType] === undefined && (fn as any).returnType) {
+        addHiddenDataProperty(result, shellApiType, (fn as any).returnType);
+      }
+      if (result[asShellResult] === undefined) {
+        addHiddenDataProperty(
+          result, asShellResult, async function(): Promise<ShellResult> {
+            return {
+              // Report { type: null } if the type is not available to match
+              // what the shell evaluator does when it encounters values
+              // that do not provide [asShellResult]().
+              type: this[shellApiType] || null,
+              value: this,
+              source: this[resultSource]
+            };
+          });
+      }
+    }
+    return result;
+  }
+  const wrapper = (fn as any).returnsPromise ?
+    async function(...args): Promise<any> {
+      return addSource(await fn.call(this, ...args), this, args);
+    } : function(...args): any {
+      return addSource(fn.call(this, ...args), this, args);
+    };
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
+  return wrapper;
 }
 
 interface TypeSignature {
@@ -51,6 +119,7 @@ if (!global[signaturesGlobalIdentifier]) {
 }
 
 const signatures: Signatures = global[signaturesGlobalIdentifier];
+signatures.Document = { type: 'Document', attributes: {} };
 
 export const toIgnore = [asShellResult, '_asPrintable', 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
@@ -77,6 +146,10 @@ export function shellApiClassDefault(constructor: Function): void {
       toIgnore.includes(propertyName) ||
       propertyName.startsWith('_')
     ) continue;
+
+    if ((constructor as any)[addSourceToResultsSymbol]) {
+      descriptor.value = wrapWithAddSourceToResult(descriptor.value, propertyName);
+    }
 
     descriptor.value.serverVersions = descriptor.value.serverVersions || ALL_SERVER_VERSIONS;
     descriptor.value.topologies = descriptor.value.topologies || ALL_TOPOLOGIES;
@@ -151,7 +224,8 @@ export function shellApiClassDefault(constructor: Function): void {
     constructor.prototype[asShellResult] = async function(): Promise<ShellResult> {
       return {
         type: className,
-        value: await this._asPrintable()
+        value: await this._asPrintable(),
+        source: this[resultSource] ?? undefined
       };
     };
   }
@@ -209,4 +283,7 @@ export function classPlatforms(platformsArray: any[]): Function {
   return function(constructor: Function): void {
     constructor.prototype.platforms = platformsArray;
   };
+}
+export function addSourceToResults(constructor: Function): void {
+  (constructor as any)[addSourceToResultsSymbol] = true;
 }

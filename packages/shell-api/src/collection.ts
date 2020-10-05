@@ -6,7 +6,10 @@ import {
   ShellApiClass,
   returnsPromise,
   returnType,
-  serverVersions
+  serverVersions,
+  Namespace,
+  namespaceInfo,
+  addSourceToResults
 } from './decorators';
 import { ADMIN_DB, ServerVersions } from './enums';
 import {
@@ -36,6 +39,7 @@ import PlanCache from './plan-cache';
 
 @shellApiClassDefault
 @hasAsyncChild
+@addSourceToResults
 export default class Collection extends ShellApiClass {
   _mongo: Mongo;
   _database: any; // to avoid circular ref
@@ -62,6 +66,10 @@ export default class Collection extends ShellApiClass {
       }
     });
     return proxy;
+  }
+
+  [namespaceInfo](): Namespace {
+    return { db: this._database.getName(), collection: this._name };
   }
 
   /**
@@ -408,6 +416,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Cursor} The promise of the cursor.
    */
   @returnsPromise
+  @returnType('Document')
   async findOne(query = {}, projection?): Promise<Document> {
     const options: any = {};
     if (projection) {
@@ -467,6 +476,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Document} The promise of the result.
    */
   @returnsPromise
+  @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndDelete(filter, options = {}): Promise<Document> {
     assertArgsDefined(filter);
@@ -496,6 +506,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Document} The promise of the result.
    */
   @returnsPromise
+  @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndReplace(filter, replacement, options = {}): Promise<any> {
     assertArgsDefined(filter);
@@ -531,6 +542,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Document} The promise of the result.
    */
   @returnsPromise
+  @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndUpdate(filter, update, options = {}): Promise<any> {
     assertArgsDefined(filter);

@@ -7,7 +7,8 @@ import {
   serverVersions,
   ShellApiClass,
   shellApiClassDefault,
-  ShellResult
+  ShellResult,
+  resultSource
 } from './decorators';
 import { asShellResult, ServerVersions } from './enums';
 import {
@@ -33,7 +34,8 @@ export default class Cursor extends ShellApiClass {
   async [asShellResult](): Promise<ShellResult> {
     return {
       type: 'Cursor',
-      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable()
+      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable(),
+      source: this[resultSource] ?? undefined
     };
   }
 
