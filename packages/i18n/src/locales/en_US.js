@@ -1221,6 +1221,11 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.printSlaveReplicationInfo',
               description: 'DEPRECATED. Use rs.printSecondaryReplicationInfo',
               example: 'rs.printSlaveReplicationInfo()',
+            },
+            printReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.printReplicationInfo',
+              description: 'Calls db.printReplicationInfo',
+              example: 'rs.printReplicationInfo()',
             }
           }
         }
