@@ -85,7 +85,7 @@ describe('ReplicaSet', () => {
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            replSetInitiate: undefined
+            replSetInitiate: {}
           }
         );
       });

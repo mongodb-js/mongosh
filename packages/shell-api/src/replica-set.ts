@@ -27,7 +27,7 @@ export default class ReplicaSet extends ShellApiClass {
    * @param config
    */
   @returnsPromise
-  async initiate(config?: any): Promise<any> {
+  async initiate(config = {}): Promise<any> {
     this._emitReplicaSetApiCall('initiate', { config });
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, { replSetInitiate: config });
   }
@@ -50,7 +50,7 @@ export default class ReplicaSet extends ShellApiClass {
    *  @param options
    */
   @returnsPromise
-  async reconfig(config: any, options?: any): Promise<any> {
+  async reconfig(config: any, options = {}): Promise<any> {
     assertArgsDefined(config);
     assertArgsType([ config, options ], ['object', 'object']);
     this._emitReplicaSetApiCall('reconfig', { config, options });
@@ -59,7 +59,7 @@ export default class ReplicaSet extends ShellApiClass {
 
     config.version = conf.version ? conf.version + 1 : 1;
     const cmd = { replSetReconfig: config };
-    const reconfigCmd = options !== undefined ? { ...cmd, ...options } : cmd;
+    const reconfigCmd = { ...cmd, ...options };
 
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, reconfigCmd);
   }
@@ -74,8 +74,8 @@ export default class ReplicaSet extends ShellApiClass {
   /**
    * internal helper for emitting replicaset api call events.
    *
-   * @param methodname
-   * @param methodarguments
+   * @param methodName
+   * @param methodArguments
    * @private
    */
   private _emitReplicaSetApiCall(methodName: string, methodArguments: Document = {}): void {
