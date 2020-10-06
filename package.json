@@ -98,7 +98,7 @@
     "mocha": "^7.1.2",
     "mongodb-js-precommit": "^2.0.0",
     "mongodb-runner": "^4.7.5",
-    "node-codesign": "github:addaleax/node-codesign",
+    "node-codesign": "^0.3.0",
     "node-fetch": "^2.6.1",
     "parcel-bundler": "^1.12.4",
     "pkg-deb": "^1.1.1",
