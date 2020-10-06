@@ -2,13 +2,15 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass,
+  returnsPromise
 } from './decorators';
 
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { MongoshUnimplementedError } from '@mongosh/errors';
+import { ADMIN_DB } from './enums';
+import { assertArgsDefined, assertArgsType } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -18,15 +20,49 @@ export default class ReplicaSet extends ShellApiClass {
   constructor(mongo) {
     super();
     this._mongo = mongo;
-    const proxy = new Proxy(this, {
-      get: (obj, prop): any => {
-        if (!(prop in obj)) {
-          throw new MongoshUnimplementedError('rs not currently supported');
-        }
-        return obj[prop];
-      }
-    });
-    return proxy;
+  }
+
+  /**
+   *  rs.initiate calls replSetInitiate admin command.
+   *
+   * @param config
+   */
+  @returnsPromise
+  async initiate(config = {}): Promise<any> {
+    this._emitReplicaSetApiCall('initiate', { config });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, { replSetInitiate: config });
+  }
+
+  /**
+   *  rs.config calls replSetReconfig admin command.
+   *
+   *  Returns a document that contains the current replica set configuration.
+   */
+  @returnsPromise
+  async config(): Promise<any> {
+    this._emitReplicaSetApiCall('config', {});
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, { replSetReconfig: 1 });
+  }
+
+  /**
+   *  rs.reconfig calls replSetReconfig admin command.
+   *
+   *  @param config
+   *  @param options
+   */
+  @returnsPromise
+  async reconfig(config: any, options = {}): Promise<any> {
+    assertArgsDefined(config);
+    assertArgsType([ config, options ], ['object', 'object']);
+    this._emitReplicaSetApiCall('reconfig', { config, options });
+
+    const conf = await this.config();
+
+    config.version = conf.version ? conf.version + 1 : 1;
+    const cmd = { replSetReconfig: config };
+    const reconfigCmd = { ...cmd, ...options };
+
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, reconfigCmd);
   }
 
   /**
