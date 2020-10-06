@@ -2,7 +2,8 @@ import Mongo from './mongo';
 import {
   shellApiClassDefault,
   hasAsyncChild,
-  ShellApiClass, returnsPromise
+  ShellApiClass,
+  returnsPromise
 } from './decorators';
 
 import {
@@ -72,7 +73,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   /**
-   * internal helper for emitting replicaset api call events.
+   * Internal helper for emitting ReplicaSet API call events.
    *
    * @param methodName
    * @param methodArguments
