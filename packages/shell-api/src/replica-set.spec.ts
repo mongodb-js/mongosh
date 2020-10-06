@@ -482,5 +482,108 @@ describe('ReplicaSet', () => {
         expect(catchedError.name).to.equal('MongoshInvalidInputError');
       });
     });
+    describe('freeze', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await rs.freeze(100);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetFreeze: 100
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.freeze(100);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.freeze(100)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('syncFrom', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await rs.syncFrom('localhost:27017');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetSyncFrom: 'localhost:27017'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.syncFrom('localhost:27017');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.syncFrom('localhost:27017')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('stepDown', () => {
+      it('calls serviceProvider.runCommandWithCheck without any arg', async() => {
+        await rs.stepDown();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetStepDown: 60
+          }
+        );
+      });
+      it('calls serviceProvider.runCommandWithCheck without second optional arg', async() => {
+        await rs.stepDown(10);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetStepDown: 10
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        await rs.stepDown(10, 30);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetStepDown: 10,
+            secondaryCatchUpPeriodSecs: 30
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.stepDown(10);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.stepDown(10)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
   });
 });
