@@ -33,8 +33,6 @@ export interface Namespace {
 
 export interface ShellResultSourceInformation {
   namespace: Namespace;
-  call: string;
-  arguments: any[];
 }
 
 export interface ShellResult {
@@ -63,13 +61,11 @@ export class ShellApiClass implements ShellApiInterface {
 // we can also provide sensible information for methods that do not return
 // shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
 // JavaScript object).
-function wrapWithAddSourceToResult(fn: Function, functionName: string): Function {
-  function addSource<T extends {}>(result: T, obj: any, args: any[]): T {
+function wrapWithAddSourceToResult(fn: Function): Function {
+  function addSource<T extends {}>(result: T, obj: any): T {
     if (typeof result === 'object' && result !== null) {
       const resultSourceInformation: ShellResultSourceInformation = {
         namespace: obj[namespaceInfo](),
-        call: functionName,
-        arguments: args
       };
       addHiddenDataProperty(result, resultSource, resultSourceInformation);
       if (result[shellApiType] === undefined && (fn as any).returnType) {
@@ -93,9 +89,9 @@ function wrapWithAddSourceToResult(fn: Function, functionName: string): Function
   }
   const wrapper = (fn as any).returnsPromise ?
     async function(...args): Promise<any> {
-      return addSource(await fn.call(this, ...args), this, args);
+      return addSource(await fn.call(this, ...args), this);
     } : function(...args): any {
-      return addSource(fn.call(this, ...args), this, args);
+      return addSource(fn.call(this, ...args), this);
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
@@ -148,7 +144,7 @@ export function shellApiClassDefault(constructor: Function): void {
     ) continue;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {
-      descriptor.value = wrapWithAddSourceToResult(descriptor.value, propertyName);
+      descriptor.value = wrapWithAddSourceToResult(descriptor.value);
     }
 
     descriptor.value.serverVersions = descriptor.value.serverVersions || ALL_SERVER_VERSIONS;
