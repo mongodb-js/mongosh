@@ -11,7 +11,7 @@ import {
 } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
 
 @shellApiClassDefault
@@ -112,6 +112,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
+    this._emitReplicaSetApiCall('printSecondaryReplicationInfo', {});
     return this._mongo._internalState.currentDb.printSecondaryReplicationInfo();
   }
 
@@ -122,7 +123,84 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async printReplicationInfo(): Promise<CommandResult> {
+    this._emitReplicaSetApiCall('printReplicationInfo', {});
     return this._mongo._internalState.currentDb.printReplicationInfo();
+  }
+
+  @returnsPromise
+  async add(hostport: string | Document, arb?: boolean): Promise<any> {
+    assertArgsDefined(hostport);
+    this._emitReplicaSetApiCall('add', { hostport, arb });
+
+    const local = this._mongo.getDB('local');
+    if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
+      throw new MongoshRuntimeError('local.system.replset has unexpected contents');
+    }
+    const configDoc = await local.getCollection('system.replset').findOne();
+    if (configDoc === undefined || configDoc === null) {
+      throw new MongoshRuntimeError('no config object retrievable from local.system.replset');
+    }
+
+    configDoc.version++;
+
+    const max = Math.max(...configDoc.members.map(m => m._id));
+    let cfg;
+    if (typeof hostport === 'string') {
+      cfg = { _id: max + 1, host: hostport };
+      if (arb) {
+        cfg.arbiterOnly = true;
+      }
+    } else if (arb === true) {
+      throw new MongoshInvalidInputError(`Expected first parameter to be a host-and-port string of arbiter, but got ${JSON.stringify(hostport)}`);
+    } else {
+      cfg = hostport;
+      if (cfg._id === null || cfg._id === undefined) {
+        cfg._id = max + 1;
+      }
+    }
+
+    configDoc.members.push(cfg);
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      {
+        replSetReconfig: configDoc,
+      }
+    );
+  }
+
+  @returnsPromise
+  async addArb(hostname: string): Promise<void> {
+    this._emitReplicaSetApiCall('addArb', { hostname });
+    return this.add(hostname, true);
+  }
+
+  @returnsPromise
+  async remove(hostname: string): Promise<void> {
+    assertArgsDefined(hostname);
+    assertArgsType([hostname], ['string']);
+    this._emitReplicaSetApiCall('remove', { hostname });
+    const local = this._mongo.getDB('local');
+    if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
+      throw new MongoshRuntimeError('local.system.replset has unexpected contents');
+    }
+    const configDoc = await local.getCollection('system.replset').findOne();
+    if (configDoc === null || configDoc === undefined) {
+      throw new MongoshRuntimeError('no config object retrievable from local.system.replset');
+    }
+    configDoc.version++;
+
+    for (let i = 0; i < configDoc.members.length; i++) {
+      if (configDoc.members[i].host === hostname) {
+        configDoc.members.splice(i, 1);
+        return this._mongo._serviceProvider.runCommandWithCheck(
+          ADMIN_DB,
+          {
+            replSetReconfig: configDoc,
+          }
+        );
+      }
+    }
+    throw new MongoshInvalidInputError(`Couldn't find ${hostname} in ${JSON.stringify(configDoc.members)}. Is ${hostname} a member of this replset?`);
   }
 
   /**

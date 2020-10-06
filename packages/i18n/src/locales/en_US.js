@@ -1226,6 +1226,21 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.printReplicationInfo',
               description: 'Calls db.printReplicationInfo',
               example: 'rs.printReplicationInfo()',
+            },
+            add: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.add',
+              description: 'Adds replica set member to replica set.',
+              example: 'rs.add(hostport, arbiterOnly?)',
+            },
+            addArb: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.addArb',
+              description: 'Calls rs.add with arbiterOnly=true',
+              example: 'rs.addArb(hostname)',
+            },
+            remove: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.remove',
+              description: 'Removes a replica set member.',
+              example: 'rs.remove(hostname)',
             }
           }
         }
