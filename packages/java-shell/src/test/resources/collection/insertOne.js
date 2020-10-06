@@ -1,7 +1,7 @@
 // before
 db.coll.remove({});
 // command
-db.coll.insertOne({
+const res = db.coll.insertOne({
     a: 1,
     objectId: new ObjectId('5ebaf064121756574a9767cf'),
     maxKey: new MaxKey(),
@@ -12,6 +12,10 @@ db.coll.insertOne({
     numberInt: NumberInt("24"),
     timestamp: new Timestamp(0, 100)
 });
+// command
+res
+// command
+res.acknowledged
 // command
 db.coll.find();
 // clear

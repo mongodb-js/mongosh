@@ -6,10 +6,17 @@ import {
   returnType,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  ShellResult
 } from './decorators';
-import { ServerVersions } from './enums';
-import { Cursor as ServiceProviderCursor, CursorFlag, CURSOR_FLAGS, Document } from '@mongosh/service-provider-core';
+import { asShellResult, ServerVersions } from './enums';
+import {
+  Cursor as ServiceProviderCursor,
+  CursorFlag,
+  CURSOR_FLAGS,
+  Document,
+  ReplPlatform
+} from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
@@ -21,6 +28,13 @@ export default class Cursor extends ShellApiClass {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
+  }
+
+  async [asShellResult](): Promise<ShellResult> {
+    return {
+      type: 'Cursor',
+      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable()
+    };
   }
 
   /**

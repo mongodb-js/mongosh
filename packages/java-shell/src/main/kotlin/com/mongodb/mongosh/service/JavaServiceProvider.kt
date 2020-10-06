@@ -17,6 +17,10 @@ import java.io.Closeable
 @Suppress("NAME_SHADOWING")
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
 
+    @JvmField
+    @HostAccess.Export
+    val platform = 3
+
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
         getDatabase(database, null).map { db ->
@@ -25,6 +29,22 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             } else {
                 context.toJs(db.runCommand(toDocument(spec, "spec")))
             }
+        }
+    }
+
+    @HostAccess.Export
+    override fun runCommandWithCheck(database: String, spec: Value): Value = promise {
+        getDatabase(database, null).map { db ->
+            val res = if (spec.isString) {
+                db.runCommand(Document(spec.asString(), 1))
+            } else {
+                db.runCommand(toDocument(spec, "spec"))
+            }
+            val isOk = res["ok"] == 1.0
+            if (!isOk) {
+                throw Exception(res.toJson())
+            }
+            context.toJs(res)
         }
     }
 

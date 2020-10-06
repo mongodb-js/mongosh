@@ -99,18 +99,6 @@ class InsertManyResult(val acknowledged: Boolean, val insertedIds: List<String>)
         get() = mapOf("acknowledged" to acknowledged, "insertedIds" to insertedIds)
 }
 
-class CollectionResult internal constructor(override val value: MongoShellCollection) : MongoShellResult<MongoShellCollection>() {
-    override fun _asPrintable() = value._asPrintable()
-}
-
-class DatabaseResult internal constructor(override val value: MongoShellDatabase) : MongoShellResult<MongoShellDatabase>() {
-    override fun _asPrintable() = value._asPrintable()
-
-    override fun toString(): String {
-        return "${javaClass.simpleName}(${value._asPrintable().quote()})"
-    }
-}
-
 class DeleteResult(val acknowledged: Boolean, val deletedCount: Long) : MongoShellResult<Map<String, Any>>() {
     override val value: Map<String, Any>
         get() = mapOf("acknowledged" to acknowledged, "deletedCount" to deletedCount)
@@ -131,11 +119,6 @@ class BulkWriteResult(val acknowledged: Boolean,
                 "deletedCount" to deletedCount,
                 "upsertedCount" to upsertedCount,
                 "upsertedIds" to upsertedIds)
-}
-
-class CommandResult(val type: String, val response: Any?) : MongoShellResult<Map<String, Any?>>() {
-    override val value: Map<String, Any?>
-        get() = Document("type", type).append("value", response)
 }
 
 abstract class CursorResult<T : Cursor<*>>(override val value: T) : MongoShellResult<T>()

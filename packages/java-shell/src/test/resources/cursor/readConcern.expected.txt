@@ -1,1 +1,1 @@
-org.graalvm.polyglot.PolyglotException: TypeError: (intermediate value).coll.find(...).readConcern is not a function
+org.graalvm.polyglot.PolyglotException: Error: Setting readConcern on the cursor is not currently supported. See NODE-2806

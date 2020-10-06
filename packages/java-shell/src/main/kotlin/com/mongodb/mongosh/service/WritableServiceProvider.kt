@@ -4,6 +4,7 @@ import org.graalvm.polyglot.Value
 
 internal interface WritableServiceProvider {
     fun runCommand(database: String, spec: Value): Value
+    fun runCommandWithCheck(database: String, spec: Value): Value
     fun dropDatabase(database: String, writeConcern: Value?, dbOptions: Value?): Value
     fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value
     fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value

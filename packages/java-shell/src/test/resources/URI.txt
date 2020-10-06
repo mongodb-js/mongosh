@@ -1,1 +1,1 @@
-mongodb://localhost:27017
+mongodb://admin:admin@localhost:27017
