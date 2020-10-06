@@ -1236,12 +1236,12 @@ const translations = {
           attributes: {
             enableSharding: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.enableSharding',
-              description: 'Calls enableSharding for a sharded DB. uses the enableSharding command',
+              description: 'Enables sharding on a specific database. Uses the enableSharding command',
               example: 'sh.enableSharding(database, primaryShard?)',
             },
             shardCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.shardCollection',
-              description: 'Calls shardCollection for a sharded DB. uses the shardCollection command',
+              description: 'Enables sharding for a collection. Uses the shardCollection command',
               example: 'sh.shardCollection(namesapce, key, unique?, options?)',
             },
             status: {
@@ -1251,62 +1251,62 @@ const translations = {
             },
             addShard: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addShard',
-              description: 'Calls addShard for a sharded DB. uses the addShard command',
+              description: 'Adds a shard to a sharded cluster. Uses the addShard command',
               example: 'sh.addShard(url)',
             },
             addShardToZone: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addShardToZone',
-              description: 'Calls addShardToZone for a sharded DB. uses the addShardToZone command',
+              description: 'Associates a shard to a zone. Uses the addShardToZone command',
               example: 'sh.addShardToZone(shard, zone)',
             },
             addShardTag: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addShardTag',
-              description: '3.4+ only. Calls addShardTag for a sharded DB. uses the addShardToZone command',
+              description: '3.4+ only. Calls addShardTag for a sharded DB. Aliases to sh.addShardToZone().',
               example: 'sh.addShardTag(shard, tag)',
             },
             updateZoneKeyRange: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.updateZoneKeyRange',
-              description: 'Calls updateZoneKeyRange for a sharded DB. uses the updateZoneKeyRange command',
+              description: 'Associates a range of shard keys to a zone. Uses the updateZoneKeyRange command',
               example: 'sh.updateZoneKeyRange(ns, min, max, zone)',
             },
             addTagRange: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.addTagRange',
-              description: '3.4+ only. Adds a tag range for a sharded DB. uses the updateZoneKeyRange command',
+              description: '3.4+ only. Adds a tag range for a sharded DB. This method aliases to sh.updateZoneKeyRange()',
               example: 'sh.addTagRange(ns, min, max, zone)',
             },
             removeRangeFromZone: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.removeRangeFromZone',
-              description: '3.4+ only. Removes range from zone for a sharded DB. uses the updateZoneKeyRange command',
+              description: '3.4+ only. Removes an association between a range of shard keys and a zone.',
               example: 'sh.removeRangeFromZone(ns, min, max)',
             },
             removeTagRange: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.removeTagRange',
-              description: '3.4+ only. Removes tag range for a sharded DB. uses the updateZoneKeyRange command',
+              description: '3.4+ only. Removes tag range for a sharded DB. Aliases to sh.removeRangeFromZone',
               example: 'sh.removeTagRange(ns, min, max)',
             },
             removeShardFromZone: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.removeShardFromZone',
-              description: '3.4+ only. Removes shard from zone for a sharded DB. uses the removeShardFromZone command',
+              description: '3.4+ only. Removes the association between a shard and a zone. Uses the removeShardFromZone command',
               example: 'sh.removeShardFromZone(shard, zone)',
             },
             removeShardTag: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.removeShardTag',
-              description: 'Removes a shard tag for a sharded DB. uses the removeShardFromZone command',
+              description: '3.4+ only. Removes a shard tag for a sharded DB. Aliases to sh.removeShardFromZone',
               example: 'sh.removeShardTag(shard, zone)',
             },
             enableAutoSplit: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.enableAutoSplit',
-              description: 'Calls update on the config.settings collection',
+              description: 'Enables auto-splitting for the sharded cluster. Calls update on the config.settings collection',
               example: 'sh.enableAutoSplit()',
             },
             disableAutoSplit: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.disableAutoSplit',
-              description: 'Calls update on the config.settings collection',
+              description: 'Disables auto-splitting for the sharded cluster. Calls update on the config.settings collection',
               example: 'sh.disableAutoSplit()',
             },
             splitAt: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.splitAt',
-              description: 'Splits a chunk at the shard key value specified by the query. Uses the split command',
+              description: 'Divides an existing chunk into two chunks using a specific value of the shard key as the dividing point. Uses the split command',
               example: 'sh.splitAt(ns, query)',
             },
             splitFind: {
@@ -1316,9 +1316,49 @@ const translations = {
             },
             moveChunk: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.moveChunk',
-              description: 'Moves the chunk that contains the document specified by the query to the destination shard. uses the moveChunk command',
+              description: 'Moves the chunk that contains the document specified by the query to the destination shard. Uses the moveChunk command',
               example: 'sh.moveChunk(ns, query, destination)',
             },
+            balancerCollectionStatus: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.balancerCollectionStatus',
+              description: 'Returns information on whether the chunks of a sharded collection are balanced. Uses the balancerCollectionStatus command',
+              example: 'sh.balancerCollectionStatus(ns)',
+            },
+            enableBalancing: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.enableBalancing',
+              description: 'Activates the sharded collection balancer process.',
+              example: 'sh.enableBalancing(ns)',
+            },
+            disableBalancing: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.disableBalancing',
+              description: 'Disable balancing on a single collection in a sharded database. Does not affect balancing of other collections in a sharded cluster.',
+              example: 'sh.disableBalancing(ns)',
+            },
+            getBalancerState: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.getBalancerState',
+              description: 'Returns true when the balancer is enabled and false if the balancer is disabled. This does not reflect the current state of balancing operations: use sh.isBalancerRunning() to check the balancer’s current state.',
+              example: 'sh.getBalancerState()',
+            },
+            isBalancerRunning: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.isBalancerRunning',
+              description: 'Returns true if the balancer process is currently running and migrating chunks and false if the balancer process is not running. Uses the balancerStatus command',
+              example: 'sh.isBalancerRunning()',
+            },
+            startBalancer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.startBalancer',
+              description: 'Enables the balancer. Uses the balancerStart command',
+              example: 'sh.startBalancer(timeout)',
+            },
+            stopBalancer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.stopBalancer',
+              description: 'Disables the balancer. uses the balancerStop command',
+              example: 'sh.stopBalancer(timeout)',
+            },
+            setBalancerState: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.setBalancerState',
+              description: 'Calls sh.startBalancer if state is true, otherwise calls sh.stopBalancer',
+              example: 'sh.setBalancerState(state)',
+            }
           }
         }
       },

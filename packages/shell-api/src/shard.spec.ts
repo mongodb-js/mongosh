@@ -4,7 +4,7 @@ import Shard from './shard';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
 import { signatures } from './decorators';
 import Mongo from './mongo';
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import { UpdateResult } from './result';
@@ -560,7 +560,7 @@ describe('Shard', () => {
       });
     });
     describe('enableAutoSplit', () => {
-      it('calls serviceProvider.update', async() => {
+      it('calls serviceProvider.updateOne', async() => {
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = {
           matchedCount: 1,
@@ -614,7 +614,7 @@ describe('Shard', () => {
       });
     });
     describe('disableAutoSplit', () => {
-      it('calls serviceProvider.update', async() => {
+      it('calls serviceProvider.updateOne', async() => {
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = {
           matchedCount: 1,
@@ -759,6 +759,324 @@ describe('Shard', () => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await shard.moveChunk('ns', { query: 1 }, 'destination')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('balancerCollectionStatus', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        await shard.balancerCollectionStatus('ns');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerCollectionStatus: 'ns'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.balancerCollectionStatus('ns');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.balancerCollectionStatus('ns')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('disableBalancing', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.disableBalancing('ns');
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'collections',
+          { _id: 'ns' },
+          { $set: { noBalance: true } },
+          { writeConcern: { w: 'majority', wtimeout: 60000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.disableBalancing('ns');
+        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const catchedError = await shard.disableBalancing('ns')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        const catchedError = await shard.disableBalancing('ns')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('enableBalancing', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.enableBalancing('ns');
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'collections',
+          { _id: 'ns' },
+          { $set: { noBalance: false } },
+          { writeConcern: { w: 'majority', wtimeout: 60000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: 0,
+          result: { ok: 1 }
+        };
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.enableBalancing('ns');
+        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const catchedError = await shard.enableBalancing('ns')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        const catchedError = await shard.enableBalancing('ns')
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('getBalancerState', () => {
+      it('returns whatever serviceProvider.find returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { stopped: true };
+        const findCursor = stubInterface<ServiceProviderCursor>();
+        findCursor.next.resolves(expectedResult);
+        serviceProvider.find.returns(findCursor);
+        const result = await shard.getBalancerState();
+        expect(serviceProvider.find).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'balancer' },
+          {}
+        );
+        expect(result).to.deep.equal(!expectedResult.stopped);
+      });
+
+      it('throws if serviceProvider.find rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.find.throws(expectedError);
+        const catchedError = await shard.getBalancerState()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.find.resolves(expectedResult);
+        const catchedError = await shard.getBalancerState()
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('isBalancerRunning', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        await shard.isBalancerRunning();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStatus: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.isBalancerRunning();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.isBalancerRunning()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const catchedError = await shard.isBalancerRunning()
+          .catch(e => e);
+        expect(catchedError.message).to.include('Not connected to a mongos');
+      });
+    });
+    describe('startBalancer', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        await shard.startBalancer(10000);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStart: 1, maxTimeMS: 10000
+          }
+        );
+      });
+      it('calls serviceProvider.runCommandWithCheck with no arg', async() => {
+        await shard.startBalancer();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStart: 1, maxTimeMS: 60000
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.startBalancer(10000);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.startBalancer(10000)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('stopBalancer', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        await shard.stopBalancer(10000);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStop: 1, maxTimeMS: 10000
+          }
+        );
+      });
+      it('calls serviceProvider.runCommandWithCheck with no arg', async() => {
+        await shard.stopBalancer();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStop: 1, maxTimeMS: 60000
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.stopBalancer(10000);
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.stopBalancer(10000)
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('setBalancerState', () => {
+      it('calls serviceProvider.runCommandWithCheck with arg=true', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.setBalancerState(true);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStart: 1, maxTimeMS: 60000
+          }
+        );
+        expect(result).to.deep.equal(expectedResult);
+      });
+      it('calls serviceProvider.runCommandWithCheck with arg=false', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.setBalancerState(false);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            balancerStop: 1, maxTimeMS: 60000
+          }
+        );
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.setBalancerState(true)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });

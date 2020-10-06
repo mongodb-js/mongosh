@@ -99,6 +99,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async addShard(url: string): Promise<any> {
     assertArgsDefined(url);
+    assertArgsType([url], ['string']);
     await getConfigDB(this._mongo);
     this._emitShardApiCall('addShard', { url });
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
@@ -110,6 +111,7 @@ export default class Shard extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardToZone(shard: string, zone: string): Promise<any> {
     assertArgsDefined(shard, zone);
+    assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('addShardToZone', { shard, zone });
     await getConfigDB(this._mongo); // will error if not connected to mongos
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
@@ -135,6 +137,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
     assertArgsDefined(namespace, min, max, zone);
+    assertArgsType([namespace, min, max], ['string', 'object', 'object']);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
     await getConfigDB(this._mongo); // will error if not connected to mongos
@@ -193,6 +196,7 @@ export default class Shard extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardFromZone(shard: string, zone: string): Promise<any> {
     assertArgsDefined(shard, zone);
+    assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
 
     await getConfigDB(this._mongo); // will error if not connected to mongos
@@ -245,6 +249,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async splitAt(ns: string, query: Document): Promise<any> {
     assertArgsDefined(ns, query);
+    assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitAt', { ns, query });
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       split: ns,
@@ -255,6 +260,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async splitFind(ns: string, query: Document): Promise<any> {
     assertArgsDefined(ns, query);
+    assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitFind', { ns, query });
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       split: ns,
@@ -265,11 +271,101 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async moveChunk(ns: string, query: Document, destination: string): Promise<any> {
     assertArgsDefined(ns, query);
+    assertArgsType([ns, query, destination], ['string', 'object', 'string']);
     this._emitShardApiCall('moveChunk', { ns, query, destination });
     return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
       moveChunk: ns,
       find: query,
       to: destination
     });
+  }
+
+  @returnsPromise
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  async balancerCollectionStatus(ns: string): Promise<any> {
+    assertArgsDefined(ns);
+    assertArgsType([ns], ['string']);
+    this._emitShardApiCall('balancerCollectionStatus', { ns });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      balancerCollectionStatus: ns
+    });
+  }
+
+
+  @returnsPromise
+  async enableBalancing(ns: string): Promise<any> {
+    assertArgsDefined(ns);
+    assertArgsType([ns], ['string']);
+    this._emitShardApiCall('enableBalancing', { ns });
+    const config = await getConfigDB(this._mongo);
+    return await config.getCollection('collections').updateOne(
+      { _id: ns },
+      { $set: { 'noBalance': false } },
+      { writeConcern: { w: 'majority', wtimeout: 60000 } }
+    );
+  }
+
+  @returnsPromise
+  async disableBalancing(ns: string): Promise<any> {
+    assertArgsDefined(ns);
+    assertArgsType([ns], ['string']);
+    this._emitShardApiCall('disableBalancing', { ns });
+    const config = await getConfigDB(this._mongo);
+    return await config.getCollection('collections').updateOne(
+      { _id: ns },
+      { $set: { 'noBalance': true } },
+      { writeConcern: { w: 'majority', wtimeout: 60000 } }
+    );
+  }
+
+  @returnsPromise
+  async getBalancerState(): Promise<boolean> {
+    this._emitShardApiCall('getBalancerState', {});
+    const config = await getConfigDB(this._mongo);
+    const doc = await config.getCollection('settings').findOne({ _id: 'balancer' });
+    if (doc === null || doc === undefined) {
+      return true;
+    }
+    return !doc.stopped;
+  }
+
+  @returnsPromise
+  async isBalancerRunning(): Promise<any> {
+    this._emitShardApiCall('isBalancerRunning', {});
+    await getConfigDB(this._mongo);
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      balancerStatus: 1
+    });
+  }
+
+  @returnsPromise
+  async startBalancer(timeout = 60000): Promise<any> {
+    assertArgsDefined(timeout);
+    assertArgsType([timeout], ['number']);
+    this._emitShardApiCall('startBalancer', { timeout });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      balancerStart: 1, maxTimeMS: timeout
+    });
+  }
+
+  @returnsPromise
+  async stopBalancer(timeout = 60000): Promise<any> {
+    assertArgsDefined(timeout);
+    assertArgsType([timeout], ['number']);
+    this._emitShardApiCall('stopBalancer', { timeout });
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+      balancerStop: 1, maxTimeMS: timeout
+    });
+  }
+
+  @returnsPromise
+  async setBalancerState(state: boolean): Promise<any> {
+    assertArgsDefined(state);
+    assertArgsType([state], ['boolean']);
+    this._emitShardApiCall('setBalancerState', { state });
+    if (state) {
+      return this.startBalancer();
+    }
+    return this.stopBalancer();
   }
 }
