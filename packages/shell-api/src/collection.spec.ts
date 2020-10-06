@@ -1133,8 +1133,6 @@ describe('Collection', () => {
         expect(result.value.length).to.not.equal(0);
         expect(result.value[0]._id).to.equal('abc');
         expect(result.source).to.deep.equal({
-          arguments: [],
-          call: 'find',
           namespace: {
             db: 'db1',
             collection: 'coll1'
@@ -1149,8 +1147,6 @@ describe('Collection', () => {
         expect(result.type).to.equal('Document');
         expect(result.value._id).to.equal('abc');
         expect(result.source).to.deep.equal({
-          arguments: [ { hasBanana: true } ],
-          call: 'findOne',
           namespace: {
             db: 'db1',
             collection: 'coll1'
@@ -1167,8 +1163,6 @@ describe('Collection', () => {
         expect(result.type).to.equal(null);
         expect(result.value).to.deep.equal([ fakeIndex ]);
         expect(result.source).to.deep.equal({
-          arguments: [],
-          call: 'getIndexes',
           namespace: {
             db: 'db1',
             collection: 'coll1'
