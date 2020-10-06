@@ -13,7 +13,7 @@ import {
   ReplPlatform
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
-import { asShellResult } from "./enums";
+import { asShellResult } from './enums';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -112,4 +112,3 @@ export default class AggregationCursor extends ShellApiClass {
     return this;
   }
 }
-
