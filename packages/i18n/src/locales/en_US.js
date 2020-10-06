@@ -1112,6 +1112,26 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.printShardingStatus',
               description: 'Calls sh.status(verbose)',
               example: 'db.printShardingStatus(verbose?)'
+            },
+            printSecondaryReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.printSecondaryReplicationInfo',
+              description: 'Prints secondary replicaset information',
+              example: 'db.printSecondaryReplicationInfo()'
+            },
+            printSlaveReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.printSlaveReplicationInfo',
+              description: 'DEPRECATED. Use db.printSecondaryReplicationInfo',
+              example: 'db.printSlaveReplicationInfo()'
+            },
+            getReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.getReplicationInfo',
+              description: 'Returns replication information',
+              example: 'db.getReplicationInfo()',
+            },
+            printReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.printReplicationInfo',
+              description: 'Formats sh.getReplicationInfo',
+              example: 'db.printReplicationInfo()'
             }
           }
         }
@@ -1176,6 +1196,31 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.reconfig',
               description: 'Reconfigures an existing replica set, overwriting the existing replica set configuration.',
               example: 'rs.reconfig()'
+            },
+            conf: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.conf',
+              description: 'Calls replSetConfig',
+              example: 'rs.conf()',
+            },
+            status: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.status',
+              description: 'Calls replSetGetStatus',
+              example: 'rs.status()',
+            },
+            isMaster: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.isMaster',
+              description: 'Calls isMaster',
+              example: 'rs.isMaster()',
+            },
+            printSecondaryReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.printSecondaryReplicationInfo',
+              description: 'Calls db.printSecondaryReplicationInfo',
+              example: 'rs.printSecondaryReplicationInfo()',
+            },
+            printSlaveReplicationInfo: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.printSlaveReplicationInfo',
+              description: 'DEPRECATED. Use rs.printSecondaryReplicationInfo',
+              example: 'rs.printSlaveReplicationInfo()',
             }
           }
         }

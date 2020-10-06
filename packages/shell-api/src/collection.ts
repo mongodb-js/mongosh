@@ -408,7 +408,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Cursor} The promise of the cursor.
    */
   @returnsPromise
-  async findOne(query?, projection?): Promise<Document> {
+  async findOne(query = {}, projection?): Promise<Document> {
     const options: any = {};
     if (projection) {
       options.projection = projection;
