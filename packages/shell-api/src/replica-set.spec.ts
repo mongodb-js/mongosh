@@ -1,4 +1,4 @@
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import ShellInternalState from './shell-internal-state';
 import { signatures } from './decorators';
@@ -121,6 +121,8 @@ describe('ReplicaSet', () => {
 
     describe('config', () => {
       it('calls serviceProvider.runCommandWithCheck', async() => {
+        const expectedResult = { config: { version: 1, members: [], settings: {} } };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await rs.config();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -133,20 +135,38 @@ describe('ReplicaSet', () => {
 
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         // not using the full object for expected result, as we should check this in an e2e test.
-        const expectedResult = { version: 1, members: [], settings: {} };
+        const expectedResult = { config: { version: 1, members: [], settings: {} } };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await rs.config();
 
-        expect(result).to.deep.equal(expectedResult);
+        expect(result).to.deep.equal(expectedResult.config);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedResult = { config: { version: 1, members: [], settings: {} } };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await rs.config()
           .catch(e => e);
 
         expect(caughtError).to.equal(expectedError);
+      });
+
+      it('calls find if serviceProvider.runCommandWithCheck rejects with command not found', async() => {
+        const expectedError = new Error() as any;
+        expectedError.codeName = 'CommandNotFound';
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const expectedResult = { res: true };
+        const findCursor = stubInterface<ServiceProviderCursor>();
+        findCursor.next.resolves(expectedResult);
+        serviceProvider.find.returns(findCursor);
+
+        const conf = await rs.config();
+        expect(serviceProvider.find).to.have.been.calledWith(
+          'local', 'system.replset', {}, {}
+        );
+        expect(conf).to.deep.equal(expectedResult);
       });
     });
 
@@ -161,6 +181,7 @@ describe('ReplicaSet', () => {
       };
 
       it('calls serviceProvider.runCommandWithCheck without optional arg', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ config: { version: 1 } });
         await rs.reconfig(configDoc);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -173,13 +194,14 @@ describe('ReplicaSet', () => {
                 { _id: 1, host: 'rs2.example.net:27017' },
                 { _id: 2, host: 'rs3.example.net', arbiterOnly: true },
               ],
-              version: 1
+              version: 2
             }
           }
         );
       });
 
       it('calls serviceProvider.runCommandWithCheck with arg', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ config: 1 });
         await rs.reconfig(configDoc, { force: true });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -197,6 +219,60 @@ describe('ReplicaSet', () => {
             force: true
           }
         );
+      });
+    });
+    describe('status', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await rs.status();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            replSetGetStatus: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.status();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.status()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('isMaster', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await rs.isMaster();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            isMaster: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.isMaster();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.isMaster()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
       });
     });
   });

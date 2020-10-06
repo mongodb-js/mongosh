@@ -15,7 +15,7 @@ import {
   adaptOptions,
   assertArgsDefined,
   assertKeysDefined, getPrintableShardStatus,
-  processDigestPassword
+  processDigestPassword, tsToSeconds
 } from './helpers';
 
 import {
@@ -24,7 +24,12 @@ import {
   WriteConcern
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
-import { MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  MongoshInternalError,
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+  MongoshUnimplementedError
+} from '@mongosh/errors';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 
 @shellApiClassDefault
@@ -983,5 +988,152 @@ export default class Database extends ShellApiClass {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(this._mongo, verbose);
     return new CommandResult('StatsResult', result);
+  }
+
+  @returnsPromise
+  async printSecondaryReplicationInfo(): Promise<any> {
+    let startOptimeDate = null;
+    const local = this._mongo.getDB('local');
+    const admin = this._mongo.getDB(ADMIN_DB);
+
+    if (await local.getCollection('system.replset').countDocuments({}) !== 0) {
+      const status = await admin.runCommand({ 'replSetGetStatus': 1 });
+      // get primary
+      let primary = null;
+      for (const member of status.members) {
+        if (member.state === 1) {
+          primary = member;
+          break;
+        }
+      }
+      if (primary) {
+        startOptimeDate = primary.optimeDate;
+      } else { // no primary, find the most recent op among all members
+        startOptimeDate = new Date(0, 0);
+        for (const member of status.members) {
+          if (member.optimeDate > startOptimeDate) {
+            startOptimeDate = member.optimeDate;
+          }
+        }
+      }
+
+      const result = {} as any;
+      for (const node of status.members) {
+        const nodeResult = {} as any;
+        if (node === null || node === undefined) {
+          throw new MongoshInternalError('Member returned from command replSetGetStatus is null');
+        }
+        if (node.state === 1 || node.state === 7) { // ignore primaries (1) and arbiters (7)
+          continue;
+        }
+
+        if (node.optime && node.health !== 0) {
+          // get repl lag
+          if (startOptimeDate === null || startOptimeDate === undefined) {
+            throw new MongoshInternalError('getReplLag startOptimeDate is null');
+          }
+          if (startOptimeDate) {
+            nodeResult.syncedTo = node.optimeDate.toString();
+          }
+          const ago = (node.optimeDate - startOptimeDate) / 1000;
+          const hrs = Math.round(ago / 36) / 100;
+          let suffix = '';
+          if (primary) {
+            suffix = 'primary ';
+          } else {
+            suffix = 'freshest member (no primary available at the moment)';
+          }
+          nodeResult.replLag = `${Math.round(ago)} secs (${hrs} hrs) behind the ${suffix}`;
+        } else {
+          nodeResult['no replication info, yet.  State'] = node.stateStr;
+        }
+
+        result[`source: ${node.name}`] = nodeResult;
+      }
+      return new CommandResult('StatsResult', result);
+    }
+    throw new MongoshInvalidInputError('local.system.replset is empty. Are you connected to a replica set?');
+  }
+
+  @returnsPromise
+  async getReplicationInfo(): Promise<any> {
+    const localdb = this.getSiblingDB('local');
+
+    const result = {} as any;
+    let oplog;
+    const localCollections = await localdb.getCollectionNames();
+    if (localCollections.indexOf('oplog.rs') >= 0) {
+      oplog = 'oplog.rs';
+    } else {
+      throw new MongoshInvalidInputError('Replication not detected. Are you connected to a replset?');
+    }
+
+    const ol = localdb.getCollection(oplog);
+    const olStats = await ol.stats();
+    if (olStats && olStats.maxSize) {
+      // see MONGOSH-205
+      result.logSizeMB = Math.max(olStats.maxSize / (1024 * 1024), olStats.size);
+    } else {
+      throw new MongoshRuntimeError(`Could not get stats for local. ${oplog} collection. collstats returned ${JSON.stringify(olStats)}`);
+    }
+
+    result.usedMB = olStats.size / (1024 * 1024);
+    result.usedMB = Math.ceil(result.usedMB * 100) / 100;
+
+    const firstc = ol.find().sort({ $natural: 1 }).limit(1);
+    const lastc = ol.find().sort({ $natural: -1 }).limit(1);
+    if (!(await firstc.hasNext()) || !(await lastc.hasNext())) {
+      throw new MongoshRuntimeError('objects not found in local.oplog.$main -- is this a new and empty db instance?');
+    }
+
+    const first = await firstc.next();
+    const last = await lastc.next();
+    let tfirst = first.ts;
+    let tlast = last.ts;
+
+    if (tfirst && tlast) {
+      tfirst = tsToSeconds(tfirst);
+      tlast = tsToSeconds(tlast);
+      result.timeDiff = tlast - tfirst;
+      result.timeDiffHours = Math.round(result.timeDiff / 36) / 100;
+      result.tFirst = (new Date(tfirst * 1000)).toString();
+      result.tLast = (new Date(tlast * 1000)).toString();
+      result.now = Date();
+    } else {
+      result.errmsg = 'ts element not found in oplog objects';
+    }
+    return result;
+  }
+
+  @returnsPromise
+  async printReplicationInfo(): Promise<CommandResult> {
+    const result = {} as any;
+    let replInfo;
+    try {
+      replInfo = await this.getReplicationInfo();
+    } catch (error) {
+      const isMaster = await this.isMaster();
+      if (isMaster.arbiterOnly) {
+        return new CommandResult('StatsResult', { message: 'cannot provide replication status from an arbiter' });
+      } else if (!isMaster.ismaster) {
+        const secondaryInfo = await this.printSecondaryReplicationInfo();
+        return new CommandResult('StatsResult', {
+          message: 'this is a secondary, printing secondary replication info.',
+          ...secondaryInfo.value
+        });
+      }
+      throw error;
+    }
+    result['configured oplog size'] = `${replInfo.logSizeMB} MB`;
+    result['log length start to end'] = `${replInfo.timeDiff} secs (${replInfo.timeDiffHours} hrs)`;
+    result['oplog first event time'] = replInfo.tFirst;
+    result['oplog last event time'] = replInfo.tLast;
+    result.now = replInfo.now;
+    return new CommandResult('StatResult', result);
+  }
+
+  @returnsPromise
+  async printSlaveReplicationInfo(): Promise<CommandResult> {
+    return this.printSecondaryReplicationInfo();
   }
 }

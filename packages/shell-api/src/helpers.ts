@@ -470,3 +470,10 @@ export function dataFormat(bytes): string {
   }
   return Math.floor((Math.floor(bytes / (1024 * 1024)) / 1024) * 100) / 100 + 'GiB';
 }
+
+export function tsToSeconds(x): number {
+  if (x.t && x.i) {
+    return x.t;
+  }
+  return x / 4294967296; // low 32 bits are ordinal #s within a second
+}

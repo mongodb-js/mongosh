@@ -11,6 +11,8 @@ import {
 } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { CommandResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -41,7 +43,29 @@ export default class ReplicaSet extends ShellApiClass {
   @returnsPromise
   async config(): Promise<any> {
     this._emitReplicaSetApiCall('config', {});
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, { replSetReconfig: 1 });
+    try {
+      const result = await this._mongo._serviceProvider.runCommandWithCheck(
+        ADMIN_DB,
+        { replSetReconfig: 1 }
+      );
+      if (result.config === undefined) {
+        throw new MongoshInternalError('Documented returned from command replSetReconfig does not contain \'config\'');
+      }
+      return result.config;
+    } catch (error) {
+      if (error.codeName === 'CommandNotFound') {
+        return await this._mongo.getDB('local').getCollection('system.replset').findOne();
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Alias, conf is documented but config is not
+   */
+  @returnsPromise
+  async conf(): Promise<any> {
+    return this.config();
   }
 
   /**
@@ -56,13 +80,49 @@ export default class ReplicaSet extends ShellApiClass {
     assertArgsType([ config, options ], ['object', 'object']);
     this._emitReplicaSetApiCall('reconfig', { config, options });
 
-    const conf = await this.config();
+    const conf = await this.conf();
 
     config.version = conf.version ? conf.version + 1 : 1;
-    const cmd = { replSetReconfig: config };
-    const reconfigCmd = { ...cmd, ...options };
+    const cmd = { replSetReconfig: config, ...options };
 
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, reconfigCmd);
+    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+  }
+
+  @returnsPromise
+  async status(): Promise<any> {
+    this._emitReplicaSetApiCall('status', {});
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      {
+        replSetGetStatus: 1,
+      }
+    );
+  }
+
+  @returnsPromise
+  async isMaster(): Promise<any> {
+    this._emitReplicaSetApiCall('isMaster', {});
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      {
+        isMaster: 1,
+      }
+    );
+  }
+
+  @returnsPromise
+  async printSecondaryReplicationInfo(): Promise<CommandResult> {
+    return this._mongo._internalState.currentDb.printSecondaryReplicationInfo();
+  }
+
+  @returnsPromise
+  async printSlaveReplicationInfo(): Promise<CommandResult> {
+    throw new MongoshInvalidInputError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');
+  }
+
+  @returnsPromise
+  async printReplicationInfo(): Promise<CommandResult> {
+    return this._mongo._internalState.currentDb.printReplicationInfo();
   }
 
   /**
