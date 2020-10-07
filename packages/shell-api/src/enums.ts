@@ -26,8 +26,11 @@ export enum DBQueryOption {
 }
 
 export const shellApiType = Symbol.for('@@mongosh.shellApiType');
-// TODO: Would require changes to java-shell
-// export const asPrintable = Symbol('asPrintable');
-export const asShellResult = Symbol.for('@@mongosh.asShellResult');
+// TODO: This requires changes to java-shell.
+export const asPrintable = Symbol.for('@@mongosh.asPrintable');
+export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
+
+/// @deprecated toShellResult() returns both the raw value and the printable version now.
+export const usesRawValueInsteadOfPrintableForJavaShell = Symbol.for('@@mongosh.deprecated.usesRawValueInsteadOfPrintableForJavaShell');
 
 export const ADMIN_DB = 'admin';

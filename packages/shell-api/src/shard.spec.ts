@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Shard from './shard';
-import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
-import { signatures } from './decorators';
+import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
@@ -13,12 +13,12 @@ describe('Shard', () => {
   describe('help', () => {
     const apiClass: any = new Shard({});
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
     it('calls help function for methods', async() => {
-      expect((await apiClass.enableSharding.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.enableSharding.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.enableSharding.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.enableSharding.help)).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -40,14 +40,14 @@ describe('Shard', () => {
     });
   });
   describe('Metadata', () => {
-    describe('asShellResult', () => {
+    describe('toShellResult', () => {
       const mongo = { _uri: 'test_uri' } as Mongo;
       const db = new Shard(mongo);
       it('value', async() => {
-        expect((await db[asShellResult]()).value).to.equal('Shard class connected to test_uri');
+        expect((await toShellResult(db)).printable).to.equal('Shard class connected to test_uri');
       });
       it('type', async() => {
-        expect((await db[asShellResult]()).type).to.equal('Shard');
+        expect((await toShellResult(db)).type).to.equal('Shard');
       });
     });
   });

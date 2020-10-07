@@ -1,7 +1,7 @@
 import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import ShellInternalState from './shell-internal-state';
-import { signatures } from './decorators';
+import { signatures, toShellResult } from './index';
 import ReplicaSet from './replica-set';
 import { EventEmitter } from 'events';
 import { expect } from 'chai';
@@ -10,8 +10,7 @@ import {
   ADMIN_DB,
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
-  ALL_TOPOLOGIES,
-  asShellResult
+  ALL_TOPOLOGIES
 } from './enums';
 
 describe('ReplicaSet', () => {
@@ -19,13 +18,13 @@ describe('ReplicaSet', () => {
     const apiClass: any = new ReplicaSet({});
 
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
 
     it('calls help function for methods', async() => {
-      expect((await apiClass.initiate.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.initiate.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.initiate.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.initiate.help)).type).to.equal('Help');
     });
   });
 

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
-import { signatures } from './decorators';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { signatures, toShellResult } from './index';
 import Database from './database';
 import Cursor from './cursor';
 import Mongo from './mongo';
@@ -15,8 +15,8 @@ describe('Explainable', () => {
   describe('help', () => {
     const apiClass: any = new Explainable({}, {}, 'verbosity');
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -42,10 +42,10 @@ describe('Explainable', () => {
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'verbosity');
-    it('asShellResult', async() => {
-      const result = await explainable[asShellResult]();
+    it('toShellResult', async() => {
+      const result = await toShellResult(explainable);
       expect(result.type).to.equal('Explainable');
-      expect(result.value).to.equal('Explainable(myDB.myCollection)');
+      expect(result.printable).to.equal('Explainable(myDB.myCollection)');
     });
   });
   describe('commands', () => {
@@ -122,18 +122,18 @@ describe('Explainable', () => {
         );
       });
 
-      it('returns an cursor that has asShellResult when evaluated', async() => {
-        expect((await cursorStub[asShellResult]()).type).to.equal('ExplainableCursor');
+      it('returns an cursor that has toShellResult when evaluated', async() => {
+        expect((await toShellResult(cursorStub)).type).to.equal('ExplainableCursor');
       });
 
-      context('when calling asShellResult.value on the result', () => {
+      context('when calling toShellResult().printable on the result', () => {
         it('calls explain with verbosity', async() => {
           expect(cursorStub._verbosity).to.equal('queryPlanner');
         });
 
         it('returns the explain result', async() => {
           expect(
-            (await cursorStub[asShellResult]()).value
+            (await toShellResult(cursorStub)).printable
           ).to.equal(explainResult);
         });
       });

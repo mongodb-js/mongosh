@@ -8,6 +8,7 @@ import {
   ServiceProviderBulkFindOp,
   BulkBatch
 } from '@mongosh/service-provider-core';
+import { asPrintable } from './enums';
 import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
 
@@ -22,7 +23,7 @@ export class BulkFindOp {
     this._parentBulk = parentBulk;
   }
 
-  _asPrintable(): string {
+  [asPrintable](): string {
     return 'BulkFindOp';
   }
 
@@ -163,7 +164,7 @@ export default class Bulk extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): any {
+  [asPrintable](): any {
     return this.tojson();
   }
 

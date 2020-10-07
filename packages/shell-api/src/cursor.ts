@@ -6,17 +6,18 @@ import {
   returnType,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault,
-  ShellResult,
-  resultSource
+  shellApiClassDefault
 } from './decorators';
-import { asShellResult, ServerVersions } from './enums';
+import {
+  ServerVersions,
+  asPrintable,
+  usesRawValueInsteadOfPrintableForJavaShell
+} from './enums';
 import {
   Cursor as ServiceProviderCursor,
   CursorFlag,
   CURSOR_FLAGS,
-  Document,
-  ReplPlatform
+  Document
 } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
@@ -31,22 +32,17 @@ export default class Cursor extends ShellApiClass {
     this._mongo = mongo;
   }
 
-  async [asShellResult](): Promise<ShellResult> {
-    return {
-      type: 'Cursor',
-      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable(),
-      source: this[resultSource] ?? undefined
-    };
-  }
+  /// @deprecated toShellResult() returns both the raw value and the printable version now.
+  get [usesRawValueInsteadOfPrintableForJavaShell](): boolean { return true; }
 
   /**
    * Internal method to determine what is printed for this class.
    */
-  async _asPrintable(): Promise<any> {
+  async [asPrintable](): Promise<CursorIterationResult> {
     return await this._it();
   }
 
-  async _it(): Promise<any> {
+  async _it(): Promise<CursorIterationResult> {
     const results = new CursorIterationResult();
 
     if (this.isClosed()) {

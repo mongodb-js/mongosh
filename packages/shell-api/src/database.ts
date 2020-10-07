@@ -9,7 +9,7 @@ import {
   ShellApiClass,
   serverVersions
 } from './decorators';
-import { ServerVersions, ADMIN_DB } from './enums';
+import { ServerVersions, ADMIN_DB, asPrintable } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -72,7 +72,7 @@ export default class Database extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return this._name;
   }
 

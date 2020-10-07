@@ -8,10 +8,9 @@ import {
   returnType,
   serverVersions,
   Namespace,
-  namespaceInfo,
   addSourceToResults
 } from './decorators';
-import { ADMIN_DB, ServerVersions } from './enums';
+import { ADMIN_DB, ServerVersions, asPrintable, namespaceInfo } from './enums';
 import {
   adaptAggregateOptions,
   validateExplainableVerbosity,
@@ -75,7 +74,7 @@ export default class Collection extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return this._name;
   }
 

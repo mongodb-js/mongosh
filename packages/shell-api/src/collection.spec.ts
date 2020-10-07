@@ -2,8 +2,8 @@
 import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
-import { signatures } from './decorators';
-import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, asShellResult, shellApiType, ADMIN_DB } from './enums';
+import { signatures, toShellResult } from './index';
+import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, shellApiType, ADMIN_DB } from './enums';
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';
@@ -19,8 +19,8 @@ describe('Collection', () => {
   describe('help', () => {
     const apiClass: any = new Collection({}, {}, 'name');
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -42,13 +42,13 @@ describe('Collection', () => {
     });
   });
   describe('metadata', () => {
-    describe('asShellResult', () => {
+    describe('toShellResult', () => {
       const mongo = sinon.spy();
       const db = new Database(mongo, 'myDB');
       const coll = new Collection(mongo, db, 'myCollection');
-      it('asShellResult', async() => {
-        expect((await coll[asShellResult]()).type).to.equal('Collection');
-        expect((await coll[asShellResult]()).value).to.equal('myCollection');
+      it('toShellResult', async() => {
+        expect((await toShellResult(coll)).type).to.equal('Collection');
+        expect((await toShellResult(coll)).printable).to.equal('myCollection');
       });
     });
   });
@@ -229,7 +229,7 @@ describe('Collection', () => {
           {}
         );
 
-        expect((await cursor[asShellResult]()).type).to.equal('AggregationCursor');
+        expect((await toShellResult(cursor)).type).to.equal('AggregationCursor');
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });
@@ -270,7 +270,7 @@ describe('Collection', () => {
 
         const result = await collection.bulkWrite(requests);
 
-        expect((await result[asShellResult]()).value).to.be.deep.equal({
+        expect((await toShellResult(result)).printable).to.be.deep.equal({
           acknowledged: true,
           insertedCount: 1,
           matchedCount: 2,
@@ -952,7 +952,7 @@ describe('Collection', () => {
         const expectedResult = { s: { batches: [] } };
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeUnorderedBulkOp();
-        expect((await result[asShellResult]()).type).to.equal('Bulk');
+        expect((await toShellResult(result)).type).to.equal('Bulk');
         expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
       });
 
@@ -979,7 +979,7 @@ describe('Collection', () => {
         const expectedResult = { s: { batches: [] } };
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeOrderedBulkOp();
-        expect((await result[asShellResult]()).type).to.equal('Bulk');
+        expect((await toShellResult(result)).type).to.equal('Bulk');
         expect(result._serviceProviderBulkOp).to.deep.equal(expectedResult);
       });
 
@@ -992,10 +992,10 @@ describe('Collection', () => {
       });
     });
     describe('getPlanCache', () => {
-      it('returns a PlanCache object', () => {
+      it('returns a PlanCache object', async() => {
         const pc = collection.getPlanCache();
         expect(pc[shellApiType]).to.equal('PlanCache');
-        expect(pc._asPrintable()).to.equal('PlanCache for collection coll1.');
+        expect((await toShellResult(pc)).printable).to.equal('PlanCache for collection coll1.');
       });
     });
     describe('validate', () => {
@@ -1128,7 +1128,7 @@ describe('Collection', () => {
       it('works for find()', async() => {
         serviceProvider.find.returns(serviceProviderCursor);
         const cursor = await collection.find();
-        const result = await cursor[asShellResult]();
+        const result = await toShellResult(cursor);
         expect(result.type).to.equal('Cursor');
         expect(result.value.length).to.not.equal(0);
         expect(result.value[0]._id).to.equal('abc');
@@ -1143,7 +1143,7 @@ describe('Collection', () => {
       it('works for findOne()', async() => {
         serviceProvider.find.returns(serviceProviderCursor);
         const document = await collection.findOne({ hasBanana: true });
-        const result = await (document as any)[asShellResult]();
+        const result = await toShellResult(document);
         expect(result.type).to.equal('Document');
         expect(result.value._id).to.equal('abc');
         expect(result.source).to.deep.equal({
@@ -1159,7 +1159,7 @@ describe('Collection', () => {
         serviceProvider.getIndexes.resolves([fakeIndex]);
 
         const indexResult = await collection.getIndexes();
-        const result = await (indexResult as any)[asShellResult]();
+        const result = await toShellResult(indexResult);
         expect(result.type).to.equal(null);
         expect(result.value).to.deep.equal([ fakeIndex ]);
         expect(result.source).to.deep.equal({

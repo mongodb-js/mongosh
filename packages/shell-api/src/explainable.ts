@@ -8,6 +8,7 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
+import { asPrintable } from './enums';
 import { validateExplainableVerbosity } from './helpers';
 import { Document } from '@mongosh/service-provider-core';
 
@@ -27,7 +28,7 @@ export default class Explainable extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return `Explainable(${this._collection.getFullName()})`;
   }
 

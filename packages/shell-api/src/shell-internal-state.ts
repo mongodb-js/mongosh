@@ -8,7 +8,8 @@ import {
   signatures,
   toIterator,
   ShellApi,
-  shellApiType
+  getShellApiType,
+  toShellResult
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
@@ -95,13 +96,8 @@ export default class ShellInternalState {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
     contextObject.print = async(arg): Promise<void> => {
-      if (arg._asPrintable) {
-        // eslint-disable-next-line no-console
-        console.log(await arg._asPrintable());
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(arg);
-      }
+      // eslint-disable-next-line no-console
+      console.log((await toShellResult(arg)).printable);
     };
     Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
     Object.getOwnPropertyNames(ShellApi.prototype)
@@ -131,7 +127,7 @@ export default class ShellInternalState {
     this.asyncWriter.symbols.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
-      if (newDb[shellApiType] !== 'Database') {
+      if (getShellApiType(newDb) !== 'Database') {
         throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
       }
       return this.setDbFunc(newDb);

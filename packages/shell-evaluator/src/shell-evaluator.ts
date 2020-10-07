@@ -1,8 +1,7 @@
 /* eslint-disable complexity */
 import {
   ShellInternalState,
-  shellApiType,
-  asShellResult,
+  toShellResult,
   ShellResult
 } from '@mongosh/shell-api';
 
@@ -100,15 +99,7 @@ class ShellEvaluator {
       filename
     );
 
-    if (
-      evaluationResult !== undefined &&
-      evaluationResult !== null &&
-      evaluationResult[shellApiType] !== undefined
-    ) {
-      return await evaluationResult[asShellResult]();
-    }
-
-    return { value: evaluationResult, type: null };
+    return await toShellResult(evaluationResult);
   }
 }
 

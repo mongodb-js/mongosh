@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { signatures } from './decorators';
+import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { ReplPlatform } from '@mongosh/service-provider-core';
 
 describe('AggregationCursor', () => {
@@ -11,8 +11,8 @@ describe('AggregationCursor', () => {
       _serviceProvider: { platform: ReplPlatform.CLI }
     }, {});
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -45,9 +45,9 @@ describe('AggregationCursor', () => {
     });
 
     it('sets dynamic properties', async() => {
-      expect((await cursor[asShellResult]()).type).to.equal('AggregationCursor');
-      expect((await ((await cursor[asShellResult]()).value)[asShellResult]()).type).to.equal('CursorIterationResult');
-      expect((await cursor.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(cursor)).type).to.equal('AggregationCursor');
+      expect((await toShellResult((await toShellResult(cursor)).printable)).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {

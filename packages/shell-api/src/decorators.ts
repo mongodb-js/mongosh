@@ -6,20 +6,20 @@ import {
   ALL_TOPOLOGIES,
   ALL_SERVER_VERSIONS,
   shellApiType,
-  asShellResult
+  asPrintable,
+  namespaceInfo,
+  usesRawValueInsteadOfPrintableForJavaShell
 } from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
 import { addHiddenDataProperty } from './helpers';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
-const addSourceToResultsSymbol = Symbol('@@mongosh.addSourceToResults');
-// The custom [asShellResult]() methods in Cursor and AggregationCursor require
-// this, but ideally, this symbol would be local to this file.
-export const resultSource = Symbol('@@mongosh.resultSource');
-export const namespaceInfo = Symbol('@@mongosh.namespaceInfo');
+const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
+const resultSource = Symbol.for('@@mongosh.resultSource');
 
 export interface ShellApiInterface {
-  [asShellResult]: Function;
-  _asPrintable: Function;
+  [shellApiType]: string;
+  [asPrintable]?: () => any;
   serverVersions?: [string, string];
   topologies?: Topologies[];
   help?: Help;
@@ -36,19 +36,73 @@ export interface ShellResultSourceInformation {
 }
 
 export interface ShellResult {
-  value: any;
-  type: string;
+  /// The original result of the evaluation, as it would be stored e.g. as a
+  /// variable inside the shell.
+  rawValue: any;
+
+  /// A version of the raw value that is usable for printing, e.g. what the
+  /// shell would print.
+  printable: any;
+
+  /// The type of the shell result. This refers to built-in shell types, e.g.
+  /// `Cursor`; all unknown object types and primitives are given the
+  /// type `null`.
+  type: string | null;
+
+  /// Optional information about the original data source of the result.
   source?: ShellResultSourceInformation;
+
+  /// @deprecated Use either `printable` or `rawValue`.
+  value: any;
 }
 
 export class ShellApiClass implements ShellApiInterface {
   help: any;
-  [asShellResult](): any {
+  get [shellApiType](): string {
     throw new MongoshInternalError('Shell API Type did not use decorators');
   }
-  _asPrintable(): any {
+  set [shellApiType](value: string) {
+    addHiddenDataProperty(this, shellApiType, value);
+  }
+  [asPrintable](): any {
     return Object.assign({}, this);
   }
+
+  /// @deprecated: Use `toShellResult(value).printable` instead.
+  _asPrintable(): any {
+    return this[asPrintable]();
+  }
+}
+
+export function getShellApiType(rawValue: any): string | null {
+  return (rawValue && rawValue[shellApiType]) ?? null;
+}
+
+export async function toShellResult(rawValue: any): Promise<ShellResult> {
+  if ((typeof rawValue !== 'object' && typeof rawValue !== 'function') || rawValue === null) {
+    return {
+      type: null,
+      rawValue: rawValue,
+      printable: rawValue,
+      value: rawValue
+    };
+  }
+
+  const printable =
+    typeof rawValue[asPrintable] === 'function' ? await rawValue[asPrintable]() : rawValue;
+  const source = rawValue[resultSource] ?? undefined;
+
+  const legacyJavaShellHandling =
+    rawValue[usesRawValueInsteadOfPrintableForJavaShell] === true &&
+    rawValue?._mongo?._serviceProvider?.platform === ReplPlatform.JavaShell;
+
+  return {
+    type: getShellApiType(rawValue),
+    rawValue: rawValue,
+    printable: printable,
+    value: legacyJavaShellHandling ? rawValue : printable,
+    source: source
+  };
 }
 
 // For classes like Collection, it can be useful to attach information to the
@@ -56,7 +110,7 @@ export class ShellApiClass implements ShellApiInterface {
 // shell can e.g. figure out how to edit a document returned from the shell.
 // To that end, we wrap the methods of a class, and report back how the
 // result was generated.
-// We also attach the `shellApiType` and `asShellResult` properties to the
+// We also attach the `shellApiType` property to the
 // return type (if that is possible and they are not already present), so that
 // we can also provide sensible information for methods that do not return
 // shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
@@ -70,19 +124,6 @@ function wrapWithAddSourceToResult(fn: Function): Function {
       addHiddenDataProperty(result, resultSource, resultSourceInformation);
       if (result[shellApiType] === undefined && (fn as any).returnType) {
         addHiddenDataProperty(result, shellApiType, (fn as any).returnType);
-      }
-      if (result[asShellResult] === undefined) {
-        addHiddenDataProperty(
-          result, asShellResult, async function(): Promise<ShellResult> {
-            return {
-              // Report { type: null } if the type is not available to match
-              // what the shell evaluator does when it encounters values
-              // that do not provide [asShellResult]().
-              type: this[shellApiType] || null,
-              value: this,
-              source: this[resultSource]
-            };
-          });
       }
     }
     return result;
@@ -117,7 +158,7 @@ if (!global[signaturesGlobalIdentifier]) {
 const signatures: Signatures = global[signaturesGlobalIdentifier];
 signatures.Document = { type: 'Document', attributes: {} };
 
-export const toIgnore = [asShellResult, '_asPrintable', 'constructor'];
+export const toIgnore = [asPrintable, 'constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -213,19 +254,10 @@ export function shellApiClassDefault(constructor: Function): void {
   const help = new Help(classHelp);
   constructor.prototype.help = (): Help => (help);
   Object.setPrototypeOf(constructor.prototype.help, help);
-  constructor.prototype._asPrintable =
-    constructor.prototype._asPrintable ||
+  constructor.prototype[asPrintable] =
+    constructor.prototype[asPrintable] ||
     function(): any { return Object.assign({}, this); };
-  if (!constructor.prototype.hasOwnProperty(asShellResult)) {
-    constructor.prototype[asShellResult] = async function(): Promise<ShellResult> {
-      return {
-        type: className,
-        value: await this._asPrintable(),
-        source: this[resultSource] ?? undefined
-      };
-    };
-  }
-  Object.defineProperty(constructor.prototype, shellApiType, { value: className, enumerable: false });
+  addHiddenDataProperty(constructor.prototype, shellApiType, className);
   signatures[className] = classSignature;
 }
 

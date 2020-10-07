@@ -22,13 +22,13 @@ import {
 import Mongo from './mongo';
 import {
   signatures,
-  ShellResult
+  ShellResult,
+  toShellResult,
+  getShellApiType
 } from './decorators';
 import {
   Topologies,
-  ServerVersions,
-  shellApiType,
-  asShellResult
+  ServerVersions
 } from './enums';
 
 export {
@@ -55,7 +55,7 @@ export {
   ShellApi,
   ServerVersions,
   Topologies,
-  shellApiType,
-  asShellResult,
+  toShellResult,
+  getShellApiType,
   ShellResult
 };

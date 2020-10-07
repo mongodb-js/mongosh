@@ -6,8 +6,8 @@ import Cursor from './cursor';
 import Explainable from './explainable';
 import AggregationCursor from './aggregation-cursor';
 import ShellApi from './shell-api';
-import { asShellResult } from './enums';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { toShellResult } from './index';
 
 describe('Shell API (integration)', function() {
   const connectionString = startTestServer();
@@ -154,9 +154,9 @@ describe('Shell API (integration)', function() {
           });
         });
 
-        describe('when calling asShellResult on the cursor', () => {
+        describe('when calling toShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect((await cursor[asShellResult]()).value).to.deep.equal([{ doc: 2 }]);
+            expect((await toShellResult(cursor)).printable).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -899,12 +899,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('find', () => {
-      it('returns a cursor that has the explain as result of asShellResult', async() => {
+      it('returns a cursor that has the explain as result of toShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor[asShellResult]();
-        expect(result.value).to.have.keys([
+        const result = await toShellResult(cursor);
+        expect(result.printable).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'
@@ -913,12 +913,12 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      it('returns a cursor that has the explain as result of asShellResult', async() => {
+      it('returns a cursor that has the explain as result of toShellResult', async() => {
         const cursor = await explainable.find()
           .skip(1)
           .limit(1);
-        const result = await cursor[asShellResult]();
-        expect(result.value).to.have.keys([
+        const result = await toShellResult(cursor);
+        expect(result.printable).to.have.keys([
           'ok',
           'queryPlanner',
           'serverInfo'

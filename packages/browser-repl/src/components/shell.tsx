@@ -108,7 +108,7 @@ export class Shell extends Component<ShellProps, ShellState> {
       outputLine = {
         format: 'output',
         type: result.type,
-        value: result.value
+        value: result.printable
       };
     } catch (error) {
       outputLine = {
