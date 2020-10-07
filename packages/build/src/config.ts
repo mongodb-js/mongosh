@@ -18,9 +18,9 @@ export default interface Config {
   downloadCenterAwsSecret?: string;
   githubToken?: string;
   segmentKey?: string;
-  appleUser?: string;
-  applePassword?: string;
-  appleAppIdentity?: string;
+  appleNotarizationUsername?: string;
+  appleNotarizationApplicationPassword?: string;
+  appleCodesignIdentity?: string;
   entitlementsFile?: string;
   isCi?: boolean;
   platform?: string;
