@@ -22,20 +22,24 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun addCursorFlag(flag: Value, v: Boolean): Cursor {
-        throw NotImplementedError("setting cursor flags are not supported")
+    override fun addCursorFlag(flag: String, v: Boolean): Cursor {
+        checkQueryNotExecuted()
+        when (flag) {
+            "noCursorTimeout" -> helper.noCursorTimeout()
+            "partial" -> helper.allowPartialResults()
+            "tailable",
+            "slaveOk",
+            "oplogReplay",
+            "awaitData",
+            "exhaust" -> throw NotImplementedError("Cursor flag $flag is not supported")
+            else -> throw IllegalArgumentException("Unknown cursor flag $flag")
+        }
+        return this
     }
 
     @HostAccess.Export
     override fun addOption(option: Int): Cursor {
-        throw NotImplementedError("addOption is not supported")
-    }
-
-    @HostAccess.Export
-    override fun allowPartialResults(): Cursor {
-        checkQueryNotExecuted()
-        helper.allowPartialResults()
-        return this
+        throw NotImplementedError("addOption is not supported") // not supported in driver
     }
 
     @HostAccess.Export
@@ -60,7 +64,7 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
 
     override fun clone(): Cursor {
         checkQueryNotExecuted()
-        throw NotImplementedError("clone is not supported")
+        throw NotImplementedError("clone is not supported") // not supported in driver
     }
 
     @HostAccess.Export
@@ -94,7 +98,12 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
 
     @HostAccess.Export
     override fun forEach(func: Value) {
-        throw NotImplementedError("forEach is not supported")
+        if (!func.canExecute()) {
+            throw IllegalArgumentException("Expected one argument of type function. Got: $func")
+        }
+        getOrCreateIterator().forEach { v ->
+            func.execute(context.toJs(v))
+        }
     }
 
     @HostAccess.Export
@@ -121,7 +130,8 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
 
     @HostAccess.Export
     override fun itcount(): Int {
-        throw NotImplementedError("itcount is not supported")
+        checkQueryNotExecuted()
+        return helper.itcount()
     }
 
     @HostAccess.Export
@@ -152,8 +162,10 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun maxTimeMS(value: Int): ServiceProviderCursor {
-        throw NotImplementedError("maxTimeMS is not supported")
+    override fun maxTimeMS(v: Long): Cursor {
+        checkQueryNotExecuted()
+        helper.maxTimeMS(v)
+        return this
     }
 
     override fun maxAwaitTimeMS(value: Int): ServiceProviderCursor {
@@ -161,21 +173,23 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun min(indexBounds: Value): ServiceProviderCursor {
-        throw NotImplementedError("min is not supported")
+    override fun min(v: Value): ServiceProviderCursor {
+        checkQueryNotExecuted()
+        if (!v.hasMembers()) {
+            throw IllegalArgumentException("Expected one argument of type object. Got: $v")
+        }
+        helper.min(toDocument(context, v))
+        return this
     }
 
     @HostAccess.Export
     override fun next(): Any? = getOrCreateIterator().next()
 
     @HostAccess.Export
-    override fun oplogReplay(): ServiceProviderCursor {
-        throw NotImplementedError("oplogReplay is not supported")
-    }
-
-    @HostAccess.Export
     override fun project(v: Value): ServiceProviderCursor {
-        throw NotImplementedError("projection is not supported")
+        checkQueryNotExecuted()
+        helper.projection(toDocument(context, v))
+        return this
     }
 
     @HostAccess.Export
@@ -207,11 +221,6 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     @HostAccess.Export
     override fun sort(spec: Value): Cursor {
         throw NotImplementedError("sort is not supported")
-    }
-
-    @HostAccess.Export
-    override fun tailable(): Cursor {
-        throw NotImplementedError("tailable is not supported")
     }
 
     @HostAccess.Export

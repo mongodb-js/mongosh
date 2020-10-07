@@ -6,6 +6,7 @@ import com.mongodb.client.model.Collation
 import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.Value
+import java.util.concurrent.TimeUnit
 
 internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterable: T, private val context: MongoShellContext) {
     fun batchSize(v: Int) {
@@ -18,8 +19,14 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
         }, context)
     }
 
+    fun itcount(): Int {
+        return iterable.count()
+    }
+
     open fun limit(v: Int): Unit = throw NotImplementedError("limit is not supported")
     open fun max(v: Document): Unit = throw NotImplementedError("max is not supported")
+    open fun min(v: Document): Unit = throw NotImplementedError("min is not supported")
+    open fun projection(v: Document): Unit = throw NotImplementedError("projection is not supported")
     open fun skip(v: Int): Unit = throw NotImplementedError("skip is not supported")
     open fun comment(v: String): Unit = throw NotImplementedError("comment is not supported")
     open fun hint(v: String): Unit = throw NotImplementedError("hint is not supported")
@@ -27,11 +34,25 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
     open fun collation(v: Collation): Unit = throw NotImplementedError("collation is not supported")
     open fun allowPartialResults(): Unit = throw NotImplementedError("allowPartialResults is not supported")
     open fun count(): Int = throw NotImplementedError("count is not supported")
+    open fun maxTimeMS(v: Long): Unit = throw NotImplementedError("count is not supported")
+    open fun noCursorTimeout(): Unit = throw NotImplementedError("count is not supported")
 }
 
 internal class FindIterableHelper(iterable: FindIterable<out Any?>, context: MongoShellContext) : MongoIterableHelper<FindIterable<out Any?>>(iterable, context) {
     override fun allowPartialResults() {
         iterable.partial(true)
+    }
+
+    override fun noCursorTimeout() {
+        iterable.noCursorTimeout(true)
+    }
+
+    override fun maxTimeMS(v: Long) {
+        iterable.maxTime(v, TimeUnit.MILLISECONDS)
+    }
+
+    override fun projection(v: Document) {
+        iterable.projection(v)
     }
 
     override fun limit(v: Int) {
@@ -40,6 +61,10 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>, context: Mon
 
     override fun max(v: Document) {
         iterable.max(v)
+    }
+
+    override fun min(v: Document) {
+        iterable.min(v)
     }
 
     override fun skip(v: Int) {
