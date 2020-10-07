@@ -46,7 +46,7 @@ export default class ReplicaSet extends ShellApiClass {
     try {
       const result = await this._mongo._serviceProvider.runCommandWithCheck(
         ADMIN_DB,
-        { replSetReconfig: 1 }
+        { replSetGetConfig: 1 }
       );
       if (result.config === undefined) {
         throw new MongoshInternalError('Documented returned from command replSetReconfig does not contain \'config\'');

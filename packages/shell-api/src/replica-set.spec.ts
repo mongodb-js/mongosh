@@ -12,6 +12,7 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES
 } from './enums';
+import { CliServiceProvider } from '../../service-provider-server';
 
 describe('ReplicaSet', () => {
   describe('help', () => {
@@ -49,14 +50,14 @@ describe('ReplicaSet', () => {
     });
   });
 
-  describe('commands', () => {
+  describe('unit', () => {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
     let internalState: ShellInternalState;
 
-    const findResolvesWith = (expectedResult) => {
+    const findResolvesWith = (expectedResult): void => {
       const findCursor = stubInterface<ServiceProviderCursor>();
       findCursor.next.resolves(expectedResult);
       serviceProvider.find.returns(findCursor);
@@ -133,7 +134,7 @@ describe('ReplicaSet', () => {
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            replSetReconfig: 1
+            replSetGetConfig: 1
           }
         );
       });
@@ -582,6 +583,159 @@ describe('ReplicaSet', () => {
         const catchedError = await rs.stepDown(10)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+    });
+  });
+
+  describe.skip('integration', () => {
+    const port0 = 27017;
+    const host = '127.0.0.1';
+    const replId = 'rs0';
+    const connectionString = `mongodb://${host}:${port0}`; // startTestServer();
+    const cfg = {
+      _id: replId,
+      members: [
+        { _id: 0, host: `${host}:${port0}`, priority: 1 },
+        { _id: 1, host: `${host}:${port0 + 1}`, priority: 0 },
+        { _id: 2, host: `${host}:${port0 + 2}`, priority: 0 }
+      ]
+    };
+    let serviceProvider: CliServiceProvider;
+    let internalState;
+    let mongo;
+    let rs;
+
+    const ensureMaster = (done, timeout): void => {
+      if (timeout > 8000) expect.fail(`Waited for ${host}:${port0} to become master, never happened`);
+      return rs.isMaster().then((res) => {
+        if (res.ismaster) {
+          done();
+        } else { // try again but wait double
+          return setTimeout(async() => {
+            if ((await rs.isMaster()).ismaster) {
+              expect((await rs.conf()).members.length).to.equal(3);
+              done();
+            } else {
+              ensureMaster(done, timeout * 2);
+            }
+          }, timeout);
+        }
+      });
+    };
+
+    before(async() => {
+      serviceProvider = await CliServiceProvider.connect(connectionString);
+      internalState = new ShellInternalState(serviceProvider);
+      mongo = internalState.currentDb.getMongo();
+      rs = new ReplicaSet(mongo);
+
+      // check replset uninitialized
+      try {
+        await rs.status();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('WARNING: Initializing new replset');
+        expect(error.message).to.include('no replset config');
+        const result = await rs.initiate(cfg);
+        expect(result.ok).to.equal(1);
+        return expect(result.$clusterTime).to.not.be.undefined;
+      }
+      // eslint-disable-next-line no-console
+      console.log('WARNING: Using existing replset');
+    });
+
+    beforeEach((done) => {
+      ensureMaster(done, 1000);
+    });
+
+    after(() => {
+      return serviceProvider.close(true);
+    });
+
+    describe('replica set info', () => {
+      it('returns the status', async() => {
+        const result = await rs.status();
+        expect(result.set).to.equal(replId);
+      });
+      it('returns the config', async() => {
+        const result = await rs.conf();
+        expect(result._id).to.equal(replId);
+      });
+      it('is connected to master', async() => {
+        const result = await rs.isMaster();
+        expect(result.ismaster).to.be.true;
+      });
+      it('returns StatsResult for print secondary replication info', async() => {
+        const result = await rs.printSecondaryReplicationInfo();
+        expect(result.type).to.equal('StatsResult');
+      });
+      it('returns StatsResult for print replication info', async() => {
+        const result = await rs.printSecondaryReplicationInfo();
+        expect(result.type).to.equal('StatsResult');
+      });
+      it('returns data for db.getReplicationInfo', async() => {
+        const result = await rs._mongo.getDB('any').getReplicationInfo();
+        expect(Object.keys(result)).to.include('logSizeMB');
+      });
+    });
+    describe('reconfig', () => {
+      it('reconfig with one less secondary', async() => {
+        const newcfg = {
+          _id: replId,
+          members: [ cfg.members[0], cfg.members[1] ]
+        };
+        const version = (await rs.conf()).version;
+        const result = await rs.reconfig(newcfg);
+        expect(result.ok).to.equal(1);
+        const status = await rs.conf();
+        expect(status.members.length).to.equal(2);
+        expect(status.version).to.equal(version + 1);
+      });
+      afterEach(async() => {
+        await rs.reconfig(cfg);
+        const status = await rs.conf();
+        expect(status.members.length).to.equal(3);
+      });
+    });
+
+    describe('add member', () => {
+      it('adds a regular member to the config', async() => {
+        const version = (await rs.conf()).version;
+        const result = await rs.add(`${host}:${port0 + 3}`);
+        expect(result.ok).to.equal(1);
+        const conf = await rs.conf();
+        expect(conf.members.length).to.equal(4);
+        expect(conf.version).to.equal(version + 1);
+      });
+      it('adds a arbiter member to the config', async() => {
+        const version = (await rs.conf()).version;
+        const result = await rs.addArb(`${host}:${port0 + 3}`);
+        expect(result.ok).to.equal(1);
+        const conf = await rs.conf();
+        expect(conf.members.length).to.equal(4);
+        expect(conf.members[3].arbiterOnly).to.equal(true);
+        expect(conf.version).to.equal(version + 1);
+      });
+      afterEach(async() => {
+        await rs.reconfig(cfg);
+        const status = await rs.conf();
+        expect(status.members.length).to.equal(3);
+      });
+    });
+
+    describe('remove member', () => {
+      it('removes a member of the config', async() => {
+        const version = (await rs.conf()).version;
+        const result = await rs.remove(`${host}:${port0 + 2}`);
+        expect(result.ok).to.equal(1);
+        const conf = await rs.conf();
+        expect(conf.members.length).to.equal(2);
+        expect(conf.version).to.equal(version + 1);
+      });
+      afterEach(async() => {
+        await rs.reconfig(cfg);
+        const status = await rs.conf();
+        expect(status.members.length).to.equal(3);
       });
     });
   });
