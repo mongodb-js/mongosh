@@ -3,7 +3,7 @@
  */
 export default interface Config {
   version?: string;
-  bundleId?: string;
+  appleNotarizationBundleId?: string;
   input?: string;
   execInput?: string;
   outputDir?: string;
@@ -21,7 +21,7 @@ export default interface Config {
   appleNotarizationUsername?: string;
   appleNotarizationApplicationPassword?: string;
   appleCodesignIdentity?: string;
-  entitlementsFile?: string;
+  appleCodesignEntitlementsFile?: string;
   isCi?: boolean;
   platform?: string;
   execNodeVersion?: string;

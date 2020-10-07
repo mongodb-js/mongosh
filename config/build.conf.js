@@ -39,14 +39,13 @@ const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
 /**
  * The bundle id for MacOs.
  */
-const BUNDLE_ID = 'com.mongodb.mongosh';
+const APPLE_NOTARIZATION_BUNDLE_ID = 'com.mongodb.mongosh';
 
 /**
  * Export the configuration for the build.
  */
 module.exports = {
   version: CONFIG.version,
-  bundleId: BUNDLE_ID,
   rootDir: ROOT,
   input: INPUT,
   execInput: EXEC_INPUT,
@@ -61,15 +60,16 @@ module.exports = {
   downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET,
   githubToken: process.env.GITHUB_TOKEN,
   segmentKey: process.env.SEGMENT_API_KEY,
-  appleNotarizationUsername: process.env.APPLE_NOTARIZATION_USERNAME,
-  appleNotarizationApplicationPassword: process.env.APPLE_NOTARIZATION_APPLICATION_PASSWORD,
-  appleCodesignIdentity: process.env.APPLE_CODESIGN_IDENTITY,
-  entitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
   isCi: process.env.IS_CI === 'true',
   isPatch: process.env.IS_PATCH === 'true',
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
   buildVariant: process.env.BUILD_VARIANT,
+  appleCodesignIdentity: process.env.APPLE_CODESIGN_IDENTITY,
+  appleCodesignEntitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
+  appleNotarizationBundleId: APPLE_NOTARIZATION_BUNDLE_ID,
+  appleNotarizationUsername: process.env.APPLE_NOTARIZATION_USERNAME,
+  appleNotarizationApplicationPassword: process.env.APPLE_NOTARIZATION_APPLICATION_PASSWORD,
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'

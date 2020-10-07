@@ -18,7 +18,7 @@ describe('publish', () => {
   beforeEach(() => {
     config = {
       version: 'version',
-      bundleId: 'bundleId',
+      appleNotarizationBundleId: 'appleNotarizationBundleId',
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',

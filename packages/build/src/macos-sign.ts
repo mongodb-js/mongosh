@@ -41,11 +41,11 @@ const macOSSignAndNotarize = async(
   config: Config,
   runCreateTarball: () => Promise<TarballFile>): Promise<TarballFile> => {
   console.info('mongosh: signing:', executable);
-  await sign(executable, config.appleCodesignIdentity, config.entitlementsFile);
+  await sign(executable, config.appleCodesignIdentity, config.appleCodesignEntitlementsFile);
   console.info('mongosh: notarizing and creating tarball:', executable);
   const artifact = await runCreateTarball();
   await notarize(
-    config.bundleId,
+    config.appleNotarizationBundleId,
     artifact.path,
     config.appleNotarizationUsername,
     config.appleNotarizationApplicationPassword);

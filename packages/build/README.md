@@ -47,7 +47,7 @@ const release = require('@mongosh/build');
 
 const config = {
   version: '0.0.1',
-  bundleId: 'bundleId',
+  appleNotarizationBundleId: 'appleNotarizationBundleId',
   input: 'input',
   execInput: 'execInput',
   outputDir: 'outputDir',
