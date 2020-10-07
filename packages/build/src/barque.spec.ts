@@ -14,7 +14,7 @@ describe('Barque', () => {
   beforeEach(() => {
     config = {
       version: 'version',
-      bundleId: 'bundleId',
+      appleNotarizationBundleId: 'appleNotarizationBundleId',
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',
@@ -29,9 +29,9 @@ describe('Barque', () => {
       githubToken: 'githubToken',
       segmentKey: 'segmentKey',
       rootDir: '../../../',
-      appleUser: 'appleUser',
-      applePassword: 'applePassword',
-      appleAppIdentity: 'appleAppIdentity',
+      appleNotarizationUsername: 'appleNotarizationUsername',
+      appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
+      appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'linux',
       buildVariant: 'linux',

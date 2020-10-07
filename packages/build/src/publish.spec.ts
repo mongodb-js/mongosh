@@ -18,7 +18,7 @@ describe('publish', () => {
   beforeEach(() => {
     config = {
       version: 'version',
-      bundleId: 'bundleId',
+      appleNotarizationBundleId: 'appleNotarizationBundleId',
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',
@@ -32,9 +32,9 @@ describe('publish', () => {
       downloadCenterAwsSecret: 'downloadCenterAwsSecret',
       githubToken: 'githubToken',
       segmentKey: 'segmentKey',
-      appleUser: 'appleUser',
-      applePassword: 'applePassword',
-      appleAppIdentity: 'appleAppIdentity',
+      appleNotarizationUsername: 'appleNotarizationUsername',
+      appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
+      appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'platform',
       buildVariant: 'linux',

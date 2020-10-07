@@ -47,7 +47,7 @@ const release = require('@mongosh/build');
 
 const config = {
   version: '0.0.1',
-  bundleId: 'bundleId',
+  appleNotarizationBundleId: 'appleNotarizationBundleId',
   input: 'input',
   execInput: 'execInput',
   outputDir: 'outputDir',
@@ -61,9 +61,9 @@ const config = {
   downloadCenterAwsSecret: 'downloadCenterAwsSecret',
   githubToken: 'githubToken',
   segmentKey: 'segmentKey',
-  appleUser: 'appleUser',
-  applePassword: 'applePassword',
-  appleAppIdentity: 'appleAppIdentity',
+  appleNotarizationUsername: 'appleNotarizationUsername',
+  appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
+  appleCodesignIdentity: 'appleCodesignIdentity',
   isCi: true,
   platform: 'platform',
   buildVariant: 'linux',

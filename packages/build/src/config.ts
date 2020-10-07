@@ -3,7 +3,7 @@
  */
 export default interface Config {
   version?: string;
-  bundleId?: string;
+  appleNotarizationBundleId?: string;
   input?: string;
   execInput?: string;
   outputDir?: string;
@@ -18,10 +18,10 @@ export default interface Config {
   downloadCenterAwsSecret?: string;
   githubToken?: string;
   segmentKey?: string;
-  appleUser?: string;
-  applePassword?: string;
-  appleAppIdentity?: string;
-  entitlementsFile?: string;
+  appleNotarizationUsername?: string;
+  appleNotarizationApplicationPassword?: string;
+  appleCodesignIdentity?: string;
+  appleCodesignEntitlementsFile?: string;
   isCi?: boolean;
   platform?: string;
   execNodeVersion?: string;

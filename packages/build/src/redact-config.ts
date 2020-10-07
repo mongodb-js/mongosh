@@ -3,7 +3,7 @@ import Config from './config';
 export function redactConfig(config: Config): any {
   return {
     version: config.version,
-    bundleId: config.bundleId,
+    appleNotarizationBundleId: config.appleNotarizationBundleId,
     rootDir: config.rootDir,
     input: config.input,
     buildVariant: config.buildVariant,
