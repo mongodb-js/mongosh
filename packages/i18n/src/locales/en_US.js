@@ -1241,6 +1241,21 @@ const translations = {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.remove',
               description: 'Removes a replica set member.',
               example: 'rs.remove(hostname)',
+            },
+            freeze: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.freeze',
+              description: 'Prevents the current member from seeking election as primary for a period of time. Uses the replSetFreeze command',
+              example: 'rs.freeze(secs)',
+            },
+            stepDown: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.stepDown',
+              description: 'Causes the current primary to become a secondary which forces an election. If no stepDownSecs is provided, uses 60 seconds. Uses the replSetStepDown command',
+              example: 'rs.stepDown(stepDownSecs?, catchUpSecs?)',
+            },
+            syncFrom: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.syncFrom',
+              description: 'Sets the member that this replica set member will sync from, overriding the default sync target selection logic.',
+              example: 'rs.syncFrom(host)',
             }
           }
         }

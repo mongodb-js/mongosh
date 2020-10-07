@@ -203,6 +203,48 @@ export default class ReplicaSet extends ShellApiClass {
     throw new MongoshInvalidInputError(`Couldn't find ${hostname} in ${JSON.stringify(configDoc.members)}. Is ${hostname} a member of this replset?`);
   }
 
+  @returnsPromise
+  async freeze(secs: number): Promise<any> {
+    assertArgsDefined(secs);
+    assertArgsType([secs], ['number']);
+    this._emitReplicaSetApiCall('freeze', { secs });
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      {
+        replSetFreeze: secs,
+      }
+    );
+  }
+
+  @returnsPromise
+  async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<any> {
+    assertArgsType([stepdownSecs, catchUpSecs], ['number', 'number']);
+    this._emitReplicaSetApiCall('stepDown', { stepdownSecs, catchUpSecs });
+    const cmd = {
+      replSetStepDown: stepdownSecs === undefined ? 60 : stepdownSecs,
+    } as any;
+    if (catchUpSecs !== undefined) {
+      cmd.secondaryCatchUpPeriodSecs = catchUpSecs;
+    }
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      cmd
+    );
+  }
+
+  @returnsPromise
+  async syncFrom(host: string): Promise<any> {
+    assertArgsDefined(host);
+    assertArgsType([host], ['string']);
+    this._emitReplicaSetApiCall('syncFrom', { host });
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      ADMIN_DB,
+      {
+        replSetSyncFrom: host,
+      }
+    );
+  }
+
   /**
    * Internal method to determine what is printed for this class.
    */
