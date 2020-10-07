@@ -1,4 +1,4 @@
 // before
-const o = {};
+const emptyO = {};
 // command checkResultClass
-o
+emptyO
