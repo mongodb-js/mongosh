@@ -34,8 +34,9 @@ fun getTestNames(testDataPath: String): List<String> {
 }
 
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
-    assumeFalse(testName.endsWith("-ignored"))
-    val test: String = File("$testDataPath/$testName.js").readText()
+    val name = testName[0].toLowerCase() + testName.substring(1)
+    assumeFalse(File("$testDataPath/$name-ignored.js").exists())
+    val test: String = File("$testDataPath/$name.js").readText()
     var before: String? = null
     val commands = mutableListOf<Command>()
     var clear: String? = null
@@ -81,7 +82,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     sb.append(e.javaClass.name).append(": ").append(msg)
                 }
             }
-            compare(testDataPath, testName, sb.toString())
+            compare(testDataPath, name, sb.toString())
         } finally {
             clear?.let { shell.eval(it) }
         }

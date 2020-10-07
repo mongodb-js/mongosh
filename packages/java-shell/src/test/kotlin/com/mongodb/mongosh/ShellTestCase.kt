@@ -1,25 +1,33 @@
 package com.mongodb.mongosh
 
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
+import com.mongodb.mongosh.result.StringResult
+import org.junit.*
 
 
 abstract class ShellTestCase {
-    var mongoShell: MongoShell? = null
 
-    @Before
-    fun setup() {
-        mongoShell = createMongoRepl()
-    }
+    companion object {
+        var mongoShell: MongoShell? = null
 
-    @After
-    fun teardown() {
-        mongoShell?.close()
+        @JvmStatic
+        @BeforeClass
+        fun setup() {
+            mongoShell = createMongoRepl()
+        }
+
+        @JvmStatic
+        @AfterClass
+        fun teardown() {
+            mongoShell?.close()
+        }
     }
 
     protected fun withShell(block: (MongoShell) -> Unit) {
         Assert.assertNotNull("MongoRepl was not initialized", mongoShell)
-        mongoShell?.let { block(it) }
+        mongoShell?.let {
+            val db = (it.eval("db") as StringResult).value
+            block(it)
+            it.eval("use $db")
+        }
     }
 }
