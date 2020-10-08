@@ -1,1 +1,2 @@
-ArrayResult
+{ "acknowledged": true, "insertedIds": [ ] }
+[ "coll" ]

@@ -12,7 +12,7 @@ import {
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
-import { Document, ServiceProvider, DEFAULT_DB } from '@mongosh/service-provider-core';
+import { Document, ServiceProvider, DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
@@ -137,14 +137,14 @@ export default class ShellInternalState {
       return this.setDbFunc(newDb);
     };
 
-    try {
+    if (this.initialServiceProvider.platform === ReplPlatform.JavaShell) {
+      contextObject.db = this.setDbFunc(this.currentDb); // java shell, can't use getters/setters
+    } else {
       Object.defineProperty(contextObject, 'db', {
         configurable: true,
         set: setFunc,
         get: () => (this.currentDb)
       });
-    } catch (e) { // java shell, can't use getters/setters
-      contextObject.db = this.setDbFunc(this.currentDb);
     }
 
     this.messageBus.emit(
