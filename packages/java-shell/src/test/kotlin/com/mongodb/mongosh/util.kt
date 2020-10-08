@@ -34,7 +34,12 @@ fun getTestNames(testDataPath: String): List<String> {
 }
 
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
-    val name = testName[0].toLowerCase() + testName.substring(1)
+    // Some tests start with a lowercase variant of testName, some don't
+    // (e.g. for BSON types like ISODate, we don't use iSODate.).
+    var name = testName[0].toLowerCase() + testName.substring(1)
+    if (!File("$testDataPath/$name.js").exists() && !File("$testDataPath/$name-ignored.js").exists()) {
+        name = testName
+    }
     assumeFalse(File("$testDataPath/$name-ignored.js").exists())
     val test: String = File("$testDataPath/$name.js").readText()
     var before: String? = null
