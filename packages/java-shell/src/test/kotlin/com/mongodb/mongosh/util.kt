@@ -72,6 +72,9 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                         (result.value as Cursor<*>).hasNext() // test that value is iterable
                     }
                     val actualValue = getActualValue(result, cmd.options)
+                    if (result is CursorResult) {
+                        (result.value as Cursor<*>).close() // test close
+                    }
                     val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else replaceUUID(replaceId(actualValue)).trim()
                     sb.append(normalized)
                 } catch (e: Throwable) {

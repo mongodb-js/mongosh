@@ -28,11 +28,11 @@ interface ServiceProviderCursor {
   fun next(): Any?
   fun project(v: Value): ServiceProviderCursor
   fun returnKey(v: Value): ServiceProviderCursor
-  fun setReadPreference(v: Value): ServiceProviderCursor
+  fun setReadPreference(v: String): ServiceProviderCursor
   fun showRecordId(v: Boolean): ServiceProviderCursor
   fun size(): Value
   fun skip(v: Int): ServiceProviderCursor
   fun sort(spec: Value): ServiceProviderCursor
   fun toArray(): Any?
-  fun explain(verbosity: String): Any?
+  fun explain(verbosity: String?): Any?
 }

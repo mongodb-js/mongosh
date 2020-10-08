@@ -1,10 +1,13 @@
 package com.mongodb.mongosh.service
 
+import com.mongodb.CursorType
 import com.mongodb.ReadConcern
 import com.mongodb.ReadConcernLevel
 import com.mongodb.ReadPreference
 import com.mongodb.client.AggregateIterable
+import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.*
 import com.mongodb.mongosh.result.CommandException
 import org.bson.Document
@@ -14,11 +17,14 @@ import java.util.concurrent.TimeUnit
 internal fun <T> convert(o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,
-                         map: Map<*, *>?): Either<T> {
+                         map: Map<*, *>?,
+                         prop: String? = null): Either<T> {
     if (map == null) return Right(o)
     var accumulator = o
-    for ((key, value) in map.entries) {
+    val keys = if (prop == null) map.keys else listOf(prop)
+    for (key in keys) {
         if (key !is String) continue
+        val value = map[key]
         val converter = converters[key]
         val res = if (converter != null) converter(accumulator, value) else defaultConverter(accumulator, key, value)
         when (res) {
@@ -125,8 +131,8 @@ internal val collationConverters: Map<String, (Collation.Builder, Any?) -> Eithe
 
 internal val collationDefaultConverter = unrecognizedField<Collation.Builder>("collation")
 
-internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?) -> Either<AggregateIterable<Document>>> = mapOf(
-        typed("collation", Map::class.java) { iterable, value ->
+internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Either<AggregateIterable<*>>> = mapOf(
+        typed("collation", Document::class.java) { iterable, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
                     .getOrThrow()
                     .build()
@@ -135,8 +141,11 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         typed("allowDiskUse", Boolean::class.java) { iterable, value ->
             iterable.allowDiskUse(value)
         },
-        typed("cursor", Map::class.java) { iterable, value ->
-            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow()
+        typed("batchSize", Number::class.java) { iterable, value ->
+            iterable.batchSize(value.toInt())
+        },
+        typed("cursor", Document::class.java) { iterable, value ->
+            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as AggregateIterable<*>
         },
         typed("maxTimeMS", Number::class.java) { iterable, value ->
             iterable.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
@@ -149,7 +158,7 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         "hint" to { iterable, value ->
             when (value) {
                 is String -> Right(iterable.hint(Document(value, 1)))
-                is Map<*, *> -> Right(iterable.hint(Document(value as Map<String, Any?>)))
+                is Document -> Right(iterable.hint(value))
                 else -> Left(CommandException("hint must be string or object value", "TypeMismatch"))
             }
         },
@@ -158,15 +167,83 @@ internal val aggregateConverters: Map<String, (AggregateIterable<Document>, Any?
         }
 )
 
-internal val aggregateDefaultConverter = unrecognizedField<AggregateIterable<Document>>("aggregate options")
+internal val aggregateDefaultConverter = unrecognizedField<AggregateIterable<*>>("aggregate options")
 
-internal val cursorConverters: Map<String, (AggregateIterable<Document>, Any?) -> Either<AggregateIterable<Document>>> = mapOf(
+internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindIterable<*>>> = mapOf(
+        typed("allowPartialResults", Boolean::class.java) { iterable, value ->
+            iterable.partial(value)
+        },
+        typed("batchSize", Number::class.java) { iterable, value ->
+            iterable.batchSize(value.toInt())
+        },
+        typed("collation", Document::class.java) { iterable, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            iterable.collation(collation)
+        },
+        typed("comment", String::class.java) { iterable, value ->
+            iterable.comment(value)
+        },
+        typed("cursor", Document::class.java) { iterable, value ->
+            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as FindIterable<*>
+        },
+        typed("explain", Boolean::class.java) { iterable, value ->
+            iterable.modifiers(Document("\$explain", value))
+        },
+        "hint" to { iterable, value ->
+            when (value) {
+                is String -> Right(iterable.hint(Document(value, 1)))
+                is Document -> Right(iterable.hint(value))
+                else -> Left(CommandException("hint must be string or object value", "TypeMismatch"))
+            }
+        },
+        typed("limit", Number::class.java) { iterable, value ->
+            iterable.limit(value.toInt())
+        },
+        typed("max", Document::class.java) { iterable, value ->
+            iterable.max(value)
+        },
+        typed("maxTimeMS", Number::class.java) { iterable, value ->
+            iterable.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
+        },
+        typed("min", Document::class.java) { iterable, value ->
+            iterable.min(value)
+        },
+        typed("noCursorTimeout", Boolean::class.java) { iterable, value ->
+            iterable.noCursorTimeout(value)
+        },
+        typed("oplogReplay", Boolean::class.java) { iterable, value ->
+            iterable.oplogReplay(value)
+        },
+        typed("projection", Document::class.java) { iterable, value ->
+            iterable.projection(value)
+        },
+        typed("returnKey", Boolean::class.java) { iterable, value ->
+            iterable.returnKey(value)
+        },
+        "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
+        typed("sort", Document::class.java) { iterable, value ->
+            iterable.sort(value)
+        },
+        typed("skip", Number::class.java) { iterable, value ->
+            iterable.skip(value.toInt())
+        },
+        typed("tailable", String::class.java) { iterable, value ->
+            iterable.cursorType(CursorType.valueOf(value))
+        },
+        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+)
+
+internal val findDefaultConverter = unrecognizedField<FindIterable<*>>("find options")
+
+internal val cursorConverters: Map<String, (MongoIterable<*>, Any?) -> Either<MongoIterable<*>>> = mapOf(
         typed("batchSize", Int::class.java) { iterable, v ->
             iterable.batchSize(v)
         }
 )
 
-internal val cursorDefaultConverter = unrecognizedField<AggregateIterable<Document>>("cursor")
+internal val cursorDefaultConverter = unrecognizedField<MongoIterable<*>>("cursor")
 
 internal val countOptionsConverters: Map<String, (CountOptions, Any?) -> Either<CountOptions>> = mapOf(
         typed("limit", Number::class.java) { opt, value ->
@@ -217,10 +294,12 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
         },
         typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
             opt.bypassDocumentValidation(value)
-        }
+        },
+        "filter" to { opt, _ -> Right(opt) },
+        "replacement" to { opt, _ -> Right(opt) }
 )
 
-internal val replaceOptionsDefaultConverters = unrecognizedField<ReplaceOptions>("replace options")
+internal val replaceOptionsDefaultConverter = unrecognizedField<ReplaceOptions>("replace options")
 
 internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceOptions, Any?) -> Either<FindOneAndReplaceOptions>> = mapOf(
         typed("projection", Document::class.java) { opt, value ->
@@ -383,6 +462,70 @@ internal val indexModelConverters: Map<String, (IndexModel, Any?) -> Either<Inde
 )
 
 internal val indexModelDefaultConverter = unrecognizedField<IndexModel>("index model")
+
+internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOptions, Any?) -> Either<CreateCollectionOptions>> = mapOf(
+        typed("capped", Boolean::class.java) { opt, value ->
+            opt.capped(value)
+        },
+        typed("autoIndexId", Boolean::class.java) { opt, value ->
+            opt.autoIndex(value)
+        },
+        typed("size", Number::class.java) { opt, value ->
+            opt.sizeInBytes(value.toLong())
+        },
+        typed("max", Number::class.java) { opt, value ->
+            opt.maxDocuments(value.toLong())
+        },
+        typed("storageEngine", Document::class.java) { opt, value ->
+            opt.storageEngineOptions(value)
+        },
+        typed("validator", Document::class.java) { opt, value ->
+            opt.validationOptions.validator(value)
+            opt
+        },
+        typed("validationLevel", String::class.java) { opt, value ->
+            opt.validationOptions.validationLevel(ValidationLevel.fromString(value))
+            opt
+        },
+        typed("validationAction", String::class.java) { opt, value ->
+            opt.validationOptions.validationAction(ValidationAction.fromString(value))
+            opt
+        },
+        typed("indexOptionDefaults", Document::class.java) { opt, value ->
+            opt.indexOptionDefaults(IndexOptionDefaults().storageEngine(value))
+        },
+        typed("collation", Document::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+)
+
+internal val createCollectionOptionsConverter = unrecognizedField<CreateCollectionOptions>("create collection options")
+
+internal val updateOptionsConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
+        typed("collation", Document::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        typed("upsert", Boolean::class.java) { opt, value ->
+            opt.upsert(value)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        },
+        typed("arrayFilters", List::class.java) { opt, value ->
+            opt.arrayFilters(value.filterIsInstance<Document>())
+        },
+        "filter" to { opt, _ -> Right(opt) },
+        "update" to { opt, _ -> Right(opt) }
+)
+
+internal val updateOptionsDefaultConverter = unrecognizedField<UpdateOptions>("update options")
 
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->

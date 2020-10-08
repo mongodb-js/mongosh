@@ -14,7 +14,7 @@ import org.graalvm.polyglot.Value
 import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : Closeable, ReadableServiceProvider, WritableServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
     @JvmField
     @HostAccess.Export
@@ -65,7 +65,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
+            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, options).map { options ->
                 val res = db.getCollection(collection).replaceOne(filter, replacement, options)
                 mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
@@ -182,7 +182,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         })
     }
 
-    private fun getWriteModel(model: Document): Either<WriteModel<Document>?> {
+    private fun getWriteModel(model: Document): Either<WriteModel<Document>> {
         if (model.keys.size != 1) return Left(IllegalArgumentException())
         val key = model.keys.first()
         val innerDoc: Document = model[key] as? Document
@@ -193,12 +193,43 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                         ?: return Left(IllegalArgumentException("No property 'document' $innerDoc"))
                 Right(InsertOneModel(doc))
             }
-            "deleteOne" -> {
+            "deleteOne", "deleteMany" -> {
                 val filter = innerDoc["filter"] as? Document
                         ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
                 val collationDoc = innerDoc["collation"] as? Document ?: Document()
                 convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { collation ->
-                    DeleteOneModel<Document>(filter, DeleteOptions().collation(collation.build()))
+                    val opt = DeleteOptions().collation(collation.build())
+                    if (key == "deleteOne") DeleteOneModel<Document>(filter, opt)
+                    else DeleteManyModel<Document>(filter, opt)
+                }
+            }
+            "updateOne", "updateMany" -> {
+                val filter = innerDoc["filter"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
+                val update = innerDoc["update"]
+                        ?: return Left(IllegalArgumentException("No property 'update' $innerDoc"))
+                convert(UpdateOptions(), updateOptionsConverters, updateOptionsDefaultConverter, innerDoc).flatMap { opt ->
+                    val res: Either<WriteModel<Document>> = when (update) {
+                        is Document -> {
+                            val model: WriteModel<Document> = if (key == "updateOne") UpdateOneModel(filter, update, opt) else UpdateManyModel(filter, update, opt)
+                            Right(model)
+                        }
+                        is List<*> -> {
+                            val model: WriteModel<Document> = if (key == "updateOne") UpdateOneModel(filter, update.filterIsInstance<Document>(), opt) else UpdateManyModel(filter, update.filterIsInstance<Document>(), opt)
+                            Right(model)
+                        }
+                        else -> Left(IllegalArgumentException("Property 'update' has to be a document of a list $innerDoc"))
+                    }
+                    res
+                }
+            }
+            "replaceOne" -> {
+                val filter = innerDoc["filter"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'filter' $innerDoc"))
+                val replacement = innerDoc["replacement"] as? Document
+                        ?: return Left(IllegalArgumentException("No property 'replacement' $innerDoc"))
+                convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, innerDoc).map { opt ->
+                    ReplaceOneModel<Document>(filter, replacement, opt)
                 }
             }
             else -> Left(IllegalArgumentException("Unknown bulk write operation $model"))
@@ -292,9 +323,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.getCollection(collection).aggregate(pipeline.filterIsInstance<Document>())
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(helper(iterable, context), context)
+        val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>(), options
+                ?: Document())
+        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
     }
 
     @HostAccess.Export
@@ -304,9 +335,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val iterable = db.aggregate(pipeline.filterIsInstance<Document>())
-        if (options != null) convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
-        return Cursor(helper(iterable, context), context)
+        val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>(), options
+                ?: Document())
+        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
     }
 
     @HostAccess.Export
@@ -352,11 +383,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val coll = client.getDatabase(database).getCollection(collection)
-        val iterable = if (filter == null) coll.find() else coll.find(filter)
-        val projection = options?.get("projection")?.let { it as Document }
-        if (projection != null) iterable.projection(projection)
-        return Cursor(helper(iterable, context), context)
+        val db = client.getDatabase(database)
+        val createOptions = FindCreateOptions(db, collection, filter ?: Document(), options ?: Document())
+        return Cursor(FindIterableHelper(find(createOptions), context, createOptions), context)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {
@@ -437,6 +466,16 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
+    override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
+        val options = toDocument(options, "options") ?: Document()
+        getDatabase(database, null).flatMap { db ->
+            convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
+                db.createCollection(collection, opt)
+            }
+        }
+    }
+
+    @HostAccess.Export
     override fun createIndexes(database: String, collection: String, indexSpecs: Value?): Value = promise<Any?> {
         val indexSpecs = toList(indexSpecs, "indexSpecs") ?: emptyList()
         if (indexSpecs.any { it !is Document }) throw IllegalArgumentException("Index specs must be a list of documents. Got $indexSpecs")
@@ -485,8 +524,6 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
-
-    override fun close() = client.close()
 
     private fun <T> promise(block: () -> Either<T>): Value {
         return context.toJsPromise(block())

@@ -6,7 +6,7 @@ db.coll.insertOne({status: "A", amount: 3, group: "11"});
 db.coll.insertOne({status: "A", amount: 1, group: "2"});
 db.coll.insertOne({status: "A", amount: 1, group: "2"});
 db.coll.insertOne({status: "B", amount: 1, group: "2"});
-// command
+// command extractProperty=ok
 db.coll.aggregate([
     {$match: {status: "A"}},
     {$group: {_id: "$group", total: {$sum: "$amount"}}},

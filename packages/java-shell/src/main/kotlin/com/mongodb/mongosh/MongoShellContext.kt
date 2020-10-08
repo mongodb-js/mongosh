@@ -16,7 +16,7 @@ import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
-import java.io.Closeable
+import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -31,8 +31,8 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-internal class MongoShellContext(client: MongoClient) : Closeable {
-    val ctx: Context = Context.create()
+internal class MongoShellContext(client: MongoClient) {
+    private var ctx: Context? = Context.create()
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value
     private val bsonTypes: BsonTypes
@@ -44,6 +44,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     init {
         val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js").readText()
         evalInner(setupScript, "all-standalone.js")
+        val ctx = checkClosed()
         val context = ctx.getBindings("js")
         val global = context["_global"]!!
         context.removeMember("_global")
@@ -76,6 +77,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         context.putMember("Date", date)
         val isoDate = functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) })
         context.putMember("ISODate", isoDate)
+        context.putMember("UUID", functionProducer.execute(ProxyExecutable { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) }))
     }
 
     private fun dateHelper(createObject: Boolean, args: List<Value>): Any {
@@ -124,7 +126,12 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     }
 
     operator fun get(value: String): Value? {
+        val ctx = checkClosed()
         return ctx.getBindings("js")[value]
+    }
+
+    private fun checkClosed(): Context {
+        return this.ctx ?: throw IllegalStateException("Context has already been closed")
     }
 
     internal operator fun Value.get(identifier: String): Value? {
@@ -158,7 +165,8 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.instanceOf("Promise") -> extract(unwrapPromise(v))
             type == "Help" -> extract(v["attr"]!!)
             type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
-            type == "AggregationCursor" -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
+            // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
+            type == "AggregationCursor" && v.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
             type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             type == "UpdateResult" -> {
@@ -240,6 +248,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
     }
 
     private fun evalInner(@Language("js") script: String, name: String = "Unnamed"): Value {
+        val ctx = checkClosed()
         return ctx.eval(Source.newBuilder("js", script, name).buildLiteral())
     }
 
@@ -257,7 +266,11 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
         }
     }
 
-    override fun close() = serviceProvider.close()
+    fun close() {
+        val ctx = checkClosed()
+        ctx.close(true)
+        this.ctx = null
+    }
 
     private fun Value.instanceOf(clazz: Value?): Boolean {
         return clazz != null && evalInner("(o, clazz) => o instanceof clazz", "instance_of_class_script").execute(this, clazz).asBoolean()

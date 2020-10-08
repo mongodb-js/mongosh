@@ -4,6 +4,7 @@ import org.junit.Test
 
 class DbTest : ShellTestCase() {
 
+    @Test fun testCreateCollection()   = test()
     @Test fun testDbHelp()             = test()
     @Test fun testDefaultDb()          = test()
     @Test fun testGetCollection()      = test()
@@ -11,6 +12,7 @@ class DbTest : ShellTestCase() {
     @Test fun testHelp()               = test()
     @Test fun testRunCommand()         = test()
     @Test fun testRunCommandUserInfo() = test()
+    @Test fun testServerStatus()       = test()
     @Test fun testShowCollections()    = test()
     @Test fun testShowDatabases()      = test()
     @Test fun testUseDb()              = test()
