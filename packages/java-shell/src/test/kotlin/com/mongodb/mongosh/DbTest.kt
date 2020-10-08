@@ -12,6 +12,7 @@ class DbTest : ShellTestCase() {
     @Test fun testHelp()               = test()
     @Test fun testRunCommand()         = test()
     @Test fun testRunCommandUserInfo() = test()
+    @Test fun testServerStatus()       = test()
     @Test fun testShowCollections()    = test()
     @Test fun testShowDatabases()      = test()
     @Test fun testUseDb()              = test()
