@@ -97,8 +97,10 @@ internal class Cursor(private var helper: MongoIterableHelper<*>, private val co
     }
 
     @HostAccess.Export
-    override fun explain(verbosity: String) {
-        throw NotImplementedError("explain is not supported")
+    override fun explain(verbosity: String): Any? {
+        checkQueryNotExecuted()
+        helper.explain(verbosity)
+        return context.toJs(helper.iterable.first())
     }
 
     @HostAccess.Export

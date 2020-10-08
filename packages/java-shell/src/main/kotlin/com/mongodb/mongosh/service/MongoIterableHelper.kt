@@ -44,6 +44,7 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
     open fun returnKey(v: Boolean): Unit = throw NotImplementedError("returnKey is not supported")
     open fun sort(spec: Document): Unit = throw NotImplementedError("sort is not supported")
     open fun tailable(): Unit = throw NotImplementedError("tailable is not supported")
+    open fun explain(verbosity: String): Unit = throw NotImplementedError("explain is not supported")
 }
 
 internal class AggregateIterableHelper(iterable: AggregateIterable<out Any?>, context: MongoShellContext) : MongoIterableHelper<AggregateIterable<out Any?>>(iterable, context) {
@@ -127,6 +128,10 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>, context: Mon
 
     override fun tailable() {
         iterable.cursorType(CursorType.Tailable)
+    }
+
+    override fun explain(verbosity: String) {
+        iterable.modifiers(Document("\$explain", true))
     }
 }
 

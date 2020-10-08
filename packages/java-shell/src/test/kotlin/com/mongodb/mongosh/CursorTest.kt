@@ -8,6 +8,7 @@ class CursorTest : ShellTestCase() {
     @Test fun testCollation()         = test()
     @Test fun testComment()           = test()
     @Test fun testCursorHelp()        = test()
+    @Test fun testExplain()           = test()
     @Test fun testForEach()           = test()
     @Test fun testHint()              = test()
     @Test fun testIsClosed()          = test()
