@@ -7,7 +7,6 @@ import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.MongoShellContext
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
-import com.mongodb.mongosh.result.DeleteResult
 import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
@@ -25,9 +24,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun runCommand(database: String, spec: Value): Value = promise {
         getDatabase(database, null).map { db ->
             if (spec.isString) {
-                context.toJs(db.runCommand(Document(spec.asString(), 1)))
+                db.runCommand(Document(spec.asString(), 1))
             } else {
-                context.toJs(db.runCommand(toDocument(spec, "spec")))
+                db.runCommand(toDocument(spec, "spec"))
             }
         }
     }
@@ -44,7 +43,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             if (!isOk) {
                 throw Exception(res.toJson())
             }
-            context.toJs(res)
+            res
         }
     }
 
@@ -54,9 +53,8 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).insertOne(document)
-            context.toJs(mapOf(
-                    "result" to mapOf("ok" to true),
-                    "insertedId" to "UNKNOWN"))
+            mapOf("result" to mapOf("ok" to true),
+                    "insertedId" to "UNKNOWN")
         }
     }
 
@@ -69,13 +67,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, dbOptions).flatMap { db ->
             convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverters, options).map { options ->
                 val res = db.getCollection(collection).replaceOne(filter, replacement, options)
-                context.toJs(mapOf(
-                        "result" to mapOf("ok" to res.wasAcknowledged()),
+                mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
                         "modifiedCount" to res.modifiedCount,
                         "upsertedCount" to if (res.upsertedId == null) 0 else 1,
-                        "upsertedId" to res.upsertedId
-                ))
+                        "upsertedId" to res.upsertedId)
             }
         }
     }
@@ -95,11 +91,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                     update.hasMembers() -> Right(db.getCollection(collection).updateMany(filter, toDocument(update, "update"), updateOptions))
                     else -> Left<UpdateResult>(IllegalArgumentException("updatePipeline must be a list or object"))
                 }.map { res ->
-                    context.toJs(mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                    mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                             "matchedCount" to res.matchedCount,
                             "modifiedCount" to res.modifiedCount,
                             "upsertedCount" to if (res.upsertedId == null) 0 else 1,
-                            "upsertedId" to res.upsertedId))
+                            "upsertedId" to res.upsertedId)
                 }
             }
         }
@@ -127,12 +123,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                     val pipeline = toList(update, "update")?.map { it as Document }
                     coll.updateOne(filter, pipeline, updateOptions)
                 } else coll.updateOne(filter, toDocument(update, "update"), updateOptions)
-                context.toJs(mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
                         "modifiedCount" to res.modifiedCount,
                         "upsertedCount" to if (res.upsertedId == null) 0 else 1,
-                        "upsertedId" to res.upsertedId
-                ))
+                        "upsertedId" to res.upsertedId)
             }
         }
     }
@@ -164,7 +159,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                 val writeModels = requests.map { getWriteModel(it as Document) }
                 unwrap(writeModels).map { requests ->
                     val result = db.getCollection(collection).bulkWrite(requests, options)
-                    context.toJs(mapOf(
+                    mapOf(
                             "result" to mapOf("ok" to result.wasAcknowledged()),
                             "insertedCount" to result.insertedCount,
                             "insertedIds" to "UNKNOWN",
@@ -172,7 +167,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
                             "modifiedCount" to result.modifiedCount,
                             "deletedCount" to result.deletedCount,
                             "upsertedCount" to result.upserts.size,
-                            "upsertedIds" to result.upserts.map { it.id }))
+                            "upsertedIds" to result.upserts.map { it.id })
                 }
             }
         }
@@ -218,9 +213,8 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, dbOptions).flatMap { db ->
             convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteMany(filter, deleteOptions)
-                context.toJs(mapOf(
-                        "result" to mapOf("ok" to result.wasAcknowledged()),
-                        "deletedCount" to result.deletedCount))
+                mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
+                        "deletedCount" to result.deletedCount)
             }
         }
     }
@@ -233,9 +227,8 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, dbOptions).flatMap { db ->
             convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteOne(filter, deleteOptions)
-                context.toJs(mapOf(
-                        "result" to mapOf("ok" to result.wasAcknowledged()),
-                        "deletedCount" to result.deletedCount))
+                mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
+                        "deletedCount" to result.deletedCount)
             }
         }
     }
@@ -247,7 +240,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, null).flatMap { db ->
             convert(FindOneAndDeleteOptions(), findOneAndDeleteConverters, findOneAndDeleteDefaultConverter, options).map { options ->
                 val res = db.getCollection(collection).findOneAndDelete(filter, options)
-                context.toJs(mapOf("value" to res))
+                mapOf("value" to res)
             }
         }
     }
@@ -261,7 +254,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
                     .map { options ->
                         val res = db.getCollection(collection).findOneAndReplace(filter, replacement, options)
-                        context.toJs(mapOf("value" to res))
+                        mapOf("value" to res)
                     }
         }
     }
@@ -274,7 +267,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, null).flatMap { db ->
             convert(FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, options).map { options ->
                 val res = db.getCollection(collection).findOneAndUpdate(filter, update, options)
-                context.toJs(mapOf("value" to res))
+                mapOf("value" to res)
             }
         }
 
@@ -287,9 +280,8 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         if (docs == null || docs.any { it !is Document }) return@promise Left(IllegalArgumentException("docs must be a list of objects"))
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).insertMany(docs.filterIsInstance<Document>())
-            context.toJs(mapOf(
-                    "result" to mapOf("ok" to true),
-                    "insertedIds" to emptyList<String>()))
+            mapOf("result" to mapOf("ok" to true),
+                    "insertedIds" to emptyList<String>())
         }
     }
 
@@ -392,7 +384,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun listDatabases(database: String): Value = promise {
-        Right(context.toJs(mapOf("databases" to client.listDatabases())))
+        Right(mapOf("databases" to client.listDatabases()))
     }
 
     @HostAccess.Export
@@ -407,7 +399,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     @HostAccess.Export
     override fun getIndexes(database: String, collection: String): Value = promise {
         getDatabase(database, null).map { db ->
-            context.toJs(db.getCollection(collection).listIndexes())
+            db.getCollection(collection).listIndexes()
         }
     }
 
@@ -417,26 +409,26 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         getDatabase(database, null).map { db ->
             val list = db.listCollections()
             if (filter != null) list.filter(filter)
-            context.toJs(list)
+            list
         }
     }
 
     @HostAccess.Export
     override fun stats(database: String, collection: String, options: Value?): Value = promise<Any?> {
         getDatabase(database, null).map { db ->
-            context.toJs(db.runCommand(Document("collStats", collection)))
+            db.runCommand(Document("collStats", collection))
         }
     }
 
     @HostAccess.Export
-    override fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value {
+    override fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value = promise {
         val query = toDocument(query, "query")
         val dbOptions = toDocument(dbOptions, "dbOptions")
-        val promise = getDatabase(database, dbOptions).map { db ->
+        getDatabase(database, dbOptions).map { db ->
             val result = db.getCollection(collection).deleteMany(query)
-            DeleteResult(result.wasAcknowledged(), result.deletedCount)
+            mapOf("acknowledged" to result.wasAcknowledged(),
+                    "deletedCount" to result.deletedCount)
         }
-        return context.toJsPromise(promise)
     }
 
     @HostAccess.Export
@@ -454,7 +446,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
             }
             val indexes = unwrap(convertedIndexes)
             indexes.map { indexes ->
-                context.toJs(db.getCollection(collection).createIndexes(indexes))
+                db.getCollection(collection).createIndexes(indexes)
             }
         }
     }
