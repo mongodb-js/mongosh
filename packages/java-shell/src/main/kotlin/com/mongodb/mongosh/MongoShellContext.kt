@@ -15,8 +15,6 @@ import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
-import org.graalvm.polyglot.proxy.ProxyObject
-import org.graalvm.polyglot.proxy.ProxyObject.fromMap
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.time.LocalDateTime
@@ -34,7 +32,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 internal class MongoShellContext(client: MongoClient) : Closeable {
-    private val ctx: Context = Context.create()
+    val ctx: Context = Context.create()
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value
     private val bsonTypes: BsonTypes
@@ -227,6 +225,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
             v.fitsInLong() -> LongResult(v.asLong())
             v.fitsInFloat() -> FloatResult(v.asFloat())
             v.fitsInDouble() -> DoubleResult(v.asDouble())
+            v.equalsTo("undefined") -> VoidResult
             v.isNull -> NullResult
             v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
@@ -253,7 +252,7 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
 
     fun <T> toJsPromise(promise: Either<T>): Value {
         return when (promise) {
-            is Right -> evalInner("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(promise.value)
+            is Right -> evalInner("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(toJs(promise.value))
             is Left -> evalInner("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
         }
     }
@@ -266,19 +265,23 @@ internal class MongoShellContext(client: MongoClient) : Closeable {
 
     private fun Value.instanceOf(@Language("js") clazz: String): Boolean = evalInner("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()
 
+    private fun Value.equalsTo(@Language("js") value: String): Boolean = evalInner("(x) => x === $value", "equals_script").execute(this).asBoolean()
+
     fun toJs(o: Any?): Any? {
         return when (o) {
             is Iterable<*> -> toJs(o)
             is Map<*, *> -> toJs(o)
+            Unit -> evalInner("undefined")
             else -> o
         }
     }
 
-    private fun toJs(map: Map<*, *>): ProxyObject {
-        val convertedMap: Map<String, Any?> = map.entries.asSequence()
-                .filter { (key, _) -> key is String }
-                .associate { e -> e.key as String to toJs(e.value) }
-        return fromMap(convertedMap)
+    private fun toJs(map: Map<*, *>): Value {
+        val jsMap = evalInner("new Object()")
+        for ((key, value) in map.entries) {
+            jsMap.putMember(key as String, toJs(value))
+        }
+        return jsMap
     }
 
     private fun toJs(list: Iterable<Any?>): Value {
