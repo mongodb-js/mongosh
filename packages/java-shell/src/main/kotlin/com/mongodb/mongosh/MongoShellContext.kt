@@ -35,6 +35,7 @@ internal class MongoShellContext(client: MongoClient) {
     private var ctx: Context? = Context.create()
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value
+    private val shellInternalState: Value
     private val bsonTypes: BsonTypes
 
     /** Java functions don't have js methods such as apply, bind, call etc.
@@ -48,7 +49,7 @@ internal class MongoShellContext(client: MongoClient) {
         val context = ctx.getBindings("js")
         val global = context["_global"]!!
         context.removeMember("_global")
-        val shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
+        shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
         shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState)
         val jsSymbol = context["Symbol"]!!
         shellInternalState.invokeMember("setCtx", context)
@@ -253,10 +254,21 @@ internal class MongoShellContext(client: MongoClient) {
     }
 
     fun eval(@Language("js") script: String, name: String): Value {
+        updateDatabase()
         val originalEval = ProxyExecutable { args ->
             evalInner(args[0].asString(), name)
         }
         return shellEvaluator.invokeMember("customEval", originalEval, script)
+    }
+
+    private fun updateDatabase() {
+        // graaljs does not allow to define property on top context, so we need to update internal state manually
+        val currentDb = evalInner("db")
+        val currentDbName = currentDb.invokeMember("getName").asString()
+        val stateDbName = shellInternalState["currentDb"]?.invokeMember("getName")?.asString()
+        if (currentDbName != stateDbName) {
+            shellInternalState.invokeMember("setDbFunc", currentDb)
+        }
     }
 
     fun <T> toJsPromise(promise: Either<T>): Value {
