@@ -7,12 +7,10 @@ import {
   ALL_SERVER_VERSIONS,
   shellApiType,
   asPrintable,
-  namespaceInfo,
-  usesRawValueInsteadOfPrintableForJavaShell
+  namespaceInfo
 } from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
 import { addHiddenDataProperty } from './helpers';
-import { ReplPlatform } from '@mongosh/service-provider-core';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -67,11 +65,6 @@ export class ShellApiClass implements ShellApiInterface {
   [asPrintable](): any {
     return Object.assign({}, this);
   }
-
-  /// @deprecated: Use `toShellResult(value).printable` instead.
-  _asPrintable(): any {
-    return this[asPrintable]();
-  }
 }
 
 export function getShellApiType(rawValue: any): string | null {
@@ -88,19 +81,21 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
     };
   }
 
+  if ('then' in rawValue && typeof rawValue.then === 'function') {
+    // Accepting Promises for the actual values here makes life a bit easier
+    // in the Java shell.
+    return toShellResult(await rawValue);
+  }
+
   const printable =
     typeof rawValue[asPrintable] === 'function' ? await rawValue[asPrintable]() : rawValue;
   const source = rawValue[resultSource] ?? undefined;
-
-  const legacyJavaShellHandling =
-    rawValue[usesRawValueInsteadOfPrintableForJavaShell] === true &&
-    rawValue?._mongo?._serviceProvider?.platform === ReplPlatform.JavaShell;
 
   return {
     type: getShellApiType(rawValue),
     rawValue: rawValue,
     printable: printable,
-    value: legacyJavaShellHandling ? rawValue : printable,
+    value: printable,
     source: source
   };
 }

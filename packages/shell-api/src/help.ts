@@ -44,10 +44,4 @@ export default class Help {
   }
 
   get [shellApiType](): string { return 'Help'; }
-
-  // Only present because this does not inherit from ShellApiClass
-  /// @deprecated: Use `toShellResult(value).printable` instead.
-  _asPrintable(): any {
-    return this[asPrintable]();
-  }
 }

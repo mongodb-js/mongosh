@@ -10,8 +10,7 @@ import {
 } from './decorators';
 import {
   ServerVersions,
-  asPrintable,
-  usesRawValueInsteadOfPrintableForJavaShell
+  asPrintable
 } from './enums';
 import {
   Cursor as ServiceProviderCursor,
@@ -33,9 +32,6 @@ export default class Cursor extends ShellApiClass {
     this._cursor = cursor;
     this._mongo = mongo;
   }
-
-  /// @deprecated toShellResult() returns both the raw value and the printable version now.
-  get [usesRawValueInsteadOfPrintableForJavaShell](): boolean { return true; }
 
   /**
    * Internal method to determine what is printed for this class.

@@ -30,7 +30,4 @@ export const shellApiType = Symbol.for('@@mongosh.shellApiType');
 export const asPrintable = Symbol.for('@@mongosh.asPrintable');
 export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
 
-/// @deprecated toShellResult() returns both the raw value and the printable version now.
-export const usesRawValueInsteadOfPrintableForJavaShell = Symbol.for('@@mongosh.deprecated.usesRawValueInsteadOfPrintableForJavaShell');
-
 export const ADMIN_DB = 'admin';

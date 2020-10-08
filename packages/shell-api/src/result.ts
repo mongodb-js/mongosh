@@ -103,10 +103,4 @@ export class CursorIterationResult extends Array {
     super(...args);
     addHiddenDataProperty(this, shellApiType, 'CursorIterationResult');
   }
-
-  // Only present because this does not inherit from ShellApiClass
-  /// @deprecated: Use `toShellResult(value).printable` instead.
-  _asPrintable(): any {
-    return this[asPrintable]();
-  }
 }

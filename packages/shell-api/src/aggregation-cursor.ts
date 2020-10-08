@@ -11,7 +11,7 @@ import {
   Document
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
-import { usesRawValueInsteadOfPrintableForJavaShell, asPrintable } from './enums';
+import { asPrintable } from './enums';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -42,9 +42,6 @@ export default class AggregationCursor extends ShellApiClass {
 
     return results;
   }
-
-  /// @deprecated toShellResult() returns both the raw value and the printable version now.
-  get [usesRawValueInsteadOfPrintableForJavaShell](): boolean { return true; }
 
   /**
    * Internal method to determine what is printed for this class.

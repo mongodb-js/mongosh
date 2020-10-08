@@ -36,6 +36,8 @@ internal class MongoShellContext(client: MongoClient) {
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value
     private val shellInternalState: Value
+    private val toShellResultFn: Value
+    private val getShellApiTypeFn: Value
     private val bsonTypes: BsonTypes
 
     /** Java functions don't have js methods such as apply, bind, call etc.
@@ -51,6 +53,8 @@ internal class MongoShellContext(client: MongoClient) {
         context.removeMember("_global")
         shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
         shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState)
+        toShellResultFn = global.getMember("toShellResult")
+        getShellApiTypeFn = global.getMember("getShellApiType")
         val jsSymbol = context["Symbol"]!!
         shellInternalState.invokeMember("setCtx", context)
         initContext(context, jsSymbol)
@@ -161,13 +165,31 @@ internal class MongoShellContext(client: MongoClient) {
         }
     }
 
-    fun extract(v: Value, type: String? = null): MongoShellResult<*> {
+    fun getShellApiType(rawValue: Value): String? {
+        val rawType = getShellApiTypeFn.execute(rawValue)
+        return if (rawType.isString) rawType.asString() else null
+    }
+
+    fun toShellResult(rawValue: Value): Value {
+        return unwrapPromise(toShellResultFn.execute(rawValue));
+    }
+
+    fun extract(printable: Value?, rawValue: Value? = null): MongoShellResult<*> {
+        var v: Value
+        var type: String? = null
+        if (printable == null) {
+            type = getShellApiType(rawValue as Value)
+            val shellResult = toShellResult(rawValue as Value)
+            v = shellResult["printable"]!!
+        } else {
+            v = printable
+        }
+
         return when {
-            v.instanceOf("Promise") -> extract(unwrapPromise(v))
             type == "Help" -> extract(v["attr"]!!)
-            type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
+            type == "Cursor" -> FindCursorResult(FindCursor<Any?>(rawValue, this))
             // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
-            type == "AggregationCursor" && v.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
+            type == "AggregationCursor" && rawValue!!.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(rawValue, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
             type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             type == "UpdateResult" -> {
