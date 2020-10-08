@@ -1,3 +1,6 @@
+// before
+db.coll.drop();
+db.collWithValidator.drop();
 // command
 db.createCollection('coll')
 // command
