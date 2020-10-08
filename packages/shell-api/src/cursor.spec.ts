@@ -703,5 +703,29 @@ describe('Cursor', () => {
           '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
       });
     });
+
+    describe('toShellResult', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        let i = 0;
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          hasNext: sinon.stub().resolves(true),
+          next: sinon.stub().callsFake(async() => ({ key: i++ })),
+          isClosed: sinon.stub().returns(false)
+        });
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('is idempotent unless iterated', async() => {
+        const result1 = (await toShellResult(shellApiCursor)).printable;
+        const result2 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.deep.equal(result2);
+        await shellApiCursor._it();
+        const result3 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.not.deep.equal(result3);
+      });
+    });
   });
 });

@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
+import { SinonStubbedInstance } from 'sinon';
 import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { ReplPlatform } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor } from 'mongodb';
 
 describe('AggregationCursor', () => {
   describe('help', () => {
@@ -61,6 +63,32 @@ describe('AggregationCursor', () => {
       const arg = {};
       cursor.map(arg);
       expect(wrappee.map.calledWith(arg)).to.equal(true);
+    });
+
+    describe('toShellResult', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        let i = 0;
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          hasNext: sinon.stub().resolves(true),
+          next: sinon.stub().callsFake(async() => ({ key: i++ })),
+          isClosed: sinon.stub().returns(false)
+        });
+        shellApiCursor = new AggregationCursor({
+          _serviceProvider: { platform: ReplPlatform.CLI }
+        }, spCursor);
+      });
+
+      it('is idempotent unless iterated', async() => {
+        const result1 = (await toShellResult(shellApiCursor)).printable;
+        const result2 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.deep.equal(result2);
+        await shellApiCursor._it();
+        const result3 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.not.deep.equal(result3);
+      });
     });
   });
 });

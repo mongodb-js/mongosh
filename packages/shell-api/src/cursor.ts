@@ -26,6 +26,8 @@ import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/er
 export default class Cursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderCursor;
+  _currentIterationResult: CursorIterationResult | null = null;
+
   constructor(mongo, cursor) {
     super();
     this._cursor = cursor;
@@ -39,11 +41,11 @@ export default class Cursor extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   async [asPrintable](): Promise<CursorIterationResult> {
-    return await this._it();
+    return this._currentIterationResult ?? await this._it();
   }
 
   async _it(): Promise<CursorIterationResult> {
-    const results = new CursorIterationResult();
+    const results = this._currentIterationResult = new CursorIterationResult();
 
     if (this.isClosed()) {
       return results;
