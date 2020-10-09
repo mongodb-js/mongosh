@@ -13,6 +13,7 @@ import {
   ALL_TOPOLOGIES
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
+import util from 'util';
 
 describe('ReplicaSet', () => {
   describe('help', () => {
@@ -587,7 +588,7 @@ describe('ReplicaSet', () => {
     });
   });
 
-  describe.skip('integration', () => {
+  xdescribe('integration', () => {
     const port0 = 27017;
     const host = '127.0.0.1';
     const replId = 'rs0';
@@ -605,22 +606,16 @@ describe('ReplicaSet', () => {
     let mongo;
     let rs;
 
-    const ensureMaster = (done, timeout): void => {
-      if (timeout > 8000) expect.fail(`Waited for ${host}:${port0} to become master, never happened`);
-      return rs.isMaster().then((res) => {
-        if (res.ismaster) {
-          done();
-        } else { // try again but wait double
-          return setTimeout(async() => {
-            if ((await rs.isMaster()).ismaster) {
-              expect((await rs.conf()).members.length).to.equal(3);
-              done();
-            } else {
-              ensureMaster(done, timeout * 2);
-            }
-          }, timeout);
+    const delay = util.promisify(setTimeout);
+    const ensureMaster = async(timeout): Promise<void> => {
+      while (!(await rs.isMaster()).ismaster) {
+        if (timeout > 8000) {
+          return expect.fail(`Waited for ${host}:${port0} to become master, never happened`);
         }
-      });
+        await delay(timeout);
+        timeout *= 2; // try again but wait double
+      }
+      expect((await rs.conf()).members.length).to.equal(3);
     };
 
     before(async() => {
@@ -644,8 +639,8 @@ describe('ReplicaSet', () => {
       console.log('WARNING: Using existing replset');
     });
 
-    beforeEach((done) => {
-      ensureMaster(done, 1000);
+    beforeEach(async() => {
+      await ensureMaster(1000);
     });
 
     after(() => {
