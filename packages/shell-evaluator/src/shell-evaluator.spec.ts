@@ -3,7 +3,7 @@ import sinon from 'ts-sinon';
 const sinonChai = require('sinon-chai'); // weird with import
 use(sinonChai);
 
-import ShellEvaluator from './shell-evaluator';
+import ShellEvaluator from './index';
 import { EventEmitter } from 'events';
 
 describe('ShellEvaluator', () => {

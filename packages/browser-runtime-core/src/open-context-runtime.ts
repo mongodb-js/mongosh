@@ -6,7 +6,7 @@ import { Runtime } from './runtime';
 import { EventEmitter } from 'events';
 import { ShellInternalState, ShellResult } from '@mongosh/shell-api';
 
-import ShellEvaluator from '@mongosh/shell-evaluator';
+import { ShellEvaluator, EvaluationListener } from '@mongosh/shell-evaluator';
 
 /**
  * This class is the core implementation for a runtime which is not isolated
@@ -22,6 +22,7 @@ export class OpenContextRuntime implements Runtime {
   private autocompleter: ShellApiAutocompleter;
   private shellEvaluator: ShellEvaluator;
   private internalState: ShellInternalState;
+  private evaluationListener: EvaluationListener | null = null;
 
   constructor(
     serviceProvider: ServiceProvider,
@@ -54,5 +55,11 @@ export class OpenContextRuntime implements Runtime {
       this.interpreterEnvironment.getContextObject(),
       ''
     );
+  }
+
+  setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
+    const prev = this.evaluationListener;
+    this.shellEvaluator.setEvaluationListener(listener);
+    return prev;
   }
 }

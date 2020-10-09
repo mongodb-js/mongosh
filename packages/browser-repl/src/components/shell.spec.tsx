@@ -35,7 +35,8 @@ describe('<Shell />', () => {
     elementFocus = sinon.spy(HTMLElement.prototype, 'focus');
 
     fakeRuntime = {
-      evaluate: sinon.fake.returns({ printable: 'some result' })
+      evaluate: sinon.fake.returns({ printable: 'some result' }),
+      setEvaluationListener: () => {}
     };
 
     onOutputChangedSpy = sinon.spy();
@@ -247,7 +248,8 @@ describe('<Shell />', () => {
           return new Promise(resolve => {
             onInputDone = resolve;
           });
-        }
+        },
+        setEvaluationListener: () => {}
       } as any}
     />);
 
@@ -354,5 +356,13 @@ describe('<Shell />', () => {
     container.prop('onClick')(fakeMouseEvent);
 
     expect(HTMLElement.prototype.focus).to.not.have.been.called;
+  });
+
+  it('updated the output when .onPrint is called', () => {
+    wrapper.instance().onPrint([{ type: null, printable: 42 }]);
+
+    expect(onOutputChangedSpy).to.have.been.calledWith([
+      { format: 'output', value: 42, type: null }
+    ]);
   });
 });

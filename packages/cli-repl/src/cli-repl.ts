@@ -2,7 +2,7 @@
 
 import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
 import { getShellApiType, ShellInternalState } from '@mongosh/shell-api';
-import ShellEvaluator from '@mongosh/shell-evaluator';
+import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
@@ -84,6 +84,7 @@ class CliRepl {
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     this.internalState = new ShellInternalState(initialServiceProvider, this.bus, this.options);
     this.shellEvaluator = new ShellEvaluator(this.internalState, this);
+    this.shellEvaluator.setEvaluationListener(this);
     await this.internalState.fetchConnectionInfo();
     this.start();
   }
@@ -466,6 +467,13 @@ class CliRepl {
 
     console.error(formatError(error));
     return process.exit(1);
+  }
+
+  onPrint(values: ShellResult[]): void {
+    const joined = values.map(this.writer).join(' ');
+    // `as any` becomes unnecessary after
+    // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/48646
+    (this.repl as any).output.write(joined + '\n');
   }
 }
 

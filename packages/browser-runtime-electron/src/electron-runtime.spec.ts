@@ -8,17 +8,23 @@ import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { bson } from '@mongosh/service-provider-core';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
+import { EvaluationListener } from '@mongosh/shell-evaluator';
 
 describe('Electron runtime', function() {
   let serviceProvider: SinonStubbedInstance<CliServiceProvider>;
   let messageBus: SinonStubbedInstance<EventEmitter>;
+  let evaluationListener: SinonStubbedInstance<EvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
   beforeEach(async() => {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
     serviceProvider.bsonLibrary = bson;
+    serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } });
     messageBus = sinon.createStubInstance(EventEmitter);
+    evaluationListener = sinon.createStubInstance(class FakeListener {});
+    evaluationListener.onPrint = sinon.stub();
     electronRuntime = new ElectronRuntime(serviceProvider, messageBus);
+    electronRuntime.setEvaluationListener(evaluationListener);
   });
 
   it('can evaluate simple js', async() => {
@@ -78,5 +84,37 @@ describe('Electron runtime', function() {
   it('allows to receive telemetry event passing a message bus', async() => {
     await electronRuntime.evaluate('use db1');
     expect(messageBus.emit).to.have.been.calledWith('mongosh:use');
+  });
+
+  describe('onPrint', () => {
+    it('allows getting the output of print() statements', async() => {
+      await electronRuntime.evaluate('print("foo");');
+      expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
+        sinon.match((array) => (
+          array.length === 1 &&
+          array[0].type === null &&
+          array[0].printable === 'foo')));
+    });
+
+    it('allows getting the output of console.log() statements', async() => {
+      await electronRuntime.evaluate('console.log("foo");');
+      expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
+        sinon.match((array) => (
+          array.length === 1 &&
+          array[0].type === null &&
+          array[0].printable === 'foo')));
+    });
+
+    it('allows getting the output of multi-arg console.log() statements', async() => {
+      await electronRuntime.evaluate('console.log("foo", "bar");');
+      expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
+        sinon.match((array) => (
+          array.length === 2 &&
+          array[0].type === null &&
+          array[0].printable === 'foo' &&
+          array[1].type === null &&
+          array[1].printable === 'bar')));
+      expect(evaluationListener.onPrint).to.have.been.calledOnce;
+    });
   });
 });

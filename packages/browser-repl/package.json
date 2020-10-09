@@ -42,7 +42,7 @@
     "@mongosh/history": "^0.4.2",
     "@mongosh/i18n": "^0.4.2",
     "@mongosh/service-provider-core": "^0.4.2",
-    "@mongosh/shell-api": "^0.4.2",
+    "@mongosh/shell-evaluator": "^0.4.2",
     "pretty-bytes": "^5.3.0",
     "text-table": "^0.2.0"
   },

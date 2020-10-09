@@ -5,7 +5,7 @@ import Database from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help from './help';
-import ShellInternalState from './shell-internal-state';
+import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
@@ -41,6 +41,7 @@ export {
   ExplainableCursor,
   Help,
   ShellInternalState,
+  EvaluationListener,
   BulkWriteResult,
   CommandResult,
   DeleteResult,
