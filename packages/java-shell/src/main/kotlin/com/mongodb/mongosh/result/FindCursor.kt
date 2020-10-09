@@ -22,7 +22,7 @@ class FindCursor<out T> internal constructor(private var cursor: Value?, private
 
     override fun _asPrintable(): String {
         val (cursor, context) = checkClosed()
-        return context.extract(cursor.invokeMember("_asPrintable"))._asPrintable()
+        return context.extract(context.toShellResult(cursor).getMember("printable"))._asPrintable()
     }
 
     override fun close() {

@@ -1,8 +1,8 @@
-import { signatures } from './decorators';
+import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
 import { Cursor as ServiceProviderCursor } from 'mongodb';
 import { CursorFlag, ReplPlatform } from '@mongosh/service-provider-core';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions, asShellResult } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import sinon, { SinonStubbedInstance } from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
@@ -15,8 +15,8 @@ describe('Cursor', () => {
       _serviceProvider: { platform: ReplPlatform.CLI }
     }, {});
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -49,9 +49,9 @@ describe('Cursor', () => {
     });
 
     it('sets dynamic properties', async() => {
-      expect((await cursor[asShellResult]()).type).to.equal('Cursor');
-      expect((await ((await cursor[asShellResult]()).value)[asShellResult]()).type).to.equal('CursorIterationResult');
-      expect((await cursor.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(cursor)).type).to.equal('Cursor');
+      expect((await toShellResult(((await toShellResult(cursor)).printable))).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {
@@ -701,6 +701,30 @@ describe('Cursor', () => {
       it('throws a helpful exception regarding its removal', () => {
         expect(() => shellApiCursor.maxScan()).to.throw(
           '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+      });
+    });
+
+    describe('toShellResult', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        let i = 0;
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          hasNext: sinon.stub().resolves(true),
+          next: sinon.stub().callsFake(async() => ({ key: i++ })),
+          isClosed: sinon.stub().returns(false)
+        });
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('is idempotent unless iterated', async() => {
+        const result1 = (await toShellResult(shellApiCursor)).printable;
+        const result2 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.deep.equal(result2);
+        await shellApiCursor._it();
+        const result3 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.not.deep.equal(result3);
       });
     });
   });

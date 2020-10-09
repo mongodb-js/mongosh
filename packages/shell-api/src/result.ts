@@ -1,5 +1,6 @@
-import { ShellApiClass, shellApiClassDefault, ShellResult } from './decorators';
-import { shellApiType, asShellResult } from './enums';
+import { ShellApiClass, shellApiClassDefault } from './decorators';
+import { shellApiType, asPrintable } from './enums';
+import { addHiddenDataProperty } from './helpers';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {
@@ -9,19 +10,13 @@ export class CommandResult extends ShellApiClass {
     super();
     this.type = type;
     this.value = value;
+    this[shellApiType] = type;
   }
 
   /**
-   * Because the type is not the same as the constructor in this case.
+   * Internal method to determine what is printed for this class.
    */
-  [asShellResult](): ShellResult {
-    return this;
-  }
-
-  /**
-   * Internal method to determine what is printed for this class. In this case, used only in the java shell.
-   */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return this.value;
   }
 }
@@ -102,32 +97,10 @@ export class DeleteResult extends ShellApiClass {
 // NOTE: because this is inherited, the decorator does not add attributes. So no help() function.
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
-  [asShellResult]: () => string;
-  _asPrintable: () => this;
-  [shellApiType]: 'CursorIterationResult';
+  [shellApiType]: string;
 
   constructor(...args) {
     super(...args);
-
-    /**
-     * Internal method to determine what is printed for this class.
-     */
-    Object.defineProperty(this, '_asPrintable', {
-      value: () => { return this; },
-      enumerable: false
-    });
-
-    /**
-     * Because this does not inherit from ShellApi, need to set asShellResult manually
-     */
-    Object.defineProperty(this, asShellResult, {
-      value: () => {
-        return {
-          type: 'CursorIterationResult',
-          value: this._asPrintable()
-        };
-      },
-      enumerable: false
-    });
+    addHiddenDataProperty(this, shellApiType, 'CursorIterationResult');
   }
 }

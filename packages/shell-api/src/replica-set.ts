@@ -9,7 +9,7 @@ import {
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { ADMIN_DB } from './enums';
+import { ADMIN_DB, asPrintable } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
@@ -248,7 +248,7 @@ export default class ReplicaSet extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return `ReplicaSet class connected to ${this._mongo._uri}`;
   }
 

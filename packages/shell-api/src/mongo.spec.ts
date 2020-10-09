@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Mongo from './mongo';
-import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
-import { signatures } from './decorators';
+import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { signatures, toShellResult } from './index';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import Database from './database';
@@ -14,8 +14,8 @@ describe('Mongo', () => {
   describe('help', () => {
     const apiClass: any = new Mongo({} as any, '');
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -37,13 +37,13 @@ describe('Mongo', () => {
     });
   });
   describe('Metadata', () => {
-    describe('asShellResult', () => {
+    describe('toShellResult', () => {
       const mongo = new Mongo({} as any, 'localhost:37017');
       it('value', async() => {
-        expect((await mongo[asShellResult]()).value).to.equal('mongodb://localhost:37017/test');
+        expect((await toShellResult(mongo)).value).to.equal('mongodb://localhost:37017/test');
       });
       it('type', async() => {
-        expect((await mongo[asShellResult]()).type).to.equal('Mongo');
+        expect((await toShellResult(mongo)).type).to.equal('Mongo');
       });
     });
   });

@@ -2,6 +2,7 @@ import {
   shellApiClassDefault,
   ShellApiClass
 } from './decorators';
+import { asPrintable } from './enums';
 
 import { MongoshUnimplementedError } from '@mongosh/errors';
 
@@ -13,7 +14,7 @@ class DeprecatedClass extends ShellApiClass {
     this.name = name;
     const proxy = new Proxy(this, {
       get: (obj, prop): any => {
-        if (!(prop in obj)) {
+        if (typeof prop === 'string' && !(prop in obj)) {
           const alt = alternatives[prop] || '';
           throw new MongoshUnimplementedError(`The class ${name} is deprecated.${alt}`);
         }
@@ -26,7 +27,7 @@ class DeprecatedClass extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return `The class ${this.name} is deprecated`;
   }
 }

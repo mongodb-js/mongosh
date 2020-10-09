@@ -8,9 +8,8 @@ class MongoShell(client: MongoClient) {
 
     fun eval(script: String): MongoShellResult<*> {
         val result = context.unwrapPromise(context.eval(script, "user_script"))
-        val value = result.getMember("value")
-        val type = result.getMember("type")
-        return context.extract(value, if (type.isString) type.asString() else null)
+        val value = result.getMember("rawValue")
+        return context.extract(null, value)
     }
 
     fun close() = context.close()

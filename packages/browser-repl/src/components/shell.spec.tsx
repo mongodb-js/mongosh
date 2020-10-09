@@ -35,7 +35,7 @@ describe('<Shell />', () => {
     elementFocus = sinon.spy(HTMLElement.prototype, 'focus');
 
     fakeRuntime = {
-      evaluate: sinon.fake.returns({ value: 'some result' })
+      evaluate: sinon.fake.returns({ printable: 'some result' })
     };
 
     onOutputChangedSpy = sinon.spy();

@@ -26,8 +26,7 @@ export enum DBQueryOption {
 }
 
 export const shellApiType = Symbol.for('@@mongosh.shellApiType');
-// TODO: Would require changes to java-shell
-// export const asPrintable = Symbol('asPrintable');
-export const asShellResult = Symbol.for('@@mongosh.asShellResult');
+export const asPrintable = Symbol.for('@@mongosh.asPrintable');
+export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
 
 export const ADMIN_DB = 'admin';

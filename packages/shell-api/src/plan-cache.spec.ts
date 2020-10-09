@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import PlanCache from './plan-cache';
-import { ALL_PLATFORMS, ALL_TOPOLOGIES, asShellResult, ServerVersions } from './enums';
-import { signatures } from './decorators';
+import { ALL_PLATFORMS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { signatures, toShellResult } from './index';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
@@ -10,8 +10,8 @@ describe('PlanCache', () => {
   describe('help', () => {
     const apiClass: any = new PlanCache({} as any);
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signatures', () => {
@@ -33,13 +33,13 @@ describe('PlanCache', () => {
     });
   });
   describe('Metadata', () => {
-    describe('asShellResult', () => {
+    describe('toShellResult', () => {
       const planCache = new PlanCache({ _name: 'collname' } as any);
       it('value', async() => {
-        expect((await planCache[asShellResult]()).value).to.equal('PlanCache for collection collname.');
+        expect((await toShellResult(planCache)).printable).to.equal('PlanCache for collection collname.');
       });
       it('type', async() => {
-        expect((await planCache[asShellResult]()).type).to.equal('PlanCache');
+        expect((await toShellResult(planCache)).type).to.equal('PlanCache');
       });
     });
   });

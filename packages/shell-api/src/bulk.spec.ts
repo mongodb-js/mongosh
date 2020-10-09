@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Bulk, { BulkFindOp } from './bulk';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
-import { signatures } from './decorators';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { signatures, toShellResult } from './index';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
@@ -14,12 +14,12 @@ describe('Bulk API', () => {
     describe('help', () => {
       const apiClass: any = new Bulk({} as any, {} as any);
       it('calls help function', async() => {
-        expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-        expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+        expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+        expect((await toShellResult(apiClass.help)).type).to.equal('Help');
       });
       it('calls help function for methods', async() => {
-        expect((await apiClass.execute.help()[asShellResult]()).type).to.equal('Help');
-        expect((await apiClass.execute.help[asShellResult]()).type).to.equal('Help');
+        expect((await toShellResult(apiClass.execute.help())).type).to.equal('Help');
+        expect((await toShellResult(apiClass.execute.help)).type).to.equal('Help');
       });
     });
     describe('signatures', () => {
@@ -41,17 +41,17 @@ describe('Bulk API', () => {
       });
     });
     describe('Metadata', () => {
-      describe('asShellResult', () => {
+      describe('toShellResult', () => {
         const mongo = sinon.spy();
         const inner = {
           s: { batches: [1, 2, 3], currentInsertBatch: {} as any }
         } as any;
         const b = new Bulk(mongo, inner);
         it('value', async() => {
-          expect((await b[asShellResult]()).value).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
+          expect((await toShellResult(b)).printable).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
         });
         it('type', async() => {
-          expect((await b[asShellResult]()).type).to.equal('Bulk');
+          expect((await toShellResult(b)).type).to.equal('Bulk');
         });
       });
     });
@@ -144,7 +144,7 @@ describe('Bulk API', () => {
             it('returns new BulkFindOp with arg', async() => {
               innerStub.find.returns({ driverFindOp: 1 });
               const res = bulk.find({ search: 1 });
-              expect((await res[asShellResult]()).type).to.equal('BulkFindOp');
+              expect((await toShellResult(res)).type).to.equal('BulkFindOp');
               expect(res._serviceProviderBulkFindOp).to.deep.equal({ driverFindOp: 1 });
             });
             it('throws if innerBulk.find throws', () => {
@@ -162,7 +162,7 @@ describe('Bulk API', () => {
             it('returns new BulkWriteResult', async() => {
               innerStub.execute.returns({ result: bulkWriteResult });
               const res = await bulk.execute();
-              expect((await res[asShellResult]()).type).to.equal('BulkWriteResult');
+              expect((await toShellResult(res)).type).to.equal('BulkWriteResult');
               expect(res).to.deep.equal(
                 new BulkWriteResult(
                   !!bulkWriteResult.ok, // acknowledged
@@ -225,12 +225,12 @@ describe('Bulk API', () => {
     describe('help', () => {
       const apiClass: any = new BulkFindOp({} as any, {} as any);
       it('calls help function', async() => {
-        expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-        expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+        expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+        expect((await toShellResult(apiClass.help)).type).to.equal('Help');
       });
       it('calls help function for methods', async() => {
-        expect((await apiClass.remove.help()[asShellResult]()).type).to.equal('Help');
-        expect((await apiClass.remove.help[asShellResult]()).type).to.equal('Help');
+        expect((await toShellResult(apiClass.remove.help())).type).to.equal('Help');
+        expect((await toShellResult(apiClass.remove.help)).type).to.equal('Help');
       });
     });
     describe('signatures', () => {
@@ -252,13 +252,13 @@ describe('Bulk API', () => {
       });
     });
     describe('Metadata', () => {
-      describe('asShellResult', () => {
+      describe('toShellResult', () => {
         const b = new BulkFindOp({} as any, {} as any);
         it('value', async() => {
-          expect((await b[asShellResult]()).value).to.deep.equal('BulkFindOp');
+          expect((await toShellResult(b)).printable).to.deep.equal('BulkFindOp');
         });
         it('type', async() => {
-          expect((await b[asShellResult]()).type).to.equal('BulkFindOp');
+          expect((await toShellResult(b)).type).to.equal('BulkFindOp');
         });
       });
     });

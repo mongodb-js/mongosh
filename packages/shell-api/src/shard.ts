@@ -9,7 +9,7 @@ import {
   Document
 } from '@mongosh/service-provider-core';
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
-import { ADMIN_DB, ServerVersions } from './enums';
+import { ADMIN_DB, ServerVersions, asPrintable } from './enums';
 import { CommandResult } from './result';
 
 @shellApiClassDefault
@@ -25,7 +25,7 @@ export default class Shard extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  _asPrintable(): string {
+  [asPrintable](): string {
     return `Shard class connected to ${this._mongo._uri}`;
   }
 

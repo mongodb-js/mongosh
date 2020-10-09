@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { signatures } from './decorators';
+import { SinonStubbedInstance } from 'sinon';
+import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, asShellResult } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { ReplPlatform } from '@mongosh/service-provider-core';
+import { Cursor as ServiceProviderCursor } from 'mongodb';
 
 describe('AggregationCursor', () => {
   describe('help', () => {
@@ -11,8 +13,8 @@ describe('AggregationCursor', () => {
       _serviceProvider: { platform: ReplPlatform.CLI }
     }, {});
     it('calls help function', async() => {
-      expect((await apiClass.help()[asShellResult]()).type).to.equal('Help');
-      expect((await apiClass.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help())).type).to.equal('Help');
+      expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
   describe('signature', () => {
@@ -45,9 +47,9 @@ describe('AggregationCursor', () => {
     });
 
     it('sets dynamic properties', async() => {
-      expect((await cursor[asShellResult]()).type).to.equal('AggregationCursor');
-      expect((await ((await cursor[asShellResult]()).value)[asShellResult]()).type).to.equal('CursorIterationResult');
-      expect((await cursor.help[asShellResult]()).type).to.equal('Help');
+      expect((await toShellResult(cursor)).type).to.equal('AggregationCursor');
+      expect((await toShellResult((await toShellResult(cursor)).printable)).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
     it('returns the same cursor', () => {
@@ -61,6 +63,32 @@ describe('AggregationCursor', () => {
       const arg = {};
       cursor.map(arg);
       expect(wrappee.map.calledWith(arg)).to.equal(true);
+    });
+
+    describe('toShellResult', () => {
+      let spCursor: SinonStubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        let i = 0;
+        spCursor = sinon.createStubInstance(ServiceProviderCursor, {
+          hasNext: sinon.stub().resolves(true),
+          next: sinon.stub().callsFake(async() => ({ key: i++ })),
+          isClosed: sinon.stub().returns(false)
+        });
+        shellApiCursor = new AggregationCursor({
+          _serviceProvider: { platform: ReplPlatform.CLI }
+        }, spCursor);
+      });
+
+      it('is idempotent unless iterated', async() => {
+        const result1 = (await toShellResult(shellApiCursor)).printable;
+        const result2 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.deep.equal(result2);
+        await shellApiCursor._it();
+        const result3 = (await toShellResult(shellApiCursor)).printable;
+        expect(result1).to.not.deep.equal(result3);
+      });
     });
   });
 });

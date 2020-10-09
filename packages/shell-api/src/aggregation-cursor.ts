@@ -4,31 +4,29 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass,
-  ShellResult,
-  resultSource
+  ShellApiClass
 } from './decorators';
 import {
   Cursor as ServiceProviderCursor,
-  Document,
-  ReplPlatform
+  Document
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
-import { asShellResult } from './enums';
+import { asPrintable } from './enums';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class AggregationCursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderCursor;
+  _currentIterationResult: CursorIterationResult | null = null;
   constructor(mongo, cursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
   }
 
-  async _it(): Promise<any> {
-    const results = new CursorIterationResult();
+  async _it(): Promise<CursorIterationResult> {
+    const results = this._currentIterationResult = new CursorIterationResult();
 
     if (this.isClosed()) {
       return results;
@@ -45,19 +43,11 @@ export default class AggregationCursor extends ShellApiClass {
     return results;
   }
 
-  async [asShellResult](): Promise<ShellResult> {
-    return {
-      type: 'AggregationCursor',
-      value: this._mongo._serviceProvider.platform === ReplPlatform.JavaShell ? this : await this._asPrintable(),
-      source: this[resultSource] ?? undefined
-    };
-  }
-
   /**
    * Internal method to determine what is printed for this class.
    */
-  async _asPrintable(): Promise<any> {
-    return await this._it();
+  async [asPrintable](): Promise<CursorIterationResult> {
+    return this._currentIterationResult ?? await this._it();
   }
 
   @returnsPromise
