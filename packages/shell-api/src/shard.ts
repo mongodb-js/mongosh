@@ -223,7 +223,6 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async enableAutoSplit(): Promise<any> {
-    assertArgsDefined();
     this._emitShardApiCall('enableAutoSplit', {});
     const config = await getConfigDB(this._mongo);
     return await config.getCollection('settings').updateOne(
@@ -236,7 +235,6 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async disableAutoSplit(): Promise<any> {
-    assertArgsDefined();
     this._emitShardApiCall('disableAutoSplit', {});
     const config = await getConfigDB(this._mongo);
     return await config.getCollection('settings').updateOne(
