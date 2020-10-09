@@ -175,13 +175,13 @@ internal class MongoShellContext(client: MongoClient) {
     }
 
     fun extract(printable: Value?, rawValue: Value? = null): MongoShellResult<*> {
-        var v: Value
-        var type: String? = null
+        val v: Value
+        val type: String?
         if (printable == null) {
             type = getShellApiType(rawValue as Value)
-            val shellResult = toShellResult(rawValue as Value)
-            v = shellResult["printable"]!!
+            v = toShellResult(rawValue)["printable"]!!
         } else {
+            type = null
             v = printable
         }
 
