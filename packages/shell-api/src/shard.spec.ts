@@ -8,6 +8,7 @@ import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import { UpdateResult } from './result';
+import { CliServiceProvider } from '../../service-provider-server';
 
 describe('Shard', () => {
   describe('help', () => {
@@ -51,7 +52,7 @@ describe('Shard', () => {
       });
     });
   });
-  describe('commands', () => {
+  describe('unit', () => {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let shard: Shard;
@@ -1079,6 +1080,133 @@ describe('Shard', () => {
         const catchedError = await shard.setBalancerState(true)
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+    });
+  });
+
+  xdescribe('integration', () => {
+    let serviceProvider: CliServiceProvider;
+    let internalState;
+    let mongo;
+    let sh;
+    const dbName = 'test';
+    const ns = `${dbName}.coll`;
+    const mongosPort = 27017;
+    const host = 'localhost';
+    const shardId = 'rs-shard0';
+    const shardPorts = ['47017', '47020'];
+    const connectionString = `mongodb://${host}:${mongosPort}`; // startTestServer();
+
+    before(async() => {
+      serviceProvider = await CliServiceProvider.connect(connectionString);
+      internalState = new ShellInternalState(serviceProvider);
+      mongo = internalState.currentDb.getMongo();
+      sh = new Shard(mongo);
+
+      // check replset uninitialized
+      let members = await sh._mongo.getDB('config').getCollection('shards').find().sort({ _id: 1 }).toArray();
+      if (members.length === 0) {
+        // add new shards
+        expect((await sh.addShard(`${shardId}-0/${host}:${shardPorts[0]}`)).shardAdded).to.equal(`${shardId}-0`);
+        expect((await sh.addShard(`${shardId}-1/${host}:${shardPorts[1]}`)).shardAdded).to.equal(`${shardId}-1`);
+        members = await sh._mongo.getDB('config').getCollection('shards').find().sort({ _id: 1 }).toArray();
+      } else {
+        console.log('WARN: shards already added');
+      }
+      expect(members.length).to.equal(2);
+      await sh._mongo.getDB(dbName).dropDatabase();
+    });
+
+    after(() => {
+      return serviceProvider.close(true);
+    });
+
+    describe('sharding info', () => {
+      it('returns the status', async() => {
+        const result = await sh.status();
+        expect(result.type).to.equal('StatsResult');
+        expect(Object.keys(result.value)).to.include.members([
+          'shardingVersion', 'shards', 'active mongoses', 'autosplit', 'balancer', 'databases'
+        ]);
+      });
+    });
+    describe('turn on sharding', () => {
+      it('enableSharding for a db', async() => {
+        expect((await sh.status()).value.databases.length).to.equal(1);
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.status()).value.databases.length).to.equal(2);
+      });
+      it('enableSharding for a collection', async() => {
+        expect(Object.keys((await sh.status()).value.databases[0].collections).length).to.equal(0);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect((await sh.status()).value.databases[0].collections[ns].shardKey).to.deep.equal({ key: 1 });
+      });
+    });
+    describe('autosplit', () => {
+      it('disables correctly', async() => {
+        expect((await sh.disableAutoSplit()).acknowledged).to.equal(1);
+        expect((await sh.status()).value.autosplit['Currently enabled']).to.equal('no');
+      });
+      it('enables correctly', async() => {
+        expect((await sh.enableAutoSplit()).acknowledged).to.equal(1);
+        expect((await sh.status()).value.autosplit['Currently enabled']).to.equal('yes');
+      });
+    });
+    describe('tags', () => {
+      it('creates a zone', async() => {
+        expect((await sh.addShardTag(`${shardId}-1`, 'zone1')).ok).to.equal(1);
+        expect((await sh.status()).value.shards[1].tags).to.deep.equal(['zone1']);
+        expect((await sh.addShardToZone(`${shardId}-0`, 'zone0')).ok).to.equal(1);
+        expect((await sh.status()).value.shards[0].tags).to.deep.equal(['zone0']);
+      });
+      it('sets a zone key range', async() => {
+        expect((await sh.updateZoneKeyRange(ns, { key: 0 }, { key: 20 }, 'zone1')).ok).to.equal(1);
+        expect((await sh.status()).value.databases[0].collections[ns].tags[0]).to.deep.equal({
+          tag: 'zone1', min: { key: 0 }, max: { key: 20 }
+        });
+        expect((await sh.addTagRange(ns, { key: 21 }, { key: 40 }, 'zone0')).ok).to.equal(1);
+        expect((await sh.status()).value.databases[0].collections[ns].tags[1]).to.deep.equal({
+          tag: 'zone0', min: { key: 21 }, max: { key: 40 }
+        });
+      });
+      it('removes a key range', async() => {
+        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(2);
+        expect((await sh.removeRangeFromZone(ns, { key: 0 }, { key: 20 })).ok).to.equal(1);
+        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(1);
+        expect((await sh.removeTagRange(ns, { key: 21 }, { key: 40 })).ok).to.equal(1);
+        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(0);
+      });
+      it('removes zones', async() => {
+        expect((await sh.removeShardFromZone(`${shardId}-1`, 'zone1')).ok).to.equal(1);
+        expect((await sh.status()).value.shards[1].tags).to.deep.equal([]);
+        expect((await sh.removeShardTag(`${shardId}-0`, 'zone0')).ok).to.equal(1);
+        expect((await sh.status()).value.shards[0].tags).to.deep.equal([]);
+      });
+    });
+    describe('balancer', () => {
+      it('reports balancer state', async() => {
+        expect(Object.keys(await sh.isBalancerRunning())).to.include.members([
+          'mode', 'inBalancerRound', 'numBalancerRounds'
+        ]);
+      });
+      it('stops balancer', async() => {
+        expect((await sh.stopBalancer()).ok).to.equal(1);
+        expect((await sh.isBalancerRunning()).mode).to.equal('off');
+      });
+      it('starts balancer', async() => {
+        expect((await sh.startBalancer()).ok).to.equal(1);
+        expect((await sh.isBalancerRunning()).mode).to.equal('full');
+      });
+      it('reports state for collection', async() => {
+        expect(Object.keys(await sh.balancerCollectionStatus(ns))).to.include('balancerCompliant');
+      });
+      it('disables balancing', async() => {
+        expect((await sh.disableBalancing(ns)).acknowledged).to.equal(1);
+        expect((await sh._mongo.getDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(true);
+      });
+      it('enables balancing', async() => {
+        expect((await sh.enableBalancing(ns)).acknowledged).to.equal(1);
+        expect((await sh._mongo.getDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(false);
       });
     });
   });

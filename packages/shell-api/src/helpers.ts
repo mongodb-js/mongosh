@@ -406,16 +406,14 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
             (await chunksColl.find({ 'ns': coll._id })
               .sort({ min: 1 }).toArray())
               .forEach((chunk) => {
-                const c = [
-                  JSON.stringify(chunk.min),
-                  '-->>',
-                  JSON.stringify(chunk.max),
-                  'on',
-                  JSON.stringify(chunk.shard),
-                  JSON.stringify(chunk.lastmod)
-                ];
-                if (chunk.jumbo) c.push('jumbo');
-                chunksRes.push(c.join(' '));
+                const c = {
+                  min: chunk.min,
+                  max: chunk.max,
+                  'on shard': chunk.shard,
+                  'last modified': chunk.lastmod
+                } as any;
+                if (chunk.jumbo) c.jumbo = 'yes';
+                chunksRes.push(c);
               });
           } else {
             chunksRes.push('too many chunks to print, use verbose if you want to force print');
@@ -427,13 +425,11 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
             .sort({ min: 1 })
             .toArray())
             .forEach((tag) => {
-              const t = [
-                tag.tag,
-                tag.min,
-                ' -->> ',
-                tag.max
-              ];
-              tagsRes.push(t.join(' '));
+              tagsRes.push({
+                tag: tag.tag,
+                min: tag.min,
+                max: tag.max
+              });
             });
           collRes.chunks = chunksRes;
           collRes.tags = tagsRes;
