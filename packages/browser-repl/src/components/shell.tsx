@@ -104,6 +104,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     let outputLine;
 
     try {
+      this.props.runtime.setEvaluationListener(this);
       const result = await this.props.runtime.evaluate(code);
       outputLine = {
         format: 'output',
@@ -156,6 +157,16 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.props.onOutputChanged(output);
   };
 
+  onPrint = (result: { type: string | null; printable: any }[]): void => {
+    const output = this.addEntriesToOutput(result.map((entry) => ({
+      format: 'output',
+      type: entry.type,
+      value: entry.printable
+    })));
+    this.setState({ output });
+    this.props.onOutputChanged(output);
+  };
+
   private onInput = async(code: string): Promise<void> => {
     if (!code || code.trim() === '') {
       this.appendEmptyInput();
@@ -167,25 +178,22 @@ export class Shell extends Component<ShellProps, ShellState> {
       value: code
     };
 
+    let output = this.addEntriesToOutput([inputLine]);
     this.setState({
-      operationInProgress: true
+      operationInProgress: true,
+      output
     });
+    this.props.onOutputChanged(output);
 
     const outputLine = await this.evaluate(code);
 
-    const output = this.addEntriesToOutput([
-      inputLine,
-      outputLine
-    ]);
-
+    output = this.addEntriesToOutput([outputLine]);
     const history = this.addEntryToHistory(code);
-
     this.setState({
       operationInProgress: false,
       output,
       history
     });
-
     this.props.onOutputChanged(output);
     this.props.onHistoryChanged(history);
   };

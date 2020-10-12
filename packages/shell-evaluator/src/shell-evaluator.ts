@@ -2,7 +2,8 @@
 import {
   ShellInternalState,
   toShellResult,
-  ShellResult
+  ShellResult,
+  EvaluationListener
 } from '@mongosh/shell-api';
 
 interface Container {
@@ -28,6 +29,10 @@ class ShellEvaluator {
 
   public saveState(): void {
     this.internalState.asyncWriter.symbols.saveState();
+  }
+
+  public setEvaluationListener(listener: EvaluationListener): void {
+    this.internalState.setEvaluationListener(listener);
   }
 
   /**
@@ -103,4 +108,8 @@ class ShellEvaluator {
   }
 }
 
-export default ShellEvaluator;
+export {
+  ShellResult,
+  ShellEvaluator,
+  EvaluationListener
+};

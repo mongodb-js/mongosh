@@ -31,7 +31,7 @@
   "dependencies": {
     "@mongosh/browser-runtime-core": "^0.4.2",
     "@mongosh/service-provider-core": "^0.4.2",
-    "@mongosh/shell-api": "^0.4.2"
+    "@mongosh/shell-evaluator": "^0.4.2"
   },
   "devDependencies": {
     "@mongosh/service-provider-server": "^0.4.2",

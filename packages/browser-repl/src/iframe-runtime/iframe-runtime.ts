@@ -9,16 +9,26 @@ import {
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
-import { ShellResult } from '@mongosh/shell-api';
+import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;
   private iframe: HTMLIFrameElement;
   private container: HTMLDivElement;
   private serviceProvider: ServiceProvider;
+  private evaluationListener: EvaluationListener | null = null;
 
   constructor(serviceProvider: ServiceProvider) {
     this.serviceProvider = serviceProvider;
+  }
+
+  setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
+    const prev = this.evaluationListener;
+    this.evaluationListener = listener;
+    if (this.openContextRuntime) {
+      this.openContextRuntime.setEvaluationListener(listener);
+    }
+    return prev;
   }
 
   async evaluate(code: string): Promise<ShellResult> {
@@ -60,6 +70,9 @@ export class IframeRuntime implements Runtime {
 
     const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
     this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment);
+    if (this.evaluationListener) {
+      this.openContextRuntime.setEvaluationListener(this.evaluationListener);
+    }
 
     return await ready;
   }

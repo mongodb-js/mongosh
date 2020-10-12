@@ -9,7 +9,8 @@ import {
   toIterator,
   ShellApi,
   getShellApiType,
-  toShellResult
+  toShellResult,
+  ShellResult
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
@@ -19,6 +20,13 @@ import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
+
+export interface EvaluationListener {
+  /**
+   * Called when print() or printjson() is run from the shell.
+   */
+  onPrint?: (value: ShellResult[]) => Promise<void> | void;
+}
 
 /**
  * Anything to do with the internal shell state is stored here.
@@ -36,6 +44,7 @@ export default class ShellInternalState {
   public shellApi: ShellApi;
   public shellBson: any;
   public cliOptions: any;
+  private evaluationListener: EvaluationListener;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
@@ -54,6 +63,7 @@ export default class ShellInternalState {
     this.currentCursor = null;
     this.context = {};
     this.cliOptions = cliOptions;
+    this.evaluationListener = {};
   }
 
   async fetchConnectionInfo(): Promise<void> {
@@ -95,9 +105,10 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    contextObject.print = async(arg): Promise<void> => {
-      // eslint-disable-next-line no-console
-      console.log((await toShellResult(arg)).printable);
+    contextObject.print = async(...origArgs): Promise<void> => {
+      const args: ShellResult[] =
+        await Promise.all(origArgs.map(arg => toShellResult(arg)));
+      await this.evaluationListener.onPrint?.(args);
     };
     Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
     Object.getOwnPropertyNames(ShellApi.prototype)
@@ -112,6 +123,21 @@ export default class ShellInternalState {
     contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, this.shellBson);
+    if (contextObject.console === undefined) {
+      contextObject.console = {
+        log(): void {},
+        warn(): void {},
+        info(): void {},
+        error(): void {}
+      };
+    }
+    for (const key of ['log', 'warn', 'info', 'error']) {
+      const orig = contextObject.console[key];
+      contextObject.console[key] = async(...args): Promise<void> => {
+        orig.call(contextObject.console, ...args);
+        return await contextObject.print(...args);
+      };
+    }
 
     contextObject.rs = new ReplicaSet(this.currentDb._mongo);
     contextObject.sh = new Shard(this.currentDb._mongo);
@@ -156,5 +182,9 @@ export default class ShellInternalState {
     [otherProps: string]: any;
   }): void {
     this.messageBus.emit('mongosh:api-call', event);
+  }
+
+  public setEvaluationListener(listener: EvaluationListener): void {
+    this.evaluationListener = listener;
   }
 }
