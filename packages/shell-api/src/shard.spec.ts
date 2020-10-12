@@ -1084,7 +1084,7 @@ describe('Shard', () => {
     });
   });
 
-  describe('integration', () => {
+  xdescribe('integration', () => {
     let serviceProvider: CliServiceProvider;
     let internalState;
     let mongo;
