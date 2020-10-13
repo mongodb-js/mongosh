@@ -43,6 +43,6 @@
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
     "mongodb": "^3.6.1",
-    "saslprep": "^1.0.3"
+    "saslprep": "mongodb-js/saslprep#v1.0.4"
   }
 }
