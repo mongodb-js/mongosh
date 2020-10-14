@@ -26,6 +26,11 @@ export interface EvaluationListener {
    * Called when print() or printjson() is run from the shell.
    */
   onPrint?: (value: ShellResult[]) => Promise<void> | void;
+
+  /**
+   * Called when e.g. passwordPrompt() is called from the shell.
+   */
+  onPrompt?: (question: string, type: 'password') => Promise<string> | string;
 }
 
 /**
@@ -168,6 +173,13 @@ export default class ShellInternalState {
         get: () => (this.currentDb)
       });
     }
+
+    contextObject.passwordPrompt = async(): Promise<string> => {
+      if (!this.evaluationListener.onPrompt) {
+        throw new Error('passwordPrompt() is not available in this shell');
+      }
+      return await this.evaluationListener.onPrompt('Enter password', 'password');
+    };
 
     this.messageBus.emit(
       'mongosh:setCtx',

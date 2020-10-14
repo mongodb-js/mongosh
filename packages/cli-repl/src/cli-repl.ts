@@ -25,6 +25,7 @@ import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import semver from 'semver';
+import askpassword from 'askpassword';
 
 /**
  * Connecting text key.
@@ -474,6 +475,14 @@ class CliRepl {
     // `as any` becomes unnecessary after
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/48646
     (this.repl as any).output.write(joined + '\n');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async onPrompt(question: string, type: 'password'): Promise<string> {
+    // Same as above for `as any`.
+    const passwordPromise = askpassword(process.stdin);
+    (this.repl as any).output.write(question + '\n');
+    return (await passwordPromise).toString();
   }
 }
 
