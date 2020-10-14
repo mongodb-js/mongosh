@@ -49,9 +49,6 @@ export interface ShellResult {
 
   /// Optional information about the original data source of the result.
   source?: ShellResultSourceInformation;
-
-  /// @deprecated Use either `printable` or `rawValue`.
-  value: any;
 }
 
 export class ShellApiClass implements ShellApiInterface {
@@ -76,8 +73,7 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
     return {
       type: null,
       rawValue: rawValue,
-      printable: rawValue,
-      value: rawValue
+      printable: rawValue
     };
   }
 
@@ -95,7 +91,6 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
     type: getShellApiType(rawValue),
     rawValue: rawValue,
     printable: printable,
-    value: printable,
     source: source
   };
 }
