@@ -117,6 +117,10 @@ const translations = {
             },
             load: {
               description: 'Load a file into the shell context. Not currently implemented, if running mongosh from the CLI you can use .load <filename> as an alternative'
+            },
+            passwordPrompt: {
+              description: 'Prompts for the password in the mongo shell. The entered password is not displayed in the shell.',
+              link: 'https://docs.mongodb.com/manual/reference/method/passwordPrompt/'
             }
           }
         },
