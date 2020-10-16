@@ -40,7 +40,7 @@ describe('Mongo', () => {
     describe('toShellResult', () => {
       const mongo = new Mongo({} as any, 'localhost:37017');
       it('value', async() => {
-        expect((await toShellResult(mongo)).value).to.equal('mongodb://localhost:37017/test');
+        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/test');
       });
       it('type', async() => {
         expect((await toShellResult(mongo)).type).to.equal('Mongo');

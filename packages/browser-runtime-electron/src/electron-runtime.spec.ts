@@ -29,7 +29,7 @@ describe('Electron runtime', function() {
 
   it('can evaluate simple js', async() => {
     const result = await electronRuntime.evaluate('2 + 2');
-    expect(result.value).to.equal(4);
+    expect(result.printable).to.equal(4);
   });
   it('prints BSON help correctly', async() => {
     const result = await electronRuntime.evaluate('ObjectId().help');
@@ -38,16 +38,16 @@ describe('Electron runtime', function() {
 
   it('allows do declare variables', async() => {
     await electronRuntime.evaluate('var x = 2');
-    expect((await electronRuntime.evaluate('x')).value).to.equal(2);
+    expect((await electronRuntime.evaluate('x')).printable).to.equal(2);
     await electronRuntime.evaluate('let y = 2');
-    expect((await electronRuntime.evaluate('y')).value).to.equal(2);
+    expect((await electronRuntime.evaluate('y')).printable).to.equal(2);
     await electronRuntime.evaluate('const z = 2');
-    expect((await electronRuntime.evaluate('z')).value).to.equal(2);
+    expect((await electronRuntime.evaluate('z')).printable).to.equal(2);
   });
 
   it('allows do declare functions', async() => {
     await electronRuntime.evaluate('function f() { return 2; }');
-    expect((await electronRuntime.evaluate('f()')).value).to.equal(2);
+    expect((await electronRuntime.evaluate('f()')).printable).to.equal(2);
   });
 
   it('can run help', async() => {
@@ -66,18 +66,18 @@ describe('Electron runtime', function() {
 
   it('allows to use require', async() => {
     const result = await electronRuntime.evaluate('require("util").types.isDate(new Date())');
-    expect(result.value).to.equal(true);
+    expect(result.printable).to.equal(true);
   });
 
   it('can switch database', async() => {
     expect(
-      (await electronRuntime.evaluate('db')).value
+      (await electronRuntime.evaluate('db')).printable
     ).not.to.equal('db1');
 
     await electronRuntime.evaluate('use db1');
 
     expect(
-      (await electronRuntime.evaluate('db')).value
+      (await electronRuntime.evaluate('db')).printable
     ).to.equal('db1');
   });
 

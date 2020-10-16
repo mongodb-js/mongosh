@@ -1130,8 +1130,8 @@ describe('Collection', () => {
         const cursor = await collection.find();
         const result = await toShellResult(cursor);
         expect(result.type).to.equal('Cursor');
-        expect(result.value.length).to.not.equal(0);
-        expect(result.value[0]._id).to.equal('abc');
+        expect(result.printable.length).to.not.equal(0);
+        expect(result.printable[0]._id).to.equal('abc');
         expect(result.source).to.deep.equal({
           namespace: {
             db: 'db1',
@@ -1145,7 +1145,7 @@ describe('Collection', () => {
         const document = await collection.findOne({ hasBanana: true });
         const result = await toShellResult(document);
         expect(result.type).to.equal('Document');
-        expect(result.value._id).to.equal('abc');
+        expect(result.printable._id).to.equal('abc');
         expect(result.source).to.deep.equal({
           namespace: {
             db: 'db1',
@@ -1161,7 +1161,7 @@ describe('Collection', () => {
         const indexResult = await collection.getIndexes();
         const result = await toShellResult(indexResult);
         expect(result.type).to.equal(null);
-        expect(result.value).to.deep.equal([ fakeIndex ]);
+        expect(result.printable).to.deep.equal([ fakeIndex ]);
         expect(result.source).to.deep.equal({
           namespace: {
             db: 'db1',
