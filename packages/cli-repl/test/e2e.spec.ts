@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
@@ -303,6 +304,25 @@ describe('e2e', function() {
       await shell.waitForPrompt();
       await new Promise((resolve) => setTimeout(resolve, 100));
       shell.assertNotContainsOutput('interrupted');
+    });
+  });
+
+  describe('printing', () => {
+    let shell;
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ '--nodb' ] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+    });
+    it('console.log() prints output exactly once', async() => {
+      const result = await shell.executeLine('console.log(42);');
+      expect(result).to.match(/\b42\b/);
+      expect(result).not.to.match(/\b42[\s\r\n]*42\b/);
+    });
+    it('print() prints output exactly once', async() => {
+      const result = await shell.executeLine('print(42);');
+      expect(result).to.match(/\b42\b/);
+      expect(result).not.to.match(/\b42[\s\r\n]*42\b/);
     });
   });
 });

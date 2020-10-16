@@ -124,17 +124,10 @@ export default class ShellInternalState {
     contextObject.printjson = contextObject.print;
     Object.assign(contextObject, this.shellBson);
     if (contextObject.console === undefined) {
-      contextObject.console = {
-        log(): void {},
-        warn(): void {},
-        info(): void {},
-        error(): void {}
-      };
+      contextObject.console = {};
     }
     for (const key of ['log', 'warn', 'info', 'error']) {
-      const orig = contextObject.console[key];
       contextObject.console[key] = async(...args): Promise<void> => {
-        orig.call(contextObject.console, ...args);
         return await contextObject.print(...args);
       };
     }
