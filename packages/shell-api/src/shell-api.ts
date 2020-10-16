@@ -90,6 +90,15 @@ export default class ShellApi extends ShellApiClass {
     return await this.internalState.currentCursor._it();
   }
 
+  @returnsPromise
+  async passwordPrompt(): Promise<string> {
+    const { evaluationListener } = this.internalState;
+    if (!evaluationListener.onPrompt) {
+      throw new Error('passwordPrompt() is not available in this shell');
+    }
+    return evaluationListener.onPrompt('Enter password', 'password');
+  }
+
   version(): string {
     const version = require('../package.json').version;
     return version;

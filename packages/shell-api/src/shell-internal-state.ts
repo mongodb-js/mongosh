@@ -49,7 +49,7 @@ export default class ShellInternalState {
   public shellApi: ShellApi;
   public shellBson: any;
   public cliOptions: any;
-  private evaluationListener: EvaluationListener;
+  public evaluationListener: EvaluationListener;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
@@ -173,13 +173,6 @@ export default class ShellInternalState {
         get: () => (this.currentDb)
       });
     }
-
-    contextObject.passwordPrompt = async(): Promise<string> => {
-      if (!this.evaluationListener.onPrompt) {
-        throw new Error('passwordPrompt() is not available in this shell');
-      }
-      return await this.evaluationListener.onPrompt('Enter password', 'password');
-    };
 
     this.messageBus.emit(
       'mongosh:setCtx',
