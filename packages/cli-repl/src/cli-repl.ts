@@ -97,7 +97,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<any> {
     if (!this.options.nodb) {
-      console.log(i18n.__(CONNECTING), '    ', clr(retractPassword(driverUri), ['bold', 'green']));
+      console.log(i18n.__(CONNECTING), '    ', this.clr(retractPassword(driverUri), ['bold', 'green']));
     }
     return await CliServiceProvider.connect(driverUri, driverOptions, this.options);
   }
@@ -116,9 +116,9 @@ class CliRepl {
       prompt: '> ',
       writer: this.writer,
       completer: completer.bind(null, version),
-      terminal: true,
       breakEvalOnSigint: true,
       preview: false,
+      terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined
     });
 
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
@@ -128,12 +128,14 @@ class CliRepl {
       this.lineByLineInput.nextLine();
     };
 
-    const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
+    if (this.repl.commands.editor) {
+      const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
 
-    this.repl.commands.editor.action = (): any => {
-      this.lineByLineInput.disableBlockOnNewline();
-      return originalEditorAction();
-    };
+      this.repl.commands.editor.action = (): any => {
+        this.lineByLineInput.disableBlockOnNewline();
+        return originalEditorAction();
+      };
+    }
 
     this.repl.defineCommand('clear', {
       help: '',
@@ -355,10 +357,10 @@ class CliRepl {
         stack: result.stack
       };
       this.bus.emit('mongosh:error', output);
-      return formatOutput({ type: 'Error', value: output });
+      return this.formatOutput({ type: 'Error', value: output });
     }
 
-    return formatOutput({ type: result.type, value: result.printable });
+    return this.formatOutput({ type: result.type, value: result.printable });
   };
 
   verifyNodeVersion(): void {
@@ -377,7 +379,7 @@ class CliRepl {
   greet(): void {
     const { version } = require('../package.json');
     console.log(`Using MongoDB:      ${this.internalState.connectionInfo.buildInfo.version}`);
-    console.log(`${clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
+    console.log(`${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
     if (!this.disableGreetingMessage) console.log(TELEMETRY);
   }
@@ -410,7 +412,7 @@ class CliRepl {
     read(readOptions, (error, password) => {
       if (error) {
         this.bus.emit('mongosh:error', error);
-        return console.log(formatError(error));
+        return console.log(this.formatError(error));
       }
 
       driverOptions.auth.password = password;
@@ -465,7 +467,7 @@ class CliRepl {
       this.bus.emit('mongosh:error', error);
     }
 
-    console.error(formatError(error));
+    console.error(this.formatError(error));
     return process.exit(1);
   }
 
@@ -474,6 +476,25 @@ class CliRepl {
     // `as any` becomes unnecessary after
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/48646
     (this.repl as any).output.write(joined + '\n');
+  }
+
+  formatOutput(value: any): string {
+    return formatOutput(value, this.getFormatOptions());
+  }
+
+  formatError(value: any): string {
+    return formatError(value, this.getFormatOptions());
+  }
+
+  clr(text: string, style: string|string[]): string {
+    return clr(text, style, this.getFormatOptions());
+  }
+
+  getFormatOptions(): { colors: boolean } {
+    return {
+      colors: this.repl ? this.repl.useColors :
+        process.stdout.isTTY && process.stdout.getColorDepth() > 1
+    };
   }
 }
 

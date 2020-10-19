@@ -73,7 +73,7 @@ const OPTIONS = {
       return true;
     }
     throw new Error(
-      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(parameter, 'bold')}
+      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'], { colors: true })} ${clr(parameter, 'bold', { colors: true })}
       ${USAGE}`
     );
   }
