@@ -21,7 +21,8 @@
     "url": "git+https://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "test": "exit 0"
+    "test": "exit 0",
+    "test-ci": "npm run test"
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"

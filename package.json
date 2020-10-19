@@ -17,8 +17,8 @@
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "lerna run check",
-    "test": "lerna run test",
-    "test-ci": "lerna run test-ci",
+    "test": "rimraf .nyc_output && lerna exec -- nyc --no-clean --cwd ../.. --reporter=none npm run test && npm run report-coverage",
+    "test-ci": "rimraf .nyc_output && lerna exec -- nyc --no-clean --cwd ../.. --reporter=none npm run test-ci && npm run report-coverage",
     "test-e2e": "lerna run test-e2e",
     "test-e2e-ci": "lerna run test-e2e-ci",
     "compile-ts": "lerna run compile-ts",
@@ -39,7 +39,8 @@
     "publish-npm": "node scripts/publish-npm.js",
     "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api",
-    "generate-homebrew-formula": "node scripts/generate-homebrew-formula"
+    "generate-homebrew-formula": "node scripts/generate-homebrew-formula",
+    "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=80"
   },
   "config": {
     "unsafe-perm": true
@@ -100,6 +101,7 @@
     "mongodb-runner": "^4.7.5",
     "node-codesign": "^0.3.1",
     "node-fetch": "^2.6.1",
+    "nyc": "^15.1.0",
     "parcel-bundler": "^1.12.4",
     "pkg-deb": "^1.1.1",
     "pkg-rpm": "^1.0.1",

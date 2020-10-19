@@ -21,16 +21,32 @@ export class TestShell {
 
   static start(options: {
     args: string[];
+    env?: Record<string, string>;
+    removeSigintListeners?: boolean;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
+    let env = options.env || process.env;
+
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
-        stdio: [ 'pipe', 'pipe', 'pipe' ]
+        stdio: [ 'pipe', 'pipe', 'pipe' ],
+        env
       });
     } else {
+      if (options.removeSigintListeners) {
+        // We set CLEAR_SIGINT_LISTENERS to remove all `process.on('SIGINT')`
+        // listeners during Shell startup. This is unfortunately necessary,
+        // because nyc registers a listener that is used to gather coverage
+        // in case of an unclean exit for several signals, but this particular
+        // one interferes with testing the actual process.on('SIGINT')
+        // functionality here.
+        env = { ...env, CLEAR_SIGINT_LISTENERS: '1' };
+      }
+
       shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
-        stdio: [ 'pipe', 'pipe', 'pipe' ]
+        stdio: [ 'pipe', 'pipe', 'pipe' ],
+        env
       });
     }
 

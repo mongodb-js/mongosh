@@ -18,6 +18,11 @@ try {
       process.removeAllListeners('warning');
     }
 
+    // This is for testing under coverage, see the the comment in the tests
+    if (process.env.CLEAR_SIGINT_LISTENERS) {
+      process.removeAllListeners('SIGINT');
+    }
+
     process.title = 'mongosh';
     const driverOptions = mapCliToDriver(options);
     const driverUri = generateUri(options);

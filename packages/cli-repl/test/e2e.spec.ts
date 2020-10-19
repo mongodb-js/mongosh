@@ -281,11 +281,12 @@ describe('e2e', function() {
 
     let shell;
     beforeEach(async() => {
-      shell = TestShell.start({ args: [ '--nodb' ] });
+      shell = TestShell.start({ args: [ '--nodb' ], removeSigintListeners: true });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
     it('interrupts sync execution', async() => {
+      await shell.executeLine('void process.removeAllListeners("SIGINT")');
       const result = shell.executeLine('while(true);');
       setTimeout(() => shell.kill('SIGINT'), 1000);
       await result;
