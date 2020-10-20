@@ -143,12 +143,20 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
-    val expectedFile = File("$testDataPath/$name.expected.txt")
+    var expectedFile = File("$testDataPath/$name.expected.txt")
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
         expectedFile.writeText(actual.trim())
         fail("Created output file $expectedFile")
     } else {
+        for (counter in 1..10) {
+            if (expectedFile.readText().trim() == actual.trim()) break
+
+            val alternativeFile = File("$testDataPath/$name.expected.$counter.txt")
+            if (alternativeFile.exists()) {
+                expectedFile = alternativeFile
+            }
+        }
         assertEquals(expectedFile.readText().trim(), actual.trim())
     }
 }
