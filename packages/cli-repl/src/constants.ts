@@ -1,8 +1,5 @@
 import i18n from '@mongosh/i18n';
-import clrRaw from './clr';
-
-const clr = (text: string, style: string|string[]): string =>
-  clrRaw(text, style, { colors: process.stdout.isTTY && process.stdout.getColorDepth() > 1 });
+import { colorizeForStderr as clr } from './clr';
 
 export const TELEMETRY = `
 ${i18n.__('cli-repl.cli-repl.telemetry')}
