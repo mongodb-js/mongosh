@@ -2,7 +2,7 @@ import { CliOptions } from '@mongosh/service-provider-server';
 import { USAGE } from './constants';
 import i18n from '@mongosh/i18n';
 import minimist from 'minimist';
-import clr from './clr';
+import { colorizeForStderr as clr } from './clr';
 
 /**
  * Unknown translation key.

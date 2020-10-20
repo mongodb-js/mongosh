@@ -1,5 +1,5 @@
 import i18n from '@mongosh/i18n';
-import clr from './clr';
+import { colorizeForStderr as clr } from './clr';
 
 export const TELEMETRY = `
 ${i18n.__('cli-repl.cli-repl.telemetry')}

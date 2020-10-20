@@ -11,6 +11,10 @@ type EvaluationResult = {
   type?: string;
 };
 
+type FormatOptions = {
+  colors: boolean;
+};
+
 /**
  * Return the pretty string for the output.
  *
@@ -22,42 +26,42 @@ type EvaluationResult = {
  *
  * @returns {string} The output.
  */
-export default function formatOutput(evaluationResult: EvaluationResult): string {
+export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {
   const { value, type } = evaluationResult;
 
   if (type === 'Cursor') {
-    return formatCursor(value);
+    return formatCursor(value, options);
   }
 
   if (type === 'CursorIterationResult') {
-    return formatCursorIterationResult(value);
+    return formatCursorIterationResult(value, options);
   }
 
   if (type === 'Help') {
-    return formatHelp(value);
+    return formatHelp(value, options);
   }
 
   if (type === 'ShowDatabasesResult') {
-    return formatDatabases(value);
+    return formatDatabases(value, options);
   }
 
   if (type === 'ShowCollectionsResult') {
-    return formatCollections(value);
+    return formatCollections(value, options);
   }
 
   if (type === 'StatsResult') {
-    return formatStats(value);
+    return formatStats(value, options);
   }
 
   if (type === 'ListCommandsResult') {
-    return formatListCommands(value);
+    return formatListCommands(value, options);
   }
 
   if (type === 'ShowProfileResult') {
     if (value.count === 0) {
       return clr(`db.system.profile is empty.
 Use db.setProfilingLevel(2) will enable profiling.
-Use db.getCollection('system.profile').find() to show raw profile entries.`, 'yellow');
+Use db.getCollection('system.profile').find() to show raw profile entries.`, 'yellow', options);
     }
     // direct from old shell
     return value.result.map(function(x) {
@@ -72,7 +76,7 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
         const mytype = typeof (val);
 
         if (mytype === 'object') {
-          l += z + ':' + formatSimpleType(val) + ' ';
+          l += z + ':' + formatSimpleType(val, options) + ' ';
         } else if (mytype === 'boolean') {
           l += z + ' ';
         } else {
@@ -84,57 +88,58 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
   }
 
   if (type === 'Error') {
-    return formatError(value);
+    return formatError(value, options);
   }
 
-  return formatSimpleType(value);
+  return formatSimpleType(value, options);
 }
 
-function formatSimpleType(output): any {
+function formatSimpleType(output, options: FormatOptions): any {
   if (typeof output === 'string') return output;
   if (typeof output === 'undefined') return '';
 
-  return inspect(output);
+  return inspect(output, options);
 }
 
-function formatCollections(output): string {
-  return clr(output.join('\n'), 'bold');
+function formatCollections(output, options: FormatOptions): string {
+  return clr(output.join('\n'), 'bold', options);
 }
 
-function formatDatabases(output): string {
+function formatDatabases(output, options: FormatOptions): string {
   const tableEntries = output.map(
-    (db) => [clr(db.name, 'bold'), prettyBytes(db.sizeOnDisk)]
+    (db) => [clr(db.name, 'bold', options), prettyBytes(db.sizeOnDisk)]
   );
 
   return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
-function formatStats(output): string {
+function formatStats(output, options: FormatOptions): string {
   return Object.keys(output).map((c) => {
-    return `${clr(c, ['bold', 'yellow'])}\n${inspect(output[c])}`;
+    return `${clr(c, ['bold', 'yellow'], options)}\n` +
+      `${inspect(output[c], options)}`;
   }).join('\n---\n');
 }
 
-function formatListCommands(output): string {
+function formatListCommands(output, options: FormatOptions): string {
   const tableEntries = Object.keys(output).map(
     (cmd) => {
       const val = output[cmd];
       let result = Object.keys(val).filter(k => k !== 'help').reduce((str, k) => {
         if (val[k]) {
-          return `${str} ${clr(k, ['bold', 'white'])}`;
+          return `${str} ${clr(k, ['bold', 'white'], options)}`;
         }
         return str;
-      }, `${clr(cmd, ['bold', 'yellow'])}: `);
-      result += val.help ? `\n${clr(val.help, 'green')}` : '';
+      }, `${clr(cmd, ['bold', 'yellow'], options)}: `);
+      result += val.help ? `\n${clr(val.help, 'green', options)}` : '';
       return result;
     }
   );
   return tableEntries.join('\n\n');
 }
 
-export function formatError(error): string {
+export function formatError(error, options: FormatOptions): string {
   let result = '';
-  if (error.name) result += `\r${clr(error.name, ['bold', 'red'])}: `;
+  if (error.name) result += `\r${clr(error.name, ['bold', 'red'], options)}: `;
   if (error.message) result += error.message;
   // leave a bit of breathing room after the syntax error message output
   if (error.name === 'SyntaxError') result += '\n\n';
@@ -142,38 +147,38 @@ export function formatError(error): string {
   return result;
 }
 
-function inspect(output): any {
+function inspect(output, options: FormatOptions): any {
   return util.inspect(output, {
     showProxy: false,
-    colors: true,
+    colors: options.colors ?? true,
     depth: 6
   });
 }
 
-function formatCursor(value): any {
+function formatCursor(value, options: FormatOptions): any {
   if (!value.length) {
     return '';
   }
 
-  return inspect(value);
+  return inspect(value, options);
 }
 
-function formatCursorIterationResult(value): any {
+function formatCursorIterationResult(value, options: FormatOptions): any {
   if (!value.length) {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
 
-  return inspect(value);
+  return inspect(value, options);
 }
 
-function formatHelp(value): string {
+function formatHelp(value, options: FormatOptions): string {
   // This is the spacing between arguments and description in mongosh --help.
   // Use this length for formatting consistency.
   const argLen = 47;
   let helpMenu = '';
 
   if (value.help) {
-    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'])}\n\n`;
+    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'], options)}\n\n`;
   }
 
   (value.attr || []).forEach((method) => {
@@ -193,7 +198,8 @@ function formatHelp(value): string {
   });
 
   if (value.docs) {
-    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(value.docs, ['green', 'bold'])}`;
+    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold', options)} ` +
+      `${clr(value.docs, ['green', 'bold'], options)}`;
   }
 
   return helpMenu;

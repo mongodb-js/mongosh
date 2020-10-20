@@ -28,10 +28,11 @@ export class TestShell {
 
     let env = options.env || process.env;
 
+    // TODO: Test (some) cases also without MONGOSH_FORCE_TERMINAL.
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env
+        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' }
       });
     } else {
       if (options.removeSigintListeners) {
@@ -46,7 +47,7 @@ export class TestShell {
 
       shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env
+        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' }
       });
     }
 
