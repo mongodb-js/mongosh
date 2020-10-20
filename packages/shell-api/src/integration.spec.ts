@@ -9,6 +9,13 @@ import ShellApi from './shell-api';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { toShellResult } from './index';
 
+// Compile JS code as an expression. We use this to generate some JS functions
+// whose code is stringified and compiled elsewhere, to make sure that the code
+// does not contain coverage instrumentation.
+const compileExpr = (templ, ...subs): any => {
+  return eval(`(${String.raw(templ, ...subs)})`); // eslint-disable-line no-eval
+};
+
 describe('Shell API (integration)', function() {
   const connectionString = startTestServer();
   this.timeout(60000);
@@ -1371,9 +1378,9 @@ describe('Shell API (integration)', function() {
       const mapFn = `function() {
         emit(this.cust_id, this.price);
       };`;
-      const reduceFn = function(keyCustId, valuesPrices): any {
+      const reduceFn = compileExpr `function(keyCustId, valuesPrices) {
         return valuesPrices.reduce((s, t) => s + t);
-      };
+      }`;
       const result = await collection.mapReduce(mapFn, reduceFn, 'map_reduce_example');
       expect(result.ok).to.equal(1);
       const outRes = await database.map_reduce_example.find().sort({ _id: 1 }).toArray();
@@ -1389,9 +1396,9 @@ describe('Shell API (integration)', function() {
       const mapFn = `function() {
         emit(this.cust_id, this.price);
       };`;
-      const reduceFn = function(keyCustId, valuesPrices): any {
+      const reduceFn = compileExpr `function(keyCustId, valuesPrices) {
         return valuesPrices.reduce((s, t) => s + t);
-      };
+      }`;
       const result = await collection.mapReduce(mapFn, reduceFn.toString(), 'map_reduce_example');
       expect(result.ok).to.equal(1);
       expect(result.result).to.equal('map_reduce_example');
@@ -1408,9 +1415,9 @@ describe('Shell API (integration)', function() {
       const mapFn = `function() {
         emit(this.cust_id, this.price);
       };`;
-      const reduceFn = function(keyCustId, valuesPrices): any {
+      const reduceFn = compileExpr `function(keyCustId, valuesPrices) {
         return valuesPrices.reduce((s, t) => s + t);
-      };
+      }`;
       const result = await collection.mapReduce(mapFn, reduceFn.toString(), {
         out: { inline: 1 }
       });
@@ -1433,12 +1440,12 @@ describe('Shell API (integration)', function() {
       const mapFn = `function() {
         emit(this.cust_id, this.price);
       };`;
-      const reduceFn = function(keyCustId, valuesPrices): any {
+      const reduceFn = compileExpr `function(keyCustId, valuesPrices) {
         return valuesPrices.reduce((s, t) => s + t);
-      };
-      const finalizeFn = function(): any {
+      }`;
+      const finalizeFn = compileExpr `function() {
         return 1;
-      };
+      }`;
       const result = await collection.mapReduce(mapFn, reduceFn.toString(), {
         out: { inline: 1 },
         finalize: finalizeFn
