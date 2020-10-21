@@ -72,7 +72,7 @@ describe('completer.completer', () => {
     });
 
     it('is an exact match to one of shell completions', () => {
-      const i = 'db.bios.find({ field: { $exists';
+      const i = 'db.bios.find({ field: { $exis';
       expect(completer(undefined, i))
         .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
     });
