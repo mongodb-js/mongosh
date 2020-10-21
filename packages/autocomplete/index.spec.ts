@@ -1,4 +1,4 @@
-import completer from './completer';
+import completer from './';
 import { signatures as shellSignatures } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
@@ -72,7 +72,7 @@ describe('completer.completer', () => {
     });
 
     it('is an exact match to one of shell completions', () => {
-      const i = 'db.bios.find({ field: { $exis';
+      const i = 'db.bios.find({ field: { $exists';
       expect(completer(undefined, i))
         .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
     });

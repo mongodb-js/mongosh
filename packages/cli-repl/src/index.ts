@@ -1,7 +1,7 @@
 import CliRepl from './cli-repl';
 import parseCliArgs from './arg-parser';
 import mapCliToDriver from './arg-mapper';
-import completer from './completer';
+import completer from '@mongosh/autocomplete';
 import clr from './clr';
 import { USAGE, TELEMETRY, MONGOSH_WIKI } from './constants';
 
