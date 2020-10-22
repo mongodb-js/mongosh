@@ -34,6 +34,7 @@
   "dependencies": {
     "@babel/generator": "^7.9.4",
     "@babel/parser": "^7.9.4",
+    "@mongosh/autocomplete": "^0.5.0",
     "@mongosh/cli-repl": "^0.5.0",
     "@mongosh/service-provider-core": "^0.5.0",
     "@mongosh/shell-api": "^0.5.0",
