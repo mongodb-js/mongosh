@@ -1,0 +1,2 @@
+[ "category_1" ]
+[ { "v": 2, "key": { "_id": 1 }, "name": "_id_" }, { "v": 2, "key": { "category": 1 }, "name": "category_1", "collation": { "locale": "fr", "caseLevel": false, "caseFirst": "off", "strength": 3, "numericOrdering": false, "alternate": "non-ignorable", "maxVariable": "punct", "normalization": false, "backwards": false, "version": "57.1" } } ]
