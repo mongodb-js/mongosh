@@ -12,7 +12,8 @@
   },
   "scripts": {
     "browserify-shell-api": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv",
-    "test-ci": "npm run test"
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/test/js/run-tests.ts\"",
+    "test-ci": "node ../../scripts/run-if-platform.js linux npm run test"
   },
   "devDependencies": {
     "browserify": "latest"

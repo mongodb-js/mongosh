@@ -1,0 +1,2 @@
+[ "category_1" ]
+com.mongodb.MongoBulkWriteException: Bulk write operation error on server localhost:27018. Write errors: [BulkWriteError{index=0, code=11000, message='E11000 duplicate key error collection: admin.coll index: category_1 dup key: { category: "cat1" }', details={}}].
