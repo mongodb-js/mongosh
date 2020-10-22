@@ -5,6 +5,7 @@
     "config",
     "**/*.d.ts",
     "**/*.spec.{ts,js,tsx,jsx,cjs,mjs}",
-    "**/*.config.{ts,js,tsx,jsx,cjs,mjs}"
+    "**/*.config.{ts,js,tsx,jsx,cjs,mjs}",
+    "**/lib/*.js"
   ]
 }
