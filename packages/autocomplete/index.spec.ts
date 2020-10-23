@@ -1,4 +1,4 @@
-import completer from './completer';
+import completer from './';
 import { signatures as shellSignatures } from '@mongosh/shell-api';
 
 import { expect } from 'chai';

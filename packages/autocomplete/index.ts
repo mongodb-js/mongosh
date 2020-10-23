@@ -17,7 +17,7 @@ const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
 const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
 /**
- * The proect stage operator.
+ * The project stage operator.
  */
 const PROJECT = '$project';
 
@@ -29,7 +29,8 @@ const GROUP = '$group';
 /**
  * Return complete suggestions given currently typed line
  *
- * @param {string} Line - Current user input.
+ * @param {string} mdbVersion - Current mongoDB version.
+ * @param {string} line - Current user input.
  *
  * @returns {array} Matching Completions, Current User Input.
  */
@@ -78,7 +79,7 @@ function completer(mdbVersion: string, line: string): [string[], string] {
         expressions = BASE_COMPLETIONS.concat(getStageAccumulators(
           elToComplete, mdbVersion));
       } else {
-        // collection quering just needs MATCH COMPLETIONS
+        // collection querying just needs MATCH COMPLETIONS
         expressions = MATCH_COMPLETIONS;
       }
       // split on {, as a stage/query will always follow an open curly brace
@@ -128,8 +129,7 @@ function filterQueries(mdbVersion: string, completions: any, prefix: string, spl
     return e.name.startsWith(prefix) && semver.gte(mdbVersion, e.version);
   });
 
-  const adjusted = hits.map(h => `${split}${h.name}`);
-  return adjusted;
+  return hits.map(h => `${split}${h.name}`);
 }
 
 function filterShellAPI(mdbVersion: string, completions: object, prefix: string, split?: string[]): any {
@@ -141,8 +141,7 @@ function filterShellAPI(mdbVersion: string, completions: object, prefix: string,
   });
 
   if (split) {
-    const adjusted = hits.map(h => `${split.slice(0, -1).join('.')}.${h}`);
-    return adjusted;
+    return hits.map(h => `${split.slice(0, -1).join('.')}.${h}`);
   }
 
   return hits;

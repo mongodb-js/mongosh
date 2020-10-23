@@ -1,4 +1,4 @@
-import cliReplCompleter from '@mongosh/cli-repl/lib/completer';
+import cliReplCompleter from '@mongosh/autocomplete';
 import { Autocompleter, Completion } from './autocompleter';
 
 export class ShellApiAutocompleter implements Autocompleter {

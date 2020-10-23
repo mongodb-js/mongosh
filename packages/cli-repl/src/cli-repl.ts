@@ -11,7 +11,7 @@ import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
 import jsonParse from 'fast-json-parse';
-import completer from './completer';
+import completer from '@mongosh/autocomplete';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
 import repl from 'pretty-repl';
