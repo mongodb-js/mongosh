@@ -1,5 +1,5 @@
 export enum ServerVersions {
-  latest = '4.4.0',
+  latest = '999.999.999', // set a really high max value
   earliest = '0.0.0'
 }
 
