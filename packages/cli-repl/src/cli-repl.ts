@@ -227,6 +227,7 @@ class CliRepl {
       process.exit();
     });
 
+    this.repl.context.kerberos = require('kerberos');
     this.internalState.setCtx(this.repl.context);
     Object.defineProperty(this.repl.context, 'db', {
       set: (newDb) => {
