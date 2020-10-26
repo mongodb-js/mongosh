@@ -670,7 +670,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       let exhaustive = false;
       const symbolCopies = path.node.cases.map(() => state.symbols.deepCopy());
       const casesPath = path.get('cases');
-      path.node.cases.forEach((consNode, i) => {
+      path.node.cases.forEach((_consNode, i) => {
         path.node.cases[i]['shellScope'] = symbolCopies[i].pushScope();
         const casePath = casesPath[i];
         casePath.traverse(TypeInferenceVisitor, {

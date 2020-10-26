@@ -15,13 +15,13 @@ interface ShellProps {
   /* A function called each time the output changes with an array of
    * ShellOutputEntryes.
    */
-  onOutputChanged?: (output: readonly ShellOutputEntry[]) => void;
+  onOutputChanged: (output: readonly ShellOutputEntry[]) => void;
 
   /* A function called each time the history changes
    * with an array of history entries ordered from the most recent to
    * the oldest entry.
    */
-  onHistoryChanged?: (history: readonly string[]) => void;
+  onHistoryChanged: (history: readonly string[]) => void;
 
   /* If set, the shell will omit or redact entries containing sensitive
    * info from history. Defaults to `false`.
@@ -31,12 +31,12 @@ interface ShellProps {
   /* The maxiumum number of lines to keep in the output.
    * Defaults to `1000`.
    */
-  maxOutputLength?: number;
+  maxOutputLength: number;
 
   /* The maxiumum number of lines to keep in the history.
    * Defaults to `1000`.
    */
-  maxHistoryLength?: number;
+  maxHistoryLength: number;
 
   /* An array of entries to be displayed in the output area.
    *
@@ -45,7 +45,7 @@ interface ShellProps {
    *
    * Note: new entries will not be appended to the array.
    */
-  initialOutput?: readonly ShellOutputEntry[];
+  initialOutput: readonly ShellOutputEntry[];
 
   /* An array of history entries to prepopulate the history.
    *
@@ -55,7 +55,7 @@ interface ShellProps {
    *
    * Note: new entries will not be appended to the array.
    */
-  initialHistory?: readonly string[];
+  initialHistory: readonly string[];
 }
 
 interface ShellState {
@@ -81,7 +81,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     initialHistory: []
   };
 
-  private shellInputElement?: HTMLElement;
+  private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
     editor?: HTMLElement;
   };
@@ -101,7 +101,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   private evaluate = async(code: string): Promise<ShellOutputEntry> => {
-    let outputLine;
+    let outputLine : ShellOutputEntry;
 
     try {
       this.props.runtime.setEvaluationListener(this);
@@ -149,7 +149,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   private onClearCommand = (): void => {
-    const output = [];
+    const output: [] = [];
 
     Object.freeze(output);
 
@@ -245,7 +245,7 @@ export class Shell extends Component<ShellProps, ShellState> {
             onClearCommand={this.onClearCommand}
             onInput={this.onInput}
             operationInProgress={this.state.operationInProgress}
-            setInputRef={(ref): void => { this.shellInputRef = ref;}}
+            setInputRef={(ref: {editor?: HTMLElement}): void => { this.shellInputRef = ref;}}
           />
         </div>
       </div>

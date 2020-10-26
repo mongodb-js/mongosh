@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 import Mustache from 'mustache';
-import Catalog from './catalog';
+import type Catalog from './catalog';
 import en_US from './locales/en_US';
 import de_DE from './locales/de_DE';
+import { MongoshInternalError } from '@mongosh/errors';
 
 /**
  * The default locale.
@@ -12,7 +13,7 @@ const DEFAULT_LOCALE = 'en_US';
 /**
  * Locale mappings.
  */
-const MAPPINGS = {
+const MAPPINGS: Record<string, Catalog> = {
   'en_US': en_US,
   'de_DE': de_DE
 };
@@ -40,7 +41,11 @@ class Translator {
    * @returns {string} The translation.
    */
   __(key: string): string {
-    return this.translate(key);
+    const translation = this.translate(key);
+    if (translation === undefined) {
+      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`);
+    }
+    return translation;
   }
 
   /**
@@ -78,7 +83,7 @@ class Translator {
    *
    * @returns {string} The translation.
    */
-  translate(key: string): string {
+  translate(key: string): string | undefined {
     return this.find(key);
   }
 
@@ -89,7 +94,7 @@ class Translator {
    *
    * @returns {string} The translated string.
    */
-  translateApiHelp(key: string): string {
+  translateApiHelp(key: string): string | undefined {
     const value = this.find(key);
     if (!value) {
       return;
@@ -101,8 +106,8 @@ class Translator {
     return Mustache.render(TEMPLATE, value);
   }
 
-  private find(key): any {
-    return key.split('.').reduce((a, b) => {
+  private find(key: string): string | undefined {
+    return key.split('.').reduce((a: any, b: string) => {
       return a ? a[b] : undefined;
     }, this.catalog);
   }

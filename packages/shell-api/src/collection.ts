@@ -41,9 +41,9 @@ import PlanCache from './plan-cache';
 @addSourceToResults
 export default class Collection extends ShellApiClass {
   _mongo: Mongo;
-  _database: any; // to avoid circular ref
+  _database: Database;
   _name: string;
-  constructor(mongo, database, name) {
+  constructor(mongo: Mongo, database: Database, name: string) {
     super();
     this._mongo = mongo;
     this._database = database;
@@ -51,7 +51,7 @@ export default class Collection extends ShellApiClass {
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
         if (prop in target) {
-          return target[prop];
+          return (target as any)[prop];
         }
 
         if (
@@ -226,7 +226,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
-  async countDocuments(query, options: any = {}): Promise<number> {
+  async countDocuments(query: Document, options: Document = {}): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(this._database._name, this._name, query, options);
   }
@@ -244,7 +244,7 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteMany(filter, options: any = {}): Promise<DeleteResult> {
+  async deleteMany(filter: Document, options: Document = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('deleteMany', { filter, options });
@@ -262,7 +262,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      result.result.ok,
+      !!result.result.ok,
       result.deletedCount
     );
   }
@@ -280,7 +280,7 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteOne(filter, options: any = {}): Promise<DeleteResult> {
+  async deleteOne(filter: Document, options: Document = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('deleteOne', { filter, options });
@@ -297,7 +297,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      result.result.ok,
+      !!result.result.ok,
       result.deletedCount
     );
   }
@@ -315,7 +315,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Array} The promise of the result.
    */
   @returnsPromise
-  async distinct(field, query, options: any = {}): Promise<any> {
+  async distinct(field: string, query: Document, options: Document = {}): Promise<any> {
     this._emitCollectionApiCall('distinct', { field, query, options });
     return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, options);
   }
@@ -330,9 +330,9 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
-  async estimatedDocumentCount(options = {}): Promise<any> {
+  async estimatedDocumentCount(options: Document = {}): Promise<number> {
     this._emitCollectionApiCall('estimatedDocumentCount', { options });
-    return this._mongo._serviceProvider.estimatedDocumentCount(this._database._name, this._name, options,);
+    return this._mongo._serviceProvider.estimatedDocumentCount(this._database._name, this._name, options);
   }
 
   /**
@@ -347,7 +347,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Cursor} The promise of the cursor.
    */
   @returnType('Cursor')
-  find(query?, projection?): Cursor {
+  find(query?: Document, projection?: Document): Cursor {
     const options: any = {};
     if (projection) {
       options.projection = projection;
@@ -416,7 +416,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @returnType('Document')
-  async findOne(query = {}, projection?): Promise<Document> {
+  async findOne(query: Document = {}, projection?: Document): Promise<Document> {
     const options: any = {};
     if (projection) {
       options.projection = projection;
@@ -424,7 +424,7 @@ export default class Collection extends ShellApiClass {
 
     this._emitCollectionApiCall('findOne', { query, options });
     return new Cursor(
-      this,
+      this._mongo,
       this._mongo._serviceProvider.find(this._database._name, this._name, query, options)
     ).limit(1).next();
   }
@@ -477,7 +477,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndDelete(filter, options = {}): Promise<Document> {
+  async findOneAndDelete(filter: Document, options: Document = {}): Promise<Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
@@ -507,7 +507,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndReplace(filter, replacement, options = {}): Promise<any> {
+  async findOneAndReplace(filter: Document, replacement: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(filter);
     const findOneAndReplaceOptions: any = { ...options };
 
@@ -543,7 +543,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndUpdate(filter, update, options = {}): Promise<any> {
+  async findOneAndUpdate(filter: Document, update: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(filter);
     const findOneAndUpdateOptions: any = { ...options };
 
@@ -575,9 +575,9 @@ export default class Collection extends ShellApiClass {
    * @return {InsertManyResult}
    */
   @returnsPromise
-  async insert(docs, options: any = {}): Promise<InsertManyResult> {
+  async insert(docs: Document | Document[], options: Document = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
-    const d = Object.prototype.toString.call(docs) === '[object Array]' ? docs : [docs];
+    const d: Document[] = Array.isArray(docs) ? docs : [docs];
     const dbOptions: DatabaseOptions = {};
 
     if ('writeConcern' in options) {
@@ -594,7 +594,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      result.result.ok,
+      !!result.result.ok,
       result.insertedIds
     );
   }
@@ -614,7 +614,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async insertMany(docs, options: any = {}): Promise<InsertManyResult> {
+  async insertMany(docs: Document[], options: Document = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
     const dbOptions: DatabaseOptions = {};
 
@@ -632,7 +632,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      result.result.ok,
+      !!result.result.ok,
       result.insertedIds
     );
   }
@@ -652,7 +652,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async insertOne(doc, options: any = {}): Promise<InsertOneResult> {
+  async insertOne(doc: Document, options: Document = {}): Promise<InsertOneResult> {
     assertArgsDefined(doc);
     const dbOptions: DatabaseOptions = {};
 
@@ -670,7 +670,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertOneResult(
-      result.result.ok,
+      !!result.result.ok,
       result.insertedId
     );
   }
@@ -700,7 +700,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  remove(query, options: any = {}): Promise<any> {
+  remove(query: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(query);
     const dbOptions: DatabaseOptions = {};
 
@@ -728,7 +728,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '4.0.0'])
-  save(doc, options: any = {}): Promise<any> {
+  save(doc: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(doc);
     const dbOptions: DatabaseOptions = {};
 
@@ -757,7 +757,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async replaceOne(filter, replacement, options: any = {}): Promise<UpdateResult> {
+  async replaceOne(filter: Document, replacement: Document, options: Document = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
 
@@ -774,7 +774,7 @@ export default class Collection extends ShellApiClass {
       dbOptions
     );
     return new UpdateResult(
-      result.result.ok,
+      !!result.result.ok,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -784,7 +784,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async update(filter, update, options: any = {}): Promise<UpdateResult> {
+  async update(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
     assertArgsDefined(update);
     this._emitCollectionApiCall('update', { filter, options });
     let result;
@@ -807,7 +807,7 @@ export default class Collection extends ShellApiClass {
       );
     }
     return new UpdateResult(
-      result.result.ok,
+      !!result.result.ok,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -830,7 +830,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async updateMany(filter, update, options: any = {}): Promise<UpdateResult> {
+  async updateMany(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
     const dbOptions: DatabaseOptions = {};
     this._emitCollectionApiCall('updateMany', { filter, options });
@@ -847,7 +847,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      result.result.ok,
+      !!result.result.ok,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -891,7 +891,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      result.result.ok,
+      !!result.result.ok,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -1006,7 +1006,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async getIndexes(): Promise<any> {
+  async getIndexes(): Promise<any[]> {
     this._emitCollectionApiCall('getIndexes');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
   }
@@ -1019,7 +1019,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async getIndexSpecs(): Promise<any> {
+  async getIndexSpecs(): Promise<any[]> {
     this._emitCollectionApiCall('getIndexSpecs');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
   }
@@ -1031,7 +1031,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async getIndices(): Promise<any> {
+  async getIndices(): Promise<any[]> {
     this._emitCollectionApiCall('getIndices');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
   }
@@ -1167,7 +1167,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise} returns Promise
    */
   @returnsPromise
-  async dataSize(): Promise<any> {
+  async dataSize(): Promise<number> {
     this._emitCollectionApiCall('dataSize');
     const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
     return stats.size;
@@ -1179,7 +1179,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise} returns Promise
    */
   @returnsPromise
-  async storageSize(): Promise<any> {
+  async storageSize(): Promise<number> {
     this._emitCollectionApiCall('storageSize');
     const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
     return stats.storageSize;
@@ -1191,7 +1191,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise} returns Promise
    */
   @returnsPromise
-  async totalSize(): Promise<any> {
+  async totalSize(): Promise<number> {
     this._emitCollectionApiCall('totalSize');
     const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
     return (stats.storageSize || 0) + (stats.totalIndexSize || 0);
@@ -1287,12 +1287,10 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async stats(options: any = {}): Promise<any> {
-    if (typeof options === 'number') {
-      options = {
-        scale: options
-      };
-    }
+  async stats(originalOptions: Document | number = {}): Promise<Document> {
+    const options: Document =
+      typeof originalOptions === 'number' ? { scale: originalOptions } : originalOptions;
+
     if (options.indexDetailsKey && options.indexDetailsName) {
       throw new MongoshInvalidInputError('Cannot filter indexDetails on both indexDetailsKey and indexDetailsName');
     }
@@ -1313,7 +1311,7 @@ export default class Collection extends ShellApiClass {
       }
     );
     if (!result) {
-      throw new MongoshRuntimeError(`Error running collStats command ${result ? result.errmsg : ''}`);
+      throw new MongoshRuntimeError(`Error running collStats command on ${this.getFullName()}`);
     }
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
@@ -1329,7 +1327,7 @@ export default class Collection extends ShellApiClass {
      * Remove indexDetails if options.indexDetails is true. From the old shell code.
      * @param stats
      */
-    const updateStats = (stats): void => {
+    const updateStats = (stats: any): void => {
       if (!stats.indexDetails) {
         return;
       }
@@ -1358,7 +1356,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async latencyStats(options = {}): Promise<any> {
+  async latencyStats(options: Document = {}): Promise<Document[]> {
     this._emitCollectionApiCall('latencyStats', { options });
     const pipeline = [{ $collStats: { latencyStats: options } }];
     const providerCursor = this._mongo._serviceProvider.aggregate(
@@ -1401,7 +1399,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async mapReduce(map: any, reduce: any, optionsOrOutString: Document | string): Promise<any> {
+  async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: Document | string): Promise<any> {
     assertArgsDefined(map, reduce, optionsOrOutString);
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
 
@@ -1426,7 +1424,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async validate(full = false): Promise<Document> {
+  async validate(full = false): Promise<any> {
     this._emitCollectionApiCall('validate', { full });
     return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
@@ -1466,7 +1464,14 @@ export default class Collection extends ShellApiClass {
     const collStats = await (await this.aggregate({ '$collStats': { storageStats: {} } })).toArray();
 
     const totals = { numChunks: 0, size: 0, count: 0 };
-    const conciseShardsStats = [];
+    const conciseShardsStats: {
+      shardId: string;
+      host: string;
+      size: number;
+      count: number;
+      numChunks: number;
+      avgObjSize: number;
+    }[] = [];
 
     await Promise.all(collStats.map((extShardStats) => (
       (async(): Promise<void> => {

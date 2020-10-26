@@ -19,7 +19,7 @@ import { CommandResult } from './result';
 export default class ReplicaSet extends ShellApiClass {
   _mongo: Mongo;
 
-  constructor(mongo) {
+  constructor(mongo: Mongo) {
     super();
     this._mongo = mongo;
   }
@@ -143,8 +143,8 @@ export default class ReplicaSet extends ShellApiClass {
 
     configDoc.version++;
 
-    const max = Math.max(...configDoc.members.map(m => m._id));
-    let cfg;
+    const max = Math.max(...configDoc.members.map((m: any) => m._id));
+    let cfg: any;
     if (typeof hostport === 'string') {
       cfg = { _id: max + 1, host: hostport };
       if (arb) {

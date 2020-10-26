@@ -61,7 +61,7 @@ export default interface Readable {
     coll: string,
     query?: Document,
     options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<number>;
 
   /**
    * Get an exact document count from the collection.
@@ -79,7 +79,7 @@ export default interface Readable {
     collection: string,
     filter?: Document,
     options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<number>;
 
   /**
    * Get distinct values for the field.
@@ -115,7 +115,7 @@ export default interface Readable {
     database: string,
     collection: string,
     options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<number>;
 
   /**
    * Find documents in the collection.
@@ -154,7 +154,7 @@ export default interface Readable {
   isCapped(
     database: string,
     collection: string,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<any>;
 
   /**
    * Returns an array that holds a list of documents that identify and
@@ -169,7 +169,7 @@ export default interface Readable {
   getIndexes(
     database: string,
     collection: string,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<any[]>;
 
   /**
    * Returns an array of collection infos
@@ -185,7 +185,7 @@ export default interface Readable {
     database: string,
     filter?: Document,
     options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    dbOptions?: DatabaseOptions): Promise<any[]>;
 
   /**
    * Get all the collection statistics.
@@ -202,6 +202,6 @@ export default interface Readable {
     collection: string,
     options?: Document,
     dbOptions?: DatabaseOptions
-  ): Promise<Result>;
+  ): Promise<any>;
 }
 

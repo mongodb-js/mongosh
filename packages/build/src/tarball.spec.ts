@@ -161,7 +161,7 @@ describe('tarball module', () => {
   });
 
   describe('.tarball', () => {
-    const buildVariant = process.env.BUILD_VARIANT;
+    const buildVariant = process.env.BUILD_VARIANT || '';
     const version = '1.0.0';
     const expectedTarball = tarballPath(__dirname, buildVariant, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');

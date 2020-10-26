@@ -34,7 +34,7 @@ const GROUP = '$group';
  *
  * @returns {array} Matching Completions, Current User Input.
  */
-function completer(mdbVersion: string, line: string): [string[], string] {
+function completer(mdbVersion: string | undefined, line: string): [string[], string] {
   const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
   const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
   const DB_COMPLETIONS = shellSignatures.Database.attributes;
@@ -84,9 +84,9 @@ function completer(mdbVersion: string, line: string): [string[], string] {
       }
       // split on {, as a stage/query will always follow an open curly brace
       const splitQuery = line.split('{');
-      const prefix = splitQuery.pop().trim();
-      const command = prefix !== '' ? line.split(prefix).shift() : line;
-      const hits = filterQueries(mdbVersion, expressions, prefix, command);
+      const prefix = splitQuery.pop()?.trim();
+      const command: string = prefix ? line.split(prefix).shift() as string : line;
+      const hits = filterQueries(mdbVersion, expressions, prefix || '', command);
       return [hits.length ? hits : [], line];
     }
 
@@ -107,11 +107,11 @@ function completer(mdbVersion: string, line: string): [string[], string] {
 }
 
 // stage completions based on current stage string.
-function getStageAccumulators(stage: string, mdbVersion: string): any {
+function getStageAccumulators(stage: string, mdbVersion: string | undefined): typeof ACCUMULATORS {
   if (stage !== '') return [];
 
   if (stage.includes(PROJECT)) {
-    return ACCUMULATORS.filter(acc => {
+    return ACCUMULATORS.filter((acc: any) => {
       if (!mdbVersion) return acc.projectVersion;
       return (
         acc.projectVersion && semver.gte(mdbVersion, acc.projectVersion)
@@ -122,8 +122,8 @@ function getStageAccumulators(stage: string, mdbVersion: string): any {
   }
 }
 
-function filterQueries(mdbVersion: string, completions: any, prefix: string, split: string): any {
-  const hits = completions.filter((e) => {
+function filterQueries(mdbVersion: string | undefined, completions: any, prefix: string, split: string): string[] {
+  const hits: any[] = completions.filter((e: any) => {
     if (!e.name) return false;
     if (!mdbVersion) return e.name.startsWith(prefix);
     return e.name.startsWith(prefix) && semver.gte(mdbVersion, e.version);
@@ -132,8 +132,8 @@ function filterQueries(mdbVersion: string, completions: any, prefix: string, spl
   return hits.map(h => `${split}${h.name}`);
 }
 
-function filterShellAPI(mdbVersion: string, completions: object, prefix: string, split?: string[]): any {
-  const hits = Object.keys(completions).filter((c) => {
+function filterShellAPI(mdbVersion: string | undefined, completions: any, prefix: string, split?: string[]): string[] {
+  const hits: string[] = Object.keys(completions).filter((c: any) => {
     if (!mdbVersion) return c.startsWith(prefix);
     return c.startsWith(prefix)
       && semver.gte(mdbVersion, completions[c].serverVersions[0])

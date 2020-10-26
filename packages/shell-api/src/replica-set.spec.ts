@@ -17,7 +17,7 @@ import util from 'util';
 
 describe('ReplicaSet', () => {
   describe('help', () => {
-    const apiClass: any = new ReplicaSet({});
+    const apiClass: any = new ReplicaSet({} as any);
 
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');

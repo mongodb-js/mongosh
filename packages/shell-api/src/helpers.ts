@@ -1,4 +1,4 @@
-/* eslint-disable complexity */
+/* eslint complexity: 0, no-use-before-define: 0 */
 /**
  * Helper method to adapt aggregation pipeline options.
  * This is here so that it's not visible to the user.
@@ -69,7 +69,7 @@ export function assertArgsType(args: any[], expectedTypes: string[]): void {
   });
 }
 
-export function assertKeysDefined(object: object, keys: string[]): void {
+export function assertKeysDefined(object: any, keys: string[]): void {
   for (const key of keys) {
     if (object[key] === undefined) {
       throw new MongoshInvalidInputError(`Missing required property: ${JSON.stringify(key)}`);
@@ -101,7 +101,10 @@ export function adaptOptions(shellToCommand: any, additions: any, shellDoc: any)
  * @param passwordDigestor
  * @param {Object} command
  */
-export function processDigestPassword(username, passwordDigestor, command): any {
+export function processDigestPassword(
+  username: string,
+  passwordDigestor: 'server' | 'client',
+  command: { pwd: string }): { digestPassword?: boolean; pwd?: string } {
   if (passwordDigestor === undefined) {
     return {};
   }
@@ -193,10 +196,8 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
         { $match: recentMongosQuery },
         { $group: { _id: '$mongoVersion', num: { $sum: 1 } } },
         { $sort: { num: -1 } }
-      ])).toArray()).map((z) => {
-        const res = {};
-        res[z._id] = z.num;
-        return res;
+      ])).toArray()).map((z: { _id: string; num: number }) => {
+        return { [z._id]: z.num };
       });
     }
   }
@@ -205,7 +206,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
   const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
   result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
 
-  const balancerRes = {};
+  const balancerRes: Record<string, any> = {};
   await Promise.all([
     (async(): Promise<void> => {
       // Is the balancer currently enabled
@@ -233,8 +234,9 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
     })(),
     (async(): Promise<void> => {
       // Output the list of active migrations
-      const activeLocks = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
-      const activeMigrations = [];
+      type Lock = { _id: string; when: Date };
+      const activeLocks: Lock[] = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
+      const activeMigrations: Lock[] = [];
       if (activeLocks !== null) {
         activeLocks.forEach((lock) => {
           activeMigrations.push({ _id: lock._id, when: lock.when });
@@ -265,7 +267,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
         const balErrs = await configDB.getCollection('actionlog').find({ what: 'balancer.round' }).sort({ time: -1 }).limit(5).toArray();
         const actionReport = { count: 0, lastErr: '', lastTime: ' ' };
         if (balErrs !== null) {
-          balErrs.forEach((r) => {
+          balErrs.forEach((r: any) => {
             if (r.details.errorOccured) {
               actionReport.count += 1;
               if (actionReport.count === 1) {
@@ -335,8 +337,8 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
             ]))
             .toArray());
 
-        const migrationsRes = {};
-        migrations.forEach((x) => {
+        const migrationsRes: Record<number, string> = {};
+        migrations.forEach((x: any) => {
           if (x._id === 'Success') {
             migrationsRes[x.count] = x._id;
           } else {
@@ -353,7 +355,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
   ]);
   result.balancer = balancerRes;
 
-  const dbRes = [];
+  const dbRes: any[] = [];
   result.databases = dbRes;
 
   const databases = await configDB.getCollection('databases').find().sort({ name: 1 }).toArray();
@@ -365,10 +367,10 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
   });
 
   for (const db of databases) {
-    const collList = {};
+    const collList: Record<string, any> = {};
 
     if (db.partitioned) {
-      const escapeRegex = (string): string => {
+      const escapeRegex = (string: string): string => {
         return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
       };
       const colls = await configDB.getCollection('collections')
@@ -396,7 +398,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
             { $sort: { shard: 1 } })
           ).toArray();
           let totalChunks = 0;
-          chunks.forEach((z) => {
+          chunks.forEach((z: any) => {
             totalChunks += z.nChunks;
             collRes.chunkMetadata = { shard: z.shard, nChunks: z.nChunks };
           });
@@ -405,7 +407,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
           if (totalChunks < 20 || verbose) {
             (await chunksColl.find({ 'ns': coll._id })
               .sort({ min: 1 }).toArray())
-              .forEach((chunk) => {
+              .forEach((chunk: any) => {
                 const c = {
                   min: chunk.min,
                   max: chunk.max,
@@ -419,12 +421,12 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
             chunksRes.push('too many chunks to print, use verbose if you want to force print');
           }
 
-          const tagsRes = [];
+          const tagsRes: any[] = [];
           (await configDB.getCollection('tags')
             .find({ ns: coll._id })
             .sort({ min: 1 })
             .toArray())
-            .forEach((tag) => {
+            .forEach((tag: any) => {
               tagsRes.push({
                 tag: tag.tag,
                 min: tag.min,
@@ -450,7 +452,7 @@ export async function getConfigDB(mongo: Mongo): Promise<any> {
   return mongo.getDB('config');
 }
 
-export function dataFormat(bytes): string {
+export function dataFormat(bytes?: number): string {
   if (bytes === null || bytes === undefined) {
     return '0B';
   }
@@ -467,7 +469,7 @@ export function dataFormat(bytes): string {
   return Math.floor((Math.floor(bytes / (1024 * 1024)) / 1024) * 100) / 100 + 'GiB';
 }
 
-export function tsToSeconds(x): number {
+export function tsToSeconds(x: any): number {
   if (x.t && x.i) {
     return x.t;
   }

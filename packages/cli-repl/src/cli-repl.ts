@@ -10,7 +10,6 @@ import isRecoverableError from 'is-recoverable-error';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import { REPLServer, Recoverable } from 'repl';
-import jsonParse from 'fast-json-parse';
 import completer from '@mongosh/autocomplete';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
@@ -18,18 +17,25 @@ import repl from 'pretty-repl';
 import Nanobus from 'nanobus';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import mkdirp from 'mkdirp';
-import clr from './clr';
+import clr, { StyleDefinition } from './clr';
 import path from 'path';
 import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
 import semver from 'semver';
+import type { Readable } from 'stream';
 
 /**
  * Connecting text key.
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
+
+type ConfigFileContents = {
+  userId: string;
+  enableTelemetry: boolean;
+  disableGreetingMessage: boolean;
+};
 
 /**
  * The REPL used from the terminal.
@@ -41,7 +47,7 @@ class CliRepl {
   private internalState: ShellInternalState;
   private enableTelemetry: boolean;
   private disableGreetingMessage: boolean;
-  private userId: bson.ObjectId;
+  private userId: string;
   private options: CliOptions;
   private mongoshDir: string;
   private lineByLineInput: LineByLineInput;
@@ -50,6 +56,16 @@ class CliRepl {
    * Instantiate the new CLI Repl.
    */
   constructor(driverUri: string, driverOptions: NodeOptions, options: CliOptions) {
+    // <MakeTypeScriptHappy>. This might be yet another good reason to restructure
+    // some bits and pieces of this class. :)
+    this.shellEvaluator = null as unknown as ShellEvaluator;
+    this.repl = null as unknown as REPLServer;
+    this.internalState = null as unknown as ShellInternalState;
+    this.enableTelemetry = false;
+    this.disableGreetingMessage = false;
+    this.userId = '';
+    // </MakeTypeScriptHappy>
+
     this.bus = new Nanobus('mongosh');
 
     this.verifyNodeVersion();
@@ -111,7 +127,7 @@ class CliRepl {
     const version = this.internalState.connectionInfo.buildInfo.version;
 
     this.repl = repl.start({
-      input: this.lineByLineInput,
+      input: this.lineByLineInput as unknown as Readable,
       output: process.stdout,
       prompt: '> ',
       writer: this.writer,
@@ -131,9 +147,9 @@ class CliRepl {
     if (this.repl.commands.editor) {
       const originalEditorAction = this.repl.commands.editor.action.bind(this.repl);
 
-      this.repl.commands.editor.action = (): any => {
+      this.repl.commands.editor.action = (...args: Parameters<typeof originalEditorAction>): any => {
         this.lineByLineInput.disableBlockOnNewline();
-        return originalEditorAction();
+        return originalEditorAction(...args);
       };
     }
 
@@ -147,14 +163,18 @@ class CliRepl {
     const replEval = this.repl.eval.bind(this.repl);
     const originalEval = util.promisify(this.wrapNoSyncDomainError(replEval));
 
-    const customEval = async(input, context, filename, callback): Promise<any> => {
+    const customEval = async(
+      input: string,
+      context: any,
+      filename: string,
+      callback: (err?: Error | null, result?: any) => void): Promise<any> => {
       this.lineByLineInput.enableBlockOnNewLine();
 
       let result;
 
       try {
-        let sigintListener: () => void;
-        let previousSigintListeners: any[];
+        let sigintListener: (() => void) | undefined = undefined;
+        let previousSigintListeners: any[] = [];
         try {
           result = await new Promise((resolve, reject) => {
             // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
@@ -177,8 +197,10 @@ class CliRepl {
           });
         } finally {
           // Remove our 'SIGINT' listener and re-install the REPL one(s).
-          this.repl.removeListener('SIGINT', sigintListener);
-          process.removeListener('SIGINT', sigintListener);
+          if (sigintListener !== undefined) {
+            this.repl.removeListener('SIGINT', sigintListener);
+            process.removeListener('SIGINT', sigintListener);
+          }
           for (const listener of previousSigintListeners) {
             this.repl.on('SIGINT', listener);
           }
@@ -210,9 +232,9 @@ class CliRepl {
     const redactInfo = this.options.redactInfo;
     // eslint thinks we are redefining this.repl here, we are not.
     // eslint-disable-next-line no-shadow
-    this.repl.setupHistory(historyFile, function(err, repl) {
+    this.repl.setupHistory(historyFile, (err, repl) => {
       const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session');
-      if (err) this.writer(warn);
+      if (err) repl.writer(warn);
 
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
@@ -275,16 +297,17 @@ class CliRepl {
       if (err.code === 'EEXIST') {
         // make sure we catch errors for json parse and always have err and
         // value on config result
-        const config = jsonParse(fs.readFileSync(configPath, 'utf8'));
-
-        if (config.err) {
+        let config: ConfigFileContents;
+        try {
+          config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        } catch (err) {
           this.bus.emit('mongosh:error', 'Unable to parse user config', err);
           return;
         }
 
-        this.userId = config.value.userId;
+        this.userId = config.userId;
         this.disableGreetingMessage = true;
-        this.enableTelemetry = config.value.enableTelemetry;
+        this.enableTelemetry = config.enableTelemetry;
         this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
         return;
       }
@@ -323,7 +346,7 @@ class CliRepl {
    * @param {string} filePath - path to file
    */
   writeConfigFileSync(filePath: string): void {
-    const config = {
+    const config: ConfigFileContents = {
       userId: this.userId,
       enableTelemetry: this.enableTelemetry,
       disableGreetingMessage: this.disableGreetingMessage
@@ -392,9 +415,9 @@ class CliRepl {
    * @returns {boolean} If the password is missing.
    */
   isPasswordMissing(driverOptions: NodeOptions): boolean {
-    return driverOptions.auth &&
+    return !!(driverOptions.auth &&
       driverOptions.auth.user &&
-      !driverOptions.auth.password;
+      !driverOptions.auth.password);
   }
 
   /**
@@ -415,7 +438,7 @@ class CliRepl {
         return console.log(this.formatError(error));
       }
 
-      driverOptions.auth.password = password;
+      (driverOptions.auth as any).password = password;
       this.setupRepl(driverUri, driverOptions).catch((e) => {
         this._fatalError(e);
       });
@@ -445,7 +468,7 @@ class CliRepl {
       // supported, but it works.
       // We *may* want to consider not relying on the built-in eval function
       // at all at some point.
-      Domain.prototype.emit = function(ev, ...eventArgs): void {
+      Domain.prototype.emit = function(ev: string, ...eventArgs: any[]): void {
         if (ev === 'error') {
           throw eventArgs[0];
         }
@@ -473,9 +496,7 @@ class CliRepl {
 
   onPrint(values: ShellResult[]): void {
     const joined = values.map(this.writer).join(' ');
-    // `as any` becomes unnecessary after
-    // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/48646
-    (this.repl as any).output.write(joined + '\n');
+    this.repl.output.write(joined + '\n');
   }
 
   formatOutput(value: any): string {
@@ -486,7 +507,7 @@ class CliRepl {
     return formatError(value, this.getFormatOptions());
   }
 
-  clr(text: string, style: string|string[]): string {
+  clr(text: string, style: StyleDefinition): string {
     return clr(text, style, this.getFormatOptions());
   }
 

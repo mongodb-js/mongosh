@@ -5,6 +5,7 @@ import chai, { expect } from 'chai';
 import { Barque } from './barque';
 import Config from './config';
 import sinon from 'ts-sinon';
+import path from 'path';
 
 chai.use(require('sinon-chai'));
 
@@ -19,7 +20,7 @@ function createStubBarque(overrides?: any): Barque {
 describe('buildAndRelease', () => {
   let config: Config;
   let tarballFile: TarballFile;
-  let compileAndZipExecutable: (Config) => Promise<TarballFile>;
+  let compileAndZipExecutable: (config: Config) => Promise<TarballFile>;
   let uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>;
   let uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>;
   let barque: Barque;
@@ -51,7 +52,9 @@ describe('buildAndRelease', () => {
       repo: {
         owner: 'owner',
         repo: 'repo',
-      }
+      },
+      execNodeVersion: process.version,
+      rootDir: path.resolve(__dirname, '..', '..', '..')
     };
 
     tarballFile = { path: 'path', contentType: 'application/gzip' };

@@ -40,7 +40,7 @@ describe('BSON e2e', function() {
     });
     const outputDoc = {
       ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
-      DBRef: 'DBRef("a", "o", "db")',
+      DBRef: 'DBRef("a", "5f16b8bebe434dc98cdfc9cb", "db")',
       MinKey: '{ "$minKey" : 1 }',
       MaxKey: '{ "$maxKey" : 1 }',
       NumberInt: 'NumberInt(32)',
@@ -55,7 +55,7 @@ describe('BSON e2e', function() {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const inputDoc = {
         ObjectId: new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new bson.DBRef('a', 'o', 'db'),
+        DBRef: new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
         MinKey: new bson.MinKey(),
         MaxKey: new bson.MaxKey(),
         Timestamp: new bson.Timestamp(1, 100),
@@ -83,7 +83,7 @@ describe('BSON e2e', function() {
     it('Entire doc prints when created by user', async() => {
       const value = `doc = {
         ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new DBRef('a', 'o', 'db'),
+        DBRef: new DBRef('a', '5f16b8bebe434dc98cdfc9cb', 'db'),
         MinKey: new MinKey(),
         MaxKey: new MaxKey(),
         NumberInt: NumberInt("32"),

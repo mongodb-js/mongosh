@@ -4,16 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { startTestServer } from '../../../../../testing/integration-testing-hooks';
 
-const port = '27019';
-const authlessUri = `mongodb://localhost:${port}`;
-const uri = `mongodb://admin:admin@localhost:${port}`;
-
 describe('java-shell tests', function() {
-  this.timeout(300_000);
+  this.timeout(600_000);
   const connectionString = startTestServer();
   const uriFile = path.resolve(__dirname, '..', 'resources', 'URI.txt');
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
-  let origUriFileContent;
+  let origUriFileContent = Buffer.alloc(0);
 
   before((done) => {
     // We can probably turn this into execSync once

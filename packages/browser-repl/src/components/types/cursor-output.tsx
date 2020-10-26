@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import i18n from '@mongosh/i18n';
-import { ObjectOutput } from './object-output';
 import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
 
 interface CursorOutputProps {
@@ -29,10 +28,6 @@ export class CursorOutput extends Component<CursorOutputProps> {
       {more}
     </div>);
   }
-
-  renderDocument = (document, i): JSX.Element => {
-    return <ObjectOutput key={`document-${i}`} value={document} />;
-  };
 }
 
 

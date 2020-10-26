@@ -8,7 +8,7 @@ import {
 export class ElectronInterpreterEnvironment implements InterpreterEnvironment {
   private context: Context;
 
-  constructor(context) {
+  constructor(context: Context) {
     this.context = context;
     vm.createContext(context);
   }

@@ -1,3 +1,5 @@
+import type S3 from 'aws-sdk/clients/s3';
+
 /**
  * The default ACL.
  */
@@ -11,9 +13,9 @@ const PUBLIC_READ = 'public-read';
  *
  * @returns {Promise} - A Promise.
  */
-const upload = (params: any, s3: any): Promise<any> => {
+const upload = (params: any, s3: S3): Promise<unknown> => {
   return new Promise((resolve, reject) => {
-    s3.upload(params, (error, data) => {
+    s3.upload(params, (error: Error | null, data: unknown) => {
       if (error) {
         reject(error);
       } else {

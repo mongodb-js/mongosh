@@ -5,7 +5,7 @@ import { collectTopLevelLexicalContext } from './collect-top-level-lexical-conte
 
 describe('collectTopLevelLexicalContext', () => {
   const testCollectTopLevelLexicalContext =
-    (code): object => collectTopLevelLexicalContext(parse(code));
+    (code: string): object => collectTopLevelLexicalContext(parse(code));
 
   it('collects top level class declarations', () => {
     expect(testCollectTopLevelLexicalContext('class A {}'))

@@ -43,12 +43,12 @@ export class LineByLineInput {
       get: (target: NodeJS.ReadStream, property: string): any => {
         if (typeof property === 'string' &&
           !property.startsWith('_') &&
-          typeof this[property] === 'function'
+          typeof (this as any)[property] === 'function'
         ) {
-          return this[property].bind(this);
+          return (this as any)[property].bind(this);
         }
 
-        return target[property];
+        return (target as any)[property];
       }
     });
 
@@ -124,7 +124,7 @@ export class LineByLineInput {
     return !this._blockOnNewLineEnabled || this._forwarding;
   }
 
-  private _emitChar(char): void {
+  private _emitChar(char: string): void {
     this._emitChunk(Buffer.from(char, 'utf8'));
   }
 
@@ -148,7 +148,7 @@ export class LineByLineInput {
       // unexpected behaviors.
       !this._originalInput.isPaused()
     ) {
-      const char = this._charQueue.shift();
+      const char: string = this._charQueue.shift() as string;
 
       if (this._isLineEnding(char)) {
         this._pauseForwarding();

@@ -6,6 +6,7 @@ import Config from './config';
 import sinon from 'sinon';
 import fs from 'fs-extra';
 import path from 'path';
+import { URL } from 'url';
 
 describe('Barque', () => {
   let barque: Barque;
@@ -38,7 +39,8 @@ describe('Barque', () => {
       repo: {
         owner: 'owner',
         repo: 'repo',
-      }
+      },
+      execNodeVersion: process.version
     };
 
     barque = new Barque(config);

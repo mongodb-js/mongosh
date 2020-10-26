@@ -17,9 +17,9 @@ export class ShowDbsOutput extends Component<ShowDbsOutputProps> {
     value: PropTypes.any
   };
 
-  renderTable = (value: DatabaseObject): object => {
+  renderTable = (value: DatabaseObject): string => {
     const tableEntries = value.map(
-      (db) => [db.name, prettyBytes(db.sizeOnDisk)]
+      (db: any) => [db.name, prettyBytes(db.sizeOnDisk)]
     );
 
     return textTable(tableEntries, { align: ['l', 'r'] });

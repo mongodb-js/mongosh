@@ -1,4 +1,4 @@
-/* eslint camelcase: 0, @typescript-eslint/camelcase: 0 */
+/* eslint camelcase: 0, camelcase: 0 */
 import { expect } from 'chai';
 import getConnectInfo from './connect-info';
 

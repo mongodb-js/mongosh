@@ -19,7 +19,7 @@ describe('Electron runtime', function() {
   beforeEach(async() => {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
     serviceProvider.bsonLibrary = bson;
-    serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } });
+    serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } } as any);
     messageBus = sinon.createStubInstance(EventEmitter);
     evaluationListener = sinon.createStubInstance(class FakeListener {});
     evaluationListener.onPrint = sinon.stub();

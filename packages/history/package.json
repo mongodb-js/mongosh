@@ -26,6 +26,6 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "mongodb-redact": "^0.2.0"
+    "mongodb-redact": "^0.2.2"
   }
 }

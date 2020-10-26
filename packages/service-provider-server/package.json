@@ -12,8 +12,8 @@
   },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "prepublish": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint"
@@ -44,5 +44,8 @@
     "@types/sinon-chai": "^3.2.3",
     "mongodb": "^3.6.1",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
+  },
+  "devDependencies": {
+    "@types/mongodb": "^3.5.32"
   }
 }

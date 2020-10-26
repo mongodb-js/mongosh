@@ -11,7 +11,7 @@ import writeAnalyticsConfig from './analytics';
  * @param {string} analyticsConfig - The path to the analytics config file.
  * @param {string} segmentKey - The segment API key.
  */
-const generateInput = async(input: string, execInput: string, analyticsConfig: string, segmentKey: string) => {
+async function generateInput(input: string, execInput: string, analyticsConfig: string, segmentKey: string): Promise<void> {
   // This takes the segment api key and writes it to the
   // cli-repl's analytics-config file.
   await writeAnalyticsConfig(analyticsConfig, segmentKey);
@@ -27,11 +27,10 @@ const generateInput = async(input: string, execInput: string, analyticsConfig: s
     contentHash: false,
     target: 'node',
     bundleNodeModules: true,
-    minified: true,
     sourceMaps: false,
     logLevel: 3
   });
   await bundler.bundle();
-};
+}
 
 export default generateInput;

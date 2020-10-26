@@ -18,7 +18,7 @@ export default class Explainable extends ShellApiClass {
   _mongo: Mongo;
   _collection: Collection;
   _verbosity: string;
-  constructor(mongo, collection, verbosity) {
+  constructor(mongo: Mongo, collection: Collection, verbosity: string) {
     super();
     this._mongo = mongo;
     this._collection = collection;

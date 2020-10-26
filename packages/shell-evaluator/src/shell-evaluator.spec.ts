@@ -9,9 +9,9 @@ import { EventEmitter } from 'events';
 describe('ShellEvaluator', () => {
   let shellEvaluator: ShellEvaluator;
   let containerMock;
-  let busMock;
+  let busMock: EventEmitter;
   let internalStateMock;
-  let useSpy;
+  let useSpy: any;
 
   beforeEach(() => {
     useSpy = sinon.spy();
@@ -19,7 +19,7 @@ describe('ShellEvaluator', () => {
       messageBus: busMock,
       shellApi: { use: useSpy },
       asyncWriter: {
-        process: (i): string => (i),
+        process: (i: string): string => (i),
         symbols: {
           saveState: sinon.spy(), revertState: sinon.spy()
         }
@@ -36,7 +36,8 @@ describe('ShellEvaluator', () => {
 
   describe('customEval', () => {
     it('strips trailing spaces and ; before calling commands', async() => {
-      await shellEvaluator.customEval(null, 'use somedb;  ', {}, '');
+      const dontCallEval = () => { throw new Error('unreachable'); };
+      await shellEvaluator.customEval(dontCallEval, 'use somedb;  ', {}, '');
       expect(useSpy).to.have.been.calledWith('somedb');
     });
 

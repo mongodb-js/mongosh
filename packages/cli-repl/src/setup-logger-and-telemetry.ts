@@ -1,4 +1,4 @@
-/* eslint no-console: 0, no-empty-function: 0, camelcase: 0, @typescript-eslint/camelcase: 0 */
+/* eslint no-console: 0, no-empty-function: 0, camelcase: 0 */
 
 import redactInfo from 'mongodb-redact';
 import Analytics from 'analytics-node';
@@ -52,18 +52,18 @@ interface ConnectEvent {
 }
 
 // set up a noop, in case we are not able to connect to segment.
-function NoopAnalytics(): void {}
-
-NoopAnalytics.prototype.identify = function(): void {};
-NoopAnalytics.prototype.track = function(): void {};
+class NoopAnalytics {
+  identify(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  track(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
+}
 
 export default function setupLoggerAndTelemetry(bus: any, logDir: string): void {
-  const session_id = new bson.ObjectId(Date.now()).toString();
+  const session_id = new bson.ObjectId().toString();
   const logDest = path.join(logDir, `${session_id}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
   console.log(`Current sessionID:  ${session_id}`);
-  let userId;
-  let telemetry;
+  let userId: any;
+  let telemetry: boolean;
 
   let analytics = new NoopAnalytics();
   try {
@@ -75,26 +75,26 @@ export default function setupLoggerAndTelemetry(bus: any, logDir: string): void 
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = retractPassword(args.uri);
-    delete args.uri;
-    const params = { session_id, userId, connectionUri, ...args };
+    const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const params = { session_id, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
         event: 'New Connection',
-        properties: { session_id, ...args }
+        properties: { session_id, ...argsWithoutUri }
       });
     }
   });
 
-  bus.on('mongosh:new-user', function(id, enableTelemetry) {
+  bus.on('mongosh:new-user', function(id: any, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
     if (telemetry) analytics.identify({ userId });
   });
 
-  bus.on('mongosh:update-user', function(id, enableTelemetry) {
+  bus.on('mongosh:update-user', function(id: any, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
     if (telemetry) analytics.identify({ userId });
@@ -151,7 +151,7 @@ export default function setupLoggerAndTelemetry(bus: any, logDir: string): void 
     }
   });
 
-  bus.on('mongosh:setCtx', function(args) {
+  bus.on('mongosh:setCtx', function(args: ApiEvent) {
     log.info('mongosh:setCtx', args);
   });
 

@@ -1,5 +1,5 @@
 import { Preprocessor } from './preprocessor';
-import { ShellResult } from '@mongosh/shell-api';
+import { toShellResult, ShellResult } from '@mongosh/shell-api';
 
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
@@ -26,10 +26,12 @@ export class Interpreter {
   }
 
   async evaluate(code: string): Promise<ShellResult> {
-    let result;
+    let result = toShellResult(undefined);
     const contextObjext = this.environment.getContextObject();
 
-    contextObjext[LAST_EXPRESSION_CALLBACK_FUNCTION_NAME] = (val): void => {
+    // TODO(addaleax): Is val actually a Promise for ShellResult or are we just pretending it is?
+    // What if this function here never gets called?
+    contextObjext[LAST_EXPRESSION_CALLBACK_FUNCTION_NAME] = (val: Promise<ShellResult>): void => {
       result = val;
     };
 

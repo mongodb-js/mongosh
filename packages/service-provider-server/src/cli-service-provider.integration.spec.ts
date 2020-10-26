@@ -577,7 +577,7 @@ describe('CliServiceProvider [integration]', function() {
       await db.createCollection('coll1');
 
       expect(
-        (await serviceProvider.listCollections(dbName)).map((c) => c.name)
+        (await serviceProvider.listCollections(dbName)).map((c: any) => c.name)
       ).to.deep.equal(['coll1']);
     });
 
@@ -586,7 +586,7 @@ describe('CliServiceProvider [integration]', function() {
       await db.createCollection('coll2');
 
       expect(
-        (await serviceProvider.listCollections(dbName, { name: 'coll2' })).map((c) => c.name)
+        (await serviceProvider.listCollections(dbName, { name: 'coll2' })).map((c: any) => c.name)
       ).to.deep.equal(['coll2']);
     });
 
@@ -617,7 +617,7 @@ describe('CliServiceProvider [integration]', function() {
       const collName = 'coll1';
       await db.createCollection(collName);
 
-      const result = await serviceProvider.reIndex(
+      const result: any = await serviceProvider.reIndex(
         dbName,
         collName
       );

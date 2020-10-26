@@ -15,7 +15,7 @@ interface ShellInputProps {
   onClearCommand?(): void | Promise<void>;
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
-  setInputRef?(ref): void;
+  setInputRef?(ref: { editor?: HTMLElement }): void;
 }
 
 interface ShellInputState {
@@ -31,10 +31,10 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     didLoadHistoryItem: false
   };
 
-  private historyNavigationEntries: string[];
-  private historyNavigationIndex: number;
+  private historyNavigationEntries: string[] = [];
+  private historyNavigationIndex = 0;
 
-  constructor(props) {
+  constructor(props: ShellInputProps) {
     super(props);
     this.initializeHistoryNavigation();
   }

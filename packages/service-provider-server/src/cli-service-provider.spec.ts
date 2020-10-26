@@ -21,19 +21,19 @@ const DEFAULT_BASE_OPTS = { serializeFunctions: true };
  * @returns {Stub} The client stub to pass to the transport.
  */
 const createClientStub = (collectionStub): MongoClient => {
-  const dbStub = sinon.createStubInstance(Db, {
-    collection: sinon.stub().returns(collectionStub)
+  const dbStub: any = sinon.createStubInstance(Db, {
+    collection: sinon.stub().returns(collectionStub) as any
   });
   return sinon.createStubInstance(MongoClient, {
-    db: sinon.stub().returns(dbStub)
-  });
+    db: sinon.stub().returns(dbStub) as any
+  }) as any;
 };
 
 describe('CliServiceProvider', () => {
   let serviceProvider: CliServiceProvider;
 
   describe('#constructor', () => {
-    const mongoClient = sinon.spy();
+    const mongoClient: any = sinon.spy();
     serviceProvider = new CliServiceProvider(mongoClient);
 
     it('sets the mongo client on the instance', () => {
@@ -367,19 +367,19 @@ describe('CliServiceProvider', () => {
   });
 
   describe('#runCommand', () => {
-    let clientStub;
-    let dbStub;
+    let clientStub: any;
+    let dbStub: any;
     const commandResult = { ismaster: true };
     const commandMock = sinon.mock().
       withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
       dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
+        command: commandMock as any
+      }) as any;
       clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
+        db: sinon.stub().returns(dbStub) as any
+      }) as any;
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -397,17 +397,17 @@ describe('CliServiceProvider', () => {
   });
 
   describe('#runCommandWithCheck', () => {
-    let clientStub;
-    let dbStub;
+    let clientStub: any;
+    let dbStub: any;
     const commandResult = { ok: 0 };
     const commandMock = sinon.mock().withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
       dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
+        command: commandMock as any
+      }) as any;
       clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
+        db: sinon.stub().returns(dbStub) as any
       });
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -484,8 +484,8 @@ describe('CliServiceProvider', () => {
       });
 
       clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
+        db: sinon.stub().returns(dbStub) as any
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -554,7 +554,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -600,7 +600,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -633,7 +633,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -738,7 +738,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -779,7 +779,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -822,8 +822,8 @@ describe('CliServiceProvider', () => {
   });
 
   describe('#reIndex', () => {
-    let commandMock;
-    let dbMock;
+    let commandMock: any;
+    let dbMock: any;
     let clientStub: MongoClient;
 
     beforeEach(() => {
@@ -841,7 +841,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -855,8 +855,8 @@ describe('CliServiceProvider', () => {
   });
 
   describe('#renameCollection', () => {
-    let commandMock;
-    let dbMock;
+    let commandMock: any;
+    let dbMock: any;
     let clientStub: MongoClient;
 
     beforeEach(() => {
@@ -881,7 +881,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -900,8 +900,8 @@ describe('CliServiceProvider', () => {
   });
 
   describe('#createCollection', () => {
-    let commandMock;
-    let dbMock;
+    let commandMock: any;
+    let dbMock: any;
     let clientStub: MongoClient;
 
     beforeEach(() => {
@@ -925,7 +925,7 @@ describe('CliServiceProvider', () => {
 
       clientStub = sinon.createStubInstance(MongoClient, {
         db: dbMock
-      });
+      }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
@@ -950,8 +950,8 @@ describe('CliServiceProvider', () => {
         command: commandMock
       });
       clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub)
-      });
+        db: sinon.stub().returns(dbStub) as any
+      }) as any;
       serviceProvider = new CliServiceProvider(clientStub);
     });
 

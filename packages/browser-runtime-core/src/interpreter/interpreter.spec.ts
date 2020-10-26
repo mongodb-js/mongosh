@@ -2,10 +2,12 @@ import vm from 'vm';
 import { Interpreter } from './interpreter';
 import { expect } from 'chai';
 
+type Environment = ConstructorParameters<typeof Interpreter>[0];
+
 describe('Interpreter', () => {
-  let interpreter;
-  let testEvaluate;
-  let testEnvironment;
+  let interpreter: Interpreter;
+  let testEvaluate: (...arg: string[]) => Promise<any>;
+  let testEnvironment: Environment;
 
   beforeEach(async() => {
     const context = {};
@@ -13,13 +15,13 @@ describe('Interpreter', () => {
     vm.createContext(context);
 
     testEnvironment = {
-      sloppyEval: (code): any => vm.runInContext(code, context),
+      sloppyEval: (code: string): any => vm.runInContext(code, context),
       getContextObject: (): any => context
     };
 
     interpreter = new Interpreter(testEnvironment);
 
-    testEvaluate = async(...program): Promise<object> => {
+    testEvaluate = async(...program): Promise<any> => {
       let result = undefined;
       for (const code of program) {
         result = await interpreter.evaluate(code);

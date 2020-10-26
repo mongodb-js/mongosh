@@ -16,8 +16,8 @@ import { BulkWriteResult } from './result';
 export class BulkFindOp {
   _serviceProviderBulkFindOp: ServiceProviderBulkFindOp;
   _parentBulk: Bulk;
-  _hint: Document;
-  _arrayFilters: Document[];
+  _hint: Document | undefined;
+  _arrayFilters: Document[] | undefined;
   constructor(innerFind: ServiceProviderBulkFindOp, parentBulk: Bulk) {
     this._serviceProviderBulkFindOp = innerFind;
     this._parentBulk = parentBulk;
@@ -134,7 +134,7 @@ export default class Bulk extends ShellApiClass {
     this._ordered = ordered;
   }
 
-  private _checkInternalShape(innerBulkState): boolean {
+  private _checkInternalShape(innerBulkState: any): boolean {
     return (
       innerBulkState !== undefined &&
       Array.isArray(innerBulkState.batches)
@@ -190,18 +190,18 @@ export default class Bulk extends ShellApiClass {
     if (!this._executed && this._checkInternalShape(this._serviceProviderBulkOp.s)) {
       this._batches = this._getBatches();
     }
-    const result = await this._serviceProviderBulkOp.execute();
+    const { result } = await this._serviceProviderBulkOp.execute();
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });
     return new BulkWriteResult(
-      !!result.result.ok, // acknowledged
-      result.result.nInserted,
-      result.result.insertedIds,
-      result.result.nMatched,
-      result.result.nModified,
-      result.result.nRemoved,
-      result.result.nUpserted,
-      result.result.upserted
+      !!result.ok, // acknowledged
+      result.nInserted,
+      result.insertedIds,
+      result.nMatched,
+      result.nModified,
+      result.nRemoved,
+      result.nUpserted,
+      result.upserted
     );
   }
 

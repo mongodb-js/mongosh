@@ -15,7 +15,7 @@ import { ADMIN_DB } from './enums';
 describe('Database', () => {
   const MD5_HASH = crypto.createHash('md5').update('anna:mongo:pwd').digest('hex');
   describe('help', () => {
-    const apiClass: any = new Database({}, 'name');
+    const apiClass: any = new Database({} as any, 'name');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -27,40 +27,40 @@ describe('Database', () => {
   });
   describe('collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database.someCollection).to.have.instanceOf(Collection);
       expect(database.someCollection._name).to.equal('someCollection');
     });
 
     it('reuses collections', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database.someCollection).to.equal(database.someCollection);
     });
 
     it('does not return a collection starting with _', () => {
     // this is the behaviour in the old shell
 
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._someProperty).to.equal(undefined);
     });
 
     it('does not return a collection for symbols', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database[Symbol('someProperty')]).to.equal(undefined);
     });
 
     it('does not return a collection with invalid name', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database['   ']).to.equal(undefined);
     });
 
     it('allows to access _name', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._name).to.equal('db1');
     });
 
     it('allows to access collections', () => {
-      const database: any = new Database({}, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._collections).to.deep.equal({});
     });
   });
@@ -85,7 +85,7 @@ describe('Database', () => {
   describe('Metadata', () => {
     describe('toShellResult', () => {
       const mongo = sinon.spy();
-      const db = new Database(mongo, 'myDB');
+      const db = new Database(mongo as any, 'myDB');
       it('value', async() => {
         expect((await toShellResult(db)).printable).to.equal('myDB');
       });
@@ -96,7 +96,7 @@ describe('Database', () => {
   });
   describe('attributes', () => {
     const mongo = sinon.spy();
-    const db = new Database(mongo, 'myDB') as any;
+    const db = new Database(mongo as any, 'myDB') as any;
     it('creates new collection for attribute', async() => {
       expect((await toShellResult(db.coll)).type).to.equal('Collection');
     });

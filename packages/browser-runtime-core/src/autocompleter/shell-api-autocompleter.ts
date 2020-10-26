@@ -4,7 +4,7 @@ import { Autocompleter, Completion } from './autocompleter';
 export class ShellApiAutocompleter implements Autocompleter {
   private serverVersion: string;
 
-  constructor(serverVersion) {
+  constructor(serverVersion: string) {
     this.serverVersion = serverVersion;
   }
 

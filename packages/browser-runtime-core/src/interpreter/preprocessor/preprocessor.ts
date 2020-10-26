@@ -1,5 +1,6 @@
 import { parse } from '@babel/parser';
 import generate from '@babel/generator';
+import type { File } from '@babel/types';
 
 import {
   injectLastExpressionCallback
@@ -31,7 +32,7 @@ export class Preprocessor {
   }
 
   preprocess(code: string): string {
-    let ast;
+    let ast: File;
     code = wrapObjectLiteral(code);
     code = `;${code}`; // prevent literals from being parsed as directives
 
@@ -47,9 +48,9 @@ export class Preprocessor {
     });
 
     ast = newAst;
-    ast = wrapInAsyncFunctionCall(ast);
+    const finalAst = wrapInAsyncFunctionCall(ast);
 
-    const newCode = generate(ast).code;
+    const newCode = generate(finalAst).code;
     this.lexicalContext = newLexicalContext;
     return newCode;
   }

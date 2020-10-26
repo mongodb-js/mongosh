@@ -2,6 +2,13 @@ import redactInfo from 'mongodb-redact';
 
 export const HIDDEN_COMMANDS = 'createUser|auth|updateUser|changeUserPassword|connect|Mongo';
 
+export function removeCommand(history: string, redact = false): string {
+  if (redact) {
+    return redactInfo(history);
+  }
+  return history;
+}
+
 /**
  * Modifies the history based on sensitive information.
  * If redact option is passed, also redacts sensitive info.
@@ -18,11 +25,3 @@ export function changeHistory(history: string[], redact = false): void {
     history[0] = removeCommand(history[0], redact);
   }
 }
-
-export function removeCommand(history: string, redact = false): string {
-  if (redact) {
-    return redactInfo(history);
-  }
-  return history;
-}
-

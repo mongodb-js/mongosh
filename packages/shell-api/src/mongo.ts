@@ -1,5 +1,4 @@
 /* eslint-disable complexity */
-import { ReadPreference, ServiceProvider } from '@mongosh/service-provider-core';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -12,7 +11,10 @@ import {
 import {
   ReplPlatform,
   generateUri,
-  ReadPreferenceMode
+  ReadPreference,
+  ReadPreferenceMode,
+  Document,
+  ServiceProvider
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -27,7 +29,7 @@ import { asPrintable } from './enums';
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {
   public _serviceProvider: ServiceProvider;
-  public _databases: any;
+  public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
   private _options: any;
@@ -35,7 +37,7 @@ export default class Mongo extends ShellApiClass {
   constructor(
     internalState: ShellInternalState,
     uri = 'mongodb://localhost/',
-    fleOptions?
+    fleOptions?: any
   ) {
     super();
     this._internalState = internalState;
@@ -73,7 +75,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnType('Database')
-  getDB(db): Database {
+  getDB(db: string): Database {
     this._internalState.messageBus.emit( 'mongosh:getDB', { db });
     return this._getDb(db);
   }
@@ -85,13 +87,13 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async show(cmd, arg?): Promise<CommandResult> {
+  async show(cmd: string, arg?: string): Promise<CommandResult> {
     this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = await this._serviceProvider.listDatabases('admin');
+        const result = await this._serviceProvider.listDatabases('admin') as any;
         if (!('databases' in result)) {
           const err = new MongoshInternalError('Got invalid result from "listDatabases"');
           this._internalState.messageBus.emit('mongosh:error', err);
@@ -133,8 +135,8 @@ export default class Mongo extends ShellApiClass {
         throw err;
     }
   }
-  async close(p): Promise<void> {
-    return await this._serviceProvider.close(p);
+  async close(force: boolean): Promise<void> {
+    return await this._serviceProvider.close(force);
   }
 
   getReadPrefMode(): ReadPreferenceMode {
@@ -152,7 +154,7 @@ export default class Mongo extends ShellApiClass {
     throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
   }
 
-  getReadConcern(): string {
+  getReadConcern(): string | undefined {
     try {
       const rc = this._serviceProvider.getReadConcern();
       return rc ? rc.level : undefined;

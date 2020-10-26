@@ -21,20 +21,20 @@ import { DBQuery } from './deprecated';
 @hasAsyncChild
 export default class ShellApi extends ShellApiClass {
   readonly internalState: ShellInternalState;
-  public DBQuery;
+  public DBQuery: DBQuery;
 
-  constructor(internalState) {
+  constructor(internalState: ShellInternalState) {
     super();
     this.internalState = internalState;
     this.DBQuery = new DBQuery();
   }
 
-  use(db): any {
+  use(db: string): any {
     return this.internalState.currentDb._mongo.use(db);
   }
 
   @returnsPromise
-  async show(cmd, arg?): Promise<CommandResult> {
+  async show(cmd: string, arg?: string): Promise<CommandResult> {
     return await this.internalState.currentDb._mongo.show(cmd, arg);
   }
 
@@ -53,7 +53,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @returnType('Mongo')
   @platforms([ ReplPlatform.CLI ] )
-  public async Mongo(uri?, options?): Promise<Mongo> {
+  public async Mongo(uri?: string, options?: any): Promise<Mongo> {
     if (
       this.internalState.initialServiceProvider.platform !== ReplPlatform.CLI
     ) {
@@ -72,12 +72,12 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @returnType('Database')
   @platforms([ ReplPlatform.CLI ] )
-  async connect(uri, user?, pwd?): Promise<Database> {
+  async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefined(uri);
-    const options = {} as any;
-    if (user) options.username = user;
-    if (pwd) options.password = pwd;
-    const mongo = await this.Mongo(uri, Object.keys(options).length ? { auth: options } : {});
+    const options = user || pwd ? {
+      auth: { username: user, password: pwd }
+    } : {};
+    const mongo = await this.Mongo(uri, options);
     const db = mongo._serviceProvider.initialDb || DEFAULT_DB;
     return mongo.getDB(db);
   }

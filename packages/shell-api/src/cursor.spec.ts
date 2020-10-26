@@ -11,9 +11,9 @@ const { expect } = chai;
 
 describe('Cursor', () => {
   describe('help', () => {
-    const apiClass: any = new Cursor({
+    const apiClass = new Cursor({
       _serviceProvider: { platform: ReplPlatform.CLI }
-    }, {});
+    } as any, {} as any);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -45,7 +45,7 @@ describe('Cursor', () => {
       };
       cursor = new Cursor({
         _serviceProvider: { platform: ReplPlatform.CLI }
-      }, wrappee);
+      } as any, wrappee);
     });
 
     it('sets dynamic properties', async() => {
@@ -54,8 +54,8 @@ describe('Cursor', () => {
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
-    it('returns the same cursor', () => {
-      expect(cursor.map()).to.equal(cursor);
+    it('map() returns a new cursor', () => {
+      expect(cursor.map()).to.not.equal(cursor);
     });
     it('pretty returns the same cursor', () => {
       expect(cursor.pretty()).to.equal(cursor);

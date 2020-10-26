@@ -1,4 +1,16 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {
+  ArrayPattern,
+  AssignmentPattern,
+  ClassDeclaration,
+  File,
+  FunctionDeclaration,
+  Identifier,
+  ObjectPattern,
+  ObjectProperty,
+  RestElement,
+  VariableDeclaration,
+  VariableDeclarator
+} from '@babel/types';
 
 type VariableDeclarationKind = 'let' | 'const' | 'class' | 'function' | 'var';
 
@@ -6,34 +18,36 @@ export interface LexicalContext {
   [variableName: string]: VariableDeclarationKind;
 }
 
-export function collectTopLevelLexicalContext(ast): LexicalContext {
-  const context = {};
+export function collectTopLevelLexicalContext(ast: File): LexicalContext {
+  const context: LexicalContext = {};
 
   for (const node of ast.program.body) {
     if (node.type === 'FunctionDeclaration') {
-      collectFunctionDeclaration(node, context);
+      collectFunctionDeclaration(node as FunctionDeclaration, context);
     }
 
     if (node.type === 'ClassDeclaration') {
-      collectClassDeclaration(node, context);
+      collectClassDeclaration(node as ClassDeclaration, context);
     }
 
     if (node.type === 'VariableDeclaration') {
-      collectVariableDeclaration(node, context);
+      collectVariableDeclaration(node as VariableDeclaration, context);
     }
   }
 
   return context;
 }
 
-function collectFunctionDeclaration(functionDeclarationNode, context): void {
-  collectIdentifier(functionDeclarationNode.id, context, 'function');
+function collectFunctionDeclaration(functionDeclarationNode: FunctionDeclaration, context: LexicalContext): void {
+  if (functionDeclarationNode.id !== null) {
+    collectIdentifier(functionDeclarationNode.id, context, 'function');
+  }
 }
-function collectClassDeclaration(classDeclarationNode, context): void {
+function collectClassDeclaration(classDeclarationNode: ClassDeclaration, context: LexicalContext): void {
   collectIdentifier(classDeclarationNode.id, context, 'class');
 }
 
-function collectVariableDeclaration(variableDeclarationNode, context): void {
+function collectVariableDeclaration(variableDeclarationNode: VariableDeclaration, context: LexicalContext): void {
   const kind = variableDeclarationNode.kind;
 
   for (const declarator of variableDeclarationNode.declarations) {
@@ -41,73 +55,94 @@ function collectVariableDeclaration(variableDeclarationNode, context): void {
   }
 }
 
-function collectVariableDeclarator(variableDeclaration, context, kind): void {
+function collectVariableDeclarator(
+  variableDeclaration: VariableDeclarator,
+  context: LexicalContext,
+  kind: VariableDeclarationKind): void {
   const child = variableDeclaration.id;
 
   if (child.type === 'Identifier') {
-    collectIdentifier(child, context, kind);
+    collectIdentifier(child as Identifier, context, kind);
   }
 
   if (child.type === 'ObjectPattern') {
-    collectObjectPattern(child, context, kind);
+    collectObjectPattern(child as ObjectPattern, context, kind);
   }
 
   if (child.type === 'ArrayPattern') {
-    collectArrayPattern(child, context, kind);
+    collectArrayPattern(child as ArrayPattern, context, kind);
   }
 }
 
-function collectIdentifier(identifier, context, kind): void {
+function collectIdentifier(
+  identifier: Identifier,
+  context: LexicalContext,
+  kind: VariableDeclarationKind): void {
   context[identifier.name] = kind;
 }
 
-function collectObjectPattern(objectPatternNode, context, variableDeclarationKind): void {
+function collectObjectPattern(
+  objectPatternNode: ObjectPattern,
+  context: LexicalContext,
+  variableDeclarationKind: VariableDeclarationKind): void {
   for (const property of objectPatternNode.properties) {
     if (property.type === 'RestElement') {
-      collectRestElement(property, context, variableDeclarationKind);
+      collectRestElement(property as RestElement, context, variableDeclarationKind);
     }
 
     if (property.type === 'ObjectProperty') {
-      collectObjectProperty(property, context, variableDeclarationKind);
+      collectObjectProperty(property as ObjectProperty, context, variableDeclarationKind);
     }
   }
 }
 
-function collectObjectProperty(objectPropertyNode, context, variableDeclarationKind): void {
+function collectObjectProperty(
+  objectPropertyNode: ObjectProperty,
+  context: LexicalContext,
+  variableDeclarationKind: VariableDeclarationKind): void {
   if (objectPropertyNode.value.type === 'Identifier') {
-    collectIdentifier(objectPropertyNode.value, context, variableDeclarationKind);
+    collectIdentifier(objectPropertyNode.value as Identifier, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'ObjectPattern') {
-    collectObjectPattern(objectPropertyNode.value, context, variableDeclarationKind);
+    collectObjectPattern(objectPropertyNode.value as ObjectPattern, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'ArrayPattern') {
-    collectArrayPattern(objectPropertyNode.value, context, variableDeclarationKind);
+    collectArrayPattern(objectPropertyNode.value as ArrayPattern, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'AssignmentPattern') {
-    collectAssignmentPattern(objectPropertyNode.value, context, variableDeclarationKind);
+    collectAssignmentPattern(objectPropertyNode.value as AssignmentPattern, context, variableDeclarationKind);
   }
 }
 
-function collectAssignmentPattern(assignmentPatternNode, context, variableDeclarationKind): void {
+function collectAssignmentPattern(
+  assignmentPatternNode: AssignmentPattern,
+  context: LexicalContext,
+  variableDeclarationKind: VariableDeclarationKind): void {
   if (assignmentPatternNode.left.type === 'Identifier') {
-    collectIdentifier(assignmentPatternNode.left, context, variableDeclarationKind);
+    collectIdentifier(assignmentPatternNode.left as Identifier, context, variableDeclarationKind);
   }
 
   if (assignmentPatternNode.left.type === 'ObjectPattern') {
-    collectObjectPattern(assignmentPatternNode.left, context, variableDeclarationKind);
+    collectObjectPattern(assignmentPatternNode.left as ObjectPattern, context, variableDeclarationKind);
   }
 }
 
-function collectRestElement(restElementNode, context, variableDeclarationKind): void {
+function collectRestElement(
+  restElementNode: RestElement,
+  context: LexicalContext,
+  variableDeclarationKind: VariableDeclarationKind): void {
   if (restElementNode.argument.type === 'Identifier') {
     collectIdentifier(restElementNode.argument, context, variableDeclarationKind);
   }
 }
 
-function collectArrayPattern(arrayPatternNode, context, variableDeclarationKind): void {
+function collectArrayPattern(
+  arrayPatternNode: ArrayPattern,
+  context: LexicalContext,
+  variableDeclarationKind: VariableDeclarationKind): void {
   for (const element of arrayPatternNode.elements) {
     if (!element) {
       continue;

@@ -9,7 +9,7 @@ export default async function buildAndUpload(
   config: Config,
   githubRepo: GithubRepo,
   barque: Barque,
-  compileAndZipExecutable: (Config) => Promise<TarballFile>,
+  compileAndZipExecutable: (config: Config) => Promise<TarballFile>,
   uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>,
   uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
   console.info(
@@ -23,17 +23,26 @@ export default async function buildAndUpload(
 
   if (config.dryRun) return;
 
+  for (const key of [
+    'evgAwsKey', 'evgAwsSecret', 'project', 'revision', 'downloadCenterAwsKey', 'downloadCenterAwsSecret'
+  ]) {
+    if (typeof (config as any)[key] !== 'string') {
+      throw new Error(`Missing build config key: ${key}`);
+    }
+  }
+
   // Always release internally to evergreen
   await uploadToEvergreen(
     tarballFile.path,
-    config.evgAwsKey,
-    config.evgAwsSecret,
-    config.project,
-    config.revision
+    config.evgAwsKey as string,
+    config.evgAwsSecret as string,
+    config.project as string,
+    config.revision as string
   );
   console.info('mongosh: internal release completed.');
 
-  const evergreenTarball = getArtifactUrl(config.project, config.revision, tarballFile.path);
+  const evergreenTarball = getArtifactUrl(
+    config.project as string, config.revision as string, tarballFile.path);
 
   // Only release to public from master and when tagged with the right version.
   if (await githubRepo.shouldDoPublicRelease(config)) {
@@ -41,8 +50,8 @@ export default async function buildAndUpload(
 
     await uploadToDownloadCenter(
       tarballFile.path,
-      config.downloadCenterAwsKey,
-      config.downloadCenterAwsSecret
+      config.downloadCenterAwsKey as string,
+      config.downloadCenterAwsSecret as string
     );
 
     await barque.releaseToBarque(evergreenTarball);

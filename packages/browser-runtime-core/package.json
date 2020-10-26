@@ -29,6 +29,8 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/babel__generator": "^7.6.2",
+    "@types/babel__template": "^7.0.3",
     "rimraf": "^3.0.2"
   },
   "dependencies": {

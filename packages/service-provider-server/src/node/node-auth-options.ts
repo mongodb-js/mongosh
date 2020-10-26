@@ -3,6 +3,6 @@
  * authentication.
  */
 export default interface NodeAuthOptions {
-  user?: string;
-  password?: string;
+  user: string;
+  password: string;
 }

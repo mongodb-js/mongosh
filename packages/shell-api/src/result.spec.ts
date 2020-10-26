@@ -103,7 +103,7 @@ describe('Results', () => {
   });
   describe('UpdateResult', () => {
     const r = new results.UpdateResult(
-      true, 'x', 1, 2, 3
+      true, 1, 2, 3, { _id: 'abc' }
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);

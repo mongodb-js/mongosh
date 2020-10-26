@@ -103,7 +103,7 @@ function generatePort(options: CliOptions): string {
  * gssapiServiceName?: string; // needs to go in URI
  */
 function generateUri(options: CliOptions): string {
-  const uri = options._[0];
+  const uri = options._?.[0];
 
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
@@ -125,7 +125,7 @@ function generateUri(options: CliOptions): string {
     throw new MongoshInvalidInputError(`Invalid URI: ${uri}`);
   }
 
-  let host = parts[1];
+  let host: string | undefined = parts[1];
   const port = parts[2];
   let db = parts[3];
 

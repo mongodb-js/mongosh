@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import nock from 'nock';
+import { URL } from 'url';
 
 import Ajv from 'ajv';
 
@@ -10,7 +11,7 @@ import {
   verifyDownloadCenterConfig
 } from './download-center';
 
-function validateWithSchema(obj, schema): void {
+function validateWithSchema(obj: any, schema: any): void {
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
   const valid = validate(obj);
@@ -21,7 +22,7 @@ function validateWithSchema(obj, schema): void {
 
 describe('download center module', () => {
   describe('.createDownloadCenterConfig', () => {
-    let config;
+    let config: any;
 
     before(() => {
       config = createDownloadCenterConfig('1.2.2');
@@ -97,7 +98,7 @@ describe('download center module', () => {
       'tutorial_link': 'test'
     };
 
-    function nockLink(link, status, headers = {}): void {
+    function nockLink(link: string, status: number, headers = {}): void {
       const url = new URL(link);
       nock(url.origin).head(url.pathname).reply(status, undefined, headers);
     }

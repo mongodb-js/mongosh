@@ -24,7 +24,7 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
     return <div>{i18n.__('shell-api.classes.Cursor.iteration.no-cursor')}</div>;
   }
 
-  renderDocument = (document, i): JSX.Element => {
+  renderDocument = (document: Document, i: number): JSX.Element => {
     return <ObjectOutput key={`document-${i}`} value={document} />;
   };
 }

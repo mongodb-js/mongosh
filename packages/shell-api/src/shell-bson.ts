@@ -4,7 +4,7 @@ import { bson as BSON } from '@mongosh/service-provider-core';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
-function constructHelp(className): Help {
+function constructHelp(className: string): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp = {
     help: `${classHelpKeyPrefix}.description`,
@@ -139,7 +139,7 @@ export default function constructShellBson(bson: any): any {
       const isoDateRegex =
         /^(?<Y>\d{4})-?(?<M>\d{2})-?(?<D>\d{2})([T ](?<h>\d{2})(:?(?<m>\d{2})(:?((?<s>\d{2})(\.(?<ms>\d+))?))?)?(?<tz>Z|([+-])(\d{2}):?(\d{2})?)?)?$/;
       const match = input.match(isoDateRegex);
-      if (match !== null) {
+      if (match !== null && match.groups !== undefined) {
         // Normalize the representation because ISO-8601 accepts e.g.
         // '20201002T102950Z' without : and -, but `new Date()` does not.
         const { Y, M, D, h, m, s, ms, tz } = match.groups;
@@ -153,19 +153,19 @@ export default function constructShellBson(bson: any): any {
       }
       throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`);
     },
-    BinData: function(subtype, b64string): any { // this from 'help misc' in old shell
+    BinData: function(subtype: number, b64string: string): BSON.Binary { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);
       assertArgsType([subtype, b64string], ['number', 'string']);
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     },
-    HexData: function(subtype, hexstr): any {
+    HexData: function(subtype: number, hexstr: string): BSON.Binary {
       assertArgsDefined(subtype, hexstr);
       assertArgsType([subtype, hexstr], ['number', 'string']);
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     },
-    UUID: function(hexstr): any {
+    UUID: function(hexstr: string): BSON.Binary {
       assertArgsDefined(hexstr);
       assertArgsType([hexstr], ['string']);
       // Strip any dashes, as they occur in the standard UUID formatting
@@ -173,7 +173,7 @@ export default function constructShellBson(bson: any): any {
       const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     },
-    MD5: function(hexstr): any {
+    MD5: function(hexstr: string): BSON.Binary {
       assertArgsDefined(hexstr);
       assertArgsType([hexstr], ['string']);
       const buffer = Buffer.from(hexstr, 'hex');
@@ -181,8 +181,8 @@ export default function constructShellBson(bson: any): any {
     }
   };
   [ 'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Symbol', 'Map'].forEach((className) => {
-    (bsonPkg[className] as any).help = (): Help => (helps[className]);
-    Object.setPrototypeOf((bsonPkg[className] as any).help, helps[className]);
+    ((bsonPkg as any)[className] as any).help = (): Help => (helps[className]);
+    Object.setPrototypeOf(((bsonPkg as any)[className] as any).help, helps[className]);
   });
   // Classes whose names differ from shell to driver
   (bsonPkg.NumberDecimal as any).help = (): Help => (helpDecimal);

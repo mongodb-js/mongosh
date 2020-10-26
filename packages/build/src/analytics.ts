@@ -25,7 +25,7 @@ const createAnalyticsConfig = (segmentKey: string): string => {
  * @param {string} file - The filename.
  * @param {string} segmentKey - The segment key.
  */
-const writeAnalyticsConfig = (file: string, segmentKey: string) => {
+const writeAnalyticsConfig = (file: string, segmentKey: string): Promise<void> => {
   const template = createAnalyticsConfig(segmentKey);
   console.info('mongosh: writing analytics template:', file);
   // Cannot use fs/promises on Cygwin.

@@ -8,7 +8,7 @@ describe('s3 module', () => {
 
     context('when the upload errors', () => {
       const uploadMock = sinon.mock().withArgs(params).yields('error', {});
-      const s3Stub = { upload: uploadMock };
+      const s3Stub: any = { upload: uploadMock };
 
       it('rejects the promise with the error', (done) => {
         upload(params, s3Stub).catch((error) => {
@@ -21,7 +21,7 @@ describe('s3 module', () => {
 
     context('when the upload succeeds', () => {
       const uploadMock = sinon.mock().withArgs(params).yields(null, {});
-      const s3Stub = { upload: uploadMock };
+      const s3Stub: any = { upload: uploadMock };
 
       it('resolves the promise with the data', async() => {
         const data = await upload(params, s3Stub);

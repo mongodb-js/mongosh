@@ -10,6 +10,7 @@ import {
   namespaceInfo
 } from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
+import type { ReplPlatform } from '@mongosh/service-provider-core';
 import { addHiddenDataProperty } from './helpers';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
@@ -60,7 +61,10 @@ export class ShellApiClass implements ShellApiInterface {
     addHiddenDataProperty(this, shellApiType, value);
   }
   [asPrintable](): any {
-    return Object.assign({}, this);
+    if (Array.isArray(this)) {
+      return [...this];
+    }
+    return { ...this };
   }
 }
 
@@ -112,16 +116,16 @@ function wrapWithAddSourceToResult(fn: Function): Function {
         namespace: obj[namespaceInfo](),
       };
       addHiddenDataProperty(result, resultSource, resultSourceInformation);
-      if (result[shellApiType] === undefined && (fn as any).returnType) {
+      if ((result as any)[shellApiType] === undefined && (fn as any).returnType) {
         addHiddenDataProperty(result, shellApiType, (fn as any).returnType);
       }
     }
     return result;
   }
   const wrapper = (fn as any).returnsPromise ?
-    async function(...args): Promise<any> {
+    async function(this: any, ...args: any[]): Promise<any> {
       return addSource(await fn.call(this, ...args), this);
-    } : function(...args): any {
+    } : function(this: any, ...args: any[]): any {
       return addSource(fn.call(this, ...args), this);
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
@@ -141,56 +145,79 @@ interface Signatures {
   [key: string]: TypeSignature;
 }
 const signaturesGlobalIdentifier = '@@@mdb.signatures@@@';
-if (!global[signaturesGlobalIdentifier]) {
-  global[signaturesGlobalIdentifier] = {};
+if (!(global as any)[signaturesGlobalIdentifier]) {
+  (global as any)[signaturesGlobalIdentifier] = {};
 }
 
-const signatures: Signatures = global[signaturesGlobalIdentifier];
+const signatures: Signatures = (global as any)[signaturesGlobalIdentifier];
 signatures.Document = { type: 'Document', attributes: {} };
 
-export const toIgnore = [asPrintable, 'constructor'];
+type ClassSignature = {
+  type: string;
+  hasAsyncChild: boolean;
+  returnsPromise: boolean;
+  attributes: {
+    [methodName: string]: {
+      type: 'function';
+      serverVersions: [ string, string ];
+      topologies: Topologies[];
+      returnType: ClassSignature;
+      returnsPromise: boolean;
+      platforms: ReplPlatform[];
+    }
+  };
+};
+
+type ClassHelp = {
+  help: string;
+  docs: string;
+  attr: { name: string; description: string }[];
+};
+
+export const toIgnore = ['constructor'];
 export function shellApiClassDefault(constructor: Function): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
-  const classHelp = {
+  const classHelp: ClassHelp = {
     help: `${classHelpKeyPrefix}.description`,
     docs: `${classHelpKeyPrefix}.link`,
     attr: []
   };
-  const classSignature = {
+  const classSignature: ClassSignature = {
     type: className,
     hasAsyncChild: constructor.prototype.hasAsyncChild || false,
     returnsPromise: constructor.prototype.returnsPromise || false,
     attributes: {}
   };
 
-  const classAttributes = Object.keys(constructor.prototype);
+  const classAttributes = Object.getOwnPropertyNames(constructor.prototype);
   for (const propertyName of classAttributes) {
     const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
-    const isMethod = descriptor.value instanceof Function;
+    const isMethod = descriptor?.value && typeof descriptor.value === 'function';
     if (
       !isMethod ||
       toIgnore.includes(propertyName) ||
       propertyName.startsWith('_')
     ) continue;
+    let method: any = (descriptor as any).value;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {
-      descriptor.value = wrapWithAddSourceToResult(descriptor.value);
+      method = wrapWithAddSourceToResult(method);
     }
 
-    descriptor.value.serverVersions = descriptor.value.serverVersions || ALL_SERVER_VERSIONS;
-    descriptor.value.topologies = descriptor.value.topologies || ALL_TOPOLOGIES;
-    descriptor.value.returnType = descriptor.value.returnType || { type: 'unknown', attributes: {} };
-    descriptor.value.returnsPromise = descriptor.value.returnsPromise || false;
-    descriptor.value.platforms = descriptor.value.platforms || ALL_PLATFORMS;
+    method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
+    method.topologies = method.topologies || ALL_TOPOLOGIES;
+    method.returnType = method.returnType || { type: 'unknown', attributes: {} };
+    method.returnsPromise = method.returnsPromise || false;
+    method.platforms = method.platforms || ALL_PLATFORMS;
 
     classSignature.attributes[propertyName] = {
       type: 'function',
-      serverVersions: descriptor.value.serverVersions,
-      topologies: descriptor.value.topologies,
-      returnType: descriptor.value.returnType,
-      returnsPromise: descriptor.value.returnsPromise,
-      platforms: descriptor.value.platforms
+      serverVersions: method.serverVersions,
+      topologies: method.topologies,
+      returnType: method.returnType,
+      returnsPromise: method.returnsPromise,
+      platforms: method.platforms
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
@@ -202,35 +229,40 @@ export function shellApiClassDefault(constructor: Function): void {
       ]
     };
     const aHelp = new Help(attrHelp);
-    descriptor.value.help = (): Help => (aHelp);
-    Object.setPrototypeOf(descriptor.value.help, aHelp);
+    method.help = (): Help => (aHelp);
+    Object.setPrototypeOf(method.help, aHelp);
 
     classHelp.attr.push({
       name: propertyName,
       description: `${attributeHelpKeyPrefix}.description`
     });
-    Object.defineProperty(constructor.prototype, propertyName, descriptor);
+    Object.defineProperty(constructor.prototype, propertyName, {
+      ...descriptor,
+      value: method
+    });
   }
 
-  if (Object.getPrototypeOf(constructor.prototype).constructor.name !== 'ShellApiClass') {
-    const superClass = Object.getPrototypeOf(constructor.prototype);
+  const superClass = Object.getPrototypeOf(constructor.prototype);
+  if (superClass.constructor.name !== 'ShellApiClass' && superClass.constructor !== Array) {
     const superClassHelpKeyPrefix = `shell-api.classes.${superClass.constructor.name}.help`;
-    for (const propertyName of Object.keys(superClass)) {
+    for (const propertyName of Object.getOwnPropertyNames(superClass)) {
       const descriptor = Object.getOwnPropertyDescriptor(superClass, propertyName);
-      const isMethod = descriptor.value instanceof Function;
+      const isMethod = descriptor?.value && typeof descriptor.value === 'function';
       if (
         classAttributes.includes(propertyName) ||
         !isMethod ||
         toIgnore.includes(propertyName) ||
         propertyName.startsWith('_')
       ) continue;
+      const method: any = (descriptor as any).value;
+
       classSignature.attributes[propertyName] = {
         type: 'function',
-        serverVersions: descriptor.value.serverVersions,
-        topologies: descriptor.value.topologies,
-        returnType: descriptor.value.returnType,
-        returnsPromise: descriptor.value.returnsPromise,
-        platforms: descriptor.value.platforms
+        serverVersions: method.serverVersions,
+        topologies: method.topologies,
+        returnType: method.returnType,
+        returnsPromise: method.returnsPromise,
+        platforms: method.platforms
       };
 
       const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;
@@ -246,7 +278,7 @@ export function shellApiClassDefault(constructor: Function): void {
   Object.setPrototypeOf(constructor.prototype.help, help);
   constructor.prototype[asPrintable] =
     constructor.prototype[asPrintable] ||
-    function(): any { return Object.assign({}, this); };
+    ShellApiClass.prototype[asPrintable];
   addHiddenDataProperty(constructor.prototype, shellApiType, className);
   signatures[className] = classSignature;
 }
@@ -254,8 +286,8 @@ export function shellApiClassDefault(constructor: Function): void {
 export { signatures };
 export function serverVersions(versionArray: any[]): Function {
   return function(
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
     descriptor.value.serverVersions = versionArray;
@@ -263,20 +295,20 @@ export function serverVersions(versionArray: any[]): Function {
 }
 export function topologies(topologiesArray: any[]): Function {
   return function(
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
     descriptor.value.topologies = topologiesArray;
   };
 }
-export function returnsPromise(target: any, propertyKey: string, descriptor: PropertyDescriptor): void {
+export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.returnsPromise = true;
 }
 export function returnType(type: string | TypeSignature): Function {
   return function(
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
     descriptor.value.returnType = type;
@@ -290,8 +322,8 @@ export function classReturnsPromise(constructor: Function): void {
 }
 export function platforms(platformsArray: any[]): Function {
   return function(
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
     descriptor.value.platforms = platformsArray;

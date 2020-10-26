@@ -26,7 +26,7 @@ type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
 
 export interface ShellOutputEntry {
   format: 'input' | 'output' | 'error';
-  type?: string;
+  type?: string | null;
   value: ShellOutputEntryValue;
 }
 
@@ -97,7 +97,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     return typeof value.message === 'string' && typeof value.stack === 'string';
   }
 
-  private isPreformattedResult(value: any, type: string): boolean {
+  private isPreformattedResult(value: any, type?: string | null): boolean {
     return typeof value === 'string' &&
     type === 'Database' ||
     type === 'Collection';

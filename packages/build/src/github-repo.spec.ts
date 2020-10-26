@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 import { GithubRepo } from './github-repo';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
@@ -29,20 +29,20 @@ describe('GithubRepo', () => {
   describe('shouldDoPublicRelease', () => {
     it('returns false when isPatch is true', async() => {
       const config = { isPatch: true };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
     });
 
 
     it('returns false when branch is not master', async() => {
       const config = { branch: 'feature' };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
     });
 
     it('returns false when branch is master but not tagged', async() => {
       githubRepo.getTagByCommitSha = sinon.stub().resolves();
 
       const config = { branch: 'master', revision: 'sha' };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
       expect(await githubRepo.getTagByCommitSha).to.have.been.calledWith('sha');
     });
 
@@ -50,14 +50,14 @@ describe('GithubRepo', () => {
       githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
 
       const config = { branch: 'master', revision: 'sha', version: '0.0.4' };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.false;
+      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
     });
 
     it('returns true when version matches commit tag', async() => {
       githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
 
       const config = { branch: 'master', revision: 'sha', version: '0.0.3' };
-      expect(await githubRepo.shouldDoPublicRelease(config)).to.be.true;
+      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.true;
     });
   });
 
@@ -101,7 +101,7 @@ describe('GithubRepo', () => {
 
       const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
-      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
+      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
       expect(githubRepo.createDraftRelease).to.have.been.calledWith({
         name: '0.0.6',
         notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
@@ -116,7 +116,7 @@ describe('GithubRepo', () => {
 
       const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
-      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' });
+      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
       expect(githubRepo.createDraftRelease).to.have.been.calledWith({
         name: '0.0.6',
         notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
@@ -127,7 +127,7 @@ describe('GithubRepo', () => {
 
   describe('promoteRelease', () => {
     describe('when release exists and is in draft', () => {
-      let octokit;
+      let octokit: any;
 
       beforeEach(() => {
         octokit = {
@@ -140,12 +140,12 @@ describe('GithubRepo', () => {
       });
 
       it('finds the release corresponding to config.version and sets draft to false', async() => {
-        await githubRepo.promoteRelease({ version: '0.0.6' });
+        await githubRepo.promoteRelease({ version: '0.0.6' } as any);
 
         expect(octokit.repos.updateRelease).to.have.been.calledWith({
           draft: false,
           owner: 'mongodb-js',
-          // eslint-disable-next-line @typescript-eslint/camelcase
+          // eslint-disable-next-line camelcase
           release_id: '123',
           repo: 'mongosh'
         });
@@ -153,7 +153,7 @@ describe('GithubRepo', () => {
     });
 
     describe('when release exists but is not in draft', () => {
-      let octokit;
+      let octokit: any;
 
       beforeEach(() => {
         octokit = {
@@ -167,7 +167,7 @@ describe('GithubRepo', () => {
       });
 
       it('does nothing', async() => {
-        await githubRepo.promoteRelease({ version: '0.0.6' });
+        await githubRepo.promoteRelease({ version: '0.0.6' } as any);
 
         expect(octokit.repos.updateRelease).not.to.have.been.called;
       });

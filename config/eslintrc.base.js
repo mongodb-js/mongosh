@@ -21,11 +21,15 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-var-requires': 0, // seems necessary to import less files
     '@typescript-eslint/no-unused-vars': 2,
+    '@typescript-eslint/explicit-module-boundary-types': 0,
+    '@typescript-eslint/ban-types': 0,
     'mocha/no-skipped-tests': 1,
     'mocha/no-exclusive-tests': 2,
     'semi': 0,
     '@typescript-eslint/semi': [2, 'always'],
-    'no-console': [1, { allow: ['warn', 'error', 'info'] }]
+    'no-console': [1, { allow: ['warn', 'error', 'info'] }],
+    'no-shadow': 0,
+    'no-use-before-define': 0
   },
   overrides: [{
     files: ['**/*.js'],

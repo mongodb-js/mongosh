@@ -27,7 +27,7 @@ export default class Cursor extends ShellApiClass {
   _cursor: ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
 
-  constructor(mongo, cursor) {
+  constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
@@ -72,7 +72,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
-    const optionFlag = CURSOR_FLAGS[optionFlagNumber];
+    const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
       throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
@@ -105,7 +105,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   async close(options: Document): Promise<void> {
-    return await this._cursor.close(options as any);
+    await this._cursor.close(options as any);
   }
 
   @returnType('Cursor')
@@ -158,7 +158,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  forEach(f): Promise<void> {
+  forEach(f: (doc: Document) => void): Promise<void> {
     return this._cursor.forEach(f);
   }
 
@@ -200,9 +200,8 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
-  map(f): Cursor {
-    this._cursor.map(f);
-    return this;
+  map(f: (doc: Document) => Document): Cursor {
+    return new Cursor(this._mongo, this._cursor.map(f));
   }
 
   @returnType('Cursor')

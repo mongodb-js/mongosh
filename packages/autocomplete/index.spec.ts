@@ -89,7 +89,7 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.';
-      const dbComplete = Object.keys(shellSignatures.Database.attributes);
+      const dbComplete = Object.keys(shellSignatures.Database.attributes as any);
       const adjusted = dbComplete.map(c => `${i}${c}`);
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
@@ -124,7 +124,7 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.';
-      const collComplete = Object.keys(shellSignatures.Collection.attributes);
+      const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
       const adjusted = collComplete.filter(c => !['count', 'update', 'save', 'remove'].includes(c)).map(c => `${i}${c}`);
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
@@ -155,7 +155,7 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).';
-      const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes);
+      const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes as any);
       const adjusted = aggCursorComplete.map(c => `${i}${c}`);
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);

@@ -12,13 +12,18 @@ interface AceCompletion {
  * interface.
  */
 export class AceAutocompleterAdapter {
-  private adaptee;
+  private adaptee: Autocompleter;
 
   constructor(adaptee: Autocompleter) {
     this.adaptee = adaptee;
   }
 
-  getCompletions = (editor, session, position, prefix, done): void => {
+  getCompletions = (
+    _editor: any,
+    session: any,
+    position: { row: number; column: number },
+    prefix: string,
+    done: (err: Error | null, completions?: AceCompletion[]) => any): void => {
     // ACE wont include '.' in the prefix, so we have to extract a new prefix
     // including dots to be passed to the autocompleter.
     const line = session.getLine(position.row)
