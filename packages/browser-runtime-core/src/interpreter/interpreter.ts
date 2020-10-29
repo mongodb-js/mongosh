@@ -1,5 +1,4 @@
 import { Preprocessor } from './preprocessor';
-import { toShellResult, ShellResult } from '@mongosh/shell-api';
 
 const LAST_EXPRESSION_CALLBACK_FUNCTION_NAME = '___MONGOSH_LAST_EXPRESSION_CALLBACK';
 const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
@@ -7,7 +6,7 @@ const LEXICAL_CONTEXT_VARIABLE_NAME = '___MONGOSH_LEXCON';
 export type ContextValue = any;
 
 export interface InterpreterEnvironment {
-  sloppyEval(code: string): ShellResult;
+  sloppyEval(code: string): ContextValue;
   getContextObject(): ContextValue;
 }
 
@@ -25,19 +24,19 @@ export class Interpreter {
     });
   }
 
-  async evaluate(code: string): Promise<ShellResult> {
-    let result = toShellResult(undefined);
+  async evaluate(code: string): Promise<ContextValue> {
+    let result: ContextValue = undefined;
     const contextObjext = this.environment.getContextObject();
 
-    // TODO(addaleax): Is val actually a Promise for ShellResult or are we just pretending it is?
-    // What if this function here never gets called?
-    contextObjext[LAST_EXPRESSION_CALLBACK_FUNCTION_NAME] = (val: Promise<ShellResult>): void => {
+    // This callback is called on the last expression in `code`. We store that
+    // value and return it as the completion value of the evaluated code.
+    contextObjext[LAST_EXPRESSION_CALLBACK_FUNCTION_NAME] = (val: any): void => {
       result = val;
     };
 
     const preprocessedCode = this.preprocessor.preprocess(code);
     await this.environment.sloppyEval(preprocessedCode);
 
-    return await result;
+    return result;
   }
 }
