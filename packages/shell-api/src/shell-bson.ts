@@ -180,9 +180,12 @@ export default function constructShellBson(bson: any): any {
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     }
   };
-  [ 'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Symbol', 'Map'].forEach((className) => {
-    ((bsonPkg as any)[className] as any).help = (): Help => (helps[className]);
-    Object.setPrototypeOf(((bsonPkg as any)[className] as any).help, helps[className]);
+  const keys: (keyof typeof bsonPkg)[] = [
+    'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Symbol', 'Map'
+  ];
+  keys.forEach((className) => {
+    bsonPkg[className].help = (): Help => (helps[className]);
+    Object.setPrototypeOf(bsonPkg[className].help, helps[className]);
   });
   // Classes whose names differ from shell to driver
   (bsonPkg.NumberDecimal as any).help = (): Help => (helpDecimal);

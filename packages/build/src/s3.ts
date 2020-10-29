@@ -13,9 +13,9 @@ const PUBLIC_READ = 'public-read';
  *
  * @returns {Promise} - A Promise.
  */
-const upload = (params: any, s3: S3): Promise<unknown> => {
+const upload = (params: S3.Types.PutObjectRequest, s3: S3): Promise<S3.ManagedUpload.SendData> => {
   return new Promise((resolve, reject) => {
-    s3.upload(params, (error: Error | null, data: unknown) => {
+    s3.upload(params, (error: Error | null, data: S3.ManagedUpload.SendData) => {
       if (error) {
         reject(error);
       } else {

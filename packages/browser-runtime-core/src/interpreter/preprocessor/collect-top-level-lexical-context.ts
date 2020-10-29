@@ -23,15 +23,15 @@ export function collectTopLevelLexicalContext(ast: File): LexicalContext {
 
   for (const node of ast.program.body) {
     if (node.type === 'FunctionDeclaration') {
-      collectFunctionDeclaration(node as FunctionDeclaration, context);
+      collectFunctionDeclaration(node, context);
     }
 
     if (node.type === 'ClassDeclaration') {
-      collectClassDeclaration(node as ClassDeclaration, context);
+      collectClassDeclaration(node, context);
     }
 
     if (node.type === 'VariableDeclaration') {
-      collectVariableDeclaration(node as VariableDeclaration, context);
+      collectVariableDeclaration(node, context);
     }
   }
 
@@ -62,15 +62,15 @@ function collectVariableDeclarator(
   const child = variableDeclaration.id;
 
   if (child.type === 'Identifier') {
-    collectIdentifier(child as Identifier, context, kind);
+    collectIdentifier(child, context, kind);
   }
 
   if (child.type === 'ObjectPattern') {
-    collectObjectPattern(child as ObjectPattern, context, kind);
+    collectObjectPattern(child, context, kind);
   }
 
   if (child.type === 'ArrayPattern') {
-    collectArrayPattern(child as ArrayPattern, context, kind);
+    collectArrayPattern(child, context, kind);
   }
 }
 
@@ -87,11 +87,11 @@ function collectObjectPattern(
   variableDeclarationKind: VariableDeclarationKind): void {
   for (const property of objectPatternNode.properties) {
     if (property.type === 'RestElement') {
-      collectRestElement(property as RestElement, context, variableDeclarationKind);
+      collectRestElement(property, context, variableDeclarationKind);
     }
 
     if (property.type === 'ObjectProperty') {
-      collectObjectProperty(property as ObjectProperty, context, variableDeclarationKind);
+      collectObjectProperty(property, context, variableDeclarationKind);
     }
   }
 }
@@ -101,19 +101,19 @@ function collectObjectProperty(
   context: LexicalContext,
   variableDeclarationKind: VariableDeclarationKind): void {
   if (objectPropertyNode.value.type === 'Identifier') {
-    collectIdentifier(objectPropertyNode.value as Identifier, context, variableDeclarationKind);
+    collectIdentifier(objectPropertyNode.value, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'ObjectPattern') {
-    collectObjectPattern(objectPropertyNode.value as ObjectPattern, context, variableDeclarationKind);
+    collectObjectPattern(objectPropertyNode.value, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'ArrayPattern') {
-    collectArrayPattern(objectPropertyNode.value as ArrayPattern, context, variableDeclarationKind);
+    collectArrayPattern(objectPropertyNode.value, context, variableDeclarationKind);
   }
 
   if (objectPropertyNode.value.type === 'AssignmentPattern') {
-    collectAssignmentPattern(objectPropertyNode.value as AssignmentPattern, context, variableDeclarationKind);
+    collectAssignmentPattern(objectPropertyNode.value, context, variableDeclarationKind);
   }
 }
 
@@ -122,11 +122,11 @@ function collectAssignmentPattern(
   context: LexicalContext,
   variableDeclarationKind: VariableDeclarationKind): void {
   if (assignmentPatternNode.left.type === 'Identifier') {
-    collectIdentifier(assignmentPatternNode.left as Identifier, context, variableDeclarationKind);
+    collectIdentifier(assignmentPatternNode.left, context, variableDeclarationKind);
   }
 
   if (assignmentPatternNode.left.type === 'ObjectPattern') {
-    collectObjectPattern(assignmentPatternNode.left as ObjectPattern, context, variableDeclarationKind);
+    collectObjectPattern(assignmentPatternNode.left, context, variableDeclarationKind);
   }
 }
 
