@@ -4,7 +4,7 @@ import upload from './s3';
 
 describe('s3 module', () => {
   describe('.upload', () => {
-    const params = { ACL: 'public-read' };
+    const params: any = { ACL: 'public-read' };
 
     context('when the upload errors', () => {
       const uploadMock = sinon.mock().withArgs(params).yields('error', {});
