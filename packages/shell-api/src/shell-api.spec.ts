@@ -157,9 +157,7 @@ describe('ShellApi', () => {
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         try {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          await internalState.shellApi.connect();
+          await (internalState.shellApi as any).connect();
         } catch (e) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
