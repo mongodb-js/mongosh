@@ -288,7 +288,7 @@ class CliRepl {
 
     try {
       fd = fs.openSync(configPath, 'wx');
-      this.userId = new bson.ObjectId(Date.now()).toString();
+      this.userId = new bson.ObjectId().toString();
       this.enableTelemetry = true;
       this.disableGreetingMessage = false;
       this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);
