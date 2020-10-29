@@ -24,6 +24,6 @@ export default class ExplainableCursor extends Cursor {
 
   @returnType('ExplainableCursor')
   map(f: (doc: Document) => Document): ExplainableCursor {
-    return new ExplainableCursor(this._mongo, super.map(f), this._verbosity);
+    return super.map(f) as ExplainableCursor;
   }
 }

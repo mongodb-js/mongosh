@@ -52,8 +52,8 @@ describe('AggregationCursor', () => {
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
-    it('map() returns a new cursor', () => {
-      expect(cursor.map()).to.not.equal(cursor);
+    it('returns the same cursor', () => {
+      expect(cursor.map()).to.equal(cursor);
     });
     it('pretty returns the same cursor', () => {
       expect(cursor.pretty()).to.equal(cursor);

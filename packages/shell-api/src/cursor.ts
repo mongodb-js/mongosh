@@ -201,7 +201,8 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   map(f: (doc: Document) => Document): Cursor {
-    return new Cursor(this._mongo, this._cursor.map(f));
+    this._cursor.map(f);
+    return this;
   }
 
   @returnType('Cursor')

@@ -47,9 +47,8 @@ describe('ExplainableCursor', () => {
       expect(eCursor._verbosity).to.equal('verbosity');
     });
 
-    it('returns a new ExplainableCursor', () => {
-      expect(eCursor.map(() => {})).to.not.equal(eCursor);
-      expect(eCursor.map(() => {}).constructor).to.equal(ExplainableCursor);
+    it('returns the same ExplainableCursor', () => {
+      expect(eCursor.map()).to.equal(eCursor);
     });
 
     it('calls wrappee.map with arguments', () => {

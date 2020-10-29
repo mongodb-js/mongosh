@@ -87,7 +87,8 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnType('AggregationCursor')
   map(f: (doc: Document) => Document): AggregationCursor {
-    return new AggregationCursor(this._mongo, this._cursor.map(f));
+    this._cursor.map(f);
+    return this;
   }
 
   @returnsPromise
