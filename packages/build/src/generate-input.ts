@@ -30,6 +30,21 @@ async function generateInput(input: string, execInput: string, analyticsConfig: 
     sourceMaps: false,
     logLevel: 3
   });
+
+  // Sigh! Parcel does not understand that you can't just use an ES6 module file
+  // as the result of a 'require()' call, and always uses the 'module' key
+  // of 'package.json' instead of the 'main' key. This works fine for most of
+  // our direct code, because TypeScript handles the discrepancy for us,
+  // but it's causing trouble for nested dependencies like is-recoverable-error.
+  const originalGPE = (bundler as any).resolver.getPackageEntries;
+  (bundler as any).resolver.getPackageEntries = function(packageJsonContent: any): any {
+    const moduleField = packageJsonContent.module;
+    delete packageJsonContent.module;
+    const result = originalGPE.call(this, packageJsonContent);
+    packageJsonContent.module = moduleField;
+    return result;
+  };
+
   await bundler.bundle();
 }
 
