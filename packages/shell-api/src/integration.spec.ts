@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { expect } from 'chai';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
 import ShellInternalState from './shell-internal-state';
@@ -62,7 +61,7 @@ describe('Shell API (integration)', function() {
       { '_id': 4, 'item': 'abc', 'price': 8, 'quantity': 10, 'type': 'apparel' },
       { '_id': 5, 'item': 'jkl', 'price': 15, 'quantity': 15, 'type': 'electronics' }
     ]);
-    expect(res.acknowledged).to.equal(1);
+    expect(res.acknowledged).to.equal(true);
     expect((await collection.createIndex({ item: 1 })).ok).to.equal(1);
     expect((await collection.createIndex({ item: 1, quantity: 1 })).ok).to.equal(1);
     expect((await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } })).ok).to.equal(1);
@@ -87,7 +86,7 @@ describe('Shell API (integration)', function() {
       { _id: 9, cust_id: 'Don Quis', ord_date: new Date('2020-03-20'), price: 55, items: [ { sku: 'carrots', qty: 5, price: 1.0 }, { sku: 'apples', qty: 10, price: 2.5 }, { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' },
       { _id: 10, cust_id: 'Don Quis', ord_date: new Date('2020-03-23'), price: 25, items: [ { sku: 'oranges', qty: 10, price: 2.5 } ], status: 'A' }
     ]);
-    expect(res.acknowledged).to.equal(1);
+    expect(res.acknowledged).to.equal(true);
   };
 
   before(async() => {
@@ -308,7 +307,7 @@ describe('Shell API (integration)', function() {
             modifiedCount,
             upsertedCount
           }).to.deep.equal({
-            acknowledged: 1,
+            acknowledged: true,
             insertedId: {
               _id: 'new-doc',
               index: 0
@@ -1315,11 +1314,11 @@ describe('Shell API (integration)', function() {
       it('reconnects', async() => {
         const oldMC = serviceProvider.mongoClient;
         expect(oldMC.isConnected()).to.equal(true);
-        expect(serviceProvider.mongoClient.s.options.readPreference.mode).to.deep.equal('primary');
+        expect((serviceProvider.mongoClient as any).s.options.readPreference.mode).to.deep.equal('primary');
         await mongo.setReadPref('secondaryPreferred');
         expect(oldMC.isConnected()).to.equal(false);
         expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
-        expect(serviceProvider.mongoClient.s.options.readPreference.mode).to.equal('secondaryPreferred');
+        expect((serviceProvider.mongoClient as any).s.options.readPreference.mode).to.equal('secondaryPreferred');
       });
     });
   });

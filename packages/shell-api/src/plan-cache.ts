@@ -15,7 +15,7 @@ import { MongoshUnimplementedError } from '@mongosh/errors';
 export default class PlanCache extends ShellApiClass {
   _collection: Collection;
 
-  constructor(collection) {
+  constructor(collection: Collection) {
     super();
     this._collection = collection;
   }

@@ -1,13 +1,13 @@
 class MongoshRuntimeError extends Error {
-  constructor(...args) {
-    super(...args);
+  constructor(message: string) {
+    super(message);
     this.name = 'MongoshRuntimeError';
   }
 }
 
 class MongoshInternalError extends Error {
-  constructor(msg) {
-    super(msg);
+  constructor(message: string) {
+    super(message);
     this.name = 'MongoshInternalError';
     this.message =
       this.message + '\nThis is an error inside Mongosh. Please file a bug report. '
@@ -16,31 +16,30 @@ class MongoshInternalError extends Error {
 }
 
 class MongoshUnimplementedError extends Error {
-  constructor(...args) {
-    super(...args);
+  constructor(message: string) {
+    super(message);
     this.name = 'MongoshUnimplementedError';
   }
 }
 
 class MongoshInvalidInputError extends Error {
-  constructor(...args) {
-    super(...args);
+  constructor(message: string) {
+    super(message);
     this.name = 'MongoshInvalidInputError';
   }
 }
 
 class MongoshWarning extends Error {
-  constructor(...args) {
-    super(...args);
+  constructor(message: string) {
+    super(message);
     this.name = 'MongoshWarning';
   }
 }
 
 class MongoshCommandFailed extends Error {
-  constructor(msg) {
-    super(msg);
+  constructor(message: string) {
+    super(`Command ${message} returned ok: 0. To see the raw results of the command, use 'runCommand' instead.`);
     this.name = 'MongoshCommandFailed';
-    this.message = `Command ${msg} returned ok: 0. To see the raw results of the command, use 'runCommand' instead.`;
   }
 }
 

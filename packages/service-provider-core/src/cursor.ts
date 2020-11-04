@@ -33,14 +33,6 @@ export const CURSOR_FLAGS = {
 
 export default interface ServiceProviderCursor {
   addCursorFlag(flag: CursorFlag, value: boolean): any;
-  /**
-   * Add a cursor flag as an option to the cursor.
-   *
-   * @param {number} option - The flag number.
-   *
-   * @returns {ServiceProviderCursor} The cursor.
-   */
-  addOption(option: number): ServiceProviderCursor;
 
   /**
    * Set the read preference.
@@ -50,13 +42,6 @@ export default interface ServiceProviderCursor {
    * @returns {ServiceProviderCursor}
    */
   setReadPreference(mode: any): ServiceProviderCursor;
-
-  /**
-   * Set cursor to allow partial results.
-   *
-   * @returns {ServiceProviderCursor} The cursor.
-   */
-  allowPartialResults(): ServiceProviderCursor;
 
   /**
    * Set the cursor batch size.
@@ -72,7 +57,7 @@ export default interface ServiceProviderCursor {
    *
    * @returns {ServiceProviderCursor} The cursor.
    */
-  close(options: Document): Promise<void>;
+  close(options: Document): Promise<unknown>;
 
   /**
    * Clone the cursor.
@@ -114,7 +99,7 @@ export default interface ServiceProviderCursor {
   count(): Promise<number>;
 
 
-  forEach(f): Promise<void>;
+  forEach(f: (doc: Document) => void): Promise<void>;
 
   /**
    * Does the cursor have a next document?
@@ -133,16 +118,6 @@ export default interface ServiceProviderCursor {
   hint(index: string): ServiceProviderCursor;
 
   /**
-   * cursor.isExhausted() returns true if the cursor is closed and there are no
-   * remaining objects in the batch.
-   *
-   * @returns Promise<boolean> - whether the cursor is exhausted
-   */
-  isExhausted(): Promise<boolean>;
-
-  itcount(): Promise<number>;
-
-  /**
    * Set the limit of documents to return.
    *
    * @param {number} value - The limit value.
@@ -151,7 +126,7 @@ export default interface ServiceProviderCursor {
    */
   limit(value: number): ServiceProviderCursor;
 
-  map(f): ServiceProviderCursor;
+  map(f: (doc: Document) => Document): ServiceProviderCursor;
 
   /**
    * Set the max index bounds.
@@ -192,20 +167,6 @@ export default interface ServiceProviderCursor {
   next(): Promise<any>;
 
   /**
-   * Tell the cursor not to timeout.
-   *
-   * @returns {ServiceProviderCursor} The cursor.
-   */
-  noServiceProviderCursorTimeout(): ServiceProviderCursor;
-
-  /**
-   * CursorFlag the cursor as an oplog replay.
-   *
-   * @returns {ServiceProviderCursor} The cursor.
-   */
-  oplogReplay(): ServiceProviderCursor;
-
-  /**
    * Set the projection on the cursor.
    *
    * @param {Document} spec - The projection.
@@ -222,8 +183,6 @@ export default interface ServiceProviderCursor {
    * @returns {ServiceProviderCursor} The cursor.
    */
   returnKey(enabled: boolean): ServiceProviderCursor;
-
-  size(): Promise<number>;
 
   /**
    * Set the skip value.
@@ -242,22 +201,6 @@ export default interface ServiceProviderCursor {
    * @returns {ServiceProviderCursor} The cursor.
    */
   sort(spec: Document): ServiceProviderCursor;
-
-  /**
-   * CursorFlag the cursor as tailable.
-   *
-   * @returns {ServiceProviderCursor} The cursor.
-   */
-  tailable(): ServiceProviderCursor;
-
-  /**
-   * Set read preference for the cursor.
-   *
-   * @param {string} mode - the read preference mode
-   * @param {Document[]} [tagSet] - the tag set
-   * @returns {ServiceProviderCursor}
-   */
-  readPref(mode: string, tagSet?: Document[]): ServiceProviderCursor;
 
   /**
    * Get the documents from the cursor as an array of objects.

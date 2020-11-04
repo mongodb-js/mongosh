@@ -19,7 +19,7 @@ import { ShellEvaluator, EvaluationListener } from '@mongosh/shell-evaluator';
 export class OpenContextRuntime implements Runtime {
   private interpreter: Interpreter;
   private interpreterEnvironment: InterpreterEnvironment;
-  private autocompleter: ShellApiAutocompleter;
+  private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
   private internalState: ShellInternalState;
   private evaluationListener: EvaluationListener | null = null;

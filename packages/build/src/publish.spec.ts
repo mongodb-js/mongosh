@@ -2,6 +2,7 @@ import { GithubRepo } from './github-repo';
 import publish from './publish';
 import chai, { expect } from 'chai';
 import Config from './config';
+import path from 'path';
 import sinon from 'ts-sinon';
 
 chai.use(require('sinon-chai'));
@@ -41,7 +42,9 @@ describe('publish', () => {
       repo: {
         owner: 'owner',
         repo: 'repo',
-      }
+      },
+      execNodeVersion: process.version,
+      rootDir: path.resolve(__dirname, '..', '..')
     };
 
     uploadDownloadCenterConfig = sinon.spy();

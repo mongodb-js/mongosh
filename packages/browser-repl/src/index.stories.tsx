@@ -11,7 +11,7 @@ export default {
 };
 
 
-const delay = (msecs): any => new Promise((resolve) => {
+const delay = (msecs: number): Promise<void> => new Promise((resolve) => {
   setTimeout(resolve, msecs);
 });
 

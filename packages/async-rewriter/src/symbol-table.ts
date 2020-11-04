@@ -239,8 +239,8 @@ export default class SymbolTable {
   /**
    * Remove and return the most recent scope.
    */
-  public popScope(): object {
-    if (this.depth === 1) return;
+  public popScope(): object | undefined {
+    if (this.depth === 1) return undefined;
     return this.scopeStack.pop();
   }
 

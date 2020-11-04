@@ -3,7 +3,8 @@
   "compilerOptions": {
     "allowJs": true,
     "declaration": false,
-    "jsx": "react"
+    "jsx": "react",
+    "lib": ["dom"]
   },
   "include": [
     "./src/**/*"

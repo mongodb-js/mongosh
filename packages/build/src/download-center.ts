@@ -4,7 +4,7 @@ import upload, { PUBLIC_READ } from './s3';
 import fetch from 'node-fetch';
 
 async function verifyDownloadCenterConfig(downloadCenterJson: Record<string, any>): Promise<void> {
-  const errors = {};
+  const errors: Record<string, number> = {};
 
   for (const version of downloadCenterJson.versions) {
     for (const platform of version.platform) {

@@ -3,7 +3,7 @@ import { createAnalyticsConfig } from './analytics';
 
 describe('analytics module', () => {
   describe('.createAnalyticsConfig', () => {
-    let config;
+    let config: string;
 
     before(() => {
       config = createAnalyticsConfig('key');

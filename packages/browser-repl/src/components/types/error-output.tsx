@@ -13,7 +13,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     value: PropTypes.any
   };
 
-  renderCollapsed(toggle): JSX.Element {
+  renderCollapsed(toggle: () => void): JSX.Element {
     return (<div><pre>
       <a href="#" onClick={(e): void => { e.preventDefault(); toggle(); }} >
         {this.props.value.name || 'Error'}:
@@ -25,7 +25,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return this.props.value.stack.split('\n').slice(1).join('\n');
   }
 
-  renderExpanded(toggle): JSX.Element {
+  renderExpanded(toggle: () => void): JSX.Element {
     return (<div>
       {this.renderCollapsed(toggle)}
       <div>
@@ -36,7 +36,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
 
   render(): JSX.Element {
     return (<Expandable>{
-      (expanded, toggle): JSX.Element => (expanded ?
+      (expanded: boolean, toggle: () => void): JSX.Element => (expanded ?
         this.renderExpanded(toggle) :
         this.renderCollapsed(toggle))
     }</Expandable>);

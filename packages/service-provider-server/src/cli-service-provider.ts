@@ -3,6 +3,37 @@ import mongodb, {
   Db,
   ReadPreference as DriverReadPreference
 } from 'mongodb';
+import type {
+  MongoClientOptions,
+  CollStats,
+  IndexSpecification,
+  FindOneAndUpdateOption,
+  CollectionInsertOneOptions,
+  CollectionInsertManyOptions,
+  FindAndModifyWriteOpResultObject,
+  CollectionAggregationOptions,
+  CollectionBulkWriteOptions,
+  ReplaceWriteOpResult,
+  FilterQuery,
+  UpdateManyOptions,
+  UpdateOneOptions,
+  UpdateWriteOpResult,
+  Collection,
+  MongoCountPreferences,
+  CommonOptions,
+  DeleteWriteOpResultObject,
+  MongoDistinctPreferences,
+  FindOneOptions,
+  FindOneAndDeleteOption,
+  FindOneAndReplaceOption,
+  UpdateQuery,
+  WriteOpResult,
+  OrderedBulkOperation,
+  UnorderedBulkOperation,
+  InsertWriteOpResult,
+  ReplaceOneOptions,
+  InsertOneWriteOpResult
+} from 'mongodb';
 
 import {
   ServiceProvider,
@@ -30,6 +61,8 @@ type DropDatabaseResult = {
   ok: 0 | 1;
   dropped?: string;
 };
+
+type ConnectionInfo = ReturnType<typeof getConnectInfo>;
 
 /**
  * Default driver options we always use.
@@ -64,9 +97,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   static async connect(
     uri: string,
     options: NodeOptions = {},
-    cliOptions: any = {}
+    cliOptions: { nodb?: boolean } = {}
   ): Promise<CliServiceProvider> {
-    const clientOptions: any = {
+    const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
       ...options
     };
@@ -98,7 +131,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
     try {
-      this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
+      this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
     } catch (err) {
       this.initialDb = DEFAULT_DB;
     }
@@ -106,7 +139,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
-    const clientOptions: any = {
+    const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
       ...options
     };
@@ -118,7 +151,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return new CliServiceProvider(mongoClient, uri);
   }
 
-  async getConnectionInfo(): Promise<any> {
+  async getConnectionInfo(): Promise<{
+    buildInfo: any;
+    topology: any;
+    extraInfo: ConnectionInfo;
+  }> {
     const buildInfo = await this.buildInfo();
     const topology = await this.getTopology();
     const { version } = require('../package.json');
@@ -149,7 +186,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     oldName: string,
     newName: string,
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<any> {
+    dbOptions?: DatabaseOptions): Promise<Collection> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return await this.db(database, dbOptions)
       .renameCollection(oldName, newName, options);
@@ -159,14 +196,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     query: Document,
-    sort: any[] | Document,
-    update: Document,
+    sort: any[] | Document | undefined,
+    update: Document | undefined,
     options: Document = {},
     dbOptions?: DatabaseOptions
-  ): Promise<any> {
+  ): Promise<FindAndModifyWriteOpResultObject<any>> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    return await this.db(database, dbOptions)
-      .collection(collection)
+    return await (this.db(database, dbOptions)
+      .collection(collection) as any)
       .findAndModify(query, sort, update, options);
   }
 
@@ -186,7 +223,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     size: number,
     options: CommandOptions = {},
     dbOptions?: DatabaseOptions
-  ): Promise<any> {
+  ): Promise<undefined | object> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     const result: any = await this.runCommandWithCheck(
       database,
@@ -251,7 +288,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     pipeline: Document[] = [],
-    options: Document = {},
+    options: CollectionAggregationOptions = {},
     dbOptions?: DatabaseOptions): Cursor {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
@@ -305,13 +342,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   bulkWrite(
     database: string,
     collection: string,
-    requests,
-    options: Document = {},
+    requests: any[],
+    options: CollectionBulkWriteOptions = {},
     dbOptions?: DatabaseOptions): Promise<BulkWriteResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .bulkWrite(requests as any[], options);
+      .bulkWrite(requests, options) as Promise<BulkWriteResult>;
   }
 
   /**
@@ -343,9 +380,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   count(
     database: string,
     collection: string,
-    query: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    query: FilterQuery<any> = {},
+    options: MongoCountPreferences = {},
+    dbOptions?: DatabaseOptions): Promise<number> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -368,9 +405,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   countDocuments(
     database: string,
     collection: string,
-    filter: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    filter: FilterQuery<any> = {},
+    options: MongoCountPreferences = {},
+    dbOptions?: DatabaseOptions): Promise<number> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -391,9 +428,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   deleteMany(
     database: string,
     collection: string,
-    filter: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    filter: FilterQuery<any> = {},
+    options: CommonOptions = {},
+    dbOptions?: DatabaseOptions): Promise<DeleteWriteOpResultObject> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -414,9 +451,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   deleteOne(
     database: string,
     collection: string,
-    filter: Document = {},
+    filter: FilterQuery<any> = {},
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<DeleteWriteOpResultObject> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -439,9 +476,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     fieldName: string,
-    filter: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<any> {
+    filter: FilterQuery<any> = {},
+    options: MongoDistinctPreferences = {},
+    dbOptions?: DatabaseOptions): Promise<any[]> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -461,8 +498,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   estimatedDocumentCount(
     database: string,
     collection: string,
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: MongoCountPreferences = {},
+    dbOptions?: DatabaseOptions): Promise<number> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -482,8 +519,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   find(
     database: string,
     collection: string,
-    filter: Document = {},
-    options: Document = {},
+    filter: FilterQuery<any> = {},
+    options: FindOneOptions<any> = {},
     dbOptions?: DatabaseOptions): Cursor {
     const findOptions: any = { ...DEFAULT_BASE_OPTIONS, ...options };
     if ('allowPartialResults' in findOptions) {
@@ -514,9 +551,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   findOneAndDelete(
     database: string,
     collection: string,
-    filter: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    filter: FilterQuery<any> = {},
+    options: FindOneAndDeleteOption<any> = {},
+    dbOptions?: DatabaseOptions): Promise<FindAndModifyWriteOpResultObject<any>> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection).
@@ -537,14 +574,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   findOneAndReplace(
     database: string,
     collection: string,
-    filter: Document = {},
+    filter: FilterQuery<any> = {},
     replacement: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: FindOneAndReplaceOption<any> = {},
+    dbOptions?: DatabaseOptions): Promise<FindAndModifyWriteOpResultObject<any>> {
     const findOneAndReplaceOptions: any = { ...DEFAULT_BASE_OPTIONS, ...options };
     if ('returnDocument' in options) {
-      findOneAndReplaceOptions.returnOriginal = options.returnDocument;
-      delete findOneAndReplaceOptions.returnDocument;
+      findOneAndReplaceOptions.returnOriginal = (options as any).returnDocument;
+      delete (findOneAndReplaceOptions as any).returnDocument;
     }
 
     return (
@@ -566,14 +603,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   findOneAndUpdate(
     database: string,
     collection: string,
-    filter: Document = {},
-    update: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
-    const findOneAndUpdateOptions: any = { ...DEFAULT_BASE_OPTIONS, ...options };
+    filter: FilterQuery<any> = {},
+    update: UpdateQuery<any> = {},
+    options: FindOneAndUpdateOption<any> = {},
+    dbOptions?: DatabaseOptions): Promise<FindAndModifyWriteOpResultObject<any>> {
+    const findOneAndUpdateOptions = { ...DEFAULT_BASE_OPTIONS, ...options };
     if ('returnDocument' in options) {
-      findOneAndUpdateOptions.returnOriginal = options.returnDocument;
-      delete findOneAndUpdateOptions.returnDocument;
+      findOneAndUpdateOptions.returnOriginal = (options as any).returnDocument;
+      delete (findOneAndUpdateOptions as any).returnDocument;
     }
 
     return this.db(database, dbOptions)
@@ -600,8 +637,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     docs: Document[] = [],
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: CollectionInsertManyOptions = {},
+    dbOptions?: DatabaseOptions): Promise<InsertWriteOpResult<any>> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -623,8 +660,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     doc: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: CollectionInsertOneOptions = {},
+    dbOptions?: DatabaseOptions): Promise<InsertOneWriteOpResult<any>> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -641,7 +678,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   isCapped(
     database: string,
     collection: string,
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<any> {
     return this.db(database, dbOptions).collection(collection).isCapped();
   }
 
@@ -659,7 +696,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     query: Document = {},
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<WriteOpResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -684,7 +721,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     doc: Document,
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<WriteOpResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions).collection(collection).
       save(doc, options);
@@ -705,11 +742,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   replaceOne(
     database: string,
     collection: string,
-    filter: Document = {},
+    filter: FilterQuery<any> = {},
     replacement: Document = {},
-    options: Document = {},
+    options: ReplaceOneOptions = {},
     dbOptions?: DatabaseOptions
-  ): Promise<Result> {
+  ): Promise<ReplaceWriteOpResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -729,11 +766,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   runCommand(
     database: string,
     spec: Document = {},
-    options: CommandOptions = {},
+    options: Document = {},
     dbOptions?: DatabaseOptions
-  ): Promise<Result> {
+  ): Promise<any> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    const db: any = this.db(database, dbOptions);
+    const db = this.db(database, dbOptions);
     return db.command(
       spec,
       options
@@ -755,17 +792,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     spec: Document = {},
     options: CommandOptions = {},
     dbOptions?: DatabaseOptions
-  ): Promise<Result> {
-    options = { ...DEFAULT_BASE_OPTIONS, ...options };
-    const db: any = this.db(database, dbOptions);
-    const result = await db.command(
-      spec,
-      options
-    );
+  ): Promise<any & { ok: 1 }> {
+    const result = await this.runCommand(database, spec, options, dbOptions);
     if (result.ok === 0) {
       throw new MongoshCommandFailed(JSON.stringify(spec));
     }
-    return result;
+    return result as { ok: 1 };
   }
 
   /**
@@ -775,7 +807,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Promise} The promise of command results.
    */
-  listDatabases(database: string): Promise<Result> {
+  listDatabases(database: string): Promise<any> {
     return this.db(database).admin().listDatabases();
   }
 
@@ -794,10 +826,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async updateMany(
     database: string,
     collection: string,
-    filter: Document = {},
+    filter: FilterQuery<any> = {},
     update: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: UpdateManyOptions = {},
+    dbOptions?: DatabaseOptions): Promise<UpdateWriteOpResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
@@ -819,10 +851,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   updateOne(
     database: string,
     collection: string,
-    filter: Document = {},
+    filter: FilterQuery<any> = {},
     update: Document = {},
-    options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    options: UpdateOneOptions = {},
+    dbOptions?: DatabaseOptions): Promise<UpdateWriteOpResult> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -835,7 +867,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} topology.
    */
   getTopology(): any {
-    return this.mongoClient.topology;
+    return (this.mongoClient as any).topology;
   }
 
   /**
@@ -908,7 +940,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async createIndexes(
     database: string,
     collection: string,
-    indexSpecs: Document[],
+    indexSpecs: IndexSpecification[],
     options: Document = {},
     dbOptions?: DatabaseOptions): Promise<Result> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
@@ -931,7 +963,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async getIndexes(
     database: string,
     collection: string,
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<any[]> {
     return this.db(database, dbOptions)
       .collection(collection)
       .listIndexes()
@@ -977,7 +1009,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     filter: Document = {},
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<Result> {
+    dbOptions?: DatabaseOptions): Promise<Result[]> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return await this.db(database, dbOptions).listCollections(
       filter, options
@@ -997,11 +1029,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     options: Document = {},
-    dbOptions?: DatabaseOptions): Promise<any> {
+    dbOptions?: DatabaseOptions): Promise<CollStats> {
     options = { ...DEFAULT_BASE_OPTIONS, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
-      .stats(options);
+      .stats(options as { scale: 1 });
   }
 
   /**
@@ -1051,9 +1083,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   async authenticate(
     authDoc: AuthOptions
-  ): Promise<any> {
+  ): Promise<{ ok: 1 }> {
     // NOTE: we keep all the original options and just overwrite the auth ones.
-    const clientOptions: any = {
+    const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
       ...this.initialOptions,
       auth: { user: authDoc.user, password: authDoc.pwd },
@@ -1061,7 +1093,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       authSource: authDoc.authDb
     };
     this.mongoClient = await MongoClient.connect(
-      this.uri,
+      this.uri as string,
       clientOptions
     );
     return { ok: 1 };
@@ -1093,7 +1125,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     ordered: boolean,
     options = {},
     dbOptions?: any
-  ): Promise<any> {
+  ): Promise<OrderedBulkOperation | UnorderedBulkOperation> {
     if (ordered) {
       return await this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
     }
@@ -1101,12 +1133,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   getReadPreference(): ReadPreference {
-    return this.mongoClient.readPreference; // TODO: node driver bug always returns primary NODE-2806
+    return this.mongoClient.readPreference as ReadPreference; // TODO: node driver bug always returns primary NODE-2806
   }
 
   getReadConcern(): ReadConcern | undefined {
     // return this.mongoClient.readConcern; TODO: this is only on latest driver, for now use workaround
-    return this.mongoClient.s.options.readConcern;
+    return (this.mongoClient as any).s.options.readConcern;
   }
 
   getWriteConcern(): WriteConcern | undefined {
@@ -1128,7 +1160,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       );
       options.readPreference = pr;
     }
-    const clientOptions: any = {
+    const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
       ...this.initialOptions,
       ...options
@@ -1138,7 +1170,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       // eslint-disable-next-line no-empty
     } catch {}
     const mc = await MongoClient.connect(
-      this.uri,
+      this.uri as string,
       clientOptions
     );
     this.mongoClient = mc;

@@ -101,8 +101,8 @@ export class Barque {
         'repo', 'submit',
         '--service', 'https://barque.corp.mongodb.com',
         '--config', repoConfig,
-        '--distro', this.determineDistro(this.config.buildVariant),
-        '--arch', this.determineArch(this.config.buildVariant),
+        '--distro', this.determineDistro(this.config.buildVariant as string),
+        '--arch', this.determineArch(this.config.buildVariant as string),
         '--edition', this.mongodbEdition,
         '--version', this.mongodbVersion,
         '--packages', tarballURL
@@ -161,7 +161,7 @@ export class Barque {
    */
   async createCuratorDir(): Promise<any> {
     const dir = await tmp.dir({ prefix: 'curator-', unsafeCleanup: true });
-    fs.ensureDir(dir.path, '0755');
+    fs.ensureDir(dir.path, { mode: 0o755 });
 
     return dir.path;
   }

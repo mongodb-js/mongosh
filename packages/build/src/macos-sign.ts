@@ -13,14 +13,14 @@ import { TarballFile } from './tarball';
  * @param {string} user - The apple dev account user.
  * @param {string} password - The apple dev account password.
  */
-const notarize = (bundleId: string, artifact: string, user: string, password: string) => {
+function notarize(bundleId: string, artifact: string, user: string, password: string): Promise<void> {
   return nodeNotarize({
     appBundleId: bundleId,
     appPath: artifact,
     appleId: user,
     appleIdPassword: password
   });
-};
+}
 
 /**
  * Signs the executable via codesign.
@@ -28,27 +28,27 @@ const notarize = (bundleId: string, artifact: string, user: string, password: st
  * @param {string} executable - The mongosh executable.
  * @param {string} identity - The apple developer identity.
  */
-const sign = (executable: string, identity: string, entitlementsFile: string) => {
+function sign(executable: string, identity: string, entitlementsFile: string): Promise<void> {
   return util.promisify(codesign)({
     identity: identity,
     appPath: executable,
     entitlements: entitlementsFile,
   });
-};
+}
 
 const macOSSignAndNotarize = async(
   executable: string,
   config: Config,
   runCreateTarball: () => Promise<TarballFile>): Promise<TarballFile> => {
   console.info('mongosh: signing:', executable);
-  await sign(executable, config.appleCodesignIdentity, config.appleCodesignEntitlementsFile);
+  await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
   console.info('mongosh: notarizing and creating tarball:', executable);
   const artifact = await runCreateTarball();
   await notarize(
-    config.appleNotarizationBundleId,
+    config.appleNotarizationBundleId || '',
     artifact.path,
-    config.appleNotarizationUsername,
-    config.appleNotarizationApplicationPassword);
+    config.appleNotarizationUsername || '',
+    config.appleNotarizationApplicationPassword || '');
   return artifact;
 };
 

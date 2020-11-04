@@ -25,7 +25,7 @@ class CompassServiceProvider extends CliServiceProvider {
     super(mongoClient, uri);
     this.platform = ReplPlatform.Compass;
     try {
-      this.initialDb = mongoClient.s.options.dbName || DEFAULT_DB;
+      this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
     } catch (err) {
       this.initialDb = DEFAULT_DB;
     }

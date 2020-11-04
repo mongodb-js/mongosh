@@ -25,7 +25,7 @@ export class HelpOutput extends Component<HelpOutputProps> {
     value: PropTypes.object.isRequired
   };
 
-  renderAttrTable = (attr: HelpApiObjectAttr[]): JSX.Element => {
+  renderAttrTable = (attr: HelpApiObjectAttr[]): JSX.Element | undefined => {
     if (!attr || !attr.length) { return; }
 
     return (<table>
@@ -40,7 +40,7 @@ export class HelpOutput extends Component<HelpOutputProps> {
     </tr>);
   };
 
-  renderHelpDocsLink(docs: string): JSX.Element {
+  renderHelpDocsLink(docs: string): JSX.Element | undefined {
     if (!docs) { return; }
 
     return (<div>
@@ -48,7 +48,7 @@ export class HelpOutput extends Component<HelpOutputProps> {
     </div>);
   }
 
-  renderHelpText(helpText: string): JSX.Element {
+  renderHelpText(helpText: string): JSX.Element | undefined {
     if (!helpText) { return; }
 
     return (<div>{helpText}</div>);

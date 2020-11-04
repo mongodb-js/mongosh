@@ -4,5 +4,5 @@ export default interface Closable {
    *
    * @param {boolean} force - Whether to force close.
    */
-  close(boolean): Promise<void>;
+  close(force: boolean): Promise<void>;
 }

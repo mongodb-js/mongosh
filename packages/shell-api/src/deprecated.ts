@@ -9,7 +9,7 @@ import { MongoshUnimplementedError } from '@mongosh/errors';
 @shellApiClassDefault
 class DeprecatedClass extends ShellApiClass {
   public name: string;
-  constructor(name, alternatives = {}) {
+  constructor(name: string, alternatives: Record<string, string> = {}) {
     super();
     this.name = name;
     const proxy = new Proxy(this, {
@@ -18,7 +18,7 @@ class DeprecatedClass extends ShellApiClass {
           const alt = alternatives[prop] || '';
           throw new MongoshUnimplementedError(`The class ${name} is deprecated.${alt}`);
         }
-        return obj[prop];
+        return (obj as any)[prop];
       }
     });
     return proxy;

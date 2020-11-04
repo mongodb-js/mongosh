@@ -1,10 +1,11 @@
 import BSON from 'bson';
+
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have the driver return our BSON classes without having to write our own serializer.
  * @param {Object} bson
  */
-export default function(bson): void {
+export default function(bson?: any): void {
   if (!bson) {
     bson = BSON;
   }

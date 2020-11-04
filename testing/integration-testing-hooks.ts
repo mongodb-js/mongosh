@@ -55,9 +55,9 @@ export function startTestServer(): string {
   return connectionString;
 }
 
-let testServerVersion;
+let testServerVersion: string;
 
-async function getServerVersion(connectionString: string) {
+async function getServerVersion(connectionString: string): Promise<string> {
   let client;
   try {
     client = await MongoClient.connect(connectionString, {
@@ -84,7 +84,7 @@ async function getServerVersion(connectionString: string) {
  * @export
  * @returns {string} - uri that can be used to connect to the server.
  */
-export function skipIfServerVersion(semverCondition) {
+export function skipIfServerVersion(semverCondition: string) {
   before(async function() {
     testServerVersion = testServerVersion || await getServerVersion(connectionString);
     if (semver.satisfies(testServerVersion, semverCondition)) {

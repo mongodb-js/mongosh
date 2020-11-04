@@ -5,6 +5,7 @@ import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
 import clr from './clr';
+import type { HelpProperties } from '@mongosh/shell-api';
 
 type EvaluationResult = {
   value: any;
@@ -64,7 +65,7 @@ Use db.setProfilingLevel(2) will enable profiling.
 Use db.getCollection('system.profile').find() to show raw profile entries.`, 'yellow', options);
     }
     // direct from old shell
-    return value.result.map(function(x) {
+    return value.result.map(function(x: any) {
       const res = `${x.op}\t${x.ns} ${x.millis}ms ${String(x.ts).substring(0, 24)}\n`;
       let l = '';
       for (const z in x) {
@@ -94,18 +95,18 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
   return formatSimpleType(value, options);
 }
 
-function formatSimpleType(output, options: FormatOptions): any {
+function formatSimpleType(output: any, options: FormatOptions): any {
   if (typeof output === 'string') return output;
   if (typeof output === 'undefined') return '';
 
   return inspect(output, options);
 }
 
-function formatCollections(output, options: FormatOptions): string {
+function formatCollections(output: string[], options: FormatOptions): string {
   return clr(output.join('\n'), 'bold', options);
 }
 
-function formatDatabases(output, options: FormatOptions): string {
+function formatDatabases(output: any[], options: FormatOptions): string {
   const tableEntries = output.map(
     (db) => [clr(db.name, 'bold', options), prettyBytes(db.sizeOnDisk)]
   );
@@ -113,14 +114,14 @@ function formatDatabases(output, options: FormatOptions): string {
   return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
-function formatStats(output, options: FormatOptions): string {
+function formatStats(output: Record<string, any>, options: FormatOptions): string {
   return Object.keys(output).map((c) => {
     return `${clr(c, ['bold', 'yellow'], options)}\n` +
       `${inspect(output[c], options)}`;
   }).join('\n---\n');
 }
 
-function formatListCommands(output, options: FormatOptions): string {
+function formatListCommands(output: Record<string, any>, options: FormatOptions): string {
   const tableEntries = Object.keys(output).map(
     (cmd) => {
       const val = output[cmd];
@@ -137,7 +138,7 @@ function formatListCommands(output, options: FormatOptions): string {
   return tableEntries.join('\n\n');
 }
 
-export function formatError(error, options: FormatOptions): string {
+export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'], options)}: `;
   if (error.message) result += error.message;
@@ -147,7 +148,7 @@ export function formatError(error, options: FormatOptions): string {
   return result;
 }
 
-function inspect(output, options: FormatOptions): any {
+function inspect(output: any, options: FormatOptions): any {
   return util.inspect(output, {
     showProxy: false,
     colors: options.colors ?? true,
@@ -155,7 +156,7 @@ function inspect(output, options: FormatOptions): any {
   });
 }
 
-function formatCursor(value, options: FormatOptions): any {
+function formatCursor(value: any, options: FormatOptions): any {
   if (!value.length) {
     return '';
   }
@@ -163,7 +164,7 @@ function formatCursor(value, options: FormatOptions): any {
   return inspect(value, options);
 }
 
-function formatCursorIterationResult(value, options: FormatOptions): any {
+function formatCursorIterationResult(value: any, options: FormatOptions): any {
   if (!value.length) {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
@@ -171,7 +172,7 @@ function formatCursorIterationResult(value, options: FormatOptions): any {
   return inspect(value, options);
 }
 
-function formatHelp(value, options: FormatOptions): string {
+function formatHelp(value: HelpProperties, options: FormatOptions): string {
   // This is the spacing between arguments and description in mongosh --help.
   // Use this length for formatting consistency.
   const argLen = 47;

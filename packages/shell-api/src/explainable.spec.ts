@@ -13,7 +13,7 @@ import ShellInternalState from './shell-internal-state';
 
 describe('Explainable', () => {
   describe('help', () => {
-    const apiClass: any = new Explainable({}, {}, 'verbosity');
+    const apiClass = new Explainable({} as any, {} as any, 'verbosity');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -38,7 +38,7 @@ describe('Explainable', () => {
     });
   });
   describe('metadata', () => {
-    const mongo = { _internalState: { emitApiCall: sinon.spy() } };
+    const mongo: any = { _internalState: { emitApiCall: sinon.spy() } };
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'verbosity');

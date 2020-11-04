@@ -32,6 +32,10 @@
     ]
   },
   "dependencies": {
-    "mustache": "^4.0.0"
+    "mustache": "^4.0.0",
+    "@mongosh/errors": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.0.1"
   }
 }

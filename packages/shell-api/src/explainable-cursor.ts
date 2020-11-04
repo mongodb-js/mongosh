@@ -1,18 +1,17 @@
-import { shellApiClassDefault } from './decorators';
+import { shellApiClassDefault, returnType } from './decorators';
 import Cursor from './cursor';
 import Mongo from './mongo';
 import { asPrintable } from './enums';
-import { Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import type { Document } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 export default class ExplainableCursor extends Cursor {
-  _mongo: Mongo;
-  _cursor: ServiceProviderCursor;
+  _baseCursor: Cursor;
   _verbosity: string;
-  constructor(mongo, cursor, verbosity) {
-    super(mongo, cursor);
-    this._cursor = cursor;
-    this._mongo = mongo;
+
+  constructor(mongo: Mongo, cursor: Cursor, verbosity: string) {
+    super(mongo, cursor._cursor);
+    this._baseCursor = cursor;
     this._verbosity = verbosity;
   }
 
@@ -20,6 +19,11 @@ export default class ExplainableCursor extends Cursor {
    * Internal method to determine what is printed for this class.
    */
   async [asPrintable](): Promise<any> {
-    return await this._cursor.explain(this._verbosity);
+    return await this._baseCursor.explain(this._verbosity);
+  }
+
+  @returnType('ExplainableCursor')
+  map(f: (doc: Document) => Document): ExplainableCursor {
+    return super.map(f) as ExplainableCursor;
   }
 }

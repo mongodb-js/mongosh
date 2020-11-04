@@ -36,9 +36,9 @@ export const USAGE = `
 
         --tls                                  ${i18n.__('cli-repl.args.tls')}
         --tlsCertificateKeyFile [arg]          ${i18n.__('cli-repl.args.tlsCertificateKeyFile')}
-        --tlsCertificateKeyFilePassword [arg]  ${i18n.__('cli-repl.args.tlsCertificateKeyPassword')}
+        --tlsCertificateKeyFilePassword [arg]  ${i18n.__('cli-repl.args.tlsCertificateKeyFilePassword')}
         --tlsCAFile [arg]                      ${i18n.__('cli-repl.args.tlsCAFile')}
-        --tlsAllowInvalidHostnames             ${i18n.__('cli-repl.args.tlsAllowInvaludHostnames')}
+        --tlsAllowInvalidHostnames             ${i18n.__('cli-repl.args.tlsAllowInvalidHostnames')}
         --tlsAllowInvalidCertificates          ${i18n.__('cli-repl.args.tlsAllowInvalidCertificates')}
         --tlsCertificateSelector [arg]         ${i18n.__('cli-repl.args.tlsCertificateSelector')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}

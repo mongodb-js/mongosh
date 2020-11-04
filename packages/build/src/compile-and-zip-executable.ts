@@ -11,15 +11,15 @@ export default async function compileAndZipExecutable(config: Config): Promise<T
     config.execInput,
     config.outputDir,
     config.execNodeVersion,
-    config.analyticsConfig,
-    config.segmentKey,
+    config.analyticsConfig ?? '',
+    config.segmentKey ?? '',
   );
 
   const runCreateTarball = async(): Promise<TarballFile> => {
     return await createTarball(
       executable,
       config.outputDir,
-      config.buildVariant,
+      config.buildVariant ?? '',
       config.version,
       config.rootDir
     );

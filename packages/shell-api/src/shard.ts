@@ -17,7 +17,7 @@ import { CommandResult } from './result';
 export default class Shard extends ShellApiClass {
   _mongo: Mongo;
 
-  constructor(mongo) {
+  constructor(mongo: Mongo) {
     super();
     this._mongo = mongo;
   }
@@ -135,7 +135,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<any> {
     assertArgsDefined(namespace, min, max, zone);
     assertArgsType([namespace, min, max], ['string', 'object', 'object']);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });

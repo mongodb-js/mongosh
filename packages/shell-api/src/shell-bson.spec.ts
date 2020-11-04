@@ -1,4 +1,4 @@
-/* eslint @typescript-eslint/camelcase: 0, new-cap: 0 */
+/* eslint camelcase: 0, new-cap: 0 */
 import constructShellBson from './shell-bson';
 import { expect } from 'chai';
 import { ALL_SERVER_VERSIONS } from './enums';

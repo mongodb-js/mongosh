@@ -12,7 +12,7 @@ import { CliServiceProvider } from '../../service-provider-server';
 
 describe('Shard', () => {
   describe('help', () => {
-    const apiClass: any = new Shard({});
+    const apiClass: any = new Shard({} as any);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -567,8 +567,9 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoSplit();
@@ -588,12 +589,13 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableAutoSplit();
-        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -606,7 +608,7 @@ describe('Shard', () => {
       });
 
       it('throws if not mongos', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
         const catchedError = await shard.enableAutoSplit()
@@ -621,8 +623,9 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoSplit();
@@ -642,12 +645,13 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableAutoSplit();
-        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -660,7 +664,7 @@ describe('Shard', () => {
       });
 
       it('throws if not mongos', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
         const catchedError = await shard.disableAutoSplit()
@@ -798,8 +802,9 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableBalancing('ns');
@@ -819,12 +824,13 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -837,7 +843,7 @@ describe('Shard', () => {
       });
 
       it('throws if not mongos', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
         const catchedError = await shard.disableBalancing('ns')
@@ -852,8 +858,9 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableBalancing('ns');
@@ -873,12 +880,13 @@ describe('Shard', () => {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: 0,
-          result: { ok: 1 }
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
         };
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(1, 1, 1, 1, 0));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -891,7 +899,7 @@ describe('Shard', () => {
       });
 
       it('throws if not mongos', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommand.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
         const catchedError = await shard.enableBalancing('ns')

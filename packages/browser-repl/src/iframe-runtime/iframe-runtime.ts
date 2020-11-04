@@ -12,9 +12,10 @@ import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 
 export class IframeRuntime implements Runtime {
-  private openContextRuntime: OpenContextRuntime;
-  private iframe: HTMLIFrameElement;
-  private container: HTMLDivElement;
+  private openContextRuntime: OpenContextRuntime | null = null;
+  private readyPromise: Promise<void> | null = null;
+  private iframe: HTMLIFrameElement | null = null;
+  private container: HTMLDivElement | null = null;
   private serviceProvider: ServiceProvider;
   private evaluationListener: EvaluationListener | null = null;
 
@@ -32,24 +33,19 @@ export class IframeRuntime implements Runtime {
   }
 
   async evaluate(code: string): Promise<ShellResult> {
-    if (!this.openContextRuntime) {
-      await this.initialize();
-    }
-
-    return await this.openContextRuntime.evaluate(code);
+    const runtime = await this.initialize();
+    return await runtime.evaluate(code);
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
-    if (!this.openContextRuntime) {
-      await this.initialize();
-    }
-
-    return await this.openContextRuntime.getCompletions(code);
+    const runtime = await this.initialize();
+    return await runtime.getCompletions(code);
   }
 
-  async initialize(): Promise<void> {
-    if (this.iframe) {
-      return;
+  async initialize(): Promise<OpenContextRuntime> {
+    if (this.readyPromise !== null) {
+      await this.readyPromise;
+      return this.openContextRuntime as OpenContextRuntime;
     }
 
     this.container = document.createElement('div');
@@ -60,24 +56,24 @@ export class IframeRuntime implements Runtime {
       'beforeend',
       '<iframe src="about:blank" style="display: none" sandbox="allow-same-origin" />');
 
-    this.iframe = this.container.firstElementChild as HTMLIFrameElement;
-
-    const ready: Promise<void> = new Promise((resolve) => {
-      this.iframe.onload = (): void => resolve();
+    const iframe = this.container.firstElementChild as HTMLIFrameElement;
+    this.iframe = iframe;
+    this.readyPromise = new Promise((resolve) => {
+      iframe.onload = (): void => resolve();
     });
 
     document.body.appendChild(this.container);
 
-    const environment = new IframeInterpreterEnvironment(this.iframe.contentWindow);
+    const environment = new IframeInterpreterEnvironment(iframe.contentWindow as Window);
     this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment);
     if (this.evaluationListener) {
       this.openContextRuntime.setEvaluationListener(this.evaluationListener);
     }
 
-    return await ready;
+    return this.initialize();
   }
 
-  destroy(): Promise<void> {
+  async destroy(): Promise<void> {
     if (!this.iframe) {
       return;
     }
@@ -89,6 +85,5 @@ export class IframeRuntime implements Runtime {
     }
 
     parent.removeChild(this.iframe);
-    return Promise.resolve();
   }
 }

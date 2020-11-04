@@ -6,7 +6,7 @@ import ExplainableCursor from './explainable-cursor';
 
 describe('ExplainableCursor', () => {
   describe('help', () => {
-    const apiClass: any = new ExplainableCursor({}, {}, 'verbosity');
+    const apiClass = new ExplainableCursor({} as any, {} as any, 'verbosity');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -21,7 +21,7 @@ describe('ExplainableCursor', () => {
       expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
-        returnType: 'Cursor', // because inherited from Cursor.
+        returnType: 'ExplainableCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
         serverVersions: ALL_SERVER_VERSIONS
@@ -29,14 +29,15 @@ describe('ExplainableCursor', () => {
     });
   });
   describe('instance', () => {
-    let wrappee;
+    let wrappee: any;
     let eCursor;
     beforeEach(() => {
       wrappee = {
         map: sinon.spy(),
         explain: (verbosity): any => ({ ok: verbosity })
       };
-      eCursor = new ExplainableCursor({}, wrappee, 'verbosity');
+      wrappee._cursor = wrappee;
+      eCursor = new ExplainableCursor({} as any, wrappee as any, 'verbosity');
     });
 
     it('sets dynamic properties', async() => {
@@ -51,7 +52,7 @@ describe('ExplainableCursor', () => {
     });
 
     it('calls wrappee.map with arguments', () => {
-      const arg = {};
+      const arg = () => {};
       eCursor.map(arg);
       expect(wrappee.map.calledWith(arg)).to.equal(true);
     });

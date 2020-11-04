@@ -1,4 +1,4 @@
-/* eslint camelcase: 0, @typescript-eslint/camelcase: 0 */
+/* eslint-disable camelcase */
 // ^ segment data is in snake_case: forgive me javascript, for i have sinned.
 
 import getBuildInfo from 'mongodb-build-info';

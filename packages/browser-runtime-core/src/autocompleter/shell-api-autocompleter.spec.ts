@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 describe('Autocompleter', () => {
   describe('getCompletions', () => {
-    let autocompleter;
+    let autocompleter: ShellApiAutocompleter;
 
     beforeEach(() => {
       autocompleter = new ShellApiAutocompleter('4.2.1');

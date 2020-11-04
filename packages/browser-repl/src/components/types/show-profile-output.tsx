@@ -5,7 +5,7 @@ import { inspect } from '../utils/inspect';
 
 interface ShowProfileResult {
   count: number;
-  result?: any;
+  result?: any[];
 }
 
 interface ShowProfileOutputProps {
@@ -22,7 +22,7 @@ export class ShowProfileOutput extends Component<ShowProfileOutputProps> {
       return <SimpleTypeOutput value='db.system.profile is empty.\nUse db.setProfilingLevel(2) will enable profiling.\nUse db.getCollection("system.profile").find() to show raw profile entries.'/>;
     }
     // direct from old shell
-    const toret = this.props.value.result.map(function(x) {
+    const toret = (this.props.value.result as any).map((x: any) => {
       const res = `${x.op}    ${x.ns} ${x.millis}ms ${String(x.ts).substring(0, 24)}\n`;
       let l = '';
       for (const z in x) {

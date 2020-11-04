@@ -6,7 +6,7 @@ import generate from '@babel/generator';
 import { injectLastExpressionCallback } from './inject-last-expression-callback';
 
 describe('injectLastExpressionCallback', () => {
-  const testInjectLastExpressionCallback = (code): string => {
+  const testInjectLastExpressionCallback = (code: any): string => {
     const ast = injectLastExpressionCallback('mongodbEvalCapture', parse(code));
     return generate(ast as any).code;
   };

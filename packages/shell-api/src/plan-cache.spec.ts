@@ -8,7 +8,7 @@ import AggregationCursor from './aggregation-cursor';
 
 describe('PlanCache', () => {
   describe('help', () => {
-    const apiClass: any = new PlanCache({} as any);
+    const apiClass = new PlanCache({} as any);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');

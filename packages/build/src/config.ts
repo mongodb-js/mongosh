@@ -2,13 +2,13 @@
  * Defines the configuration interface for the build system.
  */
 export default interface Config {
-  version?: string;
+  version: string;
   appleNotarizationBundleId?: string;
-  input?: string;
-  execInput?: string;
-  outputDir?: string;
+  input: string;
+  execInput: string;
+  outputDir: string;
   analyticsConfig?: string;
-  rootDir?: string;
+  rootDir: string;
   project?: string;
   revision?: string;
   branch?: string;
@@ -24,10 +24,9 @@ export default interface Config {
   appleCodesignEntitlementsFile?: string;
   isCi?: boolean;
   platform?: string;
-  execNodeVersion?: string;
-  signableBinary?: boolean;
+  execNodeVersion: string;
   buildVariant?: string;
-  repo?: {
+  repo: {
     owner: string;
     repo: string;
   };

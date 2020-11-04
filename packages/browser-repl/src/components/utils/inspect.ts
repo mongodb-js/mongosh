@@ -1,20 +1,21 @@
 import { inspect as utilInspect } from 'util';
+type BSONBaseType = { _bsontype: string };
 
-const formatBsonType = (value): any => ({
+const formatBsonType = (value: BSONBaseType): any => ({
   inspect(): string {
     return `${value._bsontype}(${(JSON.stringify(value))})`;
   }
 });
 
-function isBsonType(value): any {
-  return value && value._bsontype;
+function isBsonType(value: any): boolean {
+  return !!(value && value._bsontype);
 }
 
-function isObject(value): any {
-  return value && typeof value === 'object' && !Array.isArray(value);
+function isObject(value: any): boolean {
+  return !!(value && typeof value === 'object' && !Array.isArray(value));
 }
 
-function formatProperty(value): any {
+function formatProperty(value: any): any {
   if (isObject(value) && isBsonType(value)) {
     return formatBsonType(value);
   }
@@ -22,15 +23,15 @@ function formatProperty(value): any {
   return value;
 }
 
-function formatObject(object): any {
-  const viewObject = {};
+function formatObject(object: any): any {
+  const viewObject: any = {};
   for (const key of Object.keys(object)) {
     viewObject[key] = formatProperty(object[key]);
   }
   return viewObject;
 }
 
-function toViewValue(value): any {
+function toViewValue(value: any): any {
   if (isBsonType(value)) {
     return formatBsonType(value);
   }
@@ -41,7 +42,7 @@ function toViewValue(value): any {
   return value;
 }
 
-export function inspect(value): string {
+export function inspect(value: any): string {
   const viewValue = toViewValue(value);
   const stringifiedValue = utilInspect(viewValue, {
     customInspect: true,

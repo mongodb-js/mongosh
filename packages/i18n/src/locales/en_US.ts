@@ -1,7 +1,9 @@
+import type Catalog from '../catalog';
+
 /**
  * US english translations.
  */
-const translations = {
+const translations: Catalog = {
   'browser-repl': {},
   build: {},
   'cli-repl': {
@@ -32,8 +34,8 @@ const translations = {
       tlsCertificateKeyFilePassword: 'Password for key in PEM file for TLS',
       tlsCAFile: 'Certificate Authority file for TLS',
       tlsCRFile: 'Certificate Revocation List file for TLS',
-      tlsAlowInvalidHostnames: 'Allow connections to servers with non-matching hostnames',
-      tlsAlowInvalidCertificates: 'Allow connections to servers with invalid certificates',
+      tlsAllowInvalidHostnames: 'Allow connections to servers with non-matching hostnames',
+      tlsAllowInvalidCertificates: 'Allow connections to servers with invalid certificates',
       tlsCertificateSelector: 'TLS Certificate in system store',
       tlsDisabledProtocols: 'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
       fleAwsOptions: 'FLE AWS Options',
@@ -224,14 +226,14 @@ const translations = {
       },
       InsertManyResult: {
         help: {
-          description: 'InsertManyResult Class'
-        },
-        attributes: {
-          acknowledged: {
-            description: 'Acknowledged returned from the server'
-          },
-          insertedIds: {
-            description: 'Array of ObjectIds inserted'
+          description: 'InsertManyResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server'
+            },
+            insertedIds: {
+              description: 'Array of ObjectIds inserted'
+            }
           }
         }
       },

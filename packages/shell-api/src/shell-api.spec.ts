@@ -67,7 +67,7 @@ describe('ShellApi', () => {
     });
   });
   describe('help', () => {
-    const apiClass: any = new ShellApi({} as any);
+    const apiClass = new ShellApi({} as any);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -157,9 +157,7 @@ describe('ShellApi', () => {
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         try {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-          // @ts-ignore
-          await internalState.shellApi.connect();
+          await (internalState.shellApi as any).connect();
         } catch (e) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }

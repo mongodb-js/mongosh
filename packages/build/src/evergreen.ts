@@ -17,7 +17,7 @@ const BUCKET = 'mciuploads';
  *
  * @returns {Promise} The promise.
  */
-const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string): Promise<any> => {
+async function uploadArtifactToEvergreen(artifact: string, awsKey: string, awsSecret: string, project: string, revision: string): Promise<void> {
   const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
@@ -32,12 +32,12 @@ const uploadArtifactToEvergreen = (artifact: string, awsKey: string, awsSecret: 
 
   console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
   console.info(`mongosh: artifact download url: https://s3.amazonaws.com/${BUCKET}/${key}`);
-  return upload(uploadParams, s3);
-};
+  await upload(uploadParams, s3);
+}
 
-const getArtifactUrl = (project: string, revision: string, artifact: string): string => {
+function getArtifactUrl(project: string, revision: string, artifact: string): string {
   return `https://s3.amazonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`;
-};
+}
 
 export default uploadArtifactToEvergreen;
 export { getArtifactUrl };

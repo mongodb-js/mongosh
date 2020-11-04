@@ -9,9 +9,9 @@ import { Cursor as ServiceProviderCursor } from 'mongodb';
 
 describe('AggregationCursor', () => {
   describe('help', () => {
-    const apiClass: any = new AggregationCursor({
+    const apiClass = new AggregationCursor({
       _serviceProvider: { platform: ReplPlatform.CLI }
-    }, {});
+    } as any, {} as ServiceProviderCursor);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -43,7 +43,7 @@ describe('AggregationCursor', () => {
       };
       cursor = new AggregationCursor({
         _serviceProvider: { platform: ReplPlatform.CLI }
-      }, wrappee);
+      } as any, wrappee);
     });
 
     it('sets dynamic properties', async() => {
@@ -78,7 +78,7 @@ describe('AggregationCursor', () => {
         });
         shellApiCursor = new AggregationCursor({
           _serviceProvider: { platform: ReplPlatform.CLI }
-        }, spCursor);
+        } as any, spCursor);
       });
 
       it('is idempotent unless iterated', async() => {

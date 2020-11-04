@@ -2,15 +2,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "downlevelIteration": true,
-    "sourceMap": true,
-
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-
-    "declaration": true,
-    "removeComments": true,
+    "strict": false,
+    "experimentalDecorators": true,
     "target": "es2018",
     "lib": ["es2018"],
     "module": "commonjs",

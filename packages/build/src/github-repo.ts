@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 import { Octokit } from '@octokit/rest';
 import { TarballFile } from './tarball';
 import Config from './config';
@@ -28,6 +28,12 @@ type Tag = {
   name: string;
 };
 
+type ReleaseDetails = {
+  draft: boolean;
+  upload_url: string;
+  id: number;
+};
+
 export class GithubRepo {
   private octokit: Octokit;
   private repo: Repo;
@@ -44,7 +50,7 @@ export class GithubRepo {
    * @returns {Promise<Tag>}
    * @memberof GithubRepo
    */
-  async getTagByCommitSha(sha: string): Promise<Tag> {
+  async getTagByCommitSha(sha: string): Promise<Tag | undefined> {
     const tags = await this.octokit
       .paginate(
         'GET /repos/:owner/:repo/tags',
@@ -87,6 +93,10 @@ export class GithubRepo {
   async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
     const releaseDetails = await this.getReleaseByTag(release.tag);
 
+    if (releaseDetails === undefined) {
+      throw new Error(`Could not look up release for tag ${release.tag}`);
+    }
+
     const params = {
       method: 'POST',
       url: releaseDetails.upload_url,
@@ -121,8 +131,7 @@ export class GithubRepo {
     await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  async getReleaseByTag(tag: string) {
+  async getReleaseByTag(tag: string): Promise<ReleaseDetails | undefined> {
     const releases = await this.octokit
       .paginate(
         'GET /repos/:owner/:repo/releases',
@@ -172,7 +181,7 @@ export class GithubRepo {
       return false;
     }
 
-    const commitTag = await this.getTagByCommitSha(config.revision);
+    const commitTag = config.revision && await this.getTagByCommitSha(config.revision);
 
     if (!commitTag) {
       console.info('mongosh: skip public release: commit is not tagged');
@@ -198,7 +207,7 @@ export class GithubRepo {
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {
     return (error: any): Promise<void> => {
       if (this._isAlreadyExistsError(error)) {
-        return;
+        return Promise.resolve();
       }
 
       return Promise.reject(error);

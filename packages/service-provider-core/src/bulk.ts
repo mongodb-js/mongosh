@@ -47,6 +47,35 @@ export interface DriverBulkResult {
   };
 }
 
+export default interface ServiceProviderBulkOp {
+  /**
+   * Internal state
+   */
+  s: {
+    batches: BulkBatch[];
+    currentUpdateBatch: BulkBatch;
+    currentRemoveBatch: BulkBatch;
+    currentInsertBatch: BulkBatch;
+    currentBatch: BulkBatch;
+  };
+
+  /**
+   * Execute the operation.
+   */
+  execute(): Promise<DriverBulkResult>;
+
+  /**
+   * Find
+   */
+  find(document: Document): ServiceProviderBulkFindOp;
+
+  /**
+   * Insert
+   */
+  insert(document: Document): ServiceProviderBulkOp;
+
+}
+
 export interface ServiceProviderBulkFindOp {
   /**
    * Add a remove operation
@@ -77,33 +106,4 @@ export interface ServiceProviderBulkFindOp {
    * Make subsequent update operations upsert: true
    */
   upsert(): ServiceProviderBulkFindOp;
-}
-
-export default interface ServiceProviderBulkOp {
-  /**
-   * Internal state
-   */
-  s: {
-    batches: BulkBatch[];
-    currentUpdateBatch: BulkBatch;
-    currentRemoveBatch: BulkBatch;
-    currentInsertBatch: BulkBatch;
-    currentBatch: BulkBatch;
-  };
-
-  /**
-   * Execute the operation.
-   */
-  execute(): Promise<DriverBulkResult>;
-
-  /**
-   * Find
-   */
-  find(document: Document): ServiceProviderBulkFindOp;
-
-  /**
-   * Insert
-   */
-  insert(document: Document): ServiceProviderBulkOp;
-
 }

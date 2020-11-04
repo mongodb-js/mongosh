@@ -3,7 +3,10 @@ import {
 } from '@mongosh/errors';
 import Cursor from './cursor';
 class Iterator {
-  constructor(iterable) {
+  iterable: Cursor | any[];
+  isCursor: boolean;
+
+  constructor(iterable: Cursor | any[]) {
     this.iterable = iterable;
     this.isCursor = this.iterable instanceof Cursor;
     if (!this.isCursor && !Array.isArray(this.iterable)) {
@@ -12,26 +15,28 @@ class Iterator {
     const proxy = new Proxy(this, {
       get: (obj, prop) => {
         if ((prop in obj)) {
-          return obj[prop];
+          return (obj as any)[prop];
         }
-        return this.iterable[prop];
+        return (this.iterable as any)[prop];
       }
     });
     return proxy;
   }
-  async forEach(func, thisArg) {
+  async forEach(func: (...args: any[]) => void | Promise<void>, thisArg: any) {
     if (this.isCursor) {
-      while (await this.iterable.hasNext()) {
-        await func(await this.iterable.next());
+      const cursor = this.iterable as Cursor;
+      while (await cursor.hasNext()) {
+        await func(await cursor.next());
       }
     } else {
-      for (let i = 0; i < this.iterable.length; i++) {
-        await func(this.iterable[i], i, this.iterable, thisArg);
+      const arr = this.iterable as any[];
+      for (let i = 0; i < arr.length; i++) {
+        await func(arr[i], i, arr, thisArg);
       }
     }
   }
 }
 
-export default (iterable) => {
+export default (iterable: Cursor | any[]) => {
   return new Iterator(iterable);
 };

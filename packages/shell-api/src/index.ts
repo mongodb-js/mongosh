@@ -4,7 +4,7 @@ import Cursor from './cursor';
 import Database from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
-import Help from './help';
+import Help, { HelpProperties } from './help';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 import toIterator from './toIterator';
 import Shard from './shard';
@@ -40,6 +40,7 @@ export {
   Explainable,
   ExplainableCursor,
   Help,
+  HelpProperties,
   ShellInternalState,
   EvaluationListener,
   BulkWriteResult,

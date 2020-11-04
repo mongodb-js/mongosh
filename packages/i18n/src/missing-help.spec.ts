@@ -43,7 +43,7 @@ localeFiles.forEach((localeFile) => {
         return;
       }
 
-      const attributeNames = Object.keys(signatures[typeName].attributes)
+      const attributeNames = Object.keys(signatures[typeName].attributes as object)
         .filter((attributeName) => !IGNORED_ATTRIBUTES.includes(`${typeName}.${attributeName}`));
 
       attributeNames.forEach((attributeName) => {

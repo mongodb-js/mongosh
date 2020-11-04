@@ -32,12 +32,12 @@ export interface EvaluationListener {
  * Anything to do with the internal shell state is stored here.
  */
 export default class ShellInternalState {
-  public currentCursor: Cursor | AggregationCursor;
+  public currentCursor: Cursor | AggregationCursor | null;
   public currentDb: Database;
   public messageBus: EventEmitter;
   public asyncWriter: AsyncWriter;
   public initialServiceProvider: ServiceProvider; // the initial service provider
-  public uri: string;
+  public uri: string | null;
   public connectionInfo: any;
   public context: any;
   public mongos: Mongo[];
@@ -60,6 +60,7 @@ export default class ShellInternalState {
     } else {
       this.currentDb = new NoDatabase() as Database;
     }
+    this.uri = null;
     this.currentCursor = null;
     this.context = {};
     this.cliOptions = cliOptions;
@@ -76,9 +77,9 @@ export default class ShellInternalState {
     }
   }
 
-  async close(p): Promise<void> {
+  async close(force: boolean): Promise<void> {
     for (let i = 0; i < this.mongos.length; i++) {
-      await this.mongos[i].close(p);
+      await this.mongos[i].close(force);
     }
   }
 
@@ -105,20 +106,22 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    contextObject.print = async(...origArgs): Promise<void> => {
+    contextObject.print = async(...origArgs: any[]): Promise<void> => {
       const args: ShellResult[] =
         await Promise.all(origArgs.map(arg => toShellResult(arg)));
       await this.evaluationListener.onPrint?.(args);
     };
     Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
-    Object.getOwnPropertyNames(ShellApi.prototype)
-      .filter(n => !toIgnore.concat(['hasAsyncChild', 'help']).includes(n) && typeof this.shellApi[n] === 'function')
-      .forEach((n) => {
-        contextObject[n] = (...args): any => {
-          return this.shellApi[n](...args);
-        };
-        contextObject[n].help = this.shellApi[n].help;
-      });
+    for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
+      if (toIgnore.concat(['hasAsyncChild', 'help']).includes(name) ||
+          typeof (this.shellApi as any)[name] !== 'function') {
+        continue;
+      }
+      contextObject[name] = (...args: any[]): any => {
+        return (this.shellApi as any)[name](...args);
+      };
+      contextObject[name].help = (this.shellApi as any)[name].help;
+    }
     contextObject.quit = contextObject.exit;
     contextObject.help = this.shellApi.help;
     contextObject.printjson = contextObject.print;
@@ -127,7 +130,7 @@ export default class ShellInternalState {
       contextObject.console = {};
     }
     for (const key of ['log', 'warn', 'info', 'error']) {
-      contextObject.console[key] = async(...args): Promise<void> => {
+      contextObject.console[key] = async(...args: any[]): Promise<void> => {
         return await contextObject.print(...args);
       };
     }

@@ -7,14 +7,16 @@ import {
 } from '@mongosh/shell-api';
 
 interface Container {
-  toggleTelemetry(boolean): void;
+  toggleTelemetry(enable: boolean): void;
 }
+
+type EvaluationFunction = (input: string, context: object, filename: string) => Promise<any>;
 
 import { HIDDEN_COMMANDS, removeCommand } from '@mongosh/history';
 
 class ShellEvaluator {
   private internalState: ShellInternalState;
-  private container: Container;
+  private container?: Container;
   constructor(
     internalState: ShellInternalState,
     container?: Container
@@ -43,7 +45,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  private async innerEval(originalEval: any, input: string, context: any, filename: string): Promise<any> {
+  private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
     const argv = input.trim().replace(/;$/, '').split(' ');
     const cmd = argv[0];
     argv.shift();
@@ -96,7 +98,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  public async customEval(originalEval, input, context, filename): Promise<ShellResult> {
+  public async customEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<ShellResult> {
     const evaluationResult = await this.innerEval(
       originalEval,
       input,

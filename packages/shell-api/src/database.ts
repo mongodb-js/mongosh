@@ -37,18 +37,18 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 export default class Database extends ShellApiClass {
   _mongo: Mongo;
   _name: string;
-  _collections: any;
+  _collections: Record<string, Collection>;
 
-  constructor(mongo, name) {
+  constructor(mongo: Mongo, name: string) {
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections = {};
+    const collections: Record<string, Collection> = {};
     this._collections = collections;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
         if (prop in target) {
-          return target[prop];
+          return (target as any)[prop];
         }
 
         if (
@@ -107,10 +107,10 @@ export default class Database extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async getCollectionNames(): Promise<any> {
+  async getCollectionNames(): Promise<string[]> {
     this._emitDatabaseApiCall('getCollectionNames');
     const infos = await this.getCollectionInfos({}, { nameOnly: true });
-    return infos.map(collection => collection.name);
+    return infos.map((collection: any) => collection.name);
   }
 
   /**
@@ -332,7 +332,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async auth(...args): Promise<any> {
+  async auth(...args: [{user: string, pwd: string, authDb?: string, mechanism?: string}] | [string, string]): Promise<any> {
     this._emitDatabaseApiCall('auth', {});
     let authDoc;
     if (args.length === 1) {
@@ -384,7 +384,9 @@ export default class Database extends ShellApiClass {
       { usersInfo: { user: username, db: this._name } },
       options
     );
-    const result = await this._mongo._serviceProvider.runCommandWithCheck(
+    const result: {
+      users: any[]
+    } = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
@@ -549,7 +551,9 @@ export default class Database extends ShellApiClass {
       { rolesInfo: { role: rolename, db: this._name } },
       options
     );
-    const result = await this._mongo._serviceProvider.runCommandWithCheck(
+    const result: {
+      roles: any[];
+    } = await this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       command
     );
@@ -638,7 +642,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async version(): Promise<any> {
     this._emitDatabaseApiCall('version', {});
-    const info = await this._mongo._serviceProvider.runCommandWithCheck(
+    const info: any = await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         buildInfo: 1,
@@ -653,7 +657,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async serverBits(): Promise<any> {
     this._emitDatabaseApiCall('serverBits', {});
-    const info = await this._mongo._serviceProvider.runCommandWithCheck(
+    const info: any = await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         buildInfo: 1,
@@ -740,11 +744,11 @@ export default class Database extends ShellApiClass {
       throw new MongoshInvalidInputError(`scale has to be a number >=1, got ${scale}`);
     }
     this._emitDatabaseApiCall('printCollectionStats', { scale: scale });
-    const colls = await this.getCollectionNames();
-    const result = {};
+    const colls: string[] = await this.getCollectionNames();
+    const result: Record<string, any> = {};
     for (const c of colls) {
       try {
-        result[c] = await this.getCollection(c).stats(scale);
+        result[c] = await this.getCollection(c).stats({ scale });
       } catch (error) {
         result[c] = { ok: 0, errmsg: error.message };
       }
@@ -780,7 +784,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async enableFreeMonitoring(): Promise<any> {
     this._emitDatabaseApiCall('enableFreeMonitoring', {});
-    const isMaster = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 });
+    const isMaster: any = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 });
     if (!isMaster.ismaster) {
       throw new MongoshInvalidInputError('db.enableFreeMonitoring() may only be run on a primary');
     }
@@ -793,8 +797,8 @@ export default class Database extends ShellApiClass {
         action: 'enable'
       }
     );
-    let result;
-    let error;
+    let result: any;
+    let error: any;
     try {
       result = await this._mongo._serviceProvider.runCommand(
         ADMIN_DB,
@@ -809,7 +813,7 @@ export default class Database extends ShellApiClass {
       throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`);
     }
     if (result.state !== 'enabled') {
-      const urlResult = await this._mongo._serviceProvider.runCommand(
+      const urlResult: any = await this._mongo._serviceProvider.runCommand(
         ADMIN_DB,
         {
           getParameter: 1,
@@ -856,20 +860,18 @@ export default class Database extends ShellApiClass {
   async setLogLevel(logLevel: number, component?: any): Promise<any> {
     assertArgsDefined(logLevel);
     this._emitDatabaseApiCall('setLogLevel', { logLevel: logLevel, component: component });
-    let componentNames = [];
+    let componentNames: string[] = [];
     if (typeof component === 'string') {
       componentNames = component.split('.');
     } else if (component !== undefined) {
       throw new MongoshInvalidInputError(`setLogLevel component must be a string: got ${typeof component}`);
     }
-    let vDoc = { verbosity: logLevel };
+    let vDoc: any = { verbosity: logLevel };
 
     // nest vDoc
-    for (let key, obj; componentNames.length > 0;) {
-      obj = {};
-      key = componentNames.pop();
-      obj[key] = vDoc;
-      vDoc = obj;
+    while (componentNames.length > 0) {
+      const key = componentNames.pop() as string;
+      vDoc = { [key]: vDoc };
     }
 
     const cmdObj = { setParameter: 1, logComponentVerbosity: vDoc };

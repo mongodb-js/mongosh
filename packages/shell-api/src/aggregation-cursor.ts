@@ -19,7 +19,7 @@ export default class AggregationCursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
-  constructor(mongo, cursor) {
+  constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
@@ -51,12 +51,12 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  close(options: Document): Promise<void> {
-    return this._cursor.close(options);
+  async close(options: Document): Promise<void> {
+    await this._cursor.close(options);
   }
 
   @returnsPromise
-  forEach(f): Promise<void> {
+  forEach(f: (doc: Document) => void): Promise<void> {
     return this._cursor.forEach(f);
   }
 
@@ -69,17 +69,24 @@ export default class AggregationCursor extends ShellApiClass {
     return this._cursor.isClosed();
   }
 
-  isExhausted(): Promise<boolean> {
-    return this._cursor.isExhausted();
+  async isExhausted(): Promise<boolean> {
+    return this._cursor.isClosed() && !await this._cursor.hasNext();
   }
 
   @returnsPromise
-  itcount(): Promise<number> {
-    return this._cursor.itcount();
+  async itcount(): Promise<number> {
+    let count = 0;
+
+    while (await this.hasNext()) {
+      await this.next();
+      count++;
+    }
+
+    return count;
   }
 
   @returnType('AggregationCursor')
-  map(f): AggregationCursor {
+  map(f: (doc: Document) => Document): AggregationCursor {
     this._cursor.map(f);
     return this;
   }

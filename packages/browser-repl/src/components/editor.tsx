@@ -14,15 +14,15 @@ const noop = (): void => {};
 
 interface EditorProps {
   autocompleter?: Autocompleter;
-  moveCursorToTheEndOfInput?: boolean;
-  onEnter?(): void | Promise<void>;
-  onArrowUpOnFirstLine?(): void | Promise<void>;
-  onArrowDownOnLastLine?(): void | Promise<void>;
-  onChange?(value: string): void | Promise<void>;
-  onClearCommand?(): void | Promise<void>;
-  operationInProgress?: boolean;
-  setInputRef?(ref): void;
-  value?: string;
+  moveCursorToTheEndOfInput: boolean;
+  onEnter(): void | Promise<void>;
+  onArrowUpOnFirstLine(): void | Promise<void>;
+  onArrowDownOnLastLine(): void | Promise<void>;
+  onChange(value: string): void | Promise<void>;
+  onClearCommand(): void | Promise<void>;
+  operationInProgress: boolean;
+  setInputRef?(ref: { editor?: HTMLElement }): void;
+  value: string;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -38,14 +38,14 @@ export class Editor extends Component<EditorProps> {
   };
 
   private editor: any;
-  private visibleCursorDisplayStyle: string;
+  private visibleCursorDisplayStyle = '';
 
   private onEditorLoad = (editor: any): void => {
     this.editor = editor;
     this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
 
     if (this.props.autocompleter) {
-      editor.commands.on('afterExec', function(e) {
+      editor.commands.on('afterExec', function(e: any) {
         if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
           editor.execCommand('startAutocomplete');
         }
@@ -96,9 +96,9 @@ export class Editor extends Component<EditorProps> {
       }}
       name={`mongosh-ace-${Date.now()}`}
       mode="javascript"
-      ref={(ref: any): void => {
-        if (this.props.setInputRef) {
-          this.props.setInputRef(ref);
+      ref={(ref: AceEditor | null): void => {
+        if (this.props.setInputRef && ref !== null) {
+          this.props.setInputRef(ref as { editor?: HTMLElement });
         }
       }}
       theme="mongosh"

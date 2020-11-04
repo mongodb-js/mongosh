@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import Platform from './platform';
 import os from 'os';
 
@@ -21,7 +22,7 @@ class SignableCompiler {
    *
    * @param {Function} exec - The boxednode compile function.
    */
-  async compile(exec: Function) {
+  async compile(exec: (opts: any) => void): Promise<void> {
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
     // open ssl with asm so we revert back to the slower version.

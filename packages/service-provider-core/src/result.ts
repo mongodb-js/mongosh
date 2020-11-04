@@ -1,4 +1,4 @@
 /* eslint no-undef: 0 */
-type Result = any;
+type Result = unknown;
 
 export default Result;

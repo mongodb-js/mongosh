@@ -23,6 +23,10 @@ const MAPPINGS = {
   verbose: [ 'loggerLevel', 'debug' ]
 };
 
+function isExistingMappingKey(key: string, options: CliOptions): key is keyof typeof MAPPINGS {
+  return MAPPINGS.hasOwnProperty(key) && options.hasOwnProperty(key);
+}
+
 /**
  * Map the arguments provided on the command line to
  * driver friendly options.
@@ -36,14 +40,14 @@ function mapCliToDriver(options: CliOptions): NodeOptions {
   //   come back an revisit to refactor.
   const nodeOptions = {};
   Object.keys(MAPPINGS).forEach((cliOption) => {
-    if (options.hasOwnProperty(cliOption)) {
-      const mapping = MAPPINGS[cliOption];
+    if (isExistingMappingKey(cliOption, options)) {
+      const mapping = MAPPINGS[cliOption as keyof typeof MAPPINGS];
       if (Array.isArray(mapping)) {
-        if (options[cliOption]) {
+        if ((options as any)[cliOption]) {
           setValue(nodeOptions, mapping[0], mapping[1]);
         }
       } else {
-        setValue(nodeOptions, mapping, options[cliOption]);
+        setValue(nodeOptions, mapping, (options as any)[cliOption]);
       }
     }
   });

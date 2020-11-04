@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { expect, use } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
@@ -17,7 +16,7 @@ const sinonChai = require('sinon-chai'); // weird with import
 use(sinonChai);
 describe('Collection', () => {
   describe('help', () => {
-    const apiClass: any = new Collection({}, {}, 'name');
+    const apiClass = new Collection({} as any, {} as any, 'name');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -44,8 +43,8 @@ describe('Collection', () => {
   describe('metadata', () => {
     describe('toShellResult', () => {
       const mongo = sinon.spy();
-      const db = new Database(mongo, 'myDB');
-      const coll = new Collection(mongo, db, 'myCollection');
+      const db = new Database(mongo as any, 'myDB');
+      const coll = new Collection(mongo as any, db, 'myCollection');
       it('toShellResult', async() => {
         expect((await toShellResult(coll)).type).to.equal('Collection');
         expect((await toShellResult(coll)).printable).to.equal('myCollection');
@@ -54,41 +53,41 @@ describe('Collection', () => {
   });
   describe('.collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
-      const database = new Database({ _internalState: { emitApiCall: (): void => {} } }, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database = new Database({ _internalState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.have.instanceOf(Collection);
       expect(coll.someCollection._name).to.equal('coll.someCollection');
     });
 
     it('reuses collections', () => {
-      const database: any = new Database({ _internalState: { emitApiCall: (): void => {} } }, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database: any = new Database({ _internalState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.equal(database.getCollection('coll.someCollection'));
       expect(coll.someCollection).to.equal(database.coll.someCollection);
     });
 
     it('does not return a collection starting with _', () => {
       // this is the behaviour in the old shell
-      const database: any = new Database({}, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll._someProperty).to.equal(undefined);
     });
 
     it('does not return a collection for symbols', () => {
-      const database: any = new Database({}, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll[Symbol('someProperty')]).to.equal(undefined);
     });
 
     it('does not return a collection with invalid name', () => {
-      const database: any = new Database({}, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll['   ']).to.equal(undefined);
     });
 
     it('allows to access _name', () => {
-      const database: any = new Database({}, 'db1');
-      const coll: any = new Collection({}, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll._name).to.equal('coll');
     });
   });

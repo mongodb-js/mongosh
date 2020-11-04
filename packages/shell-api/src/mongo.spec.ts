@@ -12,7 +12,7 @@ import Cursor from './cursor';
 
 describe('Mongo', () => {
   describe('help', () => {
-    const apiClass: any = new Mongo({} as any, '');
+    const apiClass = new Mongo({} as any, '');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');

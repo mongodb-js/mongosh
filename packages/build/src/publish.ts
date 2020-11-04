@@ -18,8 +18,8 @@ export default async function publish(
 
   await uploadDownloadCenterConfig(
     config.version,
-    config.downloadCenterAwsKey,
-    config.downloadCenterAwsSecret
+    config.downloadCenterAwsKey || '',
+    config.downloadCenterAwsSecret || ''
   );
 
   await githubRepo.promoteRelease(config);
