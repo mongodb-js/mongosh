@@ -17,6 +17,12 @@ describe('<ShellOutput />', () => {
     expect(wrapper.find(ShellOutputLine)).to.have.lengthOf(1);
   });
 
+  it('renders no output lines if only one with a value of undefined is passed', () => {
+    const line1: ShellOutputEntry = { type: 'output', value: undefined };
+    const wrapper = shallow(<ShellOutput output={[line1]} />);
+    expect(wrapper.find(ShellOutputLine)).to.have.lengthOf(0);
+  });
+
   it('pass the entry to the output line as prop', () => {
     const line1: ShellOutputEntry = { type: 'output', value: 'line 1' };
     const wrapper = shallow(<ShellOutput output={[line1]} />);

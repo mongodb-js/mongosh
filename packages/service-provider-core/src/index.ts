@@ -17,6 +17,7 @@ import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
 import * as bson from 'bson';
 import ServiceProviderBulkOp, { ServiceProviderBulkFindOp, BulkBatch } from './bulk';
+import makePrintableBson, { bsonStringifiers } from './printable-bson';
 
 export {
   ServiceProvider,
@@ -42,6 +43,8 @@ export {
   DEFAULT_DB,
   ServiceProviderCore,
   bson,
+  makePrintableBson,
+  bsonStringifiers,
   ServiceProviderBulkFindOp,
   ServiceProviderBulkOp,
   BulkBatch

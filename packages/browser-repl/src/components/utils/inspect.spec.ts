@@ -37,13 +37,46 @@ describe('inspect', () => {
         inspect(undefined)
       ).to.equal('undefined');
     });
+
+    it('inspects Dates', () => {
+      expect(
+        inspect(new Date('2020-11-06T14:26:29.131Z'))
+      ).to.equal('2020-11-06T14:26:29.131Z');
+    });
   });
 
   context('with BSON types', () => {
     it('inspects ObjectId', () => {
       expect(
         inspect(new bson.ObjectId('0000007b3db627730e26fd0b'))
-      ).to.equal('ObjectID("0000007b3db627730e26fd0b")');
+      ).to.equal('ObjectId("0000007b3db627730e26fd0b")');
+    });
+
+    it('inspects UUID', () => {
+      expect(
+        inspect(new bson.Binary('abcdefghiklmnopq', 4))
+      ).to.equal('UUID("61626364-6566-6768-696b-6c6d6e6f7071")');
+    });
+
+    it('inspects nested ObjectId', () => {
+      expect(
+        inspect({ p: new bson.ObjectId('0000007b3db627730e26fd0b') })
+      ).to.equal('{ p: ObjectId("0000007b3db627730e26fd0b") }');
+    });
+
+    it('inspects nested UUID', () => {
+      expect(
+        inspect({ p: new bson.Binary('abcdefghiklmnopq', 4) })
+      ).to.equal('{ p: UUID("61626364-6566-6768-696b-6c6d6e6f7071") }');
+    });
+
+    it('does not require BSON types to be instances of the current bson library', () => {
+      expect(
+        inspect({
+          _bsontype: 'ObjectID',
+          toHexString() { return '0000007b3db627730e26fd0b'; }
+        })
+      ).to.equal('ObjectId("0000007b3db627730e26fd0b")');
     });
   });
 
@@ -55,5 +88,14 @@ describe('inspect', () => {
         ).to.equal('{ x: 1, y: 2 }');
       });
     });
+  });
+
+  context('with frozen objects with _bsontype properties', () => {
+    expect(
+      () => inspect(Object.freeze({
+        _bsontype: 'ObjectID',
+        toHexString() { return '0000007b3db627730e26fd0b'; }
+      }))
+    ).not.to.throw;
   });
 });

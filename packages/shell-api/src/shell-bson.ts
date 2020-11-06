@@ -1,6 +1,6 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
-import { bson as BSON } from '@mongosh/service-provider-core';
+import { bson as BSON, makePrintableBson } from '@mongosh/service-provider-core';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
@@ -36,7 +36,9 @@ export default function constructShellBson(bson: any): any {
   if (bson === undefined) {
     bson = BSON;
   }
+  makePrintableBson(bson);
   const oldBSON = 'Symbol' in bson;
+
   const helps: any = {};
   [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'

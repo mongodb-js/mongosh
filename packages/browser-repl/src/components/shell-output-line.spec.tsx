@@ -149,7 +149,7 @@ describe('<ShellOutputLine />', () => {
       }
     }} />);
 
-    expect(wrapper.text()).to.include('---');
+    expect(wrapper.find('hr')).to.have.lengthOf(1);
     expect(wrapper.text()).to.include('metadata');
   });
 
