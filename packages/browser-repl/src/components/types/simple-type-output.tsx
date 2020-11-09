@@ -5,15 +5,18 @@ import { inspect } from '../utils/inspect';
 
 interface SimpleTypeOutputProps {
   value: any;
+  raw?: boolean;
 }
 
 export class SimpleTypeOutput extends Component<SimpleTypeOutputProps> {
   static propTypes = {
-    value: PropTypes.any
+    value: PropTypes.any,
+    raw: PropTypes.bool
   };
 
   render(): JSX.Element {
-    return (<SyntaxHighlight code={inspect(this.props.value)} />);
+    const asString = this.props.raw ? this.props.value : inspect(this.props.value);
+    return (<SyntaxHighlight code={asString} />);
   }
 }
 

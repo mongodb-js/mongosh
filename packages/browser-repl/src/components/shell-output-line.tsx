@@ -13,9 +13,9 @@ import { ShowCollectionsOutput } from './types/show-collections-output';
 import { CursorOutput } from './types/cursor-output';
 import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
 import { ObjectOutput } from './types/object-output';
+import { StatsResultOutput } from './types/stats-result-output';
 import { SimpleTypeOutput } from './types/simple-type-output';
 import { ErrorOutput } from './types/error-output';
-import { inspect } from './utils/inspect';
 import { ShowProfileOutput } from './types/show-profile-output';
 
 const styles = require('./shell-output-line.less');
@@ -47,6 +47,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <pre>{value}</pre>;
     }
 
+    if (typeof value === 'string' && type !== null) {
+      return <SimpleTypeOutput value={value} raw />;
+    }
+
     if (this.isPrimitiveOrFunction(value)) {
       return <SimpleTypeOutput value={value} />;
     }
@@ -60,10 +64,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     }
 
     if (type === 'StatsResult') {
-      const res = Object.keys(value).map(c => {
-        return `${c}\n${inspect(value[c])}`;
-      }).join('\n---\n');
-      return <SimpleTypeOutput value={res} />;
+      return <StatsResultOutput value={value} />;
     }
 
     if (type === 'ListCommandsResult)') {

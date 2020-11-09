@@ -18,6 +18,6 @@ export class ShellOutput extends Component<ShellOutputProps> {
   };
 
   render(): JSX.Element[] {
-    return this.props.output.map(this.renderLine);
+    return this.props.output.filter(entry => entry.value !== undefined).map(this.renderLine);
   }
 }
