@@ -65,7 +65,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
 }
 
 describe('Auth e2e', function() {
-  const connectionString = startTestServer();
+  const testServer = startTestServer('shared');
   let assertUserExists;
   let assertUserAuth;
   let assertRoleExists;
@@ -79,6 +79,7 @@ describe('Auth e2e', function() {
 
   describe('with regular URI', () => {
     beforeEach(async() => {
+      const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [connectionString] });
 
@@ -817,6 +818,7 @@ describe('Auth e2e', function() {
   });
   describe('with options in URI', () => {
     beforeEach(async() => {
+      const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
 
       client = await (MongoClient as any).connect(
@@ -837,6 +839,7 @@ describe('Auth e2e', function() {
       await assertUserAuth('pwd2', 'anna2');
     });
     it('can auth when there is login in URI', async() => {
+      const connectionString = await testServer.connectionString();
       const split = connectionString.split('//');
       const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
       shell = TestShell.start({ args: [authConnectionString] });
@@ -864,6 +867,7 @@ describe('Auth e2e', function() {
       shell.assertNoErrors();
     });
     it('can auth when there is -u and -p', async() => {
+      const connectionString = await testServer.connectionString();
       shell = TestShell.start({ args: [
         connectionString,
         ' -u "anna2"',

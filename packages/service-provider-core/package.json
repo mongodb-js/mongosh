@@ -39,7 +39,6 @@
     "ignore": [
       "sinon",
       "chai",
-      "mongodb-runner",
       "uuid",
       "encoding"
     ]

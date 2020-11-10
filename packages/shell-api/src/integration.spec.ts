@@ -16,7 +16,7 @@ const compileExpr = (templ, ...subs): any => {
 };
 
 describe('Shell API (integration)', function() {
-  const connectionString = startTestServer();
+  const testServer = startTestServer('shared');
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 
@@ -90,7 +90,7 @@ describe('Shell API (integration)', function() {
   };
 
   before(async() => {
-    serviceProvider = await CliServiceProvider.connect(connectionString);
+    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString());
   });
 
   after(() => {

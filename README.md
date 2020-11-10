@@ -93,7 +93,11 @@ variable. For detailed instructions for each of our supported platforms, please 
 
 ### Requirements
 
-- NodeJS `~12.4.0`
+- NodeJS `~12.18.4`
+- Python 3.x
+  - The test suite uses [mlaunch](http://blog.rueckstiess.com/mtools/mlaunch.html)
+    for managing running mongod, you can install that manually as well via
+    `pip3 install mtools[mlaunch]` if the automatic installation causes any trouble.
 
 ### Install
 

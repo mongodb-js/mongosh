@@ -9,7 +9,7 @@ import {
 } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function() {
-  const connectionString = startTestServer();
+  const testServer = startTestServer('shared');
 
   afterEach(() => TestShell.killall());
   describe('printed BSON', () => {
@@ -19,6 +19,7 @@ describe('BSON e2e', function() {
     let dbName;
 
     beforeEach(async() => {
+      const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [connectionString] });
 
@@ -337,6 +338,7 @@ describe('BSON e2e', function() {
     let dbName;
 
     beforeEach(async() => {
+      const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [connectionString] });
 
