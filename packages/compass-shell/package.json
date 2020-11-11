@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
@@ -53,9 +53,9 @@
   "dependencies": {
     "@leafygreen-ui/icon": "^5.1.0",
     "@leafygreen-ui/icon-button": "^5.0.2",
-    "@mongosh/browser-repl": "^0.5.1",
-    "@mongosh/browser-runtime-electron": "^0.5.1",
-    "@mongosh/service-provider-server": "^0.5.1",
+    "@mongosh/browser-repl": "^0.5.2",
+    "@mongosh/browser-runtime-electron": "^0.5.2",
+    "@mongosh/service-provider-server": "^0.5.2",
     "hadron-react-buttons": "^4.0.4",
     "mongodb-redux-common": "0.0.2"
   },
