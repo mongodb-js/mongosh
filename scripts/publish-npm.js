@@ -71,6 +71,15 @@ function markTaskAsDone(task, releaseDirPath) {
   fs.writeFileSync(taskDoneFilePath(task, releaseDirPath), '');
 }
 
+function isPackageExists(packageName) {
+  try {
+    execSync(`npm view ${packageName}`, { stdio: 'ignore' });
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 function checkUserPermissionsToPublish() {
   const lerna = path.resolve(rootPath, 'node_modules', '.bin', 'lerna');
 
@@ -81,7 +90,10 @@ function checkUserPermissionsToPublish() {
   const missingAccess = [];
 
   for (const repo of lernaPackages) {
-    if (userPackagesAccess[repo.name] !== 'read-write') {
+    if (
+      userPackagesAccess[repo.name] !== "read-write" &&
+      isPackageExists(repo.name)
+    ) {
       missingAccess.push(repo.name);
     }
   }
