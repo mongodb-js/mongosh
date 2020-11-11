@@ -295,9 +295,11 @@ internal class MongoShellContext(client: MongoClient) {
 
     internal fun <T> withConsoleLogEnabled(printedValues: MutableList<List<Any?>>, func: () -> T): T {
         this.printedValues = printedValues
-        val res = func()
-        this.printedValues = null
-        return res
+        try {
+            return func()
+        } finally {
+            this.printedValues = null
+        }
     }
 
     private fun updateDatabase() {
