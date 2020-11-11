@@ -91,10 +91,8 @@ if (require.main === module) {
   const version = getLatestVersion();
 
   generateHomebrewFormula(
-    path.resolve(
-      __dirname, '..', 'tmp', 'homebrew-brew', `${Date.now()}`,
-      version
-    )
+    path.resolve(__dirname, "..", "tmp", "homebrew-brew", `${Date.now()}`),
+    version
   );
 } else {
   module.exports = generateHomebrewFormula;
