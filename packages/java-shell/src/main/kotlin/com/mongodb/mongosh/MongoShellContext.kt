@@ -39,6 +39,7 @@ internal class MongoShellContext(client: MongoClient) {
     private val toShellResultFn: Value
     private val getShellApiTypeFn: Value
     private val bsonTypes: BsonTypes
+    private var printedValues: MutableList<List<Any?>>? = null
 
     /** Java functions don't have js methods such as apply, bind, call etc.
      * So we need to create a real js function that wraps Java code */
@@ -83,6 +84,15 @@ internal class MongoShellContext(client: MongoClient) {
         val isoDate = functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) })
         context.putMember("ISODate", isoDate)
         context.putMember("UUID", functionProducer.execute(ProxyExecutable { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) }))
+        // init console.log
+        val print = functionProducer.execute(ProxyExecutable { args ->
+            printedValues?.add(args.map { extract(it).value })
+        })
+        ctx?.getBindings("js")?.putMember("print", print)
+        val console = evalInner("new Object()")
+        console.putMember("log", print)
+        console.putMember("error", print)
+        ctx?.getBindings("js")?.putMember("console", console)
     }
 
     private fun dateHelper(createObject: Boolean, args: List<Value>): Any {
@@ -283,6 +293,15 @@ internal class MongoShellContext(client: MongoClient) {
         return shellEvaluator.invokeMember("customEval", originalEval, script)
     }
 
+    internal fun <T> withConsoleLogEnabled(printedValues: MutableList<List<Any?>>, func: () -> T): T {
+        this.printedValues = printedValues
+        try {
+            return func()
+        } finally {
+            this.printedValues = null
+        }
+    }
+
     private fun updateDatabase() {
         // graaljs does not allow to define property on top context, so we need to update internal state manually
         val currentDb = evalInner("db")
@@ -317,6 +336,7 @@ internal class MongoShellContext(client: MongoClient) {
     fun toJs(o: Any?): Any? {
         return when (o) {
             is Iterable<*> -> toJs(o)
+            is Array<*> -> toJs(o)
             is Map<*, *> -> toJs(o)
             Unit -> evalInner("undefined")
             else -> o
@@ -332,6 +352,14 @@ internal class MongoShellContext(client: MongoClient) {
     }
 
     private fun toJs(list: Iterable<Any?>): Value {
+        val array = evalInner("[]")
+        list.forEachIndexed { index, v ->
+            array.setArrayElement(index.toLong(), toJs(v))
+        }
+        return array
+    }
+
+    private fun toJs(list: Array<*>): Value {
         val array = evalInner("[]")
         list.forEachIndexed { index, v ->
             array.setArrayElement(index.toLong(), toJs(v))
