@@ -80,7 +80,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     if (result is CursorResult) {
                         (result.value as Cursor<*>).close() // test close
                     }
-                    val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else replaceUUID(replaceId(actualValue)).trim()
+                    val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else normalize(actualValue)
                     sb.append(normalized)
                 } catch (e: Throwable) {
                     System.err.println("IGNORED:")
@@ -171,6 +171,8 @@ private fun replaceId(value: String): String {
 private fun replaceUUID(value: String): String {
     return MONGO_UUID_PATTERN.matcher(value).replaceAll("<UUID>")
 }
+
+fun normalize(value: String) = replaceUUID(replaceId(value)).trim()
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 

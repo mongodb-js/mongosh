@@ -16,7 +16,7 @@ import {
   Cursor as ServiceProviderCursor,
   CursorFlag,
   CURSOR_FLAGS,
-  Document
+  Document, ReplPlatform
 } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
@@ -36,8 +36,10 @@ export default class Cursor extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  async [asPrintable](): Promise<CursorIterationResult> {
-    return this._currentIterationResult ?? await this._it();
+  async [asPrintable](): Promise<any> {
+    return this._mongo._serviceProvider.platform == ReplPlatform.JavaShell
+        ? null
+        : this._currentIterationResult ?? await this._it();
   }
 
   async _it(): Promise<CursorIterationResult> {
