@@ -25,6 +25,7 @@ class CursorTest : ShellTestCase() {
     @Test fun testMin()               = test()
     @Test fun testNext()              = test()
     @Test fun testNoCursorTimeout()   = test()
+    @Test fun testPrint()             = test()
     @Test fun testProjection()        = test()
     @Test fun testReadConcern()       = test()
     @Test fun testReadPref()          = test()
