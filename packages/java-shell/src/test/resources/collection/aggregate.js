@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({status: "A", amount: 1, group: "G1"});
 db.coll.insertOne({status: "A", amount: 2, group: "G1"});
 db.coll.insertOne({status: "A", amount: 3, group: "G1"});

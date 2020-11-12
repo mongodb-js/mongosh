@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({key: "value", array: [1, 2, 3, {another_object: "  .$# "}]});
 // command checkResultClass
 db.coll.find();

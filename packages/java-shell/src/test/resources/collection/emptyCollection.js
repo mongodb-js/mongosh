@@ -1,4 +1,4 @@
 // before
-db.emptyCollection.remove({});
+db.emptyCollection.deleteMany({});
 // command
 db.emptyCollection.find();

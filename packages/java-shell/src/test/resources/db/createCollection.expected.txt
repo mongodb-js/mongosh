@@ -1,1 +1,1 @@
-com.mongodb.MongoBulkWriteException: Bulk write operation error on server localhost:27017. Write errors: [BulkWriteError{index=0, code=121, message='Document failed validation', details={}}].
+com.mongodb.MongoWriteException: Document failed validation

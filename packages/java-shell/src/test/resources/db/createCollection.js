@@ -28,7 +28,7 @@ db.createCollection('collWithValidator', {
     }
 })
 // command
-db.collWithValidator.insert( { name: "Amanda", status: "Updated" } )
+db.collWithValidator.insertOne({ name: "Amanda", status: "Updated" })
 // clear
 db.coll.drop();
 db.collWithValidator.drop();

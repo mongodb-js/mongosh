@@ -42,7 +42,6 @@ class CollectionTest : ShellTestCase() {
     @Test fun testFindWithRegexp()         = test()
     @Test fun testFindWithRegexpCaseInsensitive() = test()
     @Test fun testGetIndexes()             = test()
-    @Test fun testInsert()                 = test()
     @Test fun testInsertMany()             = test()
     @Test fun testInsertOne()              = test()
     @Test fun testInsertOneWriteConcern()  = test()
