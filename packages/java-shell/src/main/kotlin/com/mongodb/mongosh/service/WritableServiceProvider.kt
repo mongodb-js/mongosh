@@ -2,6 +2,9 @@ package com.mongodb.mongosh.service
 
 import org.graalvm.polyglot.Value
 
+/**
+ * see service-provider-core/src/writable.ts
+ */
 internal interface WritableServiceProvider {
     fun runCommand(database: String, spec: Value): Value
     fun runCommandWithCheck(database: String, spec: Value): Value
@@ -27,4 +30,5 @@ internal interface WritableServiceProvider {
     fun reIndex(database: String, collection: String, options: Value?, dbOptions: Value?): Value
     fun dropCollection(database: String, collection: String): Value
     fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value
+    fun initializeBulkOp(database: String, collection: String, ordered: Boolean, options: Value?, dbOptions: Value?): Value
 }
