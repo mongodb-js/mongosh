@@ -48,6 +48,16 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
+    override fun buildInfo(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun getCmdLineOpts(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
     override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
         val document = toDocument(document, "document")
         val dbOptions = toDocument(dbOptions, "dbOptions")
@@ -405,15 +415,28 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun getServerVersion(): Value = promise {
-        getDatabase("admin", null)
-                .map { db -> db.runCommand(Document("buildInfo", 1)) }
-                .map { doc -> doc["version"] }
+    override fun getTopology(): Value = promise<Any?> {
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
     override fun listDatabases(database: String): Value = promise {
         Right(mapOf("databases" to client.listDatabases()))
+    }
+
+    @HostAccess.Export
+    override fun getNewConnection(uri: String, options: Value?): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun getConnectionInfo(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun authenticate(authDoc: Value): Value = promise<Any?> {
+        Left(NotImplementedError())
     }
 
     @HostAccess.Export
@@ -476,6 +499,26 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
+    override fun getReadPreference(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun getReadConcern(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun getWriteConcern(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun resetConnectionOptions(): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
     override fun createIndexes(database: String, collection: String, indexSpecs: Value?): Value = promise<Any?> {
         val indexSpecs = toList(indexSpecs, "indexSpecs") ?: emptyList()
         if (indexSpecs.any { it !is Document }) throw IllegalArgumentException("Index specs must be a list of documents. Got $indexSpecs")
@@ -522,6 +565,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
+    override fun initializeBulkOp(database: String, collection: String, ordered: Boolean, options: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
