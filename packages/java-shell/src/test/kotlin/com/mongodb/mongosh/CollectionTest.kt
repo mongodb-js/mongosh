@@ -61,6 +61,7 @@ class CollectionTest : ShellTestCase() {
     @Test fun testUpdateOne()              = test()
     @Test fun testUpdateOnePipeline()      = test()
     @Test fun testUpdateOneUpsert()        = test()
+    @Test fun testWithPeriod()             = test()
 
     private fun test() {
         val name = (Throwable()).stackTrace[1].methodName.removePrefix("test")
