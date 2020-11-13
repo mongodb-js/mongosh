@@ -58,10 +58,10 @@ class NoopAnalytics {
 }
 
 export default function setupLoggerAndTelemetry(bus: any, logDir: string): void {
-  const session_id = new bson.ObjectId().toString();
-  const logDest = path.join(logDir, `${session_id}_log`);
+  const sessionId = new bson.ObjectId().toString();
+  const logDest = path.join(logDir, `${sessionId}_log`);
   const log = pino({ name: 'monogsh' }, pino.destination(logDest));
-  console.log(`Current sessionID:  ${session_id}`);
+  console.log(`Current sessionID:  ${sessionId}`);
   let userId: any;
   let telemetry: boolean;
 
@@ -76,14 +76,14 @@ export default function setupLoggerAndTelemetry(bus: any, logDir: string): void 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = retractPassword(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
-    const params = { session_id, userId, connectionUri, ...argsWithoutUri };
+    const params = { sessionId, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
         event: 'New Connection',
-        properties: { session_id, ...argsWithoutUri }
+        properties: { sessionId, ...argsWithoutUri }
       });
     }
   });
@@ -108,7 +108,7 @@ export default function setupLoggerAndTelemetry(bus: any, logDir: string): void 
       analytics.track({
         userId,
         event: 'Error',
-        properties: { error }
+        properties: { name: error.name, code: error.code }
       });
     }
   });
