@@ -162,6 +162,7 @@ describe('Shell API (integration)', function() {
 
         describe('when calling toShellResult on the cursor', () => {
           it('returns the right documents', async() => {
+            expect((await toShellResult(cursor)).printable.constructor).to.equal(Array);
             expect((await toShellResult(cursor)).printable).to.deep.equal([{ doc: 2 }]);
           });
         });

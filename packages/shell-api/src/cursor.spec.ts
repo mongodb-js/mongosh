@@ -50,7 +50,8 @@ describe('Cursor', () => {
 
     it('sets dynamic properties', async() => {
       expect((await toShellResult(cursor)).type).to.equal('Cursor');
-      expect((await toShellResult(((await toShellResult(cursor)).printable))).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor._it())).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor)).printable).to.deep.equal([]);
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
