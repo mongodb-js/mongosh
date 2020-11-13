@@ -11,3 +11,4 @@ coverage
 *.swp
 lib/
 compass/
+src/assets/fonts/akzid*
