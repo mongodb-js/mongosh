@@ -564,6 +564,42 @@ export default class Collection extends ShellApiClass {
   }
 
   /**
+   * Alias for insertMany.
+   *
+   * @note: Shell API sets writeConcern via options in object, data provider API
+   * expects it as a dbOption object.
+   *
+   * @param {Object|Array} docs
+   * @param {Object} options
+   *    <writeConcern, ordered>
+   * @return {InsertManyResult}
+   */
+  @returnsPromise
+  async insert(docs: Document | Document[], options: Document = {}): Promise<InsertManyResult> {
+    assertArgsDefined(docs);
+    const d: Document[] = Array.isArray(docs) ? docs : [docs];
+    const dbOptions: DatabaseOptions = {};
+
+    if ('writeConcern' in options) {
+      Object.assign(dbOptions, options.writeConcern);
+    }
+
+    this._emitCollectionApiCall('insert', { options });
+    const result = await this._mongo._serviceProvider.insertMany(
+      this._database._name,
+      this._name,
+      d,
+      options,
+      dbOptions
+    );
+
+    return new InsertManyResult(
+      !!result.result.ok,
+      result.insertedIds
+    );
+  }
+
+  /**
    * Insert multiple documents.
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
@@ -651,6 +687,60 @@ export default class Collection extends ShellApiClass {
   }
 
   /**
+   * Deprecated remove command.
+   *
+   * @note: Shell API sets writeConcern via options in object, data provider API
+   * expects it as a dbOption object.
+   * @note: Shell API accepts second argument as a bool, indicating justOne.
+   *
+   * @param {Object} query
+   * @param {Object|Boolean} options
+   *    <justOne, writeConcern, collation>
+   * @return {Promise}
+   */
+  @returnsPromise
+  @serverVersions([ServerVersions.earliest, '3.2.0'])
+  remove(query: Document, options: Document = {}): Promise<any> {
+    assertArgsDefined(query);
+    const dbOptions: DatabaseOptions = {};
+
+
+    if ('writeConcern' in options) {
+      Object.assign(dbOptions, options.writeConcern);
+    }
+
+    let removeOptions: any = {};
+    if (typeof options === 'boolean') {
+      removeOptions.justOne = options;
+    } else {
+      removeOptions = options;
+    }
+
+    this._emitCollectionApiCall('remove', { query, removeOptions });
+    return this._mongo._serviceProvider.remove(
+      this._database._name,
+      this._name,
+      query,
+      removeOptions,
+      dbOptions
+    );
+  }
+
+  @returnsPromise
+  @serverVersions([ServerVersions.earliest, '4.0.0'])
+  save(doc: Document, options: Document = {}): Promise<any> {
+    assertArgsDefined(doc);
+    const dbOptions: DatabaseOptions = {};
+
+    this._emitCollectionApiCall('save', { options });
+    if ('writeConcern' in options) {
+      Object.assign(dbOptions, options.writeConcern);
+    }
+
+    return this._mongo._serviceProvider.save(this._database._name, this._name, doc, options, dbOptions);
+  }
+
+  /**
    * Replace a document with another.
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
@@ -683,6 +773,39 @@ export default class Collection extends ShellApiClass {
       options,
       dbOptions
     );
+    return new UpdateResult(
+      !!result.result.ok,
+      result.matchedCount,
+      result.modifiedCount,
+      result.upsertedCount,
+      result.upsertedId
+    );
+  }
+
+  @returnsPromise
+  @serverVersions([ServerVersions.earliest, '3.2.0'])
+  async update(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
+    assertArgsDefined(update);
+    this._emitCollectionApiCall('update', { filter, options });
+    let result;
+
+    if (options.multi) {
+      result = await this._mongo._serviceProvider.updateMany(
+        this._database._name,
+        this._name,
+        filter,
+        update,
+        options,
+      );
+    } else {
+      result = await this._mongo._serviceProvider.updateOne(
+        this._database._name,
+        this._name,
+        filter,
+        update,
+        options,
+      );
+    }
     return new UpdateResult(
       !!result.result.ok,
       result.matchedCount,
