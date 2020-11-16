@@ -4,6 +4,8 @@
     "downlevelIteration": true,
     "strict": false,
     "experimentalDecorators": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "target": "es2018",
     "lib": ["es2018"],
     "module": "commonjs",
