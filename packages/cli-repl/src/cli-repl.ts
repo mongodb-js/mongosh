@@ -6,20 +6,19 @@ import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY, MONGOSH_WIKI } from './constants';
-import isRecoverableError from 'is-recoverable-error';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
-import { REPLServer, Recoverable } from 'repl';
 import completer from '@mongosh/autocomplete';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
-import repl from 'pretty-repl';
+import prettyRepl from 'pretty-repl';
 import Nanobus from 'nanobus';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
+import * as asyncRepl from './async-repl';
+import type { REPLServer } from 'repl';
 import mkdirp from 'mkdirp';
 import clr, { StyleDefinition } from './clr';
 import path from 'path';
-import util from 'util';
 import read from 'read';
 import os from 'os';
 import fs from 'fs';
@@ -126,7 +125,8 @@ class CliRepl {
 
     const version = this.internalState.connectionInfo.buildInfo.version;
 
-    this.repl = repl.start({
+    this.repl = asyncRepl.start({
+      start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: process.stdout,
       prompt: '> ',
@@ -134,7 +134,10 @@ class CliRepl {
       completer: completer.bind(null, version),
       breakEvalOnSigint: true,
       preview: false,
-      terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined
+      terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
+      asyncEval: this.eval.bind(this),
+      wrapCallbackError:
+        (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack })
     });
 
     const originalDisplayPrompt = this.repl.displayPrompt.bind(this.repl);
@@ -159,74 +162,6 @@ class CliRepl {
         this.repl.displayPrompt();
       }
     });
-
-    const replEval = this.repl.eval.bind(this.repl);
-    const originalEval = util.promisify(this.wrapNoSyncDomainError(replEval));
-
-    const customEval = async(
-      input: string,
-      context: any,
-      filename: string,
-      callback: (err?: Error | null, result?: any) => void): Promise<any> => {
-      this.lineByLineInput.enableBlockOnNewLine();
-
-      let result;
-
-      try {
-        let sigintListener: (() => void) | undefined = undefined;
-        let previousSigintListeners: any[] = [];
-        try {
-          result = await new Promise((resolve, reject) => {
-            // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
-            // by racing a listener for 'SIGINT' against the evalResult Promise.
-            // We remove all 'SIGINT' listeners and install our own.
-            sigintListener = (): void => {
-              // Reject with an exception similar to one thrown by Node.js
-              // itself if the `customEval` itself is interrupted.
-              reject(new Error('Asynchronous execution was interrupted by `SIGINT`'));
-            };
-            previousSigintListeners = this.repl.rawListeners('SIGINT');
-
-            this.repl.removeAllListeners('SIGINT');
-            this.repl.once('SIGINT', sigintListener);
-
-            const evalResult = this.shellEvaluator.customEval(originalEval, input, context, filename);
-
-            process.once('SIGINT', sigintListener);
-            evalResult.then(resolve, reject);
-          });
-        } finally {
-          // Remove our 'SIGINT' listener and re-install the REPL one(s).
-          if (sigintListener !== undefined) {
-            this.repl.removeListener('SIGINT', sigintListener);
-            process.removeListener('SIGINT', sigintListener);
-          }
-          for (const listener of previousSigintListeners) {
-            this.repl.on('SIGINT', listener);
-          }
-        }
-      } catch (err) {
-        try {
-          if (isRecoverableError(input)) {
-            return callback(new Recoverable(err));
-          }
-          return callback(err);
-        } catch (callbackErr) {
-          const wrapError = new MongoshInternalError(callbackErr.message);
-          wrapError.stack = callbackErr.stack;
-          return callback(wrapError);
-        }
-      }
-      try {
-        return callback(null, result);
-      } catch (callbackErr) {
-        const wrapError = new MongoshInternalError(callbackErr.message);
-        wrapError.stack = callbackErr.stack;
-        return callback(wrapError);
-      }
-    };
-
-    (this.repl as any).eval = customEval;
 
     const historyFile = path.join(this.mongoshDir, '.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
@@ -261,6 +196,11 @@ class CliRepl {
       },
       get: () => (this.internalState.currentDb)
     });
+  }
+
+  eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
+    this.lineByLineInput.enableBlockOnNewLine();
+    return this.shellEvaluator.customEval(originalEval, input, context, filename);
   }
 
   /**
@@ -443,46 +383,6 @@ class CliRepl {
         this._fatalError(e);
       });
     });
-  }
-
-  wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => Ret) {
-    return (...args: Args): Ret => {
-      const { Domain } = require('domain');
-      const origEmit = Domain.prototype.emit;
-
-      // When the Node.js core REPL encounters an exception during synchronous
-      // evaluation, it does not pass the exception value to the callback
-      // (or in this case, reject the Promise here), as one might inspect.
-      // Instead, it skips straight ahead to abandoning evaluation and acts
-      // as if the error had been thrown asynchronously. This works for them,
-      // but for us that's not great, because we rely on the core eval function
-      // calling its callback in order to be informed about a possible error
-      // that occurred (... and in order for this async function to finish at all.)
-      // We monkey-patch `process.domain.emit()` to avoid that, and instead
-      // handle a possible error ourselves:
-      // https://github.com/nodejs/node/blob/59ca56eddefc78bab87d7e8e074b3af843ab1bc3/lib/repl.js#L488-L493
-      // It's not clear why this is done this way in Node.js, however,
-      // removing the linked code does lead to failures in the Node.js test
-      // suite, so somebody sufficiently motivated could probably find out.
-      // For now, this is a hack and probably not considered officially
-      // supported, but it works.
-      // We *may* want to consider not relying on the built-in eval function
-      // at all at some point.
-      Domain.prototype.emit = function(ev: string, ...eventArgs: any[]): void {
-        if (ev === 'error') {
-          throw eventArgs[0];
-        }
-        return origEmit.call(this, ev, ...eventArgs);
-      };
-
-      try {
-        return fn(...args);
-      } finally {
-        // Reset the `emit` function after synchronous evaluation, because
-        // we need the Domain functionality for the asynchronous bits.
-        Domain.prototype.emit = origEmit;
-      }
-    };
   }
 
   private _fatalError(error: any): void {
