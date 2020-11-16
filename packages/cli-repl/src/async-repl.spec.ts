@@ -63,14 +63,22 @@ describe('AsyncRepl', () => {
     await expectInStream(output, '89');
   });
 
-  it('allows sync interruption through SIGINT', async() => {
+  it('allows sync interruption through SIGINT', async function() {
+    if (process.platform === 'win32') {
+      this.skip(); // No SIGINT on Windows.
+    }
+
     const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
 
     input.write('while (true) { process.kill(process.pid, "SIGINT"); }\n');
     await expectInStream(output, 'execution was interrupted');
   });
 
-  it('allows async interruption through SIGINT', async() => {
+  it('allows async interruption through SIGINT', async function() {
+    if (process.platform === 'win32') {
+      this.skip(); // No SIGINT on Windows.
+    }
+
     const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
 
     input.write('new Promise(oopsIdontResolve => 0)\n');
