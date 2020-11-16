@@ -235,6 +235,7 @@ describe('e2e', function() {
         shell.assertContainsOutput('doc: 2');
         shell.assertContainsOutput('doc: 3');
       });
+      shell.assertNotContainsOutput('CursorIterationResult');
 
       shell.assertNoErrors();
     });

@@ -6,7 +6,8 @@ import {
   returnType,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  toShellResult
 } from './decorators';
 import {
   ServerVersions,
@@ -37,7 +38,7 @@ export default class Cursor extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   async [asPrintable](): Promise<CursorIterationResult> {
-    return this._currentIterationResult ?? await this._it();
+    return (await toShellResult(this._currentIterationResult ?? await this._it())).printable;
   }
 
   async _it(): Promise<CursorIterationResult> {
