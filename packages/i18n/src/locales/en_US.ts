@@ -379,6 +379,11 @@ const translations: Catalog = {
               description: 'Alias for getIndexes. Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.',
               example: 'db.collection.getIndices()'
             },
+            insert: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insert',
+              description: 'Inserts a document or documents into a collection.',
+              example: 'db.collection.insert(document, options)'
+            },
             insertMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.insertMany',
               description: 'Inserts multiple documents into a collection.',
@@ -393,6 +398,16 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.isCapped',
               description: 'Checks if a collection is capped',
               example: 'db.collection.isCapped()'
+            },
+            remove: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.remove',
+              description: 'Removes documents from a collection.',
+              example: 'db.collection.remove(query, options)'
+            },
+            save: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.save',
+              description: 'Updates an existing document or inserts a new document, depending on its document parameter.',
+              example: 'db.collection.save(document, options)'
             },
             stats: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.stats',
@@ -413,6 +428,11 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.totalSize',
               description: 'The total size in bytes of the data in the collection plus the size of every index on the collection.',
               example: 'db.collection.totalSize()'
+            },
+            update: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.update',
+              description: 'Modifies an existing document or documents in a collection.',
+              example: 'db.collection.update(query, update, options)'
             },
             updateMany: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateMany',
