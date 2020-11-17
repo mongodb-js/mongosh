@@ -106,7 +106,7 @@ describe('AsyncRepl', () => {
   it('handles recoverable syntax errors well', async() => {
     const { input, output } = createDefaultAsyncRepl();
 
-    input.write('{ uid: process.getuid(\n');
+    input.write('{ uptime: process.uptime(\n');
     let wroteClosingParenthesis = false;
     let foundUid = false;
     for await (const chunk of output) {
@@ -114,7 +114,7 @@ describe('AsyncRepl', () => {
         input.write(')}\n');
         wroteClosingParenthesis = true;
       }
-      if (chunk.includes('uid:')) {
+      if (chunk.includes('uptime:')) {
         foundUid = true;
         break;
       }
