@@ -66,6 +66,7 @@ describe('AsyncRepl', () => {
   it('allows sync interruption through SIGINT', async function() {
     if (process.platform === 'win32') {
       this.skip(); // No SIGINT on Windows.
+      return;
     }
 
     const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
@@ -77,6 +78,7 @@ describe('AsyncRepl', () => {
   it('allows async interruption through SIGINT', async function() {
     if (process.platform === 'win32') {
       this.skip(); // No SIGINT on Windows.
+      return;
     }
 
     const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
