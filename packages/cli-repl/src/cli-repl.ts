@@ -24,6 +24,8 @@ import os from 'os';
 import fs from 'fs';
 import semver from 'semver';
 import type { Readable } from 'stream';
+import Analytics from 'analytics-node';
+import pino from 'pino';
 
 /**
  * Connecting text key.
@@ -73,7 +75,14 @@ class CliRepl {
     this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
     this.createMongoshDir();
 
-    setupLoggerAndTelemetry(this.bus, this.mongoshDir);
+    const sessionId = new bson.ObjectId().toString();
+    console.log(`Current sessionID:  ${sessionId}`);
+    setupLoggerAndTelemetry(
+      sessionId,
+      this.bus,
+      () => pino({ name: 'monogsh' }, pino.destination(path.join(this.mongoshDir, `${sessionId}_log`))),
+      // analytics-config.js gets written as a part of a release
+      () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
 
     this.generateOrReadTelemetryConfig();
 
