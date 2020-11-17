@@ -5,7 +5,7 @@ import { getShellApiType, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
-import { TELEMETRY, MONGOSH_WIKI } from './constants';
+import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { ConfigAndLogDirectoryManager } from './config-directory';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
@@ -281,7 +281,7 @@ class CliRepl {
     console.log(`Using MongoDB:      ${this.internalState.connectionInfo.buildInfo.version}`);
     console.log(`${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
-    if (!this.config.disableGreetingMessage) console.log(TELEMETRY);
+    if (!this.config.disableGreetingMessage) console.log(TELEMETRY_GREETING_MESSAGE);
   }
 
   /**

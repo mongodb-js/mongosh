@@ -1,7 +1,7 @@
 import i18n from '@mongosh/i18n';
 import { colorizeForStderr as clr } from './clr';
 
-export const TELEMETRY = `
+export const TELEMETRY_GREETING_MESSAGE = `
 ${i18n.__('cli-repl.cli-repl.telemetry')}
 ${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr('disableTelemetry()', 'bold')} ${i18n.__('cli-repl.cli-repl.command')}
 `;
