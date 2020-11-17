@@ -5,6 +5,7 @@ import {
   hasAsyncChild,
   returnsPromise,
   returnType,
+  serverVersions,
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
@@ -14,14 +15,16 @@ import {
   ReadPreference,
   ReadPreferenceMode,
   Document,
-  ServiceProvider
+  ServiceProvider,
+  WatchOptions
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { retractPassword } from '@mongosh/history';
-import { asPrintable } from './enums';
+import { asPrintable, ServerVersions } from './enums';
+import ChangeStreamCursor from './change-stream-cursor';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -52,6 +55,22 @@ export default class Mongo extends ShellApiClass {
    */
   [asPrintable](): string {
     return retractPassword(this._uri);
+  }
+
+  /**
+   * Internal helper for emitting mongo API call events.
+   *
+   * @param methodName
+   * @param methodArguments
+   * @private
+   */
+  private _emitMongoApiCall(methodName: string, methodArguments: Document = {}): void {
+    this._internalState.emitApiCall({
+      method: methodName,
+      class: 'Mongo',
+      uri: this._uri,
+      arguments: methodArguments
+    });
   }
 
   async connect(): Promise<void> {
@@ -173,5 +192,13 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   async setReadConcern(level: string): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
+  }
+
+  @serverVersions(['3.1.0', ServerVersions.latest])
+  watch(pipeline: Document[] = [], options: WatchOptions = {}): ChangeStreamCursor {
+    this._emitMongoApiCall('watch', { pipeline, options });
+    const cursor = new ChangeStreamCursor(this._serviceProvider.watch(pipeline, options), this[asPrintable]());
+    this._internalState.currentCursor = cursor;
+    return cursor;
   }
 }

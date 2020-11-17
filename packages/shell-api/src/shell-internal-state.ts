@@ -20,6 +20,7 @@ import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
+import ChangeStreamCursor from './change-stream-cursor';
 
 export interface EvaluationListener {
   /**
@@ -32,7 +33,7 @@ export interface EvaluationListener {
  * Anything to do with the internal shell state is stored here.
  */
 export default class ShellInternalState {
-  public currentCursor: Cursor | AggregationCursor | null;
+  public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
   public messageBus: EventEmitter;
   public asyncWriter: AsyncWriter;

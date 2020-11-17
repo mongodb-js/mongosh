@@ -2,6 +2,8 @@ import Document from './document';
 import Cursor from './cursor';
 import Result from './result';
 import DatabaseOptions from './database-options';
+import WatchOptions from './watch-options';
+import ChangeStream from './change-stream';
 
 /**
  * Interface for read operations in the CRUD specification.
@@ -203,5 +205,22 @@ export default interface Readable {
     options?: Document,
     dbOptions?: DatabaseOptions
   ): Promise<any>;
+
+
+  /**
+   * Start a change stream cursor on either the client, db, or collection.
+   * @param pipeline
+   * @param options
+   * @param db
+   * @param dbOptions
+   * @param coll
+   */
+  watch(
+    pipeline: Document[],
+    options: WatchOptions,
+    dbOptions?: DatabaseOptions,
+    db?: string,
+    coll?: string
+  ): ChangeStream;
 }
 

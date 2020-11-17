@@ -10,6 +10,7 @@ import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh
 import ShellInternalState from './shell-internal-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
+import ChangeStreamCursor from './change-stream-cursor';
 
 
 describe('Database', () => {
@@ -2131,6 +2132,43 @@ describe('Database', () => {
         serviceProvider.runCommand.rejects(expectedError);
         const result = await database.getLastErrorObj();
         expect(result).to.deep.equal(expectedError);
+      });
+    });
+    describe('watch', () => {
+      it('calls serviceProvider.watch when given no args', () => {
+        database.watch();
+        expect(serviceProvider.watch).to.have.been.calledWith([], {}, {}, database._name);
+      });
+      it('calls serviceProvider.watch when given pipeline arg', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        database.watch(pipeline);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {}, {}, database._name);
+      });
+      it('calls serviceProvider.watch when given no args', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        const ops = { batchSize: 1 };
+        database.watch(pipeline, ops);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops, {}, database._name);
+      });
+
+      it('returns whatever serviceProvider.watch returns', () => {
+        const expectedResult = { ChangeStreamCursor: 1 } as any;
+        serviceProvider.watch.returns(expectedResult);
+        const result = database.watch();
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, database._name));
+        expect(database._mongo._internalState.currentCursor).to.equal(result);
+      });
+
+      it('throws if serviceProvider.watch throws', () => {
+        const expectedError = new Error();
+        serviceProvider.watch.throws(expectedError);
+        try {
+          database.watch();
+        } catch (e) {
+          expect(e).to.equal(expectedError);
+          return;
+        }
+        expect.fail('Failed to throw');
       });
     });
   });

@@ -69,6 +69,7 @@ export default class AggregationCursor extends ShellApiClass {
     return this._cursor.isClosed();
   }
 
+  @returnsPromise
   async isExhausted(): Promise<boolean> {
     return this._cursor.isClosed() && !await this._cursor.hasNext();
   }

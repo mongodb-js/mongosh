@@ -50,12 +50,14 @@ import {
   ServiceProviderCore,
   AuthOptions,
   ReadConcern,
-  ReadPreference
+  ReadPreference,
+  WatchOptions,
+  ChangeStream
 } from '@mongosh/service-provider-core';
 
 import NodeOptions from './node/node-options';
 
-import { MongoshCommandFailed } from '@mongosh/errors';
+import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 
 type DropDatabaseResult = {
   ok: 0 | 1;
@@ -1174,6 +1176,17 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       clientOptions
     );
     this.mongoClient = mc;
+  }
+
+  watch(pipeline: Document[], options: WatchOptions, dbOptions: DatabaseOptions = {}, db?: string, coll?: string): ChangeStream {
+    if (db === undefined && coll === undefined) {
+      return this.mongoClient.watch(pipeline, options);
+    } else if (db !== undefined && coll === undefined) {
+      return this.db(db, dbOptions).watch(pipeline, options);
+    } else if (db !== undefined && coll !== undefined) {
+      return this.db(db, dbOptions).collection(coll).watch(pipeline, options);
+    }
+    throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
   }
 }
 

@@ -6,10 +6,12 @@
  * @param options
  */
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Mongo from './mongo';
 import { ADMIN_DB } from './enums';
+
+export const TIMEOUT = 15000;
 
 export function adaptAggregateOptions(options: any = {}): {
   providerOptions: Document;
@@ -483,4 +485,18 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
     writable: true,
     configurable: true
   });
+}
+
+export function deadline(ms: number, err: any): Promise<any> {
+  return new Promise((_, reject) => setTimeout(() => reject(err), ms));
+}
+
+export async function timeout(test: () => boolean, method: () => Promise<any>, message = 'The method timed out') {
+  if (test()) {
+    return Promise.race([
+      deadline(TIMEOUT, new MongoshRuntimeError(message)),
+      method()
+    ]);
+  }
+  return method();
 }

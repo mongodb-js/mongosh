@@ -8,17 +8,10 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import {
-  ServerVersions,
-  asPrintable
-} from './enums';
-import {
-  Cursor as ServiceProviderCursor,
-  CursorFlag,
-  CURSOR_FLAGS,
-  Document
-} from '@mongosh/service-provider-core';
+import { asPrintable, ServerVersions } from './enums';
+import { Cursor as ServiceProviderCursor, CURSOR_FLAGS, CursorFlag, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { TIMEOUT, timeout } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -26,11 +19,20 @@ export default class Cursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
+  _tailable;
 
   constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
+    this._tailable = false;
+  }
+
+  async _timeoutTailable(method: () => Promise<any>) {
+    return timeout(
+      () => this._tailable,
+      method,
+      `The method timed out. Tailable cursors will wait for the server to provide results for ${TIMEOUT}ms before returning, so there is likely no results for the cursor to return at the moment.`);
   }
 
   /**
@@ -159,12 +161,12 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   forEach(f: (doc: Document) => void): Promise<void> {
-    return this._cursor.forEach(f);
+    return this._timeoutTailable(() => this._cursor.forEach(f));
   }
 
   @returnsPromise
   hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+    return this._timeoutTailable( () => this._cursor.hasNext());
   }
 
   @returnType('Cursor')
@@ -177,8 +179,9 @@ export default class Cursor extends ShellApiClass {
     return this._cursor.isClosed();
   }
 
+  @returnsPromise
   async isExhausted(): Promise<boolean> {
-    return this._cursor.isClosed() && !await this._cursor.hasNext();
+    return this.isClosed() && !await this.hasNext();
   }
 
   @returnsPromise
@@ -232,7 +235,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   next(): Promise<any> {
-    return this._cursor.next();
+    return this._timeoutTailable(() => this._cursor.next());
   }
 
   @returnType('Cursor')
@@ -290,14 +293,18 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  tailable(): Cursor {
+  tailable(opts = { awaitData: false }): Cursor {
+    this._tailable = true;
     this._addFlag(CursorFlag.Tailable);
+    if (opts.awaitData) {
+      this._addFlag(CursorFlag.AwaitData);
+    }
     return this;
   }
 
   @returnsPromise
   toArray(): Promise<Document[]> {
-    return this._cursor.toArray();
+    return this._timeoutTailable(() => this._cursor.toArray());
   }
 
   @returnType('Cursor')

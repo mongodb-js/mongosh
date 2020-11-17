@@ -13,6 +13,8 @@ import AuthOptions from './auth-options';
 import getConnectInfo from './connect-info';
 import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
+import WatchOptions from './watch-options';
+import ChangeStream from './change-stream';
 import generateUri, { Scheme } from './uri-generator';
 const DEFAULT_DB = 'test';
 import * as bson from 'bson';
@@ -47,5 +49,7 @@ export {
   bsonStringifiers,
   ServiceProviderBulkFindOp,
   ServiceProviderBulkOp,
-  BulkBatch
+  BulkBatch,
+  WatchOptions,
+  ChangeStream
 };

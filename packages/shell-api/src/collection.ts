@@ -18,7 +18,7 @@ import {
   assertKeysDefined,
   dataFormat
 } from './helpers';
-import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
+import { DatabaseOptions, Document, WatchOptions } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
   Cursor,
@@ -35,6 +35,7 @@ import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
+import ChangeStreamCursor from './change-stream-cursor';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1533,5 +1534,16 @@ export default class Collection extends ShellApiClass {
     )));
     result.Totals = totalValue;
     return new CommandResult('StatsResult', result);
+  }
+
+  @serverVersions(['3.1.0', ServerVersions.latest])
+  watch(pipeline: Document[] = [], options: WatchOptions = {}): ChangeStreamCursor {
+    this._emitCollectionApiCall('watch', { pipeline, options });
+    const cursor = new ChangeStreamCursor(
+      this._mongo._serviceProvider.watch(pipeline, options, {}, this._database._name, this._name),
+      this[asPrintable]()
+    );
+    this._mongo._internalState.currentCursor = cursor;
+    return cursor;
   }
 }

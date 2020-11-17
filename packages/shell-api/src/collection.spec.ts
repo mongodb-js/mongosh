@@ -10,6 +10,7 @@ import AggregationCursor from './aggregation-cursor';
 import Explainable from './explainable';
 import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
+import ChangeStreamCursor from './change-stream-cursor';
 
 const sinonChai = require('sinon-chai'); // weird with import
 
@@ -1167,6 +1168,44 @@ describe('Collection', () => {
             collection: 'coll1'
           }
         });
+      });
+    });
+    describe('watch', () => {
+      it('calls serviceProvider.watch when given no args', () => {
+        collection.watch();
+        expect(serviceProvider.watch).to.have.been.calledWith([], {}, {}, collection._database._name, collection._name);
+      });
+      it('calls serviceProvider.watch when given pipeline arg', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        collection.watch(pipeline);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {}, {}, collection._database._name, collection._name);
+      });
+      it('calls serviceProvider.watch when given no args', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        const ops = { batchSize: 1 };
+        collection.watch(pipeline, ops);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops, {}, collection._database._name, collection._name);
+      });
+
+      it('returns whatever serviceProvider.watch returns', () => {
+        const expectedResult = { ChangeStreamCursor: 1 } as any;
+        const expectedCursor = new ChangeStreamCursor(expectedResult, collection._name);
+        serviceProvider.watch.returns(expectedResult);
+        const result = collection.watch();
+        expect(result).to.deep.equal(expectedCursor);
+        expect(collection._mongo._internalState.currentCursor).to.equal(result);
+      });
+
+      it('throws if serviceProvider.watch throws', () => {
+        const expectedError = new Error();
+        serviceProvider.watch.throws(expectedError);
+        try {
+          collection.watch();
+        } catch (e) {
+          expect(e).to.equal(expectedError);
+          return;
+        }
+        expect.fail('Failed to throw');
       });
     });
   });
