@@ -78,6 +78,7 @@ class CliRepl {
     const sessionId = new bson.ObjectId().toString();
     console.log(`Current sessionID:  ${sessionId}`);
     setupLoggerAndTelemetry(
+      sessionId,
       this.bus,
       () => pino({ name: 'monogsh' }, pino.destination(path.join(this.mongoshDir, `${sessionId}_log`))),
       // analytics-config.js gets written as a part of a release
