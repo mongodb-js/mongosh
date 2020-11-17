@@ -28,7 +28,7 @@ describe('ConfigAndLogDirectoryManager', () => {
   });
 
   afterEach(async() => {
-    await promisify(rimraf)(base);
+    await promisify(rimraf)(path.resolve(base, '..'));
   });
 
   it('creates the directory when asked to do so', async() => {
