@@ -122,13 +122,13 @@ async function execMlaunch(command: MlaunchCommand, ...args: string[]): Promise<
   // command could be part of args, but the extra typechecking here has helped
   // me at least once.
   const fullCmd = [mlaunchPath.exec, command, ...args];
-  console.info('Running command', fullCmd.join(' '));
+  // console.info('Running command', fullCmd.join(' '));
   const proc = child_process.spawn(fullCmd[0], fullCmd.slice(1), {
     env: { ...process.env, ...mlaunchPath.env },
     stdio: 'inherit'
   });
   await once(proc, 'exit');
-  console.info('Successfully ran command', fullCmd.join(' '));
+  // console.info('Successfully ran command', fullCmd.join(' '));
 }
 
 // Remove all potential leftover mlaunch instances.
