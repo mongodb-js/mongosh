@@ -4,14 +4,16 @@ import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 
 describe('CliServiceProvider [integration]', function() {
-  const connectionString = startTestServer();
+  const testServer = startTestServer('shared');
 
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;
   let dbName: string;
   let db;
+  let connectionString: string;
 
   beforeEach(async() => {
+    connectionString = await testServer.connectionString();
     client = await MongoClient.connect(
       connectionString,
       { useUnifiedTopology: true }
@@ -77,7 +79,7 @@ describe('CliServiceProvider [integration]', function() {
 
   describe('#aggregate', () => {
     context('when passing a $function to be serialized by the driver', function() {
-      skipIfServerVersion('< 4.4');
+      skipIfServerVersion(testServer, '< 4.4');
 
       let result;
 

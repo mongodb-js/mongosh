@@ -61,8 +61,6 @@ variables:
         $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
         $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
         npm run evergreen-release package
-        .\.evergreen\DownloadAndRunMongod
-        $Env:MONGOSH_TEST_SERVER_URL = "mongodb://localhost:27018"
         $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
         echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
@@ -138,9 +136,7 @@ functions:
         script: |
           $ErrorActionPreference = "Stop"
           .\.evergreen\SetupEnv
-          .\.evergreen\DownloadAndRunMongod
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-          $Env:MONGOSH_TEST_SERVER_URL = "mongodb://localhost:27018"
           npm run test-ci
   release_macos:
     - command: expansions.write

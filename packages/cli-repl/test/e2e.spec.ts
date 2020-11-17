@@ -2,14 +2,10 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
-import {
-  startTestServer,
-  LOCAL_INSTANCE_HOST,
-  LOCAL_INSTANCE_PORT
-} from '../../../testing/integration-testing-hooks';
+import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('e2e', function() {
-  const connectionString = startTestServer();
+  const testServer = startTestServer('shared');
 
   afterEach(() => TestShell.killall());
 
@@ -51,7 +47,8 @@ describe('e2e', function() {
     describe('via host:port/test', () => {
       let shell;
       beforeEach(async() => {
-        shell = TestShell.start({ args: [`${LOCAL_INSTANCE_HOST}:${LOCAL_INSTANCE_PORT}/testdb1`] });
+        const server = await testServer;
+        shell = TestShell.start({ args: [`${server.host()}:${server.port()}/testdb1`] });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
@@ -67,7 +64,8 @@ describe('e2e', function() {
     describe('via mongodb://uri', () => {
       let shell;
       beforeEach(async() => {
-        shell = TestShell.start({ args: [`mongodb://${LOCAL_INSTANCE_HOST}:${LOCAL_INSTANCE_PORT}/testdb2`] });
+        const server = await testServer;
+        shell = TestShell.start({ args: [`mongodb://${server.host()}:${server.port()}/testdb2`] });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
@@ -83,7 +81,8 @@ describe('e2e', function() {
     describe('legacy db only', () => {
       let shell;
       beforeEach(async() => {
-        shell = TestShell.start({ args: ['testdb3', `--port=${LOCAL_INSTANCE_PORT}`] });
+        const server = await testServer;
+        shell = TestShell.start({ args: ['testdb3', `--port=${server.port()}`] });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
@@ -105,6 +104,7 @@ describe('e2e', function() {
     let dbName;
 
     beforeEach(async() => {
+      const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [ connectionString ] });
 
