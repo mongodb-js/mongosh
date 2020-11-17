@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 // command
 db.coll.insertOne({a: 1}, {writeConcern: {error: 1}});
 // command

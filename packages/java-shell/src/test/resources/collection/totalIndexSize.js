@@ -1,6 +1,6 @@
 // before
-db.coll.remove({});
-db.coll.insert({key: "value"});
+db.coll.deleteMany({});
+db.coll.insertOne({key: "value"});
 // command dontCheckValue
 db.coll.totalIndexSize();
 // clear

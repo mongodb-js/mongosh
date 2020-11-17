@@ -1,8 +1,8 @@
 // before
-use test_show_collections
+use test_show_collections;
 // command
-db.coll.insert({});
+db.coll.insertOne({});
 // command
-show collections
+show collections;
 // clear
 db.coll.drop();

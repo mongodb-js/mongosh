@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({a: 'cat1'});
 db.coll.insertOne({a: 'cat2'});
 db.coll.insertOne({a: 'cat3'});

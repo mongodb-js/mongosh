@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 // command
 db.coll.updateOne({a: 1}, {$set: {b: 1}}, {upsert: true});
 // command

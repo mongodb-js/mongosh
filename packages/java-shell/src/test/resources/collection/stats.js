@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({a: 1});
 // command extractProperty=ns
 db.coll.stats()

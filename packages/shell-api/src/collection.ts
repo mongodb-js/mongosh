@@ -35,6 +35,7 @@ import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
+import { printDeprecationWarning } from './deprecation-warning';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -576,6 +577,10 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async insert(docs: Document | Document[], options: Document = {}): Promise<InsertManyResult> {
+    printDeprecationWarning(
+      'Collection.insert() is deprecated. Use insertOne, insertMany or bulkWrite.',
+      this._mongo._internalState.context.print
+    );
     assertArgsDefined(docs);
     const d: Document[] = Array.isArray(docs) ? docs : [docs];
     const dbOptions: DatabaseOptions = {};
@@ -701,6 +706,10 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   remove(query: Document, options: Document = {}): Promise<any> {
+    printDeprecationWarning(
+      'Collection.remove() is deprecated. Use deleteOne, deleteMany or bulkWrite.',
+      this._mongo._internalState.context.print
+    );
     assertArgsDefined(query);
     const dbOptions: DatabaseOptions = {};
 
@@ -729,6 +738,10 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   save(doc: Document, options: Document = {}): Promise<any> {
+    printDeprecationWarning(
+      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne or updateMany.',
+      this._mongo._internalState.context.print
+    );
     assertArgsDefined(doc);
     const dbOptions: DatabaseOptions = {};
 
@@ -785,6 +798,10 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async update(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
+    printDeprecationWarning(
+      'Collection.update() is deprecated. Use updateOne, updateMany or bulkWrite.',
+      this._mongo._internalState.context.print
+    );
     assertArgsDefined(update);
     this._emitCollectionApiCall('update', { filter, options });
     let result;

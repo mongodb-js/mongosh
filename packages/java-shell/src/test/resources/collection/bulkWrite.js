@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({v: "before update"});
 db.coll.insertOne({v: "to delete"});
 db.coll.insertOne({v: "to delete"});

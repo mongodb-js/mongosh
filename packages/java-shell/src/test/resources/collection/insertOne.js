@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 // command
 const res = db.coll.insertOne({
     a: 1,

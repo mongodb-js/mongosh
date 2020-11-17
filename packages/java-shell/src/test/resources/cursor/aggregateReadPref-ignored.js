@@ -1,5 +1,5 @@
 // before
-db.coll.remove({});
+db.coll.deleteMany({});
 db.coll.insertOne({a: "a"});
 db.coll.insertOne({a: "A"});
 db.coll.insertOne({a: "á"});
