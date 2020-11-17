@@ -6,14 +6,15 @@ import { startTestServer } from '../../../../../testing/integration-testing-hook
 
 describe('java-shell tests', function() {
   this.timeout(600_000);
-  // The java-shell tests contain references to the port in the expected output.
-  // It would be nice if they accepted any port.
-  const testServer = startTestServer('not-shared', '--port', '27018');
-  const uriFile = path.resolve(__dirname, '..', 'resources', 'URI.txt');
+  const testServer = startTestServer('shared');
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
-  let origUriFileContent = Buffer.alloc(0);
 
   before(async function () {
+    process.env.JAVA_SHELL_MONGOSH_TEST_URI = await testServer.connectionString();
+    process.env.JAVA_SHELL_MONGOSH_TEST_HOST = await testServer.host();
+    process.env.JAVA_SHELL_MONGOSH_TEST_PORT = await testServer.port();
+    process.env.JAVA_SHELL_MONGOSH_TEST_HOSTPORT = `${await testServer.host()}:${await testServer.port()}`;
+
     const connectionString = await testServer.connectionString();
       return new Promise((resolve, reject) => {
       // We can probably turn this into execFile once
@@ -40,17 +41,10 @@ describe('java-shell tests', function() {
              out.includes('User "admin@admin" already exists')) && !isDone) {
           isDone = true;
           mongosh.kill();
-          origUriFileContent = fs.readFileSync(uriFile);
-          fs.writeFileSync(uriFile,
-            connectionString.replace('mongodb://', 'mongodb://admin:admin@'));
           resolve();
         }
       });
     });
-  });
-
-  after(() => {
-    fs.writeFileSync(uriFile, origUriFileContent);
   });
 
   it('passes the JavaShell tests', () => {
