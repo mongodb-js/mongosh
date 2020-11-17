@@ -15,9 +15,9 @@ private const val pathToUri = "src/test/resources/URI.txt"
 internal const val DB = "admin"
 
 fun createMongoRepl(): MongoShell {
-    val uri = File(pathToUri).readText()
+    val uri = System.getenv("JAVA_SHELL_MONGOSH_TEST_URI") ?: File(pathToUri).readText()
     if (uri.isBlank()) {
-        fail("Specify MongoDB connection URI in $pathToUri")
+        fail("Specify MongoDB connection URI in $pathToUri or the JAVA_SHELL_MONGOSH_TEST_URI environment variable")
     }
 
     val settings = MongoClientSettings.builder()
@@ -143,6 +143,7 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
+    val mongohostport = System.getenv("JAVA_SHELL_MONGOSH_TEST_HOSTPORT") ?: "localhost:27017";
     var expectedFile = File("$testDataPath/$name.expected.txt")
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
@@ -150,14 +151,14 @@ private fun compare(testDataPath: String, name: String, actual: String) {
         fail("Created output file $expectedFile")
     } else {
         for (counter in 1..10) {
-            if (expectedFile.readText().trim() == actual.trim()) break
+            if (expectedFile.readText().replace("%mongohostport%", mongohostport).trim() == actual.trim()) break
 
             val alternativeFile = File("$testDataPath/$name.expected.$counter.txt")
             if (alternativeFile.exists()) {
                 expectedFile = alternativeFile
             }
         }
-        assertEquals(expectedFile.readText().trim(), actual.trim())
+        assertEquals(expectedFile.readText().replace("%mongohostport%", mongohostport).trim(), actual.trim())
     }
 }
 
