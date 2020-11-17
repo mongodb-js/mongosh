@@ -9,7 +9,8 @@ config/
 electron/
 karma.conf.js
 mocha-webpack.opts
-scripts/
+scripts/**/*
+!scripts/download-akzidenz.js
 src/
 test/
 .zuul.yml
