@@ -21,6 +21,10 @@ import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 
+export interface ShellCliOptions {
+  nodb?: boolean;
+}
+
 export interface EvaluationListener {
   /**
    * Called when print() or printjson() is run from the shell.
@@ -50,9 +54,9 @@ export default class ShellInternalState {
   public mongos: Mongo[];
   public shellApi: ShellApi;
   public shellBson: any;
-  public cliOptions: any;
+  public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
-  constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
+  constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);

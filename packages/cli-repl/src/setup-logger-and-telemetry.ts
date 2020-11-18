@@ -2,11 +2,7 @@
 import redactInfo from 'mongodb-redact';
 import { retractPassword } from '@mongosh/history';
 import type { Logger } from 'pino';
-
-interface Bus {
-  on: (eventName: string, listener: (...args: any[]) => void) => void;
-  emit: (eventName: string, ...args: any[]) => void;
-}
+import type { Bus } from './types';
 
 interface ApiEventArguments {
   pipeline?: any[];
