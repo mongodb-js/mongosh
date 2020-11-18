@@ -132,13 +132,30 @@ async function execMlaunch(command: MlaunchCommand, ...args: string[]): Promise<
 }
 
 // Remove all potential leftover mlaunch instances.
-export async function clearMlaunch() {
+export async function clearMlaunch({ killAllMongod = false } = {}) {
+  if (killAllMongod) {
+    for (const proc of ['mongod', 'mongos']) {
+      try {
+        if (process.platform === 'win32') {
+          await execFile('taskkill', ['/IM', `${proc}.exe`, '/F']);
+        } else {
+          await execFile('killall', [proc]);
+        }
+      } catch (err) {
+        console.warn(`Cleaning up ${proc} instances failed:`, err);
+      }
+    }
+  }
   const tmpdir = await getTmpdir();
   for await (const { name } of await fs.opendir(tmpdir)) {
     if (name.startsWith('mlaunch-')) {
       const fullPath = path.join(tmpdir, name);
       try {
         await execMlaunch('kill', '--dir', fullPath);
+      } catch (err) {
+        console.warn(`mlaunch kill in ${fullPath} failed:`, err);
+      }
+      try {
         await promisify(rimraf)(fullPath);
       } catch (err) {
         console.warn(`Removing ${fullPath} failed:`, err);

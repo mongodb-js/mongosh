@@ -1,3 +1,4 @@
 #!/usr/bin/env ts-node
 import { clearMlaunch } from '../testing/integration-testing-hooks';
-clearMlaunch().catch(err => process.nextTick(() => { throw err; }));
+const killAllMongod = process.argv.includes('--killAllMongod');
+clearMlaunch({ killAllMongod }).catch(err => process.nextTick(() => { throw err; }));
