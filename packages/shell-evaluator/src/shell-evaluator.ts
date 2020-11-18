@@ -7,7 +7,7 @@ import {
 } from '@mongosh/shell-api';
 
 interface Container {
-  toggleTelemetry(enable: boolean): void;
+  toggleTelemetry(enable: boolean): any;
 }
 
 type EvaluationFunction = (input: string, context: object, filename: string) => Promise<any>;
@@ -60,15 +60,9 @@ class ShellEvaluator {
       case 'quit':
         return await this.internalState.shellApi.exit();
       case 'enableTelemetry()':
-        if (this.container) {
-          return this.container.toggleTelemetry(true);
-        }
-        return;
+        return await this.container?.toggleTelemetry(true);
       case 'disableTelemetry()':
-        if (this.container) {
-          return this.container.toggleTelemetry(false);
-        }
-        return;
+        return await this.container?.toggleTelemetry(false);
       default:
         this.saveState();
         const rewrittenInput = this.internalState.asyncWriter.process(input);

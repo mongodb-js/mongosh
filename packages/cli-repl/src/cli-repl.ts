@@ -1,11 +1,12 @@
-/* eslint no-console: 0, no-sync: 0*/
+/* eslint no-console: 0 */
 
 import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
 import { getShellApiType, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
-import { TELEMETRY, MONGOSH_WIKI } from './constants';
+import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
+import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import completer from '@mongosh/autocomplete';
@@ -16,12 +17,10 @@ import Nanobus from 'nanobus';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import * as asyncRepl from './async-repl';
 import type { REPLServer } from 'repl';
-import mkdirp from 'mkdirp';
 import clr, { StyleDefinition } from './clr';
 import path from 'path';
 import read from 'read';
 import os from 'os';
-import fs from 'fs';
 import semver from 'semver';
 import type { Readable } from 'stream';
 import Analytics from 'analytics-node';
@@ -32,11 +31,11 @@ import pino from 'pino';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
-type ConfigFileContents = {
-  userId: string;
-  enableTelemetry: boolean;
-  disableGreetingMessage: boolean;
-};
+class UserConfig {
+  userId = '';
+  enableTelemetry = false;
+  disableGreetingMessage = false;
+}
 
 /**
  * The REPL used from the terminal.
@@ -46,12 +45,11 @@ class CliRepl {
   private repl: REPLServer;
   private bus: Nanobus;
   private internalState: ShellInternalState;
-  private enableTelemetry: boolean;
-  private disableGreetingMessage: boolean;
-  private userId: string;
   private options: CliOptions;
-  private mongoshDir: string;
   private lineByLineInput: LineByLineInput;
+  private shellHomeDirectory: ShellHomeDirectory;
+  private configDirectory: ConfigManager<UserConfig>;
+  private config: UserConfig = new UserConfig();
 
   /**
    * Instantiate the new CLI Repl.
@@ -62,9 +60,6 @@ class CliRepl {
     this.shellEvaluator = null as unknown as ShellEvaluator;
     this.repl = null as unknown as REPLServer;
     this.internalState = null as unknown as ShellInternalState;
-    this.enableTelemetry = false;
-    this.disableGreetingMessage = false;
-    this.userId = '';
     // </MakeTypeScriptHappy>
 
     this.bus = new Nanobus('mongosh');
@@ -72,19 +67,16 @@ class CliRepl {
     this.verifyNodeVersion();
     this.options = options;
 
-    this.mongoshDir = path.join(os.homedir(), '.mongodb/mongosh/');
-    this.createMongoshDir();
-
-    const sessionId = new bson.ObjectId().toString();
-    console.log(`Current sessionID:  ${sessionId}`);
-    setupLoggerAndTelemetry(
-      sessionId,
-      this.bus,
-      () => pino({ name: 'monogsh' }, pino.destination(path.join(this.mongoshDir, `${sessionId}_log`))),
-      // analytics-config.js gets written as a part of a release
-      () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
-
-    this.generateOrReadTelemetryConfig();
+    this.shellHomeDirectory = new ShellHomeDirectory(
+      path.join(os.homedir(), '.mongodb/mongosh/'));
+    this.configDirectory = new ConfigManager<UserConfig>(
+      this.shellHomeDirectory)
+      .on('error', (err: Error) =>
+        this.bus.emit('mongosh:error', err))
+      .on('new-config', (config: UserConfig) =>
+        this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
+      .on('update-config', (config: UserConfig) =>
+        this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
 
     this.lineByLineInput = new LineByLineInput(process.stdin);
 
@@ -105,6 +97,28 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async setupRepl(driverUri: string, driverOptions: NodeOptions): Promise<void> {
+    const sessionId = new bson.ObjectId().toString();
+    console.log(`Current sessionID:  ${sessionId}`);
+
+    try {
+      await this.shellHomeDirectory.ensureExists();
+    } catch (err) {
+      this._fatalError(err);
+    }
+
+    setupLoggerAndTelemetry(
+      sessionId,
+      this.bus,
+      () => pino({ name: 'monogsh' }, pino.destination(this.shellHomeDirectory.path(`${sessionId}_log`))),
+      // analytics-config.js gets written as a part of a release
+      () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
+
+    this.config = await this.configDirectory.generateOrReadConfig({
+      userId: new bson.ObjectId().toString(),
+      enableTelemetry: true,
+      disableGreetingMessage: false
+    });
+
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     this.internalState = new ShellInternalState(initialServiceProvider, this.bus, this.options);
     this.shellEvaluator = new ShellEvaluator(this.internalState, this);
@@ -172,13 +186,13 @@ class CliRepl {
       }
     });
 
-    const historyFile = path.join(this.mongoshDir, '.mongosh_repl_history');
+    const historyFile = this.shellHomeDirectory.path('.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     // eslint thinks we are redefining this.repl here, we are not.
     // eslint-disable-next-line no-shadow
     this.repl.setupHistory(historyFile, (err, repl) => {
       const warn = new MongoshWarning('Unable to set up history file. History will not be persisting in this session');
-      if (err) repl.writer(warn);
+      if (err) this.repl.output.write(this.repl.writer(warn) + '\n');
 
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
@@ -207,81 +221,11 @@ class CliRepl {
     });
   }
 
-  eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
-    this.lineByLineInput.enableBlockOnNewLine();
-    return this.shellEvaluator.customEval(originalEval, input, context, filename);
-  }
-
-  /**
-   * Creates a directory to store all mongosh logs, history and config
-   */
-  createMongoshDir(): void {
-    try {
-      mkdirp.sync(this.mongoshDir);
-    } catch (e) {
-      this._fatalError(e);
-    }
-  }
-
-  /**
-   * Checks if config file exists.
-   *
-   * If exists: sets userId and enabledTelemetry to this.
-   * If does not exist: writes a new file with a newly generated ObjectID for
-   * userid and enableTelemetry set to false.
-   */
-  generateOrReadTelemetryConfig(): void {
-    const configPath = path.join(this.mongoshDir, 'config');
-
-    let fd;
-
-    try {
-      fd = fs.openSync(configPath, 'wx');
-      this.userId = new bson.ObjectId().toString();
-      this.enableTelemetry = true;
-      this.disableGreetingMessage = false;
-      this.bus.emit('mongosh:new-user', this.userId, this.enableTelemetry);
-      this.writeConfigFileSync(configPath);
-    } catch (err) {
-      if (err.code === 'EEXIST') {
-        // make sure we catch errors for json parse and always have err and
-        // value on config result
-        let config: ConfigFileContents;
-        try {
-          config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        } catch (err) {
-          this.bus.emit('mongosh:error', 'Unable to parse user config', err);
-          return;
-        }
-
-        this.userId = config.userId;
-        this.disableGreetingMessage = true;
-        this.enableTelemetry = config.enableTelemetry;
-        this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
-        return;
-      }
-      this.bus.emit('mongosh:error', err);
-      throw err;
-    } finally {
-      if (fd !== undefined) fs.closeSync(fd);
-    }
-  }
-
-  /**
-   * sets CliRepl.enableTelemetry based on a bool, and writes the selection to
-   * config file.
-   *
-   * @param {boolean} enabled - enabled or disabled status
-   *
-   * @returns {string} Status of telemetry logging: disabled/enabled
-   */
-  toggleTelemetry(enabled: boolean): string {
-    this.enableTelemetry = enabled;
-    this.disableGreetingMessage = true;
-
-    this.bus.emit('mongosh:update-user', this.userId, this.enableTelemetry);
-    const configPath = path.join(this.mongoshDir, 'config');
-    this.writeConfigFileSync(configPath);
+  async toggleTelemetry(enabled: boolean): Promise<string> {
+    this.config.enableTelemetry = enabled;
+    this.config.disableGreetingMessage = true;
+    this.bus.emit('mongosh:update-user', this.config.userId, this.config.enableTelemetry);
+    await this.configDirectory.writeConfigFile(this.config);
 
     if (enabled) {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
@@ -290,23 +234,10 @@ class CliRepl {
     return i18n.__('cli-repl.cli-repl.disabledTelemetry');
   }
 
-  /** write file sync given path and contents
-   *
-   * @param {string} filePath - path to file
-   */
-  writeConfigFileSync(filePath: string): void {
-    const config: ConfigFileContents = {
-      userId: this.userId,
-      enableTelemetry: this.enableTelemetry,
-      disableGreetingMessage: this.disableGreetingMessage
-    };
 
-    try {
-      fs.writeFileSync(filePath, JSON.stringify(config));
-    } catch (err) {
-      this.bus.emit('mongosh:error', err);
-      throw err;
-    }
+  eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
+    this.lineByLineInput.enableBlockOnNewLine();
+    return this.shellEvaluator.customEval(originalEval, input, context, filename);
   }
 
   /**
@@ -353,7 +284,7 @@ class CliRepl {
     console.log(`Using MongoDB:      ${this.internalState.connectionInfo.buildInfo.version}`);
     console.log(`${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}`);
     console.log(`${MONGOSH_WIKI}`);
-    if (!this.disableGreetingMessage) console.log(TELEMETRY);
+    if (!this.config.disableGreetingMessage) console.log(TELEMETRY_GREETING_MESSAGE);
   }
 
   /**
@@ -394,7 +325,7 @@ class CliRepl {
     });
   }
 
-  private _fatalError(error: any): void {
+  private _fatalError(error: any): never {
     if (this.bus) {
       this.bus.emit('mongosh:error', error);
     }
