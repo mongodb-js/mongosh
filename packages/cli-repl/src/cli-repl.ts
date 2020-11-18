@@ -6,7 +6,7 @@ import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
-import { ConfigAndLogDirectoryManager } from './config-directory';
+import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory, retractPassword } from '@mongosh/history';
 import completer from '@mongosh/autocomplete';
@@ -47,7 +47,8 @@ class CliRepl {
   private internalState: ShellInternalState;
   private options: CliOptions;
   private lineByLineInput: LineByLineInput;
-  private configDirectory: ConfigAndLogDirectoryManager<UserConfig>;
+  private shellHomeDirectory: ShellHomeDirectory;
+  private configDirectory: ConfigManager<UserConfig>;
   private config: UserConfig = new UserConfig();
 
   /**
@@ -66,8 +67,10 @@ class CliRepl {
     this.verifyNodeVersion();
     this.options = options;
 
-    this.configDirectory = new ConfigAndLogDirectoryManager<UserConfig>(
-      path.join(os.homedir(), '.mongodb/mongosh/'))
+    this.shellHomeDirectory = new ShellHomeDirectory(
+      path.join(os.homedir(), '.mongodb/mongosh/'));
+    this.configDirectory = new ConfigManager<UserConfig>(
+      this.shellHomeDirectory)
       .on('error', (err: Error) =>
         this.bus.emit('mongosh:error', err))
       .on('new-config', (config: UserConfig) =>
@@ -98,7 +101,7 @@ class CliRepl {
     console.log(`Current sessionID:  ${sessionId}`);
 
     try {
-      await this.configDirectory.ensureExists();
+      await this.shellHomeDirectory.ensureExists();
     } catch (err) {
       this._fatalError(err);
     }
@@ -106,7 +109,7 @@ class CliRepl {
     setupLoggerAndTelemetry(
       sessionId,
       this.bus,
-      () => pino({ name: 'monogsh' }, pino.destination(this.configDirectory.path(`${sessionId}_log`))),
+      () => pino({ name: 'monogsh' }, pino.destination(this.shellHomeDirectory.path(`${sessionId}_log`))),
       // analytics-config.js gets written as a part of a release
       () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
 
@@ -183,7 +186,7 @@ class CliRepl {
       }
     });
 
-    const historyFile = this.configDirectory.path('.mongosh_repl_history');
+    const historyFile = this.shellHomeDirectory.path('.mongosh_repl_history');
     const redactInfo = this.options.redactInfo;
     // eslint thinks we are redefining this.repl here, we are not.
     // eslint-disable-next-line no-shadow

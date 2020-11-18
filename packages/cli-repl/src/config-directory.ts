@@ -2,14 +2,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 
-export class ConfigAndLogDirectoryManager<Config> extends EventEmitter {
+export class ShellHomeDirectory {
   baseDirectory: string;
-  config: Config | null;
 
   constructor(baseDirectory: string) {
-    super();
     this.baseDirectory = baseDirectory;
-    this.config = null;
   }
 
   async ensureExists(): Promise<void> {
@@ -19,6 +16,21 @@ export class ConfigAndLogDirectoryManager<Config> extends EventEmitter {
   path(subpath: string): string {
     return path.join(this.baseDirectory, subpath);
   }
+}
+
+export class ConfigManager<Config> extends EventEmitter {
+  shellHomeDirectory: ShellHomeDirectory;
+  config: Config | null;
+
+  constructor(shellHomeDirectory: ShellHomeDirectory) {
+    super();
+    this.shellHomeDirectory = shellHomeDirectory;
+    this.config = null;
+  }
+
+  path() {
+    return this.shellHomeDirectory.path('config');
+  }
 
   /**
    * Checks if config file exists.
@@ -27,12 +39,12 @@ export class ConfigAndLogDirectoryManager<Config> extends EventEmitter {
    * If does not exist: Writes a new file with the passed-in config object.
    */
   async generateOrReadConfig(defaultConfig: Config): Promise<Config> {
-    await this.ensureExists();
+    await this.shellHomeDirectory.ensureExists();
     let fd;
 
     try {
       try {
-        fd = await fs.open(this.path('config'), 'r');
+        fd = await fs.open(this.path(), 'r');
       } catch (err) {
         if (err.code !== 'ENOENT') {
           this.emit('error', err);
@@ -65,9 +77,9 @@ export class ConfigAndLogDirectoryManager<Config> extends EventEmitter {
    * Write the specified config to the configuration file path.
    */
   async writeConfigFile(config: Config): Promise<void> {
-    await this.ensureExists();
+    await this.shellHomeDirectory.ensureExists();
     try {
-      await fs.writeFile(this.path('config'), JSON.stringify(config));
+      await fs.writeFile(this.path(), JSON.stringify(config));
     } catch (err) {
       this.emit('error', err);
       throw err;
