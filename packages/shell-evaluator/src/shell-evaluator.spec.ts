@@ -8,7 +8,6 @@ import { EventEmitter } from 'events';
 
 describe('ShellEvaluator', () => {
   let shellEvaluator: ShellEvaluator;
-  let containerMock;
   let busMock: EventEmitter;
   let internalStateMock;
   let useSpy: any;
@@ -26,12 +25,8 @@ describe('ShellEvaluator', () => {
       }
     } as any;
     busMock = new EventEmitter();
-    containerMock = { toggleTelemetry: sinon.spy() };
 
-    shellEvaluator = new ShellEvaluator(
-      internalStateMock,
-      containerMock
-    );
+    shellEvaluator = new ShellEvaluator(internalStateMock);
   });
 
   describe('customEval', () => {

@@ -119,6 +119,12 @@ const translations: Catalog = {
             },
             load: {
               description: 'Load a file into the shell context. Not currently implemented, if running mongosh from the CLI you can use .load <filename> as an alternative'
+            },
+            enableTelemetry: {
+              description: 'Enables collection of anonymous usage data to improve the mongosh CLI'
+            },
+            disableTelemetry: {
+              description: 'Disables collection of anonymous usage data to improve the mongosh CLI'
             }
           }
         },

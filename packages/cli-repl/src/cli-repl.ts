@@ -121,7 +121,7 @@ class CliRepl {
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     this.internalState = new ShellInternalState(initialServiceProvider, this.bus, this.options);
-    this.shellEvaluator = new ShellEvaluator(this.internalState, this);
+    this.shellEvaluator = new ShellEvaluator(this.internalState);
     this.shellEvaluator.setEvaluationListener(this);
     await this.internalState.fetchConnectionInfo();
     this.start();
