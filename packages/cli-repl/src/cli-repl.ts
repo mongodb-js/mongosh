@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
 
 import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
-import { getShellApiType, ShellInternalState } from '@mongosh/shell-api';
+import { ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
@@ -208,17 +208,6 @@ class CliRepl {
     });
 
     this.internalState.setCtx(this.repl.context);
-    Object.defineProperty(this.repl.context, 'db', {
-      set: (newDb) => {
-        if (getShellApiType(newDb) !== 'Database') {
-          const warn = new MongoshWarning('Cannot reassign \'db\' to non-Database type');
-          console.log(warn);
-          return;
-        }
-        this.internalState.setDbFunc(newDb);
-      },
-      get: () => (this.internalState.currentDb)
-    });
   }
 
   async toggleTelemetry(enabled: boolean): Promise<string> {
