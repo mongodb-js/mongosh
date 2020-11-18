@@ -327,5 +327,22 @@ describe('e2e', function() {
       expect(result).not.to.match(/\b42[\s\r\n]*42\b/);
     });
   });
+
+  describe('telemetry toggling', () => {
+    let shell;
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ '--nodb' ] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+    });
+    it('enableTelemetry() yields a success response', async() => {
+      const result = await shell.executeLine('enableTelemetry()');
+      expect(result).to.match(/Telemetry is now enabled/);
+    });
+    it('disableTelemetry() yields a success response', async() => {
+      const result = await shell.executeLine('disableTelemetry();');
+      expect(result).to.match(/Telemetry is now disabled/);
+    });
+  });
 });
 

@@ -26,6 +26,13 @@ export interface EvaluationListener {
    * Called when print() or printjson() is run from the shell.
    */
   onPrint?: (value: ShellResult[]) => Promise<void> | void;
+
+  /**
+   * Called when enableTelemetry() or disableTelemetry() is run from the shell.
+   * The return value may be a Promise. Its value is printed as the result of
+   * the call.
+   */
+  toggleTelemetry?: (enabled: boolean) => any;
 }
 
 /**
@@ -44,7 +51,7 @@ export default class ShellInternalState {
   public shellApi: ShellApi;
   public shellBson: any;
   public cliOptions: any;
-  private evaluationListener: EvaluationListener;
+  public evaluationListener: EvaluationListener;
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: any = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;

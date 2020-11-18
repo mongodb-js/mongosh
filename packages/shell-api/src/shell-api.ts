@@ -100,4 +100,16 @@ export default class ShellApi extends ShellApiClass {
       'load is not currently implemented. If you are running mongosh from the CLI ' +
       'then you can use .load <filename> as an alternative.');
   }
+
+  @returnsPromise
+  @platforms([ ReplPlatform.CLI ] )
+  async enableTelemetry(): Promise<any> {
+    return await this.internalState.evaluationListener.toggleTelemetry?.(true);
+  }
+
+  @returnsPromise
+  @platforms([ ReplPlatform.CLI ] )
+  async disableTelemetry(): Promise<any> {
+    return await this.internalState.evaluationListener.toggleTelemetry?.(false);
+  }
 }

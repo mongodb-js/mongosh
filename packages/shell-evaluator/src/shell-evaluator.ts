@@ -6,23 +6,14 @@ import {
   EvaluationListener
 } from '@mongosh/shell-api';
 
-interface Container {
-  toggleTelemetry(enable: boolean): any;
-}
-
 type EvaluationFunction = (input: string, context: object, filename: string) => Promise<any>;
 
 import { HIDDEN_COMMANDS, removeCommand } from '@mongosh/history';
 
 class ShellEvaluator {
   private internalState: ShellInternalState;
-  private container?: Container;
-  constructor(
-    internalState: ShellInternalState,
-    container?: Container
-  ) {
+  constructor(internalState: ShellInternalState) {
     this.internalState = internalState;
-    this.container = container;
   }
 
   public revertState(): void {
@@ -59,10 +50,6 @@ class ShellEvaluator {
       case 'exit':
       case 'quit':
         return await this.internalState.shellApi.exit();
-      case 'enableTelemetry()':
-        return await this.container?.toggleTelemetry(true);
-      case 'disableTelemetry()':
-        return await this.container?.toggleTelemetry(false);
       default:
         this.saveState();
         const rewrittenInput = this.internalState.asyncWriter.process(input);
