@@ -10,10 +10,14 @@ type EvaluationFunction = (input: string, context: object, filename: string) => 
 
 import { HIDDEN_COMMANDS, removeCommand } from '@mongosh/history';
 
-class ShellEvaluator {
+type ResultHandler<EvaluationResultType> = (value: any) => EvaluationResultType | Promise<EvaluationResultType>;
+class ShellEvaluator<EvaluationResultType = ShellResult> {
   private internalState: ShellInternalState;
-  constructor(internalState: ShellInternalState) {
+  private resultHandler: ResultHandler<EvaluationResultType>;
+
+  constructor(internalState: ShellInternalState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
     this.internalState = internalState;
+    this.resultHandler = resultHandler;
   }
 
   public revertState(): void {
@@ -79,7 +83,7 @@ class ShellEvaluator {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  public async customEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<ShellResult> {
+  public async customEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<EvaluationResultType> {
     const evaluationResult = await this.innerEval(
       originalEval,
       input,
@@ -87,7 +91,7 @@ class ShellEvaluator {
       filename
     );
 
-    return await toShellResult(evaluationResult);
+    return await this.resultHandler(evaluationResult);
   }
 }
 

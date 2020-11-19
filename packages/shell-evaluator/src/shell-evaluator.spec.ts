@@ -9,7 +9,7 @@ import { EventEmitter } from 'events';
 describe('ShellEvaluator', () => {
   let shellEvaluator: ShellEvaluator;
   let busMock: EventEmitter;
-  let internalStateMock;
+  let internalStateMock: any;
   let useSpy: any;
 
   beforeEach(() => {
@@ -68,6 +68,13 @@ describe('ShellEvaluator', () => {
       await shellEvaluator.customEval(originalEval, 'anything()', {}, '');
       expect(revertSpy.calledOnce).to.be.false;
       expect(saveSpy.calledOnce).to.be.true;
+    });
+    it('allows specifying custom result handlers', async() => {
+      const shellEvaluator = new ShellEvaluator<string>(internalStateMock, JSON.stringify);
+      const originalEval = sinon.stub();
+      originalEval.returns({ a: 1 });
+      const result = await shellEvaluator.customEval(originalEval, 'doSomething();', {}, '');
+      expect(result).to.equal('{"a":1}');
     });
   });
 });
