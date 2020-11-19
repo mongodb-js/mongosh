@@ -191,7 +191,11 @@ class CliRepl {
     this.bus.emit('mongosh:error', error);
 
     this.output.write(this.mongoshRepl.formatError(error) + '\n');
-    this.bus.emit('mongosh:exit', 1);
+    this.exit(1);
+  }
+
+  exit(code: number): never {
+    this.bus.emit('mongosh:exit', code);
     // Emitting mongosh:exit never returns. If it does, that's a bug.
     throw new MongoshInternalError('mongosh:exit unexpectedly returned');
   }
