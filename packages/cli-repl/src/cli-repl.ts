@@ -1,7 +1,7 @@
 import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
-import { retractPassword } from '@mongosh/history';
+import { redactPassword } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
 import MongoshNodeRepl from './mongosh-repl';
@@ -120,7 +120,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: NodeOptions): Promise<CliServiceProvider> {
     if (!this.options.nodb) {
-      this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(retractPassword(driverUri), ['bold', 'green']) + '\n');
+      this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactPassword(driverUri), ['bold', 'green']) + '\n');
     }
     return await CliServiceProvider.connect(driverUri, driverOptions, this.options);
   }
