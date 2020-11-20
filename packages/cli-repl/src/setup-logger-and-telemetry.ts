@@ -1,12 +1,8 @@
 /* eslint camelcase: 0 */
 import redactInfo from 'mongodb-redact';
-import { retractPassword } from '@mongosh/history';
+import { redactPassword } from '@mongosh/history';
 import type { Logger } from 'pino';
-
-interface Bus {
-  on: (eventName: string, listener: (...args: any[]) => void) => void;
-  emit: (eventName: string, ...args: any[]) => void;
-}
+import type { Bus } from './types';
 
 interface ApiEventArguments {
   pipeline?: any[];
@@ -80,7 +76,7 @@ export default function setupLoggerAndTelemetry(
   }
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
-    const connectionUri = retractPassword(args.uri);
+    const connectionUri = redactPassword(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = { sessionId, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', params);

@@ -20,7 +20,7 @@ import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { retractPassword } from '@mongosh/history';
+import { redactPassword } from '@mongosh/history';
 import { asPrintable } from './enums';
 
 @shellApiClassDefault
@@ -51,7 +51,7 @@ export default class Mongo extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return retractPassword(this._uri);
+    return redactPassword(this._uri);
   }
 
   async connect(): Promise<void> {

@@ -1,3 +1,3 @@
 import { changeHistory, removeCommand, HIDDEN_COMMANDS } from './history';
-import retractPassword from './redact-pwd';
-export { retractPassword, changeHistory, removeCommand, HIDDEN_COMMANDS };
+import redactPassword from './redact-pwd';
+export { redactPassword, changeHistory, removeCommand, HIDDEN_COMMANDS };
