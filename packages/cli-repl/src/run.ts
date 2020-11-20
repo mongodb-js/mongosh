@@ -41,6 +41,7 @@ import os from 'os';
     }
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.log(e.message);
+    console.error(e.message);
+    process.exit(1);
   }
 })();
