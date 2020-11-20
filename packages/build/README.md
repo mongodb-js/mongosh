@@ -8,6 +8,9 @@ Build process is done on [Evergreen][evergreen-url] and is triggered with every 
 Releases are triggered by a git tag when ran with `npm run publish-npm` from the
 root of the project.
 
+For full details on how to run a release, check in with [`compass-internal
+-docs`](https://github.com/10gen/compass-internal-docs/blob/master/technical/mongosh/mongosh-release.md) repo.
+
 Current build and release flow is as follows:
 
 ### `npm run evergreen-release package`
@@ -17,18 +20,15 @@ Current build and release flow is as follows:
   Redhat run two tasks: check and release. Debian and Redhat also depend on
   tests to pass on Linux.
 - Identical bundle and binary are built on all five variants.
-- Each variant creates its own tarball (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
-  tarball is determined by the current build variant.
+- MacOS binary is signed and notarized.
+- Each variant creates its own archive (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
+  archive is determined by the current build variant.
 - Each variant uploads its own tarball to Evergreen’s AWS.
 - Linux build variants upload their artifacts to `barque` using
   [`curator`](https://github.com/mongodb/curator) to be used with MongoDB's PPA. The uploaded packages can be found under the following URLs:
   1. Ubuntu: https://repo.mongodb.org/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/
   2. Redhat: https://repo.mongodb.org/yum/redhat/8Server/mongodb-org/4.4/x86_64/RPMS/
   3. Debian: https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/
-- MacOS build variant uploads config file with information about the new version
-  for each platform to Downloads Centre. This only happens on a tagged commit.
-- MacOS build variant creates a github release. This only happens on a tagged
-  commit.
 - The five build variants run in parallel.
 ### `npm run evergreen-release publish`
 - All the previous build steps succeeded.
