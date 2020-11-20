@@ -241,6 +241,7 @@ class MlaunchSetup extends MongodSetup {
   }
 
   async start(): Promise<void> {
+    if (this._mlaunchdir) return;
     const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
     const tag = `${process.pid}-${random}`;
 
@@ -354,7 +355,7 @@ export function startTestServer(shareMode: 'shared' | 'not-shared', ...args: str
   return server;
 }
 
-after(async function() {
+global.after?.(async function() {
   if (sharedSetup !== null) {
     this.timeout(30_000);
     await sharedSetup.stop();
