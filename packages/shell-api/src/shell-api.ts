@@ -112,4 +112,14 @@ export default class ShellApi extends ShellApiClass {
   async disableTelemetry(): Promise<any> {
     return await this.internalState.evaluationListener.toggleTelemetry?.(false);
   }
+
+  @returnsPromise
+  @platforms([ ReplPlatform.CLI ] )
+  async passwordPrompt(): Promise<string> {
+    const { evaluationListener } = this.internalState;
+    if (!evaluationListener.onPrompt) {
+      throw new Error('passwordPrompt() is not available in this shell');
+    }
+    return await evaluationListener.onPrompt('Enter password', 'password');
+  }
 }

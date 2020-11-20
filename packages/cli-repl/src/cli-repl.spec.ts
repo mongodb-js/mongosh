@@ -6,7 +6,7 @@ import { once } from 'events';
 import rimraf from 'rimraf';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, useTmpdir, waitEval } from '../test/repl-helpers';
+import { expect, useTmpdir, waitEval, fakeTTYProps } from '../test/repl-helpers';
 
 describe('CliRepl', () => {
   let cliReplOptions: CliReplOptions;
@@ -179,15 +179,15 @@ describe('CliRepl', () => {
           setImmediate(() => input.write('\u0003')); // Ctrl+C
         }
       });
-      (outputStream as any).isTTY = true;
-      (outputStream as any).getColorDepth = () => 256;
+      Object.assign(outputStream, fakeTTYProps);
+      Object.assign(input, fakeTTYProps);
       const auth = { user: 'foo', password: '' };
       const errored = once(cliRepl.bus, 'mongosh:error');
       try {
         await cliRepl.start(await testServer.connectionString(), { auth });
       } catch { /* not empty */ }
       const [ err ] = await errored;
-      expect(err.message).to.equal('canceled');
+      expect(err.message).to.equal('The request was aborted by the user');
     });
   });
 });

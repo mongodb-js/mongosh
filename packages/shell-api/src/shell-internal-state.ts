@@ -37,6 +37,11 @@ export interface EvaluationListener {
    * the call.
    */
   toggleTelemetry?: (enabled: boolean) => any;
+
+  /**
+   * Called when e.g. passwordPrompt() is called from the shell.
+   */
+  onPrompt?: (question: string, type: 'password') => Promise<string> | string;
 }
 
 /**
