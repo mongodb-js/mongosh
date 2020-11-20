@@ -232,9 +232,6 @@ export class MongodSetup {
 
 // Spawn mlaunch with a specific set of arguments.
 class MlaunchSetup extends MongodSetup {
-  _refs = 0;
-  _stopped = false;
-  _currentAction = Promise.resolve();
   _args: string[];
   _mlaunchdir = '';
 
@@ -244,83 +241,65 @@ class MlaunchSetup extends MongodSetup {
   }
 
   async start(): Promise<void> {
-    return this._currentAction = (async() => {
-      await this._currentAction;
-      // Keep track of .start() and .stop() calls. Starting multiple times
-      // increases the ref count, stopping multipple times decreases.
-      if (this._refs++ !== 0) {
-        return;
+    const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
+    const tag = `${process.pid}-${random}`;
+
+    const tmpdir = await getTmpdir();
+    this._mlaunchdir = path.join(tmpdir, `mlaunch-${tag}`);
+
+    const args = this._args;
+    if (!args.includes('--replicaset') && !args.includes('--single')) {
+      args.push('--single');
+    }
+
+    let port: number;
+    if (args.includes('--port')) {
+      const index = args.indexOf('--port');
+      port = +args.splice(index, 2)[1];
+    } else {
+      // If no port was specified, we pick one in the range [30000, 40000].
+      // We pick by writing to a file, looking up the index at which we wrote,
+      // and adding that to the base port, so that there is a low likelihood of
+      // port collisions between different test runs even when two tests call
+      // startMlaunch() at the same time.
+      // Ideally, we would handle failures from port conflicts that occur when
+      // mlaunch starts, but we don't currently have access to that information
+      // until .start() is called.
+      const portfile = path.join(tmpdir, '.current-port');
+      await fs.appendFile(portfile, `${tag}\n`);
+      const portfileContent = (await fs.readFile(portfile, 'utf8')).split('\n');
+      const writeIndex = portfileContent.indexOf(tag);
+      if (writeIndex === -1) {
+        throw new Error(`Could not figure out port number, ${portfile} may be corrupt`);
       }
+      port = 30000 + (writeIndex * 30) % 10000;
+    }
 
-      const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
-      const tag = `${process.pid}-${random}`;
+    // Make sure mongod and mongos are accessible
+    try {
+      await Promise.all([which('mongod'), which('mongos')]);
+    } catch {
+      args.unshift('--binarypath', await downloadMongoDb());
+    }
 
-      const tmpdir = await getTmpdir();
-      this._mlaunchdir = path.join(tmpdir, `mlaunch-${tag}`);
-
-      const args = this._args;
-      if (!args.includes('--replicaset') && !args.includes('--single')) {
-        args.push('--single');
-      }
-
-      let port: number;
-      if (args.includes('--port')) {
-        const index = args.indexOf('--port');
-        port = +args.splice(index, 2)[1];
-      } else {
-        // If no port was specified, we pick one in the range [30000, 40000].
-        // We pick by writing to a file, looking up the index at which we wrote,
-        // and adding that to the base port, so that there is a low likelihood of
-        // port collisions between different test runs even when two tests call
-        // startMlaunch() at the same time.
-        // Ideally, we would handle failures from port conflicts that occur when
-        // mlaunch starts, but we don't currently have access to that information
-        // until .start() is called.
-        const portfile = path.join(tmpdir, '.current-port');
-        await fs.appendFile(portfile, `${tag}\n`);
-        const portfileContent = (await fs.readFile(portfile, 'utf8')).split('\n');
-        const writeIndex = portfileContent.indexOf(tag);
-        if (writeIndex === -1) {
-          throw new Error(`Could not figure out port number, ${portfile} may be corrupt`);
-        }
-        port = 30000 + (writeIndex * 30) % 10000;
-      }
-
-      // Make sure mongod and mongos are accessible
-      try {
-        await Promise.all([which('mongod'), which('mongos')]);
-      } catch {
-        args.unshift('--binarypath', await downloadMongoDb());
-      }
-
-      if (await statIfExists(this._mlaunchdir)) {
-        // There might be leftovers from previous runs. Remove them.
-        await execMlaunch('kill', '--dir', this._mlaunchdir);
-        await promisify(rimraf)(this._mlaunchdir);
-      }
-      await fs.mkdir(this._mlaunchdir, { recursive: true });
-      await execMlaunch('init', '--dir', this._mlaunchdir, '--port', `${port}`, ...args);
-      this._setConnectionString(`mongodb://localhost:${port}`);
-    })();
+    if (await statIfExists(this._mlaunchdir)) {
+      // There might be leftovers from previous runs. Remove them.
+      await execMlaunch('kill', '--dir', this._mlaunchdir);
+      await promisify(rimraf)(this._mlaunchdir);
+    }
+    await fs.mkdir(this._mlaunchdir, { recursive: true });
+    await execMlaunch('init', '--dir', this._mlaunchdir, '--port', `${port}`, ...args);
+    this._setConnectionString(`mongodb://localhost:${port}`);
   }
 
   async stop(): Promise<void> {
-    return this._currentAction = (async() => {
-      await this._currentAction;
-      if (this._refs === 0) {
-        throw new Error('stop() without matching start()');
-      }
-      if (--this._refs > 0) {
-        return;
-      }
-      this._stopped = true;
-      await execMlaunch('stop', '--dir', this._mlaunchdir);
-      try {
-        await promisify(rimraf)(this._mlaunchdir);
-      } catch (err) {
-        console.error(`Cannot remove directory ${this._mlaunchdir}`, err);
-      }
-    })();
+    if (!this._mlaunchdir) return;
+    await execMlaunch('stop', '--dir', this._mlaunchdir);
+    try {
+      await promisify(rimraf)(this._mlaunchdir);
+    } catch (err) {
+      console.error(`Cannot remove directory ${this._mlaunchdir}`, err);
+    }
   }
 }
 
@@ -358,33 +337,38 @@ export function startTestServer(shareMode: 'shared' | 'not-shared', ...args: str
   } else {
     server = new MlaunchSetup(args);
   }
-  // Begin spinning up the server now, so that the reference count never drops
-  // to zero between a after() followed by a before() that would try to re-start
-  // the server again.
-  const startPromise = server.start();
 
   before(async function() {
     this.timeout(120_000);  // Include potential mongod download time.
-    await startPromise;
+    await server.start();
   });
 
   after(async function() {
-    this.timeout(30_000);
-    await server.stop();
+    // Clean the shared server only up once we're done with everything.
+    if (shareMode !== 'shared') {
+      this.timeout(30_000);
+      await server.stop();
+    }
   });
 
   return server;
 }
 
+after(async function() {
+  if (sharedSetup !== null) {
+    this.timeout(30_000);
+    await sharedSetup.stop();
+  }
+});
+
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
 export function startTestCluster(...argLists: string[][]): MongodSetup[] {
   const servers = argLists.map(args => new MlaunchSetup(args));
-  const startPromise = Promise.all(servers.map((server: MongodSetup) => server.start()));
 
   before(async function() {
     this.timeout(90_000 + 30_000 * servers.length);
-    await startPromise;
+    await Promise.all(servers.map((server: MongodSetup) => server.start()));
   });
 
   after(async function() {
