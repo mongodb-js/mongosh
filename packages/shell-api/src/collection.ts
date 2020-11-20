@@ -118,7 +118,7 @@ export default class Collection extends ShellApiClass {
       { options, pipeline }
     );
     const {
-      providerOptions,
+      aggOptions,
       dbOptions,
       explain
     } = adaptAggregateOptions(options);
@@ -127,7 +127,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       pipeline,
-      providerOptions,
+      { ...this._database._baseOptions, ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
@@ -173,7 +173,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       operations,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -213,7 +213,13 @@ export default class Collection extends ShellApiClass {
       dbOpts.readConcern = options.readConcern;
     }
 
-    return this._mongo._serviceProvider.count(this._database._name, this._name, query, options, dbOpts);
+    return this._mongo._serviceProvider.count(
+      this._database._name,
+      this._name,
+      query,
+      { ...this._database._baseOptions, ...options },
+      dbOpts
+    );
   }
 
   /**
@@ -229,7 +235,12 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['4.0.3', ServerVersions.latest])
   async countDocuments(query: Document, options: Document = {}): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
-    return this._mongo._serviceProvider.countDocuments(this._database._name, this._name, query, options);
+    return this._mongo._serviceProvider.countDocuments(
+      this._database._name,
+      this._name,
+      query,
+      { ...this._database._baseOptions, ...options }
+    );
   }
 
   /**
@@ -258,7 +269,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       filter,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -293,7 +304,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       filter,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -318,7 +329,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async distinct(field: string, query: Document, options: Document = {}): Promise<any> {
     this._emitCollectionApiCall('distinct', { field, query, options });
-    return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, options);
+    return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, { ...this._database._baseOptions, ...options });
   }
 
   /**
@@ -333,7 +344,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['4.0.3', ServerVersions.latest])
   async estimatedDocumentCount(options: Document = {}): Promise<number> {
     this._emitCollectionApiCall('estimatedDocumentCount', { options });
-    return this._mongo._serviceProvider.estimatedDocumentCount(this._database._name, this._name, options);
+    return this._mongo._serviceProvider.estimatedDocumentCount(this._database._name, this._name, { ...this._database._baseOptions, ...options });
   }
 
   /**
@@ -357,7 +368,7 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('find', { query, options });
     const cursor = new Cursor(
       this._mongo,
-      this._mongo._serviceProvider.find(this._database._name, this._name, query, options)
+      this._mongo._serviceProvider.find(this._database._name, this._name, query, { ...this._database._baseOptions, ...options })
     );
 
     this._mongo._internalState.currentCursor = cursor;
@@ -386,6 +397,7 @@ export default class Collection extends ShellApiClass {
       { options: { ...options, update: !!options.update } }
     );
     const providerOptions = {
+      ...this._database._baseOptions,
       ...options
     };
 
@@ -426,7 +438,7 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('findOne', { query, options });
     return new Cursor(
       this._mongo,
-      this._mongo._serviceProvider.find(this._database._name, this._name, query, options)
+      this._mongo._serviceProvider.find(this._database._name, this._name, query, { ...this._database._baseOptions, ...options })
     ).limit(1).next();
   }
 
@@ -446,7 +458,7 @@ export default class Collection extends ShellApiClass {
         this._database._name,
         this._name,
         newName,
-        { dropTarget: !!dropTarget }
+        { ...this._database._baseOptions, dropTarget: !!dropTarget }
       );
 
       return {
@@ -485,7 +497,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       filter,
-      options,
+      { ...this._database._baseOptions, ...options },
     );
 
     return result.value;
@@ -510,7 +522,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndReplace(filter: Document, replacement: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(filter);
-    const findOneAndReplaceOptions: any = { ...options };
+    const findOneAndReplaceOptions: any = { ...this._database._baseOptions, ...options };
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
@@ -546,7 +558,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndUpdate(filter: Document, update: Document, options: Document = {}): Promise<any> {
     assertArgsDefined(filter);
-    const findOneAndUpdateOptions: any = { ...options };
+    const findOneAndUpdateOptions: any = { ...this._database._baseOptions, ...options };
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
@@ -594,7 +606,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       d,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -632,7 +644,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       docs,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -670,7 +682,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       doc,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -730,7 +742,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       query,
-      removeOptions,
+      { ...this._database._baseOptions, ...removeOptions },
       dbOptions
     );
   }
@@ -750,7 +762,7 @@ export default class Collection extends ShellApiClass {
       Object.assign(dbOptions, options.writeConcern);
     }
 
-    return this._mongo._serviceProvider.save(this._database._name, this._name, doc, options, dbOptions);
+    return this._mongo._serviceProvider.save(this._database._name, this._name, doc, { ...this._database._baseOptions, ...options }, dbOptions);
   }
 
   /**
@@ -783,7 +795,7 @@ export default class Collection extends ShellApiClass {
       this._name,
       filter,
       replacement,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
     return new UpdateResult(
@@ -812,7 +824,7 @@ export default class Collection extends ShellApiClass {
         this._name,
         filter,
         update,
-        options,
+        { ...this._database._baseOptions, ...options },
       );
     } else {
       result = await this._mongo._serviceProvider.updateOne(
@@ -820,7 +832,7 @@ export default class Collection extends ShellApiClass {
         this._name,
         filter,
         update,
-        options,
+        { ...this._database._baseOptions, ...options },
       );
     }
     return new UpdateResult(
@@ -859,7 +871,7 @@ export default class Collection extends ShellApiClass {
       this._name,
       filter,
       update,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -903,7 +915,7 @@ export default class Collection extends ShellApiClass {
       this._name,
       filter,
       update,
-      options,
+      { ...this._database._baseOptions, ...options },
       dbOptions
     );
 
@@ -929,7 +941,8 @@ export default class Collection extends ShellApiClass {
     return await this._mongo._serviceProvider.convertToCapped(
       this._database._name,
       this._name,
-      size
+      size,
+      this._database._baseOptions
     );
   }
 
@@ -960,7 +973,7 @@ export default class Collection extends ShellApiClass {
 
     this._emitCollectionApiCall('createIndexes', { specs });
 
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, specs);
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, specs, this._database._baseOptions);
   }
 
   /**
@@ -985,7 +998,7 @@ export default class Collection extends ShellApiClass {
     }
     this._emitCollectionApiCall('createIndex', { keys, options });
 
-    const spec = { ...options, key: keys };
+    const spec = { ...this._database._baseOptions, ...options, key: keys };
     return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec]);
   }
 
@@ -1011,7 +1024,7 @@ export default class Collection extends ShellApiClass {
     }
     this._emitCollectionApiCall('ensureIndex', { keys, options });
 
-    const spec = { ...options, key: keys };
+    const spec = { ...this._database._baseOptions, ...options, key: keys };
     return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec]);
   }
 
@@ -1025,7 +1038,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async getIndexes(): Promise<any[]> {
     this._emitCollectionApiCall('getIndexes');
-    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
 
   /**
@@ -1038,7 +1051,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async getIndexSpecs(): Promise<any[]> {
     this._emitCollectionApiCall('getIndexSpecs');
-    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
 
   /**
@@ -1050,7 +1063,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async getIndices(): Promise<any[]> {
     this._emitCollectionApiCall('getIndices');
-    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+    return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
 
   /**
@@ -1062,7 +1075,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async getIndexKeys(): Promise<any> {
     this._emitCollectionApiCall('getIndexKeys');
-    const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+    const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
     return indexes.map(i => i.key);
   }
 
@@ -1078,7 +1091,7 @@ export default class Collection extends ShellApiClass {
     assertArgsDefined(indexes);
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, indexes);
+      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, indexes, this._database._baseOptions);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
         return {
@@ -1112,7 +1125,7 @@ export default class Collection extends ShellApiClass {
     }
 
     try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, index);
+      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, index, this._database._baseOptions);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
         return {
@@ -1141,7 +1154,7 @@ export default class Collection extends ShellApiClass {
       );
     }
 
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
+    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, this._database._baseOptions);
     return stats.totalIndexSize;
   }
 
@@ -1153,7 +1166,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async reIndex(): Promise<any> {
     this._emitCollectionApiCall('reIndex');
-    return await this._mongo._serviceProvider.reIndex(this._database._name, this._name);
+    return await this._mongo._serviceProvider.reIndex(this._database._name, this._name, this._database._baseOptions);
   }
 
   /**
@@ -1186,7 +1199,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async dataSize(): Promise<number> {
     this._emitCollectionApiCall('dataSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
+    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, this._database._baseOptions);
     return stats.size;
   }
 
@@ -1198,7 +1211,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async storageSize(): Promise<number> {
     this._emitCollectionApiCall('storageSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
+    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, this._database._baseOptions);
     return stats.storageSize;
   }
 
@@ -1210,7 +1223,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async totalSize(): Promise<number> {
     this._emitCollectionApiCall('totalSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, {});
+    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, this._database._baseOptions);
     return (stats.storageSize || 0) + (stats.totalIndexSize || 0);
   }
 
@@ -1226,7 +1239,8 @@ export default class Collection extends ShellApiClass {
     try {
       return await this._mongo._serviceProvider.dropCollection(
         this._database._name,
-        this._name
+        this._name,
+        this._database._baseOptions
       );
     } catch (error) {
       if (error.codeName === 'NamespaceNotFound') {
@@ -1256,7 +1270,8 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       {
         name: this._name
-      }
+      },
+      this._database._baseOptions
     );
 
     return collectionInfos[0] || null;
@@ -1287,12 +1302,13 @@ export default class Collection extends ShellApiClass {
     if (!hiddenCommands.test(commandName)) {
       this._emitCollectionApiCall('runCommand', { commandName });
     }
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
       {
         [commandName]: this._name,
         ...options
-      }
+      },
+      this._database._baseOptions
     );
   }
 
@@ -1325,14 +1341,15 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       {
         collStats: this._name, scale: options.scale
-      }
+      },
+      this._database._baseOptions
     );
     if (!result) {
       throw new MongoshRuntimeError(`Error running collStats command on ${this.getFullName()}`);
     }
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
-      const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name);
+      const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
       indexes.forEach((spec) => {
         if (JSON.stringify(spec.key) === JSON.stringify(options.indexDetailsKey)) {
           filterIndexName = spec.name;
@@ -1380,7 +1397,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       pipeline,
-      {}
+      this._database._baseOptions
     );
     return await providerCursor.toArray();
   }
@@ -1392,7 +1409,8 @@ export default class Collection extends ShellApiClass {
     const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
       this._database._name,
       this._name,
-      true
+      true,
+      this._database._baseOptions
     );
     return new Bulk(this, innerBulk, true);
   }
@@ -1404,7 +1422,8 @@ export default class Collection extends ShellApiClass {
     const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
       this._database._name,
       this._name,
-      false
+      false,
+      this._database._baseOptions
     );
     return new Bulk(this, innerBulk);
   }
@@ -1436,7 +1455,8 @@ export default class Collection extends ShellApiClass {
 
     return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
-      cmd
+      cmd,
+      this._database._baseOptions
     );
   }
 
@@ -1448,18 +1468,20 @@ export default class Collection extends ShellApiClass {
       {
         validate: this._name,
         full: full
-      }
+      },
+      this._database._baseOptions
     );
   }
 
   @returnsPromise
   async getShardVersion(): Promise<any> {
     this._emitCollectionApiCall('getShardVersion', {});
-    return await this._mongo._serviceProvider.runCommand(
+    return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       {
         getShardVersion: `${this._database._name}.${this._name}`
-      }
+      },
+      this._database._baseOptions
     );
   }
 

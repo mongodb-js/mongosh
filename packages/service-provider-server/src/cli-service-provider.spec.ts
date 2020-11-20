@@ -1,8 +1,10 @@
 import mongodb, { MongoClient, Db } from 'mongodb';
 const Collection = (mongodb as any).Collection;
 
-import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import chai, { expect } from 'chai';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinonChai from 'sinon-chai';
+chai.use(sinonChai);
 
 import CliServiceProvider from './cli-service-provider';
 
@@ -518,8 +520,9 @@ describe('CliServiceProvider', () => {
 
     context('with write concern', () => {
       it('runs against the database passing write concern', async() => {
-        dropDatabaseMock.once().withArgs({ w: 1 });
-        await serviceProvider.dropDatabase('db1', { w: 1 });
+        const opts = { serializeFunctions: true, w: 1 };
+        dropDatabaseMock.once().withArgs(opts);
+        await serviceProvider.dropDatabase('db1', opts);
         expect((clientStub.db as any).calledOnce);
         expect((clientStub.db as any).calledWith('db1'));
         (dropDatabaseMock as any).verify();
@@ -971,6 +974,88 @@ describe('CliServiceProvider', () => {
           return;
         }
         expect.fail(`Error not thrown for ok:0 on cmd ${cmd}`);
+      });
+    });
+  });
+  describe('sessions', () => {
+    let clientStub: StubbedInstance<MongoClient>;
+    let serviceProvider: CliServiceProvider;
+    let db: StubbedInstance<Db>;
+    let driverSession;
+    let sampleOpts;
+    beforeEach(() => {
+      clientStub = stubInterface<MongoClient>();
+      serviceProvider = new CliServiceProvider(clientStub);
+      driverSession = { dSession: 1 };
+      clientStub.startSession.returns(driverSession);
+      db = stubInterface<Db>();
+      clientStub.db.returns(db);
+      sampleOpts = {
+        causalConsistency: false,
+        readConcern: { level: 'majority' },
+        writeConcern: { w: 1, j: false, wtimeout: 0 },
+        readPreference: { mode: 'primary', tagSet: [] }
+      };
+    });
+    describe('startSession', () => {
+      it('calls startSession without args', () => {
+        const result = serviceProvider.startSession();
+        expect(clientStub.startSession).to.have.been.calledOnceWith();
+        expect(result).to.equal(driverSession);
+      });
+      it('can set default transaction options readconcern', () => {
+        const result = serviceProvider.startSession({
+          readConcern: sampleOpts.readConcern
+        });
+        expect(clientStub.startSession).to.have.been.calledOnceWith({
+          defaultTransactionOptions: {
+            readConcern: sampleOpts.readConcern
+          }
+        });
+        expect(result).to.equal(driverSession);
+      });
+      it('can set default transaction options writeConcern', () => {
+        const result = serviceProvider.startSession({
+          writeConcern: sampleOpts.writeConcern
+        });
+        expect(clientStub.startSession).to.have.been.calledOnceWith({
+          defaultTransactionOptions: {
+            writeConcern: sampleOpts.writeConcern
+          }
+        });
+        expect(result).to.equal(driverSession);
+      });
+      it('can set default transaction options readPreference', () => {
+        const result = serviceProvider.startSession({
+          readPreference: sampleOpts.readPreference as any
+        });
+        expect(clientStub.startSession).to.have.been.calledOnceWith({
+          defaultTransactionOptions: {
+            readPreference: sampleOpts.readPreference
+          }
+        });
+        expect(result).to.equal(driverSession);
+      });
+      it('can set causalConsistency', () => {
+        const result = serviceProvider.startSession({
+          causalConsistency: false
+        });
+        expect(clientStub.startSession).to.have.been.calledOnceWith({
+          causalConsistency: false
+        });
+        expect(result).to.equal(driverSession);
+      });
+      it('sets everything', () => {
+        const result = serviceProvider.startSession(sampleOpts as any);
+        expect(clientStub.startSession).to.have.been.calledOnceWith({
+          causalConsistency: sampleOpts.causalConsistency,
+          defaultTransactionOptions: {
+            readPreference: sampleOpts.readPreference,
+            readConcern: sampleOpts.readConcern,
+            writeConcern: sampleOpts.writeConcern
+          }
+        });
+        expect(result).to.equal(driverSession);
       });
     });
   });

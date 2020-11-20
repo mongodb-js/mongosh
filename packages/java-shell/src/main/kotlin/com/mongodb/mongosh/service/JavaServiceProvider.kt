@@ -32,7 +32,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun runCommandWithCheck(database: String, spec: Value): Value = promise {
+    override fun runCommandWithCheck(database: String, spec: Value, options: Value?): Value = promise {
         getDatabase(database, null).map { db ->
             val res = if (spec.isString) {
                 db.runCommand(Document(spec.asString(), 1))
@@ -154,7 +154,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropDatabase(database: String, writeConcern: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun dropDatabase(database: String, option: Value?, dbOptions: Value?): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 
@@ -449,7 +449,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun getIndexes(database: String, collection: String): Value = promise {
+    override fun getIndexes(database: String, collection: String, options: Value?): Value = promise {
         getDatabase(database, null).map { db ->
             db.getCollection(collection).listIndexes()
         }
@@ -534,7 +534,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: Value?): Value = promise<Any?> {
+    override fun dropIndexes(database: String, collection: String, indexes: Value?, options: Value?): Value = promise<Any?> {
         val indexes = if (indexes != null && !indexes.isNull) indexes else throw IllegalArgumentException("Indexes parameter must not be null")
         val indexesList = if (indexes.hasArrayElements()) toList(indexes, "indexes")!!
         else listOf(context.extract(indexes).value)
@@ -557,7 +557,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropCollection(database: String, collection: String): Value = promise {
+    override fun dropCollection(database: String, collection: String, option: Value?): Value = promise {
         getDatabase(database, null).map { db ->
             db.getCollection(collection).drop()
         }

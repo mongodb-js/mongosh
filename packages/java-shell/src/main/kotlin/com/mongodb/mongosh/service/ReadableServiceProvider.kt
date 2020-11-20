@@ -15,7 +15,7 @@ internal interface ReadableServiceProvider {
     fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor
     fun getTopology(): Value
     fun isCapped(database: String, collection: String): Value
-    fun getIndexes(database: String, collection: String): Value
+    fun getIndexes(database: String, collection: String, options: Value?): Value
     fun listCollections(database: String, filter: Value?, options: Value?): Value
     fun stats(database: String, collection: String, options: Value?): Value
 }

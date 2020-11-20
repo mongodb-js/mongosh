@@ -1,4 +1,4 @@
-import Mongo from './mongo';
+import Database from './database';
 import {
   shellApiClassDefault,
   hasAsyncChild,
@@ -9,24 +9,24 @@ import {
   Document
 } from '@mongosh/service-provider-core';
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
-import { ADMIN_DB, ServerVersions, asPrintable } from './enums';
+import { ServerVersions, asPrintable } from './enums';
 import { CommandResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class Shard extends ShellApiClass {
-  _mongo: Mongo;
+  _database: Database;
 
-  constructor(mongo: Mongo) {
+  constructor(database: Database) {
     super();
-    this._mongo = mongo;
+    this._database = database;
   }
 
   /**
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${this._mongo._uri}`;
+    return `Shard class connected to ${this._database._mongo._uri} via db ${this._database._name}`;
   }
 
   /**
@@ -37,7 +37,7 @@ export default class Shard extends ShellApiClass {
    * @private
    */
   private _emitShardApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._internalState.emitApiCall({
+    this._database._mongo._internalState.emitApiCall({
       method: methodName,
       class: 'Shard',
       arguments: methodArguments
@@ -56,7 +56,7 @@ export default class Shard extends ShellApiClass {
       cmd.primaryShard = primaryShard;
     }
     try {
-      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+      return await this._database._runAdminCommand(cmd);
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
         error.message = `${error.message}. Are you connected to mongos?`;
@@ -80,7 +80,7 @@ export default class Shard extends ShellApiClass {
     }
     const orderedCmd = options !== undefined ? { ...cmd, ...options } : cmd;
     try {
-      return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, orderedCmd);
+      return await this._database._runAdminCommand(orderedCmd);
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
         error.message = `${error.message}. Are you connected to mongos?`;
@@ -91,8 +91,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async status(verbose = false): Promise<any> {
-    await getConfigDB(this._mongo); // will error if not connected to mongos
-    const result = await getPrintableShardStatus(this._mongo, verbose);
+    const result = await getPrintableShardStatus(this._database, verbose);
     return new CommandResult('StatsResult', result);
   }
 
@@ -100,9 +99,9 @@ export default class Shard extends ShellApiClass {
   async addShard(url: string): Promise<any> {
     assertArgsDefined(url);
     assertArgsType([url], ['string']);
-    await getConfigDB(this._mongo);
+    await getConfigDB(this._database);
     this._emitShardApiCall('addShard', { url });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       addShard: url
     });
   }
@@ -113,8 +112,8 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(shard, zone);
     assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('addShardToZone', { shard, zone });
-    await getConfigDB(this._mongo); // will error if not connected to mongos
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    await getConfigDB(this._database); // will error if not connected to mongos
+    return this._database._runAdminCommand({
       addShardToZone: shard,
       zone: zone
     });
@@ -140,8 +139,8 @@ export default class Shard extends ShellApiClass {
     assertArgsType([namespace, min, max], ['string', 'object', 'object']);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
-    await getConfigDB(this._mongo); // will error if not connected to mongos
-    return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    await getConfigDB(this._database); // will error if not connected to mongos
+    return await this._database._runAdminCommand({
       updateZoneKeyRange: namespace,
       min,
       max,
@@ -155,7 +154,6 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(namespace, min, max, zone);
     this._emitShardApiCall('addTagRange', { namespace, min, max, zone });
 
-    await getConfigDB(this._mongo); // will error if not connected to mongos
     try {
       return await this.updateZoneKeyRange(
         namespace,
@@ -199,8 +197,8 @@ export default class Shard extends ShellApiClass {
     assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
 
-    await getConfigDB(this._mongo); // will error if not connected to mongos
-    return await this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    await getConfigDB(this._database); // will error if not connected to mongos
+    return await this._database._runAdminCommand({
       removeShardFromZone: shard,
       zone: zone
     });
@@ -224,7 +222,7 @@ export default class Shard extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   async enableAutoSplit(): Promise<any> {
     this._emitShardApiCall('enableAutoSplit', {});
-    const config = await getConfigDB(this._mongo);
+    const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
       { _id: 'autosplit' },
       { $set: { enabled: true } },
@@ -236,7 +234,7 @@ export default class Shard extends ShellApiClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   async disableAutoSplit(): Promise<any> {
     this._emitShardApiCall('disableAutoSplit', {});
-    const config = await getConfigDB(this._mongo);
+    const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
       { _id: 'autosplit' },
       { $set: { enabled: false } },
@@ -249,7 +247,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitAt', { ns, query });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       split: ns,
       middle: query
     });
@@ -260,7 +258,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitFind', { ns, query });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       split: ns,
       find: query
     });
@@ -271,7 +269,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query, destination], ['string', 'object', 'string']);
     this._emitShardApiCall('moveChunk', { ns, query, destination });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       moveChunk: ns,
       find: query,
       to: destination
@@ -284,7 +282,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('balancerCollectionStatus', { ns });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       balancerCollectionStatus: ns
     });
   }
@@ -295,7 +293,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('enableBalancing', { ns });
-    const config = await getConfigDB(this._mongo);
+    const config = await getConfigDB(this._database);
     return await config.getCollection('collections').updateOne(
       { _id: ns },
       { $set: { 'noBalance': false } },
@@ -308,7 +306,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('disableBalancing', { ns });
-    const config = await getConfigDB(this._mongo);
+    const config = await getConfigDB(this._database);
     return await config.getCollection('collections').updateOne(
       { _id: ns },
       { $set: { 'noBalance': true } },
@@ -319,7 +317,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async getBalancerState(): Promise<boolean> {
     this._emitShardApiCall('getBalancerState', {});
-    const config = await getConfigDB(this._mongo);
+    const config = await getConfigDB(this._database);
     const doc = await config.getCollection('settings').findOne({ _id: 'balancer' });
     if (doc === null || doc === undefined) {
       return true;
@@ -330,8 +328,8 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   async isBalancerRunning(): Promise<any> {
     this._emitShardApiCall('isBalancerRunning', {});
-    await getConfigDB(this._mongo);
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    await getConfigDB(this._database);
+    return this._database._runAdminCommand({
       balancerStatus: 1
     });
   }
@@ -341,7 +339,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(timeout);
     assertArgsType([timeout], ['number']);
     this._emitShardApiCall('startBalancer', { timeout });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       balancerStart: 1, maxTimeMS: timeout
     });
   }
@@ -351,7 +349,7 @@ export default class Shard extends ShellApiClass {
     assertArgsDefined(timeout);
     assertArgsType([timeout], ['number']);
     this._emitShardApiCall('stopBalancer', { timeout });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, {
+    return this._database._runAdminCommand({
       balancerStop: 1, maxTimeMS: timeout
     });
   }

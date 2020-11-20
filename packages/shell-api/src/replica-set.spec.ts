@@ -15,6 +15,7 @@ import {
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, MongodSetup } from '../../../testing/integration-testing-hooks';
 import util from 'util';
+import Database from './database';
 
 describe('ReplicaSet', () => {
   describe('help', () => {
@@ -58,6 +59,7 @@ describe('ReplicaSet', () => {
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
     let internalState: ShellInternalState;
+    let db: Database;
 
     const findResolvesWith = (expectedResult): void => {
       const findCursor = stubInterface<ServiceProviderCursor>();
@@ -74,7 +76,8 @@ describe('ReplicaSet', () => {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
-      rs = new ReplicaSet(mongo);
+      db = new Database(mongo, 'testdb');
+      rs = new ReplicaSet(db);
     });
 
     describe('initiate', () => {
@@ -604,7 +607,6 @@ describe('ReplicaSet', () => {
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
     let internalState;
-    let mongo;
     let rs;
 
     const delay = util.promisify(setTimeout);
@@ -641,8 +643,7 @@ describe('ReplicaSet', () => {
 
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
       internalState = new ShellInternalState(serviceProvider);
-      mongo = internalState.currentDb.getMongo();
-      rs = new ReplicaSet(mongo);
+      rs = new ReplicaSet(internalState.currentDb);
 
       // check replset uninitialized
       try {
@@ -686,7 +687,7 @@ describe('ReplicaSet', () => {
         expect(result.type).to.equal('StatsResult');
       });
       it('returns data for db.getReplicationInfo', async() => {
-        const result = await rs._mongo.getDB('any').getReplicationInfo();
+        const result = await rs._database.getReplicationInfo();
         expect(Object.keys(result)).to.include('logSizeMB');
       });
     });

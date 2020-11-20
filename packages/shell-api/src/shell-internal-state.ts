@@ -101,8 +101,8 @@ export default class ShellInternalState {
 
   public setDbFunc(newDb: any): Database {
     this.currentDb = newDb;
-    this.context.rs = new ReplicaSet(this.currentDb._mongo);
-    this.context.sh = new Shard(this.currentDb._mongo);
+    this.context.rs = new ReplicaSet(this.currentDb);
+    this.context.sh = new Shard(this.currentDb);
     this.fetchConnectionInfo();
     return newDb;
   }
@@ -151,8 +151,8 @@ export default class ShellInternalState {
       };
     }
 
-    contextObject.rs = new ReplicaSet(this.currentDb._mongo);
-    contextObject.sh = new Shard(this.currentDb._mongo);
+    contextObject.rs = new ReplicaSet(this.currentDb);
+    contextObject.sh = new Shard(this.currentDb);
 
     // Add global shell objects
     const apiObjects = {

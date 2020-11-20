@@ -1,4 +1,4 @@
-import Mongo from './mongo';
+import Database from './database';
 import {
   shellApiClassDefault,
   hasAsyncChild,
@@ -9,7 +9,7 @@ import {
 import {
   Document
 } from '@mongosh/service-provider-core';
-import { ADMIN_DB, asPrintable } from './enums';
+import { asPrintable } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
@@ -17,11 +17,11 @@ import { CommandResult } from './result';
 @shellApiClassDefault
 @hasAsyncChild
 export default class ReplicaSet extends ShellApiClass {
-  _mongo: Mongo;
+  _database: Database;
 
-  constructor(mongo: Mongo) {
+  constructor(database: Database) {
     super();
-    this._mongo = mongo;
+    this._database = database;
   }
 
   /**
@@ -32,7 +32,7 @@ export default class ReplicaSet extends ShellApiClass {
   @returnsPromise
   async initiate(config = {}): Promise<any> {
     this._emitReplicaSetApiCall('initiate', { config });
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, { replSetInitiate: config });
+    return this._database._runAdminCommand({ replSetInitiate: config });
   }
 
   /**
@@ -44,8 +44,7 @@ export default class ReplicaSet extends ShellApiClass {
   async config(): Promise<any> {
     this._emitReplicaSetApiCall('config', {});
     try {
-      const result = await this._mongo._serviceProvider.runCommandWithCheck(
-        ADMIN_DB,
+      const result = await this._database._runAdminCommand(
         { replSetGetConfig: 1 }
       );
       if (result.config === undefined) {
@@ -54,7 +53,7 @@ export default class ReplicaSet extends ShellApiClass {
       return result.config;
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
-        return await this._mongo.getDB('local').getCollection('system.replset').findOne();
+        return await this._database.getSiblingDB('local').getCollection('system.replset').findOne();
       }
       throw error;
     }
@@ -85,14 +84,13 @@ export default class ReplicaSet extends ShellApiClass {
     config.version = conf.version ? conf.version + 1 : 1;
     const cmd = { replSetReconfig: config, ...options };
 
-    return this._mongo._serviceProvider.runCommandWithCheck(ADMIN_DB, cmd);
+    return this._database._runAdminCommand(cmd);
   }
 
   @returnsPromise
   async status(): Promise<any> {
     this._emitReplicaSetApiCall('status', {});
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       {
         replSetGetStatus: 1,
       }
@@ -102,8 +100,7 @@ export default class ReplicaSet extends ShellApiClass {
   @returnsPromise
   async isMaster(): Promise<any> {
     this._emitReplicaSetApiCall('isMaster', {});
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       {
         isMaster: 1,
       }
@@ -113,7 +110,7 @@ export default class ReplicaSet extends ShellApiClass {
   @returnsPromise
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     this._emitReplicaSetApiCall('printSecondaryReplicationInfo', {});
-    return this._mongo._internalState.currentDb.printSecondaryReplicationInfo();
+    return this._database.printSecondaryReplicationInfo();
   }
 
   @returnsPromise
@@ -124,7 +121,7 @@ export default class ReplicaSet extends ShellApiClass {
   @returnsPromise
   async printReplicationInfo(): Promise<CommandResult> {
     this._emitReplicaSetApiCall('printReplicationInfo', {});
-    return this._mongo._internalState.currentDb.printReplicationInfo();
+    return this._database.printReplicationInfo();
   }
 
   @returnsPromise
@@ -132,7 +129,7 @@ export default class ReplicaSet extends ShellApiClass {
     assertArgsDefined(hostport);
     this._emitReplicaSetApiCall('add', { hostport, arb });
 
-    const local = this._mongo.getDB('local');
+    const local = this._database.getSiblingDB('local');
     if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
       throw new MongoshRuntimeError('local.system.replset has unexpected contents');
     }
@@ -160,8 +157,7 @@ export default class ReplicaSet extends ShellApiClass {
     }
 
     configDoc.members.push(cfg);
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       {
         replSetReconfig: configDoc,
       }
@@ -179,7 +175,7 @@ export default class ReplicaSet extends ShellApiClass {
     assertArgsDefined(hostname);
     assertArgsType([hostname], ['string']);
     this._emitReplicaSetApiCall('remove', { hostname });
-    const local = this._mongo.getDB('local');
+    const local = this._database.getSiblingDB('local');
     if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
       throw new MongoshRuntimeError('local.system.replset has unexpected contents');
     }
@@ -192,8 +188,7 @@ export default class ReplicaSet extends ShellApiClass {
     for (let i = 0; i < configDoc.members.length; i++) {
       if (configDoc.members[i].host === hostname) {
         configDoc.members.splice(i, 1);
-        return this._mongo._serviceProvider.runCommandWithCheck(
-          ADMIN_DB,
+        return this._database._runAdminCommand(
           {
             replSetReconfig: configDoc,
           }
@@ -208,8 +203,7 @@ export default class ReplicaSet extends ShellApiClass {
     assertArgsDefined(secs);
     assertArgsType([secs], ['number']);
     this._emitReplicaSetApiCall('freeze', { secs });
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       {
         replSetFreeze: secs,
       }
@@ -226,8 +220,7 @@ export default class ReplicaSet extends ShellApiClass {
     if (catchUpSecs !== undefined) {
       cmd.secondaryCatchUpPeriodSecs = catchUpSecs;
     }
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       cmd
     );
   }
@@ -237,8 +230,7 @@ export default class ReplicaSet extends ShellApiClass {
     assertArgsDefined(host);
     assertArgsType([host], ['string']);
     this._emitReplicaSetApiCall('syncFrom', { host });
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this._database._runAdminCommand(
       {
         replSetSyncFrom: host,
       }
@@ -249,7 +241,7 @@ export default class ReplicaSet extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `ReplicaSet class connected to ${this._mongo._uri}`;
+    return `ReplicaSet class connected to ${this._database._mongo._uri} via db ${this._database._name}`;
   }
 
   /**
@@ -260,7 +252,7 @@ export default class ReplicaSet extends ShellApiClass {
    * @private
    */
   private _emitReplicaSetApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._internalState.emitApiCall({
+    this._database._mongo._internalState.emitApiCall({
       method: methodName,
       class: 'ReplicaSet',
       arguments: methodArguments

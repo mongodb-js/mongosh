@@ -2,7 +2,6 @@ import Document from './document';
 import Result from './result';
 import BulkWriteResult from './bulk-write-result';
 import CommandOptions from './command-options';
-import WriteConcern from './write-concern';
 import DatabaseOptions from './database-options';
 
 type DeleteWriteResult = {
@@ -76,14 +75,14 @@ export default interface Writable {
    * Drop a database
    *
    * @param {String} database - The database name.
-   * @param {WriteConcern} writeConcern - The write concern.
+   * @param {Document} options - The options.
    * @param {DatabaseOptions} dbOptions - The database options
    *
    * @returns {Promise<Result>} The result of the operation.
    */
   dropDatabase(
     database: string,
-    writeConcern?: WriteConcern,
+    options?: Document,
     dbOptions?: DatabaseOptions
   ): Promise<Result>;
 
@@ -432,6 +431,7 @@ export default interface Writable {
   dropCollection(
     database: string,
     collection: string,
+    options: Document,
     dbOptions?: DatabaseOptions
   ): Promise<boolean>;
 

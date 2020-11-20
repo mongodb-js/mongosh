@@ -169,6 +169,7 @@ export default interface Readable {
   getIndexes(
     database: string,
     collection: string,
+    options: Document,
     dbOptions?: DatabaseOptions): Promise<any[]>;
 
   /**

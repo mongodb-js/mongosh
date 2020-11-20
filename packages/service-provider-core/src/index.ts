@@ -18,6 +18,8 @@ const DEFAULT_DB = 'test';
 import * as bson from 'bson';
 import ServiceProviderBulkOp, { ServiceProviderBulkFindOp, BulkBatch } from './bulk';
 import makePrintableBson, { bsonStringifiers } from './printable-bson';
+import SessionOptions, { TransactionOptions } from './session-options';
+import ServiceProviderSession from './session';
 
 export {
   ServiceProvider,
@@ -47,5 +49,8 @@ export {
   bsonStringifiers,
   ServiceProviderBulkFindOp,
   ServiceProviderBulkOp,
-  BulkBatch
+  BulkBatch,
+  SessionOptions,
+  ServiceProviderSession,
+  TransactionOptions
 };
