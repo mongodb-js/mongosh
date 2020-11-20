@@ -203,6 +203,10 @@ export class MongodSetup {
     return new URL(await this.connectionString()).port ?? '27017';
   }
 
+  async hostport(): Promise<string> {
+    return `${await this.host()}:${await this.port()}`;
+  }
+
   async serverVersion(): Promise<string> {
     if (this._serverVersion !== null) {
       return this._serverVersion;

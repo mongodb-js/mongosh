@@ -1102,7 +1102,7 @@ describe('Shard', () => {
     const ns = `${dbName}.coll`;
     const shardId = 'rs-shard0';
 
-    const testServers = startTestCluster(
+    const [ mongos, rs0, rs1 ] = startTestCluster(
       // --sharded 0 creates a setup without any initial shards
       ['--replicaset', '--sharded', '0'],
       ['--replicaset', '--name', `${shardId}-0`, '--shardsvr'],
@@ -1110,9 +1110,7 @@ describe('Shard', () => {
     );
 
     before(async() => {
-      const [ mongos, rs0, rs1 ] = await Promise.all(testServers);
-
-      serviceProvider = await CliServiceProvider.connect(mongos.connectionString());
+      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString());
       internalState = new ShellInternalState(serviceProvider);
       mongo = internalState.currentDb.getMongo();
       sh = new Shard(mongo);
@@ -1122,8 +1120,8 @@ describe('Shard', () => {
       expect(members.length).to.equal(0);
 
       // add new shards
-      expect((await sh.addShard(`${shardId}-0/${rs0.host()}:${rs0.port()}`)).shardAdded).to.equal(`${shardId}-0`);
-      expect((await sh.addShard(`${shardId}-1/${rs1.host()}:${rs1.port()}`)).shardAdded).to.equal(`${shardId}-1`);
+      expect((await sh.addShard(`${shardId}-0/${await rs0.hostport()}`)).shardAdded).to.equal(`${shardId}-0`);
+      expect((await sh.addShard(`${shardId}-1/${await rs1.hostport()}`)).shardAdded).to.equal(`${shardId}-1`);
       members = await sh._mongo.getDB('config').getCollection('shards').find().sort({ _id: 1 }).toArray();
       expect(members.length).to.equal(2);
       await sh._mongo.getDB(dbName).dropDatabase();

@@ -47,9 +47,7 @@ describe('e2e', function() {
     describe('via host:port/test', () => {
       let shell;
       beforeEach(async() => {
-        const host = await testServer.host();
-        const port = await testServer.port();
-        shell = TestShell.start({ args: [`${host}:${port}/testdb1`] });
+        shell = TestShell.start({ args: [`${await testServer.hostport()}/testdb1`] });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
@@ -65,9 +63,7 @@ describe('e2e', function() {
     describe('via mongodb://uri', () => {
       let shell;
       beforeEach(async() => {
-        const host = await testServer.host();
-        const port = await testServer.port();
-        shell = TestShell.start({ args: [`mongodb://${host}:${port}/testdb2`] });
+        shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/testdb2`] });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
