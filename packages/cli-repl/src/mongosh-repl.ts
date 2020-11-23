@@ -16,6 +16,7 @@ import formatOutput, { formatError } from './format-output';
 import clr, { StyleDefinition } from './clr';
 import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { promisify } from 'util';
+import askpassword from 'askpassword';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -208,6 +209,17 @@ class MongoshNodeRepl {
   onPrint(values: ShellResult[]): void {
     const joined = values.map((value) => this.writer(value)).join(' ');
     this.output.write(joined + '\n');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async onPrompt(question: string, type: 'password'): Promise<string> {
+    const passwordPromise = askpassword({
+      input: this.input,
+      output: this.output,
+      replacementCharacter: '*'
+    });
+    this.output.write(question + '\n');
+    return (await passwordPromise).toString();
   }
 
   formatOutput(value: any): string {

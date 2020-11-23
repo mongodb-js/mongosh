@@ -37,10 +37,18 @@ async function waitEval(bus: any) {
   await tick();
 }
 
+const fakeTTYProps = {
+  isTTY: true,
+  isRaw: true,
+  setRawMode() { return false; },
+  getColorDepth() { return 256; }
+};
+
 export {
   expect,
   sinon,
   useTmpdir,
   tick,
-  waitEval
+  waitEval,
+  fakeTTYProps
 };

@@ -8,12 +8,11 @@ import MongoshNodeRepl from './mongosh-repl';
 import Nanobus from 'nanobus';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import type { StyleDefinition } from './clr';
-import read from 'read';
+import askpassword from 'askpassword';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
 import Analytics from 'analytics-node';
 import pino from 'pino';
-import { promisify } from 'util';
 import { UserConfig } from './types';
 
 /**
@@ -172,15 +171,14 @@ class CliRepl {
    * @param {NodeOptions} driverOptions - The driver options.
    */
   async requirePassword(driverUri: string, driverOptions: NodeOptions): Promise<void> {
-    const readOptions = {
-      prompt: 'Enter password: ',
-      silent: true,
-      replace: '*',
+    const passwordPromise = askpassword({
       input: this.input,
-      output: this.output
-    };
+      output: this.output,
+      replacementCharacter: '*'
+    });
+    this.output.write('Enter password: ');
     try {
-      (driverOptions.auth as any).password = await promisify(read)(readOptions);
+      (driverOptions.auth as any).password = (await passwordPromise).toString();
     } catch (error) {
       this.bus.emit('mongosh:error', error);
       return this._fatalError(error);

@@ -3,7 +3,7 @@ import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from '
 import { PassThrough, Duplex } from 'stream';
 import path from 'path';
 import { EventEmitter, once } from 'events';
-import { expect, tick, useTmpdir } from '../test/repl-helpers';
+import { expect, tick, useTmpdir, fakeTTYProps } from '../test/repl-helpers';
 import { stubInterface } from 'ts-sinon';
 
 describe('MongoshNodeRepl', () => {
@@ -148,10 +148,8 @@ describe('MongoshNodeRepl', () => {
 
   context('with fake TTY', () => {
     beforeEach(async() => {
-      Object.assign(outputStream, {
-        isTTY: true,
-        getColorDepth() { return 256; }
-      });
+      Object.assign(outputStream, fakeTTYProps);
+      Object.assign(input, fakeTTYProps);
       mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
       await mongoshRepl.start(serviceProvider);
     });
@@ -161,6 +159,40 @@ describe('MongoshNodeRepl', () => {
       await tick();
       // eslint-disable-next-line no-control-regex
       expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
+    });
+
+    it('can ask for passwords', async() => {
+      input.write('const pw = passwordPrompt()\n');
+      await tick();
+      expect(output).to.include('Enter password');
+
+      output = '';
+      input.write('hello!\n');
+      await tick();
+      expect(output).not.to.include('hello!');
+
+      output = '';
+      input.write('pw\n');
+      await tick();
+      expect(output).to.include('hello!');
+    });
+
+    it('can abort asking for passwords', async() => {
+      input.write('pw = passwordPrompt(); 0\n');
+      await tick();
+      expect(output).to.include('Enter password');
+
+      output = '';
+      input.write('hello!\u0003'); // Ctrl+C
+      await tick();
+      expect(output).not.to.include('hello!');
+      expect(output).to.include('aborted by the user');
+
+      output = '';
+      input.write('pw\n');
+      await tick();
+      expect(output).not.to.include('hello!');
+      expect(output).to.include('ReferenceError');
     });
   });
 
