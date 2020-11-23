@@ -167,11 +167,19 @@ export async function clearMlaunch({ killAllMongod = false } = {}) {
 
 // Represents one running test server instance.
 export class MongodSetup {
-  _connectionString: string;
+  _connectionString: Promise<string>;
+  _setConnectionString: (connectionString: string) => void;
   _serverVersion: string | null = null;
 
-  constructor(connectionString: string) {
-    this._connectionString = connectionString;
+  constructor(connectionString?: string) {
+    this._setConnectionString = (connectionString: string) => {};  // Make TypeScript happy.
+    this._connectionString = new Promise(resolve => {
+      this._setConnectionString = resolve;
+    });
+
+    if (connectionString) {
+      this._setConnectionString(connectionString);
+    }
   }
 
   async start(): Promise<void> {
@@ -182,16 +190,21 @@ export class MongodSetup {
     throw new Error('Server not managed');
   }
 
-  connectionString(): string {
+  async connectionString(): Promise<string> {
     return this._connectionString;
   }
 
-  host(): string {
-    return new URL(this.connectionString()).hostname;
+  async host(): Promise<string> {
+    return new URL(await this.connectionString()).hostname;
   }
 
-  port(): string {
-    return new URL(this.connectionString()).port ?? '27017';
+  async port(): Promise<string> {
+    // 27017 is the default port for mongodb:// URLs.
+    return new URL(await this.connectionString()).port ?? '27017';
+  }
+
+  async hostport(): Promise<string> {
+    return `${await this.host()}:${await this.port()}`;
   }
 
   async serverVersion(): Promise<string> {
@@ -201,7 +214,7 @@ export class MongodSetup {
 
     let client;
     try {
-      client = await MongoClient.connect(this.connectionString(), {
+      client = await MongoClient.connect(await this.connectionString(), {
         useUnifiedTopology: true,
         useNewUrlParser: true
       });
@@ -217,113 +230,78 @@ export class MongodSetup {
   }
 }
 
-// Add .connectionString(), .host(), port() as async methods on the returned
-// Promise itself, for easier access.
-type MongodSetupPromise = Promise<MongodSetup> & {
-  connectionString(): Promise<string>;
-  host(): Promise<string>;
-  port(): Promise<string>;
-};
-function makeMongodSetupPromise(p: MongodSetup | Promise<MongodSetup>): MongodSetupPromise {
-  return Object.assign(
-    Promise.resolve(p),
-    {
-      async connectionString(): Promise<string> {
-        return (await p).connectionString();
-      },
-      async host(): Promise<string> {
-        return (await p).host();
-      },
-      async port(): Promise<string> {
-        return (await p).port();
-      }
-    });
-}
-
 // Spawn mlaunch with a specific set of arguments.
-async function startMlaunch(...args: string[]): Promise<MongodSetup> {
-  const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
-  const tag = `${process.pid}-${random}`;
+class MlaunchSetup extends MongodSetup {
+  _args: string[];
+  _mlaunchdir = '';
 
-  const tmpdir = await getTmpdir();
-  const mlaunchdir = path.join(tmpdir, `mlaunch-${tag}`);
-
-  let port: number;
-  if (args.includes('--port')) {
-    const index = args.indexOf('--port');
-    port = +args.splice(index, 2)[1];
-  } else {
-    // If no port was specified, we pick one in the range [30000, 40000].
-    // We pick by writing to a file, looking up the index at which we wrote,
-    // and adding that to the base port, so that there is a low likelihood of
-    // port collisions between different test runs even when two tests call
-    // startMlaunch() at the same time.
-    // Ideally, we would handle failures from port conflicts that occur when
-    // mlaunch starts, but we don't currently have access to that information
-    // until .start() is called.
-    const portfile = path.join(tmpdir, '.current-port');
-    await fs.appendFile(portfile, `${tag}\n`);
-    const portfileContent = (await fs.readFile(portfile, 'utf8')).split('\n');
-    const writeIndex = portfileContent.indexOf(tag);
-    if (writeIndex === -1) {
-      throw new Error(`Could not figure out port number, ${portfile} may be corrupt`);
-    }
-    port = 30000 + (writeIndex * 30) % 10000;
+  constructor(args: string[] = []) {
+    super();
+    this._args = args;
   }
 
-  if (!args.includes('--replicaset') && !args.includes('--single')) {
-    args.push('--single');
-  }
+  async start(): Promise<void> {
+    if (this._mlaunchdir) return;
+    const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
+    const tag = `${process.pid}-${random}`;
 
-  // Make sure mongod and mongos are accessible
-  try {
-    await Promise.all([which('mongod'), which('mongos')]);
-  } catch {
-    args.unshift('--binarypath', await downloadMongoDb());
-  }
+    const tmpdir = await getTmpdir();
+    this._mlaunchdir = path.join(tmpdir, `mlaunch-${tag}`);
 
-  let refs = 0;
-  let currentAction = Promise.resolve();
-
-  class MlaunchSetup extends MongodSetup {
-    async start(): Promise<void> {
-      return currentAction = (async() => {
-        await currentAction;
-        // Keep track of .start() and .stop() calls. Starting multiple times
-        // increases the ref count, stopping multipple times decreases.
-        if (refs++ !== 0) {
-          return;
-        }
-        if (await statIfExists(mlaunchdir)) {
-          // There might be leftovers from previous runs. Remove them.
-          await execMlaunch('kill', '--dir', mlaunchdir);
-          await promisify(rimraf)(mlaunchdir);
-        }
-        await fs.mkdir(mlaunchdir, { recursive: true });
-        await execMlaunch('init', '--dir', mlaunchdir, '--port', `${port}`, ...args);
-      })();
+    const args = this._args;
+    if (!args.includes('--replicaset') && !args.includes('--single')) {
+      args.push('--single');
     }
 
-    async stop(): Promise<void> {
-      return currentAction = (async() => {
-        await currentAction;
-        if (refs === 0) {
-          throw new Error('stop() without matching start()');
-        }
-        if (--refs > 0) {
-          return;
-        }
-        await execMlaunch('stop', '--dir', mlaunchdir);
-        try {
-          await promisify(rimraf)(mlaunchdir);
-        } catch (err) {
-          console.error(`Cannot remove directory ${mlaunchdir}`, err);
-        }
-      })();
+    let port: number;
+    if (args.includes('--port')) {
+      const index = args.indexOf('--port');
+      port = +args.splice(index, 2)[1];
+    } else {
+      // If no port was specified, we pick one in the range [30000, 40000].
+      // We pick by writing to a file, looking up the index at which we wrote,
+      // and adding that to the base port, so that there is a low likelihood of
+      // port collisions between different test runs even when two tests call
+      // startMlaunch() at the same time.
+      // Ideally, we would handle failures from port conflicts that occur when
+      // mlaunch starts, but we don't currently have access to that information
+      // until .start() is called.
+      const portfile = path.join(tmpdir, '.current-port');
+      await fs.appendFile(portfile, `${tag}\n`);
+      const portfileContent = (await fs.readFile(portfile, 'utf8')).split('\n');
+      const writeIndex = portfileContent.indexOf(tag);
+      if (writeIndex === -1) {
+        throw new Error(`Could not figure out port number, ${portfile} may be corrupt`);
+      }
+      port = 30000 + (writeIndex * 30) % 10000;
     }
+
+    // Make sure mongod and mongos are accessible
+    try {
+      await Promise.all([which('mongod'), which('mongos')]);
+    } catch {
+      args.unshift('--binarypath', await downloadMongoDb());
+    }
+
+    if (await statIfExists(this._mlaunchdir)) {
+      // There might be leftovers from previous runs. Remove them.
+      await execMlaunch('kill', '--dir', this._mlaunchdir);
+      await promisify(rimraf)(this._mlaunchdir);
+    }
+    await fs.mkdir(this._mlaunchdir, { recursive: true });
+    await execMlaunch('init', '--dir', this._mlaunchdir, '--port', `${port}`, ...args);
+    this._setConnectionString(`mongodb://localhost:${port}`);
   }
 
-  return new MlaunchSetup(`mongodb://localhost:${port}`);
+  async stop(): Promise<void> {
+    if (!this._mlaunchdir) return;
+    await execMlaunch('stop', '--dir', this._mlaunchdir);
+    try {
+      await promisify(rimraf)(this._mlaunchdir);
+    } catch (err) {
+      console.error(`Cannot remove directory ${this._mlaunchdir}`, err);
+    }
+  }
 }
 
 
@@ -345,55 +323,61 @@ async function startMlaunch(...args: string[]): Promise<MongodSetup> {
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-let sharedSetup : Promise<MongodSetup> | null = null;
-export function startTestServer(shareMode: 'shared' | 'not-shared', ...args: string[]): MongodSetupPromise {
+let sharedSetup : MongodSetup | null = null;
+export function startTestServer(shareMode: 'shared' | 'not-shared', ...args: string[]): MongodSetup {
   if (shareMode === 'shared' && process.env.MONGOSH_TEST_SERVER_URL) {
-    return makeMongodSetupPromise(new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL));
+    return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
 
-  let setupPromise : Promise<MongodSetup>;
+  let server : MongodSetup;
   if (shareMode === 'shared') {
     if (args.length > 0) {
       throw new Error('Cannot specify arguments for shared mongod');
     }
-    setupPromise = sharedSetup ?? (sharedSetup = startMlaunch());
+    server = sharedSetup ?? (sharedSetup = new MlaunchSetup());
   } else {
-    setupPromise = startMlaunch(...args);
+    server = new MlaunchSetup(args);
   }
 
   before(async function() {
     this.timeout(120_000);  // Include potential mongod download time.
-    await (await setupPromise).start();
+    await server.start();
   });
 
   after(async function() {
-    this.timeout(30_000);
-    await (await setupPromise).stop();
+    // Clean the shared server only up once we're done with everything.
+    if (shareMode !== 'shared') {
+      this.timeout(30_000);
+      await server.stop();
+    }
   });
 
-  return makeMongodSetupPromise(setupPromise);
+  return server;
 }
+
+global.after?.(async function() {
+  if (sharedSetup !== null) {
+    this.timeout(30_000);
+    await sharedSetup.stop();
+  }
+});
 
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
-export function startTestCluster(...argLists: string[][]): MongodSetupPromise[] {
-  const setupPromises = argLists.map(args => startMlaunch(...args));
+export function startTestCluster(...argLists: string[][]): MongodSetup[] {
+  const servers = argLists.map(args => new MlaunchSetup(args));
 
   before(async function() {
-    this.timeout(90_000 + 30_000 * setupPromises.length);
-    await Promise.all(setupPromises.map(async (setupPromise: Promise<MongodSetup>) => {
-      await (await setupPromise).start();
-    }));
+    this.timeout(90_000 + 30_000 * servers.length);
+    await Promise.all(servers.map((server: MongodSetup) => server.start()));
   });
 
   after(async function() {
-    this.timeout(30_000 * setupPromises.length);
-    await Promise.all(setupPromises.map(async (setupPromise: Promise<MongodSetup>) => {
-      await (await setupPromise).stop();
-    }));
+    this.timeout(30_000 * servers.length);
+    await Promise.all(servers.map((server: MongodSetup) => server.stop()));
   });
 
-  return setupPromises.map(makeMongodSetupPromise);
+  return servers;
 }
 
 /**
@@ -407,9 +391,9 @@ export function startTestCluster(...argLists: string[][]): MongodSetupPromise[] 
  * @export
  * @returns {string} - uri that can be used to connect to the server.
  */
-export function skipIfServerVersion(server: MongodSetup | Promise<MongodSetup>, semverCondition: string) {
+export function skipIfServerVersion(server: MongodSetup, semverCondition: string) {
   before(async function() {
-    const testServerVersion = await (await server).serverVersion();
+    const testServerVersion = await server.serverVersion();
     if (semver.satisfies(testServerVersion, semverCondition)) {
       this.skip();
     }

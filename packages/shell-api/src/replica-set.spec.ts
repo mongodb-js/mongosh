@@ -592,7 +592,7 @@ describe('ReplicaSet', () => {
   describe('integration', () => {
     const replId = 'rs0';
 
-    const testServers = startTestCluster(
+    const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
       ['--single', '--replSet', replId],
       ['--single', '--replSet', replId],
       ['--single', '--replSet', replId],
@@ -619,18 +619,17 @@ describe('ReplicaSet', () => {
 
     before(async function() {
       this.timeout(100_000);
-      const [ srv0, srv1, srv2, srv3 ] = await Promise.all(testServers);
       cfg = {
         _id: replId,
         members: [
-          { _id: 0, host: `${srv0.host()}:${srv0.port()}`, priority: 1 },
-          { _id: 1, host: `${srv1.host()}:${srv1.port()}`, priority: 0 },
-          { _id: 2, host: `${srv2.host()}:${srv2.port()}`, priority: 0 }
+          { _id: 0, host: `${await srv0.hostport()}`, priority: 1 },
+          { _id: 1, host: `${await srv1.hostport()}`, priority: 0 },
+          { _id: 2, host: `${await srv2.hostport()}`, priority: 0 }
         ]
       };
       additionalServer = srv3;
 
-      serviceProvider = await CliServiceProvider.connect(srv0.connectionString());
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
       internalState = new ShellInternalState(serviceProvider);
       mongo = internalState.currentDb.getMongo();
       rs = new ReplicaSet(mongo);
@@ -704,7 +703,7 @@ describe('ReplicaSet', () => {
     describe('add member', () => {
       it('adds a regular member to the config', async() => {
         const version = (await rs.conf()).version;
-        const result = await rs.add(`${additionalServer.host()}:${additionalServer.port()}`);
+        const result = await rs.add(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
@@ -712,7 +711,7 @@ describe('ReplicaSet', () => {
       });
       it('adds a arbiter member to the config', async() => {
         const version = (await rs.conf()).version;
-        const result = await rs.addArb(`${additionalServer.host()}:${additionalServer.port()}`);
+        const result = await rs.addArb(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
