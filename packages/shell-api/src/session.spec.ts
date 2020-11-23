@@ -115,15 +115,7 @@ describe('Session', () => {
     });
   });
   describe('integration', () => {
-    const replId = 'rs0';
-
-    const testServers = startTestCluster(
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId]
-    );
-    let cfg: {_id: string, members: {_id: number, host: string, priority: number}[]};
+    const [ srv0 ] = startTestCluster(['--replicaset'] );
     let serviceProvider: CliServiceProvider;
     let internalState: ShellInternalState;
     let mongo: Mongo;
@@ -131,23 +123,13 @@ describe('Session', () => {
 
     before(async function() {
       this.timeout(100_000);
-      const [ srv0, srv1, srv2 ] = await Promise.all(testServers);
-      cfg = {
-        _id: replId,
-        members: [
-          { _id: 0, host: `${srv0.host()}:${srv0.port()}`, priority: 1 },
-          { _id: 1, host: `${srv1.host()}:${srv1.port()}`, priority: 0 },
-          { _id: 2, host: `${srv2.host()}:${srv2.port()}`, priority: 0 }
-        ]
-      };
-      serviceProvider = await CliServiceProvider.connect(srv0.connectionString());
-      await serviceProvider.runCommand(ADMIN_DB, { replSetInitiate: cfg });
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
       internalState = new ShellInternalState(serviceProvider);
       mongo = new Mongo(internalState);
     });
 
     beforeEach(async() => {
-      await ensureMaster(mongo.getDB('admin'), 1000, cfg);
+      await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 
     afterEach(async() => {

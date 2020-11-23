@@ -242,7 +242,7 @@ export default class Database extends ShellApiClass {
     const providerCursor = this._mongo._serviceProvider.aggregateDb(
       this._name,
       pipeline,
-      { ...aggOptions, ...this._baseOptions },
+      { ...this._baseOptions, ...aggOptions },
       dbOptions
     ) as ServiceProviderCursor;
     const cursor = new AggregationCursor(this._mongo, providerCursor);
@@ -287,7 +287,7 @@ export default class Database extends ShellApiClass {
   async dropDatabase(writeConcern?: WriteConcern): Promise<any> {
     return await this._mongo._serviceProvider.dropDatabase(
       this._name,
-      { writeConcern, ...this._baseOptions }
+      { ...this._baseOptions, writeConcern }
     );
   }
 

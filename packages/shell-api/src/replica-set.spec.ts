@@ -646,7 +646,7 @@ describe('ReplicaSet', () => {
     });
 
     beforeEach(async() => {
-      await ensureMaster(rs, 1000, cfg);
+      await ensureMaster(rs, 1000, await srv0.hostport());
       expect((await rs.conf()).members.length).to.equal(3);
     });
 
