@@ -138,6 +138,19 @@ functions:
           .\.evergreen\SetupEnv
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           npm run test-ci
+  test_vscode:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
+          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
+            -e NODE_JS_VERSION \
+            -e BUILD_VARIANT \
+            --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
+            -c 'cd /tmp/build && ./testing/test-vscode.sh'
   release_macos:
     - command: expansions.write
       params:
@@ -190,6 +203,7 @@ functions:
 # Current tasks:
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
+#   test_vscode - Run the vscode extension integration tests.
 #   release_macos - Publishes the npm packages and uploads the tarballs.
 #   release_linux - Publishes the npm packages and uploads the tarballs.
 #   release_win_ps - Publishes the npm packages and uploads the tarballs (from powershell).
@@ -214,6 +228,11 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: test_ps
+  - name: test_vscode
+    commands:
+      - func: checkout
+      - func: install
+      - func: test_vscode
   - name: release_macos
     depends_on:
       - name: check
@@ -287,6 +306,7 @@ buildvariants:
     tasks:
       - name: check
       - name: test
+      - name: test_vscode
       - name: release_linux
   - name: rhel
     display_name: "RHEL 8.0 (in Ubuntu docker)"
