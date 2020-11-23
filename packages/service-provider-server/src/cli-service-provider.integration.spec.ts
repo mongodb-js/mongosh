@@ -513,20 +513,20 @@ describe('CliServiceProvider [integration]', function() {
       const collName = 'coll1';
       const nativeCollection = db.collection(collName);
 
-      await nativeCollection.createIndex({ x: 1 }, { name: 'index-1' });
+      await nativeCollection.createIndex({ x: 1 }, { name: 'index_1' });
 
       expect(
-        await nativeCollection.indexExists('index-1')
+        await nativeCollection.indexExists('index_1')
       ).to.be.true;
 
       await serviceProvider.dropIndexes(
         dbName,
         collName,
-        ['index-1']
+        'index_1'
       );
 
       expect(
-        await nativeCollection.indexExists('index-1')
+        await nativeCollection.indexExists('index_1')
       ).to.be.false;
     });
 
@@ -538,7 +538,7 @@ describe('CliServiceProvider [integration]', function() {
       await serviceProvider.dropIndexes(
         dbName,
         collName,
-        ['index-1']
+        ['index_1']
       ).catch(err => {error = err;});
 
       expect(error.ok).to.equal(0);
@@ -565,10 +565,8 @@ describe('CliServiceProvider [integration]', function() {
         'wiredTiger',
         'nindexes',
         'indexDetails',
-        'indexBuilds',
         'totalIndexSize',
         'indexSizes',
-        'scaleFactor',
         'ok'
       ]);
     });

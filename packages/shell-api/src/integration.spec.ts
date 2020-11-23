@@ -5,8 +5,9 @@ import Cursor from './cursor';
 import Explainable from './explainable';
 import AggregationCursor from './aggregation-cursor';
 import ShellApi from './shell-api';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult } from './index';
+import semver from 'semver';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -17,6 +18,7 @@ const compileExpr = (templ, ...subs): any => {
 
 describe('Shell API (integration)', function() {
   const testServer = startTestServer('shared');
+  let serverVersion;
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 
@@ -90,6 +92,7 @@ describe('Shell API (integration)', function() {
   };
 
   before(async() => {
+    serverVersion = await testServer.serverVersion();
     serviceProvider = await CliServiceProvider.connect(await testServer.connectionString());
   });
 
@@ -492,9 +495,13 @@ describe('Shell API (integration)', function() {
     });
 
     describe('stats', () => {
+      const extraStatsKeys: string[] = [];
       beforeEach(async() => {
         await createCollection(dbName, collectionName);
         await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+        if (semver.satisfies(serverVersion, '>= 4.4.x')) {
+          extraStatsKeys.push('indexBuilds', 'scaleFactor');
+        }
       });
 
       it('returns stats without indexDetails', async() => {
@@ -503,16 +510,15 @@ describe('Shell API (integration)', function() {
           'avgObjSize',
           'capped',
           'count',
-          'indexBuilds',
           'indexSizes',
           'nindexes',
           'ns',
           'ok',
-          'scaleFactor',
           'size',
           'storageSize',
           'totalIndexSize',
-          'wiredTiger'
+          'wiredTiger',
+          ...extraStatsKeys
         );
       });
       it('returns stats with indexDetails', async() => {
@@ -521,17 +527,16 @@ describe('Shell API (integration)', function() {
           'avgObjSize',
           'capped',
           'count',
-          'indexBuilds',
           'indexDetails',
           'indexSizes',
           'nindexes',
           'ns',
           'ok',
-          'scaleFactor',
           'size',
           'storageSize',
           'totalIndexSize',
-          'wiredTiger'
+          'wiredTiger',
+          ...extraStatsKeys
         );
       });
     });
@@ -1324,7 +1329,8 @@ describe('Shell API (integration)', function() {
     });
   });
   describe('PlanCache', () => {
-    describe('list', async() => {
+    describe('list', () => {
+      skipIfServerVersion(testServer, '< 4.4');
       it('lists all without args', async() => {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
@@ -1349,6 +1355,7 @@ describe('Shell API (integration)', function() {
       });
     });
     describe('clear', () => {
+      skipIfServerVersion(testServer, '< 4.4');
       it('clears list', async() => {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
@@ -1359,6 +1366,7 @@ describe('Shell API (integration)', function() {
       });
     });
     describe('clearPlansByQuery', () => {
+      skipIfServerVersion(testServer, '< 4.4');
       it('only clears some queries', async() => {
         const query = { quantity: { $gte: 5 }, type: 'apparel' };
         await loadQueryCache(collection);

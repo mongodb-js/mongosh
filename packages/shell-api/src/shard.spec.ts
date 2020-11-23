@@ -9,7 +9,7 @@ import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import Database from './database';
 
 describe('Shard', () => {
@@ -1206,8 +1206,11 @@ describe('Shard', () => {
         expect((await sh.startBalancer()).ok).to.equal(1);
         expect((await sh.isBalancerRunning()).mode).to.equal('full');
       });
-      it('reports state for collection', async() => {
-        expect(Object.keys(await sh.balancerCollectionStatus(ns))).to.include('balancerCompliant');
+      describe('balancerCollectionStatus', () => {
+        skipIfServerVersion(mongos, '< 4.4');
+        it('reports state for collection', async() => {
+          expect(Object.keys(await sh.balancerCollectionStatus(ns))).to.include('balancerCompliant');
+        });
       });
       it('disables balancing', async() => {
         expect((await sh.disableBalancing(ns)).acknowledged).to.equal(true);

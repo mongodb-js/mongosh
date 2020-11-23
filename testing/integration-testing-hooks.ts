@@ -277,10 +277,19 @@ class MlaunchSetup extends MongodSetup {
     }
 
     // Make sure mongod and mongos are accessible
+    const mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
     try {
       await Promise.all([which('mongod'), which('mongos')]);
+      if (mongodVersion) {
+        const { stdout } = await execFile('mongod', ['--version']);
+        const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
+        if (!semver.satisfies(version, mongodVersion)) {
+          console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
+          throw new Error();
+        }
+      }
     } catch {
-      args.unshift('--binarypath', await downloadMongoDb());
+      args.unshift('--binarypath', await downloadMongoDb(mongodVersion));
     }
 
     if (await statIfExists(this._mlaunchdir)) {
