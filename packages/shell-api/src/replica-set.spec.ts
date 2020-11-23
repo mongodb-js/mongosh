@@ -14,7 +14,7 @@ import {
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, MongodSetup } from '../../../testing/integration-testing-hooks';
-import util from 'util';
+import { ensureMaster } from '../../../testing/helpers';
 import Database from './database';
 
 describe('ReplicaSet', () => {
@@ -609,18 +609,6 @@ describe('ReplicaSet', () => {
     let internalState;
     let rs;
 
-    const delay = util.promisify(setTimeout);
-    const ensureMaster = async(timeout): Promise<void> => {
-      while (!(await rs.isMaster()).ismaster) {
-        if (timeout > 32000) {
-          return expect.fail(`Waited for ${cfg.members[0].host} to become master, never happened`);
-        }
-        await delay(timeout);
-        timeout *= 2; // try again but wait double
-      }
-      expect((await rs.conf()).members.length).to.equal(3);
-    };
-
     before(async function() {
       this.timeout(100_000);
       // cfg = {
@@ -658,7 +646,8 @@ describe('ReplicaSet', () => {
     });
 
     beforeEach(async() => {
-      await ensureMaster(1000);
+      await ensureMaster(rs, 1000, cfg);
+      expect((await rs.conf()).members.length).to.equal(3);
     });
 
     after(() => {

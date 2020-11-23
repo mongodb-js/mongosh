@@ -1263,9 +1263,7 @@ describe('Collection', () => {
       }
     });
     it('all commands that use other methods', async() => {
-      for (const method of Object.getOwnPropertyNames(Collection.prototype).filter(
-        k => Object.keys(exceptions).includes(k)
-      )) {
+      for (const method of Object.keys(exceptions)) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || method;
         const customI = exceptions[method].i || 3;

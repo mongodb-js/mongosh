@@ -13,7 +13,7 @@ import {
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import util from 'util';
+import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 
 describe('Session', () => {
@@ -129,33 +129,6 @@ describe('Session', () => {
     let mongo: Mongo;
     let session: Session;
 
-    const delay = util.promisify(setTimeout);
-    const ensureMaster = async(timeout): Promise<void> => {
-      while (!(await mongo.getDB(ADMIN_DB).isMaster()).ismaster) {
-        if (timeout > 32000) {
-          return expect.fail(`Waited for ${cfg.members[0].host} to become master, never happened`);
-        }
-        await delay(timeout);
-        timeout *= 2; // try again but wait double
-      }
-    };
-
-    const localSessionIds = async() => {
-      return (await (await mongo.getDB('config').aggregate([{ $listLocalSessions: {} }])).toArray()).map(k => JSON.stringify(k._id.id));
-    };
-
-    const ensureSessionExists = async(timeout, sessionId): Promise<void> => {
-      let ls = await localSessionIds();
-      while (!ls.includes(sessionId)) {
-        if (timeout > 32000) {
-          throw new Error(`Waited for session id ${sessionId}, never happened ${ls}`);
-        }
-        await delay(timeout);
-        timeout *= 2; // try again but wait double
-        ls = await localSessionIds();
-      }
-    };
-
     before(async function() {
       this.timeout(100_000);
       const [ srv0, srv1, srv2 ] = await Promise.all(testServers);
@@ -174,7 +147,7 @@ describe('Session', () => {
     });
 
     beforeEach(async() => {
-      await ensureMaster(1000);
+      await ensureMaster(mongo.getDB('admin'), 1000, cfg);
     });
 
     afterEach(async() => {
@@ -189,7 +162,7 @@ describe('Session', () => {
       it('starts a session', async() => {
         session = mongo.startSession();
         await session.getDatabase('test').getCollection('coll').insertOne({});
-        await ensureSessionExists(1000, JSON.stringify(session.id.id));
+        await ensureSessionExists(mongo, 1000, JSON.stringify(session.id.id));
         expect(session.hasEnded()).to.be.false;
         await session.endSession();
         expect(session.hasEnded()).to.be.true;
@@ -209,7 +182,7 @@ describe('Session', () => {
         for (const s of sessions) {
           await s.getDatabase('test').getCollection('coll').insertOne({});
           expect(s.hasEnded()).to.be.false;
-          await ensureSessionExists(1000, JSON.stringify(s.id.id));
+          await ensureSessionExists(mongo, 1000, JSON.stringify(s.id.id));
         }
         for (const s of sessions) {
           await s.endSession();

@@ -2195,9 +2195,7 @@ describe('Database', () => {
       }
     });
     it('all commands that use other methods', async() => {
-      for (const method of Object.getOwnPropertyNames(Database.prototype).filter(
-        k => Object.keys(exceptions).includes(k)
-      )) {
+      for (const method of Object.keys(exceptions)) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || 'runCommandWithCheck';
         const customI = exceptions[method].i || 2;
