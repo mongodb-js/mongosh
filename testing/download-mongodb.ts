@@ -69,7 +69,7 @@ async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
 
 const downloadPromises: Record<string, Promise<string>> = {};
 // Download mongod + mongos and return the path to a directory containing them.
-export async function downloadMongoDb(targetVersion = '*'): Promise<string> {
+export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promise<string> {
   let fullJson: FullJSON;
   const fullJSONCachePath = path.resolve(__dirname, '..', 'tmp', 'full.json.gz');
   try {
@@ -81,7 +81,7 @@ export async function downloadMongoDb(targetVersion = '*'): Promise<string> {
   }
   const productionVersions = fullJson.versions
     .filter((info: VersionInfo) => info.production_release)
-    .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersion))
+    .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
 
