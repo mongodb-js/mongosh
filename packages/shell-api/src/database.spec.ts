@@ -1,3 +1,4 @@
+/* eslint-disable key-spacing */
 import { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
@@ -6,7 +7,11 @@ import { signatures, toShellResult } from './index';
 import Database from './database';
 import Collection from './collection';
 import Mongo from './mongo';
-import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import {
+  Cursor as ServiceProviderCursor,
+  ServiceProvider,
+  bson, ServiceProviderSession
+} from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
@@ -164,7 +169,7 @@ describe('Database', () => {
       it('calls serviceProvider.runCommand on the database', async() => {
         await database.runCommand({ someCommand: 'someCollection' });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             someCommand: 'someCollection'
@@ -174,14 +179,14 @@ describe('Database', () => {
 
       it('returns whatever serviceProvider.runCommand returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.runCommand({ someCommand: 'someCollection' });
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.runCommand({ someCommand: 'someCollection' })
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -192,7 +197,7 @@ describe('Database', () => {
       it('calls serviceProvider.runCommand with the admin database', async() => {
         await database.adminCommand({ someCommand: 'someCollection' });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           'admin',
           {
             someCommand: 'someCollection'
@@ -202,13 +207,13 @@ describe('Database', () => {
 
       it('returns whatever serviceProvider.runCommand returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.adminCommand({ someCommand: 'someCollection' });
         expect(result).to.deep.equal(expectedResult);
       });
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.adminCommand({ someCommand: 'someCollection' })
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -365,7 +370,7 @@ describe('Database', () => {
 
         expect(serviceProvider.dropDatabase).to.have.been.calledWith(
           database._name,
-          { w: 1 }
+          { writeConcern: { w: 1 } }
         );
       });
 
@@ -579,7 +584,6 @@ describe('Database', () => {
           {
             updateUser: 'anna',
             pwd: 'pwd',
-            writeConcern: {}
           }
         );
       });
@@ -630,7 +634,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { dropUser: 'anna', writeConcern: {} }
+          { dropUser: 'anna' }
         );
       });
 
@@ -655,7 +659,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { dropAllUsersFromDatabase: 1, writeConcern: {} }
+          { dropAllUsersFromDatabase: 1 }
         );
       });
 
@@ -724,7 +728,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { grantRolesToUser: 'anna', roles: ['role1'], writeConcern: {} }
+          { grantRolesToUser: 'anna', roles: ['role1'] }
         );
       });
 
@@ -749,7 +753,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { revokeRolesFromUser: 'anna', roles: ['role1'], writeConcern: {} }
+          { revokeRolesFromUser: 'anna', roles: ['role1'] }
         );
       });
 
@@ -1070,7 +1074,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { dropRole: 'anna', writeConcern: {} }
+          { dropRole: 'anna' }
         );
       });
 
@@ -1095,7 +1099,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { dropAllRolesFromDatabase: 1, writeConcern: {} }
+          { dropAllRolesFromDatabase: 1 }
         );
       });
 
@@ -1120,7 +1124,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { grantRolesToRole: 'anna', roles: ['role1'], writeConcern: {} }
+          { grantRolesToRole: 'anna', roles: ['role1'] }
         );
       });
 
@@ -1145,7 +1149,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { revokeRolesFromRole: 'anna', roles: ['role1'], writeConcern: {} }
+          { revokeRolesFromRole: 'anna', roles: ['role1'] }
         );
       });
 
@@ -1171,7 +1175,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { grantPrivilegesToRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
+          { grantPrivilegesToRole: 'anna', privileges: ['privilege1'] }
         );
       });
 
@@ -1196,7 +1200,7 @@ describe('Database', () => {
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
-          { revokePrivilegesFromRole: 'anna', privileges: ['privilege1'], writeConcern: {} }
+          { revokePrivilegesFromRole: 'anna', privileges: ['privilege1'] }
         );
       });
 
@@ -2132,6 +2136,77 @@ describe('Database', () => {
         const result = await database.getLastErrorObj();
         expect(result).to.deep.equal(expectedError);
       });
+    });
+  });
+  describe('with session', () => {
+    let serviceProvider: StubbedInstance<ServiceProvider>;
+    let database: Database;
+    let internalSession: StubbedInstance<ServiceProviderSession>;
+    const exceptions = {
+      getCollectionNames: { m: 'listCollections' },
+      getCollectionInfos: { m: 'listCollections' },
+      aggregate: { m: 'aggregateDb' },
+      dropDatabase: { m: 'dropDatabase', i: 1 },
+      createCollection: { m: 'createCollection' },
+      createView: { m: 'createCollection' },
+      createUser: { a: [{ user: 'a', pwd: 'p', roles: [] }] },
+      createRole: { a: [{ role: 'a', privileges: [], roles: [] }] },
+      setLogLevel: { a: ['a'] }
+    };
+    const ignore = [
+      'auth',
+      'enableFreeMonitoring',
+      'cloneDatabase',
+      'cloneCollection',
+      'copyDatabase',
+      'getReplicationInfo',
+    ];
+    const args = [ {}, {}, {} ];
+    beforeEach(() => {
+      const bus = stubInterface<EventEmitter>();
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
+      internalSession = stubInterface<ServiceProviderSession>();
+      serviceProvider.startSession.returns(internalSession);
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
+      serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.listCollections.resolves([]);
+      const internalState = new ShellInternalState(serviceProvider, bus);
+      const mongo = new Mongo(internalState);
+      const session = mongo.startSession();
+      database = session.getDatabase('db1');
+    });
+    it('all commands that use runCommandWithCheck', async() => {
+      for (const method of Object.getOwnPropertyNames(Database.prototype).filter(
+        k => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
+      )) {
+        if (!method.startsWith('_') &&
+            !method.startsWith('print') &&
+            database[method].returnsPromise) {
+          try {
+            await database[method](...args);
+          } catch (e) {
+            expect.fail(`${method} failed, error thrown ${e.message}`);
+          }
+          expect(serviceProvider.runCommandWithCheck.called).to.be.true;
+          expect((serviceProvider.runCommandWithCheck.getCall(-1).args[2] as any).session).to.equal(internalSession);
+        }
+      }
+    });
+    it('all commands that use other methods', async() => {
+      for (const method of Object.keys(exceptions)) {
+        const customA = exceptions[method].a || args;
+        const customM = exceptions[method].m || 'runCommandWithCheck';
+        const customI = exceptions[method].i || 2;
+        try {
+          await database[method](...customA);
+        } catch (e) {
+          expect.fail(`${method} failed, error thrown ${e.message}`);
+        }
+        expect(serviceProvider[customM].called).to.equal(true, `expecting ${customM} to be called but it was not`);
+        expect((serviceProvider[customM].getCall(-1).args[customI] as any).session).to.equal(internalSession);
+      }
     });
   });
 });

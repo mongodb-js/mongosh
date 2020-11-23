@@ -286,33 +286,30 @@ describe('Mongo', () => {
       });
     });
     describe('getReadPrefMode', () => {
-      it('throws unimplemented error for now', () => {
-        try {
-          mongo.getReadPrefMode();
-        } catch (e) {
-          return expect(e.name).to.equal('MongoshUnimplementedError');
-        }
-        expect.fail();
+      it('calls serviceProvider.getReadPreference', () => {
+        const expectedResult = { mode: 'primary', tagSet: [] } as any;
+        serviceProvider.getReadPreference.returns(expectedResult);
+        const res = mongo.getReadPrefMode();
+        expect(serviceProvider.getReadPreference).to.have.been.calledWith();
+        expect(res).to.equal(expectedResult.mode);
       });
     });
     describe('getReadPref', () => {
-      it('throws unimplemented error for now', () => {
-        try {
-          mongo.getReadPref();
-        } catch (e) {
-          return expect(e.name).to.equal('MongoshUnimplementedError');
-        }
-        expect.fail();
+      it('calls serviceProvider.getReadPreference', () => {
+        const expectedResult = { mode: 'primary', tagSet: [] } as any;
+        serviceProvider.getReadPreference.returns(expectedResult);
+        const res = mongo.getReadPref();
+        expect(serviceProvider.getReadPreference).to.have.been.calledWith();
+        expect(res).to.equal(expectedResult);
       });
     });
     describe('getReadPrefTagSet', () => {
-      it('throws unimplemented error for now', () => {
-        try {
-          mongo.getReadPrefTagSet();
-        } catch (e) {
-          return expect(e.name).to.equal('MongoshUnimplementedError');
-        }
-        expect.fail();
+      it('calls serviceProvider.getReadPreference', () => {
+        const expectedResult = { mode: 'primary', tagSet: [] } as any;
+        serviceProvider.getReadPreference.returns(expectedResult);
+        const res = mongo.getReadPrefTagSet();
+        expect(serviceProvider.getReadPreference).to.have.been.calledWith();
+        expect(res).to.equal(expectedResult.tags);
       });
     });
     describe('getReadConcern', () => {
@@ -386,6 +383,40 @@ describe('Mongo', () => {
           return expect(catchedError).to.equal(expectedError);
         }
         expect.fail();
+      });
+    });
+    describe('startSession', () => {
+      it('calls serviceProvider.startSession', () => {
+        const driverSession = { driverSession: 1 };
+        const opts = { causalConsistency: false };
+        serviceProvider.startSession.returns(driverSession as any);
+        const s = mongo.startSession(opts);
+        expect(serviceProvider.startSession).to.have.been.calledWith();
+        expect(s._session).to.deep.equal(driverSession);
+        expect(s._options).to.deep.equal(opts);
+      });
+
+      it('throws if startSession errors', () => {
+        const expectedError = new Error();
+        serviceProvider.startSession.throws(expectedError);
+        try {
+          mongo.startSession({});
+        } catch (catchedError) {
+          return expect(catchedError).to.equal(expectedError);
+        }
+        expect.fail();
+      });
+    });
+    describe('deprecated mongo methods', () => {
+      ['setCausalConsistency', 'isCausalConsistency', 'setSlaveOk', 'setSecondaryOk'].forEach((t) => {
+        it(t, () => {
+          try {
+            mongo[t]();
+          } catch (e) {
+            return expect(e.name).to.equal('MongoshInvalidInputError');
+          }
+          expect.fail();
+        });
       });
     });
   });

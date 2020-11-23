@@ -7,6 +7,8 @@ import ReadPreference from './read-preference';
 import ReadConcern from './read-concern';
 import WriteConcern from './write-concern';
 import Document from './document';
+import SessionOptions from './session-options';
+import ServiceProviderSession from './session';
 
 export default interface Admin {
   /**
@@ -91,4 +93,6 @@ export default interface Admin {
    * @param options
    */
   resetConnectionOptions(options: Document): Promise<void>;
+
+  startSession(options: SessionOptions): ServiceProviderSession;
 }

@@ -8,35 +8,34 @@
 import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
-import Mongo from './mongo';
-import { ADMIN_DB } from './enums';
+import Database from './database';
 
 export function adaptAggregateOptions(options: any = {}): {
-  providerOptions: Document;
+  aggOptions: Document;
   dbOptions: DatabaseOptions;
   explain: boolean;
 } {
-  const providerOptions = { ...options };
+  const aggOptions = { ...options };
 
   const dbOptions: DatabaseOptions = {};
   let explain = false;
 
-  if ('readConcern' in providerOptions) {
+  if ('readConcern' in aggOptions) {
     dbOptions.readConcern = options.readConcern;
-    delete providerOptions.readConcern;
+    delete aggOptions.readConcern;
   }
 
-  if ('writeConcern' in providerOptions) {
+  if ('writeConcern' in aggOptions) {
     Object.assign(dbOptions, options.writeConcern);
-    delete providerOptions.writeConcern;
+    delete aggOptions.writeConcern;
   }
 
-  if ('explain' in providerOptions) {
-    explain = providerOptions.explain;
-    delete providerOptions.explain;
+  if ('explain' in aggOptions) {
+    explain = aggOptions.explain;
+    delete aggOptions.explain;
   }
 
-  return { providerOptions, dbOptions, explain };
+  return { aggOptions, dbOptions, explain };
 }
 
 export function validateExplainableVerbosity(verbosity: string): void {
@@ -134,12 +133,12 @@ export function processDigestPassword(
  * @param configDB
  * @param verbose
  */
-export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): Promise<any> {
+export async function getPrintableShardStatus(db: Database, verbose: boolean): Promise<any> {
   const result = {} as any; // use array to maintain order
 
   // configDB is a DB object that contains the sharding metadata of interest.
   // Defaults to the db named "config" on the current connection.
-  const configDB = await getConfigDB(mongo);
+  const configDB = await getConfigDB(db);
   const mongosColl = configDB.getCollection('mongos');
   const versionColl = configDB.getCollection('version');
   const shardsColl = configDB.getCollection('shards');
@@ -256,7 +255,7 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
         versionHasActionlog = true;
       }
       if (metaDataVersion === 5) {
-        const verArray = (await mongo._internalState.currentDb.serverBuildInfo()).versionArray;
+        const verArray = (await db.serverBuildInfo()).versionArray;
         if (verArray[0] === 2 && verArray[1] > 6) {
           versionHasActionlog = true;
         }
@@ -444,12 +443,12 @@ export async function getPrintableShardStatus(mongo: Mongo, verbose: boolean): P
   return result;
 }
 
-export async function getConfigDB(mongo: Mongo): Promise<any> {
-  const isM = await mongo.getDB(ADMIN_DB).runCommand({ isMaster: 1 });
+export async function getConfigDB(db: Database): Promise<any> {
+  const isM = await db._runAdminCommand({ isMaster: 1 });
   if (isM.msg !== 'isdbgrid') {
     throw new MongoshInvalidInputError('Not connected to a mongos');
   }
-  return mongo.getDB('config');
+  return db.getSiblingDB('config');
 }
 
 export function dataFormat(bytes?: number): string {

@@ -8,7 +8,12 @@ import Mongo from './mongo';
 import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
 import Explainable from './explainable';
-import { Cursor as ServiceProviderCursor, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import {
+  Cursor as ServiceProviderCursor,
+  ServiceProvider,
+  bson,
+  ServiceProviderSession
+} from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 
 const sinonChai = require('sinon-chai'); // weird with import
@@ -838,7 +843,7 @@ describe('Collection', () => {
           someOption: 1
         });
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           collection._database._name,
           {
             someCommand: collection._name,
@@ -850,7 +855,7 @@ describe('Collection', () => {
       it('can be called without options', async() => {
         await collection.runCommand('someCommand');
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           collection._database._name,
           {
             someCommand: collection._name
@@ -1090,7 +1095,7 @@ describe('Collection', () => {
       it('calls serviceProvider.runCommand on the database with options', async() => {
         await collection.getShardVersion();
 
-        expect(serviceProvider.runCommand).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             getShardVersion: `${database._name}.${collection._name}`
@@ -1100,14 +1105,14 @@ describe('Collection', () => {
 
       it('returns whatever serviceProvider.runCommand returns', async() => {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommand.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await collection.getShardVersion();
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await collection.getShardVersion()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
@@ -1168,6 +1173,115 @@ describe('Collection', () => {
           }
         });
       });
+    });
+  });
+  describe('with session', () => {
+    let serviceProvider: StubbedInstance<ServiceProvider>;
+    let collection: Collection;
+    let internalSession: StubbedInstance<ServiceProviderSession>;
+    const exceptions = {
+      renameCollection: { a: ['name'] },
+      createIndexes: { a: [[]] },
+      runCommand: { a: ['coll', {} ], m: 'runCommandWithCheck', i: 2 },
+      findOne: { m: 'find' },
+      insert: { m: 'insertMany' },
+      update: { m: 'updateOne', i: 4 },
+      createIndex: { m: 'createIndexes', i: 2 },
+      ensureIndex: { m: 'createIndexes', i: 2 },
+      getIndexSpecs: { m: 'getIndexes', i: 2 },
+      getIndices: { m: 'getIndexes', i: 2 },
+      getIndexKeys: { m: 'getIndexes', i: 2 },
+      dropIndex: { m: 'dropIndexes' },
+      dataSize: { m: 'stats', i: 2 },
+      storageSize: { m: 'stats', i: 2 },
+      totalSize: { m: 'stats', i: 2 },
+      totalIndexSize: { a: [], m: 'stats', i: 2 },
+      drop: { m: 'dropCollection', i: 2 },
+      exists: { m: 'listCollections', i: 2 },
+      stats: { m: 'runCommandWithCheck', i: 2 },
+      mapReduce: { m: 'runCommandWithCheck', i: 2 },
+      validate: { m: 'runCommandWithCheck', i: 2 },
+      getShardVersion: { m: 'runCommandWithCheck', i: 2 },
+      latencyStats: { m: 'aggregate' },
+      initializeOrderedBulkOp: { m: 'initializeBulkOp' },
+      initializeUnorderedBulkOp: { m: 'initializeBulkOp' },
+      distinct: { i: 4 },
+      estimatedDocumentCount: { i: 2 },
+      findAndModify: { i: 5 },
+      findOneAndReplace: { i: 4 },
+      findOneAndUpdate: { i: 4 },
+      replaceOne: { i: 4 },
+      updateMany: { i: 4 },
+      updateOne: { i: 4 },
+      getIndexes: { i: 2 },
+      reIndex: { i: 2 },
+    };
+    const ignore = [ 'getShardDistribution', 'stats', 'isCapped' ];
+    const args = [ { query: {} }, {}, { out: 'coll' } ];
+    beforeEach(() => {
+      const bus = stubInterface<EventEmitter>();
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
+      internalSession = stubInterface<ServiceProviderSession>();
+      serviceProvider.startSession.returns(internalSession);
+      serviceProvider.aggregate.returns(stubInterface<ServiceProviderCursor>());
+      serviceProvider.find.returns(stubInterface<ServiceProviderCursor>());
+      serviceProvider.getIndexes.resolves([]);
+      serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
+      serviceProvider.listCollections.resolves([]);
+      serviceProvider.countDocuments.resolves(1);
+
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
+      [ 'bulkWrite', 'deleteMany', 'deleteOne', 'insert', 'insertMany',
+        'insertOne', 'replaceOne', 'update', 'updateOne', 'updateMany',
+        'findOneAndDelete', 'findOneAndReplace', 'findOneAndUpdate',
+        'findAndModify'
+      ].forEach(
+        k => serviceProvider[k].resolves({ result: {}, value: {} })
+      );
+      const internalState = new ShellInternalState(serviceProvider, bus);
+      const mongo = new Mongo(internalState);
+      const session = mongo.startSession();
+      collection = session.getDatabase('db1').getCollection('coll');
+    });
+    it('all commands that use the same command in sp', async() => {
+      for (const method of Object.getOwnPropertyNames(Collection.prototype).filter(
+        k => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
+      )) {
+        if (!method.startsWith('_') &&
+          !method.startsWith('print') &&
+          collection[method].returnsPromise) {
+          try {
+            await collection[method](...args);
+          } catch (e) {
+            expect.fail(`${method} failed, error thrown ${e.message}`);
+          }
+          expect(serviceProvider[method].calledOnce).to.equal(true, `expected ${method} to be called but it was not`);
+          expect((serviceProvider[method].getCall(-1).args[3] as any).session).to.equal(internalSession);
+        }
+      }
+    });
+    it('all commands that use other methods', async() => {
+      for (const method of Object.keys(exceptions)) {
+        const customA = exceptions[method].a || args;
+        const customM = exceptions[method].m || method;
+        const customI = exceptions[method].i || 3;
+        try {
+          await collection[method](...customA);
+        } catch (e) {
+          expect.fail(`${method} failed, error thrown ${e.message}`);
+        }
+        expect(serviceProvider[customM].called).to.equal(true, `expecting ${customM} to be called but it was not`);
+        const call = serviceProvider[customM].getCall(-1).args[customI];
+        if (Array.isArray(call)) {
+          for (const k of call) {
+            expect(k.session).to.equal(internalSession);
+          }
+        } else {
+          expect(call.session).to.equal(internalSession);
+        }
+      }
     });
   });
 });

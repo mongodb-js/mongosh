@@ -14,14 +14,17 @@ import {
   ReadPreference,
   ReadPreferenceMode,
   Document,
-  ServiceProvider
+  ServiceProvider,
+  SessionOptions
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
 import { asPrintable } from './enums';
+import Session from './session';
+import { assertArgsDefined, assertArgsType } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -59,11 +62,8 @@ export default class Mongo extends ShellApiClass {
   }
 
   _getDb(name: string): Database {
-    if (typeof name !== 'string') {
-      throw new MongoshInvalidInputError(
-        `Database name must be a string. Received ${typeof name}.`);
-    }
-
+    assertArgsDefined(name);
+    assertArgsType([name], ['string']);
     if (!name.trim()) {
       throw new MongoshInvalidInputError('Database name cannot be empty.');
     }
@@ -140,18 +140,15 @@ export default class Mongo extends ShellApiClass {
   }
 
   getReadPrefMode(): ReadPreferenceMode {
-    // return this._serviceProvider.getReadPreference().mode;
-    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+    return this._serviceProvider.getReadPreference().mode;
   }
 
-  getReadPrefTagSet(): Record<string, string>[] {
-    // return this._serviceProvider.getReadPreference().tags;
-    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+  getReadPrefTagSet(): Record<string, string>[] | undefined {
+    return this._serviceProvider.getReadPreference().tags;
   }
 
   getReadPref(): ReadPreference {
-    // return this._serviceProvider.getReadPreference();
-    throw new MongoshUnimplementedError('getting the read pref is not currently supported, to follow the progress please see NODE-2806');
+    return this._serviceProvider.getReadPreference();
   }
 
   getReadConcern(): string | undefined {
@@ -173,5 +170,25 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   async setReadConcern(level: string): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
+  }
+
+  startSession(options: SessionOptions = {}): Session {
+    return new Session(this, options || {} as SessionOptions, this._serviceProvider.startSession(options));
+  }
+
+  setCausalConsistency(): void {
+    throw new MongoshInvalidInputError('It is not possible to set causal consistency for an entire connection due to the driver, use startSession({causalConsistency: <>}) instead.');
+  }
+
+  isCausalConsistency(): void {
+    throw new MongoshInvalidInputError('Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true');
+  }
+
+  setSlaveOk(): void {
+    throw new MongoshInvalidInputError('setSlaveOk is deprecated.');
+  }
+
+  setSecondaryOk(): void {
+    throw new MongoshInvalidInputError('Setting secondaryOk is deprecated, use setReadPreference instead');
   }
 }
