@@ -2,9 +2,9 @@ exec_timeout_secs: 7200
 
 # Variables for common functions.
 #
-# compile_and_release: Runs the exec compile and release process.
+# compile_and_upload_artifact: Runs the exec compile and release process.
 variables:
-  - &compile_and_release
+  - &compile_and_upload_artifact
     command: shell.exec
     params:
       working_dir: src
@@ -48,7 +48,22 @@ variables:
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
 
-  - &compile_and_release_ps
+  - &test_linux_artifact
+    command: shell.exec
+    params:
+      working_dir: src
+      shell: bash
+      script: |
+        set -e
+        source .evergreen/.setup_env
+        export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
+        node scripts/download-linux-artifact
+        dist/mongosh --version
+        export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
+        echo "$MONGOSH_TEST_EXECUTABLE_PATH"
+        npm run test-e2e-ci
+
+  - &compile_and_upload_artifact_ps
     command: shell.exec
     params:
       working_dir: src
@@ -66,15 +81,20 @@ variables:
         npm run test-e2e-ci
 
 # Functions are any command that can be run.
+# Variables ending with _ps do the same thing as their non-suffixed counterparts
+# but use PowerShell instead.
 #
 # Current functions:
 #   checkout - Checks out the project from git.
 #   install - Installs Node and all dependencies.
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
-#   release_macos - Publishes the npm packages and uploads the tarballs.
-#   release_linux - Publishes the npm packages and uploads the tarballs.
-#   release_win_ps - Publishes the npm packages and uploads the tarballs.
+#   test_vscode - Clones the vscode extension repository and runs its tests.
+#   compile_and_upload_artifact - Compile the release binary and upload it to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#                         We use this to verify that e.g. the Ubuntu-built release
+#                         binary also works on RHEL and Debian.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
@@ -151,36 +171,24 @@ functions:
             -e BUILD_VARIANT \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
-  release_macos:
+  compile_and_upload_artifact:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
         redacted: true
-    - <<: *compile_and_release
-  release_linux:
-    - command: expansions.write
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - <<: *compile_and_release
-  release_debian:
-    - command: expansions.write
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - <<: *compile_and_release
-  release_rhel:
-    - command: expansions.write
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - <<: *compile_and_release
-  release_win_ps:
+    - <<: *compile_and_upload_artifact
+  compile_and_upload_artifact_ps:
     - command: expansions.write
       params:
         file: tmp\expansions.yaml
         redacted: true
-    - <<: *compile_and_release_ps
+    - <<: *compile_and_upload_artifact_ps
+  test_linux_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - <<: *test_linux_artifact
   release_publish:
     - command: expansions.write
       params:
@@ -202,11 +210,11 @@ functions:
 #
 # Current tasks:
 #   check - Performs linter and dependency checks.
-#   test - Runs all tests.
+#   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
-#   release_macos - Publishes the npm packages and uploads the tarballs.
-#   release_linux - Publishes the npm packages and uploads the tarballs.
-#   release_win_ps - Publishes the npm packages and uploads the tarballs (from powershell).
+#   compile_and_upload_artifact - Compile the release binary and upload it to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
 tasks:
   - name: check
     commands:
@@ -218,74 +226,112 @@ tasks:
       - func: checkout
       - func: install_ps
       - func: check_ps
-  - name: test
+  - name: test_m40x
     commands:
       - func: checkout
       - func: install
       - func: test
-  - name: test_ps
+        vars:
+          mongosh_server_test_version: "4.0.x"
+  - name: test_m42x
+    commands:
+      - func: checkout
+      - func: install
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+  - name: test_m44x
+    commands:
+      - func: checkout
+      - func: install
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+  - name: test_m40x_ps
     commands:
       - func: checkout
       - func: install_ps
       - func: test_ps
+        vars:
+          mongosh_server_test_version: "4.0.x"
+  - name: test_m42x_ps
+    commands:
+      - func: checkout
+      - func: install_ps
+      - func: test_ps
+        vars:
+          mongosh_server_test_version: "4.2.x"
+  - name: test_m44x_ps
+    commands:
+      - func: checkout
+      - func: install_ps
+      - func: test_ps
+        vars:
+          mongosh_server_test_version: "4.4.x"
   - name: test_vscode
     commands:
       - func: checkout
       - func: install
       - func: test_vscode
-  - name: release_macos
+  - name: compile_and_upload_artifact_macos
     depends_on:
       - name: check
-      - name: test
+        variant: darwin
+      - name: test_m40x
+        variant: darwin
+      - name: test_m42x
+        variant: darwin
+      - name: test_m44x
+        variant: darwin
     commands:
       - func: checkout
       - func: install
-      - func: release_macos
-  - name: release_linux
+      - func: compile_and_upload_artifact
+  - name: compile_and_upload_artifact_linux
     depends_on:
       - name: check
-      - name: test
-    commands:
-      - func: checkout
-      - func: install
-      - func: release_linux
-  - name: release_debian
-    depends_on:
-      - name: check
-      - name: test
+      - name: test_m40x
+        variant: linux
+      - name: test_m42x
+        variant: linux
+      - name: test_m44x
         variant: linux
     commands:
       - func: checkout
       - func: install
-      - func: release_debian
-  - name: release_rhel
-    depends_on:
-      - name: check
-      - name: test
-        variant: linux
-    commands:
-      - func: checkout
-      - func: install
-      - func: release_rhel
-  - name: release_win_ps
+      - func: compile_and_upload_artifact
+  - name: compile_and_upload_artifact_ps
     depends_on:
       - name: check_ps
+      - name: test_m40x_ps
+      - name: test_m42x_ps
+      - name: test_m44x_ps
     commands:
       - func: checkout
       - func: install_ps
-      - func: release_win_ps
+      - func: compile_and_upload_artifact_ps
+  - name: test_linux_artifact
+    depends_on:
+      - name: compile_and_upload_artifact_linux
+        variant: linux
+    commands:
+      - func: checkout
+      - func: install
+      - func: test_linux_artifact
   - name: release_publish
     depends_on:
-      - name: release_win_ps
+      - name: compile_and_upload_artifact_ps
         variant: win32
-      - name: release_linux
+      - name: compile_and_upload_artifact_linux
         variant: linux
-      - name: release_rhel
-        variant: rhel
-      - name: release_debian
-        variant: debian
-      - name: release_macos
-        variant: darwin
+      - name: test_linux_artifact
+        variant: rhel_real
+      - name: test_linux_artifact
+        variant: debian_real
+      - name: compile_and_upload_artifact_macos
+        variant: darwin_codesign
+      - name: test_vscode
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -293,40 +339,60 @@ tasks:
 
 # Need to run builds for every possible build variant.
 buildvariants:
-  - name: darwin
-    display_name: "MacOS Mohave"
+  - name: darwin_codesign
+    display_name: "MacOS Mojave (codesign)"
     run_on: macos-1014-codesign
     tasks:
+      - name: compile_and_upload_artifact_macos
+  - name: darwin
+    display_name: "MacOS Mojave"
+    run_on: macos-1014
+    tasks:
       - name: check
-      - name: test
-      - name: release_macos
+      - name: test_m40x
+      - name: test_m42x
+      - name: test_m44x
   - name: linux
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-test
     tasks:
       - name: check
-      - name: test
+      - name: test_m40x
+      - name: test_m42x
+      - name: test_m44x
       - name: test_vscode
-      - name: release_linux
+      - name: compile_and_upload_artifact_linux
   - name: rhel
-    display_name: "RHEL 8.0 (in Ubuntu docker)"
+    display_name: "Ubuntu 18.04 (rpm target)"
     run_on: ubuntu1804-test
     tasks:
       - name: check
-      - name: release_rhel
+      - name: compile_and_upload_artifact_linux
+  - name: debian
+    display_name: "Ununtu 18.04 (deb target)"
+    run_on: ubuntu1804-test
+    tasks:
+      - name: check
+      - name: compile_and_upload_artifact_linux
+  - name: rhel_real
+    display_name: "RHEL 8.0"
+    run_on: rhel80-large
+    tasks:
+      - name: test_linux_artifact
+  - name: debian_real
+    display_name: "Debian 10"
+    run_on: debian10-large
+    tasks:
+      - name: test_linux_artifact
   - name: win32
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
       - name: check_ps
-      - name: test_ps
-      - name: release_win_ps
-  - name: debian
-    display_name: "Debian 10 (in Ubuntu docker)"
-    run_on: ubuntu1804-test
-    tasks:
-      - name: check
-      - name: release_debian
+      - name: test_m40x_ps
+      - name: test_m42x_ps
+      - name: test_m44x_ps
+      - name: compile_and_upload_artifact_ps
   - name: darwin_release_publish
     display_name: "Publish Release"
     run_on: macos-1014-codesign

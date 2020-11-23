@@ -56,14 +56,28 @@ type FullJSON = {
 // On Windows, mongodb-download-url does not result in valid URLs for all cases.
 // On Linux, getting the exact download variant to pick is hard, so we still
 // use mongodb-download-url for that. For macOS, either would probably be fine.
+// TODO: upstream all of this into mongodb-download-url :(
 async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
-  if (process.platform !== 'win32') {
-    return (await promisify(getDownloadURL)({ version: versionInfo.version })).url;
+  const knownDistroRegex = /^(?<name>rhel80|debian10)/;
+  const { version } = versionInfo;
+  const distroId = process.env.DISTRO_ID || '';
+  if ((process.platform === 'win32' && semver.lt(version, '4.4.0')) ||
+      (process.platform === 'linux' && semver.lt(version, '4.2.0')) ||
+      (process.platform !== 'win32' && !knownDistroRegex.test(distroId))) {
+    return (await promisify(getDownloadURL)({ version })).url;
   }
 
-  const downloadInfo: DownloadInfo = versionInfo.downloads
-    .find((downloadInfo: DownloadInfo) =>
-      downloadInfo.target === 'windows' && downloadInfo.edition === 'base') as DownloadInfo;
+  let downloadInfo: DownloadInfo;
+  if (process.platform === 'win32') {
+    downloadInfo = versionInfo.downloads
+      .find((downloadInfo: DownloadInfo) =>
+        downloadInfo.target === 'windows' && downloadInfo.edition === 'base') as DownloadInfo;
+  } else {
+    const distro = distroId.match(knownDistroRegex)!.groups!.name;
+    downloadInfo = versionInfo.downloads
+      .find((downloadInfo: DownloadInfo) =>
+        downloadInfo.target === distro && downloadInfo.edition === 'targeted') as DownloadInfo;
+  }
   return downloadInfo.archive.url;
 }
 
@@ -89,7 +103,7 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
     __dirname,
     '..',
     'tmp',
-    `mongodb-${process.platform}-${process.arch}-${versionInfo.version}`);
+    `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${versionInfo.version}`);
   return downloadPromises[downloadTarget] ??= (async() => {
     const bindir = path.resolve(downloadTarget, 'bin');
     try {
