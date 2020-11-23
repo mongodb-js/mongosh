@@ -590,14 +590,16 @@ describe('ReplicaSet', () => {
   });
 
   describe('integration', () => {
-    const replId = 'rs0';
+    const replId = 'replset'; // 'rs0';
 
-    const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId]
-    );
+    // const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
+    //   ['--single', '--replSet', replId],
+    //   ['--single', '--replSet', replId],
+    //   ['--single', '--replSet', replId],
+    //   ['--single', '--replSet', replId]
+    // );
+    //
+    const [ srv0, srv3 ] = startTestCluster(['--replicaset'], ['--single', '--replSet', replId]);
     let cfg: {_id: string, members: {_id: number, host: string, priority: number}[]};
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
@@ -619,12 +621,20 @@ describe('ReplicaSet', () => {
 
     before(async function() {
       this.timeout(100_000);
+      // cfg = {
+      //   _id: replId,
+      //   members: [
+      //     { _id: 0, host: `${await srv0.hostport()}`, priority: 1 },
+      //     { _id: 1, host: `${await srv1.hostport()}`, priority: 0 },
+      //     { _id: 2, host: `${await srv2.hostport()}`, priority: 0 }
+      //   ]
+      // };
       cfg = {
         _id: replId,
         members: [
-          { _id: 0, host: `${await srv0.hostport()}`, priority: 1 },
-          { _id: 1, host: `${await srv1.hostport()}`, priority: 0 },
-          { _id: 2, host: `${await srv2.hostport()}`, priority: 0 }
+          { _id: 0, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10)}`, priority: 1 },
+          { _id: 1, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10) + 1}`, priority: 0 },
+          { _id: 2, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10) + 2}`, priority: 0 }
         ]
       };
       additionalServer = srv3;
@@ -636,8 +646,8 @@ describe('ReplicaSet', () => {
 
       // check replset uninitialized
       try {
-        await rs.status();
-        expect.fail();
+        return await rs.status();
+        // expect.fail();
       } catch (error) {
         expect(error.message).to.include('no replset config');
       }
