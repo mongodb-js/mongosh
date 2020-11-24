@@ -55,7 +55,11 @@ class DateResult(override val value: Date) : MongoShellResult<Date>()
 
 class BooleanResult(override val value: Boolean) : MongoShellResult<Boolean>()
 
-class DoubleResult(override val value: Double) : MongoShellResult<Double>()
+class DoubleResult(override val value: Double) : MongoShellResult<Double>() {
+    override fun _asPrintable(): String {
+        return value.toBigDecimal().toPlainString()
+    }
+}
 
 class FloatResult(override val value: Float) : MongoShellResult<Float>()
 
@@ -66,7 +70,11 @@ object FunctionResult : MongoShellResult<String>() {
 
 class IntResult(override val value: Int) : MongoShellResult<Int>()
 
-class LongResult(override val value: Long) : MongoShellResult<Long>()
+class LongResult(override val value: Long) : MongoShellResult<Long>() {
+    override fun _asPrintable(): String {
+        return value.toBigDecimal().toPlainString()
+    }
+}
 
 object NullResult : MongoShellResult<Any?>() {
     override val value: Any?
