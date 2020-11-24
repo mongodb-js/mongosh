@@ -11,7 +11,6 @@ import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
-import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
@@ -154,8 +153,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropDatabase(database: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun dropDatabase(database: String, options: Value?): Value = promise<Any?> {
+        getDatabase(database, null).map { db ->
+            db.drop()
+            mapOf("ok" to 1, "dropped" to database)
+        }
     }
 
     @HostAccess.Export
@@ -316,13 +318,16 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val docs = toList(docs, "docs")
         if (docs == null || docs.any { it !is Document }) return@promise Left(IllegalArgumentException("docs must be a list of objects"))
-        getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertMany(docs.filterIsInstance<Document>())
-            mapOf("result" to mapOf("ok" to true),
-                    "insertedIds" to emptyList<String>())
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(InsertManyOptions(), insertManyConverters, insertManyDefaultConverter, options).map { options ->
+                db.getCollection(collection).insertMany(docs.filterIsInstance<Document>(), options)
+                mapOf("result" to mapOf("ok" to true),
+                        "insertedIds" to emptyList<String>())
+            }
         }
     }
 
@@ -492,8 +497,17 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options") ?: Document()
         getDatabase(database, null).flatMap { db ->
-            convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
-                db.createCollection(collection, opt)
+            val viewOn = options["viewOn"]
+            if (viewOn is String) {
+                convert(CreateViewOptions(), createViewOptionsConverters, createViewOptionsConverter, options).map { opt ->
+                    val pipeline = (options["pipeline"] as? List<*>)?.filterIsInstance(Document::class.java)
+                    db.createView(collection, viewOn, pipeline?.toMutableList() ?: mutableListOf(), opt)
+                }
+            }
+            else {
+                convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
+                    db.createCollection(collection, opt)
+                }
             }
         }
     }
