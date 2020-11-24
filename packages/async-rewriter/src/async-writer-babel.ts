@@ -216,7 +216,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         path.skip();
         funcPath.get('body').traverse(
           TypeInferenceVisitor,
-          state
+          { ...state, returnValues: [] }
         );
         state.symbols.popScope();
         debug('== end visiting function definition');

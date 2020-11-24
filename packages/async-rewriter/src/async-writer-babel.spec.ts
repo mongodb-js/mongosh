@@ -888,6 +888,32 @@ class Test {
     });
     describe('with known callee', () => {
       describe('that requires await', () => {
+        describe('tracks returnType correctly', () => {
+          before(() => {
+            writer = new AsyncWriter(signatures);
+            writer.symbols.initializeApiObjects({
+              db: signatures.Database
+            });
+            expect(writer.compile('async function returnsAgg() { return db.coll.aggregate(); }')).to.equal(
+              'async function returnsAgg() {\n  return await db.coll.aggregate();\n}'
+            );
+          });
+          it('compiles correctly', () => {
+            input = 'function callsReturnsAgg() { return returnsAgg(); }';
+            expect(writer.compile(input)).to.equal('async function callsReturnsAgg() {\n  return await returnsAgg();\n}');
+          });
+          it('decorates correctly', (done) => {
+            const finalCall = 'callsReturnsAgg()';
+            ast = writer.getTransform(finalCall).ast;
+            expect(writer.compile(finalCall)).to.equal('await callsReturnsAgg();');
+            traverse(ast, {
+              CallExpression(path) {
+                expect(path.node['shellType'].type).to.deep.equal('AggregationCursor');
+                done();
+              }
+            });
+          });
+        });
         describe('is async and is rewritten', () => {
           before(() => {
             writer = new AsyncWriter(signatures);
