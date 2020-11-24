@@ -119,6 +119,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: string;
   private initialOptions: any;
+  private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
 
   /**
@@ -140,6 +141,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     }
     this.initialOptions = clientOptions;
     this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
+    this.dbcache = new WeakMap();
   }
 
   async getNewConnection(uri: string, options: NodeOptions = {}): Promise<CliServiceProvider> {
@@ -254,19 +256,52 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Db} The database.
    */
-  private db(name: string, dbOptions?: DatabaseOptions): Db {
+  private db(name: string, dbOptions: DatabaseOptions = {}): Db {
+    // Usually, we'd let the driver do the caching of the Database objects, but
+    // due to our particular needs, we need to cache DBs both by name *and* by
+    // options (so that subsequent calls to this method have their db options
+    // respected, instead of receiving the instance that was cached only by name
+    // and might have been configured with different options, e.g. read/write
+    // concern, read preference, etc.).
+    // We still need caching, though, since otherwise every call to
+    // this method creates a new driver Database object that registers itself
+    // and effectively cannot be garbage collected on its own, which would
+    // lead to memory leaks. We thus maintain our own cache.
+    const key = `${name}-${JSON.stringify(dbOptions)}`;
+    const dbcache = this.getDBCache();
+    const cached = dbcache.get(key);
+    if (cached) {
+      return cached;
+    }
     const optionsWithForceNewInstace: DatabaseOptions = {
       ...dbOptions,
 
-      // Without this option any read/write concerns
-      // and read preferences, as well as other db options
-      // will only affect one (the first) method call per db.
-      // Each subsequent calls would use the same options as
-      // the previous one.
+      // Ensure that we actually get a fresh database instance from the driver.
       returnNonCachedInstance: true
     };
 
-    return this.mongoClient.db(name, optionsWithForceNewInstace);
+    const db = this.mongoClient.db(name, optionsWithForceNewInstace);
+    dbcache.set(key, db);
+    return db;
+  }
+
+  /**
+   * Wrapper to make this available for testing.
+   */
+  _dbTestWrapper(name: string, dbOptions?: DatabaseOptions): Db {
+    return this.db(name, dbOptions);
+  }
+
+  /**
+   * Return the db cache for the current MongoClient.
+   */
+  private getDBCache(): Map<string, Db> {
+    const existing = this.dbcache.get(this.mongoClient);
+    if (existing) {
+      return existing;
+    }
+    this.dbcache.set(this.mongoClient, new Map());
+    return this.getDBCache();
   }
 
   /**
@@ -361,6 +396,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {boolean} force - Whether to force close the connection.
    */
   close(force: boolean): Promise<void> {
+    this.dbcache.set(this.mongoClient, new Map());
     return this.mongoClient.close(force);
   }
 
