@@ -125,6 +125,10 @@ const translations: Catalog = {
             },
             disableTelemetry: {
               description: 'Disables collection of anonymous usage data to improve the mongosh CLI'
+            },
+            passwordPrompt: {
+              description: 'Prompts the user for a password',
+              link: 'https://docs.mongodb.com/manual/reference/method/passwordPrompt/'
             }
           }
         },
@@ -1400,11 +1404,66 @@ const translations: Catalog = {
           }
         }
       },
+      Session: {
+        help: {
+          description: 'The Session Class. Represents a server session',
+          link: 'https://docs.mongodb.com/manual/reference/method/Session/',
+          attributes: {
+            getDatabase: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.getDatabase',
+              description: 'Returns a database class that will pass the session to the server with every command'
+            },
+            advanceOperationTime: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.advanceOperationTime',
+              description: 'Updates the operation time'
+            },
+            endSession: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.endSession',
+              description: 'Ends the session'
+            },
+            hasEnded: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.hasEnded',
+              description: 'Returns a boolean that specifies whether the session has ended.'
+            },
+            getClusterTime: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.getClusterTime',
+              description: 'Returns the most recent cluster time as seen by the session. Applicable for replica sets and sharded clusters only.'
+            },
+            getOperationTime: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.getOperationTime',
+              description: 'Returns the timestamp of the last acknowledged operation for the session.'
+            },
+            getOptions: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session/#Session.getOptions',
+              description: 'Returns the options object passed to startSession'
+            },
+            startTransaction: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session.startTransaction/#Session.startTransaction',
+              description: 'Starts a multi-document transaction for the session.'
+            },
+            commitTransaction: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session.commitTransaction/#Session.commitTransaction',
+              description: 'Commits the session’s transaction.'
+            },
+            abortTransaction: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session.abortTransaction/#Session.abortTransaction',
+              description: 'Aborts the session’s transaction.'
+            },
+            advanceClusterTime: {
+              description: 'advanceClusterTime is not currently supported due it not being supported in the driver, see NODE-2843.'
+            }
+          }
+        }
+      },
       Mongo: {
         help: {
           description: 'The Mongo Class. Represents a connection to a server',
           link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo',
           attributes: {
+            startSession: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.startSession/',
+              description: 'Starts a session for the connection.'
+            },
             getDB: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDB',
               description: 'Returns the specified Database of the Mongo object.'
@@ -1423,17 +1482,17 @@ const translations: Catalog = {
             },
             getReadPref: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPref',
-              description: 'Returns the ReadPreference set for the connection. Not currently implemented, see NODE-2806',
+              description: 'Returns the ReadPreference set for the connection.',
               example: 'db.getMongo().getReadPref()'
             },
             getReadPrefMode: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPrefMode',
-              description: 'Returns the ReadPreference Mode set for the connection. Not currently implemented, see NODE-2806',
+              description: 'Returns the ReadPreference Mode set for the connection.',
               example: 'db.getMongo().getReadPrefMode()'
             },
             getReadPrefTagSet: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPrefTagSet',
-              description: 'Returns the ReadPreference TagSet set for the connection. Not currently implemented, see NODE-2806',
+              description: 'Returns the ReadPreference TagSet set for the connection.',
               example: 'db.getMongo().getReadPrefTagSet()'
             },
             setReadPref: {
@@ -1445,6 +1504,18 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.setReadConcern',
               description: 'Sets the ReadConcern for the connection',
               example: 'db.getMongo().setReadConcern(level)'
+            },
+            setCausalConsistency: {
+              description: 'This method is deprecated. It is not possible to set causal consistency for an entire connection due to driver limitations, use startSession({causalConsistency: <>}) instead.'
+            },
+            setSlaveOk: {
+              description: 'This method is deprecated'
+            },
+            setSecondaryOk: {
+              description: 'This method is deprecated'
+            },
+            isCausalConsistency: {
+              description: 'This method is deprecated. Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true'
             }
           }
         },

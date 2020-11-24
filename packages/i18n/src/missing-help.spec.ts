@@ -19,7 +19,10 @@ const localesDir = path.resolve(__dirname, 'locales');
 // eslint-disable-next-line no-sync
 const localeFiles = fs.readdirSync(localesDir)
   .filter((filename) => {
-    return filename.match(/^[a-z]{2,3}_[A-Z]{2,3}\.js$/);
+    return filename.match(/^[a-z]{2,3}_[A-Z]{2,3}\.ts$/);
+  })
+  .filter((filename) => { // skip german for now
+    return filename.includes('en');
   });
 
 const typeNames = Object.keys(signatures)
@@ -27,7 +30,7 @@ const typeNames = Object.keys(signatures)
 
 localeFiles.forEach((localeFile) => {
   const locale = require(path.join(localesDir, localeFile)).default;
-  const localeName = localeFile.replace('.js', '');
+  const localeName = localeFile.replace('.ts', '');
 
   describe(`${localeName}`, () => {
     typeNames.forEach((typeName) => {

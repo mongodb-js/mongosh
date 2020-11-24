@@ -13,12 +13,13 @@ import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
 
 @shellApiClassDefault
-export class BulkFindOp {
+export class BulkFindOp extends ShellApiClass {
   _serviceProviderBulkFindOp: ServiceProviderBulkFindOp;
   _parentBulk: Bulk;
   _hint: Document | undefined;
   _arrayFilters: Document[] | undefined;
   constructor(innerFind: ServiceProviderBulkFindOp, parentBulk: Bulk) {
+    super();
     this._serviceProviderBulkFindOp = innerFind;
     this._parentBulk = parentBulk;
   }
