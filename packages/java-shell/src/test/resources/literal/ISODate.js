@@ -10,3 +10,9 @@ new ISODate(1970, 2)
 new ISODate(1970, 2, 3, 4, 5)
 // command checkResultClass
 new ISODate('2012-12-19')
+// command checkResultClass
+ISODate('2012-12-19T14:00:00+14')
+// command checkResultClass
+ISODate('2012-12-19T14:05:00+14:05')
+// command checkResultClass
+ISODate('2012-12-19T14:05:05+14:05:05')

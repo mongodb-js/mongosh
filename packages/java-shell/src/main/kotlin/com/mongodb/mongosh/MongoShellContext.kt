@@ -18,6 +18,7 @@ import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
@@ -138,15 +139,16 @@ internal class MongoShellContext(client: MongoClient) {
 
     private fun parseDate(str: String): Date {
         val accessor = DATE_FORMATTER.parse(str)
-        val localDateTime = LocalDateTime.of(
+        val dateTime = OffsetDateTime.of(
                 accessor.safeGet(ChronoField.YEAR) ?: 0,
                 accessor.safeGet(ChronoField.MONTH_OF_YEAR) ?: 1,
                 accessor.safeGet(ChronoField.DAY_OF_MONTH) ?: 1,
                 accessor.safeGet(ChronoField.HOUR_OF_DAY) ?: 0,
                 accessor.safeGet(ChronoField.MINUTE_OF_HOUR) ?: 0,
                 accessor.safeGet(ChronoField.SECOND_OF_MINUTE) ?: 0,
-                accessor.safeGet(ChronoField.NANO_OF_SECOND) ?: 0)
-        return Date(localDateTime.atZone(ZoneOffset.UTC).toInstant().toEpochMilli())
+                accessor.safeGet(ChronoField.NANO_OF_SECOND) ?: 0,
+                ZoneOffset.ofTotalSeconds(accessor.safeGet(ChronoField.OFFSET_SECONDS) ?: 0))
+        return Date(dateTime.toInstant().toEpochMilli())
     }
 
     private fun TemporalAccessor.safeGet(field: TemporalField): Int? {
@@ -390,7 +392,7 @@ private data class BsonTypes(
         val hexData: Value)
 
 /**
- * yyyy-MM-dd['T'HH:mm:ss.SSS['Z']]
+ * yyyy-MM-dd['T'HH:mm:ss.SSS['Z'|+HH:MM:ss]]
  */
 private val DATE_FORMATTER = DateTimeFormatterBuilder()
         .parseCaseInsensitive()
@@ -399,7 +401,7 @@ private val DATE_FORMATTER = DateTimeFormatterBuilder()
         .appendLiteral('T')
         .append(DateTimeFormatter.ISO_LOCAL_TIME)
         .optionalStart()
-        .appendLiteral('Z')
+        .appendOffset("+HH:MM:ss", "Z")
         .optionalEnd()
         .optionalEnd()
         .toFormatter()
