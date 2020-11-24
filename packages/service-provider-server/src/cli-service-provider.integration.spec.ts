@@ -2,6 +2,7 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { ReadPreferenceMode } from '@mongosh/service-provider-core';
 
 describe('CliServiceProvider [integration]', function() {
   const testServer = startTestServer('shared');
@@ -639,6 +640,26 @@ describe('CliServiceProvider [integration]', function() {
         },
         name: '_id_'
       });
+    });
+  });
+
+  describe('db fetching', () => {
+    it('returns the same db instance when used with the same name and options', () => {
+      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      expect(db1).to.equal(db2);
+    });
+
+    it('returns the different db instances when used with different names', () => {
+      const db1 = serviceProvider._dbTestWrapper('bar', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      expect(db1).not.to.equal(db2);
+    });
+
+    it('returns the different db instances when used with different options', () => {
+      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.primary } });
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      expect(db1).not.to.equal(db2);
     });
   });
 });
