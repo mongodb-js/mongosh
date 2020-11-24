@@ -27,12 +27,6 @@ fun createMongoRepl(): MongoShell {
     return MongoShell(MongoClients.create(settings))
 }
 
-fun getTestNames(testDataPath: String): List<String> {
-    return File(testDataPath).listFiles()!!
-            .filter { it.name.endsWith(".js") }
-            .map { it.name.substring(0, it.name.length - ".js".length) }
-}
-
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
     // Some tests start with a lowercase variant of testName, some don't
     // (e.g. for BSON types like ISODate, we don't use iSODate.).
@@ -80,7 +74,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     if (result is CursorResult) {
                         (result.value as Cursor<*>).close() // test close
                     }
-                    val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else replaceUUID(replaceId(actualValue)).trim()
+                    val normalized = if (cmd.options.dontReplaceId) actualValue.trim() else normalize(actualValue)
                     sb.append(normalized)
                 } catch (e: Throwable) {
                     System.err.println("IGNORED:")
@@ -143,7 +137,7 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
-    val mongohostport = System.getenv("JAVA_SHELL_MONGOSH_TEST_HOSTPORT") ?: "localhost:27017";
+    val mongohostport = System.getenv("JAVA_SHELL_MONGOSH_TEST_HOSTPORT") ?: "localhost:27017"
     var expectedFile = File("$testDataPath/$name.expected.txt")
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
@@ -172,6 +166,8 @@ private fun replaceId(value: String): String {
 private fun replaceUUID(value: String): String {
     return MONGO_UUID_PATTERN.matcher(value).replaceAll("<UUID>")
 }
+
+fun normalize(value: String) = replaceUUID(replaceId(value)).trim()
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 

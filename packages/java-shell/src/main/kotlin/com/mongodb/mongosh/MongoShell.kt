@@ -20,8 +20,9 @@ class MongoShell(client: MongoClient) {
                 args.associateBy { (idx++).toString() }
             })
         } else {
-            val value = result.getMember("rawValue")
-            context.extract(null, value)
+            val printable = result.getMember("printable")
+            val type = result.getMember("type").toString()
+            context.extract(printable, type)
         }
     }
 
