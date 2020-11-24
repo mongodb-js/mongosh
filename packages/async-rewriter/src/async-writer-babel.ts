@@ -526,7 +526,8 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         if (classPath.node['shellType'].returnType.type === 'unknown') {
           classPath.node['shellType'].returnType.type = 'object';
         }
-        classPath.node['shellType'].returnType.attributes[path.node.key.name] = path.node['shellType'];
+        // TODO: The 'as any' here is probably not really a valid thing to do.
+        classPath.node['shellType'].returnType.attributes[(path.node.key as any).name] = path.node['shellType'];
       }
       debug(`Function: { id: ${debugName} }`, `${sType.type}<${rType.type}> (determined via ${dbg})`);
     }
