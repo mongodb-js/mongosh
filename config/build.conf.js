@@ -1,3 +1,5 @@
+'use strict';
+const child_process = require('child_process');
 const path = require('path');
 const os = require('os');
 
@@ -42,6 +44,13 @@ const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
 const APPLE_NOTARIZATION_BUNDLE_ID = 'com.mongodb.mongosh';
 
 /**
+ * The SHA for the current git HEAD.
+ */
+const REVISION = process.env.IS_PATCH ?
+  `pr-${process.env.GITHUB_PR_NUMBER}-${process.env.REVISION_ORDER_ID}` :
+  process.env.REVISION;
+
+/**
  * Export the configuration for the build.
  */
 module.exports = {
@@ -52,7 +61,7 @@ module.exports = {
   outputDir: OUTPUT_DIR,
   analyticsConfig: ANALYTICS_CONFIG,
   project: process.env.PROJECT,
-  revision: process.env.REVISION,
+  revision: REVISION,
   branch: process.env.BRANCH_NAME,
   evgAwsKey: process.env.AWS_KEY,
   evgAwsSecret: process.env.AWS_SECRET,
