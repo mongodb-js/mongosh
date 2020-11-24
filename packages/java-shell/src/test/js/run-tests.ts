@@ -11,9 +11,6 @@ describe('java-shell tests', function() {
 
   before(async function () {
     process.env.JAVA_SHELL_MONGOSH_TEST_URI = await testServer.connectionString();
-    process.env.JAVA_SHELL_MONGOSH_TEST_HOST = await testServer.host();
-    process.env.JAVA_SHELL_MONGOSH_TEST_PORT = await testServer.port();
-    process.env.JAVA_SHELL_MONGOSH_TEST_HOSTPORT = await testServer.hostport();
 
     const connectionString = await testServer.connectionString();
       return new Promise((resolve, reject) => {
