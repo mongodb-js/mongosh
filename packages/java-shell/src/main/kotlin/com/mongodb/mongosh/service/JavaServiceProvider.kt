@@ -318,13 +318,16 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
 
     @HostAccess.Export
     override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+        val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val docs = toList(docs, "docs")
         if (docs == null || docs.any { it !is Document }) return@promise Left(IllegalArgumentException("docs must be a list of objects"))
-        getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertMany(docs.filterIsInstance<Document>())
-            mapOf("result" to mapOf("ok" to true),
-                    "insertedIds" to emptyList<String>())
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(InsertManyOptions(), insertManyConverters, insertManyDefaultConverter, options).map { options ->
+                db.getCollection(collection).insertMany(docs.filterIsInstance<Document>(), options)
+                mapOf("result" to mapOf("ok" to true),
+                        "insertedIds" to emptyList<String>())
+            }
         }
     }
 

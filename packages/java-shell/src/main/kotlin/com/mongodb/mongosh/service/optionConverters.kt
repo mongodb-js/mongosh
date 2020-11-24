@@ -527,6 +527,18 @@ internal val updateOptionsConverters: Map<String, (UpdateOptions, Any?) -> Eithe
 
 internal val updateOptionsDefaultConverter = unrecognizedField<UpdateOptions>("update options")
 
+internal val insertManyConverters: Map<String, (InsertManyOptions, Any?) -> Either<InsertManyOptions>> = mapOf(
+        typed("ordered", Boolean::class.java) { opt, value ->
+            opt.ordered(value)
+        },
+        typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
+            opt.bypassDocumentValidation(value)
+        },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val insertManyDefaultConverter = unrecognizedField<InsertManyOptions>("insert many options")
+
 internal fun <T, C> typed(name: String, clazz: Class<C>, apply: (T, C) -> T): Pair<String, (T, Any?) -> Either<T>> =
         name to { o, value ->
             val casted = value as? C

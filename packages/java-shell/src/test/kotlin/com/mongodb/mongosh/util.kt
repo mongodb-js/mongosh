@@ -85,7 +85,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     e.printStackTrace()
                     val message = e.message
                     val msg = if (message != null && message.contains('\n')) message.substring(0, message.indexOf('\n')) else message
-                    sb.append(e.javaClass.name).append(": ").append(msg)
+                    sb.append(e.javaClass.name).append(": ").append(msg?.trim())
                 }
             }
             compare(testDataPath, name, sb.toString())
