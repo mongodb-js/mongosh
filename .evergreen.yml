@@ -63,7 +63,7 @@ variables:
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
 
-  - &compile_and_upload_artifact_ps
+  - &compile_and_upload_artifact_win
     command: shell.exec
     params:
       working_dir: src
@@ -81,8 +81,8 @@ variables:
         npm run test-e2e-ci
 
 # Functions are any command that can be run.
-# Variables ending with _ps do the same thing as their non-suffixed counterparts
-# but use PowerShell instead.
+# Variables ending with _win do the same thing as their non-suffixed counterparts
+# but use PowerShell for Windows support instead.
 #
 # Current functions:
 #   checkout - Checks out the project from git.
@@ -107,7 +107,7 @@ functions:
         shell: bash
         script: |
           source .evergreen/.install_node
-  install_ps:
+  install_win:
     - command: shell.exec
       params:
         working_dir: src
@@ -122,7 +122,7 @@ functions:
         script: |
           source .evergreen/.setup_env
           npm run check-ci
-  check_ps:
+  check_win:
     - command: shell.exec
       params:
         working_dir: src
@@ -144,7 +144,7 @@ functions:
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           npm run test-ci
-  test_ps:
+  test_win:
     - command: expansions.write
       params:
         file: tmp\expansions.yaml
@@ -177,12 +177,12 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - <<: *compile_and_upload_artifact
-  compile_and_upload_artifact_ps:
+  compile_and_upload_artifact_win:
     - command: expansions.write
       params:
         file: tmp\expansions.yaml
         redacted: true
-    - <<: *compile_and_upload_artifact_ps
+    - <<: *compile_and_upload_artifact_win
   test_linux_artifact:
     - command: expansions.write
       params:
@@ -221,11 +221,11 @@ tasks:
       - func: checkout
       - func: install
       - func: check
-  - name: check_ps
+  - name: check_win
     commands:
       - func: checkout
-      - func: install_ps
-      - func: check_ps
+      - func: install_win
+      - func: check_win
   - name: test_m40x
     commands:
       - func: checkout
@@ -247,25 +247,25 @@ tasks:
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-  - name: test_m40x_ps
+  - name: test_m40x_win
     commands:
       - func: checkout
-      - func: install_ps
-      - func: test_ps
+      - func: install_win
+      - func: test_win
         vars:
           mongosh_server_test_version: "4.0.x"
-  - name: test_m42x_ps
+  - name: test_m42x_win
     commands:
       - func: checkout
-      - func: install_ps
-      - func: test_ps
+      - func: install_win
+      - func: test_win
         vars:
           mongosh_server_test_version: "4.2.x"
-  - name: test_m44x_ps
+  - name: test_m44x_win
     commands:
       - func: checkout
-      - func: install_ps
-      - func: test_ps
+      - func: install_win
+      - func: test_win
         vars:
           mongosh_server_test_version: "4.4.x"
   - name: test_vscode
@@ -300,16 +300,16 @@ tasks:
       - func: checkout
       - func: install
       - func: compile_and_upload_artifact
-  - name: compile_and_upload_artifact_ps
+  - name: compile_and_upload_artifact_win
     depends_on:
-      - name: check_ps
-      - name: test_m40x_ps
-      - name: test_m42x_ps
-      - name: test_m44x_ps
+      - name: check_win
+      - name: test_m40x_win
+      - name: test_m42x_win
+      - name: test_m44x_win
     commands:
       - func: checkout
-      - func: install_ps
-      - func: compile_and_upload_artifact_ps
+      - func: install_win
+      - func: compile_and_upload_artifact_win
   - name: test_linux_artifact
     depends_on:
       - name: compile_and_upload_artifact_linux
@@ -320,7 +320,7 @@ tasks:
       - func: test_linux_artifact
   - name: release_publish
     depends_on:
-      - name: compile_and_upload_artifact_ps
+      - name: compile_and_upload_artifact_win
         variant: win32
       - name: compile_and_upload_artifact_linux
         variant: linux
@@ -388,11 +388,11 @@ buildvariants:
     display_name: "Windows VS 2019 PowerShell"
     run_on: windows-64-vs2019-test
     tasks:
-      - name: check_ps
-      - name: test_m40x_ps
-      - name: test_m42x_ps
-      - name: test_m44x_ps
-      - name: compile_and_upload_artifact_ps
+      - name: check_win
+      - name: test_m40x_win
+      - name: test_m42x_win
+      - name: test_m44x_win
+      - name: compile_and_upload_artifact_win
   - name: darwin_release_publish
     display_name: "Publish Release"
     run_on: macos-1014-codesign
