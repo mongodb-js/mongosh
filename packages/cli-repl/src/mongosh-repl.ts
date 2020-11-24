@@ -143,6 +143,9 @@ class MongoshNodeRepl {
     });
 
     internalState.setCtx(repl.context);
+    // Only start reading from the input *after* we set up everything, including
+    // internalState.setCtx().
+    this.lineByLineInput.start();
   }
 
   /**

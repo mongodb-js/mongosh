@@ -95,6 +95,10 @@ export class TestShell {
     return this._output;
   }
 
+  get process(): ChildProcess {
+    return this._process;
+  }
+
   async waitForPrompt(start = 0): Promise<void> {
     await eventually(() => {
       if (!this._output.slice(start).match(PROMPT_PATTERN)) {
