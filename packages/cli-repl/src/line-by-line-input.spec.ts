@@ -15,6 +15,7 @@ describe('LineByLineInput', () => {
     decoder = new StringDecoder();
     forwardedChunks = [];
     lineByLineInput = new LineByLineInput(stdinMock);
+    lineByLineInput.start();
     lineByLineInput.on('data', (chunk) => {
       const decoded = decoder.write(chunk);
       if (decoded) {

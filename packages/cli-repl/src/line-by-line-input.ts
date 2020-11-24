@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { Readable } from 'stream';
 import { StringDecoder } from 'string_decoder';
 
 const LINE_ENDING_RE = /\r?\n|\r(?!\n)/;
@@ -21,8 +21,7 @@ const CTRL_D = '\u0004';
  * If the line splitting is disabled the stream will behave like
  * the proxied `tty.ReadStream`, forwarding all the characters.
  */
-export class LineByLineInput {
-  private _emitter: EventEmitter;
+export class LineByLineInput extends Readable {
   private _originalInput: NodeJS.ReadStream;
   private _forwarding: boolean;
   private _blockOnNewLineEnabled: boolean;
@@ -30,14 +29,28 @@ export class LineByLineInput {
   private _decoder: StringDecoder;
 
   constructor(readable: NodeJS.ReadStream) {
-    this._emitter = new EventEmitter();
+    super();
     this._originalInput = readable;
     this._forwarding = true;
     this._blockOnNewLineEnabled = true;
     this._charQueue = [];
     this._decoder = new StringDecoder('utf-8');
 
-    readable.on('data', this._onData);
+    const isReadableEvent = (name: string) =>
+      name === 'readable' || name === 'data' || name === 'end' || name === 'keypress';
+
+    // Listeners for events that are not related to this object being a readable
+    // stream are also added to the wrapped object.
+    this.on('removeListener', (name: string, handler: (...args: any[]) => void) => {
+      if (!isReadableEvent(name)) {
+        this._originalInput.removeListener(name, handler);
+      }
+    });
+    this.on('newListener', (name: string, handler: (...args: any[]) => void) => {
+      if (!isReadableEvent(name)) {
+        this._originalInput.addListener(name, handler);
+      }
+    });
 
     const proxy = new Proxy(readable, {
       get: (target: NodeJS.ReadStream, property: string): any => {
@@ -55,16 +68,12 @@ export class LineByLineInput {
     return (proxy as unknown) as LineByLineInput;
   }
 
-  on(event: string, handler: (...args: any[]) => void): void {
-    if (event === 'data') {
-      this._emitter.on('data', handler);
-      // we may have buffered data for the first listener
-      this._flush();
-      return;
-    }
+  start(): void {
+    this._originalInput.on('data', (chunk) => this._onData(chunk));
+    this._originalInput.on('end', () => this.push(null));
+  }
 
-    this._originalInput.on(event, handler);
-    return;
+  _read(): void {
   }
 
   nextLine(): void {
@@ -93,7 +102,7 @@ export class LineByLineInput {
     const chars = this._decoder.write(chunk);
     for (const char of chars) {
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
-        this._emitChar(char);
+        this.push(char);
       } else {
         this._charQueue.push(char);
       }
@@ -104,7 +113,7 @@ export class LineByLineInput {
   private _forwardWithoutBlocking(chunk: Buffer): void {
     // keeps decoding state consistent
     this._decoder.write(chunk);
-    this._emitChunk(chunk);
+    this.push(chunk);
   }
 
   private _pauseForwarding(): void {
@@ -124,20 +133,7 @@ export class LineByLineInput {
     return !this._blockOnNewLineEnabled || this._forwarding;
   }
 
-  private _emitChar(char: string): void {
-    this._emitChunk(Buffer.from(char, 'utf8'));
-  }
-
-  private _emitChunk(chunk: Buffer): void {
-    this._emitter.emit('data', chunk);
-  }
-
   private _flush(): void {
-    // there is nobody to flush for
-    if (this._emitter.listenerCount('data') === 0) {
-      return;
-    }
-
     while (
       this._charQueue.length &&
       this._shouldForward() &&
@@ -154,7 +150,7 @@ export class LineByLineInput {
         this._pauseForwarding();
       }
 
-      this._emitChar(char);
+      this.push(char);
     }
   }
 

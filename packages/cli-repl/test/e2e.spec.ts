@@ -344,5 +344,21 @@ describe('e2e', function() {
       expect(result).to.match(/Telemetry is now disabled/);
     });
   });
+
+  describe('pipe from stdin', () => {
+    it('reads and runs code from stdin', async() => {
+      const shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+      const dbName = `test-${Date.now()}`;
+      shell.process.stdin.write(`
+      use ${dbName};
+      db.coll1.insertOne({ foo: 55 });
+      db.coll1.insertOne({ foo: 89 });
+      db.coll1.aggregate([{$group: {_id: null, total: {$sum: '$foo'}}}])
+      `);
+      await eventually(() => {
+        shell.assertContainsOutput('total: 144');
+      });
+    });
+  });
 });
 
