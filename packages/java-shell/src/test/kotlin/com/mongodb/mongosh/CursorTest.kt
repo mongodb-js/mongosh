@@ -1,5 +1,8 @@
 package com.mongodb.mongosh
 
+import com.mongodb.mongosh.result.AggregationCursorResult
+import com.mongodb.mongosh.result.FindCursorResult
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CursorTest : ShellTestCase() {
@@ -34,6 +37,42 @@ class CursorTest : ShellTestCase() {
     @Test fun testSort()              = test()
     @Test fun testTailable()          = test()
     @Test fun testToArray()           = test()
+
+    @Test fun testCursorIsNotFetchedTwice() {
+        withShell { shell ->
+            shell.eval("db.coll.remove({});\n" +
+                    "db.coll.insertMany([{a: 1}, {a: 2}]);")
+            try {
+                val cursor = (shell.eval("db.coll.find()") as FindCursorResult).value
+                cursor.batchSize(10)
+                val sb = StringBuilder()
+                for (doc in cursor) {
+                    sb.append(doc).append("\n")
+                }
+                assertEquals("Document{{_id=<ObjectID>, a=1}}\nDocument{{_id=<ObjectID>, a=2}}", normalize(sb.toString()))
+            } finally {
+                shell.eval("db.coll.drop({});")
+            }
+        }
+    }
+
+    @Test fun testAggregateCursorIsNotFetchedTwice() {
+        withShell { shell ->
+            shell.eval("db.coll.remove({});\n" +
+                    "db.coll.insertMany([{a: 1}, {a: 2}]);")
+            try {
+                val cursor = (shell.eval("db.coll.aggregate()") as AggregationCursorResult).value
+                val sb = StringBuilder()
+                for (doc in cursor) {
+                    sb.append(doc).append("\n")
+                }
+                assertEquals("Document{{_id=<ObjectID>, a=1}}\nDocument{{_id=<ObjectID>, a=2}}", normalize(sb.toString()))
+            } finally {
+                shell.eval("db.coll.drop({});")
+            }
+        }
+    }
+
 
     private fun test() {
         val name = (Throwable()).stackTrace[1].methodName.removePrefix("test")

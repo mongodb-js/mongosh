@@ -44,6 +44,7 @@ internal class MongoShellContext(client: MongoClient) {
     /** Java functions don't have js methods such as apply, bind, call etc.
      * So we need to create a real js function that wraps Java code */
     private val functionProducer = evalInner("(fun) => function inner() { return fun(...arguments); }")
+    private fun jsFun(func: (args: Array<Value>) -> Any?): Value = functionProducer.execute(ProxyExecutable { func(it) })
 
     init {
         val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js").readText()
@@ -53,7 +54,7 @@ internal class MongoShellContext(client: MongoClient) {
         val global = context["_global"]!!
         context.removeMember("_global")
         shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
-        shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState)
+        shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState, resultHandler())
         toShellResultFn = global.getMember("toShellResult")
         getShellApiTypeFn = global.getMember("getShellApiType")
         val jsSymbol = context["Symbol"]!!
@@ -74,6 +75,17 @@ internal class MongoShellContext(client: MongoClient) {
                 evalInner("new HexData(0, '').constructor"))
     }
 
+    private fun resultHandler() = jsFun { args ->
+        if (args.size != 1) {
+            throw IllegalArgumentException("Expected one argument. Got ${args.size} ${args.contentToString()}")
+        }
+        val rawValue = args[0]
+        when (val type = getShellApiType(rawValue)) {
+            "Cursor", "AggregationCursor" -> shellResult(rawValue, type)
+            else -> toShellResult(rawValue)
+        }
+    }
+
     private fun initContext(context: Value, jsSymbol: Value) {
         context.putMember("BSONSymbol", context["Symbol"])
         context.putMember("Symbol", jsSymbol)
@@ -81,18 +93,23 @@ internal class MongoShellContext(client: MongoClient) {
                 .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
         date.putMember("now", ProxyExecutable { System.currentTimeMillis() })
         context.putMember("Date", date)
-        val isoDate = functionProducer.execute(ProxyExecutable { args -> dateHelper(true, args.toList()) })
+        val isoDate = jsFun { args -> dateHelper(true, args.toList()) }
         context.putMember("ISODate", isoDate)
-        context.putMember("UUID", functionProducer.execute(ProxyExecutable { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) }))
+        context.putMember("UUID", jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) })
         // init console.log
-        val print = functionProducer.execute(ProxyExecutable { args ->
+        val print = jsFun { args ->
             printedValues?.add(args.map { extract(it).value })
-        })
+        }
         ctx?.getBindings("js")?.putMember("print", print)
         val console = evalInner("new Object()")
         console.putMember("log", print)
         console.putMember("error", print)
         ctx?.getBindings("js")?.putMember("console", console)
+    }
+
+    private fun shellResult(printable: Value, type: String): Value {
+        return evalInner("(printable, type) => ({printable: printable, type: type})")
+                .execute(printable, type)
     }
 
     private fun dateHelper(createObject: Boolean, args: List<Value>): Any {
@@ -184,22 +201,12 @@ internal class MongoShellContext(client: MongoClient) {
         return unwrapPromise(toShellResultFn.execute(rawValue));
     }
 
-    fun extract(printable: Value?, rawValue: Value? = null): MongoShellResult<*> {
-        val v: Value
-        val type: String?
-        if (printable == null) {
-            type = getShellApiType(rawValue as Value)
-            v = toShellResult(rawValue)["printable"]!!
-        } else {
-            type = null
-            v = printable
-        }
-
+    fun extract(v: Value, type: String? = null): MongoShellResult<*> {
         return when {
             type == "Help" -> extract(v["attr"]!!)
-            type == "Cursor" -> FindCursorResult(FindCursor<Any?>(rawValue, this))
+            type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
             // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
-            type == "AggregationCursor" && rawValue!!.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(rawValue, this))
+            type == "AggregationCursor" && v.hasMember("_cursor") -> AggregationCursorResult(AggregationCursor<Any?>(v, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
             type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
             type == "UpdateResult" -> {
