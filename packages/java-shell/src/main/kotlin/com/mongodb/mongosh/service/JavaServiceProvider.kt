@@ -11,7 +11,6 @@ import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
-import java.io.Closeable
 
 @Suppress("NAME_SHADOWING")
 internal class JavaServiceProvider(private val client: MongoClient, private val context: MongoShellContext) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
@@ -154,8 +153,11 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     @HostAccess.Export
-    override fun dropDatabase(database: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun dropDatabase(database: String, options: Value?): Value = promise<Any?> {
+        getDatabase(database, null).map { db ->
+            db.drop()
+            mapOf("ok" to 1, "dropped" to database)
+        }
     }
 
     @HostAccess.Export
