@@ -4,7 +4,10 @@ import { promisify } from 'util';
 import { promises as fs } from 'fs';
 import path from 'path';
 import download from 'download';
+import zlib from 'zlib';
 import getDownloadURL from 'mongodb-download-url';
+const gunzip = promisify(zlib.gunzip);
+const gzip = promisify(zlib.gzip);
 
 type ArchiveBaseInfo = {
   sha1: string;
@@ -64,12 +67,21 @@ async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
   return downloadInfo.archive.url;
 }
 
+const downloadPromises: Record<string, Promise<string>> = {};
 // Download mongod + mongos and return the path to a directory containing them.
-export async function downloadMongoDb() {
-  const resp = await fetch('https://downloads.mongodb.org/full.json');
-  const json: FullJSON = await resp.json();
-  const productionVersions = json.versions
-    .filter((version: VersionInfo) => version.production_release)
+export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promise<string> {
+  let fullJson: FullJSON;
+  const fullJSONCachePath = path.resolve(__dirname, '..', 'tmp', 'full.json.gz');
+  try {
+    fullJson = JSON.parse((await gunzip(await fs.readFile(fullJSONCachePath))).toString());
+  } catch {
+    const resp = await fetch('https://downloads.mongodb.org/full.json');
+    fullJson = await resp.json();
+    await fs.writeFile(fullJSONCachePath, await gzip(JSON.stringify(fullJson)));
+  }
+  const productionVersions = fullJson.versions
+    .filter((info: VersionInfo) => info.production_release)
+    .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
 
@@ -78,17 +90,20 @@ export async function downloadMongoDb() {
     '..',
     'tmp',
     `mongodb-${process.platform}-${process.arch}-${versionInfo.version}`);
-  const bindir = path.resolve(downloadTarget, 'bin');
-  try {
-    await fs.stat(bindir);
+  return downloadPromises[downloadTarget] ??= (async() => {
+    const bindir = path.resolve(downloadTarget, 'bin');
+    try {
+      await fs.stat(bindir);
+      console.info(`Skipping download because ${downloadTarget} exists`);
+      return bindir;
+    } catch {}
+
+    await fs.mkdir(downloadTarget, { recursive: true });
+    const downloadInfo = await lookupDownloadUrl(versionInfo);
+    console.info('Downloading...', downloadInfo);
+    await download(downloadInfo, downloadTarget, { extract: true, strip: 1 });
+
+    await fs.stat(bindir); // Make sure it exists.
     return bindir;
-  } catch {}
-
-  await fs.mkdir(downloadTarget, { recursive: true });
-  const downloadInfo = await lookupDownloadUrl(versionInfo);
-  console.info('Downloading...', downloadInfo);
-  await download(downloadInfo, downloadTarget, { extract: true, strip: 1 });
-
-  await fs.stat(bindir); // Make sure it exists.
-  return bindir;
+  })();
 }

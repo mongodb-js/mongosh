@@ -82,6 +82,7 @@ export default class ReplicaSet extends ShellApiClass {
     const conf = await this.conf();
 
     config.version = conf.version ? conf.version + 1 : 1;
+    config.protocolVersion ??= conf.protocolVersion; // Needed on mongod 4.0.x
     const cmd = { replSetReconfig: config, ...options };
 
     return this._database._runAdminCommand(cmd);

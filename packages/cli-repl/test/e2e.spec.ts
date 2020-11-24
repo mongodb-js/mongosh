@@ -140,7 +140,9 @@ describe('e2e', function() {
       });
       it('recognizes a driver error as error', async() => {
         await shell.executeLine('db.coll.initializeOrderedBulkOp().find({}).update({}, {}).execute()');
-        shell.assertContainsOutput('multi update is not supported for replacement-style update');
+        // output varies by server version
+        expect(shell.output).to.match(
+          /multi update (only works with \$ operators|is not supported for replacement-style update)/);
       });
     });
     it('throws multiline input with a single line string', async() => {
