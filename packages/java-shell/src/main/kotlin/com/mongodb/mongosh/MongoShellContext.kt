@@ -134,7 +134,7 @@ internal class MongoShellContext(client: MongoClient) {
                 }
             }
         }
-        return if (createObject) date else DATE_FORMATTER.format(date.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime())
+        return if (createObject) date else date.toString()
     }
 
     private fun parseDate(str: String): Date {
