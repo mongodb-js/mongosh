@@ -9,13 +9,14 @@ import org.junit.Assert.*
 import org.junit.Assume.assumeFalse
 import java.io.File
 import java.io.IOException
+import java.net.URI
 import java.util.regex.Pattern
 
 private const val pathToUri = "src/test/resources/URI.txt"
 internal const val DB = "admin"
 
 fun createMongoRepl(): MongoShell {
-    val uri = System.getenv("JAVA_SHELL_MONGOSH_TEST_URI") ?: File(pathToUri).readText()
+    val uri = readUri()
     if (uri.isBlank()) {
         fail("Specify MongoDB connection URI in $pathToUri or the JAVA_SHELL_MONGOSH_TEST_URI environment variable")
     }
@@ -26,6 +27,9 @@ fun createMongoRepl(): MongoShell {
 
     return MongoShell(MongoClients.create(settings))
 }
+
+private fun readUri() = System.getenv("JAVA_SHELL_MONGOSH_TEST_URI") ?: File(pathToUri).readText()
+private fun getHostPort(uri: String): String = URI(uri).let { "${it.host}:${it.port}" }
 
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
     // Some tests start with a lowercase variant of testName, some don't
@@ -137,7 +141,7 @@ private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
 
 @Throws(IOException::class)
 private fun compare(testDataPath: String, name: String, actual: String) {
-    val mongohostport = System.getenv("JAVA_SHELL_MONGOSH_TEST_HOSTPORT") ?: "localhost:27017"
+    val mongohostport = getHostPort(readUri())
     var expectedFile = File("$testDataPath/$name.expected.txt")
     if (!expectedFile.exists()) {
         assertTrue(expectedFile.createNewFile())
@@ -145,14 +149,14 @@ private fun compare(testDataPath: String, name: String, actual: String) {
         fail("Created output file $expectedFile")
     } else {
         for (counter in 1..10) {
-            if (expectedFile.readText().replace("%mongohostport%", mongohostport).trim() == actual.trim()) break
+            if (expectedFile.readText().trim() == actual.replace(mongohostport, "%mongohostport%").trim()) break
 
             val alternativeFile = File("$testDataPath/$name.expected.$counter.txt")
             if (alternativeFile.exists()) {
                 expectedFile = alternativeFile
             }
         }
-        assertEquals(expectedFile.readText().replace("%mongohostport%", mongohostport).trim(), actual.trim())
+        assertEquals(expectedFile.readText().trim(), actual.replace(mongohostport, "%mongohostport%").trim())
     }
 }
 
