@@ -115,12 +115,12 @@ internal class MongoShellContext(client: MongoClient) {
 
     private fun dateHelper(createObject: Boolean, args: List<Value>): Any {
         val date = when {
-            args.isEmpty() -> Date(System.currentTimeMillis())
+            args.isEmpty() -> MongoshDate(System.currentTimeMillis())
             args.size == 1 -> {
                 when (val v = extract(args[0]).value) {
                     is String -> parseDate(v)
-                    is Number -> Date(v.toLong())
-                    else -> throw IllegalArgumentException("Expected number of string. Got: ${args[0]} ($v)")
+                    is Number -> MongoshDate(v.toLong())
+                    else -> throw IllegalArgumentException("Expected number or string. Got: ${args[0]} ($v)")
                 }
             }
             else -> {
@@ -130,7 +130,7 @@ internal class MongoShellContext(client: MongoClient) {
                             args.getOrNull(2)?.asInt() ?: 1, args.getOrNull(3)?.asInt() ?: 0,
                             args.getOrNull(4)?.asInt() ?: 0, args.getOrNull(5)?.asInt() ?: 0,
                             args.getOrNull(6)?.asInt() ?: 0)
-                    Date(localDateTime.atZone(ZoneOffset.UTC).toInstant().toEpochMilli())
+                    MongoshDate(localDateTime.atZone(ZoneOffset.UTC).toInstant().toEpochMilli())
                 }
             }
         }
@@ -148,7 +148,7 @@ internal class MongoShellContext(client: MongoClient) {
                 accessor.safeGet(ChronoField.SECOND_OF_MINUTE) ?: 0,
                 accessor.safeGet(ChronoField.NANO_OF_SECOND) ?: 0,
                 ZoneOffset.ofTotalSeconds(accessor.safeGet(ChronoField.OFFSET_SECONDS) ?: 0))
-        return Date(dateTime.toInstant().toEpochMilli())
+        return MongoshDate(dateTime.toInstant().toEpochMilli())
     }
 
     private fun TemporalAccessor.safeGet(field: TemporalField): Int? {

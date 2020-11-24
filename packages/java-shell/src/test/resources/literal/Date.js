@@ -18,3 +18,5 @@ new Date("2012-12-19")
 Date("2012-12-19")
 // command checkResultClass
 new Date({})
+// command checkResultClass
+new Date("2012-12-19").getTime()
