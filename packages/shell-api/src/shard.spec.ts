@@ -1145,10 +1145,16 @@ describe('Shard', () => {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
         expect((await sh.status()).value.databases.length).to.equal(2);
       });
-      it('enableSharding for a collection', async() => {
+      it('enableSharding for a collection and modify documents in it', async() => {
         expect(Object.keys((await sh.status()).value.databases[0].collections).length).to.equal(0);
         expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
         expect((await sh.status()).value.databases[0].collections[ns].shardKey).to.deep.equal({ key: 1 });
+
+        const db = internalState.currentDb.getSiblingDB(dbName);
+        await db.coll.insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
+        const original = await db.coll.findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
+        expect(original.key).to.equal('A');
+        expect(original.value).to.equal(10);
       });
     });
     describe('autosplit', () => {
