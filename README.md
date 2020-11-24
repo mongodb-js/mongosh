@@ -127,14 +127,8 @@ Run tests with all output from packages:
 lerna run test --stream
 ```
 
-Getting the Stitch integration tests running requires the 2 following env
-variables to be set:
-
-- `STITCH_TEST_APP_ID`
-- `STITCH_TEST_SERVICE_NAME`
-
-These can be gotten from the mongosh-test cluster in the Compass Atlas
-clusters.
+To test against a specific version, the `MONGOSH_SERVER_TEST_VERSION`
+environment variable can be set to a semver string specifying a server version.
 
 ### Starting the CLI
 
