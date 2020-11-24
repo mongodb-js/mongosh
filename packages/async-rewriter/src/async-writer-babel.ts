@@ -648,6 +648,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           });
           symbolCopyBody.popScope();
           state.symbols.compareSymbolTables( [state.symbols, symbolCopyBody]);
+          state.symbols.popScope(); // required because loops are aliased to scopable, and we call path.skip()
           break;
         default:
           assertUnreachable(path.node);
