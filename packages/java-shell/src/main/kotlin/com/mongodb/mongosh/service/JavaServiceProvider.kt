@@ -497,8 +497,17 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options") ?: Document()
         getDatabase(database, null).flatMap { db ->
-            convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
-                db.createCollection(collection, opt)
+            val viewOn = options["viewOn"]
+            if (viewOn is String) {
+                convert(CreateViewOptions(), createViewOptionsConverters, createViewOptionsConverter, options).map { opt ->
+                    val pipeline = (options["pipeline"] as? List<*>)?.filterIsInstance(Document::class.java)
+                    db.createView(collection, viewOn, pipeline?.toMutableList() ?: mutableListOf(), opt)
+                }
+            }
+            else {
+                convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
+                    db.createCollection(collection, opt)
+                }
             }
         }
     }

@@ -500,10 +500,25 @@ internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOpt
                     .build()
             opt.collation(collation)
         },
-        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
 )
 
 internal val createCollectionOptionsConverter = unrecognizedField<CreateCollectionOptions>("create collection options")
+
+internal val createViewOptionsConverters: Map<String, (CreateViewOptions, Any?) -> Either<CreateViewOptions>> = mapOf(
+        typed("collation", Document::class.java) { opt, value ->
+            val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
+                    .getOrThrow()
+                    .build()
+            opt.collation(collation)
+        },
+        "viewOn" to { opt, _ -> Right(opt) },
+        "pipeline" to { opt, _ -> Right(opt) },
+        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+)
+
+internal val createViewOptionsConverter = unrecognizedField<CreateViewOptions>("create view options")
+
 
 internal val updateOptionsConverters: Map<String, (UpdateOptions, Any?) -> Either<UpdateOptions>> = mapOf(
         typed("collation", Document::class.java) { opt, value ->
