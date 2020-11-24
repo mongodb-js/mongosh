@@ -14,6 +14,13 @@ const skipPath = (p): any => {
 };
 const myType = { type: 'myType', attributes: { myAttr: { type: 'unknown', attributes: {} } } };
 
+function compileCheckScopes(writer, input) {
+  const preDepth = writer.symbols.depth;
+  const result = writer.compile(input);
+  expect(writer.symbols.depth).to.equal(preDepth);
+  return result;
+}
+
 describe('checkHasAsyncChild', () => {
   ['hasAsyncChild', 'returnsPromise'].forEach((key) => {
     it(`true deeply nested ${key}`, () => {
@@ -87,7 +94,7 @@ describe('async-writer-babel', () => {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('db;');
+        expect(compileCheckScopes(writer, input)).to.equal('db;');
       });
       it('decorates Identifier', (done) => {
         traverse(ast, {
@@ -104,7 +111,7 @@ describe('async-writer-babel', () => {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('x;');
+        expect(compileCheckScopes(writer, input)).to.equal('x;');
       });
       it('decorates Identifier', (done) => {
         traverse(ast, {
@@ -171,7 +178,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('db.coll;');
+            expect(compileCheckScopes(writer, input)).to.equal('db.coll;');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -208,7 +215,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('coll.coll2;');
+            expect(compileCheckScopes(writer, input)).to.equal('coll.coll2;');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -246,7 +253,7 @@ class Test {
               ast = writer.getTransform(input).ast;
             });
             it('compiles correctly', () => {
-              expect(writer.compile(input)).to.equal('c.hasNext;');
+              expect(compileCheckScopes(writer, input)).to.equal('c.hasNext;');
             });
             it('decorates node.object Identifier', (done) => {
               traverse(ast, {
@@ -283,7 +290,7 @@ class Test {
               ast = writer.getTransform(input).ast;
             });
             it('compiles correctly', () => {
-              expect(writer.compile(input)).to.equal('c.x;');
+              expect(compileCheckScopes(writer, input)).to.equal('c.x;');
             });
             it('decorates node.object Identifier', (done) => {
               traverse(ast, {
@@ -321,7 +328,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('x.coll2;');
+            expect(compileCheckScopes(writer, input)).to.equal('x.coll2;');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -358,7 +365,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await db.system.profile.insertOne({});');
+            expect(compileCheckScopes(writer, input)).to.equal('await db.system.profile.insertOne({});');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -394,7 +401,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('c[\'hasNext\'];');
+            expect(compileCheckScopes(writer, input)).to.equal('c[\'hasNext\'];');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -429,14 +436,14 @@ class Test {
           describe('when lhs has async child', () => {
             it('throws an error', () => {
               try {
-                writer.compile('c[(x)]');
+                compileCheckScopes(writer, 'c[(x)]');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
               }
             });
             it('throws an error with suggestion for db', () => {
               try {
-                writer.compile('db[x()]');
+                compileCheckScopes(writer, 'db[x()]');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
                 expect(e.message).to.contain('Database');
@@ -449,7 +456,7 @@ class Test {
               ast = writer.getTransform(input).ast;
             });
             it('compiles correctly', () => {
-              expect(writer.compile(input)).to.equal('t[x()];');
+              expect(compileCheckScopes(writer, input)).to.equal('t[x()];');
             });
             it('decorates node.object Identifier', (done) => {
               traverse(ast, {
@@ -487,7 +494,7 @@ class Test {
         writer.symbols.initializeApiObjects({
           db: signatures.Database,
         });
-        writer.compile('a = { d: db }');
+        compileCheckScopes(writer, 'a = { d: db }');
       });
       describe('dot notation', () => {
         before(() => {
@@ -495,7 +502,7 @@ class Test {
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('a.d;');
+          expect(compileCheckScopes(writer, input)).to.equal('a.d;');
         });
         it('decorates node.object Identifier', (done) => {
           traverse(ast, {
@@ -535,7 +542,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('a[\'d\'];');
+            expect(compileCheckScopes(writer, input)).to.equal('a[\'d\'];');
           });
           it('decorates node.object Identifier', (done) => {
             traverse(ast, {
@@ -561,14 +568,14 @@ class Test {
         describe('with other rhs', () => {
           it('throws an error with suggestion for db and var', () => {
             try {
-              writer.compile('a[d]');
+              compileCheckScopes(writer, 'a[d]');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
           });
           it('throws an error with suggestion for db and null', () => {
             try {
-              writer.compile('a[null]');
+              compileCheckScopes(writer, 'a[null]');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -582,7 +589,7 @@ class Test {
         writer.symbols.initializeApiObjects({
           db: signatures.Database,
         });
-        writer.compile('a = [db]');
+        compileCheckScopes(writer, 'a = [db]');
       });
       describe('with literal index', () => {
         before(() => {
@@ -590,7 +597,7 @@ class Test {
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('a[0];');
+          expect(compileCheckScopes(writer, input)).to.equal('a[0];');
         });
         it('decorates node.object Identifier', (done) => {
           traverse(ast, {
@@ -616,7 +623,7 @@ class Test {
       describe('with variable', () => {
         it('throws an error with suggestion for db', () => {
           try {
-            writer.compile('a[d]');
+            compileCheckScopes(writer, 'a[d]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
@@ -637,7 +644,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('a = {\n  x: db\n};');
+        expect(compileCheckScopes(writer, input)).to.equal('a = {\n  x: db\n};');
       });
       it('decorates object', (done) => {
         traverse(ast, {
@@ -666,7 +673,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('a = {\n  x: y\n};');
+        expect(compileCheckScopes(writer, input)).to.equal('a = {\n  x: y\n};');
       });
       it('decorates object', (done) => {
         traverse(ast, {
@@ -696,7 +703,7 @@ class Test {
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('a = {\n  method() {\n    return 1;\n  }\n\n};');
+          expect(compileCheckScopes(writer, input)).to.equal('a = {\n  method() {\n    return 1;\n  }\n\n};');
         });
         it('decorates object', (done) => {
           traverse(ast, {
@@ -718,7 +725,7 @@ class Test {
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('a = {\n  method() {\n    return db;\n  }\n\n};');
+          expect(compileCheckScopes(writer, input)).to.equal('a = {\n  method() {\n    return db;\n  }\n\n};');
         });
         it('decorates object', (done) => {
           traverse(ast, {
@@ -738,12 +745,12 @@ class Test {
     describe('with spread', () => {
       describe('with known identifier', () => {
         before(() => {
-          writer.compile('oldObj = { method() { return db; }}');
+          compileCheckScopes(writer, 'oldObj = { method() { return db; }}');
           input = 'newObj = {...oldObj}';
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('newObj = { ...oldObj\n};');
+          expect(compileCheckScopes(writer, input)).to.equal('newObj = { ...oldObj\n};');
         });
         it('decorates object', (done) => {
           traverse(ast, {
@@ -765,7 +772,7 @@ class Test {
           ast = writer.getTransform(input).ast;
         });
         it('compiles correctly', () => {
-          expect(writer.compile(input)).to.equal('newObj = { ...unknownObj\n};');
+          expect(compileCheckScopes(writer, input)).to.equal('newObj = { ...unknownObj\n};');
         });
         it('decorates object', (done) => {
           traverse(ast, {
@@ -785,7 +792,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('newObj = { ...{\n    method() {\n      return db;\n    }\n\n  }\n};');
+        expect(compileCheckScopes(writer, input)).to.equal('newObj = { ...{\n    method() {\n      return db;\n    }\n\n  }\n};');
       });
       it('decorates object', () => {
         const node = ast.program.body[0].expression.right;
@@ -811,7 +818,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('[db];');
+        expect(compileCheckScopes(writer, input)).to.equal('[db];');
       });
       it('decorates array', (done) => {
         traverse(ast, {
@@ -840,7 +847,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('[x];');
+        expect(compileCheckScopes(writer, input)).to.equal('[x];');
       });
       it('decorates array', (done) => {
         traverse(ast, {
@@ -875,7 +882,7 @@ class Test {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('x();');
+        expect(compileCheckScopes(writer, input)).to.equal('x();');
       });
       it('decorates CallExpression', (done) => {
         traverse(ast, {
@@ -894,18 +901,18 @@ class Test {
             writer.symbols.initializeApiObjects({
               db: signatures.Database
             });
-            expect(writer.compile('async function returnsAgg() { return db.coll.aggregate(); }')).to.equal(
+            expect(compileCheckScopes(writer, 'async function returnsAgg() { return db.coll.aggregate(); }')).to.equal(
               'async function returnsAgg() {\n  return await db.coll.aggregate();\n}'
             );
           });
           it('compiles correctly', () => {
             input = 'function callsReturnsAgg() { return returnsAgg(); }';
-            expect(writer.compile(input)).to.equal('async function callsReturnsAgg() {\n  return await returnsAgg();\n}');
+            expect(compileCheckScopes(writer, input)).to.equal('async function callsReturnsAgg() {\n  return await returnsAgg();\n}');
           });
           it('decorates correctly', (done) => {
             const finalCall = 'callsReturnsAgg()';
             ast = writer.getTransform(finalCall).ast;
-            expect(writer.compile(finalCall)).to.equal('await callsReturnsAgg();');
+            expect(compileCheckScopes(writer, finalCall)).to.equal('await callsReturnsAgg();');
             traverse(ast, {
               CallExpression(path) {
                 expect(path.node['shellType'].type).to.deep.equal('AggregationCursor');
@@ -920,14 +927,14 @@ class Test {
             writer.symbols.initializeApiObjects({
               reqAwait: { type: 'function', returnsPromise: true }
             });
-            expect(writer.compile('async function yesAwait() { reqAwait(); }')).to.equal(
+            expect(compileCheckScopes(writer, 'async function yesAwait() { reqAwait(); }')).to.equal(
               'async function yesAwait() {\n  await reqAwait();\n}'
             );
             input = 'yesAwait()';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await yesAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('await yesAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -948,7 +955,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await reqAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('await reqAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -969,7 +976,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await reqAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('await reqAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -990,7 +997,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await reqAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('await reqAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -1011,7 +1018,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('await reqAwait((await reqAwait()));');
+            expect(compileCheckScopes(writer, input)).to.equal('await reqAwait((await reqAwait()));');
           });
         });
       });
@@ -1020,12 +1027,12 @@ class Test {
           before(() => {
             writer = new AsyncWriter(signatures);
             writer.symbols.initializeApiObjects({});
-            writer.compile('async function noAwait() { return 1; }');
+            compileCheckScopes(writer, 'async function noAwait() { return 1; }');
             input = 'noAwait()';
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('noAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('noAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -1046,7 +1053,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('noAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('noAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -1067,7 +1074,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('noAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('noAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -1088,7 +1095,7 @@ class Test {
             ast = writer.getTransform(input).ast;
           });
           it('compiles correctly', () => {
-            expect(writer.compile(input)).to.equal('noAwait();');
+            expect(compileCheckScopes(writer, input)).to.equal('noAwait();');
           });
           it('decorates CallExpression', (done) => {
             traverse(ast, {
@@ -1110,19 +1117,19 @@ class Test {
       });
       it('throws an error for db', (done) => {
         try {
-          writer.compile('fn(db)');
+          compileCheckScopes(writer, 'fn(db)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
           done();
         }
       });
       it('ignores exceptions', () => {
-        expect(writer.compile('print(db)')).to.equal('print(db);');
-        expect(writer.compile('printjson(db)')).to.equal('printjson(db);');
+        expect(compileCheckScopes(writer, 'print(db)')).to.equal('print(db);');
+        expect(compileCheckScopes(writer, 'printjson(db)')).to.equal('printjson(db);');
       });
       it('throws an error for db.coll', (done) => {
         try {
-          writer.compile('fn(db.coll)');
+          compileCheckScopes(writer, 'fn(db.coll)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
           done();
@@ -1130,23 +1137,23 @@ class Test {
       });
       it('throws an error for db.coll.insertOne', (done) => {
         try {
-          writer.compile('fn(db.coll.insertOne)');
+          compileCheckScopes(writer, 'fn(db.coll.insertOne)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
           done();
         }
       });
       it('throws an error for async method', (done) => {
-        writer.compile('function f() { db.coll.insertOne({}) }');
+        compileCheckScopes(writer, 'function f() { db.coll.insertOne({}) }');
         try {
-          writer.compile('fb(f)');
+          compileCheckScopes(writer, 'fb(f)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
           done();
         }
       });
       it('does not throw error for regular arg', () => {
-        expect(writer.compile('fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
+        expect(compileCheckScopes(writer, 'fn(1, 2, db.coll.find)')).to.equal('fn(1, 2, db.coll.find);');
       });
     });
     describe('updates outer scope when called', () => {
@@ -1157,7 +1164,7 @@ class Test {
         output = result.code;
       });
       it('sets pre format', () => {
-        writer.compile(`
+        compileCheckScopes(writer, `
 var a = db;
 function f() {
   a = 1;
@@ -1165,7 +1172,7 @@ function f() {
         expect(spy.lookup('a')).to.deep.equal(signatures.Database);
       });
       it('updates symbol table when called', () => {
-        writer.compile('f()');
+        compileCheckScopes(writer, 'f()');
         expect(spy.lookup('a')).to.deep.equal({ type: 'unknown', attributes: {} });
       });
     });
@@ -1177,7 +1184,7 @@ function f() {
         ast = writer.getTransform(input).ast;
       });
       it('compiles correctly', () => {
-        expect(writer.compile(input)).to.equal('a = (() => db)();');
+        expect(compileCheckScopes(writer, input)).to.equal('a = (() => db)();');
       });
       it('updates symbol table', () => {
         expect(spy.lookup('a')).to.deep.equal(signatures.Database);
@@ -1194,23 +1201,23 @@ function f() {
       });
       it('array pattern throws for async type', () => {
         try {
-          writer.compile('let [a, b] = [1, db]');
+          compileCheckScopes(writer, 'let [a, b] = [1, db]');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshUnimplementedError');
         }
       });
       it('array pattern ignored for non-async', () => {
-        expect(writer.compile('let [a, b] = [1, 2]')).to.equal('let [a, b] = [1, 2];');
+        expect(compileCheckScopes(writer, 'let [a, b] = [1, 2]')).to.equal('let [a, b] = [1, 2];');
       });
       it('object pattern throws for async type', () => {
         try {
-          writer.compile('let {a} = {a: db}');
+          compileCheckScopes(writer, 'let {a} = {a: db}');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshUnimplementedError');
         }
       });
       it('object pattern ignored for non-async', () => {
-        expect(writer.compile('let {a} = {a: 1, b: 2}')).to.equal('let {\n  a\n} = {\n  a: 1,\n  b: 2\n};');
+        expect(compileCheckScopes(writer, 'let {a} = {a: 1, b: 2}')).to.equal('let {\n  a\n} = {\n  a: 1,\n  b: 2\n};');
       });
     });
     describe('var', () => {
@@ -1575,20 +1582,20 @@ function f() {
         });
         it('array pattern throws for async type', () => {
           try {
-            writer.compile('[a, b] = [1, db]');
+            compileCheckScopes(writer, '[a, b] = [1, db]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
           }
         });
         it('array pattern ignored for non-async', () => {
-          expect(writer.compile('[a, b] = [1, 2]')).to.equal('[a, b] = [1, 2];');
+          expect(compileCheckScopes(writer, '[a, b] = [1, 2]')).to.equal('[a, b] = [1, 2];');
         });
         // NOTE: babel parser doesn't like this syntax.
         // it('object pattern throws for async type', () => {
-        //   expect(() => writer.compile('{a} = {a: db}')).to.throw();
+        //   expect(() => compileCheckScopes(writer, '{a} = {a: db}')).to.throw();
         // });
         // it('object pattern ignored for non-async', () => {
-        //   expect(writer.compile('{a, b} = {a: 1, b: 2}')).to.equal('{a, b} = {\n  a: 1,\n  b: 2\n};');
+        //   expect(compileCheckScopes(writer, '{a, b} = {a: 1, b: 2}')).to.equal('{a, b} = {\n  a: 1,\n  b: 2\n};');
         // });
       });
       describe('MemberExpression', () => {
@@ -1597,7 +1604,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x.y = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1622,7 +1629,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x[\'y\'] = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1647,7 +1654,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x[0] = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1693,9 +1700,9 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = 1');
-              writer.compile('y = x');
-              writer.compile('y.a = db');
+              compileCheckScopes(writer, 'x = 1');
+              compileCheckScopes(writer, 'y = x');
+              compileCheckScopes(writer, 'y.a = db');
             });
             it('final symbol table state updated', () => {
               expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: true, attributes: { a: signatures.Database } });
@@ -1708,7 +1715,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {db: db}');
+              compileCheckScopes(writer, 'x = {db: db}');
               input = 'x.y = 1';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1733,9 +1740,9 @@ function f() {
             it('throws', () => {
               writer = new AsyncWriter(signatures);
               writer.symbols.initializeApiObjects({ db: signatures.Database });
-              writer.compile('x = {db: db}');
+              compileCheckScopes(writer, 'x = {db: db}');
               try {
-                writer.compile('x[a] = 1');
+                compileCheckScopes(writer, 'x[a] = 1');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
               }
@@ -1747,7 +1754,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x.y = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1772,7 +1779,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x[1] = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1797,7 +1804,7 @@ function f() {
             before(() => {
               spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
               writer = new AsyncWriter(signatures, spy);
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               input = 'x[\'y\'] = db';
               const result = writer.getTransform(input);
               ast = result.ast;
@@ -1822,9 +1829,9 @@ function f() {
             before(() => {
               writer = new AsyncWriter(signatures);
               writer.symbols.initializeApiObjects({ db: signatures.Database });
-              writer.compile('x = {}');
+              compileCheckScopes(writer, 'x = {}');
               try {
-                writer.compile('x[a] = db');
+                compileCheckScopes(writer, 'x[a] = db');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshUnimplementedError');
               }
@@ -1961,7 +1968,7 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('var a = 1');
+            compileCheckScopes(writer, 'var a = 1');
             const result = writer.getTransform('a = db');
             ast = result.ast;
             output = result.code;
@@ -1983,7 +1990,7 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('let a = 1');
+            compileCheckScopes(writer, 'let a = 1');
             const result = writer.getTransform('a = db');
             ast = result.ast;
             output = result.code;
@@ -2034,8 +2041,8 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('var a;');
-            output = writer.compile('{ a = db }');
+            compileCheckScopes(writer, 'var a;');
+            output = compileCheckScopes(writer, '{ a = db }');
           });
           it('compiles correctly', () => {
             expect(output).to.equal('{\n  a = db;\n}');
@@ -2060,8 +2067,8 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('let a;');
-            output = writer.compile('{ a = db }');
+            compileCheckScopes(writer, 'let a;');
+            output = compileCheckScopes(writer, '{ a = db }');
           });
           it('compiles correctly', () => {
             expect(output).to.equal('{\n  a = db;\n}');
@@ -2085,8 +2092,8 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('a = 1;');
-            output = writer.compile('{ a = db }');
+            compileCheckScopes(writer, 'a = 1;');
+            output = compileCheckScopes(writer, '{ a = db }');
           });
           it('compiles correctly', () => {
             expect(output).to.equal('{\n  a = db;\n}');
@@ -2133,8 +2140,8 @@ function f() {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            writer.compile('var a;');
-            output = writer.compile('function x() { a = db }');
+            compileCheckScopes(writer, 'var a;');
+            output = compileCheckScopes(writer, 'function x() { a = db }');
           });
           it('compiles correctly', () => {
             expect(output).to.equal('function x() {\n  a = db;\n}');
@@ -2392,7 +2399,7 @@ function f() {
         });
         it('throws', () => {
           try {
-            writer.compile(input);
+            compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
@@ -2447,7 +2454,7 @@ function f() {
         });
         it('throws', () => {
           try {
-            writer.compile(input);
+            compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
@@ -2622,7 +2629,7 @@ function f() {
     it('errors outside of function', (done) => {
       input = 'this.x';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         done();
@@ -2631,7 +2638,7 @@ function f() {
     it('errors in regular function', (done) => {
       input = 'function x() { this.x = 1 }';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         done();
@@ -2640,7 +2647,7 @@ function f() {
     it('errors in object', (done) => {
       input = '{ function x() { this.x = 1 } }';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         done();
@@ -2762,8 +2769,8 @@ class Test {
           });
         });
         it('can handle instantiating', () => {
-          expect(writer.compile('t = new Test()')).to.equal('t = new Test();');
-          expect(writer.compile('t.awaitFn()')).to.equal('await t.awaitFn();');
+          expect(compileCheckScopes(writer, 't = new Test()')).to.equal('t = new Test();');
+          expect(compileCheckScopes(writer, 't.awaitFn()')).to.equal('await t.awaitFn();');
         });
       });
       describe('with attributes', () => {
@@ -2810,8 +2817,8 @@ class Test {
           });
         });
         it('can handle instantiating', () => {
-          expect(writer.compile('t = new Test()')).to.equal('t = new Test();');
-          expect(writer.compile('t.awaitFn()')).to.equal('await t.awaitFn();');
+          expect(compileCheckScopes(writer, 't = new Test()')).to.equal('t = new Test();');
+          expect(compileCheckScopes(writer, 't.awaitFn()')).to.equal('await t.awaitFn();');
         });
       });
       describe('with attribute assignment in other function', () => {
@@ -2850,8 +2857,8 @@ class Test {
           });
         });
         it('can handle instantiating', () => {
-          expect(writer.compile('t = new Test()')).to.equal('t = new Test();');
-          expect(writer.compile('t.myFunc()')).to.equal('t.myFunc();');
+          expect(compileCheckScopes(writer, 't = new Test()')).to.equal('t = new Test();');
+          expect(compileCheckScopes(writer, 't.myFunc()')).to.equal('t.myFunc();');
         });
       });
       describe('error cases', () => {
@@ -2865,7 +2872,7 @@ class Test {
   awaitFn() { db.coll.insertOne({}) }
 }`;
           try {
-            writer.compile(input);
+            compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
@@ -2876,7 +2883,7 @@ class Test {
     regularFn() { this.db = db; }
   }`;
           try {
-            writer.compile(input);
+            compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
           }
@@ -2890,13 +2897,13 @@ class Test {
         writer = new AsyncWriter(signatures);
       });
       it('adds await in front of new', () => {
-        expect(writer.compile('new Mongo()')).to.equal('await new Mongo();');
+        expect(compileCheckScopes(writer, 'new Mongo()')).to.equal('await new Mongo();');
       });
       it('adds await in front of regular call', () => {
-        expect(writer.compile('Mongo()')).to.equal('await Mongo();');
+        expect(compileCheckScopes(writer, 'Mongo()')).to.equal('await Mongo();');
       });
       it('updates if within function', () => {
-        expect(writer.compile('() => { m = new Mongo() }')).to.equal('async () => {\n  m = await new Mongo();\n};');
+        expect(compileCheckScopes(writer, '() => { m = new Mongo() }')).to.equal('async () => {\n  m = await new Mongo();\n};');
       });
     });
   });
@@ -2914,7 +2921,7 @@ class Test {
     before(() => {
       spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
       writer = new AsyncWriter(signatures, spy);
-      writer.compile(`
+      compileCheckScopes(writer, `
 class Test {
   regularFn() { return db; }
   awaitFn() { db.coll.insertOne({}) }
@@ -2954,7 +2961,7 @@ class Test {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
                 writer = new AsyncWriter(signatures, spy);
-                output = writer.compile(`
+                output = compileCheckScopes(writer, `
 a = db.coll1;
 if (TEST) {
   a = db.coll2;
@@ -2986,7 +2993,7 @@ if (TEST) {
 }
 `;
               try {
-                writer.compile(throwInput);
+                compileCheckScopes(writer, throwInput);
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
               }
@@ -3006,7 +3013,7 @@ if (TEST) {
 }
 `;
                 try {
-                  writer.compile(throwInput);
+                  compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
                 }
@@ -3028,7 +3035,7 @@ if (TEST) {
 }
 `;
                 try {
-                  writer.compile(throwInput);
+                  compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
                 }
@@ -3041,7 +3048,7 @@ if (TEST) {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
                 writer = new AsyncWriter(signatures, spy);
-                output = writer.compile(`
+                output = compileCheckScopes(writer, `
 a = 2;
 if (TEST) {
   a = db.coll.find;
@@ -3065,7 +3072,7 @@ if (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(`
+            output = compileCheckScopes(writer, `
 if (TEST) {
   const a = db.coll2;
 }
@@ -3084,7 +3091,7 @@ if (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(`
+            output = compileCheckScopes(writer, `
 if (TEST) {
   a = 1;
 }
@@ -3100,7 +3107,7 @@ if (TEST) {
           });
           it('throws for shell type', () => {
             try {
-              writer.compile('if (TEST) { a = db }');
+              compileCheckScopes(writer, 'if (TEST) { a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3110,7 +3117,7 @@ if (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(`
+            output = compileCheckScopes(writer, `
 if (TEST) {
   var a = 1;
 }
@@ -3126,7 +3133,7 @@ if (TEST) {
           });
           it('throws for shell type', () => {
             try {
-              writer.compile('if (TEST) { var a = db }');
+              compileCheckScopes(writer, 'if (TEST) { var a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3140,7 +3147,7 @@ if (TEST) {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
                 writer = new AsyncWriter(signatures, spy);
-                output = writer.compile(`
+                output = compileCheckScopes(writer, `
 if (TEST) {
   a = db.coll2;
 } else {
@@ -3175,7 +3182,7 @@ if (TEST) {
 }
 `;
                 try {
-                  writer.compile(throwInput);
+                  compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
                 }
@@ -3198,7 +3205,7 @@ if (TEST) {
 }
 `;
                 try {
-                  writer.compile(throwInput);
+                  compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
                 }
@@ -3211,7 +3218,7 @@ if (TEST) {
               before(() => {
                 spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
                 writer = new AsyncWriter(signatures, spy);
-                output = writer.compile(`
+                output = compileCheckScopes(writer, `
 if (TEST) {
   a = db.coll.find;
 } else {
@@ -3236,7 +3243,7 @@ if (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(`
+            output = compileCheckScopes(writer, `
 if (TEST) {
   a = db.coll.find;
 } else if (TEST2) {
@@ -3277,7 +3284,7 @@ while (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3301,7 +3308,7 @@ while (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3323,7 +3330,7 @@ while (TEST) {
           });
           it('throws', () => {
             try {
-              writer.compile(inputLoop);
+              compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3347,7 +3354,7 @@ for (let t = 0; t < 100; t++) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3371,7 +3378,7 @@ for (let t = 0; t < 100; t++) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3393,7 +3400,7 @@ for (let t = 0; t < 100; t++) {
           });
           it('throws', () => {
             try {
-              writer.compile(inputLoop);
+              compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3417,7 +3424,7 @@ do {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3441,7 +3448,7 @@ do {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3463,7 +3470,7 @@ do {
           });
           it('throws', () => {
             try {
-              writer.compile(inputLoop);
+              compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3483,7 +3490,7 @@ for (const x in [1, 2, 3]) {
         });
         it('throws MongoshUnimplementedError', () => {
           try {
-            writer.compile(inputLoop);
+            compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
           }
@@ -3502,7 +3509,7 @@ for (const x of [1, 2, 3]) {
         });
         it('throws MongoshUnimplementedError', () => {
           try {
-            writer.compile(inputLoop);
+            compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
           }
@@ -3536,7 +3543,7 @@ switch(TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3569,7 +3576,7 @@ switch(TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3595,7 +3602,7 @@ switch(TEST) {
           });
           it('throws', () => {
             try {
-              writer.compile(inputLoop);
+              compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3626,7 +3633,7 @@ switch (TEST) {
           before(() => {
             spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
             writer = new AsyncWriter(signatures, spy);
-            output = writer.compile(inputLoop);
+            output = compileCheckScopes(writer, inputLoop);
           });
           it('compiles correctly', () => {
             expect(output).to.equal(expected);
@@ -3650,7 +3657,7 @@ switch(TEST) {
           });
           it('throws', () => {
             try {
-              writer.compile(inputLoop);
+              compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
             }
@@ -3665,7 +3672,7 @@ switch(TEST) {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
           writer = new AsyncWriter(signatures, spy);
-          output = writer.compile(inputLoop);
+          output = compileCheckScopes(writer, inputLoop);
         });
         it('compiles correctly', () => {
           expect(output).to.equal(expected);
@@ -3680,7 +3687,7 @@ switch(TEST) {
         before(() => {
           spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
           writer = new AsyncWriter(signatures, spy);
-          output = writer.compile(inputLoop);
+          output = compileCheckScopes(writer, inputLoop);
         });
         it('compiles correctly', () => {
           expect(output).to.equal(expected);
@@ -3697,7 +3704,7 @@ switch(TEST) {
         });
         it('throws', () => {
           try {
-            writer.compile(inputLoop);
+            compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
           }
@@ -3723,33 +3730,33 @@ switch(TEST) {
     it('regular add', (done) => {
       input = 'const rs = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
     it('ok with assigning rs to other var, but not attr', (done) => {
-      expect(writer.compile('other = rs')).to.equal('other = rs;');
+      expect(compileCheckScopes(writer, 'other = rs')).to.equal('other = rs;');
       input = 'other.key = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
     it('ok to reassign', () => {
-      expect(writer.compile('other = rs')).to.equal('other = rs;');
-      expect(writer.compile('other = 1')).to.equal('other = 1;');
-      expect(writer.compile('other = rs.coll')).to.equal('other = rs.coll;');
-      expect(writer.compile('other = db.coll')).to.equal('other = db.coll;');
+      expect(compileCheckScopes(writer, 'other = rs')).to.equal('other = rs;');
+      expect(compileCheckScopes(writer, 'other = 1')).to.equal('other = 1;');
+      expect(compileCheckScopes(writer, 'other = rs.coll')).to.equal('other = rs.coll;');
+      expect(compileCheckScopes(writer, 'other = db.coll')).to.equal('other = db.coll;');
     });
     it('not ok to reassign attribute', (done) => {
-      expect(writer.compile('other = db.coll')).to.equal('other = db.coll;');
+      expect(compileCheckScopes(writer, 'other = db.coll')).to.equal('other = db.coll;');
       input = 'other.insertOne = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
@@ -3758,7 +3765,7 @@ switch(TEST) {
     it('addToParent', (done) => {
       input = 'class rs {}';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
@@ -3767,19 +3774,19 @@ switch(TEST) {
     it('updateIfDefined', (done) => {
       input = 'rs = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
       }
     });
     it('does not error with db', () => {
-      expect(writer.compile('db = 1')).to.equal('db = 1;');
+      expect(compileCheckScopes(writer, 'db = 1')).to.equal('db = 1;');
     });
     it('updateAttribute', (done) => {
       input = 'rs.coll = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
@@ -3788,7 +3795,7 @@ switch(TEST) {
     it('var', (done) => {
       input = 'var rs = 1';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
@@ -3797,7 +3804,7 @@ switch(TEST) {
     it('func', (done) => {
       input = 'function rs() { return 1; }';
       try {
-        writer.compile(input);
+        compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
         done();
@@ -3809,7 +3816,7 @@ switch(TEST) {
       before(() => {
         spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
         writer = new AsyncWriter(signatures, spy);
-        output = writer.compile(`
+        output = compileCheckScopes(writer, `
 function f(arg) {
   if (arg === 'basecase') {
     return 1;
@@ -3839,7 +3846,7 @@ function f(arg) {
       before(() => {
         spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
         writer = new AsyncWriter(signatures, spy);
-        output = writer.compile(`
+        output = compileCheckScopes(writer, `
 function f(arg) {
   if (arg === 'basecase') {
     return db.coll.insertOne({});
@@ -3872,7 +3879,7 @@ function f(arg) {
       });
       it('throws', (done) => {
         try {
-          writer.compile(`
+          compileCheckScopes(writer, `
 function f(arg) {
   if (arg === 'basecase') {
     return db;
@@ -3895,39 +3902,39 @@ function f(arg) {
     describe('no async arguments', () => {
       it('forEach does not get translated', () => {
         input = 'arr.forEach((s) => (1))';
-        expect(writer.compile(input)).to.equal('arr.forEach(s => 1);');
+        expect(compileCheckScopes(writer, input)).to.equal('arr.forEach(s => 1);');
       });
       it('other function does not get translated', () => {
         input = 'arr.notForEach((s) => (1))';
-        expect(writer.compile(input)).to.equal('arr.notForEach(s => 1);');
+        expect(compileCheckScopes(writer, input)).to.equal('arr.notForEach(s => 1);');
       });
     });
     describe('originally async arguments', () => {
       it('forEach does not get translated', () => {
         input = 'arr.forEach(async (s) => (1))';
-        expect(writer.compile(input)).to.equal('arr.forEach(async s => 1);');
+        expect(compileCheckScopes(writer, input)).to.equal('arr.forEach(async s => 1);');
       });
       it('other function does not get translated', () => {
         input = 'arr.notForEach(async (s) => (1))';
-        expect(writer.compile(input)).to.equal('arr.notForEach(async s => 1);');
+        expect(compileCheckScopes(writer, input)).to.equal('arr.notForEach(async s => 1);');
       });
     });
     describe('transformed async arguments', () => {
       it('forEach with func arg does get translated', () => {
         input = 'arr.forEach((s) => ( db.coll.insertOne({}) ))';
-        expect(writer.compile(input)).to.equal('await toIterator(arr).forEach(async s => await db.coll.insertOne({}));');
+        expect(compileCheckScopes(writer, input)).to.equal('await toIterator(arr).forEach(async s => await db.coll.insertOne({}));');
       });
       it('forEach with symbol arg does get translated', () => {
-        expect(writer.compile('function f(s) { db.coll.insertOne(s) }')).to.equal(
+        expect(compileCheckScopes(writer, 'function f(s) { db.coll.insertOne(s) }')).to.equal(
           'async function f(s) {\n  await db.coll.insertOne(s);\n}'
         );
         input = 'arr.forEach(f)';
-        expect(writer.compile(input)).to.equal('await toIterator(arr).forEach(f);');
+        expect(compileCheckScopes(writer, input)).to.equal('await toIterator(arr).forEach(f);');
       });
       it('other function throws', (done) => {
         input = 'arr.notForEach((s) => ( db.coll.insertOne({}) ) )';
         try {
-          writer.compile(input);
+          compileCheckScopes(writer, input);
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
           done();
