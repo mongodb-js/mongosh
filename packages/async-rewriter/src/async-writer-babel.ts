@@ -9,6 +9,7 @@ import {
   MongoshUnimplementedError
 } from '@mongosh/errors';
 import processTopLevelAwait from './await';
+import { AsyncRewriterErrors } from './error-codes';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
@@ -253,7 +254,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'RestElement':
         case 'TSParameterProperty':
           if (sType['hasAsyncChild'] || sType['returnsPromise']) {
-            throw new MongoshUnimplementedError('Destructured assignment is not supported for Mongosh API types.');
+            throw new MongoshUnimplementedError('Destructured assignment is not supported for Mongosh API types.', AsyncRewriterErrors.DestructuringNotImplemented);
           }
           break;
         default:

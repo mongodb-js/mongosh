@@ -7,6 +7,7 @@ const signatures = require('../test/shell-api-signatures');
 
 import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
+import { AsyncRewriterErrors } from './error-codes';
 
 const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
@@ -1214,6 +1215,7 @@ function f() {
           compileCheckScopes(writer, 'let {a} = {a: db}');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshUnimplementedError');
+          expect(e.code).to.be.equal(AsyncRewriterErrors.DestructuringNotImplemented);
         }
       });
       it('object pattern ignored for non-async', () => {
