@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
+import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 import { Runtime } from '@mongosh/browser-runtime-core';
@@ -62,6 +63,7 @@ interface ShellState {
   operationInProgress: boolean;
   output: readonly ShellOutputEntry[];
   history: readonly string[];
+  passwordPrompt: string;
 }
 
 const noop = (): void => {
@@ -78,18 +80,22 @@ export class Shell extends Component<ShellProps, ShellState> {
     maxOutputLength: 1000,
     maxHistoryLength: 1000,
     initialOutput: [],
-    initialHistory: []
+    initialHistory: [],
+    passwordPrompt: ''
   };
 
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
     editor?: HTMLElement;
   };
+  private onFinishPasswordPrompt: ((input: string) => void) = noop;
+  private onCancelPasswordPrompt: (() => void) = noop;
 
   readonly state: ShellState = {
     operationInProgress: false,
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
-    history: this.props.initialHistory.slice(0, this.props.maxHistoryLength)
+    history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
+    passwordPrompt: ''
   };
 
   componentDidMount(): void {
@@ -167,6 +173,29 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.props.onOutputChanged(output);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onPrompt = (question: string, type: 'password'): Promise<string> => {
+    const reset = () => {
+      this.onFinishPasswordPrompt = noop;
+      this.onCancelPasswordPrompt = noop;
+      this.setState({ passwordPrompt: '' });
+      setTimeout(this.focusEditor, 1);
+    };
+
+    const ret = new Promise<string>((resolve, reject) => {
+      this.onFinishPasswordPrompt = (result: string) => {
+        reset();
+        resolve(result);
+      };
+      this.onCancelPasswordPrompt = () => {
+        reset();
+        reject(new Error('Canceled by user'));
+      };
+    });
+    this.setState({ passwordPrompt: question });
+    return ret;
+  };
+
   private onInput = async(code: string): Promise<void> => {
     if (!code || code.trim() === '') {
       this.appendEmptyInput();
@@ -222,11 +251,33 @@ export class Shell extends Component<ShellProps, ShellState> {
   private onShellClicked = (event: React.MouseEvent): void => {
     // Focus on input when clicking the shell background (not clicking output).
     if (event.currentTarget === event.target) {
-      if (this.shellInputRef && this.shellInputRef.editor) {
-        this.shellInputRef.editor.focus();
-      }
+      this.focusEditor();
     }
   };
+
+  private focusEditor = (): void => {
+    if (this.shellInputRef && this.shellInputRef.editor) {
+      this.shellInputRef.editor.focus();
+    }
+  };
+
+  renderInput(): JSX.Element {
+    if (this.state.passwordPrompt) {
+      return (<PasswordPrompt
+        onFinish={this.onFinishPasswordPrompt}
+        onCancel={this.onCancelPasswordPrompt}
+        prompt={this.state.passwordPrompt}
+      />);
+    }
+    return (<ShellInput
+      autocompleter={this.props.runtime}
+      history={this.state.history}
+      onClearCommand={this.onClearCommand}
+      onInput={this.onInput}
+      operationInProgress={this.state.operationInProgress}
+      setInputRef={(ref: {editor?: HTMLElement}): void => { this.shellInputRef = ref;}}
+    />);
+  }
 
   render(): JSX.Element {
     return (
@@ -239,14 +290,7 @@ export class Shell extends Component<ShellProps, ShellState> {
             output={this.state.output} />
         </div>
         <div ref={(el): void => { this.shellInputElement = el; }}>
-          <ShellInput
-            autocompleter={this.props.runtime}
-            history={this.state.history}
-            onClearCommand={this.onClearCommand}
-            onInput={this.onInput}
-            operationInProgress={this.state.operationInProgress}
-            setInputRef={(ref: {editor?: HTMLElement}): void => { this.shellInputRef = ref;}}
-          />
+          {this.renderInput()}
         </div>
       </div>
     );
