@@ -32,6 +32,7 @@ class CollectionTest : ShellTestCase() {
     @Test fun testEstimatedDocumentCount() = test()
     @Test fun testEstimatedDocumentCountWithMaxTime() = test()
     @Test fun testFind()                   = test()
+    @Test fun testFindMap()                = test()
     @Test fun testFindOneAndDelete()       = test()
     @Test fun testFindOneAndReplace()      = test()
     @Test fun testFindOneAndReplaceWithReturnDocument() = test()

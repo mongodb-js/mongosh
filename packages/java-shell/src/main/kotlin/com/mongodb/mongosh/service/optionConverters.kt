@@ -17,12 +17,10 @@ import java.util.concurrent.TimeUnit
 internal fun <T> convert(o: T,
                          converters: Map<String, (T, Any?) -> Either<T>>,
                          defaultConverter: (T, String, Any?) -> Either<T>,
-                         map: Map<*, *>?,
-                         prop: String? = null): Either<T> {
+                         map: Map<*, *>?): Either<T> {
     if (map == null) return Right(o)
     var accumulator = o
-    val keys = if (prop == null) map.keys else listOf(prop)
-    for (key in keys) {
+    for (key in map.keys) {
         if (key !is String) continue
         val value = map[key]
         val converter = converters[key]
@@ -131,7 +129,18 @@ internal val collationConverters: Map<String, (Collation.Builder, Any?) -> Eithe
 
 internal val collationDefaultConverter = unrecognizedField<Collation.Builder>("collation")
 
-internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Either<AggregateIterable<*>>> = mapOf(
+internal val iterableConverters: Map<String, (MongoIterable<*>, Any?) -> Either<MongoIterable<*>>> = mapOf(
+        typed("batchSize", Number::class.java) { iterable, value ->
+            iterable.batchSize(value.toInt())
+        },
+        typed("cursor", Document::class.java) { iterable, value ->
+            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as AggregateIterable<*>
+        },
+        "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
+        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+)
+
+internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Either<AggregateIterable<*>>> = iterableConverters + mapOf(
         typed("collation", Document::class.java) { iterable, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
                     .getOrThrow()
@@ -141,20 +150,12 @@ internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Ei
         typed("allowDiskUse", Boolean::class.java) { iterable, value ->
             iterable.allowDiskUse(value)
         },
-        typed("batchSize", Number::class.java) { iterable, value ->
-            iterable.batchSize(value.toInt())
-        },
-        typed("cursor", Document::class.java) { iterable, value ->
-            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as AggregateIterable<*>
-        },
         typed("maxTimeMS", Number::class.java) { iterable, value ->
             iterable.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
         },
         typed("bypassDocumentValidation", Boolean::class.java) { iterable, value ->
             iterable.bypassDocumentValidation(value)
         },
-        "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
-        "writeConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
         "hint" to { iterable, value ->
             when (value) {
                 is String -> Right(iterable.hint(Document(value, 1)))
@@ -169,12 +170,13 @@ internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Ei
 
 internal val aggregateDefaultConverter = unrecognizedField<AggregateIterable<*>>("aggregate options")
 
-internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindIterable<*>>> = mapOf(
+operator fun <K, V, V1> Map<K, V>.plus(map: Map<K, V1>): Map<K, V1> {
+    return (this.keys.asSequence() + map.keys.asSequence()).associateWith { (this[it] ?: map[it]) as V1 }
+}
+
+internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindIterable<*>>> = iterableConverters + mapOf(
         typed("allowPartialResults", Boolean::class.java) { iterable, value ->
             iterable.partial(value)
-        },
-        typed("batchSize", Number::class.java) { iterable, value ->
-            iterable.batchSize(value.toInt())
         },
         typed("collation", Document::class.java) { iterable, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
@@ -184,9 +186,6 @@ internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindI
         },
         typed("comment", String::class.java) { iterable, value ->
             iterable.comment(value)
-        },
-        typed("cursor", Document::class.java) { iterable, value ->
-            convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as FindIterable<*>
         },
         typed("explain", Boolean::class.java) { iterable, value ->
             iterable.modifiers(Document("\$explain", value))
@@ -222,7 +221,6 @@ internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindI
         typed("returnKey", Boolean::class.java) { iterable, value ->
             iterable.returnKey(value)
         },
-        "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
         typed("sort", Document::class.java) { iterable, value ->
             iterable.sort(value)
         },
@@ -231,8 +229,7 @@ internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindI
         },
         typed("tailable", String::class.java) { iterable, value ->
             iterable.cursorType(CursorType.valueOf(value))
-        },
-        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+        }
 )
 
 internal val findDefaultConverter = unrecognizedField<FindIterable<*>>("find options")

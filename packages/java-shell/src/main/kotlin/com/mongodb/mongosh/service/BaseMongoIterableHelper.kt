@@ -9,8 +9,11 @@ import com.mongodb.mongosh.MongoShellContext
 import org.bson.Document
 import org.graalvm.polyglot.Value
 
-internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterable: T, protected val context: MongoShellContext) {
-    fun map(function: Value): MongoIterableHelper<*> {
+internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterable: T, protected val context: MongoShellContext, protected val options: Document?) {
+    abstract val converters: Map<String, (T, Any?) -> Either<T>>
+    abstract val defaultConverter: (T, String, Any?) -> Either<T>
+
+    fun map(function: Value): BaseMongoIterableHelper<*> {
         return helper(iterable.map { v ->
             context.extract(function.execute(context.toJs(v))).value
         }, context)
@@ -22,7 +25,7 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
 
     fun toArray(): List<Any?> = iterable.toList()
 
-    open fun batchSize(v: Int): Unit = throw NotImplementedError("batchSize is not supported")
+    fun batchSize(v: Int): Unit = set("batchSize", v)
     open fun limit(v: Int): Unit = throw NotImplementedError("limit is not supported")
     open fun max(v: Document): Unit = throw NotImplementedError("max is not supported")
     open fun min(v: Document): Unit = throw NotImplementedError("min is not supported")
@@ -41,97 +44,102 @@ internal open class MongoIterableHelper<T : MongoIterable<out Any?>>(val iterabl
     open fun sort(spec: Document): Unit = throw NotImplementedError("sort is not supported")
     open fun tailable(): Unit = throw NotImplementedError("tailable is not supported")
     open fun explain(verbosity: String?): Any? = throw NotImplementedError("explain is not supported")
-    open fun readPrev(v: String, tags: List<TagSet>?): MongoIterableHelper<*> = throw NotImplementedError("readPrev is not supported")
+    open fun readPrev(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readPrev is not supported")
+
+    protected fun set(key: String, value: Any?) {
+        options?.put(key, value)
+        convert(iterable, converters, defaultConverter, mapOf(key to value))
+    }
+}
+
+internal class MongoIterableHelper(iterable: MongoIterable<*>,
+                                   context: MongoShellContext,
+                                   options: Document?) : BaseMongoIterableHelper<MongoIterable<*>>(iterable, context, options) {
+    override val converters = iterableConverters
+    override val defaultConverter = unrecognizedField<MongoIterable<*>>("iterable options")
 }
 
 internal data class AggregateCreateOptions(val db: MongoDatabase,
                                            val collection: String?,
-                                           val pipeline: List<Document>,
-                                           val options: Document)
+                                           val pipeline: List<Document>)
 
-internal class AggregateIterableHelper(iterable: AggregateIterable<out Any?>,
+internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
                                        context: MongoShellContext,
+                                       options: Document?,
                                        private val createOptions: AggregateCreateOptions?)
-    : MongoIterableHelper<AggregateIterable<out Any?>>(iterable, context) {
+    : BaseMongoIterableHelper<AggregateIterable<out Any?>>(iterable, context, options) {
+    override val converters = aggregateConverters
+    override val defaultConverter = aggregateDefaultConverter
 
     override fun explain(verbosity: String?): Any? {
         check(createOptions != null) { "createOptions were not saved" }
+        check(options != null) { "options were not saved" }
         val explain = Document()
         explain["aggregate"] = createOptions.collection ?: 1
         explain["pipeline"] = createOptions.pipeline
         explain["explain"] = true
-        explain.putAll(createOptions.options)
+        explain.putAll(options)
         return createOptions.db.runCommand(explain)
     }
 
     override fun readPrev(v: String, tags: List<TagSet>?): AggregateIterableHelper {
         check(createOptions != null) { "createOptions were not saved" }
+        check(options != null) { "options were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
-        val newIterable = aggregate(newCreateOptions)
-        return AggregateIterableHelper(newIterable, context, newCreateOptions)
+        val newIterable = aggregate(options, newCreateOptions)
+        return AggregateIterableHelper(newIterable, context, options, newCreateOptions)
     }
 
-    private fun set(key: String, value: Any?) {
-        val options = createOptions?.options ?: Document()
-        options[key] = value
-        convert(iterable, aggregateConverters, aggregateDefaultConverter, options, key)
-    }
-
-    override fun batchSize(v: Int) = set("batchSize", v)
     override fun maxTimeMS(v: Long) = set("maxTimeMS", v)
     override fun comment(v: String) = set("comment", v)
     override fun hint(v: Document) = set("hint", v)
     override fun collation(v: Document) = set("collation", v)
 }
 
-internal fun find(createOptions: FindCreateOptions): FindIterable<Document> {
+internal fun find(options: Document, createOptions: FindCreateOptions): FindIterable<Document> {
     val coll = createOptions.collection
     val db = createOptions.db
     val find = createOptions.find
     val iterable = db.getCollection(coll).find(find)
-    convert(iterable, findConverters, findDefaultConverter, createOptions.options).getOrThrow()
+    convert(iterable, findConverters, findDefaultConverter, options).getOrThrow()
     return iterable
 }
 
-internal fun aggregate(createOptions: AggregateCreateOptions): AggregateIterable<Document> {
+internal fun aggregate(options: Document, createOptions: AggregateCreateOptions): AggregateIterable<Document> {
     val coll = createOptions.collection
     val db = createOptions.db
     val pipeline = createOptions.pipeline
     val iterable = if (coll == null) db.aggregate(pipeline)
     else db.getCollection(coll).aggregate(pipeline)
 
-    convert(iterable, aggregateConverters, aggregateDefaultConverter, createOptions.options).getOrThrow()
+    convert(iterable, aggregateConverters, aggregateDefaultConverter, options).getOrThrow()
     return iterable
 }
 
 internal data class FindCreateOptions(val db: MongoDatabase,
                                       val collection: String,
-                                      val find: Document,
-                                      val options: Document)
+                                      val find: Document)
 
 internal class FindIterableHelper(iterable: FindIterable<out Any?>,
                                   context: MongoShellContext,
+                                  options: Document?,
                                   private val createOptions: FindCreateOptions?)
-    : MongoIterableHelper<FindIterable<out Any?>>(iterable, context) {
+    : BaseMongoIterableHelper<FindIterable<out Any?>>(iterable, context, options) {
+    override val converters = findConverters
+    override val defaultConverter = findDefaultConverter
 
     override fun readPrev(v: String, tags: List<TagSet>?): FindIterableHelper {
         check(createOptions != null) { "createOptions were not saved" }
+        check(options != null) { "options were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
-        val newIterable = find(newCreateOptions)
-        return FindIterableHelper(newIterable, context, newCreateOptions)
+        val newIterable = find(options, newCreateOptions)
+        return FindIterableHelper(newIterable, context, options, newCreateOptions)
     }
 
-    private fun set(key: String, value: Any?) {
-        val options = createOptions?.options ?: Document()
-        options[key] = value
-        convert(iterable, findConverters, findDefaultConverter, options, key)
-    }
-
-    override fun batchSize(v: Int) = set("batchSize", v)
     override fun allowPartialResults() = set("allowPartialResults", true)
     override fun oplogReplay() = set("oplogReplay", true)
     override fun noCursorTimeout() = set("noCursorTimeout", true)
@@ -155,10 +163,10 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
     }
 }
 
-internal fun helper(iterable: MongoIterable<out Any?>, context: MongoShellContext): MongoIterableHelper<*> {
+internal fun helper(iterable: MongoIterable<out Any?>, context: MongoShellContext): BaseMongoIterableHelper<*> {
     return when (iterable) {
-        is FindIterable -> FindIterableHelper(iterable, context, null)
-        is AggregateIterable -> AggregateIterableHelper(iterable, context, null)
-        else -> MongoIterableHelper(iterable, context)
+        is FindIterable -> FindIterableHelper(iterable, context, null, null)
+        is AggregateIterable -> AggregateIterableHelper(iterable, context, null, null)
+        else -> MongoIterableHelper(iterable, context, null)
     }
 }
