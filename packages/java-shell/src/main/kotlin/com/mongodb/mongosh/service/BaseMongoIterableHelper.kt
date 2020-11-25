@@ -5,18 +5,18 @@ import com.mongodb.client.AggregateIterable
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
-import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.MongoShellEvaluator
 import org.bson.Document
 import org.graalvm.polyglot.Value
 
-internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterable: T, protected val context: MongoShellContext, protected val options: Document?) {
+internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterable: T, protected val evaluator: MongoShellEvaluator, protected val options: Document?) {
     abstract val converters: Map<String, (T, Any?) -> Either<T>>
     abstract val defaultConverter: (T, String, Any?) -> Either<T>
 
     fun map(function: Value): BaseMongoIterableHelper<*> {
         return helper(iterable.map { v ->
-            context.extract(function.execute(context.toJs(v))).value
-        }, context)
+            evaluator.extract(function.execute(evaluator.toJs(v))).value
+        }, evaluator)
     }
 
     fun itcount(): Int {
@@ -53,8 +53,8 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
 }
 
 internal class MongoIterableHelper(iterable: MongoIterable<*>,
-                                   context: MongoShellContext,
-                                   options: Document?) : BaseMongoIterableHelper<MongoIterable<*>>(iterable, context, options) {
+                                   evaluator: MongoShellEvaluator,
+                                   options: Document?) : BaseMongoIterableHelper<MongoIterable<*>>(iterable, evaluator, options) {
     override val converters = iterableConverters
     override val defaultConverter = unrecognizedField<MongoIterable<*>>("iterable options")
 }
@@ -64,10 +64,10 @@ internal data class AggregateCreateOptions(val db: MongoDatabase,
                                            val pipeline: List<Document>)
 
 internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
-                                       context: MongoShellContext,
+                                       evaluator: MongoShellEvaluator,
                                        options: Document?,
                                        private val createOptions: AggregateCreateOptions?)
-    : BaseMongoIterableHelper<AggregateIterable<out Any?>>(iterable, context, options) {
+    : BaseMongoIterableHelper<AggregateIterable<out Any?>>(iterable, evaluator, options) {
     override val converters = aggregateConverters
     override val defaultConverter = aggregateDefaultConverter
 
@@ -89,7 +89,7 @@ internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
         val newIterable = aggregate(options, newCreateOptions)
-        return AggregateIterableHelper(newIterable, context, options, newCreateOptions)
+        return AggregateIterableHelper(newIterable, evaluator, options, newCreateOptions)
     }
 
     override fun maxTimeMS(v: Long) = set("maxTimeMS", v)
@@ -123,10 +123,10 @@ internal data class FindCreateOptions(val db: MongoDatabase,
                                       val find: Document)
 
 internal class FindIterableHelper(iterable: FindIterable<out Any?>,
-                                  context: MongoShellContext,
+                                  evaluator: MongoShellEvaluator,
                                   options: Document?,
                                   private val createOptions: FindCreateOptions?)
-    : BaseMongoIterableHelper<FindIterable<out Any?>>(iterable, context, options) {
+    : BaseMongoIterableHelper<FindIterable<out Any?>>(iterable, evaluator, options) {
     override val converters = findConverters
     override val defaultConverter = findDefaultConverter
 
@@ -137,7 +137,7 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
         val newIterable = find(options, newCreateOptions)
-        return FindIterableHelper(newIterable, context, options, newCreateOptions)
+        return FindIterableHelper(newIterable, evaluator, options, newCreateOptions)
     }
 
     override fun allowPartialResults() = set("allowPartialResults", true)
@@ -163,10 +163,10 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
     }
 }
 
-internal fun helper(iterable: MongoIterable<out Any?>, context: MongoShellContext): BaseMongoIterableHelper<*> {
+internal fun helper(iterable: MongoIterable<out Any?>, evaluator: MongoShellEvaluator): BaseMongoIterableHelper<*> {
     return when (iterable) {
-        is FindIterable -> FindIterableHelper(iterable, context, null, null)
-        is AggregateIterable -> AggregateIterableHelper(iterable, context, null, null)
-        else -> MongoIterableHelper(iterable, context, null)
+        is FindIterable -> FindIterableHelper(iterable, evaluator, null, null)
+        is AggregateIterable -> AggregateIterableHelper(iterable, evaluator, null, null)
+        else -> MongoIterableHelper(iterable, evaluator, null)
     }
 }

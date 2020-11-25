@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-internal class MongoShellContext(client: MongoClient) {
+internal class MongoShellEvaluator(client: MongoClient) {
     private var ctx: Context? = Context.create()
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value

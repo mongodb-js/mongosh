@@ -1,13 +1,13 @@
 package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoCursor
-import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.MongoShellEvaluator
 import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
-internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val context: MongoShellContext) : ServiceProviderCursor {
+internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val evaluator: MongoShellEvaluator) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
     private var closed = false
 
@@ -75,7 +75,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
         if (!v.hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $v")
         }
-        val collation = toDocument(context, v)
+        val collation = toDocument(evaluator, v)
         helper.collation(collation)
         return this
     }
@@ -96,7 +96,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     @HostAccess.Export
     override fun explain(verbosity: String?): Any? {
         checkQueryNotExecuted()
-        return context.toJs(helper.explain(verbosity))
+        return evaluator.toJs(helper.explain(verbosity))
     }
 
     @HostAccess.Export
@@ -105,7 +105,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
             throw IllegalArgumentException("Expected one argument of type function. Got: $func")
         }
         getOrCreateIterator().forEach { v ->
-            func.execute(context.toJs(v))
+            func.execute(evaluator.toJs(v))
         }
     }
 
@@ -121,7 +121,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
         if (v.isString) {
             helper.hint(v.asString())
         } else if (v.hasMembers()) {
-            helper.hint(toDocument(context, v))
+            helper.hint(toDocument(evaluator, v))
         }
         return this
     }
@@ -160,7 +160,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
         if (!v.hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $v")
         }
-        helper.max(toDocument(context, v))
+        helper.max(toDocument(evaluator, v))
         return this
     }
 
@@ -181,7 +181,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
         if (!v.hasMembers()) {
             throw IllegalArgumentException("Expected one argument of type object. Got: $v")
         }
-        helper.min(toDocument(context, v))
+        helper.min(toDocument(evaluator, v))
         return this
     }
 
@@ -191,7 +191,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     @HostAccess.Export
     override fun project(v: Value): ServiceProviderCursor {
         checkQueryNotExecuted()
-        helper.projection(toDocument(context, v))
+        helper.projection(toDocument(evaluator, v))
         return this
     }
 
@@ -228,22 +228,22 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     @HostAccess.Export
     override fun sort(spec: Value): Cursor {
         checkQueryNotExecuted()
-        helper.sort(toDocument(context, spec))
+        helper.sort(toDocument(evaluator, spec))
         return this
     }
 
     @HostAccess.Export
     override fun toArray(): Any? {
         checkQueryNotExecuted()
-        return context.toJs(helper.toArray())
+        return evaluator.toJs(helper.toArray())
     }
 
     private fun checkQueryNotExecuted() {
         check(iterator == null) { "query already executed" }
     }
 
-    private fun toDocument(context: MongoShellContext, map: Value?): Document {
+    private fun toDocument(evaluator: MongoShellEvaluator, map: Value?): Document {
         return if (map == null || map.isNull) Document()
-        else (context.extract(map) as DocumentResult).value
+        else (evaluator.extract(map) as DocumentResult).value
     }
 }

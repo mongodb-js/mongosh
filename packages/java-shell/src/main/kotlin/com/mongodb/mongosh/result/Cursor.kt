@@ -1,12 +1,12 @@
 package com.mongodb.mongosh.result
 
-import com.mongodb.mongosh.MongoShellContext
+import com.mongodb.mongosh.MongoShellEvaluator
 import org.graalvm.polyglot.Value
 
-open class Cursor<out T> internal constructor(protected var cursor: Value?, private var context: MongoShellContext?) : Iterator<T> {
+open class Cursor<out T> internal constructor(protected var cursor: Value?, private var evaluator: MongoShellEvaluator?) : Iterator<T> {
     fun _asPrintable(): String {
-        val (cursor, context) = checkClosed()
-        return context.extract(context.toShellResult(cursor).getMember("printable"))._asPrintable()
+        val (cursor, evaluator) = checkClosed()
+        return evaluator.extract(evaluator.toShellResult(cursor).getMember("printable"))._asPrintable()
     }
 
     override fun hasNext(): Boolean {
@@ -15,22 +15,22 @@ open class Cursor<out T> internal constructor(protected var cursor: Value?, priv
     }
 
     override fun next(): T {
-        val (cursor, context) = checkClosed()
+        val (cursor, evaluator) = checkClosed()
         if (!hasNext()) throw NoSuchElementException()
-        return context.extract(cursor.invokeMember("next")).value as T
+        return evaluator.extract(cursor.invokeMember("next")).value as T
     }
 
     fun close() {
         val (c, _) = checkClosed()
         c.invokeMember("close")
         cursor = null
-        context = null
+        evaluator = null
     }
 
-    internal fun checkClosed(): Pair<Value, MongoShellContext> {
+    internal fun checkClosed(): Pair<Value, MongoShellEvaluator> {
         val cursor = this.cursor
-        val context = this.context
-        if (cursor == null || context == null) throw IllegalStateException("Cursor has already been closed")
-        return cursor to context
+        val evaluator = this.evaluator
+        if (cursor == null || evaluator == null) throw IllegalStateException("Cursor has already been closed")
+        return cursor to evaluator
     }
 }
