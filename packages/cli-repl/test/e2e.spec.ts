@@ -3,6 +3,9 @@ import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { promises as fs } from 'fs';
+import { promisify } from 'util';
+import rimraf from 'rimraf';
 import path from 'path';
 
 describe('e2e', function() {
@@ -329,23 +332,6 @@ describe('e2e', function() {
     });
   });
 
-  describe('telemetry toggling', () => {
-    let shell;
-    beforeEach(async() => {
-      shell = TestShell.start({ args: [ '--nodb' ] });
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
-    });
-    it('enableTelemetry() yields a success response', async() => {
-      const result = await shell.executeLine('enableTelemetry()');
-      expect(result).to.match(/Telemetry is now enabled/);
-    });
-    it('disableTelemetry() yields a success response', async() => {
-      const result = await shell.executeLine('disableTelemetry();');
-      expect(result).to.match(/Telemetry is now disabled/);
-    });
-  });
-
   describe('pipe from stdin', () => {
     it('reads and runs code from stdin', async() => {
       const shell = TestShell.start({ args: [ await testServer.connectionString() ] });
@@ -386,6 +372,105 @@ describe('e2e', function() {
       expect(result).to.match(/^B$/m);
       result = await shell.executeLine('require("c")');
       expect(result).to.match(/^C$/m);
+    });
+  });
+
+  describe('config and logging', async() => {
+    let shell: TestShell;
+    let homedir: string;
+    let mongoshdir: string;
+    let configPath: string;
+    let logPath: string;
+    let historyPath: string;
+    let readConfig: () => Promise<any>;
+    let readLogfile: () => Promise<any[]>;
+    let startTestShell: () => Promise<TestShell>;
+
+    beforeEach(async() => {
+      homedir = path.resolve(
+        __dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
+      await fs.mkdir(homedir, { recursive: true });
+      mongoshdir = path.resolve(homedir, '.mongodb', 'mongosh');
+      configPath = path.resolve(mongoshdir, 'config');
+      historyPath = path.resolve(mongoshdir, '.mongosh_repl_history');
+      readConfig = async() => JSON.parse(await fs.readFile(configPath, 'utf8'));
+      readLogfile = async() => {
+        return (await fs.readFile(logPath, 'utf8'))
+          .split('\n')
+          .filter(line => line.trim())
+          .map((line) => JSON.parse(line));
+      };
+      startTestShell = async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb' ],
+          env: { ...process.env, HOME: homedir, USERPROFILE: homedir }
+        });
+        await shell.waitForPrompt();
+        shell.assertNoErrors();
+        return shell;
+      };
+      shell = await startTestShell();
+      logPath = path.join(mongoshdir, `${shell.sessionId}_log`);
+    });
+
+    afterEach(async() => {
+      await promisify(rimraf)(homedir);
+    });
+
+    describe('config file', async() => {
+      it('sets up a config file', async() => {
+        const config = await readConfig();
+        expect(config.userId).to.match(/^[a-f0-9]{24}$/);
+        expect(config.enableTelemetry).to.be.true;
+        expect(config.disableGreetingMessage).to.be.false;
+      });
+
+      it('persists between sessions', async() => {
+        const config1 = await readConfig();
+        await startTestShell();
+        const config2 = await readConfig();
+        expect(config1.userId).to.equal(config2.userId);
+      });
+    });
+
+    describe('telemetry toggling', () => {
+      it('enableTelemetry() yields a success response', async() => {
+        const result = await shell.executeLine('enableTelemetry()');
+        expect(result).to.match(/Telemetry is now enabled/);
+        expect((await readConfig()).enableTelemetry).to.equal(true);
+      });
+      it('disableTelemetry() yields a success response', async() => {
+        const result = await shell.executeLine('disableTelemetry();');
+        expect(result).to.match(/Telemetry is now disabled/);
+        expect((await readConfig()).enableTelemetry).to.equal(false);
+      });
+    });
+
+    describe('log file', () => {
+      it('creates a log file that keeps track of session events', async() => {
+        await shell.executeLine('print(42)');
+        const log = await readLogfile();
+        expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
+          .to.have.lengthOf(1);
+      });
+    });
+
+    describe('history file', () => {
+      it('persists between sessions', async() => {
+        await shell.executeLine('a = 42');
+        shell.kill();
+        await shell.waitForExit();
+
+        shell = await startTestShell();
+        shell.writeInput('\u001b[A'); // Arrow up
+        await eventually(() => {
+          shell.output.includes('a = 42');
+        });
+        shell.writeInput('\n.exit\n');
+        await shell.waitForExit();
+
+        expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
+      });
     });
   });
 });
