@@ -9,10 +9,11 @@ class MongoShell(client: MongoClient) {
     private val context = MongoShellContext()
     private val converter = MongoShellConverter(context)
     private val evaluator = MongoShellEvaluator(client, context, converter)
+    private val consoleLog = ConsoleLogSupport(context, converter)
 
     fun eval(@Language("js") script: String): MongoShellResult<*> {
         val printedValues = mutableListOf<List<Any?>>()
-        val result = evaluator.withConsoleLogEnabled(printedValues) {
+        val result = consoleLog.withConsoleLogEnabled(printedValues) {
             converter.unwrapPromise(evaluator.eval(script, "user_script"))
         }
         return if (printedValues.isNotEmpty()) {

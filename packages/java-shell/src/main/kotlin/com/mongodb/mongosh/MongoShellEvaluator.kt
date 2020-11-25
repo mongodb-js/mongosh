@@ -22,7 +22,6 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     private val shellInternalState: Value
     private val toShellResultFn: Value
     private val getShellApiTypeFn: Value
-    private var printedValues: MutableList<List<Any?>>? = null
 
     init {
         val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js")!!.readText()
@@ -59,16 +58,6 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
         val isoDate = context.jsFun { args -> dateHelper(true, args.toList()) }
         bindings.putMember("ISODate", isoDate)
         bindings.putMember("UUID", context.jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) })
-        // init console.log
-        val print = context.jsFun { args ->
-            printedValues?.add(args.map { converter.toJava(it).value })
-        }
-        context.bindings.putMember("print", print)
-        @Suppress("JSPrimitiveTypeWrapperUsage")
-        val console = context.eval("new Object()")
-        console.putMember("log", print)
-        console.putMember("error", print)
-        context.bindings.putMember("console", console)
     }
 
     private fun shellResult(printable: Value, type: String): Value {
@@ -137,15 +126,6 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
             context.eval(args[0].asString(), name)
         }
         return shellEvaluator.invokeMember("customEval", originalEval, script)
-    }
-
-    internal fun <T> withConsoleLogEnabled(printedValues: MutableList<List<Any?>>, func: () -> T): T {
-        this.printedValues = printedValues
-        try {
-            return func()
-        } finally {
-            this.printedValues = null
-        }
     }
 
     private fun updateDatabase() {
