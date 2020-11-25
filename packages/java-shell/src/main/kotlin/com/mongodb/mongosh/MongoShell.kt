@@ -6,7 +6,8 @@ import com.mongodb.mongosh.result.MongoShellResult
 import org.intellij.lang.annotations.Language
 
 class MongoShell(client: MongoClient) {
-    private val evaluator = MongoShellEvaluator(client)
+    private val context = MongoShellContext()
+    private val evaluator = MongoShellEvaluator(client, context)
 
     fun eval(@Language("js") script: String): MongoShellResult<*> {
         val printedValues = mutableListOf<List<Any?>>()

@@ -11,12 +11,9 @@ import com.mongodb.mongosh.service.Right
 import org.bson.Document
 import org.bson.json.JsonReader
 import org.bson.types.*
-import org.graalvm.polyglot.Context
-import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
-import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -32,8 +29,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-internal class MongoShellEvaluator(client: MongoClient) {
-    private var ctx: Context? = Context.create()
+internal class MongoShellEvaluator(client: MongoClient, private val context: MongoShellContext) {
     private val serviceProvider = JavaServiceProvider(client, this)
     private val shellEvaluator: Value
     private val shellInternalState: Value
@@ -42,41 +38,34 @@ internal class MongoShellEvaluator(client: MongoClient) {
     private val bsonTypes: BsonTypes
     private var printedValues: MutableList<List<Any?>>? = null
 
-    /** Java functions don't have js methods such as apply, bind, call etc.
-     * So we need to create a real js function that wraps Java code */
-    private val functionProducer = evalInner("(fun) => function inner() { return fun(...arguments); }")
-    private fun jsFun(func: (args: Array<Value>) -> Any?): Value = functionProducer.execute(ProxyExecutable { func(it) })
-
     init {
-        val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js").readText()
-        evalInner(setupScript, "all-standalone.js")
-        val ctx = checkClosed()
-        val context = ctx.getBindings("js")
-        val global = context["_global"]!!
-        context.removeMember("_global")
+        val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js")!!.readText()
+        context.eval(setupScript, "all-standalone.js")
+        val global = context.bindings["_global"]!!
+        context.bindings.removeMember("_global")
         shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
         shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState, resultHandler())
         toShellResultFn = global.getMember("toShellResult")
         getShellApiTypeFn = global.getMember("getShellApiType")
-        val jsSymbol = context["Symbol"]!!
-        shellInternalState.invokeMember("setCtx", context)
-        initContext(context, jsSymbol)
+        val jsSymbol = context.bindings["Symbol"]!!
+        shellInternalState.invokeMember("setCtx", context.bindings)
+        initContext(context.bindings, jsSymbol)
         bsonTypes = BsonTypes(
-                evalInner("new MaxKey().constructor"),
-                evalInner("new MinKey().constructor"),
-                evalInner("new ObjectId().constructor"),
-                evalInner("new NumberDecimal().constructor"),
-                evalInner("new NumberInt().constructor"),
-                evalInner("new Timestamp().constructor"),
-                evalInner("new Code().constructor"),
-                evalInner("new DBRef('', '', '').constructor"),
-                evalInner("new BSONSymbol('').constructor"),
-                evalInner("new NumberLong().constructor"),
-                evalInner("new BinData(0, '').constructor"),
-                evalInner("new HexData(0, '').constructor"))
+                context.eval("new MaxKey().constructor"),
+                context.eval("new MinKey().constructor"),
+                context.eval("new ObjectId().constructor"),
+                context.eval("new NumberDecimal().constructor"),
+                context.eval("new NumberInt().constructor"),
+                context.eval("new Timestamp().constructor"),
+                context.eval("new Code().constructor"),
+                context.eval("new DBRef('', '', '').constructor"),
+                context.eval("new BSONSymbol('').constructor"),
+                context.eval("new NumberLong().constructor"),
+                context.eval("new BinData(0, '').constructor"),
+                context.eval("new HexData(0, '').constructor"))
     }
 
-    private fun resultHandler() = jsFun { args ->
+    private fun resultHandler() = context.jsFun { args ->
         if (args.size != 1) {
             throw IllegalArgumentException("Expected one argument. Got ${args.size} ${args.contentToString()}")
         }
@@ -87,29 +76,30 @@ internal class MongoShellEvaluator(client: MongoClient) {
         }
     }
 
-    private fun initContext(context: Value, jsSymbol: Value) {
-        context.putMember("BSONSymbol", context["Symbol"])
-        context.putMember("Symbol", jsSymbol)
-        val date = evalInner("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
+    private fun initContext(bindings: Value, jsSymbol: Value) {
+        bindings.putMember("BSONSymbol", bindings["Symbol"])
+        bindings.putMember("Symbol", jsSymbol)
+        val date = context.eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
                 .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
         date.putMember("now", ProxyExecutable { System.currentTimeMillis() })
-        context.putMember("Date", date)
-        val isoDate = jsFun { args -> dateHelper(true, args.toList()) }
-        context.putMember("ISODate", isoDate)
-        context.putMember("UUID", jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) })
+        bindings.putMember("Date", date)
+        val isoDate = context.jsFun { args -> dateHelper(true, args.toList()) }
+        bindings.putMember("ISODate", isoDate)
+        bindings.putMember("UUID", context.jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) })
         // init console.log
-        val print = jsFun { args ->
+        val print = context.jsFun { args ->
             printedValues?.add(args.map { extract(it).value })
         }
-        ctx?.getBindings("js")?.putMember("print", print)
-        val console = evalInner("new Object()")
+        context.bindings.putMember("print", print)
+        @Suppress("JSPrimitiveTypeWrapperUsage")
+        val console = context.eval("new Object()")
         console.putMember("log", print)
         console.putMember("error", print)
-        ctx?.getBindings("js")?.putMember("console", console)
+        context.bindings.putMember("console", console)
     }
 
     private fun shellResult(printable: Value, type: String): Value {
-        return evalInner("(printable, type) => ({printable: printable, type: type})")
+        return context.eval("(printable, type) => ({printable: printable, type: type})")
                 .execute(printable, type)
     }
 
@@ -159,22 +149,9 @@ internal class MongoShellEvaluator(client: MongoClient) {
         return null
     }
 
-    operator fun get(value: String): Value? {
-        val ctx = checkClosed()
-        return ctx.getBindings("js")[value]
-    }
-
-    private fun checkClosed(): Context {
-        return this.ctx ?: throw IllegalStateException("Context has already been closed")
-    }
-
-    internal operator fun Value.get(identifier: String): Value? {
-        return getMember(identifier)
-    }
-
     internal fun unwrapPromise(v: Value): Value {
         try {
-            return if (v.instanceOf("Promise"))
+            return if (v.instanceOf(context, "Promise"))
                 CompletableFuture<Value>().also { future ->
                     v.invokeMember("then", ProxyExecutable { args ->
                         future.complete(args[0])
@@ -183,7 +160,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
                         if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
                             future.completeExceptionally(error.asHostObject<Any>() as Throwable)
                         } else {
-                            val message = error.toString() + (if (error.instanceOf("Error")) "\n${error.getMember("stack").asString()}" else "")
+                            val message = error.toString() + (if (error.instanceOf(context, "Error")) "\n${error.getMember("stack").asString()}" else "")
                             future.completeExceptionally(Exception(message))
                         }
                     })
@@ -200,7 +177,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
     }
 
     fun toShellResult(rawValue: Value): Value {
-        return unwrapPromise(toShellResultFn.execute(rawValue));
+        return unwrapPromise(toShellResultFn.execute(rawValue))
     }
 
     fun extract(v: Value, type: String? = null): MongoShellResult<*> {
@@ -230,7 +207,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
                     v["upsertedCount"]!!.asLong(),
                     (extract(v["upsertedIds"]!!) as ArrayResult).value)
             type == "InsertManyResult" -> InsertManyResult(v["acknowledged"]!!.asBoolean(), extract(v["insertedIds"]!!).value as List<String>)
-            v.instanceOf("RegExp") -> {
+            v.instanceOf(context, "RegExp") -> {
                 val pattern = v["source"]!!.asString()
                 val flags1 = v["flags"]!!.asString()
                 var f = 0
@@ -238,34 +215,34 @@ internal class MongoShellEvaluator(client: MongoClient) {
                 if (flags1.contains('i')) f = f.or(Pattern.CASE_INSENSITIVE)
                 PatternResult(Pattern.compile(pattern, f))
             }
-            v.instanceOf(bsonTypes.maxKey) -> MaxKeyResult()
-            v.instanceOf(bsonTypes.minKey) -> MinKeyResult()
-            v.instanceOf(bsonTypes.objectId) -> ObjectIdResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readObjectId())
-            v.instanceOf(bsonTypes.numberDecimal) -> Decimal128Result(JsonReader(v.invokeMember("toExtendedJSON").toString()).readDecimal128())
-            v.instanceOf(bsonTypes.numberInt) -> IntResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt32())
-            v.instanceOf(bsonTypes.bsonSymbol) -> SymbolResult(Symbol(JsonReader(v.invokeMember("toExtendedJSON").toString()).readSymbol()))
-            v.instanceOf(bsonTypes.timestamp) -> {
+            v.instanceOf(context, bsonTypes.maxKey) -> MaxKeyResult()
+            v.instanceOf(context, bsonTypes.minKey) -> MinKeyResult()
+            v.instanceOf(context, bsonTypes.objectId) -> ObjectIdResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readObjectId())
+            v.instanceOf(context, bsonTypes.numberDecimal) -> Decimal128Result(JsonReader(v.invokeMember("toExtendedJSON").toString()).readDecimal128())
+            v.instanceOf(context, bsonTypes.numberInt) -> IntResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt32())
+            v.instanceOf(context, bsonTypes.bsonSymbol) -> SymbolResult(Symbol(JsonReader(v.invokeMember("toExtendedJSON").toString()).readSymbol()))
+            v.instanceOf(context, bsonTypes.timestamp) -> {
                 val timestamp = JsonReader(extract(v.invokeMember("toExtendedJSON")).value.toLiteral()).readTimestamp()
                 BSONTimestampResult(BSONTimestamp(timestamp.time, timestamp.inc))
             }
-            v.instanceOf(bsonTypes.code) -> {
+            v.instanceOf(context, bsonTypes.code) -> {
                 val scope = extract(v["scope"]!!).value as? Document
                 val code = v["code"]!!.asString()
                 if (scope == null) CodeResult(Code(code))
                 else CodeWithScopeResult(CodeWithScope(code, scope))
             }
-            v.instanceOf(bsonTypes.dbRef) -> {
+            v.instanceOf(context, bsonTypes.dbRef) -> {
                 val databaseName = v["db"]?.let { if (it.isNull) null else it }?.asString()
                 val collectionName = v["collection"]!!.asString()
                 val value = extract(v["oid"]!!).value
-                DBRefResult(DBRef(databaseName, collectionName, value))
+                DBRefResult(DBRef(databaseName, collectionName, value!!))
             }
-            v.instanceOf(bsonTypes.numberLong) -> LongResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt64())
-            v.instanceOf(bsonTypes.binData) -> {
+            v.instanceOf(context, bsonTypes.numberLong) -> LongResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt64())
+            v.instanceOf(context, bsonTypes.binData) -> {
                 val binary = JsonReader(v.invokeMember("toExtendedJSON").toString()).readBinaryData()
                 BinaryResult(Binary(binary.type, binary.data))
             }
-            v.instanceOf(bsonTypes.hexData) -> {
+            v.instanceOf(context, bsonTypes.hexData) -> {
                 val binary = JsonReader(v.invokeMember("toExtendedJSON").toString()).readBinaryData()
                 BinaryResult(Binary(binary.type, binary.data))
             }
@@ -275,7 +252,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
             v.fitsInLong() -> LongResult(v.asLong())
             v.fitsInFloat() -> FloatResult(v.asFloat())
             v.fitsInDouble() -> DoubleResult(v.asDouble())
-            v.equalsTo("undefined") -> VoidResult
+            v.equalsTo(context, "undefined") -> VoidResult
             v.isNull -> NullResult
             v.isHostObject && v.asHostObject<Any?>() is Unit -> VoidResult
             v.isHostObject && v.asHostObject<Any?>() is Document -> DocumentResult(v.asHostObject())
@@ -289,15 +266,10 @@ internal class MongoShellEvaluator(client: MongoClient) {
         }
     }
 
-    private fun evalInner(@Language("js") script: String, name: String = "Unnamed"): Value {
-        val ctx = checkClosed()
-        return ctx.eval(Source.newBuilder("js", script, name).buildLiteral())
-    }
-
     fun eval(@Language("js") script: String, name: String): Value {
         updateDatabase()
         val originalEval = ProxyExecutable { args ->
-            evalInner(args[0].asString(), name)
+            context.eval(args[0].asString(), name)
         }
         return shellEvaluator.invokeMember("customEval", originalEval, script)
     }
@@ -313,7 +285,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
 
     private fun updateDatabase() {
         // graaljs does not allow to define property on top context, so we need to update internal state manually
-        val currentDb = evalInner("db")
+        val currentDb = context.eval("db")
         val currentDbName = currentDb.invokeMember("getName").asString()
         val stateDbName = shellInternalState["currentDb"]?.invokeMember("getName")?.asString()
         if (currentDbName != stateDbName) {
@@ -323,37 +295,28 @@ internal class MongoShellEvaluator(client: MongoClient) {
 
     fun <T> toJsPromise(promise: Either<T>): Value {
         return when (promise) {
-            is Right -> evalInner("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(toJs(promise.value))
-            is Left -> evalInner("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
+            is Right -> context.eval("(v) => new Promise(((resolve) => resolve(v)))", "resolved_promise_script").execute(toJs(promise.value))
+            is Left -> context.eval("(v) => new Promise(((_, reject) => reject(v)))", "rejected_promise_script").execute(promise.value)
         }
     }
 
     fun close() {
-        val ctx = checkClosed()
-        ctx.close(true)
-        this.ctx = null
+        context.close()
     }
-
-    private fun Value.instanceOf(clazz: Value?): Boolean {
-        return clazz != null && evalInner("(o, clazz) => o instanceof clazz", "instance_of_class_script").execute(this, clazz).asBoolean()
-    }
-
-    private fun Value.instanceOf(@Language("js") clazz: String): Boolean = evalInner("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()
-
-    private fun Value.equalsTo(@Language("js") value: String): Boolean = evalInner("(x) => x === $value", "equals_script").execute(this).asBoolean()
 
     fun toJs(o: Any?): Any? {
         return when (o) {
             is Iterable<*> -> toJs(o)
             is Array<*> -> toJs(o)
             is Map<*, *> -> toJs(o)
-            Unit -> evalInner("undefined")
+            Unit -> context.eval("undefined")
             else -> o
         }
     }
 
     private fun toJs(map: Map<*, *>): Value {
-        val jsMap = evalInner("new Object()")
+        @Suppress("JSPrimitiveTypeWrapperUsage")
+        val jsMap = context.eval("new Object()")
         for ((key, value) in map.entries) {
             jsMap.putMember(key as String, toJs(value))
         }
@@ -361,7 +324,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
     }
 
     private fun toJs(list: Iterable<Any?>): Value {
-        val array = evalInner("[]")
+        val array = context.eval("[]")
         list.forEachIndexed { index, v ->
             array.setArrayElement(index.toLong(), toJs(v))
         }
@@ -369,7 +332,7 @@ internal class MongoShellEvaluator(client: MongoClient) {
     }
 
     private fun toJs(list: Array<*>): Value {
-        val array = evalInner("[]")
+        val array = context.eval("[]")
         list.forEachIndexed { index, v ->
             array.setArrayElement(index.toLong(), toJs(v))
         }
