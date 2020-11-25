@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
+import path from 'path';
 
 describe('e2e', function() {
   const testServer = startTestServer('shared');
@@ -358,6 +359,33 @@ describe('e2e', function() {
       await eventually(() => {
         shell.assertContainsOutput('total: 144');
       });
+    });
+  });
+
+  describe('require() in the shell', () => {
+    let shell;
+    beforeEach(async() => {
+      shell = TestShell.start({
+        args: [ '--nodb' ],
+        cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
+        env: {
+          ...process.env,
+          NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path')
+        }
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+    });
+    it('searches the current working directory according to Node.js rules', async() => {
+      let result;
+      result = await shell.executeLine('require("a")');
+      expect(result).to.match(/Error: Cannot find module 'a'/);
+      result = await shell.executeLine('require("./a")');
+      expect(result).to.match(/^A$/m);
+      result = await shell.executeLine('require("b")');
+      expect(result).to.match(/^B$/m);
+      result = await shell.executeLine('require("c")');
+      expect(result).to.match(/^C$/m);
     });
   });
 });
