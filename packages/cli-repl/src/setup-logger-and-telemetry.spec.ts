@@ -43,7 +43,7 @@ describe('setupLoggerAndTelemetry', () => {
         is_atlas: false,
         node_version: 'v12.19.0'
       });
-      bus.emit('mongosh:error', new MongoshInternalError('meow'));
+      bus.emit('mongosh:error', new MongoshInternalError('meow', 'CLIREPL-1005'));
       bus.emit('mongosh:help');
       bus.emit('mongosh:use', { db: 'admin' });
       bus.emit('mongosh:show', { method: 'dbs' });
@@ -104,7 +104,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Error',
-          properties: { name: 'MongoshInternalError', code: undefined }
+          properties: { name: 'MongoshInternalError', code: 'CLIREPL-1005', scope: 'CLIREPL' }
         }
       ],
       [ 'track', { userId: '53defe995fa47e6c13102d9d', event: 'Help' } ],
