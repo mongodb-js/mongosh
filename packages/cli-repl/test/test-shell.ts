@@ -23,6 +23,7 @@ export class TestShell {
     args: string[];
     env?: Record<string, string>;
     removeSigintListeners?: boolean;
+    cwd?: string;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
@@ -32,7 +33,8 @@ export class TestShell {
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' }
+        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        cwd: options.cwd
       });
     } else {
       if (options.removeSigintListeners) {
@@ -47,7 +49,8 @@ export class TestShell {
 
       shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' }
+        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        cwd: options.cwd
       });
     }
 
