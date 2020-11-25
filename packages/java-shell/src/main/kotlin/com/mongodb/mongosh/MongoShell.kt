@@ -7,12 +7,13 @@ import org.intellij.lang.annotations.Language
 
 class MongoShell(client: MongoClient) {
     private val context = MongoShellContext()
-    private val evaluator = MongoShellEvaluator(client, context)
+    private val converter = MongoShellConverter(context)
+    private val evaluator = MongoShellEvaluator(client, context, converter)
 
     fun eval(@Language("js") script: String): MongoShellResult<*> {
         val printedValues = mutableListOf<List<Any?>>()
         val result = evaluator.withConsoleLogEnabled(printedValues) {
-            evaluator.unwrapPromise(evaluator.eval(script, "user_script"))
+            converter.unwrapPromise(evaluator.eval(script, "user_script"))
         }
         return if (printedValues.isNotEmpty()) {
             // [{"0": <value>, "1": <value>, ...}, {"0": <value>}, ...]
@@ -23,7 +24,7 @@ class MongoShell(client: MongoClient) {
         } else {
             val printable = result.getMember("printable")
             val type = result.getMember("type").toString()
-            evaluator.extract(printable, type)
+            converter.toJava(printable, type)
         }
     }
 

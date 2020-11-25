@@ -1,12 +1,21 @@
 package com.mongodb.mongosh.result
 
-import com.mongodb.mongosh.MongoShellEvaluator
+import com.mongodb.mongosh.MongoShellConverter
 import org.graalvm.polyglot.Value
 
-open class Cursor<out T> internal constructor(protected var cursor: Value?, private var evaluator: MongoShellEvaluator?) : Iterator<T> {
-    fun _asPrintable(): String {
-        val (cursor, evaluator) = checkClosed()
-        return evaluator.extract(evaluator.toShellResult(cursor).getMember("printable"))._asPrintable()
+open class Cursor<out T> internal constructor(protected var cursor: Value?, private var converter: MongoShellConverter?) : Iterator<T> {
+    private var currentIterationResult: List<T>? = null
+
+    fun _asPrintable(): String = ArrayResult(currentIterationResult ?: it())._asPrintable()
+
+    private fun it(): List<T> {
+        val currentIterationResult = mutableListOf<T>()
+        for (i in 0 until 20) {
+            if (!hasNext()) break
+            currentIterationResult.add(next())
+        }
+        this.currentIterationResult = currentIterationResult
+        return currentIterationResult
     }
 
     override fun hasNext(): Boolean {
@@ -15,22 +24,22 @@ open class Cursor<out T> internal constructor(protected var cursor: Value?, priv
     }
 
     override fun next(): T {
-        val (cursor, evaluator) = checkClosed()
+        val (cursor, converter) = checkClosed()
         if (!hasNext()) throw NoSuchElementException()
-        return evaluator.extract(cursor.invokeMember("next")).value as T
+        return converter.toJava(cursor.invokeMember("next")).value as T
     }
 
     fun close() {
         val (c, _) = checkClosed()
         c.invokeMember("close")
         cursor = null
-        evaluator = null
+        converter = null
     }
 
-    internal fun checkClosed(): Pair<Value, MongoShellEvaluator> {
+    internal fun checkClosed(): Pair<Value, MongoShellConverter> {
         val cursor = this.cursor
-        val evaluator = this.evaluator
-        if (cursor == null || evaluator == null) throw IllegalStateException("Cursor has already been closed")
-        return cursor to evaluator
+        val converter = this.converter
+        if (cursor == null || converter == null) throw IllegalStateException("Cursor has already been closed")
+        return cursor to converter
     }
 }

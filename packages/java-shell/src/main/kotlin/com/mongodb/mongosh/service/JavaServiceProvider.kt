@@ -4,7 +4,7 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
 import com.mongodb.client.result.UpdateResult
-import com.mongodb.mongosh.MongoShellEvaluator
+import com.mongodb.mongosh.MongoShellConverter
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DocumentResult
@@ -13,7 +13,7 @@ import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient, private val evaluator: MongoShellEvaluator) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient, private val converter: MongoShellConverter) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
     @JvmField
     @HostAccess.Export
@@ -340,7 +340,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>())
         val opt = options ?: Document()
-        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), evaluator, opt, createOptions), evaluator)
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter)
     }
 
     @HostAccess.Export
@@ -352,7 +352,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>())
         val opt = options ?: Document()
-        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), evaluator, opt, createOptions), evaluator)
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter)
     }
 
     @HostAccess.Export
@@ -401,7 +401,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = client.getDatabase(database)
         val createOptions = FindCreateOptions(db, collection, filter ?: Document())
         val opt = options ?: Document()
-        return Cursor(FindIterableHelper(find(opt, createOptions), evaluator, opt, createOptions), evaluator)
+        return Cursor(FindIterableHelper(find(opt, createOptions), converter, opt, createOptions), converter)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {
@@ -409,7 +409,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         if (!value.hasMembers()) {
             throw IllegalArgumentException("$fieldName should be an object: $value")
         }
-        return (evaluator.extract(value) as DocumentResult).value
+        return (converter.toJava(value) as DocumentResult).value
     }
 
     private fun toList(value: Value?, fieldName: String): List<Any?>? {
@@ -417,7 +417,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         if (!value.hasArrayElements()) {
             throw IllegalArgumentException("$fieldName should be a list: $value")
         }
-        return (evaluator.extract(value) as ArrayResult).value
+        return (converter.toJava(value) as ArrayResult).value
     }
 
     @HostAccess.Export
@@ -552,7 +552,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     override fun dropIndexes(database: String, collection: String, indexes: Value?, options: Value?): Value = promise<Any?> {
         val indexes = if (indexes != null && !indexes.isNull) indexes else throw IllegalArgumentException("Indexes parameter must not be null")
         val indexesList = if (indexes.hasArrayElements()) toList(indexes, "indexes")!!
-        else listOf(evaluator.extract(indexes).value)
+        else listOf(converter.toJava(indexes).value)
         getDatabase(database, null).map { db ->
             val coll = db.getCollection(collection)
             indexesList.forEach { index ->
@@ -589,6 +589,6 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
     }
 
     private fun <T> promise(block: () -> Either<T>): Value {
-        return evaluator.toJsPromise(block())
+        return converter.toJsPromise(block())
     }
 }
