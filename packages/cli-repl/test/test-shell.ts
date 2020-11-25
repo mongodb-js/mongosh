@@ -59,10 +59,14 @@ export class TestShell {
     return shell;
   }
 
-  static killall(): void {
+  static async killall(): Promise<void> {
+    const exitPromises: Promise<unknown>[] = [];
     while (TestShell._openShells.length) {
-      TestShell._openShells.pop().kill();
+      const shell = TestShell._openShells.pop();
+      shell.kill();
+      exitPromises.push(shell.waitForExit());
     }
+    await Promise.all(exitPromises);
   }
 
   private _process: ChildProcess;

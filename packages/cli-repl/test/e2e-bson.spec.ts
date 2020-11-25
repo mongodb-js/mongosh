@@ -11,7 +11,7 @@ import {
 describe('BSON e2e', function() {
   const testServer = startTestServer('shared');
 
-  afterEach(() => TestShell.killall());
+  afterEach(async() => await TestShell.killall());
   describe('printed BSON', () => {
     let db;
     let client;

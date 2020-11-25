@@ -11,7 +11,7 @@ import path from 'path';
 describe('e2e', function() {
   const testServer = startTestServer('shared');
 
-  afterEach(() => TestShell.killall());
+  afterEach(async() => await TestShell.killall());
 
   describe('--version', () => {
     it('shows version', async() => {
@@ -458,13 +458,14 @@ describe('e2e', function() {
     describe('history file', () => {
       it('persists between sessions', async() => {
         await shell.executeLine('a = 42');
-        shell.kill();
+        shell.writeInput('.exit\n');
         await shell.waitForExit();
 
         shell = await startTestShell();
-        shell.writeInput('\u001b[A'); // Arrow up
+        // Arrow up twice to skip the .exit line
+        shell.writeInput('\u001b[A\u001b[A');
         await eventually(() => {
-          shell.output.includes('a = 42');
+          expect(shell.output).to.include('a = 42');
         });
         shell.writeInput('\n.exit\n');
         await shell.waitForExit();
