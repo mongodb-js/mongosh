@@ -1,6 +1,7 @@
 package com.mongodb.mongosh
 
-import com.mongodb.mongosh.result.AggregationCursorResult
+import com.mongodb.mongosh.result.Cursor
+import com.mongodb.mongosh.result.CursorResult
 import com.mongodb.mongosh.result.FindCursorResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -61,7 +62,7 @@ class CursorTest : ShellTestCase() {
             shell.eval("db.coll.remove({});\n" +
                     "db.coll.insertMany([{a: 1}, {a: 2}]);")
             try {
-                val cursor = (shell.eval("db.coll.aggregate()") as AggregationCursorResult).value
+                val cursor = (shell.eval("db.coll.aggregate()") as CursorResult<Cursor<*>>).value
                 val sb = StringBuilder()
                 for (doc in cursor) {
                     sb.append(doc).append("\n")

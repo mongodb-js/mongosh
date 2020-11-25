@@ -338,9 +338,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>(), options
-                ?: Document())
-        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
+        val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>())
+        val opt = options ?: Document()
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), context, opt, createOptions), context)
     }
 
     @HostAccess.Export
@@ -350,9 +350,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val options = toDocument(options, "options")
         val dbOptions = toDocument(dbOptions, "dbOptions")
         val db = getDatabase(database, dbOptions).getOrThrow()
-        val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>(), options
-                ?: Document())
-        return Cursor(AggregateIterableHelper(aggregate(createOptions), context, createOptions), context)
+        val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>())
+        val opt = options ?: Document()
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), context, opt, createOptions), context)
     }
 
     @HostAccess.Export
@@ -399,8 +399,9 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
         val db = client.getDatabase(database)
-        val createOptions = FindCreateOptions(db, collection, filter ?: Document(), options ?: Document())
-        return Cursor(FindIterableHelper(find(createOptions), context, createOptions), context)
+        val createOptions = FindCreateOptions(db, collection, filter ?: Document())
+        val opt = options ?: Document()
+        return Cursor(FindIterableHelper(find(opt, createOptions), context, opt, createOptions), context)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {

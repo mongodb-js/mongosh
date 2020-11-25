@@ -7,7 +7,7 @@ import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
-internal class Cursor(private var helper: MongoIterableHelper<*>, private val context: MongoShellContext) : ServiceProviderCursor {
+internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val context: MongoShellContext) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
     private var closed = false
 

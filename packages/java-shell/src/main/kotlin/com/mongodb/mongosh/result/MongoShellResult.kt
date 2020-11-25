@@ -8,7 +8,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 
-sealed class MongoShellResult<T> {
+sealed class MongoShellResult<out T> {
     abstract val value: T
     open fun _asPrintable(): String = value.toLiteral()
     override fun equals(other: Any?): Boolean {
@@ -129,13 +129,10 @@ class BulkWriteResult(val acknowledged: Boolean,
                 "upsertedIds" to upsertedIds)
 }
 
-abstract class CursorResult<T : Cursor<*>>(override val value: T) : MongoShellResult<T>()
-class FindCursorResult internal constructor(cursor: FindCursor<*>) : CursorResult<FindCursor<*>>(cursor) {
+open class CursorResult<out T : Cursor<*>>(override val value: T) : MongoShellResult<T>() {
     override fun _asPrintable(): String = value._asPrintable()
 }
 
-class AggregationCursorResult internal constructor(cursor: AggregationCursor<*>) : CursorResult<AggregationCursor<*>>(cursor) {
-    override fun _asPrintable(): String = value._asPrintable()
-}
+class FindCursorResult internal constructor(cursor: FindCursor<*>) : CursorResult<FindCursor<*>>(cursor)
 
 
