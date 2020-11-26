@@ -2,6 +2,7 @@ import {
   MongoshInternalError,
   MongoshInvalidInputError
 } from '@mongosh/errors';
+import { AsyncRewriterErrors } from './error-codes';
 /* eslint no-console:0 */
 
 export function addApi(newobj): any {
@@ -304,7 +305,7 @@ export default class SymbolTable {
           // Otherwise, check if any of the alternatives has that key as a Shell API type.
           const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && (a.scopeAt(i)[k].hasAsyncChild || a.scopeAt(i)[k].returnsPromise));
           if (hasAsync) {
-            throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
+            throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`, AsyncRewriterErrors.MixedAsyncTypeInScope);
           } else {
             // Types differ, but none are async, so can safely just call it unknown.
             thisScope[k] = { type: 'unknown', attributes: {} };

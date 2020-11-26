@@ -440,6 +440,7 @@ class Test {
                 compileCheckScopes(writer, 'c[(x)]');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
+                expect(e.code).to.be.equal('TODO'); // TODO: add error code
               }
             });
             it('throws an error with suggestion for db', () => {
@@ -448,6 +449,7 @@ class Test {
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
                 expect(e.message).to.contain('Database');
+                expect(e.code).to.be.equal('TODO'); // TODO: add error code
               }
             });
           });
@@ -567,18 +569,31 @@ class Test {
           });
         });
         describe('with other rhs', () => {
-          it('throws an error with suggestion for db and var', () => {
+          it('throws an error for computed identifier', () => {
             try {
               compileCheckScopes(writer, 'a[d]');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.message).to.not.contain('try Database.get');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
             }
           });
-          it('throws an error with suggestion for db and null', () => {
+          it('throws an error for null', () => {
             try {
               compileCheckScopes(writer, 'a[null]');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.message).to.not.contain('try Database.get');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
+            }
+          });
+          it('throws an error with db suggestion', () => {
+            try {
+              compileCheckScopes(writer, 'a.d[coll]');
+            } catch (e) {
+              expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.message).to.contain('try Database.get');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
             }
           });
         });
@@ -627,6 +642,7 @@ class Test {
             compileCheckScopes(writer, 'a[d]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
       });
@@ -1121,6 +1137,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });
@@ -1133,6 +1150,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db.coll)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });
@@ -1141,6 +1159,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db.coll.insertOne)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });
@@ -1150,6 +1169,7 @@ class Test {
           compileCheckScopes(writer, 'fb(f)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });
@@ -1205,6 +1225,7 @@ function f() {
           compileCheckScopes(writer, 'let [a, b] = [1, db]');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshUnimplementedError');
+          expect(e.code).to.be.equal(AsyncRewriterErrors.DestructuringNotImplemented);
         }
       });
       it('array pattern ignored for non-async', () => {
@@ -1587,6 +1608,7 @@ function f() {
             compileCheckScopes(writer, '[a, b] = [1, db]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
         it('array pattern ignored for non-async', () => {
@@ -1747,6 +1769,7 @@ function f() {
                 compileCheckScopes(writer, 'x[a] = 1');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
+                expect(e.code).to.be.equal('TODO'); // TODO: add error code
               }
             });
           });
@@ -1836,6 +1859,7 @@ function f() {
                 compileCheckScopes(writer, 'x[a] = db');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshUnimplementedError');
+                expect(e.code).to.be.equal('TODO'); // TODO: add error code
               }
             });
           });
@@ -2404,6 +2428,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
       });
@@ -2459,6 +2484,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
       });
@@ -2634,6 +2660,7 @@ function f() {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
+        expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
         done();
       }
     });
@@ -2643,6 +2670,7 @@ function f() {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
+        expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
         done();
       }
     });
@@ -2652,6 +2680,7 @@ function f() {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
+        expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
         done();
       }
     });
@@ -2877,6 +2906,7 @@ class Test {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
         it('assign this not in constructor', () => {
@@ -2888,6 +2918,7 @@ class Test {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
       });
@@ -2998,6 +3029,7 @@ if (TEST) {
                 compileCheckScopes(writer, throwInput);
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
+                expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
               }
             });
           });
@@ -3018,6 +3050,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3040,6 +3073,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3112,6 +3146,7 @@ if (TEST) {
               compileCheckScopes(writer, 'if (TEST) { a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3138,6 +3173,7 @@ if (TEST) {
               compileCheckScopes(writer, 'if (TEST) { var a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3187,6 +3223,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3210,6 +3247,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3335,6 +3373,7 @@ while (TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3405,6 +3444,7 @@ for (let t = 0; t < 100; t++) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3475,6 +3515,7 @@ do {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3495,6 +3536,7 @@ for (const x in [1, 2, 3]) {
             compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ForInForOfUnsupported);
           }
         });
       });
@@ -3514,6 +3556,7 @@ for (const x of [1, 2, 3]) {
             compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ForInForOfUnsupported);
           }
         });
       });
@@ -3607,6 +3650,7 @@ switch(TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3662,6 +3706,7 @@ switch(TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
+              expect(e.code).to.be.equal('TODO'); // TODO: add error code
             }
           });
         });
@@ -3709,6 +3754,7 @@ switch(TEST) {
             compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
+            expect(e.code).to.be.equal('TODO'); // TODO: add error code
           }
         });
       });
@@ -3735,6 +3781,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3745,6 +3792,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3761,6 +3809,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3770,6 +3819,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3779,6 +3829,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3791,6 +3842,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3800,6 +3852,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3809,6 +3862,7 @@ switch(TEST) {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
+        expect(err.code).to.be.equal('TODO'); // TODO: add error code
         done();
       }
     });
@@ -3891,6 +3945,7 @@ function f(arg) {
   `);
         } catch (e) {
           expect(e.name).to.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });
@@ -3939,6 +3994,7 @@ function f(arg) {
           compileCheckScopes(writer, input);
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
+          expect(e.code).to.be.equal('TODO'); // TODO: add error code
           done();
         }
       });

@@ -1,8 +1,7 @@
 /* eslint no-sync: 0, no-console:0, complexity:0, dot-notation: 0 */
 import * as babel from '@babel/core';
-import SymbolTable from './symbol-table';
-import * as BabelTypes from '@babel/types';
 import { Visitor } from '@babel/traverse';
+import * as BabelTypes from '@babel/types';
 import {
   MongoshInternalError,
   MongoshInvalidInputError,
@@ -10,6 +9,7 @@ import {
 } from '@mongosh/errors';
 import processTopLevelAwait from './await';
 import { AsyncRewriterErrors } from './error-codes';
+import SymbolTable from './symbol-table';
 
 const debug = (str, type?, indent?): void => {
   indent = indent ? '' : '  ';
@@ -18,7 +18,7 @@ const debug = (str, type?, indent?): void => {
 };
 
 function assertUnreachable(type?: never): never {
-  throw new MongoshInternalError(`type ${type} unhandled`);
+  throw new MongoshInternalError(`type ${type} unhandled`, AsyncRewriterErrors.UnreachableAssertionViolated);
 }
 
 export interface Babel {
@@ -105,7 +105,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const help = lhsType.type === 'Database' ?
               '\nIf you are accessing a collection try Database.get(\'collection\').' :
               '';
-            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`);
+            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`, AsyncRewriterErrors.DynamicAccessOfApiType);
           }
           path.node['shellType'] = { type: 'unknown', attributes: {} };
           debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, path.node['shellType']);
@@ -114,7 +114,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       if (path.node.object.type === 'ThisExpression') {
         const classPath = path.findParent((p) => p.isClassDeclaration());
         if (!classPath) {
-          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
+          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
         }
         const methodPath = path.findParent((p) => p.isMethod()) as babel.NodePath<babel.types.ClassMethod>;
         if (!methodPath) {
@@ -293,7 +293,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               // eslint-disable-next-line no-fallthrough
               default:
                 if (sType.hasAsyncChild || sType.returnsPromise) {
-                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically');
+                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfApiType);
                 }
             }
             lhsNode = lhsNode.object as babel.types.MemberExpression;
@@ -306,7 +306,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           } else if (lhsNode.type === 'ThisExpression') {
             const classPath = path.findParent((p) => p.isClassDeclaration());
             if (!classPath) {
-              throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
+              throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
             }
             if (attrs.length > 1) {
               throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword');
@@ -623,7 +623,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'ForInStatement':
         case 'ForOfStatement':
           // TODO: this can be implemented, but it's tedious. Save for future work?
-          throw new MongoshUnimplementedError('\'for in\' and \'for of\' statements are not supported at this time.');
+          throw new MongoshUnimplementedError('\'for in\' and \'for of\' statements are not supported at this time.', AsyncRewriterErrors.ForInForOfUnsupported);
         case 'DoWhileStatement':
         case 'WhileStatement':
         case 'ForStatement':
