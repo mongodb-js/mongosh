@@ -142,6 +142,9 @@ class CliRepl {
   }
 
   verifyNodeVersion(): void {
+    if (process.env.MONGOSH_SKIP_VERSION_CHECK === 'i-will-not-complain-if-mongosh-does-not-work') {
+      return;
+    }
     const { engines } = require('../package.json');
     // Strip -rc.0, -pre, etc. from the Node.js version because semver rejects those otherwise.
     const baseNodeVersion = process.version.replace(/-.*$/, '');

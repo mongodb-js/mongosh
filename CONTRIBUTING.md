@@ -18,3 +18,13 @@ MongoDB welcomes community contributions! If you’re interested in making a con
 You can report new bugs by
 [creating a new issue](https://jira.mongodb.org/browse/MONGOSH/).
 Please include as much information as possible about your environment.
+
+## Node.js versions
+
+We support Node.js 12.x+ for the individual packages, and Node.js 14.x only for
+the CLI repl specifically. These versions are mentioned:
+
+- In the individual packages’ package.json files
+- In the evergreen config
+- In the homebrew generation script
+- In the Docker files we use for building the binary/testing vscode
