@@ -1,4 +1,7 @@
 
+/**
+ * @mongoshErrors
+ */
 enum AsyncRewriterErrors {
   /**
    * Identifies an error where object destructuring was used with Mongosh API objects which we currently do not support.
