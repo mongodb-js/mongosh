@@ -22,6 +22,7 @@ class CollectionTest : ShellTestCase() {
     @Test fun testCountWithQuery()         = test()
     @Test fun testCountWithUnknownOption() = test()
     @Test fun testCreateIndex()            = test()
+    @Test fun testCreateIndexes()          = test()
     @Test fun testDeleteMany()             = test()
     @Test fun testDeleteOne()              = test()
     @Test fun testDistinct()               = test()

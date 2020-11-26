@@ -973,7 +973,7 @@ export default class Collection extends ShellApiClass {
 
     this._emitCollectionApiCall('createIndexes', { specs });
 
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, specs, this._database._baseOptions);
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, specs, {}, this._database._baseOptions);
   }
 
   /**
@@ -999,7 +999,7 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('createIndex', { keys, options });
 
     const spec = { ...this._database._baseOptions, ...options, key: keys };
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec]);
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], {}, this._database._baseOptions);
   }
 
   /**
@@ -1025,7 +1025,7 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('ensureIndex', { keys, options });
 
     const spec = { ...this._database._baseOptions, ...options, key: keys };
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec]);
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], {}, this._database._baseOptions);
   }
 
   /**
