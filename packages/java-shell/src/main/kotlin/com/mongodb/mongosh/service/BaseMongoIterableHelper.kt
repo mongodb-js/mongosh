@@ -11,7 +11,7 @@ import com.mongodb.mongosh.MongoShellConverter
 import org.bson.Document
 import org.graalvm.polyglot.Value
 
-internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterable: T, protected val converter: MongoShellConverter, protected val options: Document?) {
+internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterable: T, protected val converter: MongoShellConverter, protected val options: Document) {
     abstract val converters: Map<String, (T, Any?) -> Either<T>>
     abstract val defaultConverter: (T, String, Any?) -> Either<T>
 
@@ -29,6 +29,7 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
 
     fun batchSize(v: Int): Unit = set("batchSize", v)
     open fun limit(v: Int): Unit = throw NotImplementedError("limit is not supported")
+    fun limit(): Int = options["limit"] as? Int ?: -1
     open fun max(v: Document): Unit = throw NotImplementedError("max is not supported")
     open fun min(v: Document): Unit = throw NotImplementedError("min is not supported")
     open fun projection(v: Document): Unit = throw NotImplementedError("projection is not supported")
@@ -49,14 +50,14 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
     open fun readPrev(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readPrev is not supported")
 
     protected fun set(key: String, value: Any?) {
-        options?.put(key, value)
+        options[key] = value
         convert(iterable, converters, defaultConverter, mapOf(key to value))
     }
 }
 
 internal class MongoIterableHelper(iterable: MongoIterable<*>,
                                    converter: MongoShellConverter,
-                                   options: Document?) : BaseMongoIterableHelper<MongoIterable<*>>(iterable, converter, options) {
+                                   options: Document) : BaseMongoIterableHelper<MongoIterable<*>>(iterable, converter, options) {
     override val converters = iterableConverters
     override val defaultConverter = unrecognizedField<MongoIterable<*>>("iterable options")
 }
@@ -67,7 +68,7 @@ internal data class AggregateCreateOptions(val db: MongoDatabase,
 
 internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
                                        converter: MongoShellConverter,
-                                       options: Document?,
+                                       options: Document,
                                        private val createOptions: AggregateCreateOptions?)
     : BaseMongoIterableHelper<AggregateIterable<out Any?>>(iterable, converter, options) {
     override val converters = aggregateConverters
@@ -75,7 +76,6 @@ internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
 
     override fun explain(verbosity: String?): Any? {
         check(createOptions != null) { "createOptions were not saved" }
-        check(options != null) { "options were not saved" }
         val explain = Document()
         explain["aggregate"] = createOptions.collection ?: 1
         explain["pipeline"] = createOptions.pipeline
@@ -86,7 +86,6 @@ internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
 
     override fun readPrev(v: String, tags: List<TagSet>?): AggregateIterableHelper {
         check(createOptions != null) { "createOptions were not saved" }
-        check(options != null) { "options were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
@@ -126,7 +125,7 @@ internal data class FindCreateOptions(val db: MongoDatabase,
 
 internal class FindIterableHelper(iterable: FindIterable<out Any?>,
                                   converter: MongoShellConverter,
-                                  options: Document?,
+                                  options: Document,
                                   private val createOptions: FindCreateOptions?)
     : BaseMongoIterableHelper<FindIterable<out Any?>>(iterable, converter, options) {
     override val converters = findConverters
@@ -134,7 +133,6 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
 
     override fun readPrev(v: String, tags: List<TagSet>?): FindIterableHelper {
         check(createOptions != null) { "createOptions were not saved" }
-        check(options != null) { "options were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
         val newCreateOptions = createOptions.copy(db = newDb)
@@ -167,8 +165,8 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
 
 internal fun helper(iterable: MongoIterable<out Any?>, converter: MongoShellConverter): BaseMongoIterableHelper<*> {
     return when (iterable) {
-        is FindIterable -> FindIterableHelper(iterable, converter, null, null)
-        is AggregateIterable -> AggregateIterableHelper(iterable, converter, null, null)
-        else -> MongoIterableHelper(iterable, converter, null)
+        is FindIterable -> FindIterableHelper(iterable, converter, Document(), null)
+        is AggregateIterable -> AggregateIterableHelper(iterable, converter, Document(), null)
+        else -> MongoIterableHelper(iterable, converter, Document())
     }
 }

@@ -7,8 +7,9 @@ import org.intellij.lang.annotations.Language
 
 class MongoShell(client: MongoClient) {
     private val context = MongoShellContext()
-    private val converter = MongoShellConverter(context)
-    private val evaluator = MongoShellEvaluator(client, context, converter)
+    private val wrapper = ValueWrapper(context)
+    private val converter = MongoShellConverter(context, wrapper)
+    private val evaluator = MongoShellEvaluator(client, context, converter, wrapper)
     private val consoleLog = ConsoleLogSupport(context, converter)
 
     fun eval(@Language("js") script: String): MongoShellResult<*> {

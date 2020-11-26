@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
 import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.MongoShellConverter
+import com.mongodb.mongosh.ValueWrapper
 import com.mongodb.mongosh.result.ArrayResult
 import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DocumentResult
@@ -13,7 +14,9 @@ import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient, private val converter: MongoShellConverter) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
+internal class JavaServiceProvider(private val client: MongoClient,
+                                   private val converter: MongoShellConverter,
+                                   private val wrapper: ValueWrapper) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
     @JvmField
     @HostAccess.Export
@@ -340,7 +343,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val createOptions = AggregateCreateOptions(db, collection, pipeline.filterIsInstance<Document>())
         val opt = options ?: Document()
-        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter)
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter, wrapper)
     }
 
     @HostAccess.Export
@@ -352,7 +355,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = getDatabase(database, dbOptions).getOrThrow()
         val createOptions = AggregateCreateOptions(db, null, pipeline.filterIsInstance<Document>())
         val opt = options ?: Document()
-        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter)
+        return Cursor(AggregateIterableHelper(aggregate(opt, createOptions), converter, opt, createOptions), converter, wrapper)
     }
 
     @HostAccess.Export
@@ -401,7 +404,7 @@ internal class JavaServiceProvider(private val client: MongoClient, private val 
         val db = client.getDatabase(database)
         val createOptions = FindCreateOptions(db, collection, filter ?: Document())
         val opt = options ?: Document()
-        return Cursor(FindIterableHelper(find(opt, createOptions), converter, opt, createOptions), converter)
+        return Cursor(FindIterableHelper(find(opt, createOptions), converter, opt, createOptions), converter, wrapper)
     }
 
     private fun toDocument(value: Value?, fieldName: String): Document? {

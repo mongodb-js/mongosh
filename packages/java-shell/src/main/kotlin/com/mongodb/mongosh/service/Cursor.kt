@@ -2,12 +2,13 @@ package com.mongodb.mongosh.service
 
 import com.mongodb.client.MongoCursor
 import com.mongodb.mongosh.MongoShellConverter
+import com.mongodb.mongosh.ValueWrapper
 import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
-internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val converter: MongoShellConverter) : ServiceProviderCursor {
+internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val converter: MongoShellConverter, private val wrapper: ValueWrapper) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
     private var closed = false
 
@@ -186,7 +187,14 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
-    override fun next(): Any? = getOrCreateIterator().next()
+    override fun next(): Any? {
+        /* findOne returns single document as a result.
+         * Mongosh core will try to defineProperty on it and fail if value is not wrapped in JS object */
+        val shouldWrap = iterator == null && helper.limit() == 1
+        val value = getOrCreateIterator().next()
+        return if (shouldWrap) wrapper.wrap(value) // it's possibly a findOne call
+        else value
+    }
 
     @HostAccess.Export
     override fun project(v: Value): ServiceProviderCursor {

@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-internal class MongoShellConverter(private val context: MongoShellContext) {
+internal class MongoShellConverter(private val context: MongoShellContext, private val wrapper: ValueWrapper) {
     private val bsonTypes = BsonTypes(context)
 
     fun toJs(o: Any?): Any? {
@@ -90,6 +90,7 @@ internal class MongoShellConverter(private val context: MongoShellContext) {
 
     fun toJava(v: Value, type: String? = null): MongoShellResult<*> {
         return when {
+            wrapper.isWrapped(v) -> toJava(wrapper.unwrap(v), type)
             type == "Help" -> toJava(v["attr"]!!)
             type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
             // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
