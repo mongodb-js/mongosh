@@ -23,16 +23,19 @@ export class TestShell {
     env?: Record<string, string>;
     removeSigintListeners?: boolean;
     cwd?: string;
+    forceTerminal?: boolean;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
     let env = options.env || process.env;
+    if (options.forceTerminal) {
+      env = { ...env, MONGOSH_FORCE_TERMINAL: '1' };
+    }
 
-    // TODO: Test (some) cases also without MONGOSH_FORCE_TERMINAL.
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        env: env,
         cwd: options.cwd
       });
     } else {
@@ -48,7 +51,7 @@ export class TestShell {
 
       shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        env: env,
         cwd: options.cwd
       });
     }
@@ -182,8 +185,7 @@ export class TestShell {
   }
 
   private _getOutputLines(): string[] {
-    return this._output.split('\n')
-      .filter((line) => !line.match(PROMPT_PATTERN));
+    return this._output.split('\n');
   }
 
   private _getAllErrors(): string[] {

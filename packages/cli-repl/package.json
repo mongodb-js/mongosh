@@ -54,10 +54,10 @@
     "mongodb-redact": "^0.2.2",
     "nanobus": "^4.4.0",
     "pino": "^5.16.0",
-    "pino-pretty": "^4.0.0",
     "pretty-bytes": "^5.3.0",
-    "pretty-repl": "^2.3.1",
+    "pretty-repl": "^2.4.0",
     "semver": "^7.1.2",
+    "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0"
   },
   "devDependencies": {

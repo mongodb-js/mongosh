@@ -50,11 +50,19 @@ const fakeTTYProps = {
   getColorDepth() { return 256; }
 };
 
+async function readReplLogfile(logPath: string) {
+  return (await fs.readFile(logPath, 'utf8'))
+    .split('\n')
+    .filter(line => line.trim())
+    .map((line) => JSON.parse(line));
+}
+
 export {
   expect,
   sinon,
   useTmpdir,
   tick,
   waitEval,
-  fakeTTYProps
+  fakeTTYProps,
+  readReplLogfile
 };

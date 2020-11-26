@@ -7,7 +7,7 @@ import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import prettyRepl from 'pretty-repl';
 import * as asyncRepl from './async-repl';
-import type { REPLServer, ReplOptions } from 'repl';
+import { REPLServer, ReplOptions } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import type { UserConfig, Bus } from './types';

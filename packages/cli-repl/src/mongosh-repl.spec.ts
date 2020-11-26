@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
 import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import { PassThrough, Duplex } from 'stream';
@@ -5,6 +6,13 @@ import path from 'path';
 import { EventEmitter, once } from 'events';
 import { expect, tick, useTmpdir, fakeTTYProps } from '../test/repl-helpers';
 import { stubInterface } from 'ts-sinon';
+import { promisify } from 'util';
+
+const delay = promisify(setTimeout);
+
+const multilineCode = `(function() {
+  return 610 + 377;
+})();`;
 
 describe('MongoshNodeRepl', () => {
   let mongoshRepl: MongoshNodeRepl;
@@ -56,6 +64,19 @@ describe('MongoshNodeRepl', () => {
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
   });
 
+  let originalEnvVars;
+  before(() => {
+    originalEnvVars = { ...process.env };
+  });
+  afterEach(() => {
+    Object.assign(process.env, originalEnvVars);
+    for (const key of Object.keys(process.env)) {
+      if (!(key in originalEnvVars)) {
+        delete process.env[key];
+      }
+    }
+  });
+
   it('throws an error if internal methods are used too early', async() => {
     expect(() => mongoshRepl.writer(new Error())).to.throw('Mongosh not started yet');
   });
@@ -75,6 +96,13 @@ describe('MongoshNodeRepl', () => {
       input.write('21 + 13\n');
       await tick();
       expect(output).to.include('34');
+    });
+
+    it('does not print "undefined"', async() => {
+      input.write('const foo = "bar";\n');
+      await tick();
+      expect(output).not.to.include('undefined');
+      expect(output).not.to.include('bar');
     });
 
     it('emits exit events on exit', async() => {
@@ -124,10 +152,67 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output.slice(prevOutput.length)).to.equal('> ');
     });
+
+    it('keeps variables defined before .clear', async() => {
+      input.write('a = 14987135; 0\n');
+      await tick();
+      input.write('.clear\n');
+      await tick();
+      expect(output).not.to.include('14987135');
+      input.write('a\n');
+      await tick();
+      expect(output).to.include('14987135');
+    });
+
+    it('prints a fancy syntax error when encountering one', async() => {
+      input.write('<cat>\n');
+      await tick();
+      expect(output).to.include('SyntaxError: Unexpected token');
+      expect(output).to.include(`
+> 1 | <cat>
+    | ^
+  2 |\u0020
+
+>`); // ← This is the prompt – We’re seeing no stack trace for syntax errors.
+    });
+
+    it('can enter multiline code', async() => {
+      for (const line of multilineCode.split('\n')) {
+        input.write(line + '\n');
+        await tick();
+      }
+      // Two ... because we entered two incomplete lines.
+      expect(output).to.include('... ... 987');
+      expect(output).not.to.include('Error');
+    });
+
+    it('Mongosh errors do not have a stack trace', async() => {
+      input.write('db.auth()\n');
+      await tick();
+      expect(output).to.include('MongoshInvalidInputError:');
+      expect(output).not.to.include(' at ');
+    });
+
+    it('prints help', async() => {
+      input.write('help()\n');
+      await tick();
+      expect(output).to.match(/connect\s*Create a new connection and return the Database object/);
+    });
+
+    it('prints help for cursor commands', async() => {
+      input.write('db.coll.find().hasNext.help()\n');
+      await tick();
+      expect(output).to.include('returns true if the cursor returned by the');
+    });
   });
 
   context('with terminal: true', () => {
     beforeEach(async() => {
+      // Node.js uses $TERM to determine what level of functionality to provide
+      // in a way that goes beyond color support, in particular TERM=dumb
+      // disables features like autoformatting. We don't want that to happen
+      // depending on the outer environment in which we are being run.
+      process.env.TERM = 'xterm-256color';
       mongoshRepl = new MongoshNodeRepl({
         ...mongoshReplOptions,
         nodeReplOptions: { terminal: true }
@@ -144,21 +229,86 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output).to.include('65537');
     });
+
+    it('can enter multiline code', async() => {
+      for (const line of multilineCode.split('\n')) {
+        input.write(line + '\n');
+        await tick();
+      }
+      expect(output).to.include('987');
+      expect(output).not.to.include('Error');
+    });
+
+    it('can enter multiline code with delays after newlines', async() => {
+      for (const line of multilineCode.split('\n')) {
+        input.write(line + '\n');
+        await delay(150);
+      }
+      expect(output).to.include('987');
+      expect(output).not.to.include('Error');
+    });
+
+    it('pressing Ctrl+C twice exits the shell', async() => {
+      input.write('\u0003');
+      await tick();
+      expect(output).to.match(/To exit, press (Ctrl\+C|\^C) again/);
+      input.write('\u0003');
+      const [ code ] = await once(bus, 'mongosh:exit');
+      expect(code).to.equal(0);
+    });
+
+    it('pressing Ctrl+D exits the shell', async() => {
+      input.write('\u0004');
+      const [ code ] = await once(bus, 'mongosh:exit');
+      expect(code).to.equal(0);
+    });
+
+    it('autocompletes', async() => {
+      input.write('db.coll.\u0009\u0009'); // U+0009 is TAB
+      await tick();
+      expect(output).to.include('db.coll.updateOne');
+    });
   });
 
   context('with fake TTY', () => {
     beforeEach(async() => {
+      process.env.TERM = 'xterm-256color';
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
       mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
       await mongoshRepl.start(serviceProvider);
+      expect(mongoshRepl.getFormatOptions().colors).to.equal(true);
+    });
+
+    it('colorizes input statement', async() => {
+      input.write('const cat = "Nori"');
+      await tick();
+      expect(output).to.match(/const(\x1b\[.*m)+ cat = (\x1b\[.*m)+"Nori"(\x1b\[.*m)+/);
+    });
+
+    it('colorizes input function', async() => {
+      input.write('function add (a, b) { return a + b }');
+      await tick();
+      expect(output).to.match(/function(\x1b\[.*m)+ (\x1b\[.*m)+add(\x1b\[.*m)+ \(a, b\) \{ (\x1b\[.*m)+return(\x1b\[.*m)+ a \+ b/);
+    });
+
+    it('colorizes input integers', async() => {
+      input.write('const sum = 42 + 7');
+      await tick();
+      expect(output).to.match(/const(\x1b\[.*m)+ sum = (\x1b\[.*m)+42(\x1b\[.*m)+ \+ (\x1b\[.*m)+7(\x1b\[.*m)+/);
     });
 
     it('colorizes output', async() => {
       input.write('ISODate()\n');
       await tick();
-      // eslint-disable-next-line no-control-regex
       expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
+    });
+
+    it('colorizes syntax errors', async() => {
+      input.write('<cat>\n');
+      await tick();
+      expect(output).to.match(/SyntaxError(\x1b\[.*m)+: Unexpected token/);
+      expect(output).to.match(/>(\x1b\[.*m)+ 1 \| (\x1b\[.*m)+<(\x1b\[.*m)+cat(\x1b\[.*m)+>(\x1b\[.*m)+/);
     });
 
     it('can ask for passwords', async() => {

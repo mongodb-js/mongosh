@@ -7,6 +7,7 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
+import { readReplLogfile } from './repl-helpers';
 
 describe('e2e', function() {
   const testServer = startTestServer('shared');
@@ -29,7 +30,9 @@ describe('e2e', function() {
   describe('--nodb', () => {
     let shell;
     beforeEach(async() => {
-      shell = TestShell.start({ args: [ '--nodb' ] });
+      shell = TestShell.start({
+        args: [ '--nodb' ]
+      });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
@@ -44,6 +47,8 @@ describe('e2e', function() {
     it('db.coll.find() throws InvalidInput', async() => {
       await shell.executeLine('db.coll.find()');
       shell.assertContainsError('MongoshInvalidInputError: No connected database');
+      // We're seeing the prompt and not a stack trace.
+      expect(shell.output).to.include('No connected database\n> ');
     });
   });
 
@@ -275,6 +280,17 @@ describe('e2e', function() {
 
       shell.assertNoErrors();
     });
+
+    it('rewrites async for collections in the same statement', async() => {
+      await shell.writeInputLine(`use ${dbName}`);
+      await shell.writeInputLine('db.test.insertOne({ d: 1 }).acknowledged');
+
+      await eventually(() => {
+        shell.assertContainsOutput('true');
+      });
+
+      shell.assertNoErrors();
+    });
   });
 
   describe('Ctrl+C aka SIGINT', () => {
@@ -373,7 +389,7 @@ describe('e2e', function() {
     });
   });
 
-  describe('require() in the shell', () => {
+  describe('Node.js builtin APIs in the shell', () => {
     let shell;
     beforeEach(async() => {
       shell = TestShell.start({
@@ -387,7 +403,8 @@ describe('e2e', function() {
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
-    it('searches the current working directory according to Node.js rules', async() => {
+
+    it('require() searches the current working directory according to Node.js rules', async() => {
       let result;
       result = await shell.executeLine('require("a")');
       expect(result).to.match(/Error: Cannot find module 'a'/);
@@ -397,6 +414,13 @@ describe('e2e', function() {
       expect(result).to.match(/^B$/m);
       result = await shell.executeLine('require("c")');
       expect(result).to.match(/^C$/m);
+    });
+
+    it('Can use Node.js APIs without any extra effort', async() => {
+      // Too lazy to write a fixture
+      const result = await shell.executeLine(
+        `fs.readFileSync(${JSON.stringify(__filename)}, 'utf8')`);
+      expect(result).to.include('Too lazy to write a fixture');
     });
   });
 
@@ -419,16 +443,12 @@ describe('e2e', function() {
       configPath = path.resolve(mongoshdir, 'config');
       historyPath = path.resolve(mongoshdir, '.mongosh_repl_history');
       readConfig = async() => JSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogfile = async() => {
-        return (await fs.readFile(logPath, 'utf8'))
-          .split('\n')
-          .filter(line => line.trim())
-          .map((line) => JSON.parse(line));
-      };
+      readLogfile = async() => readReplLogfile(logPath);
       startTestShell = async() => {
         const shell = TestShell.start({
           args: [ '--nodb' ],
-          env: { ...process.env, HOME: homedir, USERPROFILE: homedir }
+          env: { ...process.env, HOME: homedir, USERPROFILE: homedir },
+          forceTerminal: true
         });
         await shell.waitForPrompt();
         shell.assertNoErrors();
@@ -467,20 +487,27 @@ describe('e2e', function() {
 
     describe('telemetry toggling', () => {
       it('enableTelemetry() yields a success response', async() => {
-        const result = await shell.executeLine('enableTelemetry()');
-        expect(result).to.match(/Telemetry is now enabled/);
+        await shell.executeLine('enableTelemetry()');
+        await eventually(() => {
+          expect(shell.output).to.include('Telemetry is now enabled');
+        });
         expect((await readConfig()).enableTelemetry).to.equal(true);
       });
       it('disableTelemetry() yields a success response', async() => {
-        const result = await shell.executeLine('disableTelemetry();');
-        expect(result).to.match(/Telemetry is now disabled/);
+        await shell.executeLine('disableTelemetry();');
+        await eventually(() => {
+          expect(shell.output).to.include('Telemetry is now disabled');
+        });
         expect((await readConfig()).enableTelemetry).to.equal(false);
       });
     });
 
     describe('log file', () => {
       it('creates a log file that keeps track of session events', async() => {
-        await shell.executeLine('print(42)');
+        await shell.executeLine('print(123 + 456)');
+        await eventually(() => {
+          expect(shell.output).to.include('579');
+        });
         const log = await readLogfile();
         expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
           .to.have.lengthOf(1);
