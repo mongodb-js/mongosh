@@ -6,12 +6,15 @@ import com.mongodb.mongosh.result.MongoShellResult
 import org.intellij.lang.annotations.Language
 
 class MongoShell(client: MongoClient) {
-    private val context = MongoShellContext(client)
+    private val context = MongoShellContext()
+    private val converter = MongoShellConverter(context)
+    private val evaluator = MongoShellEvaluator(client, context, converter)
+    private val consoleLog = ConsoleLogSupport(context, converter)
 
     fun eval(@Language("js") script: String): MongoShellResult<*> {
         val printedValues = mutableListOf<List<Any?>>()
-        val result = context.withConsoleLogEnabled(printedValues) {
-            context.unwrapPromise(context.eval(script, "user_script"))
+        val result = consoleLog.withConsoleLogEnabled(printedValues) {
+            converter.unwrapPromise(evaluator.eval(script, "user_script"))
         }
         return if (printedValues.isNotEmpty()) {
             // [{"0": <value>, "1": <value>, ...}, {"0": <value>}, ...]
@@ -22,9 +25,9 @@ class MongoShell(client: MongoClient) {
         } else {
             val printable = result.getMember("printable")
             val type = result.getMember("type").toString()
-            context.extract(printable, type)
+            converter.toJava(printable, type)
         }
     }
 
-    fun close() = context.close()
+    fun close() = evaluator.close()
 }
