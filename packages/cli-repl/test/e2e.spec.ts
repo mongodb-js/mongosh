@@ -415,7 +415,13 @@ describe('e2e', function() {
 
     afterEach(async() => {
       await TestShell.killall();
-      await promisify(rimraf)(homedir);
+      try {
+        await promisify(rimraf)(homedir);
+      } catch (err) {
+        // On Windows in CI, this can fail with EPERM for some reason.
+        // If it does, just log the error instead of failing all tests.
+        console.error('Could not remove fake home directory:', err);
+      }
     });
 
     describe('config file', async() => {
