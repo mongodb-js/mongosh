@@ -28,12 +28,12 @@ export default class PlanCache extends ShellApiClass {
   }
 
   @returnsPromise
-  async clear(): Promise<any> {
+  async clear(): Promise<Document> {
     return await this._collection.runCommand('planCacheClear');
   }
 
   @returnsPromise
-  async clearPlansByQuery(query: Document, projection?: Document, sort?: Document): Promise<any> {
+  async clearPlansByQuery(query: Document, projection?: Document, sort?: Document): Promise<Document> {
     const cmd = { query } as any;
     if (projection) {
       cmd.projection = projection;

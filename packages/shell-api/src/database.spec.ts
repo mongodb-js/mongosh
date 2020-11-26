@@ -8,9 +8,10 @@ import Database from './database';
 import Collection from './collection';
 import Mongo from './mongo';
 import {
-  Cursor as ServiceProviderCursor,
+  AggregationCursor as ServiceProviderAggCursor,
   ServiceProvider,
-  bson, ServiceProviderSession
+  bson,
+  ClientSession as ServiceProviderSession
 } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 import crypto from 'crypto';
@@ -221,10 +222,10 @@ describe('Database', () => {
     });
 
     describe('aggregate', () => {
-      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let serviceProviderCursor: StubbedInstance<ServiceProviderAggCursor>;
 
       beforeEach(() => {
-        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
       });
 
       it('calls serviceProvider.aggregateDb with pipleline and options', async() => {
@@ -708,7 +709,7 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.authenticate returns', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.authenticate.resolves(expectedResult);
         const result = await database.auth('anna', 'pwd');
         expect(result).to.deep.equal(expectedResult);
@@ -893,7 +894,7 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.createCollection returns', async() => {
-        const expectedResult = { ok: 1 };
+        const expectedResult = { ok: 1 } as any;
         serviceProvider.createCollection.resolves(expectedResult);
         const result = await database.createCollection('newcoll');
         expect(result).to.deep.equal(expectedResult);

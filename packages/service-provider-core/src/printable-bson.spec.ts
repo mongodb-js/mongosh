@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as bson from 'bson';
+import { bson } from './index';
 import { inspect } from 'util';
 import { makePrintableBson } from './';
 
@@ -9,7 +9,7 @@ describe('BSON printers', function() {
   });
 
   // Enable after https://github.com/mongodb/js-bson/pull/412
-  xit('formats ObjectIDs correctly', function() {
+  xit('formats ObjectIds correctly', function() {
     expect(inspect(new bson.ObjectId('5fa5694f88211043b23c7f11')))
       .to.equal('ObjectId("5fa5694f88211043b23c7f11")');
   });

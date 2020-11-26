@@ -19,7 +19,6 @@ import {
 } from './helpers';
 
 import {
-  Cursor as ServiceProviderCursor,
   Document,
   WriteConcern
 } from '@mongosh/service-provider-core';
@@ -100,7 +99,7 @@ export default class Database extends ShellApiClass {
 
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
 
-  public async _runCommand(cmd: Document, options = {}): Promise<any> {
+  public async _runCommand(cmd: Document, options = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       cmd,
@@ -108,7 +107,7 @@ export default class Database extends ShellApiClass {
     );
   }
 
-  public async _runAdminCommand(cmd: Document, options = {}): Promise<any> {
+  public async _runAdminCommand(cmd: Document, options = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       cmd,
@@ -116,7 +115,7 @@ export default class Database extends ShellApiClass {
     );
   }
 
-  private async _listCollections(filter: Document, options: Document): Promise<string[]> {
+  private async _listCollections(filter: Document, options: Document): Promise<Document[]> {
     return await this._mongo._serviceProvider.listCollections(
       this._name,
       filter,
@@ -124,7 +123,7 @@ export default class Database extends ShellApiClass {
     );
   }
 
-  async _getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<any> {
+  async _getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
     const cmd = { getlasterror: 1 } as any;
     if (w) {
       cmd.w = w;
@@ -177,7 +176,7 @@ export default class Database extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.0.0', ServerVersions.latest])
-  async getCollectionInfos(filter: Document = {}, options: Document = {}): Promise<any> {
+  async getCollectionInfos(filter: Document = {}, options: Document = {}): Promise<Document[]> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
     return await this._listCollections(
       filter,
@@ -190,10 +189,10 @@ export default class Database extends ShellApiClass {
    *
    * @param {Object} cmd - the command spec.
    *
-   * @returns {Promise} The promise of command results. TODO: command result object
+   * @returns {Promise} The promise of command results.
    */
   @returnsPromise
-  async runCommand(cmd: any): Promise<any> {
+  async runCommand(cmd: Document): Promise<Document> {
     assertArgsDefined(cmd);
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
@@ -207,11 +206,11 @@ export default class Database extends ShellApiClass {
    *
    * @param {Object} cmd - the command spec.
    *
-   * @returns {Promise} The promise of command results. TODO: command result object
+   * @returns {Promise} The promise of command results.
    */
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async adminCommand(cmd: any): Promise<any> {
+  async adminCommand(cmd: Document): Promise<Document> {
     assertArgsDefined(cmd);
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
@@ -244,11 +243,11 @@ export default class Database extends ShellApiClass {
       pipeline,
       { ...this._baseOptions, ...aggOptions },
       dbOptions
-    ) as ServiceProviderCursor;
+    );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain('queryPlanner'); // TODO: set default or use optional argument
+      return await cursor.explain('queryPlanner');
     }
 
     this._mongo._internalState.currentCursor = cursor;
@@ -284,7 +283,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async dropDatabase(writeConcern?: WriteConcern): Promise<any> {
+  async dropDatabase(writeConcern?: WriteConcern): Promise<Document> {
     return await this._mongo._serviceProvider.dropDatabase(
       this._name,
       { ...this._baseOptions, writeConcern }
@@ -292,7 +291,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createUser(user: Document, writeConcern?: WriteConcern): Promise<any> {
+  async createUser(user: Document, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(user);
     assertKeysDefined(user, ['user', 'roles', 'pwd']);
     this._emitDatabaseApiCall('createUser', {});
@@ -315,7 +314,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async updateUser(username: string, userDoc: Document, writeConcern?: WriteConcern): Promise<any> {
+  async updateUser(username: string, userDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(username, userDoc);
     this._emitDatabaseApiCall('updateUser', {});
     if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
@@ -340,7 +339,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async changeUserPassword(username: string, password: string, writeConcern?: WriteConcern): Promise<any> {
+  async changeUserPassword(username: string, password: string, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(username, password);
     this._emitDatabaseApiCall('changeUserPassword', {});
     const command = adaptOptions(
@@ -362,13 +361,13 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async logout(): Promise<any> {
+  async logout(): Promise<Document> {
     this._emitDatabaseApiCall('logout', {});
     return await this._runCommand({ logout: 1 });
   }
 
   @returnsPromise
-  async dropUser(username: string, writeConcern?: WriteConcern): Promise<any> {
+  async dropUser(username: string, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(username);
     this._emitDatabaseApiCall('dropUser', {});
     const cmd = { dropUser: username } as Document;
@@ -379,7 +378,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async dropAllUsers(writeConcern?: WriteConcern): Promise<any> {
+  async dropAllUsers(writeConcern?: WriteConcern): Promise<Document> {
     this._emitDatabaseApiCall('dropAllUsers', {});
     const cmd = { dropAllUsersFromDatabase: 1 } as Document;
     if (writeConcern) {
@@ -389,7 +388,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async auth(...args: [{user: string, pwd: string, authDb?: string, mechanism?: string}] | [string, string]): Promise<any> {
+  async auth(...args: [{user: string, pwd: string, authDb?: string, mechanism?: string}] | [string, string]): Promise<{ ok: number }> {
     this._emitDatabaseApiCall('auth', {});
     let authDoc;
     if (args.length === 1) {
@@ -413,7 +412,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async grantRolesToUser(username: string, roles: any, writeConcern?: WriteConcern): Promise<any> {
+  async grantRolesToUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('grantRolesToUser', {});
     const cmd = { grantRolesToUser: username, roles: roles } as Document;
@@ -424,7 +423,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async revokeRolesFromUser(username: string, roles: any, writeConcern?: WriteConcern): Promise<any> {
+  async revokeRolesFromUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(username, roles);
     this._emitDatabaseApiCall('revokeRolesFromUser', {});
     const cmd = { revokeRolesFromUser: username, roles: roles } as Document;
@@ -435,7 +434,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getUser(username: string, options: Document = {}): Promise<any> {
+  async getUser(username: string, options: Document = {}): Promise<Document | null> {
     assertArgsDefined(username);
     this._emitDatabaseApiCall('getUser', { username: username });
     const command = adaptOptions(
@@ -443,9 +442,10 @@ export default class Database extends ShellApiClass {
       { usersInfo: { user: username, db: this._name } },
       options
     );
-    const result: {
-      users: any[]
-    } = await this._runCommand(command);
+    const result = await this._runCommand(command);
+    if (result.users === undefined) {
+      throw new MongoshInternalError('No users were returned from the userInfo command');
+    }
     for (let i = 0; i < result.users.length; i++) {
       if (result.users[i].user === username) {
         return result.users[i];
@@ -455,7 +455,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getUsers(options: any = {}): Promise<any> {
+  async getUsers(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getUsers', { options: options });
     const command = adaptOptions(
       { },
@@ -468,7 +468,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createCollection(name: string, options: any = {}): Promise<any> {
+  async createCollection(name: string, options: Document = {}): Promise<{ ok: number }> {
     assertArgsDefined(name);
     this._emitDatabaseApiCall('createCollection', { name: name, options: options });
     return await this._mongo._serviceProvider.createCollection(
@@ -479,14 +479,14 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createView(name: string, source: string, pipeline: any, options: any = {}): Promise<any> {
+  async createView(name: string, source: string, pipeline: Document[], options: Document = {}): Promise<{ ok: number }> {
     assertArgsDefined(name, source, pipeline);
     this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
     const ccOpts = {
       ...this._baseOptions,
       viewOn: source,
       pipeline: pipeline
-    } as any;
+    } as Document;
     if (options.collation) {
       ccOpts.collation = options.collation;
     }
@@ -498,7 +498,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createRole(role: Document, writeConcern?: WriteConcern): Promise<any> {
+  async createRole(role: Document, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(role);
     assertKeysDefined(role, ['role', 'privileges', 'roles']);
     this._emitDatabaseApiCall('createRole', {});
@@ -520,7 +520,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async updateRole(rolename: string, roleDoc: Document, writeConcern?: WriteConcern): Promise<any> {
+  async updateRole(rolename: string, roleDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename, roleDoc);
     this._emitDatabaseApiCall('updateRole', {});
     const command = adaptOptions(
@@ -540,7 +540,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async dropRole(rolename: string, writeConcern?: WriteConcern): Promise<any> {
+  async dropRole(rolename: string, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename);
     this._emitDatabaseApiCall('dropRole', {});
     const cmd = { dropRole: rolename } as Document;
@@ -551,7 +551,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async dropAllRoles(writeConcern?: WriteConcern): Promise<any> {
+  async dropAllRoles(writeConcern?: WriteConcern): Promise<Document> {
     this._emitDatabaseApiCall('dropAllRoles', {});
     const cmd = { dropAllRolesFromDatabase: 1 } as Document;
     if (writeConcern) {
@@ -561,7 +561,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async grantRolesToRole(rolename: string, roles: any, writeConcern?: WriteConcern): Promise<any> {
+  async grantRolesToRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('grantRolesToRole', {});
     const cmd = { grantRolesToRole: rolename, roles: roles } as Document;
@@ -572,7 +572,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async revokeRolesFromRole(rolename: string, roles: any, writeConcern?: WriteConcern): Promise<any> {
+  async revokeRolesFromRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename, roles);
     this._emitDatabaseApiCall('revokeRolesFromRole', {});
     const cmd = { revokeRolesFromRole: rolename, roles: roles } as Document;
@@ -583,7 +583,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async grantPrivilegesToRole(rolename: string, privileges: any, writeConcern?: WriteConcern): Promise<any> {
+  async grantPrivilegesToRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('grantPrivilegesToRole', {});
     const cmd = { grantPrivilegesToRole: rolename, privileges: privileges } as Document;
@@ -594,7 +594,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async revokePrivilegesFromRole(rolename: string, privileges: any, writeConcern?: WriteConcern): Promise<any> {
+  async revokePrivilegesFromRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(rolename, privileges);
     this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
     const cmd = { revokePrivilegesFromRole: rolename, privileges: privileges } as Document;
@@ -606,7 +606,7 @@ export default class Database extends ShellApiClass {
 
 
   @returnsPromise
-  async getRole(rolename: string, options: Document = {}): Promise<any> {
+  async getRole(rolename: string, options: Document = {}): Promise<Document | null> {
     assertArgsDefined(rolename);
     this._emitDatabaseApiCall('getRole', { rolename: rolename });
     const command = adaptOptions(
@@ -614,11 +614,12 @@ export default class Database extends ShellApiClass {
       { rolesInfo: { role: rolename, db: this._name } },
       options
     );
-    const result: {
-      roles: any[];
-    } = await this._runCommand(
+    const result = await this._runCommand(
       command
     );
+    if (result.roles === undefined) {
+      throw new MongoshInternalError('No roles returned from rolesInfo command');
+    }
     for (let i = 0; i < result.roles.length; i++) {
       if (result.roles[i].role === rolename) {
         return result.roles[i];
@@ -628,7 +629,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getRoles(options: any = {}): Promise<any> {
+  async getRoles(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getRoles', { options: options });
     const command = adaptOptions(
       { },
@@ -641,7 +642,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async currentOp(opts: any = {}): Promise<any> {
+  async currentOp(opts: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
     return await this._runAdminCommand(
       {
@@ -652,7 +653,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async killOp(opId: number): Promise<any> {
+  async killOp(opId: number): Promise<Document> {
     assertArgsDefined(opId);
     this._emitDatabaseApiCall('killOp', { opId });
     return await this._runAdminCommand(
@@ -664,7 +665,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async shutdownServer(opts: any = {}): Promise<any> {
+  async shutdownServer(opts: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('shutdownServer', { opts: opts });
     return await this._runAdminCommand(
       {
@@ -675,7 +676,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async fsyncLock(): Promise<any> {
+  async fsyncLock(): Promise<Document> {
     this._emitDatabaseApiCall('fsyncLock', {});
     return await this._runAdminCommand(
       {
@@ -686,7 +687,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async fsyncUnlock(): Promise<any> {
+  async fsyncUnlock(): Promise<Document> {
     this._emitDatabaseApiCall('fsyncUnlock', {});
     return await this._runAdminCommand(
       {
@@ -696,9 +697,9 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async version(): Promise<any> {
+  async version(): Promise<Document> {
     this._emitDatabaseApiCall('version', {});
-    const info: any = await this._runAdminCommand(
+    const info: Document = await this._runAdminCommand(
       {
         buildInfo: 1,
       }
@@ -710,9 +711,9 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async serverBits(): Promise<any> {
+  async serverBits(): Promise<Document> {
     this._emitDatabaseApiCall('serverBits', {});
-    const info: any = await this._runAdminCommand(
+    const info: Document = await this._runAdminCommand(
       {
         buildInfo: 1,
       }
@@ -724,7 +725,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async isMaster(): Promise<any> {
+  async isMaster(): Promise<Document> {
     this._emitDatabaseApiCall('isMaster', {});
     return await this._runCommand(
       {
@@ -734,7 +735,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async serverBuildInfo(): Promise<any> {
+  async serverBuildInfo(): Promise<Document> {
     this._emitDatabaseApiCall('serverBuildInfo', {});
     return await this._runAdminCommand(
       {
@@ -744,7 +745,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async serverStatus(opts = {}): Promise<any> {
+  async serverStatus(opts = {}): Promise<Document> {
     this._emitDatabaseApiCall('serverStatus', { options: opts });
     return await this._runAdminCommand(
       {
@@ -754,7 +755,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async stats(scale = 1): Promise<any> {
+  async stats(scale = 1): Promise<Document> {
     this._emitDatabaseApiCall('stats', { scale: scale });
     return await this._runAdminCommand(
       {
@@ -765,7 +766,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async hostInfo(): Promise<any> {
+  async hostInfo(): Promise<Document> {
     this._emitDatabaseApiCall('hostInfo', {});
     return await this._runAdminCommand(
       {
@@ -775,7 +776,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async serverCmdLineOpts(): Promise<any> {
+  async serverCmdLineOpts(): Promise<Document> {
     this._emitDatabaseApiCall('serverCmdLineOpts', {});
     return await this._runAdminCommand(
       {
@@ -785,7 +786,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async printCollectionStats(scale = 1): Promise<any> {
+  async printCollectionStats(scale = 1): Promise<Document> {
     if (typeof scale !== 'number' || scale < 1) {
       throw new MongoshInvalidInputError(`scale has to be a number >=1, got ${scale}`);
     }
@@ -803,7 +804,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getFreeMonitoringStatus(): Promise<any> {
+  async getFreeMonitoringStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getFreeMonitoringStatus', {});
     return await this._runAdminCommand(
       {
@@ -813,7 +814,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async disableFreeMonitoring(): Promise<any> {
+  async disableFreeMonitoring(): Promise<Document> {
     this._emitDatabaseApiCall('disableFreeMonitoring', {});
     return await this._runAdminCommand(
       {
@@ -824,9 +825,9 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async enableFreeMonitoring(): Promise<any> {
+  async enableFreeMonitoring(): Promise<Document | string> {
     this._emitDatabaseApiCall('enableFreeMonitoring', {});
-    const isMaster: any = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 }, this._baseOptions);
+    const isMaster = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 }, this._baseOptions);
     if (!isMaster.ismaster) {
       throw new MongoshInvalidInputError('db.enableFreeMonitoring() may only be run on a primary');
     }
@@ -857,7 +858,7 @@ export default class Database extends ShellApiClass {
       throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`);
     }
     if (result.state !== 'enabled') {
-      const urlResult: any = await this._mongo._serviceProvider.runCommand(
+      const urlResult = await this._mongo._serviceProvider.runCommand(
         ADMIN_DB,
         {
           getParameter: 1,
@@ -871,7 +872,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getProfilingStatus(): Promise<any> {
+  async getProfilingStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getProfilingStatus', {});
     return await this._runCommand(
       {
@@ -881,7 +882,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async setProfilingLevel(level: number, opts: any = {}): Promise<any> {
+  async setProfilingLevel(level: number, opts: number | Document = {}): Promise<Document> {
     assertArgsDefined(level);
     if (level < 0 || level > 2) {
       throw new MongoshInvalidInputError(`Input level ${level} is out of range [0..2]`);
@@ -899,7 +900,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async setLogLevel(logLevel: number, component?: any): Promise<any> {
+  async setLogLevel(logLevel: number, component?: Document | string): Promise<Document> {
     assertArgsDefined(logLevel);
     this._emitDatabaseApiCall('setLogLevel', { logLevel: logLevel, component: component });
     let componentNames: string[] = [];
@@ -918,25 +919,15 @@ export default class Database extends ShellApiClass {
 
     const cmdObj = { setParameter: 1, logComponentVerbosity: vDoc };
 
-    // TODO: when we implement sessions
-    // if (driverSession._isExplicit || !jsTest.options().disableImplicitSessions) {
-    //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
-    // }
-
     return await this._runAdminCommand(
       cmdObj
     );
   }
 
   @returnsPromise
-  async getLogComponents(): Promise<any> {
+  async getLogComponents(): Promise<Document> {
     this._emitDatabaseApiCall('getLogComponents', {});
     const cmdObj = { getParameter: 1, logComponentVerbosity: 1 };
-
-    // TODO: when we implement sessions
-    // if (driverSession._isExplicit || !jsTest.options().disableImplicitSessions) {
-    //   cmdObj = driverSession._serverSession.injectSessionId(cmdObj);
-    // }
 
     const result = await this._runAdminCommand(
       cmdObj
@@ -962,7 +953,7 @@ export default class Database extends ShellApiClass {
       '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
 
-  async commandHelp(name: string): Promise<any> {
+  async commandHelp(name: string): Promise<Document> {
     assertArgsDefined(name);
     this._emitDatabaseApiCall('commandHelp', { name: name });
     const command = {} as any;
@@ -979,7 +970,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async listCommands(): Promise<any> {
+  async listCommands(): Promise<CommandResult> {
     this._emitDatabaseApiCall('listCommands', {});
     const result = await this._runCommand(
       {
@@ -993,27 +984,27 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<any> {
+  async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
     this._emitDatabaseApiCall('getLastErrorObj', { w: w, wTimeout: wTimeout, j: j });
     return await this._getLastErrorObj(w, wTimeout, j);
   }
 
   @returnsPromise
-  async getLastError(w?: number|string, wTimeout?: number): Promise<any> {
+  async getLastError(w?: number|string, wTimeout?: number): Promise<Document | null> {
     this._emitDatabaseApiCall('getLastError', { w: w, wTimeout: wTimeout });
     const result = await this._getLastErrorObj(w, wTimeout);
     return result.err || null;
   }
 
   @returnsPromise
-  async printShardingStatus(verbose = false): Promise<any> {
+  async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(this, verbose);
     return new CommandResult('StatsResult', result);
   }
 
   @returnsPromise
-  async printSecondaryReplicationInfo(): Promise<any> {
+  async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
     const local = this.getSiblingDB('local');
     const admin = this.getSiblingDB(ADMIN_DB);
@@ -1078,10 +1069,10 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async getReplicationInfo(): Promise<any> {
+  async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
 
-    const result = {} as any;
+    const result = {} as Document;
     let oplog;
     const localCollections = await localdb.getCollectionNames();
     if (localCollections.indexOf('oplog.rs') >= 0) {
@@ -1102,14 +1093,18 @@ export default class Database extends ShellApiClass {
     result.usedMB = olStats.size / (1024 * 1024);
     result.usedMB = Math.ceil(result.usedMB * 100) / 100;
 
-    const firstc = ol.find().sort({ $natural: 1 }).limit(1);
-    const lastc = ol.find().sort({ $natural: -1 }).limit(1);
+    // TODO: NODE 4.0 upgrade, see NODE-2919
+    const firstc = ol.find().sort({ $natural: 1 }); // .limit(1);
+    const lastc = ol.find().sort({ $natural: -1 }); // .limit(1);
     if (!(await firstc.hasNext()) || !(await lastc.hasNext())) {
-      throw new MongoshRuntimeError('objects not found in local.oplog.$main -- is this a new and empty db instance?');
+      throw new MongoshRuntimeError('documents not found in local.oplog.$main -- is this a new and empty db instance?');
     }
 
     const first = await firstc.next();
     const last = await lastc.next();
+    if (first === null || last === null) {
+      throw new MongoshRuntimeError('documents not found in local.oplog.$main -- is this a new and empty db instance?');
+    }
     let tfirst = first.ts;
     let tlast = last.ts;
 
@@ -1141,7 +1136,7 @@ export default class Database extends ShellApiClass {
         const secondaryInfo = await this.printSecondaryReplicationInfo();
         return new CommandResult('StatsResult', {
           message: 'this is a secondary, printing secondary replication info.',
-          ...secondaryInfo.value
+          ...secondaryInfo.value as any
         });
       }
       throw error;

@@ -7,8 +7,9 @@ import {
   ShellApiClass,
   toShellResult
 } from './decorators';
-import {
-  Cursor as ServiceProviderCursor,
+import type {
+  AggregationCursor as ServiceProviderAggregationCursor,
+  ExplainVerbosityLike,
   Document
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
@@ -18,9 +19,9 @@ import { asPrintable } from './enums';
 @hasAsyncChild
 export default class AggregationCursor extends ShellApiClass {
   _mongo: Mongo;
-  _cursor: ServiceProviderCursor;
+  _cursor: ServiceProviderAggregationCursor;
   _currentIterationResult: CursorIterationResult | null = null;
-  constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
+  constructor(mongo: Mongo, cursor: ServiceProviderAggregationCursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
@@ -63,15 +64,22 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnsPromise
   hasNext(): Promise<boolean> {
+    // TODO: Node 4.0 Upgrade. Will warn user and suggest tryNext instead see NODE-2917.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return this._cursor.hasNext();
   }
 
+  // tryNext(): Promise<boolean> {
+  // TODO: Node 4.0 Upgrade. See NODE-2917.
+  // }
+
   isClosed(): boolean {
-    return this._cursor.isClosed();
+    return this._cursor.closed;
   }
 
   async isExhausted(): Promise<boolean> {
-    return this._cursor.isClosed() && !await this._cursor.hasNext();
+    return this.isClosed() && !await this.hasNext();
   }
 
   @returnsPromise
@@ -93,7 +101,7 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  next(): Promise<any> {
+  next(): Promise<Document | null> {
     return this._cursor.next();
   }
 
@@ -103,7 +111,7 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  explain(verbosity: string): Promise<any> {
+  explain(verbosity: ExplainVerbosityLike): Promise<any> {
     return this._cursor.explain(verbosity);
   }
 

@@ -112,7 +112,7 @@ describe('e2e', function() {
 
       client = await (MongoClient as any).connect(
         connectionString,
-        { useNewUrlParser: true, useUnifiedTopology: true }
+        { useNewUrlParser: true }
       );
 
       db = client.db(dbName);

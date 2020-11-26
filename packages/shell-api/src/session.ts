@@ -6,7 +6,16 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { Document, ReplPlatform, ServiceProviderSession, SessionOptions, TransactionOptions } from '@mongosh/service-provider-core';
+import {
+  Document,
+  ReplPlatform,
+  ClientSessionOptions,
+  ClientSession,
+  TransactionOptions,
+  ClusterTime,
+  TimestampType,
+  ServerSessionId
+} from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
 import Database from './database';
@@ -18,13 +27,13 @@ import { assertArgsDefined, assertArgsType } from './helpers';
 @classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Session extends ShellApiClass {
-  public id: Document;
-  public _session: ServiceProviderSession;
-  public _options: SessionOptions;
+  public id: ServerSessionId | undefined;
+  public _session: ClientSession;
+  public _options: ClientSessionOptions;
   private _mongo: Mongo;
   private _databases: Record<string, Database>;
 
-  constructor(mongo: Mongo, options: SessionOptions, session: ServiceProviderSession) {
+  constructor(mongo: Mongo, options: ClientSessionOptions, session: ClientSession) {
     super();
     this._session = session;
     this._options = options;
@@ -36,7 +45,7 @@ export default class Session extends ShellApiClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  [asPrintable](): Document {
+  [asPrintable](): ServerSessionId | undefined {
     return this._session.id;
   }
 
@@ -54,7 +63,7 @@ export default class Session extends ShellApiClass {
     return this._databases[name];
   }
 
-  advanceOperationTime(ts: any): void {
+  advanceOperationTime(ts: TimestampType): void {
     this._session.advanceOperationTime(ts);
   }
 
@@ -71,15 +80,15 @@ export default class Session extends ShellApiClass {
     return this._session.hasEnded;
   }
 
-  getClusterTime(): any {
+  getClusterTime(): ClusterTime | undefined {
     return this._session.clusterTime;
   }
 
-  getOperationTime(): any {
+  getOperationTime(): TimestampType | undefined {
     return this._session.operationTime;
   }
 
-  getOptions(): SessionOptions {
+  getOptions(): ClientSessionOptions {
     return this._options;
   }
 
@@ -88,12 +97,12 @@ export default class Session extends ShellApiClass {
   }
 
   @returnsPromise
-  async commitTransaction(): Promise<void> {
+  async commitTransaction(): Promise<Document> {
     return await this._session.commitTransaction();
   }
 
   @returnsPromise
-  async abortTransaction(): Promise<void> {
+  async abortTransaction(): Promise<Document> {
     return await this._session.abortTransaction();
   }
 }

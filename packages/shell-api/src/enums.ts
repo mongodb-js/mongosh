@@ -15,18 +15,19 @@ export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.lat
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
 export const ALL_PLATFORMS = [ ReplPlatform.Compass, ReplPlatform.Browser, ReplPlatform.CLI ];
 
-export enum DBQueryOption {
-  tailable = 2,
-  slaveOk = 4,
-  oplogReplay = 8,
-  noTimeout = 16,
-  awaitData = 32,
-  exhaust = 64,
-  partial = 128
-}
+export const CURSOR_FLAGS = {
+  2: 'tailable',
+  4: 'SlaveOk',
+  8: 'oplogReplay',
+  16: 'noTimeout',
+  32: 'awaitData',
+  64: 'exhaust',
+  128: 'partial'
+};
 
 export const shellApiType = Symbol.for('@@mongosh.shellApiType');
 export const asPrintable = Symbol.for('@@mongosh.asPrintable');
 export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
+export const shellSession = Symbol.for('@@mongosh.shellSession');
 
 export const ADMIN_DB = 'admin';

@@ -125,7 +125,7 @@ describe('completer.completer', () => {
     it('returns all suggestions', () => {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
-      const adjusted = collComplete.filter(c => !['count', 'update', 'save', 'remove'].includes(c)).map(c => `${i}${c}`);
+      const adjusted = collComplete.filter(c => !['count', 'update', 'remove'].includes(c)).map(c => `${i}${c}`);
 
       expect(completer('4.4.0', i)).to.deep.equal([adjusted, i]);
     });
@@ -284,11 +284,9 @@ describe('completer.completer', () => {
       const result = [
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
-        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).collation',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).comment',
-        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
@@ -300,6 +298,7 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).map',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).max',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxTimeMS',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).maxAwaitTimeMS',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).min',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).next',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).noCursorTimeout',
@@ -312,6 +311,10 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).sort',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).tailable',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).toArray',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).pretty',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).showRecordId',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).objsLeftInBatch',
+        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).readConcern',
       ];
 
       expect(completer('4.4.0', i)[0]).to.include.members(result);
@@ -324,7 +327,6 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).addOption',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
-        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).clone',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
@@ -362,7 +364,6 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).cl';
       expect(completer('4.4.0', i)).to.deep.equal([
         [
-          'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).clone',
           'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).close'
         ], i]);
     });

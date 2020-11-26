@@ -16,9 +16,15 @@ import {
   validateExplainableVerbosity,
   assertArgsDefined,
   assertKeysDefined,
-  dataFormat
+  dataFormat, assertArgsType
 } from './helpers';
-import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
+import {
+  DbOptions,
+  Document,
+  AnyBulkWriteOperation,
+  ExplainVerbosityLike,
+  FindOptions
+} from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
   Cursor,
@@ -133,7 +139,7 @@ export default class Collection extends ShellApiClass {
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain('queryPlanner'); // TODO: set default or use optional argument
+      return await cursor.explain('queryPlanner');
     }
 
     this._mongo._internalState.currentCursor = cursor;
@@ -155,11 +161,11 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async bulkWrite(
-    operations: Document,
+    operations: AnyBulkWriteOperation[],
     options: Document = {}
   ): Promise<BulkWriteResult> {
     assertArgsDefined(options);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall(
       'bulkWrite',
       { options }
@@ -202,8 +208,8 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '4.0.0'])
-  async count(query = {}, options: any = {}): Promise<number> {
-    const dbOpts: any = {};
+  async count(query = {}, options: Document = {}): Promise<number> {
+    const dbOpts: Document = {};
     this._emitCollectionApiCall(
       'count',
       { query, options }
@@ -258,7 +264,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async deleteMany(filter: Document, options: Document = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('deleteMany', { filter, options });
 
     if ('writeConcern' in options) {
@@ -294,7 +300,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async deleteOne(filter: Document, options: Document = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('deleteOne', { filter, options });
 
     if ('writeConcern' in options) {
@@ -327,7 +333,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Array} The promise of the result.
    */
   @returnsPromise
-  async distinct(field: string, query: Document, options: Document = {}): Promise<any> {
+  async distinct(field: string, query: Document, options: Document = {}): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
     return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, { ...this._database._baseOptions, ...options });
   }
@@ -360,7 +366,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnType('Cursor')
   find(query?: Document, projection?: Document): Cursor {
-    const options: any = {};
+    const options: FindOptions = {};
     if (projection) {
       options.projection = projection;
     }
@@ -380,8 +386,8 @@ export default class Collection extends ShellApiClass {
     options: {
       query?: Document;
       sort?: Document | Document[];
-      remove?: boolean;
       update?: Document | Document[];
+      remove?: boolean;
       new?: boolean;
       fields?: Document;
       upsert?: boolean;
@@ -390,7 +396,7 @@ export default class Collection extends ShellApiClass {
       collation?: Document;
       arrayFilters?: Document[];
     } = {}
-  ): Promise<any> {
+  ): Promise<Document> {
     assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall(
       'findAndModify',
@@ -411,7 +417,7 @@ export default class Collection extends ShellApiClass {
       options.query || {},
       options.sort,
       options.update,
-      providerOptions
+      providerOptions as any // required because of the weird way providerOptions is constructed
     );
 
     return result.value;
@@ -429,7 +435,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @returnType('Document')
-  async findOne(query: Document = {}, projection?: Document): Promise<Document> {
+  async findOne(query: Document = {}, projection?: Document): Promise<Document | null> {
     const options: any = {};
     if (projection) {
       options.projection = projection;
@@ -446,11 +452,9 @@ export default class Collection extends ShellApiClass {
   async renameCollection(
     newName: string,
     dropTarget?: boolean
-  ): Promise<any> {
+  ): Promise<Document> {
     assertArgsDefined(newName);
-    if (typeof newName !== 'string') {
-      throw new MongoshInvalidInputError('The "newName" argument must be a string.');
-    }
+    assertArgsType([newName], ['string']);
     this._emitCollectionApiCall('renameCollection', { newName, dropTarget });
 
     try {
@@ -520,9 +524,9 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndReplace(filter: Document, replacement: Document, options: Document = {}): Promise<any> {
+  async findOneAndReplace(filter: Document, replacement: Document, options: Document = {}): Promise<Document> {
     assertArgsDefined(filter);
-    const findOneAndReplaceOptions: any = { ...this._database._baseOptions, ...options };
+    const findOneAndReplaceOptions = { ...this._database._baseOptions, ...options };
 
     if ('returnNewDocument' in findOneAndReplaceOptions) {
       findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
@@ -556,9 +560,9 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndUpdate(filter: Document, update: Document, options: Document = {}): Promise<any> {
+  async findOneAndUpdate(filter: Document, update: Document, options: Document = {}): Promise<Document> {
     assertArgsDefined(filter);
-    const findOneAndUpdateOptions: any = { ...this._database._baseOptions, ...options };
+    const findOneAndUpdateOptions = { ...this._database._baseOptions, ...options };
 
     if ('returnNewDocument' in findOneAndUpdateOptions) {
       findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
@@ -595,7 +599,7 @@ export default class Collection extends ShellApiClass {
     );
     assertArgsDefined(docs);
     const d: Document[] = Array.isArray(docs) ? docs : [docs];
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
 
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
@@ -633,7 +637,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertMany(docs: Document[], options: Document = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
 
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
@@ -671,7 +675,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertOne(doc: Document, options: Document = {}): Promise<InsertOneResult> {
     assertArgsDefined(doc);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
 
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
@@ -687,7 +691,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertOneResult(
-      !!result.result.ok,
+      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
       result.insertedId
     );
   }
@@ -717,16 +721,15 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  remove(query: Document, options: Document = {}): Promise<any> {
+  async remove(query: Document, options: boolean | Document = {}): Promise<DeleteResult> {
     printDeprecationWarning(
       'Collection.remove() is deprecated. Use deleteOne, deleteMany or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(query);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
 
-
-    if ('writeConcern' in options) {
+    if (typeof options !== 'boolean' && 'writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
     }
 
@@ -738,31 +741,22 @@ export default class Collection extends ShellApiClass {
     }
 
     this._emitCollectionApiCall('remove', { query, removeOptions });
-    return this._mongo._serviceProvider.remove(
+    const result = await this._mongo._serviceProvider.remove(
       this._database._name,
       this._name,
       query,
       { ...this._database._baseOptions, ...removeOptions },
       dbOptions
     );
+    return new DeleteResult(
+      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
+      result.deletedCount
+    );
   }
 
   @returnsPromise
-  @serverVersions([ServerVersions.earliest, '4.0.0'])
-  save(doc: Document, options: Document = {}): Promise<any> {
-    printDeprecationWarning(
-      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne or updateMany.',
-      this._mongo._internalState.context.print
-    );
-    assertArgsDefined(doc);
-    const dbOptions: DatabaseOptions = {};
-
-    this._emitCollectionApiCall('save', { options });
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
-
-    return this._mongo._serviceProvider.save(this._database._name, this._name, doc, { ...this._database._baseOptions, ...options }, dbOptions);
+  save(): Promise<void> {
+    throw new MongoshInvalidInputError('Collection.save() is deprecated. Use insertOne, insertMany, updateOne or updateMany.');
   }
 
   /**
@@ -784,7 +778,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async replaceOne(filter: Document, replacement: Document, options: Document = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
 
     this._emitCollectionApiCall('replaceOne', { filter, options });
     if ('writeConcern' in options) {
@@ -861,7 +855,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async updateMany(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('updateMany', { filter, options });
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
@@ -905,7 +899,7 @@ export default class Collection extends ShellApiClass {
     options: Document = {}
   ): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DatabaseOptions = {};
+    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('updateOne', { filter, options });
     if ('writeConcern' in options) {
       Object.assign(dbOptions, options.writeConcern);
@@ -936,7 +930,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async convertToCapped(size: number): Promise<any> {
+  async convertToCapped(size: number): Promise<Document> {
     this._emitCollectionApiCall('convertToCapped', { size });
     return await this._mongo._serviceProvider.convertToCapped(
       this._database._name,
@@ -961,7 +955,7 @@ export default class Collection extends ShellApiClass {
   async createIndexes(
     keyPatterns: Document[],
     options: Document = {}
-  ): Promise<any> {
+  ): Promise<Document> {
     assertArgsDefined(keyPatterns);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
@@ -991,7 +985,7 @@ export default class Collection extends ShellApiClass {
   async createIndex(
     keys: Document,
     options: Document = {}
-  ): Promise<any> {
+  ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
@@ -1017,7 +1011,7 @@ export default class Collection extends ShellApiClass {
   async ensureIndex(
     keys: Document,
     options: Document = {}
-  ): Promise<any> {
+  ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError('The "options" argument must be an object.');
@@ -1036,7 +1030,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async getIndexes(): Promise<any[]> {
+  async getIndexes(): Promise<Document[]> {
     this._emitCollectionApiCall('getIndexes');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
@@ -1049,7 +1043,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async getIndexSpecs(): Promise<any[]> {
+  async getIndexSpecs(): Promise<Document[]> {
     this._emitCollectionApiCall('getIndexSpecs');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
@@ -1061,7 +1055,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async getIndices(): Promise<any[]> {
+  async getIndices(): Promise<Document[]> {
     this._emitCollectionApiCall('getIndices');
     return await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
   }
@@ -1073,7 +1067,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async getIndexKeys(): Promise<any> {
+  async getIndexKeys(): Promise<Document[]> {
     this._emitCollectionApiCall('getIndexKeys');
     const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, this._database._baseOptions);
     return indexes.map(i => i.key);
@@ -1087,7 +1081,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async dropIndexes(indexes: string|string[]|Document|Document[]): Promise<any> {
+  async dropIndexes(indexes: string|string[]|Document|Document[]): Promise<Document> {
     assertArgsDefined(indexes);
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
@@ -1113,7 +1107,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async dropIndex(index: string|Document): Promise<any> {
+  async dropIndex(index: string|Document): Promise<Document> {
     assertArgsDefined(index);
     this._emitCollectionApiCall('dropIndex', { index });
     if (index === '*') {
@@ -1146,7 +1140,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async totalIndexSize(...args: any[]): Promise<any> {
+  async totalIndexSize(...args: any[]): Promise<number> {
     this._emitCollectionApiCall('totalIndexSize');
     if (args.length) {
       throw new MongoshInvalidInputError(
@@ -1164,7 +1158,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async reIndex(): Promise<any> {
+  async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
     return await this._mongo._serviceProvider.reIndex(this._database._name, this._name, this._database._baseOptions);
   }
@@ -1264,7 +1258,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise} returns Promise
    */
   @returnsPromise
-  async exists(): Promise<any> {
+  async exists(): Promise<Document> {
     this._emitCollectionApiCall('exists');
     const collectionInfos = await this._mongo._serviceProvider.listCollections(
       this._database._name,
@@ -1288,10 +1282,8 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async runCommand(commandName: string, options?: Document): Promise<any> {
-    if (typeof commandName !== 'string') {
-      throw new MongoshInvalidInputError('The "commandName" argument must be a string.');
-    }
+  async runCommand(commandName: string, options?: Document): Promise<Document> {
+    assertArgsType([commandName], ['string']);
 
     if (options && commandName in options) {
       throw new MongoshInvalidInputError('The "commandName" argument cannot be passed as an option to "runCommand".');
@@ -1313,7 +1305,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnType('Explainable')
-  explain(verbosity = 'queryPlanner'): Explainable {
+  explain(verbosity = 'queryPlanner' as ExplainVerbosityLike): Explainable {
     validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
     return new Explainable(this._mongo, this, verbosity);
@@ -1435,7 +1427,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: Document | string): Promise<any> {
+  async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: Document | string): Promise<Document> {
     assertArgsDefined(map, reduce, optionsOrOutString);
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
 
@@ -1443,7 +1435,7 @@ export default class Collection extends ShellApiClass {
       mapReduce: this._name,
       map: map,
       reduce: reduce
-    } as any;
+    } as Document;
 
     if (typeof optionsOrOutString === 'string') {
       cmd.out = optionsOrOutString;
@@ -1461,7 +1453,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async validate(full = false): Promise<any> {
+  async validate(full = false): Promise<Document> {
     this._emitCollectionApiCall('validate', { full });
     return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
@@ -1474,7 +1466,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async getShardVersion(): Promise<any> {
+  async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
     return await this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
@@ -1486,10 +1478,10 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async getShardDistribution(): Promise<any> {
+  async getShardDistribution(): Promise<CommandResult> {
     this._emitCollectionApiCall('getShardDistribution', {});
 
-    const result = {} as any;
+    const result = {} as Document;
     const config = this._mongo.getDB('config');
 
     const isSharded = !!(await config.getCollection('collections').countDocuments({
@@ -1515,9 +1507,10 @@ export default class Collection extends ShellApiClass {
     await Promise.all(collStats.map((extShardStats) => (
       (async(): Promise<void> => {
         // Extract and store only the relevant subset of the stats for this shard
+        const host = await config.getCollection('shards').findOne({ _id: extShardStats.shard });
         const shardStats = {
           shardId: extShardStats.shard,
-          host: (await config.getCollection('shards').findOne({ _id: extShardStats.shard })).host,
+          host: host !== null ? host.host : null,
           size: extShardStats.storageStats.size,
           count: extShardStats.storageStats.count,
           numChunks:
@@ -1553,7 +1546,7 @@ export default class Collection extends ShellApiClass {
       data: dataFormat(totals.size),
       docs: totals.count,
       chunks: totals.numChunks
-    } as any;
+    } as Document;
 
     // for (const shardStats of conciseShardsStats) {
     await Promise.all(conciseShardsStats.map((shardStats) => (

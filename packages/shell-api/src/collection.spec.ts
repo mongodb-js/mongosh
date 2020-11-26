@@ -9,11 +9,13 @@ import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
 import Explainable from './explainable';
 import {
-  Cursor as ServiceProviderCursor,
+  FindCursor as ServiceProviderCursor,
+  AggregationCursor as ServiceProviderAggregationCursor,
   ServiceProvider,
   bson,
-  ServiceProviderSession
+  ClientSession as ServiceProviderSession
 } from '@mongosh/service-provider-core';
+import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
 
 const sinonChai = require('sinon-chai'); // weird with import
@@ -117,10 +119,10 @@ describe('Collection', () => {
       collection = new Collection(mongo, database, 'coll1');
     });
     describe('aggregate', () => {
-      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
 
       beforeEach(() => {
-        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor = stubInterface<ServiceProviderAggregationCursor>();
       });
 
       it('calls serviceProvider.aggregate with pipeline and no options', async() => {
@@ -197,7 +199,7 @@ describe('Collection', () => {
       });
 
       it('pass readConcern and writeConcern as dbOption', async() => {
-        collection.aggregate(
+        await collection.aggregate(
           [],
           { otherOption: true, readConcern: { level: 'majority' }, writeConcern: { w: 1 } }
         );
@@ -261,6 +263,8 @@ describe('Collection', () => {
       });
 
       it('adapts the result', async() => {
+        const id1 = new ObjectId();
+        const id2 = new ObjectId();
         serviceProvider.bulkWrite.resolves({
           result: { ok: 1 },
           insertedCount: 1,
@@ -268,9 +272,9 @@ describe('Collection', () => {
           modifiedCount: 3,
           deletedCount: 4,
           upsertedCount: 5,
-          insertedIds: [ 6 ],
-          upsertedIds: [ 7 ]
-        });
+          insertedIds: { 0: id1 },
+          upsertedIds: { 0: id2 }
+        } as any);
 
         const result = await collection.bulkWrite(requests);
 
@@ -281,8 +285,8 @@ describe('Collection', () => {
           modifiedCount: 3,
           deletedCount: 4,
           upsertedCount: 5,
-          insertedIds: [ 6 ],
-          upsertedIds: [ 7 ]
+          insertedIds: { 0: id1 },
+          upsertedIds: { 0: id2 }
         });
       });
     });
@@ -833,7 +837,7 @@ describe('Collection', () => {
           (await collection.renameCollection(
              {} as any
           ).catch(e => e)).message
-        ).to.equal('The "newName" argument must be a string.');
+        ).to.include('type string');
       });
     });
 
@@ -868,7 +872,7 @@ describe('Collection', () => {
           (await collection.runCommand(
              {} as any
           ).catch(e => e)).message
-        ).to.equal('The "commandName" argument must be a string.');
+        ).to.include('type string');
       });
 
       it('throws an error if commandName is passed as option', async() => {
@@ -901,7 +905,7 @@ describe('Collection', () => {
 
       it('throws in case of non valid verbosity', () => {
         expect(() => {
-          collection.explain('badVerbosityArgument');
+          collection.explain('badVerbosityArgument' as any);
         }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
       });
 
@@ -953,7 +957,7 @@ describe('Collection', () => {
       });
 
       it('returns Bulk wrapping whatever serviceProvider returns', async() => {
-        const expectedResult = { s: { batches: [] } };
+        const expectedResult = { s: { batches: [] } } as any;
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeUnorderedBulkOp();
         expect((await toShellResult(result)).type).to.equal('Bulk');
@@ -980,7 +984,7 @@ describe('Collection', () => {
       });
 
       it('returns Bulk wrapped in whatever serviceProvider returns', async() => {
-        const expectedResult = { s: { batches: [] } };
+        const expectedResult = { s: { batches: [] } } as any;
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeOrderedBulkOp();
         expect((await toShellResult(result)).type).to.equal('Bulk');
@@ -1121,16 +1125,25 @@ describe('Collection', () => {
 
     describe('return information about the collection as metadata', async() => {
       let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let proxyCursor;
 
       beforeEach(() => {
         serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
         serviceProviderCursor.hasNext.resolves(true);
         serviceProviderCursor.next.resolves({ _id: 'abc' });
+        proxyCursor = new Proxy(serviceProviderCursor, {
+          get: (target, prop): any => {
+            if (prop === 'closed') {
+              return false;
+            }
+            return (target as any)[prop];
+          }
+        });
       });
 
       it('works for find()', async() => {
-        serviceProvider.find.returns(serviceProviderCursor);
+        serviceProvider.find.returns(proxyCursor);
         const cursor = await collection.find();
         const result = await toShellResult(cursor);
         expect(result.type).to.equal('Cursor');
@@ -1216,7 +1229,7 @@ describe('Collection', () => {
       getIndexes: { i: 2 },
       reIndex: { i: 2 },
     };
-    const ignore = [ 'getShardDistribution', 'stats', 'isCapped' ];
+    const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
       const bus = stubInterface<EventEmitter>();
@@ -1225,12 +1238,13 @@ describe('Collection', () => {
       serviceProvider.bsonLibrary = bson;
       internalSession = stubInterface<ServiceProviderSession>();
       serviceProvider.startSession.returns(internalSession);
-      serviceProvider.aggregate.returns(stubInterface<ServiceProviderCursor>());
+      serviceProvider.aggregate.returns(stubInterface<ServiceProviderAggregationCursor>());
       serviceProvider.find.returns(stubInterface<ServiceProviderCursor>());
       serviceProvider.getIndexes.resolves([]);
       serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.countDocuments.resolves(1);
+      serviceProvider.remove.resolves({ ok: 1, deletedCount: 0 } as any);
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
       [ 'bulkWrite', 'deleteMany', 'deleteOne', 'insert', 'insertMany',
@@ -1255,7 +1269,7 @@ describe('Collection', () => {
           try {
             await collection[method](...args);
           } catch (e) {
-            expect.fail(`${method} failed, error thrown ${e.message}`);
+            expect.fail(`Collection.${method} failed, error thrown ${e.message}`);
           }
           expect(serviceProvider[method].calledOnce).to.equal(true, `expected ${method} to be called but it was not`);
           expect((serviceProvider[method].getCall(-1).args[3] as any).session).to.equal(internalSession);

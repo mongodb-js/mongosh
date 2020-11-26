@@ -1,4 +1,4 @@
-export default interface AuthOptions {
+export default interface ShellAuthOptions {
   user: string;
   pwd: string;
   mechanism?: string;

@@ -15,14 +15,14 @@ import {
   ReadPreferenceMode,
   Document,
   ServiceProvider,
-  SessionOptions
+  TransactionOptions
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
-import { asPrintable } from './enums';
+import { asPrintable, shellSession } from './enums';
 import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
@@ -35,7 +35,7 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _options: any;
+  private _options: Document;
 
   constructor(
     internalState: ShellInternalState,
@@ -93,7 +93,7 @@ export default class Mongo extends ShellApiClass {
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = await this._serviceProvider.listDatabases('admin') as any;
+        const result = await this._serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
           const err = new MongoshInternalError('Got invalid result from "listDatabases"');
           this._internalState.messageBus.emit('mongosh:error', err);
@@ -107,7 +107,7 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
         const sysprof = this._internalState.currentDb.getCollection('system.profile');
-        const profiles = { count: await sysprof.countDocuments({}) } as any;
+        const profiles = { count: await sysprof.countDocuments({}) } as Document;
         if (profiles.count !== 0) {
           profiles.result = await (sysprof.find({ millis: { $gt: 0 } })
             .sort({ $natural: -1 })
@@ -172,8 +172,24 @@ export default class Mongo extends ShellApiClass {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
   }
 
-  startSession(options: SessionOptions = {}): Session {
-    return new Session(this, options || {} as SessionOptions, this._serviceProvider.startSession(options));
+  startSession(options: Document = {}): Session {
+    const driverOptions = { owner: shellSession }; // TODO: Node 4.0 upgrade should allow optional owner field see NODE-2918
+    if (options === undefined) {
+      return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
+    }
+    const defaultTransactionOptions = {} as TransactionOptions;
+
+    // Only include option if not undef
+    Object.assign(defaultTransactionOptions,
+      options.readConcern && { readConcern: options.readConcern },
+      options.writeConcern && { writeConcern: options.writeConcern },
+      options.readPreference && { readPreference: options.readPreference }
+    );
+    Object.assign(driverOptions,
+      Object.keys(defaultTransactionOptions).length > 0 && { defaultTransactionOptions: defaultTransactionOptions },
+      options.causalConsistency !== undefined && { causalConsistency: options.causalConsistency }
+    );
+    return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
   }
 
   setCausalConsistency(): void {

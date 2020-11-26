@@ -1,6 +1,7 @@
 import { ShellApiClass, shellApiClassDefault } from './decorators';
 import { shellApiType, asPrintable } from './enums';
 import { addHiddenDataProperty } from './helpers';
+import { ObjectIdType } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 export class CommandResult extends ShellApiClass {
@@ -25,21 +26,21 @@ export class CommandResult extends ShellApiClass {
 export class BulkWriteResult extends ShellApiClass {
   acknowledged: boolean;
   insertedCount: number;
-  insertedIds: {[index: number]: any};
+  insertedIds: {[index: number]: ObjectIdType};
   matchedCount: number;
   modifiedCount: number;
   deletedCount: number;
   upsertedCount: number;
-  upsertedIds: {[index: number]: any};
+  upsertedIds: {[index: number]: ObjectIdType};
   constructor(
     acknowledged: boolean,
     insertedCount: number,
-    insertedIds: {[index: number]: any},
+    insertedIds: {[index: number]: ObjectIdType},
     matchedCount: number,
     modifiedCount: number,
     deletedCount: number,
     upsertedCount: number,
-    upsertedIds: {[index: number]: any}) {
+    upsertedIds: {[index: number]: ObjectIdType}) {
     super();
     this.acknowledged = acknowledged;
     this.insertedCount = insertedCount;
@@ -55,8 +56,8 @@ export class BulkWriteResult extends ShellApiClass {
 @shellApiClassDefault
 export class InsertManyResult extends ShellApiClass {
   acknowledged: boolean;
-  insertedIds: { [key: number]: any };
-  constructor(acknowledged: boolean, insertedIds: { [key: number]: any }) {
+  insertedIds: { [key: number]: ObjectIdType };
+  constructor(acknowledged: boolean, insertedIds: { [key: number]: ObjectIdType }) {
     super();
     this.acknowledged = acknowledged;
     this.insertedIds = insertedIds;
@@ -66,8 +67,8 @@ export class InsertManyResult extends ShellApiClass {
 @shellApiClassDefault
 export class InsertOneResult extends ShellApiClass {
   acknowledged: boolean;
-  insertedId: string;
-  constructor(acknowledged: boolean, insertedId: string) {
+  insertedId: ObjectIdType | undefined;
+  constructor(acknowledged: boolean, insertedId?: ObjectIdType) {
     super();
     this.acknowledged = acknowledged;
     this.insertedId = insertedId;
@@ -77,7 +78,7 @@ export class InsertOneResult extends ShellApiClass {
 @shellApiClassDefault
 export class UpdateResult extends ShellApiClass {
   acknowledged: boolean;
-  insertedId: { _id: any };
+  insertedId: ObjectIdType;
   matchedCount: number;
   modifiedCount: number;
   upsertedCount: number;
@@ -86,7 +87,7 @@ export class UpdateResult extends ShellApiClass {
     matchedCount: number,
     modifiedCount: number,
     upsertedCount: number,
-    insertedId: { _id: any }) {
+    insertedId: ObjectIdType) {
     super();
     this.acknowledged = acknowledged;
     this.insertedId = insertedId;

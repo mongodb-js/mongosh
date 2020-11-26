@@ -11,15 +11,18 @@ import {
 } from './decorators';
 import {
   ServerVersions,
-  asPrintable
+  asPrintable,
+  CURSOR_FLAGS
 } from './enums';
 import {
-  Cursor as ServiceProviderCursor,
+  FindCursor as ServiceProviderCursor,
   CursorFlag,
-  CURSOR_FLAGS,
-  Document
+  Document,
+  CollationOptions,
+  ExplainVerbosityLike, ReadPreferenceMode
 } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -73,14 +76,14 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
+    if (optionFlagNumber === 4) {
+      throw new MongoshUnimplementedError('the slaveOk option is not supported.');
+    }
+
     const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
       throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
-    }
-
-    if (optionFlag === CursorFlag.SlaveOk) {
-      throw new MongoshUnimplementedError('the slaveOk option is not yet supported.');
     }
 
     this._cursor.addCursorFlag(optionFlag, true);
@@ -89,7 +92,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   allowPartialResults(): Cursor {
-    this._addFlag(CursorFlag.Partial);
+    this._addFlag('partial' as CursorFlag);
     return this;
   }
 
@@ -99,19 +102,14 @@ export default class Cursor extends ShellApiClass {
     return this;
   }
 
-  @returnType('Cursor')
-  clone(): Cursor {
-    return new Cursor(this._mongo, this._cursor.clone());
-  }
-
   @returnsPromise
   async close(options: Document): Promise<void> {
-    await this._cursor.close(options as any);
+    await this._cursor.close(options);
   }
 
   @returnType('Cursor')
   @serverVersions(['3.4.0', ServerVersions.latest])
-  collation(spec: Document): Cursor {
+  collation(spec: CollationOptions): Cursor {
     this._cursor.collation(spec);
     return this;
   }
@@ -123,19 +121,19 @@ export default class Cursor extends ShellApiClass {
     return this;
   }
 
-  @serverVersions([ServerVersions.earliest, ServerVersions.latest]) // TODO: this technically deprecated
+  @serverVersions([ServerVersions.earliest, '4.0.0'])
   @returnsPromise
   count(): Promise<number> {
     return this._cursor.count();
   }
 
   @returnsPromise
-  async explain(verbosity: string): Promise<any> {
+  async explain(verbosity: ExplainVerbosityLike): Promise<any> {
     // TODO: @maurizio we should probably move this in the Explain class?
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.
 
-    const fullExplain: any = await this._cursor.explain(verbosity); // use default. TODO: internal state track verbosity?
+    const fullExplain: any = await this._cursor.explain(verbosity);
 
     const explain: any = {
       ...fullExplain
@@ -165,8 +163,16 @@ export default class Cursor extends ShellApiClass {
 
   @returnsPromise
   hasNext(): Promise<boolean> {
+    // TODO: Node 4.0 upgrade. Will warn user and suggest tryNext instead see NODE-2917.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return this._cursor.hasNext();
   }
+
+  // @returnsPromise
+  // tryNext(): Promise<boolean> {
+  // TODO: Node 4.0 upgrade. See NODE-2917.
+  // }
 
   @returnType('Cursor')
   hint(index: string): Cursor {
@@ -175,11 +181,11 @@ export default class Cursor extends ShellApiClass {
   }
 
   isClosed(): boolean {
-    return this._cursor.isClosed();
+    return this._cursor.closed;
   }
 
-  async isExhausted(): Promise<boolean> {
-    return this._cursor.isClosed() && !await this._cursor.hasNext();
+  isExhausted(): boolean {
+    return this.isClosed() && this.objsLeftInBatch() === 0;
   }
 
   @returnsPromise
@@ -208,7 +214,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   max(indexBounds: Document): Cursor {
-    this._cursor.max(indexBounds);
+    this._cursor.max(indexBounds as any); // TODO: Node 4.0 upgrade only supports number, see NODE-2913
     return this;
   }
 
@@ -227,24 +233,24 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   min(indexBounds: Document): Cursor {
-    this._cursor.min(indexBounds);
+    this._cursor.min(indexBounds as any); // TODO: Node 4.0 upgrade only supports number, see NODE-2913
     return this;
   }
 
   @returnsPromise
-  next(): Promise<any> {
+  next(): Promise<Document | null> {
     return this._cursor.next();
   }
 
   @returnType('Cursor')
   noCursorTimeout(): Cursor {
-    this._addFlag(CursorFlag.NoTimeout);
+    this._addFlag('noCursorTimeout' as CursorFlag);
     return this;
   }
 
   @returnType('Cursor')
   oplogReplay(): Cursor {
-    this._addFlag(CursorFlag.OplogReplay);
+    this._addFlag('oplogReplay' as CursorFlag);
     return this;
   }
 
@@ -255,12 +261,12 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
-  readPref(mode: string, tagSet?: Document[]): Cursor {
+  readPref(mode: ReadPreferenceMode, tagSet?: Document[]): Cursor {
     if (tagSet) {
       throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
     }
 
-    this._cursor.setReadPreference(mode as any);
+    this._cursor.setReadPreference(mode);
 
     return this;
   }
@@ -268,7 +274,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   returnKey(enabled: boolean): Cursor {
-    this._cursor.returnKey(enabled as any);
+    this._cursor.returnKey(enabled);
     return this;
   }
 
@@ -292,7 +298,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   tailable(): Cursor {
-    this._addFlag(CursorFlag.Tailable);
+    this._addFlag('tailable' as CursorFlag);
     return this;
   }
 
@@ -306,6 +312,7 @@ export default class Cursor extends ShellApiClass {
     return this;
   }
 
+  @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
     throw new MongoshUnimplementedError(
       '`maxScan()` was removed because it was deprecated in MongoDB 4.0');

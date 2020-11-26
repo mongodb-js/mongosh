@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Session from './session';
-import { ServiceProvider, ServiceProviderSession } from '@mongosh/service-provider-core';
+import { ServiceProvider, ClientSession as ServiceProviderSession } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import ShellInternalState from './shell-internal-state';
 import { signatures, toShellResult } from './index';
@@ -9,7 +9,7 @@ import {
   ADMIN_DB,
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
-  ALL_TOPOLOGIES
+  ALL_TOPOLOGIES, shellSession
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
@@ -18,7 +18,7 @@ import Database from './database';
 
 describe('Session', () => {
   describe('help', () => {
-    const apiClass = new Session({} as Mongo, {}, {} as ServiceProviderSession);
+    const apiClass = new Session({} as Mongo, { owner: shellSession }, {} as ServiceProviderSession);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -47,13 +47,14 @@ describe('Session', () => {
     let session: Session;
     beforeEach(() => {
       options = {
+        owner: shellSession,
         causalConsistency: false,
         readConcern: { level: 'majority' },
         writeConcern: { w: 1, j: false, wtimeout: 0 },
         readPreference: { mode: 'primary', tagSet: [] }
       };
       serviceProviderSession = stubInterface<ServiceProviderSession>();
-      serviceProviderSession.id = { id: 1 };
+      (serviceProviderSession as any).id = { id: 1 };
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = stubInterface<ServiceProvider>();
       session = new Session(mongo, options, serviceProviderSession);
@@ -87,11 +88,11 @@ describe('Session', () => {
       expect(serviceProviderSession.endSession).to.have.been.calledOnceWith();
     });
     it('getClusterTime', () => {
-      serviceProviderSession.clusterTime = 100;
+      serviceProviderSession.clusterTime = 100 as any;
       expect(session.getClusterTime()).to.equal(100);
     });
     it('getOperationTime', () => {
-      serviceProviderSession.operationTime = 200;
+      serviceProviderSession.operationTime = 200 as any;
       expect(session.getOperationTime()).to.equal(200);
     });
     it('hasEnded', () => {

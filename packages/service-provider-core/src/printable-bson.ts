@@ -1,8 +1,8 @@
-import * as BSON from 'bson';
+import { bson as BSON } from './index';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
 export const bsonStringifiers: Record<string, (this: any) => string> = {
-  ObjectID: function(): string {
+  ObjectId: function(): string {
     return `ObjectId("${this.toHexString()}")`;
   },
 
@@ -25,11 +25,6 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
 
   Timestamp: function(): string {
     return `Timestamp(${this.getLowBits().toString()}, ${this.getHighBits().toString()})`;
-  },
-
-  // The old shell could not print Symbols so this was undefined behavior
-  Symbol: function(): string {
-    return `"${this.valueOf()}"`;
   },
 
   BSONSymbol: function(): string {

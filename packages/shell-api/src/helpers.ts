@@ -5,19 +5,19 @@
  *
  * @param options
  */
-import { DatabaseOptions, Document } from '@mongosh/service-provider-core';
+import { DbOptions, Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Database from './database';
 
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
-  dbOptions: DatabaseOptions;
+  dbOptions: DbOptions;
   explain: boolean;
 } {
   const aggOptions = { ...options };
 
-  const dbOptions: DatabaseOptions = {};
+  const dbOptions: DbOptions = {};
   let explain = false;
 
   if ('readConcern' in aggOptions) {
@@ -38,14 +38,14 @@ export function adaptAggregateOptions(options: any = {}): {
   return { aggOptions, dbOptions, explain };
 }
 
-export function validateExplainableVerbosity(verbosity: string): void {
+export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): void {
   const allowedVerbosity = [
     'queryPlanner',
     'executionStats',
     'allPlansExecution'
   ];
 
-  if (!allowedVerbosity.includes(verbosity)) {
+  if (!allowedVerbosity.includes(verbosity as string)) {
     throw new MongoshInvalidInputError(
       `verbosity can only be one of ${allowedVerbosity.join(', ')}. Received ${verbosity}.`
     );
@@ -158,7 +158,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
   // (most recently) active mongoses
   const mongosActiveThresholdMs = 60000;
-  const mostRecentMongos = mongosColl.find().sort({ ping: -1 }).limit(1);
+  // TODO: NODE 4.0 upgrade, see NODE-2919
+  const mostRecentMongos = mongosColl.find().sort({ ping: -1 }); // .limit(1);
   let mostRecentMongosTime = null;
   let mongosAdjective = 'most recently active';
   if (await mostRecentMongos.hasNext()) {

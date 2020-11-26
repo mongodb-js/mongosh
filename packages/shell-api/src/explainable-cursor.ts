@@ -2,14 +2,14 @@ import { shellApiClassDefault, returnType } from './decorators';
 import Cursor from './cursor';
 import Mongo from './mongo';
 import { asPrintable } from './enums';
-import type { Document } from '@mongosh/service-provider-core';
+import type { Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 export default class ExplainableCursor extends Cursor {
   _baseCursor: Cursor;
-  _verbosity: string;
+  _verbosity: ExplainVerbosityLike;
 
-  constructor(mongo: Mongo, cursor: Cursor, verbosity: string) {
+  constructor(mongo: Mongo, cursor: Cursor, verbosity: ExplainVerbosityLike) {
     super(mongo, cursor._cursor);
     this._baseCursor = cursor;
     this._verbosity = verbosity;

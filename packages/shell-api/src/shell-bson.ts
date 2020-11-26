@@ -1,6 +1,6 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
-import { bson as BSON, makePrintableBson } from '@mongosh/service-provider-core';
+import { makePrintableBson, BinaryType, bson as BSON } from '@mongosh/service-provider-core';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
@@ -37,8 +37,6 @@ export default function constructShellBson(bson: any): any {
     bson = BSON;
   }
   makePrintableBson(bson);
-  const oldBSON = 'Symbol' in bson;
-
   const helps: any = {};
   [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
@@ -55,16 +53,15 @@ export default function constructShellBson(bson: any): any {
     bson[className].prototype.help = (): Help => (help);
     Object.setPrototypeOf(bson[className].prototype.help, help);
   });
-  const symbolName = oldBSON ? 'Symbol' : 'BSONSymbol';
-  bson[symbolName].prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
-  bson[symbolName].prototype.platforms = ALL_PLATFORMS;
-  bson[symbolName].prototype.topologies = ALL_TOPOLOGIES;
-  const help = constructHelp('Symbol');
-  helps.Symbol = help;
-  bson[symbolName].prototype.help = (): Help => (help);
-  Object.setPrototypeOf(bson[symbolName].prototype.help, help);
+  // Symbol is deprecated
+  bson.BSONSymbol.prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
+  bson.BSONSymbol.prototype.platforms = ALL_PLATFORMS;
+  bson.BSONSymbol.prototype.topologies = ALL_TOPOLOGIES;
 
   // Classes whose names differ from shell to driver
+  const helpSymbol = constructHelp('Symbol');
+  bson.BSONSymbol.prototype.help = (): Help => (helpSymbol);
+  Object.setPrototypeOf(bson.BSONSymbol.prototype.help, helpSymbol);
   const helpDecimal = constructHelp('NumberDecimal');
   bson.Decimal128.prototype.help = (): Help => (helpDecimal);
   Object.setPrototypeOf(bson.Decimal128.prototype.help, helpDecimal);
@@ -90,7 +87,7 @@ export default function constructShellBson(bson: any): any {
     bsonsize: function(object: any): any {
       assertArgsDefined(object);
       assertArgsType([object], ['object']);
-      return BSON.calculateObjectSize(object);
+      return bson.calculateObjectSize(object);
     },
     MaxKey: function(): any {
       return new bson.MaxKey();
@@ -100,12 +97,9 @@ export default function constructShellBson(bson: any): any {
     },
     ObjectId: function(id?: string): any {
       assertArgsType([id], ['string']);
-      return new bson.ObjectID(id);
+      return new bson.ObjectId(id);
     },
     Symbol: function(value = ''): any {
-      if (oldBSON) {
-        return new bson.Symbol(value);
-      }
       return new bson.BSONSymbol(value);
     },
     Timestamp: function(low = 0, high = 0): any {
@@ -155,19 +149,19 @@ export default function constructShellBson(bson: any): any {
       }
       throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`);
     },
-    BinData: function(subtype: number, b64string: string): BSON.Binary { // this from 'help misc' in old shell
+    BinData: function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);
       assertArgsType([subtype, b64string], ['number', 'string']);
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     },
-    HexData: function(subtype: number, hexstr: string): BSON.Binary {
+    HexData: function(subtype: number, hexstr: string): BinaryType {
       assertArgsDefined(subtype, hexstr);
       assertArgsType([subtype, hexstr], ['number', 'string']);
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     },
-    UUID: function(hexstr: string): BSON.Binary {
+    UUID: function(hexstr: string): BinaryType {
       assertArgsDefined(hexstr);
       assertArgsType([hexstr], ['string']);
       // Strip any dashes, as they occur in the standard UUID formatting
@@ -175,7 +169,7 @@ export default function constructShellBson(bson: any): any {
       const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     },
-    MD5: function(hexstr: string): BSON.Binary {
+    MD5: function(hexstr: string): BinaryType {
       assertArgsDefined(hexstr);
       assertArgsType([hexstr], ['string']);
       const buffer = Buffer.from(hexstr, 'hex');
@@ -183,13 +177,15 @@ export default function constructShellBson(bson: any): any {
     }
   };
   const keys: (keyof typeof bsonPkg)[] = [
-    'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Symbol', 'Map'
+    'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Map'
   ];
   keys.forEach((className) => {
     bsonPkg[className].help = (): Help => (helps[className]);
     Object.setPrototypeOf(bsonPkg[className].help, helps[className]);
   });
   // Classes whose names differ from shell to driver
+  (bsonPkg.Symbol as any).help = (): Help => (helpSymbol);
+  Object.setPrototypeOf((bsonPkg.Symbol as any).help, helpSymbol);
   (bsonPkg.NumberDecimal as any).help = (): Help => (helpDecimal);
   Object.setPrototypeOf((bsonPkg.NumberDecimal as any).help, helpDecimal);
   (bsonPkg.NumberInt as any).help = (): Help => (helpInt);

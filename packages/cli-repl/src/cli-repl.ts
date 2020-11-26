@@ -1,4 +1,4 @@
-import { CliServiceProvider, NodeOptions, CliOptions } from '@mongosh/service-provider-server';
+import { CliServiceProvider, MongoClientOptions, CliOptions } from '@mongosh/service-provider-server';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
@@ -77,9 +77,9 @@ class CliRepl {
    * information, and finally start the repl.
    *
    * @param {string} driverUri - The driver URI.
-   * @param {NodeOptions} driverOptions - The driver options.
+   * @param {MongoClientOptions} driverOptions - The driver options.
    */
-  async start(driverUri: string, driverOptions: NodeOptions): Promise<void> {
+  async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
     this.verifyNodeVersion();
     if (this.isPasswordMissing(driverOptions)) {
       await this.requirePassword(driverUri, driverOptions);
@@ -115,9 +115,9 @@ class CliRepl {
    * Connect to the cluster.
    *
    * @param {string} driverUri - The driver URI.
-   * @param {NodeOptions} driverOptions - The driver options.
+   * @param {MongoClientOptions} driverOptions - The driver options.
    */
-  async connect(driverUri: string, driverOptions: NodeOptions): Promise<CliServiceProvider> {
+  async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
     if (!this.options.nodb) {
       this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactPassword(driverUri), ['bold', 'green']) + '\n');
     }
@@ -157,23 +157,23 @@ class CliRepl {
   /**
    * Is the password missing from the options?
    *
-   * @param {NodeOptions} driverOptions - The driver options.
+   * @param {MongoClientOptions} driverOptions - The driver options.
    *
    * @returns {boolean} If the password is missing.
    */
-  isPasswordMissing(driverOptions: NodeOptions): boolean {
+  isPasswordMissing(driverOptions: MongoClientOptions): boolean {
     return !!(driverOptions.auth &&
       driverOptions.auth.user &&
-      !driverOptions.auth.password);
+      !(driverOptions.auth as any).password); // TODO: Node 4.0 takes pass?
   }
 
   /**
    * Require the user to enter a password.
    *
    * @param {string} driverUrl - The driver URI.
-   * @param {NodeOptions} driverOptions - The driver options.
+   * @param {MongoClientOptions} driverOptions - The driver options.
    */
-  async requirePassword(driverUri: string, driverOptions: NodeOptions): Promise<void> {
+  async requirePassword(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
     const passwordPromise = askpassword({
       input: this.input,
       output: this.output,

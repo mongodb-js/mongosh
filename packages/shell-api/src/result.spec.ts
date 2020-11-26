@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as results from './result';
 import { ShellApiInterface, signatures, toShellResult } from './decorators';
+import { ObjectId } from 'mongodb';
 
 describe('Results', () => {
   describe('signatures', () => {
@@ -22,14 +23,14 @@ describe('Results', () => {
   });
   describe('BulkWriteResult', () => {
     const r = new results.BulkWriteResult(
-      true, 1, ['0'], 2, 3, 4, 5, ['1']
+      true, 1, { 0: new ObjectId() }, 2, 3, 4, 5, { 0: new ObjectId() }
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
     });
     it('toShellResult', async() => {
       expect((await toShellResult(r)).type).to.equal('BulkWriteResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await toShellResult(r)).printable).to.deep.equal({ ...r });
     });
     it('calls help function', async() => {
       expect((await toShellResult((r as any).help())).type).to.equal('Help');
@@ -62,7 +63,7 @@ describe('Results', () => {
     });
     it('toShellResult', async() => {
       expect((await toShellResult(r)).type).to.equal('DeleteResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await toShellResult(r)).printable).to.deep.equal({ ...r });
     });
     it('calls help function', async() => {
       expect((await toShellResult((r as any).help())).type).to.equal('Help');
@@ -71,14 +72,14 @@ describe('Results', () => {
   });
   describe('InsertManyResult', () => {
     const r = new results.InsertManyResult(
-      true, ['x']
+      true, { 0: new ObjectId() }
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
     });
     it('toShellResult', async() => {
       expect((await toShellResult(r)).type).to.equal('InsertManyResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await toShellResult(r)).printable).to.deep.equal({ ...r });
     });
     it('calls help function', async() => {
       expect((await toShellResult((r as any).help())).type).to.equal('Help');
@@ -87,14 +88,14 @@ describe('Results', () => {
   });
   describe('InsertOneResult', () => {
     const r = new results.InsertOneResult(
-      true, 'x'
+      true, new ObjectId()
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
     });
     it('toShellResult', async() => {
       expect((await toShellResult(r)).type).to.equal('InsertOneResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await toShellResult(r)).printable).to.deep.equal({ ...r });
     });
     it('calls help function', async() => {
       expect((await toShellResult((r as any).help())).type).to.equal('Help');
@@ -103,14 +104,14 @@ describe('Results', () => {
   });
   describe('UpdateResult', () => {
     const r = new results.UpdateResult(
-      true, 1, 2, 3, { _id: 'abc' }
+      true, 1, 2, 3, new ObjectId()
     ) as ShellApiInterface;
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
     });
     it('toShellResult', async() => {
       expect((await toShellResult(r)).type).to.equal('UpdateResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect((await toShellResult(r)).printable).to.deep.equal({ ...r });
     });
     it('calls help function', async() => {
       expect((await toShellResult((r as any).help())).type).to.equal('Help');

@@ -37,7 +37,7 @@ import os from 'os';
         onExit: process.exit,
         shellHomePath: path.join(os.homedir(), '.mongodb/mongosh/')
       });
-      await repl.start(driverUri, { appname, ...driverOptions });
+      await repl.start(driverUri, { appName: appname, ...driverOptions });
     }
   } catch (e) {
     // eslint-disable-next-line no-console
