@@ -1,8 +1,7 @@
-import * as fs from 'fs';
+import { promises as fs } from 'fs';
 import { compile } from 'handlebars';
 import * as path from 'path';
 import ts from 'typescript';
-import * as util from 'util';
 import * as ux from './ux';
 
 type PackageError = { code: string, documentation: string };
@@ -37,11 +36,11 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
   ux.success('👏👏👏👏');
   ux.success('Wrote generated overview page to: error-overview.md');
   ux.success('👏👏👏👏');
-})();
+})().catch(err => process.nextTick(() => { throw err; }));
 
 async function isDirectory(path: string): Promise<boolean> {
   try {
-    const stat = await util.promisify(fs.lstat)(path);
+    const stat = await fs.lstat(path);
     return stat.isDirectory();
   } catch (e) {
     return false;
@@ -50,7 +49,7 @@ async function isDirectory(path: string): Promise<boolean> {
 
 async function isFile(path: string): Promise<boolean> {
   try {
-    const stat = await util.promisify(fs.lstat)(path);
+    const stat = await fs.lstat(path);
     return stat.isFile();
   } catch (e) {
     return false;
@@ -58,7 +57,7 @@ async function isFile(path: string): Promise<boolean> {
 }
 
 async function collectPackages(pathToPackages: string): Promise<string[]> {
-  const dirs = await util.promisify(fs.readdir)(pathToPackages);
+  const dirs = await fs.readdir(pathToPackages);
   const packages = await Promise.all(dirs.map(async dir => {
     const packageJsonPath = path.resolve(pathToPackages, dir, 'package.json');
     const tsconfigPath = path.resolve(pathToPackages, dir, 'tsconfig.json');
@@ -71,7 +70,7 @@ async function collectPackages(pathToPackages: string): Promise<string[]> {
 }
 
 async function processPackage(pathToPackage: string): Promise<PackageErrors | undefined> {
-  const packageJsonContent = await util.promisify(fs.readFile)(
+  const packageJsonContent = await fs.readFile(
     path.resolve(pathToPackage, 'package.json'),
     { encoding: 'utf-8' }
   );
@@ -171,7 +170,7 @@ function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: t
 }
 
 async function renderErrorOverview(packageErrors: PackageErrors[]): Promise<void> {
-  const templateContent = await util.promisify(fs.readFile)(
+  const templateContent = await fs.readFile(
     path.resolve(__dirname, 'error-overview.tmpl.md'),
     { encoding: 'utf-8' }
   );
@@ -181,7 +180,7 @@ async function renderErrorOverview(packageErrors: PackageErrors[]): Promise<void
     packages: packageErrors
   });
 
-  await util.promisify(fs.writeFile)(
+  await fs.writeFile(
     'error-overview.md',
     output,
     { encoding: 'utf-8' }
