@@ -16,6 +16,13 @@ import { downloadMongoDb } from './download-mongodb';
 
 const execFile = promisify(child_process.execFile);
 
+const isCI = !!process.env.IS_CI;
+function ciLog(...args: any[]) {
+  if (isCI) {
+    console.error(...args);
+  }
+}
+
 // Return the stat results or, if the file does not exist, `undefined`.
 async function statIfExists(path: string): Promise<ReturnType<typeof fs.stat> | undefined> {
   try {
@@ -35,11 +42,25 @@ async function getTmpdir(): Promise<string> {
   return tmpdir;
 }
 
+async function tryExtensions(base: string): Promise<[ string, Error ]> {
+  let lastErr = new Error('unreachable');
+  for (const ext of ['', '.exe', '.bat']) {
+    try {
+      await fs.stat(base + ext);
+      return [ base + ext, lastErr ];
+    } catch (err) {
+      lastErr = err;
+      ciLog('File does not exist or is inaccessible', base + ext);
+    }
+  }
+  return [ '', lastErr ];
+}
+
 // Get the path we use to spawn mlaunch, and potential environment variables
 // necessary to run it successfully. This tries to install it locally if it
 // cannot find an existing installation.
 let mlaunchPath: { exec: string, env: Record<string,string> } | undefined;
-async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,string> }> {
+export async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,string> }> {
   const tmpdir = await getTmpdir();
   if (mlaunchPath !== undefined) {
     return mlaunchPath;
@@ -48,7 +69,9 @@ async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,stri
   try {
     // If `mlaunch` is already in the PATH: Great, we're done.
     return mlaunchPath = { exec: await which('mlaunch'), env: {} };
-  } catch {}
+  } catch {
+    ciLog('Did not find mlaunch in PATH');
+  }
 
   // Figure out where python3 might live (python3, python, $PYTHON).
   let python = '';
@@ -56,14 +79,18 @@ async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,stri
     await which('python3');
     python = 'python3';
   } catch {
+    ciLog('Did not find python3 in PATH');
     try {
       // Fun fact on the side: Python 2.x writes the version to stderr,
       // Python 3.x writes to stdout.
       const { stdout } = await execFile('python', ['-V']);
       if (stdout.includes('Python 3')) {
         python = 'python';
+      } else {
+        throw new Error('python is not Python 3.x');
       }
     } catch {
+      ciLog('Did not find python as Python 3.x in PATH');
       const pythonEnv = process.env.PYTHON;
       if (pythonEnv) {
         const { stdout } = await execFile(pythonEnv as string, ['-V']);
@@ -79,36 +106,37 @@ async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,stri
 
   // Install mlaunch, preferably locally and otherwise attempt to do so globally.
   try {
-    await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]']);
     const mlaunchPy = path.join(tmpdir, 'bin', 'mlaunch');
-    for (const ext of ['', '.exe', '.bat']) {
-      try {
-        await fs.stat(mlaunchPy + ext);
-        return mlaunchPath = {
-          exec: mlaunchPy + ext,
-          env: { PYTHONPATH: tmpdir }
-        };
-      } catch {}
+    let [ exec ] = await tryExtensions(mlaunchPy);
+    if (exec) {
+      return mlaunchPath = { exec, env: { PYTHONPATH: tmpdir } };
+    }
+    ciLog('Trying to install mlaunch in ', tmpdir);
+    await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]']);
+    ciLog('Installation complete');
+    [ exec ] = await tryExtensions(mlaunchPy);
+    if (exec) {
+      return mlaunchPath = { exec, env: { PYTHONPATH: tmpdir } };
     }
   } catch {}
 
-  await execFile('pip3', ['install', '--user', 'mtools[mlaunch]']);
   // Figure out the most likely target path for pip3 --user and use mlaunch
   // from there.
   const pythonBase = (await execFile(python, ['-m', 'site', '--user-base'])).stdout.trim();
   const pythonPath = (await execFile(python, ['-m', 'site', '--user-site'])).stdout.trim();
   const mlaunchExec = path.join(pythonBase, 'bin', 'mlaunch');
-  let lastErr = new Error('unreachable');
-  for (const ext of ['', '.exe', '.bat']) {
-    try {
-      await fs.stat(mlaunchExec + ext);
-      return mlaunchPath = {
-        exec: mlaunchExec + ext,
-        env: { PYTHONPATH: pythonPath }
-      };
-    } catch(err) {
-      lastErr = err;
+  {
+    const [ exec ] = await tryExtensions(mlaunchExec);
+    if (exec) {
+      return { exec, env: { PYTHONPATH: pythonPath } };
     }
+  }
+  ciLog('Trying to install mlaunch in ', { pythonBase, pythonPath });
+  await execFile('pip3', ['install', '--user', 'mtools[mlaunch]']);
+  ciLog('Installation complete');
+  const [ exec, lastErr ] = await tryExtensions(mlaunchExec);
+  if (exec) {
+    return { exec, env: { PYTHONPATH: pythonPath } };
   }
   throw lastErr;
 }
