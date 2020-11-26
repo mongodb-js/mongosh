@@ -1,6 +1,5 @@
-import { StringDecoder } from 'string_decoder';
 import { eventually } from './helpers';
-
+import { once } from 'events';
 import { spawn, ChildProcess } from 'child_process';
 
 import path from 'path';
@@ -60,10 +59,14 @@ export class TestShell {
     return shell;
   }
 
-  static killall(): void {
+  static async killall(): Promise<void> {
+    const exitPromises: Promise<unknown>[] = [];
     while (TestShell._openShells.length) {
-      TestShell._openShells.pop().kill();
+      const shell = TestShell._openShells.pop();
+      shell.kill();
+      exitPromises.push(shell.waitForExit());
     }
+    await Promise.all(exitPromises);
   }
 
   private _process: ChildProcess;
@@ -75,23 +78,18 @@ export class TestShell {
     this._process = shellProcess;
     this._output = '';
 
-    const stdoutDecoder = new StringDecoder();
-
-    shellProcess.stdout.on('data', (chunk) => {
-      this._output += stripAnsi(stdoutDecoder.write(chunk));
+    shellProcess.stdout.setEncoding('utf8').on('data', (chunk) => {
+      this._output += stripAnsi(chunk);
     });
 
-    const stderrDecoder = new StringDecoder();
-
-    shellProcess.stderr.on('data', (chunk) => {
-      this._output += stripAnsi(stderrDecoder.write(chunk));
+    shellProcess.stderr.setEncoding('utf8').on('data', (chunk) => {
+      this._output += stripAnsi(chunk);
     });
 
-    this._onClose = new Promise((resolve) => {
-      shellProcess.once('close', (code) => {
-        resolve(code);
-      });
-    });
+    this._onClose = (async() => {
+      const [ code ] = await once(shellProcess, 'close');
+      return code;
+    })();
   }
 
   get output(): string {
@@ -195,5 +193,13 @@ export class TestShell {
       ...output.matchAll(ERROR_PATTERN_2)
     ]
       .map(m => m[1].trim());
+  }
+
+  get sessionId(): string | null {
+    const match = this._output.match(/^Current sessionID:\s*(?<sessionId>[a-z0-9]{24})$/m);
+    if (!match) {
+      return null;
+    }
+    return match.groups.sessionId;
   }
 }
