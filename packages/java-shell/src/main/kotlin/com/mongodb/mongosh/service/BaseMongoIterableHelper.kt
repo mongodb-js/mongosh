@@ -7,6 +7,7 @@ import com.mongodb.client.AggregateIterable
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
+import com.mongodb.client.model.CountOptions
 import com.mongodb.mongosh.MongoShellConverter
 import org.bson.Document
 import org.graalvm.polyglot.Value
@@ -39,7 +40,7 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
     open fun hint(v: Document): Unit = throw NotImplementedError("hint is not supported")
     open fun collation(v: Document): Unit = throw NotImplementedError("collation is not supported")
     open fun allowPartialResults(): Unit = throw NotImplementedError("allowPartialResults is not supported")
-    open fun count(): Int = throw NotImplementedError("count is not supported")
+    open fun count(): Long = throw NotImplementedError("count is not supported")
     open fun maxTimeMS(v: Long): Unit = throw NotImplementedError("maxTimeMS is not supported")
     open fun noCursorTimeout(): Unit = throw NotImplementedError("noCursorTimeout is not supported")
     open fun oplogReplay(): Unit = throw NotImplementedError("oplogReplay is not supported")
@@ -156,6 +157,14 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
     override fun returnKey(v: Boolean) = set("returnKey", v)
     override fun sort(spec: Document) = set("sort", spec)
     override fun tailable() = set("tailable", CursorType.Tailable.toString())
+
+    override fun count(): Long {
+        check(createOptions != null) { "createOptions were not saved" }
+        val countOptionsMap = options.filterKeys { countOptionsConverters.containsKey(it) }
+        val countOptions = convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, countOptionsMap).getOrThrow()
+        @Suppress("DEPRECATION")
+        return createOptions.db.getCollection(createOptions.collection).count(createOptions.find, countOptions)
+    }
 
     override fun explain(verbosity: String?): Any? {
         set("explain", true)

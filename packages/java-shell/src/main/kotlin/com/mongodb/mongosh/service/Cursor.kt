@@ -49,6 +49,9 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
         return this
     }
 
+    /**
+     * cursor.objsLeftInBatch()
+     */
     override fun bufferedCount(): Int {
         throw NotImplementedError("bufferedCount is not supported")
     }
@@ -89,7 +92,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
-    override fun count(): Int {
+    override fun count(): Long {
         checkQueryNotExecuted()
         return helper.count()
     }
