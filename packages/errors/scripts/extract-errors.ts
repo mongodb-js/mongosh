@@ -25,9 +25,9 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
     const pe = await processPackage(packagePath);
     if (pe) {
       packageErrors.push(pe);
-      ux.note(`Found ${pe.errors.length} mongosh error enums.\n`);
+      ux.note(`Found ${pe.errors.length} mongosh errors.\n`);
     } else {
-      ux.quiet('No mongosh error enums found.\n');
+      ux.quiet('No mongosh errors found.\n');
     }
   }
 
@@ -135,7 +135,7 @@ async function extractErrors(program: ts.Program): Promise<PackageError[]> {
       }
 
       const memberSymbol = checker.getSymbolAtLocation(m.name);
-      const memberDoc = ts.displayPartsToString(memberSymbol?.getDocumentationComment(checker) || []).replace(/\n/g, '<br>');
+      const memberDoc = ts.displayPartsToString(memberSymbol?.getDocumentationComment(checker) || []);
 
       const memberValue = m.initializer.text;
       errors.push({
