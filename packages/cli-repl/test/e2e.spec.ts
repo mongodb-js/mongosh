@@ -414,6 +414,7 @@ describe('e2e', function() {
     });
 
     afterEach(async() => {
+      await TestShell.killall();
       await promisify(rimraf)(homedir);
     });
 
