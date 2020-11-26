@@ -13,7 +13,7 @@ interface ServiceProviderCursor {
   fun isClosed(): Boolean
   fun collation(v: Value): ServiceProviderCursor
   fun comment(v: String): ServiceProviderCursor
-  fun count(): Int
+  fun count(): Long
   fun forEach(func: Value)
   fun hasNext(): Boolean
   fun hint(v: Value): ServiceProviderCursor
