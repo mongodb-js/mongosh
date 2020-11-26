@@ -22,7 +22,13 @@ function useTmpdir(): { readonly path: string } {
   });
 
   afterEach(async() => {
-    promisify(rimraf)(tmpdir);
+    try {
+      await promisify(rimraf)(tmpdir);
+    } catch (err) {
+      // On Windows in CI, this can fail with EPERM for some reason.
+      // If it does, just log the error instead of failing all tests.
+      console.error('Could not remove fake home directory:', err);
+    }
   });
 
   return {

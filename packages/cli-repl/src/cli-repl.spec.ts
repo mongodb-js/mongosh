@@ -1,9 +1,7 @@
 import { PassThrough, Duplex } from 'stream';
-import { promisify } from 'util';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { once } from 'events';
-import rimraf from 'rimraf';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, useTmpdir, waitEval, fakeTTYProps } from '../test/repl-helpers';
@@ -75,7 +73,6 @@ describe('CliRepl', () => {
     context('during startup', () => {
       it('persists userId', async() => {
         const userIds: string[] = [];
-        await promisify(rimraf)(tmpdir.path);
         for (let i = 0; i < 2; i++) {
           cliRepl = new CliRepl(cliReplOptions);
           cliRepl.bus.on('mongosh:new-user', userId => userIds.push(userId));
