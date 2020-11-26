@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import { expect } from '../../testing/chai';
 import { shallow, mount, ShallowWrapper, ReactWrapper } from '../../testing/enzyme';
 
+import { PasswordPrompt } from './password-prompt';
 import { Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
@@ -364,5 +365,50 @@ describe('<Shell />', () => {
     expect(onOutputChangedSpy).to.have.been.calledWith([
       { format: 'output', value: 42, type: null }
     ]);
+  });
+
+  describe('password prompt', () => {
+    let pressKey: (key: string) => Promise<void>;
+    beforeEach(() => {
+      wrapper = mount(<Shell runtime={fakeRuntime} />);
+      pressKey = async(key: string) => {
+        wrapper.find(PasswordPrompt).instance().onKeyDown({
+          key,
+          target: wrapper.find('input').instance()
+        });
+        await wait();
+        wrapper.update();
+      };
+    });
+
+    it('displays a password prompt when asked to', async() => {
+      expect(wrapper.find(PasswordPrompt)).to.have.lengthOf(0);
+
+      const passwordPromise = wrapper.instance().onPrompt('Enter password', 'password');
+      await wait();
+      wrapper.update();
+      expect(wrapper.state('passwordPrompt')).to.equal('Enter password');
+      expect(wrapper.find(PasswordPrompt)).to.have.lengthOf(1);
+      wrapper.find('input').instance().value = '12345';
+      await pressKey('Enter');
+
+      expect(await passwordPromise).to.equal('12345');
+      expect(HTMLElement.prototype.focus).to.have.been.called;
+    });
+
+    it('can abort reading the password', async() => {
+      const passwordPromise = wrapper.instance().onPrompt('Enter password', 'password');
+      await wait();
+      wrapper.update();
+      await pressKey('Esc');
+
+      try {
+        await passwordPromise;
+      } catch {
+        expect(HTMLElement.prototype.focus).to.have.been.called;
+        return;
+      }
+      expect.fail('should have been rejected');
+    });
   });
 });
