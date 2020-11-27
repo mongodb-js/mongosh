@@ -30,7 +30,7 @@ describe('errors', () => {
     const errorWithCode = new MongoshInternalError('Something went wrong.', 'SHUPS-42');
     expect(errorWithCode).to.be.instanceOf(MongoshBaseError);
     expect(errorWithCode.name).to.be.equal('MongoshInternalError');
-    expect(errorWithCode.message).to.be.equal('Something went wrong.\nThis is an error inside Mongosh. Please file a bug report. Please include a log file from this session.');
+    expect(errorWithCode.message).to.be.equal('[SHUPS-42] Something went wrong.\nThis is an error inside Mongosh. Please file a bug report. Please include a log file from this session.');
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
@@ -44,7 +44,7 @@ describe('errors', () => {
     const errorWithCode = new MongoshUnimplementedError('Something went wrong.', 'SHUPS-42');
     expect(errorWithCode).to.be.instanceOf(MongoshBaseError);
     expect(errorWithCode.name).to.be.equal('MongoshUnimplementedError');
-    expect(errorWithCode.message).to.be.equal('Something went wrong.');
+    expect(errorWithCode.message).to.be.equal('[SHUPS-42] Something went wrong.');
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
@@ -58,7 +58,7 @@ describe('errors', () => {
     const errorWithCode = new MongoshRuntimeError('Something went wrong.', 'SHUPS-42');
     expect(errorWithCode).to.be.instanceOf(MongoshBaseError);
     expect(errorWithCode.name).to.be.equal('MongoshRuntimeError');
-    expect(errorWithCode.message).to.be.equal('Something went wrong.');
+    expect(errorWithCode.message).to.be.equal('[SHUPS-42] Something went wrong.');
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
@@ -72,7 +72,7 @@ describe('errors', () => {
     const errorWithCode = new MongoshInvalidInputError('Something went wrong.', 'SHUPS-42');
     expect(errorWithCode).to.be.instanceOf(MongoshBaseError);
     expect(errorWithCode.name).to.be.equal('MongoshInvalidInputError');
-    expect(errorWithCode.message).to.be.equal('Something went wrong.');
+    expect(errorWithCode.message).to.be.equal('[SHUPS-42] Something went wrong.');
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
