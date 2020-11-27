@@ -11,7 +11,7 @@ abstract class MongoshBaseError extends Error {
   readonly scope: string | undefined;
 
   constructor(name: string, message: string, code?: string) {
-    super(message);
+    super(code ? `[${code}] ${message}` : message);
     this.name = name;
     this.code = code;
     this.scope = getScopeFromErrorCode(code);
