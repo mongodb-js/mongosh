@@ -304,13 +304,6 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
     });
 
-    it('colorizes syntax errors', async() => {
-      input.write('<cat>\n');
-      await tick();
-      expect(output).to.match(/SyntaxError(\x1b\[.*m)+: Unexpected token/);
-      expect(output).to.match(/>(\x1b\[.*m)+ 1 \| (\x1b\[.*m)+<(\x1b\[.*m)+cat(\x1b\[.*m)+>(\x1b\[.*m)+/);
-    });
-
     it('can ask for passwords', async() => {
       input.write('const pw = passwordPrompt()\n');
       await tick();

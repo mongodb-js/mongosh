@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
@@ -49,6 +50,21 @@ describe('e2e', function() {
       shell.assertContainsError('MongoshInvalidInputError: No connected database');
       // We're seeing the prompt and not a stack trace.
       expect(shell.output).to.include('No connected database\n> ');
+    });
+    it('colorizes syntax errors', async() => {
+      shell = TestShell.start({
+        args: [ '--nodb' ],
+        env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
+        forceTerminal: true
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      await shell.executeLine('<cat>\n');
+      await eventually(() => {
+        expect(shell.rawOutput).to.match(/SyntaxError(\x1b\[.*m)+: Unexpected token/);
+        expect(shell.rawOutput).to.match(/>(\x1b\[.*m)+ 1 \| (\x1b\[.*m)+<(\x1b\[.*m)+cat(\x1b\[.*m)+>(\x1b\[.*m)+/);
+      });
     });
   });
 

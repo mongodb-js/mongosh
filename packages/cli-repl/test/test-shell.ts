@@ -75,18 +75,22 @@ export class TestShell {
   private _process: ChildProcess;
 
   private _output: string;
+  private _rawOutput: string;
   private _onClose: Promise<number>;
 
   constructor(shellProcess: ChildProcess) {
     this._process = shellProcess;
     this._output = '';
+    this._rawOutput = '';
 
     shellProcess.stdout.setEncoding('utf8').on('data', (chunk) => {
       this._output += stripAnsi(chunk);
+      this._rawOutput += chunk;
     });
 
     shellProcess.stderr.setEncoding('utf8').on('data', (chunk) => {
       this._output += stripAnsi(chunk);
+      this._rawOutput += chunk;
     });
 
     this._onClose = (async() => {
@@ -97,6 +101,10 @@ export class TestShell {
 
   get output(): string {
     return this._output;
+  }
+
+  get rawOutput(): string {
+    return this._rawOutput;
   }
 
   get process(): ChildProcess {
