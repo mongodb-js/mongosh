@@ -1181,7 +1181,7 @@ describe('Collection', () => {
     let internalSession: StubbedInstance<ServiceProviderSession>;
     const exceptions = {
       renameCollection: { a: ['name'] },
-      createIndexes: { a: [[]] },
+      createIndexes: { a: [[]], i: 4 },
       runCommand: { a: ['coll', {} ], m: 'runCommandWithCheck', i: 2 },
       findOne: { m: 'find' },
       insert: { m: 'insertMany' },
