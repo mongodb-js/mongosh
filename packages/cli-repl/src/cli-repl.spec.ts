@@ -108,8 +108,8 @@ describe('CliRepl', () => {
       });
 
       it('verifies the Node.js version', async() => {
-        const origVersionCheckEnvVar = process.env.MONGOSH_SKIP_VERSION_CHECK;
-        delete process.env.MONGOSH_SKIP_VERSION_CHECK;
+        const origVersionCheckEnvVar = process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
+        delete process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete (process as any).version;
         process.version = 'v8.0.0';
 
@@ -122,7 +122,7 @@ describe('CliRepl', () => {
           await onerror;
         } finally {
           process.version = process.versions.node;
-          process.env.MONGOSH_SKIP_VERSION_CHECK = origVersionCheckEnvVar;
+          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar;
         }
       });
     });

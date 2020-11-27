@@ -142,7 +142,7 @@ class CliRepl {
   }
 
   verifyNodeVersion(): void {
-    if (process.env.MONGOSH_SKIP_VERSION_CHECK === 'i-will-not-complain-if-mongosh-does-not-work') {
+    if (process.env.MONGOSH_SKIP_NODE_VERSION_CHECK === 'i-will-not-complain-if-mongosh-does-not-work') {
       return;
     }
     const { engines } = require('../package.json');

@@ -253,7 +253,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m42x_n12
     commands:
       - func: checkout
@@ -264,7 +264,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m44x_n12
     commands:
       - func: checkout
@@ -275,7 +275,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m40x_n12_win
     commands:
       - func: checkout
@@ -286,7 +286,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m42x_n12_win
     commands:
       - func: checkout
@@ -297,7 +297,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m44x_n12_win
     commands:
       - func: checkout
@@ -308,7 +308,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "12.20.0"
-          mongosh_skip_version_check: "i-will-not-complain-if-mongosh-does-not-work"
+          mongosh_skip_node_version_check: "i-will-not-complain-if-mongosh-does-not-work"
   - name: test_m40x_n14
     commands:
       - func: checkout
