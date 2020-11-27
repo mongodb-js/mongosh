@@ -221,16 +221,39 @@ enum AsyncRewriterErrors {
    * const other = db; // ok
    * other.x = 1; // <-- fails since it would modify the db global variable to access the Database API
    * ```
+   *
+   * **Solution: Do not modify Mongosh API types.**
    */
   ModifyMongoshType = 'ASYNC-10011',
 
   /**
    * Signals that an internal assertion was violated that guards uncovered code paths.
-   *
    * This error is only thrown when an assumed impossible situation occurs.
-   * The executed code should be sent for analysis.
+   *
+   * Please file a bug report and attach the current log file for analysis.
    */
   UnreachableAssertionViolated = 'ASYNC-90001',
+
+  /**
+   * Signals an internal error while trying to process user input.
+   *
+   * Please file a bug report and attach the current log file for analysis.
+   */
+  CopySymbolFailed = 'ASYNC-90002',
+
+  /**
+   * Signals an internal error while trying to process user input.
+   *
+   * Please file a bug report and attach the current log file for analysis.
+   */
+  CompareTypesFailed = 'ASYNC-90003',
+
+  /**
+   * Signals an internal error while trying to process user input.
+   *
+   * Please file a bug report and attach the current log file for analysis.
+   */
+  CompareScopesDifferentDepth = 'ASYNC-90004'
 }
 
 export {
