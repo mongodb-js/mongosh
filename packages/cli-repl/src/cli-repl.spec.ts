@@ -122,7 +122,7 @@ describe('CliRepl', () => {
           await onerror;
         } finally {
           process.version = process.versions.node;
-          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar;
+          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';
         }
       });
     });
