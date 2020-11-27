@@ -5,8 +5,8 @@ RUN apt-get -y -qq install build-essential python2.7 curl apt-transport-https ca
 
 # Add Node.js
 RUN curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-RUN echo "deb https://deb.nodesource.com/node_12.x xenial main" | tee /etc/apt/sources.list.d/nodesource.list
-RUN echo "deb-src https://deb.nodesource.com/node_12.x xenial main" | tee -a /etc/apt/sources.list.d/nodesource.list
+RUN echo "deb https://deb.nodesource.com/node_14.x xenial main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN echo "deb-src https://deb.nodesource.com/node_14.x xenial main" | tee -a /etc/apt/sources.list.d/nodesource.list
 
 # Add sufficiently recent compiler toolchain
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test

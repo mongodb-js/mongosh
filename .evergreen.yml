@@ -14,6 +14,7 @@ variables:
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         set -e
         cd $(pwd)
+        export NODE_JS_VERSION=${node_js_version}
         source .evergreen/.setup_env
         export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
@@ -43,6 +44,7 @@ variables:
           bash ~/release_mongosh.sh
         fi
 
+        export NODE_JS_VERSION=${node_js_version}
         source .evergreen/.setup_env
         export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
@@ -55,6 +57,7 @@ variables:
       shell: bash
       script: |
         set -e
+        export NODE_JS_VERSION=${node_js_version}
         source .evergreen/.setup_env
         export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
         node scripts/download-linux-artifact
@@ -69,6 +72,7 @@ variables:
       working_dir: src
       shell: powershell
       script: |
+        $Env:NODE_JS_VERSION = "${node_js_version}"
         $ErrorActionPreference = "Stop"
         .\.evergreen\SetupEnv
         node --version
@@ -106,6 +110,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.install_node
   install_win:
     - command: shell.exec
@@ -113,6 +118,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
+          $Env:NODE_JS_VERSION = "${node_js_version}"
           .\.evergreen\InstallNode
   check:
     - command: shell.exec
@@ -120,6 +126,7 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           npm run check-ci
   check_win:
@@ -128,6 +135,7 @@ functions:
         working_dir: src
         shell: powershell
         script: |
+          $Env:NODE_JS_VERSION = "${node_js_version}"
           .\.evergreen\SetupEnv
           npm run check-ci
   test:
@@ -141,6 +149,7 @@ functions:
         shell: bash
         script: |
           set -e
+          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
           npm run test-ci
@@ -155,6 +164,7 @@ functions:
         shell: powershell
         script: |
           $ErrorActionPreference = "Stop"
+          $Env:NODE_JS_VERSION = "${node_js_version}"
           .\.evergreen\SetupEnv
           $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
           npm run test-ci
@@ -166,9 +176,7 @@ functions:
         script: |
           set -e
           (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
-          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
-            -e NODE_JS_VERSION \
-            -e BUILD_VARIANT \
+          docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
   compile_and_upload_artifact:
@@ -200,6 +208,7 @@ functions:
         shell: bash
         script: |
           set -e
+          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
@@ -220,96 +229,217 @@ tasks:
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "14.15.1"
       - func: check
+        vars:
+          node_js_version: "14.15.1"
   - name: check_win
     commands:
       - func: checkout
       - func: install_win
+        vars:
+          node_js_version: "14.15.1"
       - func: check_win
-  - name: test_m40x
+        vars:
+          node_js_version: "14.15.1"
+  - name: test_m40x_n12
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "12.20.0"
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-  - name: test_m42x
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m42x_n12
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "12.20.0"
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-  - name: test_m44x
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m44x_n12
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "12.20.0"
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-  - name: test_m40x_win
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m40x_n12_win
     commands:
       - func: checkout
       - func: install_win
+        vars:
+          node_js_version: "12.20.0"
       - func: test_win
         vars:
           mongosh_server_test_version: "4.0.x"
-  - name: test_m42x_win
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m42x_n12_win
     commands:
       - func: checkout
       - func: install_win
+        vars:
+          node_js_version: "12.20.0"
       - func: test_win
         vars:
           mongosh_server_test_version: "4.2.x"
-  - name: test_m44x_win
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m44x_n12_win
     commands:
       - func: checkout
       - func: install_win
+        vars:
+          node_js_version: "12.20.0"
       - func: test_win
         vars:
           mongosh_server_test_version: "4.4.x"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m40x_n14
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x"
+          node_js_version: "14.15.1"
+  - name: test_m42x_n14
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "14.15.1"
+  - name: test_m44x_n14
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "14.15.1"
+  - name: test_m40x_n14_win
+    commands:
+      - func: checkout
+      - func: install_win
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_win
+        vars:
+          mongosh_server_test_version: "4.0.x"
+          node_js_version: "14.15.1"
+  - name: test_m42x_n14_win
+    commands:
+      - func: checkout
+      - func: install_win
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_win
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "14.15.1"
+  - name: test_m44x_n14_win
+    commands:
+      - func: checkout
+      - func: install_win
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_win
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "14.15.1"
   - name: test_vscode
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "12.20.0"
       - func: test_vscode
   - name: compile_and_upload_artifact_macos
     depends_on:
       - name: check
         variant: darwin
-      - name: test_m40x
+      - name: test_m40x_n12
         variant: darwin
-      - name: test_m42x
+      - name: test_m42x_n12
         variant: darwin
-      - name: test_m44x
+      - name: test_m44x_n12
+        variant: darwin
+      - name: test_m40x_n14
+        variant: darwin
+      - name: test_m42x_n14
+        variant: darwin
+      - name: test_m44x_n14
         variant: darwin
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "14.15.1"
       - func: compile_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
   - name: compile_and_upload_artifact_linux
     depends_on:
       - name: check
-      - name: test_m40x
+      - name: test_m40x_n12
         variant: linux
-      - name: test_m42x
+      - name: test_m42x_n12
         variant: linux
-      - name: test_m44x
+      - name: test_m44x_n12
+        variant: linux
+      - name: test_m40x_n14
+        variant: linux
+      - name: test_m42x_n14
+        variant: linux
+      - name: test_m44x_n14
         variant: linux
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "14.15.1"
       - func: compile_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
   - name: compile_and_upload_artifact_win
     depends_on:
       - name: check_win
-      - name: test_m40x_win
-      - name: test_m42x_win
-      - name: test_m44x_win
+      - name: test_m40x_n12_win
+      - name: test_m42x_n12_win
+      - name: test_m44x_n12_win
+      - name: test_m40x_n14_win
+      - name: test_m42x_n14_win
+      - name: test_m44x_n14_win
     commands:
       - func: checkout
       - func: install_win
+        vars:
+          node_js_version: "14.15.1"
       - func: compile_and_upload_artifact_win
+        vars:
+          node_js_version: "14.15.1"
   - name: test_linux_artifact
     depends_on:
       - name: compile_and_upload_artifact_linux
@@ -317,7 +447,11 @@ tasks:
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "14.15.1"
       - func: test_linux_artifact
+        vars:
+          node_js_version: "14.15.1"
   - name: release_publish
     depends_on:
       - name: compile_and_upload_artifact_win
@@ -335,7 +469,11 @@ tasks:
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "14.15.1"
       - func: release_publish
+        vars:
+          node_js_version: "14.15.1"
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -349,17 +487,23 @@ buildvariants:
     run_on: macos-1014
     tasks:
       - name: check
-      - name: test_m40x
-      - name: test_m42x
-      - name: test_m44x
+      - name: test_m40x_n12
+      - name: test_m42x_n12
+      - name: test_m44x_n12
+      - name: test_m40x_n14
+      - name: test_m42x_n14
+      - name: test_m44x_n14
   - name: linux
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-test
     tasks:
       - name: check
-      - name: test_m40x
-      - name: test_m42x
-      - name: test_m44x
+      - name: test_m40x_n12
+      - name: test_m42x_n12
+      - name: test_m44x_n12
+      - name: test_m40x_n14
+      - name: test_m42x_n14
+      - name: test_m44x_n14
       - name: test_vscode
       - name: compile_and_upload_artifact_linux
   - name: rhel
@@ -369,7 +513,7 @@ buildvariants:
       - name: check
       - name: compile_and_upload_artifact_linux
   - name: debian
-    display_name: "Ununtu 18.04 (deb target)"
+    display_name: "Ubuntu 18.04 (deb target)"
     run_on: ubuntu1804-test
     tasks:
       - name: check
@@ -389,9 +533,12 @@ buildvariants:
     run_on: windows-64-vs2019-test
     tasks:
       - name: check_win
-      - name: test_m40x_win
-      - name: test_m42x_win
-      - name: test_m44x_win
+      - name: test_m40x_n12_win
+      - name: test_m42x_n12_win
+      - name: test_m44x_n12_win
+      - name: test_m40x_n14_win
+      - name: test_m42x_n14_win
+      - name: test_m44x_n14_win
       - name: compile_and_upload_artifact_win
   - name: darwin_release_publish
     display_name: "Publish Release"

@@ -1,4 +1,4 @@
-$version = "12.18.4"
+$version = "$Env:NODE_JS_VERSION"
 $url = "https://nodejs.org/download/release/v$version/node-v$version-win-x64.zip"
 $filename = "node.zip"
 $node_zip = "$PSScriptRoot\$filename"
