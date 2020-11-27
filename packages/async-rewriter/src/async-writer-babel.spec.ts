@@ -8,6 +8,7 @@ const signatures = require('../test/shell-api-signatures');
 import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
 import { AsyncRewriterErrors } from './error-codes';
+import { fail } from 'assert';
 
 const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
@@ -440,7 +441,8 @@ class Test {
                 compileCheckScopes(writer, 'c[(x)]');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
-                expect(e.code).to.be.equal('TODO'); // TODO: add error code
+                expect(e.message).to.not.contain('Database');
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
               }
             });
             it('throws an error with suggestion for db', () => {
@@ -449,7 +451,7 @@ class Test {
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
                 expect(e.message).to.contain('Database');
-                expect(e.code).to.be.equal('TODO'); // TODO: add error code
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
               }
             });
           });
@@ -575,7 +577,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.not.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
             }
           });
           it('throws an error for null', () => {
@@ -584,7 +586,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.not.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
             }
           });
           it('throws an error with db suggestion', () => {
@@ -593,7 +595,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
             }
           });
         });
@@ -637,12 +639,13 @@ class Test {
         });
       });
       describe('with variable', () => {
-        it('throws an error with suggestion for db', () => {
+        it('throws an error since has async child', () => {
           try {
             compileCheckScopes(writer, 'a[d]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.message).to.not.contain('Database');
+            expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
           }
         });
       });
@@ -1132,45 +1135,41 @@ class Test {
           db: signatures.Database
         });
       });
-      it('throws an error for db', (done) => {
+      it('throws an error for db', () => {
         try {
           compileCheckScopes(writer, 'fn(db)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       });
       it('ignores exceptions', () => {
         expect(compileCheckScopes(writer, 'print(db)')).to.equal('print(db);');
         expect(compileCheckScopes(writer, 'printjson(db)')).to.equal('printjson(db);');
       });
-      it('throws an error for db.coll', (done) => {
+      it('throws an error for db.coll', () => {
         try {
           compileCheckScopes(writer, 'fn(db.coll)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       });
-      it('throws an error for db.coll.insertOne', (done) => {
+      it('throws an error for db.coll.insertOne', () => {
         try {
           compileCheckScopes(writer, 'fn(db.coll.insertOne)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       });
-      it('throws an error for async method', (done) => {
+      it('throws an error for async method', () => {
         compileCheckScopes(writer, 'function f() { db.coll.insertOne({}) }');
         try {
           compileCheckScopes(writer, 'fb(f)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       });
       it('does not throw error for regular arg', () => {
@@ -1608,7 +1607,7 @@ function f() {
             compileCheckScopes(writer, '[a, b] = [1, db]');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal(AsyncRewriterErrors.DestructuringNotImplemented);
           }
         });
         it('array pattern ignored for non-async', () => {
@@ -1769,7 +1768,7 @@ function f() {
                 compileCheckScopes(writer, 'x[a] = 1');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
-                expect(e.code).to.be.equal('TODO'); // TODO: add error code
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
               }
             });
           });
@@ -1855,11 +1854,13 @@ function f() {
               writer = new AsyncWriter(signatures);
               writer.symbols.initializeApiObjects({ db: signatures.Database });
               compileCheckScopes(writer, 'x = {}');
+            });
+            it('throws assigning an async type', () => {
               try {
                 compileCheckScopes(writer, 'x[a] = db');
               } catch (e) {
-                expect(e.name).to.be.equal('MongoshUnimplementedError');
-                expect(e.code).to.be.equal('TODO'); // TODO: add error code
+                expect(e.name).to.be.equal('MongoshInvalidInputError');
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
               }
             });
           });
@@ -2428,7 +2429,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
           }
         });
       });
@@ -2484,7 +2485,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
           }
         });
       });
@@ -2654,34 +2655,31 @@ function f() {
     before(() => {
       writer = new AsyncWriter(signatures);
     });
-    it('errors outside of function', (done) => {
+    it('errors outside of function', () => {
       input = 'this.x';
       try {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
-        done();
       }
     });
-    it('errors in regular function', (done) => {
+    it('errors in regular function', () => {
       input = 'function x() { this.x = 1 }';
       try {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
-        done();
       }
     });
-    it('errors in object', (done) => {
+    it('errors in object', () => {
       input = '{ function x() { this.x = 1 } }';
       try {
         compileCheckScopes(writer, input);
       } catch (e) {
         expect(e.name).to.be.equal('MongoshUnimplementedError');
         expect(e.code).to.be.equal(AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
-        done();
       }
     });
   });
@@ -2906,7 +2904,7 @@ class Test {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal(AsyncRewriterErrors.UsedMemberInClassBeforeDefinition);
           }
         });
         it('assign this not in constructor', () => {
@@ -2918,7 +2916,20 @@ class Test {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal('TODO'); // TODO: introduce proper error code with MONGOSH-473
+          }
+        });
+        it('nested this assignment', () => {
+          input = `
+  class Test {
+    constructor() { this.obj = {}; this.obj.db = db; }
+  }`;
+          try {
+            compileCheckScopes(writer, input);
+            fail('expected error');
+          } catch (e) {
+            expect(e.name).to.be.equal('MongoshUnimplementedError');
+            expect(e.code).to.be.equal(AsyncRewriterErrors.NestedThisAssignment);
           }
         });
       });
@@ -3706,7 +3717,7 @@ switch(TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal('TODO'); // TODO: add error code
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
             }
           });
         });
@@ -3754,7 +3765,7 @@ switch(TEST) {
             compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal('TODO'); // TODO: add error code
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalExpressionDifferentAsyncTypes);
           }
         });
       });
@@ -3775,25 +3786,23 @@ switch(TEST) {
       expect(m.hasAsyncChild).to.be.true;
       expect(m.returnsPromise).to.be.true;
     });
-    it('regular add', (done) => {
+    it('regular add', () => {
       input = 'const rs = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
-    it('ok with assigning rs to other var, but not attr', (done) => {
+    it('ok with assigning rs to other var, but not attr', () => {
       expect(compileCheckScopes(writer, 'other = rs')).to.equal('other = rs;');
       input = 'other.key = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
     it('ok to reassign', () => {
@@ -3802,68 +3811,62 @@ switch(TEST) {
       expect(compileCheckScopes(writer, 'other = rs.coll')).to.equal('other = rs.coll;');
       expect(compileCheckScopes(writer, 'other = db.coll')).to.equal('other = db.coll;');
     });
-    it('not ok to reassign attribute', (done) => {
+    it('not ok to reassign attribute', () => {
       expect(compileCheckScopes(writer, 'other = db.coll')).to.equal('other = db.coll;');
       input = 'other.insertOne = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
-    it('addToParent', (done) => {
+    it('addToParent', () => {
       input = 'class rs {}';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
-    it('updateIfDefined', (done) => {
+    it('updateIfDefined', () => {
       input = 'rs = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
     it('does not error with db', () => {
       expect(compileCheckScopes(writer, 'db = 1')).to.equal('db = 1;');
     });
-    it('updateAttribute', (done) => {
+    it('updateAttribute', () => {
       input = 'rs.coll = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
-    it('var', (done) => {
+    it('var', () => {
       input = 'var rs = 1';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
-    it('func', (done) => {
+    it('func', () => {
       input = 'function rs() { return 1; }';
       try {
         compileCheckScopes(writer, input);
       } catch (err) {
         expect(err.name).to.be.equal('MongoshInvalidInputError');
-        expect(err.code).to.be.equal('TODO'); // TODO: add error code
-        done();
+        expect(err.code).to.be.equal(AsyncRewriterErrors.ModifyMongoshType);
       }
     });
   });
@@ -3933,7 +3936,7 @@ function f(arg) {
         spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
         writer = new AsyncWriter(signatures, spy);
       });
-      it('throws', (done) => {
+      it('throws', () => {
         try {
           compileCheckScopes(writer, `
 function f(arg) {
@@ -3945,8 +3948,7 @@ function f(arg) {
   `);
         } catch (e) {
           expect(e.name).to.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
         }
       });
     });
@@ -3988,14 +3990,13 @@ function f(arg) {
         input = 'arr.forEach(f)';
         expect(compileCheckScopes(writer, input)).to.equal('await toIterator(arr).forEach(f);');
       });
-      it('other function throws', (done) => {
+      it('other function throws', () => {
         input = 'arr.notForEach((s) => ( db.coll.insertOne({}) ) )';
         try {
           compileCheckScopes(writer, input);
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal('TODO'); // TODO: add error code
-          done();
+          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       });
     });

@@ -142,7 +142,7 @@ export default class SymbolTable {
 
   private checkIfApi(key): void {
     if (key !== 'db' && key in this.scopeAt(0)) {
-      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
+      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`, AsyncRewriterErrors.ModifyMongoshType);
     }
   }
 
@@ -198,7 +198,7 @@ export default class SymbolTable {
     this.checkIfApi(lhs);
     const item = this.lookup(lhs);
     if (item.api) {
-      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`);
+      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`, AsyncRewriterErrors.ModifyMongoshType);
     }
     keys.reduce((sym, key, i) => {
       if (sym.type === 'unknown') {

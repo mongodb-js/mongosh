@@ -105,7 +105,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const help = lhsType.type === 'Database' ?
               '\nIf you are accessing a collection try Database.get(\'collection\').' :
               '';
-            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`, AsyncRewriterErrors.DynamicAccessOfApiType);
+            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`, AsyncRewriterErrors.DynamicAccessOfAsyncType);
           }
           path.node['shellType'] = { type: 'unknown', attributes: {} };
           debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, path.node['shellType']);
@@ -122,7 +122,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         }
         // if not within constructor
         if (methodPath.node.kind !== 'constructor' && classPath.node['shellType'].returnType.attributes[rhs] === 'unset') {
-          throw new MongoshInvalidInputError(`Unable to use attribute ${rhs} because it's not defined yet`);
+          throw new MongoshInvalidInputError(`Unable to use attribute ${rhs} because it's not defined yet`, AsyncRewriterErrors.UsedMemberInClassBeforeDefinition);
         }
       }
       let sType = { type: 'unknown', attributes: {} };
@@ -166,16 +166,16 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               }
             // eslint-disable-next-line no-fallthrough
             default:
-              throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument');
+              throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
           }
         } else {
-          throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument');
+          throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
         }
       }
       /* Check that the user is not passing a type that has async children to a self-defined function.
          This is possible for scripts but not for line-by-line execution, so turned off for everything. */
       if (!isException && path.node.arguments.some(a => a['shellType'].hasAsyncChild)) {
-        throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function');
+        throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
       }
 
       // determine return type
@@ -293,7 +293,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               // eslint-disable-next-line no-fallthrough
               default:
                 if (sType.hasAsyncChild || sType.returnsPromise) {
-                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfApiType);
+                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfAsyncType);
                 }
             }
             lhsNode = lhsNode.object as babel.types.MemberExpression;
@@ -309,7 +309,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
             }
             if (attrs.length > 1) {
-              throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword');
+              throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword', AsyncRewriterErrors.NestedThisAssignment);
             }
             if (classPath.node['shellType'].returnType.type === 'unknown') {
               classPath.node['shellType'].returnType.type = 'object';
@@ -323,7 +323,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
         case 'ObjectPattern':
         case 'TSParameterProperty':
           if (sType.hasAsyncChild || sType.returnsPromise) {
-            throw new MongoshUnimplementedError('Destructured assignment of Mongosh API types is not supported at this time.');
+            throw new MongoshUnimplementedError('Destructured assignment of Mongosh API types is not supported at this time.', AsyncRewriterErrors.DestructuringNotImplemented);
           }
           break;
         default:
@@ -460,11 +460,11 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
     enter(path: babel.NodePath<babel.types.ThisExpression>): void {
       const methodPath = path.findParent((p) => p.isMethod());
       if (!methodPath) {
-        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition');
+        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
       }
       const classPath = path.findParent((p) => p.isClassDeclaration());
       if (!classPath) {
-        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration');
+        throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
       }
       path.node['shellType'] = classPath.node['shellType'].returnType;
     }
@@ -504,7 +504,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
            NOTE: this can be expanded with some effort so returning of the same type is allowed. */
         const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
         if (someAsync) {
-          throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.');
+          throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.', AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
         }
         rType = { type: 'unknown', attributes: {} };
       }
@@ -606,7 +606,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const cAsync = consType && (consType.hasAsyncChild || consType.returnsPromise);
             const aAsync = altType && (altType.hasAsyncChild || altType.returnsPromise);
             if (cAsync || aAsync) {
-              throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.');
+              throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.', AsyncRewriterErrors.ConditionalExpressionDifferentAsyncTypes);
             }
             path.node['shellType'] = { type: 'unknown', attributes: {} };
           }
