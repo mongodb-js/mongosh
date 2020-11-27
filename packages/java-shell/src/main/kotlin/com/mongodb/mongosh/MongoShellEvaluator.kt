@@ -49,15 +49,14 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     }
 
     private fun initContext(bindings: Value, jsSymbol: Value) {
-        bindings.putMember("BSONSymbol", bindings["Symbol"])
-        bindings.putMember("Symbol", jsSymbol)
+        bindings["BSONSymbol"] = bindings["Symbol"]
+        bindings["Symbol"] = jsSymbol
         val date = context.eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
                 .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
-        date.putMember("now", ProxyExecutable { System.currentTimeMillis() })
-        bindings.putMember("Date", date)
-        val isoDate = context.jsFun { args -> dateHelper(true, args.toList()) }
-        bindings.putMember("ISODate", isoDate)
-        bindings.putMember("UUID", context.jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) })
+        date["now"] = ProxyExecutable { System.currentTimeMillis() }
+        bindings["Date"] = date
+        bindings["ISODate"] = context.jsFun { args -> dateHelper(true, args.toList()) }
+        bindings["UUID"] = context.jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) }
     }
 
     private fun shellResult(printable: Value, type: String): Value {

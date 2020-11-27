@@ -6,9 +6,8 @@ import org.graalvm.polyglot.Value
 import org.intellij.lang.annotations.Language
 
 
-internal inline operator fun Value.get(identifier: String): Value? {
-    return getMember(identifier)
-}
+internal inline operator fun Value.get(identifier: String): Value? = getMember(identifier)
+internal inline operator fun Value.set(identifier: String, value: Any?) = putMember(identifier, value)
 
 internal inline fun Value.instanceOf(context: MongoShellContext, @Language("js") clazz: String): Boolean {
     return context.eval("(x) => x instanceof $clazz", "instance_of_script").execute(this).asBoolean()

@@ -10,12 +10,12 @@ internal class ConsoleLogSupport(context: MongoShellContext, converter: MongoShe
         val print = context.jsFun { args ->
             printedValues?.add(args.map { converter.toJava(it).value })
         }
-        context.bindings.putMember("print", print)
+        context.bindings["print"] = print
         @Suppress("JSPrimitiveTypeWrapperUsage")
         val console = context.eval("new Object()")
-        console.putMember("log", print)
-        console.putMember("error", print)
-        context.bindings.putMember("console", console)
+        console["log"] = print
+        console["error"] = print
+        context.bindings["console"] = console
     }
 
     fun <T> withConsoleLogEnabled(printedValues: MutableList<List<Any?>>, func: () -> T): T {

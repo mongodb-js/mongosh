@@ -34,7 +34,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
         @Suppress("JSPrimitiveTypeWrapperUsage")
         val jsMap = context.eval("new Object()")
         for ((key, value) in map.entries) {
-            jsMap.putMember(key as String, toJs(value))
+            jsMap[key as String] = toJs(value)
         }
         return jsMap
     }
