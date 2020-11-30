@@ -4,6 +4,7 @@ import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
 import { DEFAULT_DB } from './index';
 import { MongoshInvalidInputError } from '@mongosh/errors';
+import { ServiceProviderCoreErrors } from './error-codes';
 
 /**
  * URI schemes.
@@ -47,7 +48,7 @@ const CONFLICT = 'cli-repl.uri-generator.no-host-port';
  */
 function validateConflicts(options: CliOptions): any {
   if (options.host || options.port) {
-    throw new MongoshInvalidInputError(i18n.__(CONFLICT));
+    throw new MongoshInvalidInputError(i18n.__(CONFLICT), ServiceProviderCoreErrors.InvalidHostAndPortOptions);
   }
 }
 
@@ -81,7 +82,7 @@ function generatePort(options: CliOptions): string {
     if (!options.port || options.port === port) {
       return port;
     }
-    throw new MongoshInvalidInputError(i18n.__(CONFLICT));
+    throw new MongoshInvalidInputError(i18n.__(CONFLICT), ServiceProviderCoreErrors.InvalidHostAndPortOptions);
   }
   return options.port ? options.port : DEFAULT_PORT;
 }
@@ -122,7 +123,7 @@ function generateUri(options: CliOptions): string {
   const parts = uriMatch.exec(uri);
 
   if (parts === null) {
-    throw new MongoshInvalidInputError(`Invalid URI: ${uri}`);
+    throw new MongoshInvalidInputError(`Invalid URI: ${uri}`, ServiceProviderCoreErrors.InvalidUri);
   }
 
   let host: string | undefined = parts[1];

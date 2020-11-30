@@ -4,6 +4,7 @@ import type Catalog from './catalog';
 import en_US from './locales/en_US';
 import de_DE from './locales/de_DE';
 import { MongoshInternalError } from '@mongosh/errors';
+import { InternationalizationErrors } from './error-codes';
 
 /**
  * The default locale.
@@ -43,7 +44,7 @@ class Translator {
   __(key: string): string {
     const translation = this.translate(key);
     if (translation === undefined) {
-      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`);
+      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`, InternationalizationErrors.UntranslatedKey);
     }
     return translation;
   }

@@ -5,6 +5,7 @@ import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
+import { CliReplErrors } from './error-codes';
 
 describe('CliRepl', () => {
   let cliReplOptions: CliReplOptions;
@@ -142,7 +143,9 @@ describe('CliRepl', () => {
           try {
             await cliRepl.start('', {});
           } catch { /* not empty */ }
-          await onerror;
+          const [e] = await onerror;
+          expect(e.name).to.equal('MongoshWarning');
+          expect(e.code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
           process.version = process.versions.node;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';

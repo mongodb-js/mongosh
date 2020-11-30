@@ -14,6 +14,7 @@ import type { Readable, Writable } from 'stream';
 import Analytics from 'analytics-node';
 import pino from 'pino';
 import { UserConfig } from './types';
+import { CliReplErrors } from './error-codes';
 
 /**
  * Connecting text key.
@@ -150,7 +151,7 @@ class CliRepl {
     // Strip -rc.0, -pre, etc. from the Node.js version because semver rejects those otherwise.
     const baseNodeVersion = process.version.replace(/-.*$/, '');
     if (!semver.satisfies(baseNodeVersion, engines.node)) {
-      const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`);
+      const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`, CliReplErrors.NodeVersionMismatch);
       this._fatalError(warning);
     }
   }
@@ -199,7 +200,7 @@ class CliRepl {
   exit(code: number): never {
     this.bus.emit('mongosh:exit', code);
     // Emitting mongosh:exit never returns. If it does, that's a bug.
-    throw new MongoshInternalError('mongosh:exit unexpectedly returned');
+    throw new MongoshInternalError('mongosh:exit unexpectedly returned', CliReplErrors.UnexpectedExitReturn);
   }
 
   clr(text: string, style: StyleDefinition): string {
