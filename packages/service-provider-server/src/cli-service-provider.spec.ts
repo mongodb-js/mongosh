@@ -6,6 +6,7 @@ import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
 import CliServiceProvider from './cli-service-provider';
+import { ServiceProviderServerErrors } from './error-codes';
 
 const DEFAULT_BASE_OPTS = { serializeFunctions: true };
 
@@ -375,6 +376,7 @@ describe('CliServiceProvider', () => {
       } catch (e) {
         expect(e.message).to.include(JSON.stringify({ ismaster: 1 }));
         expect(e.name).to.equal('MongoshCommandFailed');
+        expect(e.code).to.equal(ServiceProviderServerErrors.CommandFailed);
         return;
       }
       expect.fail('Error not thrown');
@@ -787,6 +789,7 @@ describe('CliServiceProvider', () => {
         } catch (e) {
           expect(e.message).to.include(cmd);
           expect(e.name).to.equal('MongoshCommandFailed');
+          expect(e.code).to.equal(ServiceProviderServerErrors.CommandFailed);
           return;
         }
         expect.fail(`Error not thrown for ok:0 on cmd ${cmd}`);

@@ -86,7 +86,8 @@ import {
   ChangeStream
 } from '@mongosh/service-provider-core';
 
-import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
+import { MongoshCommandFailed } from '@mongosh/errors';
+import { ServiceProviderServerErrors } from './error-codes';
 
 type DropDatabaseResult = {
   ok: 0 | 1;
@@ -841,7 +842,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<Document> {
     const result = await this.runCommand(database, spec, options, dbOptions);
     if (result.ok === 0) {
-      throw new MongoshCommandFailed(JSON.stringify(spec));
+      throw new MongoshCommandFailed(JSON.stringify(spec), ServiceProviderServerErrors.CommandFailed);
     }
     return result as { ok: 1 };
   }
