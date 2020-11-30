@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,8 +27,8 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "@mongosh/errors": "^0.5.2",
-    "@mongosh/i18n": "^0.5.2",
+    "@mongosh/errors": "^0.6.0",
+    "@mongosh/i18n": "^0.6.0",
     "bson": "^4.2.0",
     "mongodb-build-info": "^1.1.1"
   },
