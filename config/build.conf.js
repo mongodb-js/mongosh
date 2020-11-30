@@ -50,6 +50,8 @@ const REVISION = process.env.IS_PATCH ?
   `pr-${process.env.GITHUB_PR_NUMBER}-${process.env.REVISION_ORDER_ID}` :
   process.env.REVISION;
 
+const BUILD_VARIANT = (process.env.BUILD_VARIANT || '').split('_')[0];
+
 /**
  * Export the configuration for the build.
  */
@@ -73,7 +75,7 @@ module.exports = {
   isPatch: process.env.IS_PATCH === 'true',
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
-  buildVariant: process.env.BUILD_VARIANT,
+  buildVariant: BUILD_VARIANT,
   appleCodesignIdentity: process.env.APPLE_CODESIGN_IDENTITY,
   appleCodesignEntitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
   appleNotarizationBundleId: APPLE_NOTARIZATION_BUNDLE_ID,
