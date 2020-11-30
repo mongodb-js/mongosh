@@ -185,7 +185,6 @@ describe('CliRepl', () => {
     });
 
     it('prints cursor output in batches as requested', async() => {
-      cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start(await testServer.connectionString(), {});
 
       input.write('use clirepltest\n');
