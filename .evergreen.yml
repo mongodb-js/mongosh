@@ -21,14 +21,14 @@ variables:
         if [ `uname` == Linux ]; then
           mkdir -p tmp
           cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-          (cd scripts/docker && docker build -t ubuntu16.04-build -f ubuntu16.04-build.Dockerfile .)
+          (cd scripts/docker && docker build -t centos7-build -f centos7-build.Dockerfile .)
           echo Starting Docker container build
           docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
             -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
             -e NODE_JS_VERSION \
             -e BUILD_VARIANT \
-            --rm -v $PWD:/tmp/build --network host ubuntu16.04-build \
-            -c 'cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
+            --rm -v $PWD:/tmp/build --network host centos7-build \
+            -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
         else
           npm run evergreen-release package
           if [ `uname` == Darwin ]; then
@@ -511,9 +511,15 @@ tasks:
       - name: compile_and_upload_artifact_linux
         variant: linux
       - name: test_linux_artifact
-        variant: rhel_real
+        variant: rhel70
       - name: test_linux_artifact
-        variant: debian_real
+        variant: rhel76
+      - name: test_linux_artifact
+        variant: debian10
+      - name: test_linux_artifact
+        variant: ubuntu1604
+      - name: test_linux_artifact
+        variant: ubuntu2004
       - name: compile_and_upload_artifact_macos
         variant: darwin_codesign
       - name: test_vscode
@@ -574,14 +580,29 @@ buildvariants:
     tasks:
       - name: check
       - name: compile_and_upload_artifact_linux
-  - name: rhel_real
-    display_name: "RHEL 8.0"
-    run_on: rhel80-large
+  - name: rhel70
+    display_name: "RHEL 7.0"
+    run_on: rhel70-small
     tasks:
       - name: test_linux_artifact
-  - name: debian_real
+  - name: rhel76
+    display_name: "RHEL 7.6"
+    run_on: rhel76-small
+    tasks:
+      - name: test_linux_artifact
+  - name: ubuntu1604
+    display_name: "Ubuntu 16.04"
+    run_on: ubuntu1604-small
+    tasks:
+      - name: test_linux_artifact
+  - name: ubuntu2004
+    display_name: "Ubuntu 20.04"
+    run_on: ubuntu2004-small
+    tasks:
+      - name: test_linux_artifact
+  - name: debian10
     display_name: "Debian 10"
-    run_on: debian10-large
+    run_on: debian10-small
     tasks:
       - name: test_linux_artifact
   - name: win32

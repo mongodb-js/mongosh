@@ -36,7 +36,7 @@ if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
   # Use prebuilt binaries where available.
   case `uname` in
       Darwin*)                          PREBUILT_OSNAME=macos;;
-      Linux*)                           PREBUILT_OSNAME=ubuntu1604;;
+      Linux*)                           PREBUILT_OSNAME=rhel-70-64-bit;;
       # Windows doesn't work because of dllimport/dllexport issues.
       #CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
   esac
@@ -52,12 +52,13 @@ if [ x"$PREBUILT_OSNAME" != x"" ]; then
 
   # Download and extract prebuilt binaries.
   curl -sSfLO https://s3.amazonaws.com/mciuploads/libmongocrypt/$PREBUILT_OSNAME/master/$LIBMONGOCRYPT_VERSION/libmongocrypt.tar.gz
+  if tar -tzf libmongocrypt.tar.gz lib64; then LIB=lib64; else LIB=lib; fi
   mkdir -p prebuilts
-  tar -xzvf libmongocrypt.tar.gz -C prebuilts nocrypto/ lib/
+  tar -xzvf libmongocrypt.tar.gz -C prebuilts nocrypto/ $LIB/
   mkdir -p lib
-  mv -v prebuilts/nocrypto/lib/* lib
+  mv -v prebuilts/nocrypto/$LIB/* lib
   mv -v prebuilts/nocrypto/include include
-  mv -v prebuilts/lib/*bson* lib
+  mv -v prebuilts/$LIB/*bson* lib
   cp lib/bson-1.0.lib lib/bson-static-1.0.lib || true # Windows
 else
   if [ `uname` = Darwin ]; then

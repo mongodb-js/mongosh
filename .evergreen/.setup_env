@@ -1,4 +1,6 @@
 set -e
+export PATH="/opt/python/3.6/bin/:$PATH"
+
 export NVM_DIR="$HOME/.nvm"
 echo "Setting NVM environment home: $NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
