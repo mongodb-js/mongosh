@@ -138,7 +138,7 @@ class MongoshNodeRepl {
     }
 
     repl.on('exit', async() => {
-      await internalState.close(true);
+      await this.close();
       this.bus.emit('mongosh:exit', 0);
     });
 
@@ -250,6 +250,15 @@ class MongoshNodeRepl {
       throw new MongoshInternalError('Mongosh not started yet');
     }
     return this._runtimeState;
+  }
+
+  async close(): Promise<void> {
+    const rs = this._runtimeState;
+    if (rs) {
+      this._runtimeState = null;
+      rs.repl.close();
+      await rs.internalState.close(true);
+    }
   }
 }
 

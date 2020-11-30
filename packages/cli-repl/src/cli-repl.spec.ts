@@ -130,9 +130,17 @@ describe('CliRepl', () => {
 
   context('with an actual server', () => {
     const testServer = startTestServer('shared');
+    let cliRepl: CliRepl;
+
+    beforeEach(() => {
+      cliRepl = new CliRepl(cliReplOptions);
+    });
+
+    afterEach(async() => {
+      await cliRepl.mongoshRepl.close();
+    });
 
     it('connects to a server and interacts with it', async() => {
-      cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start(await testServer.connectionString(), {});
 
       output = '';
@@ -154,7 +162,6 @@ describe('CliRepl', () => {
     });
 
     it('asks for a password if one is required', async() => {
-      cliRepl = new CliRepl(cliReplOptions);
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
           setImmediate(() => input.write('i want food\n'));
@@ -174,7 +181,6 @@ describe('CliRepl', () => {
     });
 
     it('respects a canceled password input', async() => {
-      cliRepl = new CliRepl(cliReplOptions);
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
           setImmediate(() => input.write('\u0003')); // Ctrl+C
