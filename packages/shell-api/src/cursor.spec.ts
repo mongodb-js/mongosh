@@ -219,7 +219,7 @@ describe('Cursor', () => {
 
       it('returns the cursor hasNext value', async() => {
         expect(await shellApiCursor.tryNext()).to.deep.equal({ doc: 1 });
-        expect(spCursor.hasNext).to.have.been.calledWith();
+        expect(spCursor.tryNext).to.have.been.calledWith();
       });
     });
 
