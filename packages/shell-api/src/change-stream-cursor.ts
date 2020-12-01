@@ -19,17 +19,20 @@ import {
 } from '@mongosh/errors';
 import { iterate } from './helpers';
 import { printWarning } from './deprecation-warning';
+import Mongo from './mongo';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class ChangeStreamCursor extends ShellApiClass {
+  _mongo: Mongo;
   _cursor: ChangeStream;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
-  constructor(cursor: ChangeStream, on: string) {
+  constructor(cursor: ChangeStream, on: string, mongo: Mongo) {
     super();
     this._cursor = cursor;
     this._on = on;
+    this._mongo = mongo;
   }
 
   async _it(): Promise<CursorIterationResult> {
@@ -54,7 +57,11 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   @returnsPromise
   async hasNext(): Promise<void> {
-    printWarning('If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there are any documents without waiting.');
+    printWarning(
+      'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +
+      'are any documents without waiting.',
+      this._mongo._internalState.context.print
+    );
     return this._cursor.hasNext();
   }
 
@@ -86,7 +93,11 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   @returnsPromise
   async next(): Promise<void> {
-    printWarning('If there are no documents in the batch, next will block. Use tryNext if you want to check if there are any documents without waiting.');
+    printWarning(
+      'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
+      'any documents without waiting.',
+      this._mongo._internalState.context.print
+    );
     return this._cursor.next();
   }
 

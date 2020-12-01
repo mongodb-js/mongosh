@@ -154,7 +154,11 @@ export default class Cursor extends ShellApiClass {
   @returnsPromise
   hasNext(): Promise<boolean> {
     if (this._tailable) {
-      printWarning('If this is a tailable cursor with awaitData, and there are no documents in the batch, this method will will block. Use tryNext if you want to check if there are any documents without waiting.');
+      printWarning(
+        'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
+        'will will block. Use tryNext if you want to check if there are any documents without waiting.',
+        this._mongo._internalState.context.print
+      );
     }
     return this._cursor.hasNext();
   }
@@ -227,7 +231,11 @@ export default class Cursor extends ShellApiClass {
   @returnsPromise
   next(): Promise<Document | null> {
     if (this._tailable) {
-      printWarning('If this is a tailable cursor with awaitData, and there are no documents in the batch, this method will will block. Use tryNext if you want to check if there are any documents without waiting.');
+      printWarning(
+        'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
+        ' method will will block. Use tryNext if you want to check if there are any documents without waiting.',
+        this._mongo._internalState.context.print
+      );
     }
     return this._cursor.next();
   }
