@@ -523,7 +523,7 @@ describe('Mongo', () => {
         const expectedResult = { ChangeStreamCursor: 1 } as any;
         serviceProvider.watch.returns(expectedResult);
         const result = mongo.watch();
-        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/'));
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/', mongo));
         expect(mongo._internalState.currentCursor).to.equal(result);
       });
 

@@ -2160,7 +2160,7 @@ describe('Database', () => {
         const expectedResult = { ChangeStreamCursor: 1 } as any;
         serviceProvider.watch.returns(expectedResult);
         const result = database.watch();
-        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, database._name));
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, database._name, mongo));
         expect(database._mongo._internalState.currentCursor).to.equal(result);
       });
 

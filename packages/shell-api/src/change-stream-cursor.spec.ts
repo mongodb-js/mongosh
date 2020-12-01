@@ -14,7 +14,7 @@ import Collection from './collection';
 
 describe('ChangeStreamCursor', () => {
   describe('help', () => {
-    const apiClass = new ChangeStreamCursor({} as ChangeStream, 'source');
+    const apiClass = new ChangeStreamCursor({} as ChangeStream, 'source', {} as Mongo);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -44,7 +44,7 @@ describe('ChangeStreamCursor', () => {
       innerCursor = stubInterface<SPCursor>();
       spCursor = stubInterface<ChangeStream>();
       spCursor.cursor = innerCursor;
-      cursor = new ChangeStreamCursor(spCursor, 'source');
+      cursor = new ChangeStreamCursor(spCursor, 'source', {} as Mongo);
     });
 
     it('sets dynamic properties', async() => {

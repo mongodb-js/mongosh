@@ -1206,7 +1206,7 @@ describe('Collection', () => {
 
       it('returns whatever serviceProvider.watch returns', () => {
         const expectedResult = { ChangeStreamCursor: 1 } as any;
-        const expectedCursor = new ChangeStreamCursor(expectedResult, collection._name);
+        const expectedCursor = new ChangeStreamCursor(expectedResult, collection._name, mongo);
         serviceProvider.watch.returns(expectedResult);
         const result = collection.watch();
         expect(result).to.deep.equal(expectedCursor);
