@@ -11,6 +11,7 @@ import org.graalvm.polyglot.Value
 internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val converter: MongoShellConverter, private val wrapper: ValueWrapper) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
 
+    @JvmField
     @HostAccess.Export
     override var closed = false
 
