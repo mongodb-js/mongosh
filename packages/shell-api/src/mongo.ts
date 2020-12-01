@@ -27,6 +27,7 @@ import { asPrintable, ServerVersions, shellSession } from './enums';
 import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -83,7 +84,7 @@ export default class Mongo extends ShellApiClass {
     assertArgsDefined(name);
     assertArgsType([name], ['string']);
     if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.');
+      throw new MongoshInvalidInputError('Database name cannot be empty.', ShellApiErrors.MongoDatabaseNameInvalid);
     }
 
     if (!(name in this._databases)) {
@@ -113,7 +114,7 @@ export default class Mongo extends ShellApiClass {
       case 'dbs':
         const result = await this._serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
-          const err = new MongoshInternalError('Got invalid result from "listDatabases"');
+          const err = new MongoshInternalError('Got invalid result from "listDatabases"', ShellApiErrors.MongoShowListDatabasesFailed);
           this._internalState.messageBus.emit('mongosh:error', err);
           throw err;
         }
@@ -147,7 +148,8 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowResult', logs.names);
       default:
         const err = new MongoshInvalidInputError(
-          `'${cmd}' is not a valid argument for "show".`
+          `'${cmd}' is not a valid argument for "show".`,
+          ShellApiErrors.MongoShowArgumentInvalid
         );
         this._internalState.messageBus.emit('mongosh:error', err);
         throw err;
@@ -174,7 +176,10 @@ export default class Mongo extends ShellApiClass {
       const rc = this._serviceProvider.getReadConcern();
       return rc ? rc.level : undefined;
     } catch {
-      throw new MongoshInternalError('Error retrieving ReadConcern. Please file a JIRA ticket in the MONGOSH project');
+      throw new MongoshInternalError(
+        'Error retrieving ReadConcern. Please file a JIRA ticket in the MONGOSH project',
+        ShellApiErrors.MongoReadConcernFailed
+      );
     }
   }
 
@@ -211,19 +216,31 @@ export default class Mongo extends ShellApiClass {
   }
 
   setCausalConsistency(): void {
-    throw new MongoshInvalidInputError('It is not possible to set causal consistency for an entire connection due to the driver, use startSession({causalConsistency: <>}) instead.');
+    throw new MongoshInvalidInputError(
+      'It is not possible to set causal consistency for an entire connection due to the driver, use startSession({causalConsistency: <>}) instead.',
+      ShellApiErrors.MongoCausalConsistencyNotSupportedForConnection
+    );
   }
 
   isCausalConsistency(): void {
-    throw new MongoshInvalidInputError('Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true');
+    throw new MongoshInvalidInputError(
+      'Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true',
+      ShellApiErrors.MongoCausalConsistencyNotSupportedForConnection
+    );
   }
 
   setSlaveOk(): void {
-    throw new MongoshInvalidInputError('setSlaveOk is deprecated.');
+    throw new MongoshInvalidInputError(
+      'setSlaveOk is deprecated.',
+      ShellApiErrors.MongoSetSlaveOkRemoved
+    );
   }
 
   setSecondaryOk(): void {
-    throw new MongoshInvalidInputError('Setting secondaryOk is deprecated, use setReadPreference instead');
+    throw new MongoshInvalidInputError(
+      'Setting secondaryOk is deprecated, use setReadPreference instead',
+      ShellApiErrors.MongoSetSecondaryOkRemoved
+    );
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])

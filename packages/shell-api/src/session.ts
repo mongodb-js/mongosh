@@ -21,6 +21,7 @@ import Mongo from './mongo';
 import Database from './database';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -54,7 +55,7 @@ export default class Session extends ShellApiClass {
     assertArgsType([name], ['string']);
 
     if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.');
+      throw new MongoshInvalidInputError('Database name cannot be empty.', ShellApiErrors.SessionGetDatabaseNameInvalid);
     }
 
     if (!(name in this._databases)) {
@@ -68,7 +69,10 @@ export default class Session extends ShellApiClass {
   }
 
   advanceClusterTime(): void {
-    throw new MongoshUnimplementedError('Calling advanceClusterTime is not currently supported due it not being supported in the driver, see NODE-2843.');
+    throw new MongoshUnimplementedError(
+      'Calling advanceClusterTime is not currently supported due it not being supported in the driver, see NODE-2843.',
+      ShellApiErrors.SessionAdvanceClusterTimeUnsupported
+    );
   }
 
   @returnsPromise

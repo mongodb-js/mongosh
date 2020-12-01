@@ -33,6 +33,7 @@ import {
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -272,7 +273,7 @@ export default class Database extends ShellApiClass {
     assertArgsType([coll], ['string']);
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!coll.trim()) {
-      throw new MongoshInvalidInputError('Collection name cannot be empty.');
+      throw new MongoshInvalidInputError('Collection name cannot be empty.', ShellApiErrors.DatabaseGetCollectionNameEmpty);
     }
 
     const collections: Record<string, Collection> = this._collections;
@@ -298,7 +299,7 @@ export default class Database extends ShellApiClass {
     assertKeysDefined(user, ['user', 'roles', 'pwd']);
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
-      throw new MongoshInvalidInputError('Cannot set createUser field in helper method');
+      throw new MongoshInvalidInputError('Cannot set createUser field in helper method', ShellApiErrors.DatabaseCreateUserNoCreateUser);
     }
     const command = adaptOptions(
       { user: 'createUser', passwordDigestor: null },
@@ -320,7 +321,10 @@ export default class Database extends ShellApiClass {
     assertArgsDefined(username, userDoc);
     this._emitDatabaseApiCall('updateUser', {});
     if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
-      throw new MongoshInvalidInputError(`Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`);
+      throw new MongoshInvalidInputError(
+        `Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`,
+        ShellApiErrors.DatabaseUpdateUserPasswordDigestorInvalid
+      );
     }
 
     const command = adaptOptions(
@@ -401,13 +405,22 @@ export default class Database extends ShellApiClass {
         pwd: args[1]
       };
     } else {
-      throw new MongoshInvalidInputError('auth expects (username), (username, password), or ({ user: username, pwd: password })');
+      throw new MongoshInvalidInputError(
+        'auth expects (username), (username, password), or ({ user: username, pwd: password })',
+        ShellApiErrors.DatabaseAuthArgsInvalid
+      );
     }
     if (!authDoc.user || !authDoc.pwd) {
-      throw new MongoshInvalidInputError('auth expects user document with \'user\' and \'pwd\' fields');
+      throw new MongoshInvalidInputError(
+        'auth expects user document with \'user\' and \'pwd\' fields',
+        ShellApiErrors.DatabaseAuthArgsInvalid
+      );
     }
     if ('digestPassword' in authDoc) {
-      throw new MongoshUnimplementedError('digestPassword is not supported for authentication.');
+      throw new MongoshUnimplementedError(
+        'digestPassword is not supported for authentication.',
+        ShellApiErrors.DatabaseAuthDigestPasswordUnsupported
+      );
     }
     authDoc.authDb = this._name;
     return await this._mongo._serviceProvider.authenticate(authDoc);
@@ -505,7 +518,10 @@ export default class Database extends ShellApiClass {
     assertKeysDefined(role, ['role', 'privileges', 'roles']);
     this._emitDatabaseApiCall('createRole', {});
     if (role.createRole) {
-      throw new MongoshInvalidInputError('Cannot set createRole field in helper method');
+      throw new MongoshInvalidInputError(
+        'Cannot set createRole field in helper method',
+        ShellApiErrors.DatabaseCreateRoleNoCreateRole
+      );
     }
     const command = adaptOptions(
       { role: 'createRole' },
@@ -707,7 +723,10 @@ export default class Database extends ShellApiClass {
       }
     );
     if (!info || info.version === undefined) {
-      throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
+      throw new MongoshRuntimeError(
+        `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
+        ShellApiErrors.DatabaseServerBuildInfoFailed
+      );
     }
     return info.version;
   }
@@ -721,7 +740,10 @@ export default class Database extends ShellApiClass {
       }
     );
     if (!info || info.bits === undefined) {
-      throw new MongoshRuntimeError(`Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`);
+      throw new MongoshRuntimeError(
+        `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
+        ShellApiErrors.DatabaseServerBuildInfoFailed
+      );
     }
     return info.bits;
   }
@@ -790,7 +812,10 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async printCollectionStats(scale = 1): Promise<Document> {
     if (typeof scale !== 'number' || scale < 1) {
-      throw new MongoshInvalidInputError(`scale has to be a number >=1, got ${scale}`);
+      throw new MongoshInvalidInputError(
+        `scale has to be a number >=1, got ${scale}`,
+        ShellApiErrors.DatabasePrintCollectionStatsScaleInvalid
+      );
     }
     this._emitDatabaseApiCall('printCollectionStats', { scale: scale });
     const colls: string[] = await this.getCollectionNames();
@@ -831,7 +856,10 @@ export default class Database extends ShellApiClass {
     this._emitDatabaseApiCall('enableFreeMonitoring', {});
     const isMaster = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 }, this._baseOptions);
     if (!isMaster.ismaster) {
-      throw new MongoshInvalidInputError('db.enableFreeMonitoring() may only be run on a primary');
+      throw new MongoshInvalidInputError(
+        'db.enableFreeMonitoring() may only be run on a primary',
+        ShellApiErrors.DatabaseEnableFreeMonitoringNotPrimary
+      );
     }
 
     // driver should check that ok: 1
@@ -857,7 +885,10 @@ export default class Database extends ShellApiClass {
     if (error && error.codeName === 'Unauthorized' || (result && !result.ok && result.codeName === 'Unauthorized')) {
       return 'Unable to determine status as you lack the \'checkFreeMonitoringStatus\' privilege.';
     } else if (error || !result || !result.ok) {
-      throw new MongoshRuntimeError(`Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`);
+      throw new MongoshRuntimeError(
+        `Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`,
+        ShellApiErrors.DatabaseEnableFreeMonitoringFailed
+      );
     }
     if (result.state !== 'enabled') {
       const urlResult = await this._mongo._serviceProvider.runCommand(
@@ -887,7 +918,10 @@ export default class Database extends ShellApiClass {
   async setProfilingLevel(level: number, opts: number | Document = {}): Promise<Document> {
     assertArgsDefined(level);
     if (level < 0 || level > 2) {
-      throw new MongoshInvalidInputError(`Input level ${level} is out of range [0..2]`);
+      throw new MongoshInvalidInputError(
+        `Input level ${level} is out of range [0..2]`,
+        ShellApiErrors.DatabaseSetProfilingLevelLevelInvalid
+      );
     }
     if (typeof opts === 'number') {
       opts = { slowms: opts };
@@ -909,7 +943,10 @@ export default class Database extends ShellApiClass {
     if (typeof component === 'string') {
       componentNames = component.split('.');
     } else if (component !== undefined) {
-      throw new MongoshInvalidInputError(`setLogLevel component must be a string: got ${typeof component}`);
+      throw new MongoshInvalidInputError(
+        `setLogLevel component must be a string: got ${typeof component}`,
+        ShellApiErrors.DatabaseSetLogLevelComponentInvalid
+      );
     }
     let vDoc: any = { verbosity: logLevel };
 
@@ -935,24 +972,33 @@ export default class Database extends ShellApiClass {
       cmdObj
     );
     if (!result || result.logComponentVerbosity === undefined) {
-      throw new MongoshRuntimeError(`Error running command  ${result ? result.errmsg || '' : ''}`);
+      throw new MongoshRuntimeError(
+        `Error running command  ${result ? result.errmsg || '' : ''}`,
+        ShellApiErrors.DatabaseGetLogComponentsFailed
+      );
     }
     return result.logComponentVerbosity;
   }
 
   cloneDatabase(): void {
     throw new MongoshUnimplementedError(
-      '`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
+      '`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0',
+      ShellApiErrors.DatabaseCloneDatabaseRemoved
+    );
   }
 
   cloneCollection(): void {
     throw new MongoshUnimplementedError(
-      '`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
+      '`cloneCollection()` was removed because it was deprecated in MongoDB 4.0',
+      ShellApiErrors.DatabaseCloneCollectionRemoved
+    );
   }
 
   copyDatabase(): void {
     throw new MongoshUnimplementedError(
-      '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
+      '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0',
+      ShellApiErrors.DatabaseCopyDatabaseRemoved
+    );
   }
 
   async commandHelp(name: string): Promise<Document> {
@@ -966,7 +1012,10 @@ export default class Database extends ShellApiClass {
       command
     );
     if (!result || result.help === undefined) {
-      throw new MongoshRuntimeError(`Error running command listComands ${result ? result.errmsg || '' : ''}`);
+      throw new MongoshRuntimeError(
+        `Error running command commandHelp ${result ? result.errmsg || '' : ''}`,
+        ShellApiErrors.DatabaseCommandHelpFailed
+      );
     }
     return result.help;
   }
@@ -980,7 +1029,10 @@ export default class Database extends ShellApiClass {
       }
     );
     if (!result || result.commands === undefined) {
-      throw new MongoshRuntimeError(`Error running command listCommands ${result ? result.errmsg || '' : ''}`);
+      throw new MongoshRuntimeError(
+        `Error running command listCommands ${result ? result.errmsg || '' : ''}`,
+        ShellApiErrors.DatabaseListCommandsFailed
+      );
     }
     return new CommandResult('ListCommandsResult', result.commands);
   }
@@ -1036,7 +1088,10 @@ export default class Database extends ShellApiClass {
       for (const node of status.members) {
         const nodeResult = {} as any;
         if (node === null || node === undefined) {
-          throw new MongoshInternalError('Member returned from command replSetGetStatus is null');
+          throw new MongoshInternalError(
+            'Member returned from command replSetGetStatus is null',
+            ShellApiErrors.DatabasePrintSecondaryReplicationInfoMemberNull
+          );
         }
         if (node.state === 1 || node.state === 7) { // ignore primaries (1) and arbiters (7)
           continue;
@@ -1045,7 +1100,10 @@ export default class Database extends ShellApiClass {
         if (node.optime && node.health !== 0) {
           // get repl lag
           if (startOptimeDate === null || startOptimeDate === undefined) {
-            throw new MongoshInternalError('getReplLag startOptimeDate is null');
+            throw new MongoshInternalError(
+              'getReplLag startOptimeDate is null',
+              ShellApiErrors.DatabasePrintSecondaryReplicationInfoStartOptimeDateNull
+            );
           }
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();
@@ -1067,7 +1125,10 @@ export default class Database extends ShellApiClass {
       }
       return new CommandResult('StatsResult', result);
     }
-    throw new MongoshInvalidInputError('local.system.replset is empty. Are you connected to a replica set?');
+    throw new MongoshInvalidInputError(
+      'local.system.replset is empty. Are you connected to a replica set?',
+      ShellApiErrors.DatabasePrintSecondaryReplicationInfoNoReplicaSet
+    );
   }
 
   @returnsPromise
@@ -1080,7 +1141,10 @@ export default class Database extends ShellApiClass {
     if (localCollections.indexOf('oplog.rs') >= 0) {
       oplog = 'oplog.rs';
     } else {
-      throw new MongoshInvalidInputError('Replication not detected. Are you connected to a replset?');
+      throw new MongoshInvalidInputError(
+        'Replication not detected. Are you connected to a replset?',
+        ShellApiErrors.DatabaseGetReplicationInfoNoReplicaSet
+      );
     }
 
     const ol = localdb.getCollection(oplog);
@@ -1089,7 +1153,10 @@ export default class Database extends ShellApiClass {
       // see MONGOSH-205
       result.logSizeMB = Math.max(olStats.maxSize / (1024 * 1024), olStats.size);
     } else {
-      throw new MongoshRuntimeError(`Could not get stats for local. ${oplog} collection. collstats returned ${JSON.stringify(olStats)}`);
+      throw new MongoshRuntimeError(
+        `Could not get stats for local. ${oplog} collection. collstats returned ${JSON.stringify(olStats)}`,
+        ShellApiErrors.DatabaseGetReplicationInfoLocalStatsFailed
+      );
     }
 
     result.usedMB = olStats.size / (1024 * 1024);
@@ -1098,7 +1165,10 @@ export default class Database extends ShellApiClass {
     const first = await ol.find().sort({ $natural: 1 }).limit(1).tryNext();
     const last = await ol.find().sort({ $natural: -1 }).limit(1).tryNext();
     if (first === null || last === null) {
-      throw new MongoshRuntimeError('documents not found in local.oplog.$main -- is this a new and empty db instance?');
+      throw new MongoshRuntimeError(
+        'objects not found in local.oplog.$main -- is this a new and empty db instance?',
+        ShellApiErrors.DatabasGetReplicationInfoLocalOplogEmpty
+      );
     }
 
     let tfirst = first.ts;
@@ -1147,7 +1217,10 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
-    throw new MongoshInvalidInputError('Method deprecated, use db.printSecondaryReplicationInfo instead');
+    throw new MongoshInvalidInputError(
+      'Method deprecated, use db.printSecondaryReplicationInfo instead',
+      ShellApiErrors.DatabasePrintSlaveReplicationInfoRemoved
+    );
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])

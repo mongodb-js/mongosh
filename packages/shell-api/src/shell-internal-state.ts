@@ -21,6 +21,7 @@ import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
+import { ShellApiErrors } from './error-codes';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -167,7 +168,7 @@ export default class ShellInternalState {
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
-        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
+        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type', ShellApiErrors.ShellInternalSetDbToNonDb);
       }
       return this.setDbFunc(newDb);
     };

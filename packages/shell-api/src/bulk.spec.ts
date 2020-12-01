@@ -1,14 +1,16 @@
-import { expect } from 'chai';
-import Bulk, { BulkFindOp } from './bulk';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { signatures, toShellResult } from './index';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import { fail } from 'assert';
+import { expect } from 'chai';
 import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import Bulk, { BulkFindOp } from './bulk';
 import Collection from './collection';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ShellApiErrors } from './error-codes';
+import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
 import { ObjectId } from 'mongodb';
+import ShellInternalState from './shell-internal-state';
 
 describe('Bulk API', () => {
   describe('Bulk', () => {
@@ -217,6 +219,16 @@ describe('Bulk API', () => {
                 }
               ]);
             });
+            it('throws before executed', () => {
+              bulk._executed = false;
+              try {
+                bulk.getOperations();
+                fail('expected error');
+              } catch (e) {
+                expect(e.name).to.equal('MongoshInvalidInputError');
+                expect(e.code).to.equal(ShellApiErrors.BulkGetOperationsBeforeExecute);
+              }
+            });
           });
         });
       });
@@ -423,13 +435,33 @@ describe('Bulk API', () => {
           expect(bulkFindOp._hint).to.deep.equal(attr);
         });
       });
-      // describe('arrayFilters', () => {
-      //   it('sets the attribute and returns self', () => {
-      //     const attr = [1];
-      //     expect(bulkFindOp.arrayFilters(attr)).to.equal(bulkFindOp);
-      //     expect(bulkFindOp._arrayFilters).to.deep.equal(attr);
-      //   });
-      // });
+      describe('arrayFilters', () => {
+        // it('sets the attribute and returns self', () => {
+        //   const attr = [1];
+        //   expect(bulkFindOp.arrayFilters(attr)).to.equal(bulkFindOp);
+        //   expect(bulkFindOp._arrayFilters).to.deep.equal(attr);
+        // });
+        it('throws as it is not implemented yet', () => {
+          try {
+            bulkFindOp.arrayFilters();
+            fail('expected error');
+          } catch (e) {
+            expect(e.name).to.equal('MongoshUnimplementedError');
+            expect(e.code).to.equal(ShellApiErrors.BulkUnimplementedArrayFilters);
+          }
+        });
+      });
+      describe('collation', () => {
+        it('throws as it is not implemented yet', () => {
+          try {
+            bulkFindOp.collation();
+            fail('expected error');
+          } catch (e) {
+            expect(e.name).to.equal('MongoshUnimplementedError');
+            expect(e.code).to.equal(ShellApiErrors.BulkUnimplementedCollation);
+          }
+        });
+      });
     });
   });
 });

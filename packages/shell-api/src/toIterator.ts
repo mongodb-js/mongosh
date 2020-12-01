@@ -2,6 +2,7 @@ import {
   MongoshInvalidInputError
 } from '@mongosh/errors';
 import Cursor from './cursor';
+import { ShellApiErrors } from './error-codes';
 class Iterator {
   iterable: Cursor | any[];
   isCursor: boolean;
@@ -10,7 +11,10 @@ class Iterator {
     this.iterable = iterable;
     this.isCursor = this.iterable instanceof Cursor;
     if (!this.isCursor && !Array.isArray(this.iterable)) {
-      throw new MongoshInvalidInputError('Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.');
+      throw new MongoshInvalidInputError(
+        'Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.',
+        ShellApiErrors.ToIteratorNeitherCursorNorArray
+      );
     }
     const proxy = new Proxy(this, {
       get: (obj, prop) => {

@@ -18,6 +18,9 @@ import {
 } from '@mongosh/service-provider-core';
 import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
+import { fail } from 'assert';
+import { ShellApiErrors } from './error-codes';
+import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
 const sinonChai = require('sinon-chai'); // weird with import
 
@@ -343,8 +346,9 @@ describe('Collection', () => {
             [{ x: 1 }], 'unsupported' as any
           ).catch(e => e);
 
-          expect(error).to.be.instanceOf(Error);
-          expect(error.message).to.equal('The "options" argument must be an object.');
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain('The "options" argument must be an object.');
+          expect(error.code).to.equal(ShellApiErrors.GenericOptionsMustBeAnObject);
         });
       });
     });
@@ -386,8 +390,9 @@ describe('Collection', () => {
               { x: 1 }, 'unsupported' as any
             ).catch(e => e);
 
-            expect(error).to.be.instanceOf(Error);
-            expect(error.message).to.equal('The "options" argument must be an object.');
+            expect(error).to.be.instanceOf(MongoshInvalidInputError);
+            expect(error.message).to.contain('The "options" argument must be an object.');
+            expect(error.code).to.equal(ShellApiErrors.GenericOptionsMustBeAnObject);
           });
         });
       });
@@ -512,18 +517,22 @@ describe('Collection', () => {
           let catched;
           await collection.dropIndex('*').catch(err => { catched = err; });
 
-          expect(catched.message).to.equal(
+          expect(catched).to.be.instanceOf(MongoshInvalidInputError);
+          expect(catched.message).to.contain(
             'To drop indexes in the collection using \'*\', use db.collection.dropIndexes().'
           );
+          expect(catched.code).to.equal(ShellApiErrors.CollectionDropIndexStarInvalid);
         });
 
         it('throws if index is an array', async() => {
           let catched;
           await collection.dropIndex(['index-1']).catch(err => { catched = err; });
 
-          expect(catched.message).to.equal(
+          expect(catched).to.be.instanceOf(MongoshInvalidInputError);
+          expect(catched.message).to.contain(
             'The index to drop must be either the index name or the index specification document.'
           );
+          expect(catched.code).to.equal(ShellApiErrors.CollectionDropIndexNoArray);
         });
       });
     });
@@ -545,9 +554,11 @@ describe('Collection', () => {
         await collection.totalIndexSize(true)
           .catch(err => { catched = err; });
 
-        expect(catched.message).to.equal(
+        expect(catched).to.be.instanceOf(MongoshInvalidInputError);
+        expect(catched.message).to.contain(
           '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
         );
+        expect(catched.code).to.equal(ShellApiErrors.CollectionTotalIndexSizeNoArguments);
       });
     });
 
@@ -630,6 +641,33 @@ describe('Collection', () => {
           const result = await collection.stats({ indexDetails: true, indexDetailsKey: { other: 1 } });
           expect(result).to.deep.equal(expectedResult);
         });
+        it('throws when indexDetailsName and indexDetailsKey are given', async() => {
+          const error = await collection.stats(
+            { indexDetails: true, indexDetailsName: 'k2_1', indexDetailsKey: { other: 1 } }
+          ).catch(e => e);
+
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain('Cannot filter indexDetails on both indexDetailsKey and indexDetailsName');
+          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsKeyAndName);
+        });
+        it('throws when indexDetailsKey is not an object', async() => {
+          const error = await collection.stats(
+            { indexDetails: true, indexDetailsKey: 'string' }
+          ).catch(e => e);
+
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain('Expected options.indexDetailsKey to be a document');
+          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsKeyInvalid);
+        });
+        it('throws when indexDetailsName is not a string', async() => {
+          const error = await collection.stats(
+            { indexDetails: true, indexDetailsName: {} }
+          ).catch(e => e);
+
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain('Expected options.indexDetailsName to be a string');
+          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsNameInvalid);
+        });
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
@@ -638,6 +676,17 @@ describe('Collection', () => {
         const catchedError = await collection.stats()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+
+      it('throws is serviceProvider.runCommandWithCheck returns undefined', async() => {
+        serviceProvider.runCommandWithCheck.resolves(undefined);
+        const error = await collection.stats(
+          { indexDetails: true, indexDetailsName: 'k2_1' }
+        ).catch(e => e);
+
+        expect(error).to.be.instanceOf(MongoshRuntimeError);
+        expect(error.message).to.contain('Error running collStats command');
+        expect(error.code).to.equal(ShellApiErrors.CollectionStatsFailed);
       });
     });
 
@@ -834,11 +883,14 @@ describe('Collection', () => {
       });
 
       it('throws an error if newName is not a string', async() => {
-        expect(
-          (await collection.renameCollection(
-             {} as any
-          ).catch(e => e)).message
-        ).to.include('type string');
+        try {
+          await collection.renameCollection({} as any);
+          fail('expected error');
+        } catch (e) {
+          expect(e.message).to.include('type string');
+          expect(e.name).to.equal('MongoshInvalidInputError');
+          expect(e.code).to.equal(ShellApiErrors.CollectionRenameCollectionNewNameInvalid);
+        }
       });
     });
 
@@ -869,19 +921,23 @@ describe('Collection', () => {
       });
 
       it('throws an error if commandName is not a string', async() => {
-        expect(
-          (await collection.runCommand(
-             {} as any
-          ).catch(e => e)).message
-        ).to.include('type string');
+        const e = await collection.runCommand(
+          {} as any
+        ).catch(e => e);
+
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.message).to.include('type string');
+        expect(e.code).to.equal(ShellApiErrors.CollectionRunCommandCommandNameInvalid);
       });
 
       it('throws an error if commandName is passed as option', async() => {
-        expect(
-          (await collection.runCommand(
-            'commandName', { commandName: 1 } as any
-          ).catch(e => e)).message
-        ).to.equal('The "commandName" argument cannot be passed as an option to "runCommand".');
+        const e = await collection.runCommand(
+          'commandName', { commandName: 1 } as any
+        ).catch(e => e);
+
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.message).to.contain('The "commandName" argument cannot be passed as an option to "runCommand".');
+        expect(e.code).to.equal(ShellApiErrors.CollectionRunCommandCommandNameInvalid);
       });
     });
 
@@ -1095,6 +1151,13 @@ describe('Collection', () => {
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
       });
+
+      it('throws if optiosn is an object and options.out is not defined', async() => {
+        const error = await collection.mapReduce(mapFn, reduceFn, {}).catch(e => e);
+        expect(error).to.be.instanceOf(MongoshInvalidInputError);
+        expect(error.message).to.contain('Missing \'out\' option');
+        expect(error.code).to.equal(ShellApiErrors.CollectionMapReduceOutOptionMissing);
+      });
     });
     describe('getShardVersion', () => {
       it('calls serviceProvider.runCommand on the database with options', async() => {
@@ -1121,6 +1184,15 @@ describe('Collection', () => {
         const catchedError = await collection.getShardVersion()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('getShardDistribution', () => {
+      it('throws when collection is not sharded', async() => {
+        const error = await collection.getShardDistribution().catch(e => e);
+
+        expect(error).to.be.instanceOf(MongoshInvalidInputError);
+        expect(error.message).to.contain('is not sharded');
+        expect(error.code).to.equal(ShellApiErrors.CollectionShardDistributionNotSharded);
       });
     });
 

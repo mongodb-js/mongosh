@@ -11,6 +11,7 @@ import {
 import { asPrintable } from './enums';
 import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiClass {
@@ -33,14 +34,16 @@ export class BulkFindOp extends ShellApiClass {
     throw new MongoshUnimplementedError(
       'collation method on fluent Bulk API is not currently supported. ' +
       'As an alternative, consider using the \'db.collection.bulkWrite(...)\' helper ' +
-      'which accepts \'collation\' as a field in the operations.'
+      'which accepts \'collation\' as a field in the operations.',
+      ShellApiErrors.BulkUnimplementedCollation
     );
   }
 
   // Blocked by NODE-2751
   arrayFilters(): BulkFindOp {
     throw new MongoshUnimplementedError(
-      'arrayFilters method on fluent Bulk API is not currently supported.'
+      'arrayFilters method on fluent Bulk API is not currently supported.',
+      ShellApiErrors.BulkUnimplementedArrayFilters
     );
   }
 
@@ -236,10 +239,16 @@ export default class Bulk extends ShellApiClass {
 
   getOperations(): BulkBatch[] {
     if (!this._checkInternalShape(this._serviceProviderBulkOp.s)) {
-      throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
+      throw new MongoshInternalError(
+        'Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.',
+        ShellApiErrors.BulkStructureChanged
+      );
     }
     if (!this._executed) {
-      throw new MongoshInvalidInputError('Cannot call getOperations on an unexecuted Bulk operation');
+      throw new MongoshInvalidInputError(
+        'Cannot call getOperations on an unexecuted Bulk operation',
+        ShellApiErrors.BulkGetOperationsBeforeExecute
+      );
     }
     return this._batches.map((b) => ({
       originalZeroIndex: b.originalZeroIndex,

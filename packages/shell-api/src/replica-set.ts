@@ -13,6 +13,7 @@ import { asPrintable } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import { MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -48,7 +49,10 @@ export default class ReplicaSet extends ShellApiClass {
         { replSetGetConfig: 1 }
       );
       if (result.config === undefined) {
-        throw new MongoshInternalError('Documented returned from command replSetReconfig does not contain \'config\'');
+        throw new MongoshInternalError(
+          'Documented returned from command replSetReconfig does not contain \'config\'',
+          ShellApiErrors.ReplicaSetConfigFailed
+        );
       }
       return result.config;
     } catch (error) {
@@ -120,7 +124,10 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
-    throw new MongoshInvalidInputError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');
+    throw new MongoshInvalidInputError(
+      'printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead',
+      ShellApiErrors.ReplicaSetPrintSlaveReplicationInfoRemoved
+    );
   }
 
   @returnsPromise
@@ -136,11 +143,11 @@ export default class ReplicaSet extends ShellApiClass {
 
     const local = this._database.getSiblingDB('local');
     if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
-      throw new MongoshRuntimeError('local.system.replset has unexpected contents');
+      throw new MongoshRuntimeError('local.system.replset has unexpected contents', ShellApiErrors.ReplicaSetLocalDataUnexpected);
     }
     const configDoc = await local.getCollection('system.replset').findOne();
     if (configDoc === undefined || configDoc === null) {
-      throw new MongoshRuntimeError('no config object retrievable from local.system.replset');
+      throw new MongoshRuntimeError('no config object retrievable from local.system.replset', ShellApiErrors.ReplicaSetLocalDataUnexpected);
     }
 
     configDoc.version++;
@@ -153,7 +160,10 @@ export default class ReplicaSet extends ShellApiClass {
         cfg.arbiterOnly = true;
       }
     } else if (arb === true) {
-      throw new MongoshInvalidInputError(`Expected first parameter to be a host-and-port string of arbiter, but got ${JSON.stringify(hostport)}`);
+      throw new MongoshInvalidInputError(
+        `Expected first parameter to be a host-and-port string of arbiter, but got ${JSON.stringify(hostport)}`,
+        ShellApiErrors.ReplicaSetAddHostportInvalid
+      );
     } else {
       cfg = hostport;
       if (cfg._id === null || cfg._id === undefined) {
@@ -182,11 +192,11 @@ export default class ReplicaSet extends ShellApiClass {
     this._emitReplicaSetApiCall('remove', { hostname });
     const local = this._database.getSiblingDB('local');
     if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
-      throw new MongoshRuntimeError('local.system.replset has unexpected contents');
+      throw new MongoshRuntimeError('local.system.replset has unexpected contents', ShellApiErrors.ReplicaSetLocalDataUnexpected);
     }
     const configDoc = await local.getCollection('system.replset').findOne();
     if (configDoc === null || configDoc === undefined) {
-      throw new MongoshRuntimeError('no config object retrievable from local.system.replset');
+      throw new MongoshRuntimeError('no config object retrievable from local.system.replset', ShellApiErrors.ReplicaSetLocalDataUnexpected);
     }
     configDoc.version++;
 
@@ -200,7 +210,10 @@ export default class ReplicaSet extends ShellApiClass {
         );
       }
     }
-    throw new MongoshInvalidInputError(`Couldn't find ${hostname} in ${JSON.stringify(configDoc.members)}. Is ${hostname} a member of this replset?`);
+    throw new MongoshInvalidInputError(
+      `Couldn't find ${hostname} in ${JSON.stringify(configDoc.members)}. Is ${hostname} a member of this replset?`,
+      ShellApiErrors.ReplicSetRemoveHostNotFound
+    );
   }
 
   @returnsPromise

@@ -9,6 +9,7 @@ import { Document } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import { ServerVersions, asPrintable } from './enums';
 import { MongoshUnimplementedError } from '@mongosh/errors';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -53,10 +54,16 @@ export default class PlanCache extends ShellApiClass {
   }
 
   planCacheQueryShapes(): void {
-    throw new MongoshUnimplementedError('PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead');
+    throw new MongoshUnimplementedError(
+      'PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead',
+      ShellApiErrors.PlanCacheQueryShapesRemoved
+    );
   }
 
   getPlansByQuery(): void {
-    throw new MongoshUnimplementedError('PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead');
+    throw new MongoshUnimplementedError(
+      'PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead',
+      ShellApiErrors.PlanCachePlansByQueryRemoved
+    );
   }
 }

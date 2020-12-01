@@ -3,6 +3,7 @@ import Help from './help';
 import { makePrintableBson, BinaryType, bson as BSON } from '@mongosh/service-provider-core';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { ShellApiErrors } from './error-codes';
 
 function constructHelp(className: string): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -42,7 +43,10 @@ export default function constructShellBson(bson: any): any {
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
   ].forEach((className) => {
     if (!(className in bson)) {
-      throw new MongoshInternalError(`${className} does not exist in provided BSON package. This is an internal error, please file a ticket!`);
+      throw new MongoshInternalError(
+        `${className} does not exist in provided BSON package. This is an internal error, please file a ticket!`,
+        ShellApiErrors.ShellBsonClassNotProvided
+      );
     }
     bson[className].prototype.serverVersions = ALL_SERVER_VERSIONS;
     bson[className].prototype.platforms = ALL_PLATFORMS;
@@ -147,7 +151,7 @@ export default function constructShellBson(bson: any): any {
           return date;
         }
       }
-      throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`);
+      throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`, ShellApiErrors.ShellBsonIsoDateInvalid);
     },
     BinData: function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);

@@ -25,6 +25,7 @@ import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/er
 import { iterate } from './helpers';
 import { printWarning } from './deprecation-warning';
 
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -67,13 +68,13 @@ export default class Cursor extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
     if (optionFlagNumber === 4) {
-      throw new MongoshUnimplementedError('the slaveOk option is not supported.');
+      throw new MongoshUnimplementedError('the slaveOk option is not supported.', ShellApiErrors.CursorAddOptionSlaveOkUnsupported);
     }
 
     const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
-      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
+      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`, ShellApiErrors.CursorAddOptionUnknownFlag);
     }
 
     this._cursor.addCursorFlag(optionFlag, true);
@@ -261,7 +262,7 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   readPref(mode: ReadPreferenceMode, tagSet?: Document[]): Cursor {
     if (tagSet) {
-      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
+      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.', ShellApiErrors.CursorReadPrefTagSetUnsupported);
     }
 
     this._cursor.setReadPreference(mode);
@@ -317,7 +318,9 @@ export default class Cursor extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
     throw new MongoshUnimplementedError(
-      '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+      '`maxScan()` was removed because it was deprecated in MongoDB 4.0',
+      ShellApiErrors.CusrorMaxScanRemoved
+    );
   }
 
   @returnType('Cursor')
@@ -332,6 +335,9 @@ export default class Cursor extends ShellApiClass {
   }
 
   readConcern(): Cursor {
-    throw new MongoshUnimplementedError('Setting readConcern on the cursor is not currently supported. See NODE-2806');
+    throw new MongoshUnimplementedError(
+      'Setting readConcern on the cursor is not currently supported. See NODE-2806',
+      ShellApiErrors.CursorReadConcernNotSupported
+    );
   }
 }
