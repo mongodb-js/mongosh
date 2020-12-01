@@ -12,7 +12,11 @@ import {
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
-import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+  MongoshUnimplementedError
+} from '@mongosh/errors';
 import { iterate } from './helpers';
 import { printWarning } from './deprecation-warning';
 
@@ -30,7 +34,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     if (this._cursor.cursor === undefined) {
-      throw new MongoshInternalError('No internal ChangeStreamCursor');
+      throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
     const result = this._currentIterationResult = new CursorIterationResult();
     return iterate(result, this._cursor.cursor);
@@ -57,7 +61,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
   @returnsPromise
   async tryNext(): Promise<Document | null> {
     if (this._cursor.cursor === undefined) {
-      throw new MongoshInternalError('No internal ChangeStreamCursor');
+      throw new MongoshRuntimeError('Cannot call tryNext on closed cursor');
     }
     return this._cursor.cursor.tryNext();
   }
