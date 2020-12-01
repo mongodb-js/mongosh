@@ -31,6 +31,7 @@ export default class Cursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
+  _tailable = false;
 
   constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
     super();
@@ -177,11 +178,9 @@ export default class Cursor extends ShellApiClass {
   @returnsPromise
   async itcount(): Promise<number> {
     let count = 0;
-
-    while (await this._cursor.tryNext()) {
+    while (await this.tryNext()) {
       count++;
     }
-
     return count;
   }
 
@@ -282,8 +281,12 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  tailable(): Cursor {
+  tailable(opts = { awaitData: false }): Cursor {
+    this._tailable = true;
     this._addFlag('tailable' as CursorFlag);
+    if (opts.awaitData) {
+      this._addFlag('awaitData' as CursorFlag);
+    }
     return this;
   }
 

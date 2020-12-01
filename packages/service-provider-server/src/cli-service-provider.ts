@@ -81,10 +81,12 @@ import {
   ClientSession,
   UpdateOptions,
   UpdateResult,
-  WriteConcern
+  WriteConcern,
+  ChangeStreamOptions,
+  ChangeStream
 } from '@mongosh/service-provider-core';
 
-import { MongoshCommandFailed } from '@mongosh/errors';
+import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 
 type DropDatabaseResult = {
   ok: 0 | 1;
@@ -1219,6 +1221,17 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 
   startSession(options: ClientSessionOptions): ClientSession {
     return this.mongoClient.startSession(options);
+  }
+
+  watch(pipeline: Document[], options: ChangeStreamOptions, dbOptions: DbOptions = {}, db?: string, coll?: string): ChangeStream {
+    if (db === undefined && coll === undefined) {
+      return (this.mongoClient as any).watch(pipeline, options);
+    } else if (db !== undefined && coll === undefined) {
+      return (this.db(db, dbOptions) as any).watch(pipeline, options);
+    } else if (db !== undefined && coll !== undefined) {
+      return (this.db(db, dbOptions).collection(coll) as any).watch(pipeline, options);
+    }
+    throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
   }
 }
 

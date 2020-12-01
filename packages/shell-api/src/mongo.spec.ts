@@ -15,6 +15,7 @@ import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import Cursor from './cursor';
+import ChangeStreamCursor from './change-stream-cursor';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -499,6 +500,43 @@ describe('Mongo', () => {
           }
           expect.fail();
         });
+      });
+    });
+    describe('watch', () => {
+      it('calls serviceProvider.watch when given no args', () => {
+        mongo.watch();
+        expect(serviceProvider.watch).to.have.been.calledWith([], {});
+      });
+      it('calls serviceProvider.watch when given pipeline arg', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        mongo.watch(pipeline);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {});
+      });
+      it('calls serviceProvider.watch when given no args', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        const ops = { batchSize: 1 };
+        mongo.watch(pipeline, ops);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops);
+      });
+
+      it('returns whatever serviceProvider.watch returns', () => {
+        const expectedResult = { ChangeStreamCursor: 1 } as any;
+        serviceProvider.watch.returns(expectedResult);
+        const result = mongo.watch();
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/'));
+        expect(mongo._internalState.currentCursor).to.equal(result);
+      });
+
+      it('throws if serviceProvider.watch throws', () => {
+        const expectedError = new Error();
+        serviceProvider.watch.throws(expectedError);
+        try {
+          mongo.watch();
+        } catch (e) {
+          expect(e).to.equal(expectedError);
+          return;
+        }
+        expect.fail('Failed to throw');
       });
     });
   });

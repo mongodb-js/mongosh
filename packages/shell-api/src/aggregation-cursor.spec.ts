@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
@@ -63,6 +63,125 @@ describe('AggregationCursor', () => {
       cursor.map(arg);
       expect(wrappee.map.calledWith(arg)).to.equal(true);
     });
+  });
+
+  describe('Cursor Internals', () => {
+    const mongo = {} as any;
+    describe('#close', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+      const options = { skipKillCursors: true };
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+      });
+
+      it('closes the cursor', () => {
+        shellApiCursor.close(options);
+        expect(spCursor.close).to.have.been.calledWith(options);
+      });
+    });
+
+    describe('#hasNext', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+        spCursor.hasNext.resolves(true);
+      });
+
+      it('returns the cursor hasNext value', async() => {
+        expect(await shellApiCursor.hasNext()).to.equal(true);
+        expect(spCursor.hasNext).to.have.been.calledWith();
+      });
+    });
+
+    describe('#tryNext', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+        spCursor.tryNext.resolves({ doc: 1 });
+      });
+
+      it('returns the cursor hasNext value', async() => {
+        expect(await shellApiCursor.tryNext()).to.deep.equal({ doc: 1 });
+        expect(spCursor.hasNext).to.have.been.calledWith();
+      });
+    });
+
+    describe('#isExhausted', () => {
+      let spCursor: any;
+      let shellApiCursor: AggregationCursor;
+
+      [ // hasNext, isClosed, expected
+        [1, true, false],
+        [1, false, false],
+        [0, true, true],
+        [0, false, false]
+      ].forEach(([buffCount, isClosed, expected]) => {
+        context(`when cursor.objsLeftInBatch is ${buffCount} and cursor.isClosed is ${isClosed}`, () => {
+          beforeEach(() => {
+            // NOTE: have to use proxy bc can't stub readonly attributes like closed
+            spCursor = new Proxy({} as SPAggregationCursor, {
+              get: (target, prop): any => {
+                if (prop === 'closed') {
+                  return isClosed;
+                }
+                if (prop === 'bufferedCount') {
+                  return () => buffCount;
+                }
+                return (target as any).prop;
+              }
+            });
+            shellApiCursor = new AggregationCursor(mongo, spCursor);
+          });
+
+          it(`returns ${expected}`, async() => {
+            expect(await shellApiCursor.isExhausted()).to.equal(expected);
+          });
+        });
+      });
+    });
+
+    describe('#objsLeftInBatch', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        spCursor.bufferedCount.returns(100);
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+      });
+
+      it('returns the count', () => {
+        expect(shellApiCursor.objsLeftInBatch()).to.equal(100);
+        expect(spCursor.bufferedCount).to.have.been.calledWith();
+      });
+    });
+
+    describe('#itcount', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+      });
+
+      it('returns the iteration count', async() => {
+        spCursor.tryNext.onCall(0).resolves(true);
+        spCursor.tryNext.onCall(1).resolves(true);
+        spCursor.tryNext.onCall(2).resolves(null);
+
+        expect(await shellApiCursor.itcount()).to.equal(2);
+      });
+    });
 
     describe('toShellResult', () => {
       let shellApiCursor;
@@ -70,7 +189,7 @@ describe('AggregationCursor', () => {
 
       beforeEach(() => {
         i = 0;
-        // NOTE: Have to use proxy bc can't stub readonly property
+        // NOTE: Have to use proxy bc can't stub readonly inherited property
         const proxyCursor = new Proxy({} as SPAggregationCursor, {
           get: (target, prop): any => {
             if (prop === 'closed') {
@@ -82,9 +201,7 @@ describe('AggregationCursor', () => {
             return (target as any)[prop];
           }
         });
-        shellApiCursor = new AggregationCursor({
-          _serviceProvider: { platform: ReplPlatform.CLI }
-        } as any, proxyCursor);
+        shellApiCursor = new AggregationCursor(mongo, proxyCursor);
       });
 
       it('is idempotent unless iterated', async() => {

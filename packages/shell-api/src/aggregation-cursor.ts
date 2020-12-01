@@ -66,17 +66,19 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   async isExhausted(): Promise<boolean> {
-    return this.isClosed() && !await this.hasNext();
+    return this.isClosed() && this.objsLeftInBatch() === 0;
+  }
+
+  objsLeftInBatch(): number {
+    return this._cursor.bufferedCount();
   }
 
   @returnsPromise
   async itcount(): Promise<number> {
     let count = 0;
-
-    while (await this._cursor.tryNext()) {
+    while (await this.tryNext()) {
       count++;
     }
-
     return count;
   }
 

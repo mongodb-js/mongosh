@@ -20,7 +20,8 @@ import {
 
 import {
   Document,
-  WriteConcern
+  WriteConcern,
+  ChangeStreamOptions
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
 import {
@@ -31,6 +32,7 @@ import {
 } from '@mongosh/errors';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
+import ChangeStreamCursor from './change-stream-cursor';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1146,5 +1148,16 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
     throw new MongoshInvalidInputError('Method deprecated, use db.printSecondaryReplicationInfo instead');
+  }
+
+  @serverVersions(['3.1.0', ServerVersions.latest])
+  watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
+    this._emitDatabaseApiCall('watch', { pipeline, options });
+    const cursor = new ChangeStreamCursor(
+      this._mongo._serviceProvider.watch(pipeline, options, {}, this._name),
+      this[asPrintable]()
+    );
+    this._mongo._internalState.currentCursor = cursor;
+    return cursor;
   }
 }

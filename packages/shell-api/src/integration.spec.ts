@@ -361,7 +361,7 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      it.skip('returns creation result', () => { // TODO: Node 4.0 upgrade bug, see NODE-2922
+      it.skip('returns creation result', () => { // TODO: Node 4.0 upgrade bug indexe doc not returned, see NODE-2922
         expect(result).to.contain({
           createdCollectionAutomatically: false,
           numIndexesBefore: 1,
@@ -1214,7 +1214,7 @@ describe('Shell API (integration)', function() {
         //   });
         // });
         describe('error states', () => {
-          it.skip('cannot be executed twice', async() => { // TODO: NODE 4.0 upgrade bug, see NODE-2926
+          it.skip('cannot be executed twice', async() => { // TODO: NODE 4.0 upgrade bug, bulk insert doesnt throw on second execute see NODE-2926
             bulk = await collection[m]();
             bulk.insert({ x: 1 });
             await bulk.execute();

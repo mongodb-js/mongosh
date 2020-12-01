@@ -815,4 +815,53 @@ describe('CliServiceProvider', () => {
       });
     });
   });
+
+  describe('#watch', () => {
+    let options;
+    let expectedResult;
+    let watchMock;
+    let watchMock2;
+    let watchMock3;
+    let pipeline;
+
+    beforeEach(() => {
+      pipeline = [{ $match: { operationType: 'insertOne' } }];
+      options = { batchSize: 1 };
+      expectedResult = { ChangeStream: 1 };
+
+      watchMock = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+      watchMock2 = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+      watchMock3 = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        watch: watchMock3
+      });
+      const dbStub = sinon.createStubInstance(Db, {
+        watch: watchMock2,
+        collection: sinon.stub().returns(collectionStub) as any
+      });
+      const clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub) as any,
+        watch: watchMock
+      }) as any;
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes watch on MongoClient', () => {
+      const result = serviceProvider.watch(pipeline, options);
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock as any).verify();
+    });
+    it('executes watch on Db', () => {
+      const result = serviceProvider.watch(pipeline, options, {}, 'dbname');
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock2 as any).verify();
+    });
+    it('executes watch on collection', () => {
+      const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock3 as any).verify();
+    });
+  });
 });

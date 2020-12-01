@@ -23,7 +23,8 @@ import {
   Document,
   AnyBulkWriteOperation,
   ExplainVerbosityLike,
-  FindOptions
+  FindOptions,
+  ChangeStreamOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -42,6 +43,7 @@ import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import { printDeprecationWarning } from './deprecation-warning';
+import ChangeStreamCursor from './change-stream-cursor';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -1565,5 +1567,16 @@ export default class Collection extends ShellApiClass {
     )));
     result.Totals = totalValue;
     return new CommandResult('StatsResult', result);
+  }
+
+  @serverVersions(['3.1.0', ServerVersions.latest])
+  watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
+    this._emitCollectionApiCall('watch', { pipeline, options });
+    const cursor = new ChangeStreamCursor(
+      this._mongo._serviceProvider.watch(pipeline, options, {}, this._database._name, this._name),
+      this[asPrintable]()
+    );
+    this._mongo._internalState.currentCursor = cursor;
+    return cursor;
   }
 }

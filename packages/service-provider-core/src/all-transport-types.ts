@@ -46,6 +46,7 @@ export type {
   ReadPreferenceMode,
   RenameOptions,
   ReplaceOptions,
+  ResumeToken,
   RunCommandOptions,
   ServerSessionId,
   TransactionOptions,

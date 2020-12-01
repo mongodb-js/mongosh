@@ -5,7 +5,14 @@
  *
  * @param options
  */
-import { DbOptions, Document, ExplainVerbosityLike, FindCursor, AggregationCursor as SPAggregationCursor } from '@mongosh/service-provider-core';
+import {
+  DbOptions,
+  Document,
+  ExplainVerbosityLike,
+  FindCursor,
+  AggregationCursor as SPAggregationCursor,
+  ChangeStreamCursor as SPChangeStreamCursor
+} from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Database from './database';
@@ -485,7 +492,7 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
   });
 }
 
-export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor ): Promise<CursorIterationResult> {
+export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | SPChangeStreamCursor ): Promise<CursorIterationResult> {
   if (cursor.closed) {
     return results;
   }

@@ -13,6 +13,7 @@ import type {
   FindCursor,
   DbOptions
 } from './all-transport-types';
+import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
 /**
  * Interface for read operations in the CRUD specification.
@@ -216,5 +217,21 @@ export default interface Readable {
     options?: CollStatsOptions,
     dbOptions?: DbOptions
   ): Promise<Document>;
+
+  /**
+   * Start a change stream cursor on either the client, db, or collection.
+   * @param pipeline
+   * @param options
+   * @param db
+   * @param dbOptions
+   * @param coll
+   */
+  watch(
+    pipeline: Document[],
+    options: ChangeStreamOptions,
+    dbOptions?: DbOptions,
+    db?: string,
+    coll?: string
+  ): ChangeStream;
 }
 

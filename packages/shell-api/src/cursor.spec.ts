@@ -207,6 +207,22 @@ describe('Cursor', () => {
       });
     });
 
+    describe('#tryNext', () => {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+        spCursor.tryNext.resolves({ doc: 1 });
+      });
+
+      it('returns the cursor hasNext value', async() => {
+        expect(await shellApiCursor.tryNext()).to.deep.equal({ doc: 1 });
+        expect(spCursor.hasNext).to.have.been.calledWith();
+      });
+    });
+
     describe('#isExhausted', () => {
       let spCursor: any;
       let shellApiCursor: Cursor;
