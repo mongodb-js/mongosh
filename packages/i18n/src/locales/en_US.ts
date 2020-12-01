@@ -629,7 +629,7 @@ const translations: Catalog = {
               description: 'If there is a document in the change stream, it will be returned. Otherwise returns null.'
             },
             isExhausted: {
-              description: 'If the cursor is closed and there is nothing left in the current batch. NOTE: this calls tryNext internally so it will iterate the cursor'
+              description: 'This method is deprecated because because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use cursor.isClosed. If you want to see if there are documents left in the batch, use cursor.tryNext. This is a breaking change'
             }
           }
         }

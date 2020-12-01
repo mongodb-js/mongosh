@@ -12,7 +12,7 @@ import {
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
-import { MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { iterate } from './helpers';
 import { printWarning } from './deprecation-warning';
 
@@ -68,11 +68,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   @returnsPromise
   async isExhausted(): Promise<boolean> {
-    if (this._cursor.cursor === undefined) {
-      throw new MongoshInternalError('No internal ChangeStreamCursor');
-    }
-    printWarning('This method uses tryNext internally so will iterate the cursor by 1 document.');
-    return this.isClosed() && await this.tryNext() === null;
+    throw new MongoshInvalidInputError('isExhausted is not implemented for ChangeStreams because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use isClosed. If you want to see if there are documents left in the batch, use tryNext.');
   }
 
   @returnsPromise

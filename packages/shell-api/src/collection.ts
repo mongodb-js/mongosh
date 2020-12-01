@@ -282,7 +282,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      !!result.result.ok,
+      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
       result.deletedCount
     );
   }
@@ -317,7 +317,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      !!result.result.ok,
+      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
       result.deletedCount
     );
   }

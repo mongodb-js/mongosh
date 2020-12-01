@@ -28,3 +28,17 @@ export const ensureSessionExists = async(mongo, timeout, sessionId): Promise<voi
   }
 };
 
+export const ensureResult = async(timeout, getFn, testFn, failMsg): Promise<any> => {
+  let result = await getFn();
+  while(!testFn(result)) {
+    console.log(`looping at timeout=${timeout}, result=${result}`);
+    if (timeout > 30000) {
+      throw new Error(`Waited for ${failMsg}, never happened`);
+    }
+    await delay(timeout);
+    timeout *= 2; // try again but wait double
+    result = await getFn();
+  }
+  return result;
+};
+
