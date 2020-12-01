@@ -29,10 +29,12 @@
   "dependencies": {
     "@mongosh/errors": "^0.6.1",
     "@mongosh/i18n": "^0.6.1",
-    "@types/bl": "^2.1.0",
     "bson": "^4.2.0",
     "mongodb": "github:mongodb/node-mongodb-native#master",
     "mongodb-build-info": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/bl": "^2.1.0"
   },
   "dependency-check": {
     "entries": [
