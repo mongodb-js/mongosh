@@ -916,7 +916,7 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { stopped: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
-        findCursor.next.resolves(expectedResult);
+        findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
         const result = await shard.getBalancerState();
         expect(serviceProvider.find).to.have.been.calledWith(

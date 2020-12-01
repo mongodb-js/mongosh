@@ -1130,8 +1130,7 @@ describe('Collection', () => {
       beforeEach(() => {
         serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
-        serviceProviderCursor.hasNext.resolves(true);
-        serviceProviderCursor.next.resolves({ _id: 'abc' });
+        serviceProviderCursor.tryNext.resolves({ _id: 'abc' });
         proxyCursor = new Proxy(serviceProviderCursor, {
           get: (target, prop): any => {
             if (prop === 'closed') {

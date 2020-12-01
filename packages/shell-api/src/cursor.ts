@@ -22,6 +22,7 @@ import {
   ExplainVerbosityLike, ReadPreferenceMode
 } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { iterate } from './helpers';
 
 
 @shellApiClassDefault
@@ -46,20 +47,7 @@ export default class Cursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-
-    if (this.isClosed()) {
-      return results;
-    }
-
-    for (let i = 0; i < 20; i++) {
-      if (!await this.hasNext()) {
-        break;
-      }
-
-      results.push(await this.next());
-    }
-
-    return results;
+    return iterate(results, this._cursor);
   }
 
   /**
@@ -164,15 +152,13 @@ export default class Cursor extends ShellApiClass {
   @returnsPromise
   hasNext(): Promise<boolean> {
     // TODO: Node 4.0 upgrade. Will warn user and suggest tryNext instead see NODE-2917.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     return this._cursor.hasNext();
   }
 
-  // @returnsPromise
-  // tryNext(): Promise<boolean> {
-  // TODO: Node 4.0 upgrade. See NODE-2917.
-  // }
+  @returnsPromise
+  tryNext(): Promise<Document | null> {
+    return this._cursor.tryNext();
+  }
 
   @returnType('Cursor')
   hint(index: string): Cursor {
@@ -192,8 +178,7 @@ export default class Cursor extends ShellApiClass {
   async itcount(): Promise<number> {
     let count = 0;
 
-    while (await this.hasNext()) {
-      await this.next();
+    while (await this._cursor.tryNext()) {
       count++;
     }
 

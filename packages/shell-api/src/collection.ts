@@ -445,7 +445,7 @@ export default class Collection extends ShellApiClass {
     return new Cursor(
       this._mongo,
       this._mongo._serviceProvider.find(this._database._name, this._name, query, { ...this._database._baseOptions, ...options })
-    ).limit(1).next();
+    ).limit(1).tryNext();
   }
 
   @returnsPromise

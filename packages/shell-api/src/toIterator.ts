@@ -25,8 +25,10 @@ class Iterator {
   async forEach(func: (...args: any[]) => void | Promise<void>, thisArg: any) {
     if (this.isCursor) {
       const cursor = this.iterable as Cursor;
-      while (await cursor.hasNext()) {
-        await func(await cursor.next());
+      let doc = await cursor.tryNext();
+      while (doc !== null) {
+        await func(doc);
+        doc = await cursor.tryNext();
       }
     } else {
       const arr = this.iterable as any[];

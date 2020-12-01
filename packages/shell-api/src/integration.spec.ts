@@ -145,7 +145,7 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      describe.skip('when calling limit after skip', () => { // See NODE-2919
+      describe('when calling limit after skip', () => {
         let cursor: Cursor;
 
         beforeEach(() => {
@@ -161,7 +161,7 @@ describe('Shell API (integration)', function() {
         });
 
         describe('when calling toShellResult on the cursor', () => {
-          it('returns the right documents', async() => { // TODO: Node 4.0 see NODE-2919
+          it('returns the right documents', async() => {
             expect((await toShellResult(cursor)).printable.constructor).to.equal(Array);
             expect((await toShellResult(cursor)).printable).to.deep.equal([{ doc: 2 }]);
           });

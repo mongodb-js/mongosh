@@ -76,10 +76,7 @@ describe('AggregationCursor', () => {
             if (prop === 'closed') {
               return false;
             }
-            if (prop === 'hasNext') {
-              return () => true;
-            }
-            if (prop === 'next') {
+            if (prop === 'tryNext') {
               return async() => ({ key: i++ });
             }
             return (target as any)[prop];

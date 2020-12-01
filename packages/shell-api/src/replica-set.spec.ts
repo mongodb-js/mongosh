@@ -65,7 +65,7 @@ describe('ReplicaSet', () => {
 
     const findResolvesWith = (expectedResult): void => {
       const findCursor = stubInterface<ServiceProviderCursor>();
-      findCursor.next.resolves(expectedResult);
+      findCursor.tryNext.resolves(expectedResult);
       serviceProvider.find.returns(findCursor);
     };
 
@@ -172,7 +172,7 @@ describe('ReplicaSet', () => {
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const expectedResult = { res: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
-        findCursor.next.resolves(expectedResult);
+        findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
 
         const conf = await rs.config();

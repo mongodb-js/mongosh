@@ -14,6 +14,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
+import { iterate } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -29,20 +30,7 @@ export default class AggregationCursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-
-    if (this.isClosed()) {
-      return results;
-    }
-
-    for (let i = 0; i < 20; i++) {
-      if (!await this.hasNext()) {
-        break;
-      }
-
-      results.push(await this.next());
-    }
-
-    return results;
+    return iterate(results, this._cursor);
   }
 
   /**
@@ -65,14 +53,13 @@ export default class AggregationCursor extends ShellApiClass {
   @returnsPromise
   hasNext(): Promise<boolean> {
     // TODO: Node 4.0 Upgrade. Will warn user and suggest tryNext instead see NODE-2917.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     return this._cursor.hasNext();
   }
 
-  // tryNext(): Promise<boolean> {
-  // TODO: Node 4.0 Upgrade. See NODE-2917.
-  // }
+  @returnsPromise
+  tryNext(): Promise<Document | null> {
+    return this._cursor.tryNext();
+  }
 
   isClosed(): boolean {
     return this._cursor.closed;
@@ -86,8 +73,7 @@ export default class AggregationCursor extends ShellApiClass {
   async itcount(): Promise<number> {
     let count = 0;
 
-    while (await this.hasNext()) {
-      await this.next();
+    while (await this._cursor.tryNext()) {
       count++;
     }
 

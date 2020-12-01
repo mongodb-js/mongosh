@@ -5,10 +5,11 @@
  *
  * @param options
  */
-import { DbOptions, Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
+import { DbOptions, Document, ExplainVerbosityLike, FindCursor, AggregationCursor as SPAggregationCursor } from '@mongosh/service-provider-core';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Database from './database';
+import { CursorIterationResult } from './result';
 
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
@@ -158,12 +159,11 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
   // (most recently) active mongoses
   const mongosActiveThresholdMs = 60000;
-  // TODO: NODE 4.0 upgrade, see NODE-2919
-  const mostRecentMongos = mongosColl.find().sort({ ping: -1 }); // .limit(1);
+  const mostRecentMongos = await mongosColl.find().sort({ ping: -1 }).limit(1).tryNext();
   let mostRecentMongosTime = null;
   let mongosAdjective = 'most recently active';
-  if (await mostRecentMongos.hasNext()) {
-    mostRecentMongosTime = (await mostRecentMongos.next()).ping;
+  if (mostRecentMongos !== null) {
+    mostRecentMongosTime = mostRecentMongos.ping;
     // Mongoses older than the threshold are the most recent, but cannot be
     // considered "active" mongoses. (This is more likely to be an old(er)
     // configdb dump, or all the mongoses have been stopped.)
@@ -483,4 +483,21 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
     writable: true,
     configurable: true
   });
+}
+
+export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor ): Promise<CursorIterationResult> {
+  if (cursor.closed) {
+    return results;
+  }
+
+  for (let i = 0; i < 20; i++) {
+    const doc = await cursor.tryNext();
+    if (doc === null) {
+      break;
+    }
+
+    results.push(doc);
+  }
+
+  return results;
 }

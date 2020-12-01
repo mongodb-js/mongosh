@@ -1093,18 +1093,12 @@ export default class Database extends ShellApiClass {
     result.usedMB = olStats.size / (1024 * 1024);
     result.usedMB = Math.ceil(result.usedMB * 100) / 100;
 
-    // TODO: NODE 4.0 upgrade, see NODE-2919
-    const firstc = ol.find().sort({ $natural: 1 }); // .limit(1);
-    const lastc = ol.find().sort({ $natural: -1 }); // .limit(1);
-    if (!(await firstc.hasNext()) || !(await lastc.hasNext())) {
-      throw new MongoshRuntimeError('documents not found in local.oplog.$main -- is this a new and empty db instance?');
-    }
-
-    const first = await firstc.next();
-    const last = await lastc.next();
+    const first = await ol.find().sort({ $natural: 1 }).limit(1).tryNext();
+    const last = await ol.find().sort({ $natural: -1 }).limit(1).tryNext();
     if (first === null || last === null) {
       throw new MongoshRuntimeError('documents not found in local.oplog.$main -- is this a new and empty db instance?');
     }
+
     let tfirst = first.ts;
     let tlast = last.ts;
 

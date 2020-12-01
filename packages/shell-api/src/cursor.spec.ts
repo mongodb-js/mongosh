@@ -508,10 +508,9 @@ describe('Cursor', () => {
       });
 
       it('returns the iteration count', async() => {
-        spCursor.hasNext.onCall(0).resolves(true);
-        spCursor.hasNext.onCall(1).resolves(true);
-        spCursor.hasNext.onCall(2).resolves(false);
-        spCursor.next.resolves({});
+        spCursor.tryNext.onCall(0).resolves(true);
+        spCursor.tryNext.onCall(1).resolves(true);
+        spCursor.tryNext.onCall(2).resolves(null);
 
         expect(await shellApiCursor.itcount()).to.equal(2);
       });
@@ -654,10 +653,7 @@ describe('Cursor', () => {
             if (prop === 'closed') {
               return false;
             }
-            if (prop === 'hasNext') {
-              return () => true;
-            }
-            if (prop === 'next') {
+            if (prop === 'tryNext') {
               return async() => ({ key: i++ });
             }
             return (target as any)[prop];
