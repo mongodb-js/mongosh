@@ -8,5 +8,5 @@ export {
   CliOptions,
   Scheme,
   generateUri,
-  MongoClientOptions
+  MongoClientOptions as NodeOptions
 };
