@@ -17,18 +17,38 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
   }
 
   const packageErrors: PackageErrors[] = [];
+  const seenCodes = new Map<String, PackageError>();
+  let hasDuplicates = false;
 
   const packages = await collectPackages(pathToPackages);
-  for await (const packagePath of packages) {
+  for (const packagePath of packages) {
     const dirName = path.basename(packagePath);
     ux.info(`Processing ${dirName}...`);
     const pe = await processPackage(packagePath);
     if (pe) {
       packageErrors.push(pe);
       ux.note(`Found ${pe.errors.length} mongosh errors.\n`);
+
+      for (const e of pe.errors) {
+        if (seenCodes.has(e.code)) {
+          ux.error(
+            `Duplicate code: ${e.code}\n`,
+            `\tExisting documentation: ${seenCodes.get(e.code)?.documentation}\n`,
+            `\tNew documentation:      ${e.documentation}\n`,
+          );
+          hasDuplicates = true;
+        } else {
+          seenCodes.set(e.code, e);
+        }
+      }
     } else {
       ux.quiet('No mongosh errors found.\n');
     }
+  }
+
+  if (hasDuplicates) {
+    ux.fatal('There were duplicate error codes, check output.');
+    return;
   }
 
   await renderErrorOverview(packageErrors);
@@ -81,7 +101,7 @@ async function processPackage(pathToPackage: string): Promise<PackageErrors | un
     return undefined;
   }
 
-  const errors: PackageError[] = await extractErrors(tsProgram);
+  const errors: PackageError[] = await extractErrors(pathToPackage, tsProgram);
   if (!errors || !errors.length) {
     return undefined;
   }
@@ -112,12 +132,12 @@ async function createTsProgram(pathToPackage: string): Promise<ts.Program | unde
   });
 }
 
-async function extractErrors(program: ts.Program): Promise<PackageError[]> {
+async function extractErrors(pathToPackage: string, program: ts.Program): Promise<PackageError[]> {
   const errors: PackageError[] = [];
 
   const checker = program.getTypeChecker();
   program.getSourceFiles()
-    .filter(sf => !sf.isDeclarationFile)
+    .filter(sf => isRelevantSourceFileInPackage(pathToPackage, sf))
     .forEach(sf => ts.forEachChild(sf, visit));
 
   function visit(node: ts.Node): void {
@@ -146,6 +166,14 @@ async function extractErrors(program: ts.Program): Promise<PackageError[]> {
   }
 
   return errors;
+}
+
+function isRelevantSourceFileInPackage(pathToPackage: string, sf: ts.SourceFile): boolean {
+  if (sf.isDeclarationFile) {
+    return false;
+  }
+
+  return path.resolve(sf.fileName).startsWith(path.resolve(pathToPackage));
 }
 
 function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: ts.Node): { enumName: string, enumDeclaration: ts.EnumDeclaration } | undefined {
