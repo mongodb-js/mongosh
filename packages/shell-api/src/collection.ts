@@ -16,7 +16,7 @@ import {
   validateExplainableVerbosity,
   assertArgsDefined,
   assertKeysDefined,
-  dataFormat, assertArgsType
+  dataFormat, assertArgsType, getAcknowledged
 } from './helpers';
 import {
   DbOptions,
@@ -186,7 +186,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new BulkWriteResult(
-      !!result.result.ok, // acknowledged
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.insertedCount,
       result.insertedIds,
       result.matchedCount,
@@ -282,7 +282,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.deletedCount
     );
   }
@@ -317,7 +317,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.deletedCount
     );
   }
@@ -617,7 +617,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.insertedIds
     );
   }
@@ -655,7 +655,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.insertedIds
     );
   }
@@ -693,7 +693,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertOneResult(
-      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.insertedId
     );
   }
@@ -751,7 +751,7 @@ export default class Collection extends ShellApiClass {
       dbOptions
     );
     return new DeleteResult(
-      !!(result as any).ok, // TODO: Node 4.0 upgrade See NODE-2920
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.deletedCount
     );
   }
@@ -795,7 +795,7 @@ export default class Collection extends ShellApiClass {
       dbOptions
     );
     return new UpdateResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -832,7 +832,7 @@ export default class Collection extends ShellApiClass {
       );
     }
     return new UpdateResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -872,7 +872,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -916,7 +916,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      !!result.result.ok,
+      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -1560,6 +1560,7 @@ export default class Collection extends ShellApiClass {
 
         totalValue[`Shard ${shardStats.shardId}`] = [
           `${estDataPercent} % data`,
+          `${estDocPercent} % docs in cluster`,
           `${estDocPercent} % docs in cluster`,
           `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
         ];

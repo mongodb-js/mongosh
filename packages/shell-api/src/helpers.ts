@@ -508,3 +508,10 @@ export async function iterate(results: CursorIterationResult, cursor: FindCursor
 
   return results;
 }
+
+export function getAcknowledged(result: Document): boolean {
+  if ('ok' in result) return !!result.ok;
+  if ('result' in result) return !!result.result.ok;
+  if ('acknowledged' in result) return !!result.acknowledged;
+  return false;
+}
