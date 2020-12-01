@@ -8,5 +8,6 @@ export {
   CliOptions,
   Scheme,
   generateUri,
-  MongoClientOptions as NodeOptions
+  MongoClientOptions,
+  MongoClientOptions as NodeOptions // TODO: Update VSCode to use MongoClientOptions
 };
