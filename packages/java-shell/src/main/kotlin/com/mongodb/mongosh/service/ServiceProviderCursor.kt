@@ -24,6 +24,7 @@ interface ServiceProviderCursor {
   fun maxTimeMS(v: Long): ServiceProviderCursor
   fun maxAwaitTimeMS(value: Int): ServiceProviderCursor
   fun min(v: Value): ServiceProviderCursor
+  fun tryNext(): Any?
   fun next(): Any?
   fun project(v: Value): ServiceProviderCursor
   fun returnKey(v: Value): ServiceProviderCursor

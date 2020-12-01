@@ -200,6 +200,16 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
+    override fun tryNext(): Any? {
+        /* findOne returns single document as a result.
+         * Mongosh core will try to defineProperty on it and fail if value is not wrapped in JS object */
+        val shouldWrap = iterator == null && helper.limit() == 1
+        val value = getOrCreateIterator().tryNext()
+        return if (shouldWrap) wrapper.wrap(value) // it's possibly a findOne call
+        else value
+    }
+
+    @HostAccess.Export
     override fun project(v: Value): ServiceProviderCursor {
         checkQueryNotExecuted()
         helper.projection(toDocument(converter, v))
