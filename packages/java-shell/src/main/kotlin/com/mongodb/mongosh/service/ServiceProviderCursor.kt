@@ -3,7 +3,6 @@ package com.mongodb.mongosh.service
 import org.graalvm.polyglot.Value
 
 interface ServiceProviderCursor {
-  var closed: Boolean;
   fun addCursorFlag(flag: String, v: Boolean): ServiceProviderCursor
   fun addOption(option: Int): ServiceProviderCursor
   fun batchSize(v: Int): ServiceProviderCursor

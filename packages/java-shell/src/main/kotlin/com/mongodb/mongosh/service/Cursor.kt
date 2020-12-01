@@ -13,7 +13,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
 
     @JvmField
     @HostAccess.Export
-    override var closed = false
+    var closed = false
 
     private fun getOrCreateIterator(): MongoCursor<out Any?> {
         var it = iterator
