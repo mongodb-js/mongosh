@@ -70,7 +70,6 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
     }
   },
 };
-bsonStringifiers.ObjectId = bsonStringifiers.ObjectID;
 
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
