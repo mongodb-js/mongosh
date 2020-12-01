@@ -1574,7 +1574,7 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._mongo._serviceProvider.watch(pipeline, options, {}, this._database._name, this._name),
-      this[asPrintable]()
+      this._name
     );
     this._mongo._internalState.currentCursor = cursor;
     return cursor;
