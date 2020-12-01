@@ -14,6 +14,7 @@ import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
 import { MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
 import { iterate } from './helpers';
+import { printWarning } from './deprecation-warning';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -49,7 +50,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   @returnsPromise
   async hasNext(): Promise<void> {
-    // TODO: warn
+    printWarning('If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there are any documents without waiting.');
     return this._cursor.hasNext();
   }
 
@@ -70,7 +71,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
     if (this._cursor.cursor === undefined) {
       throw new MongoshInternalError('No internal ChangeStreamCursor');
     }
-    // TODO: warn
+    printWarning('This method uses tryNext internally so will iterate the cursor by 1 document.');
     return this.isClosed() && await this.tryNext() === null;
   }
 
@@ -85,7 +86,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
 
   @returnsPromise
   async next(): Promise<void> {
-    // TODO warn
+    printWarning('If there are no documents in the batch, next will block. Use tryNext if you want to check if there are any documents without waiting.');
     return this._cursor.next();
   }
 

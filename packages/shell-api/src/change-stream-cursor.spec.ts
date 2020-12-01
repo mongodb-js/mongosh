@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { ChangeStream } from '@mongosh/service-provider-core';
+import { ChangeStream, ChangeStreamCursor as SPCursor } from '@mongosh/service-provider-core';
 
 describe('ChangeStreamCursor', () => {
   describe('help', () => {
@@ -30,14 +30,14 @@ describe('ChangeStreamCursor', () => {
     });
   });
   describe('instance', () => {
-    let wrappee;
+    let spCursor: StubbedInstance<ChangeStream>;
+    let innerCursor: StubbedInstance<SPCursor>;
     let cursor;
     beforeEach(() => {
-      wrappee = {
-        next: sinon.spy(),
-        isClosed: (): boolean => true
-      };
-      cursor = new ChangeStreamCursor(wrappee as ChangeStream, 'source');
+      innerCursor = stubInterface<SPCursor>();
+      spCursor = stubInterface<ChangeStream>();
+      spCursor.cursor = innerCursor;
+      cursor = new ChangeStreamCursor(spCursor, 'source');
     });
 
     it('sets dynamic properties', async() => {
@@ -51,9 +51,37 @@ describe('ChangeStreamCursor', () => {
       expect(cursor.pretty()).to.equal(cursor);
     });
 
-    it('calls wrappee.next with arguments', () => {
-      cursor.next();
-      expect(wrappee.next.calledWith()).to.equal(true);
+    it('calls spCursor.hasNext with arguments', async() => {
+      const result = false;
+      spCursor.hasNext.resolves(result);
+      const actual = await cursor.hasNext();
+      expect(actual).to.equal(result);
+      expect(spCursor.hasNext.calledWith()).to.equal(true);
+    });
+    it('calls spCursor.close with arguments', async() => {
+      await cursor.close();
+      expect(spCursor.close.calledWith()).to.equal(true);
+    });
+    it('calls spCursor.cursor.tryNext with arguments', async() => {
+      const result = { doc: 1 };
+      innerCursor.tryNext.resolves(result);
+      const actual = await cursor.tryNext();
+      expect(actual).to.equal(result);
+      expect(innerCursor.tryNext.calledWith()).to.equal(true);
+    });
+    it('calls spCursor.next with arguments', async() => {
+      const result = { doc: 1 };
+      spCursor.next.resolves(result);
+      const actual = await cursor.next();
+      expect(actual).to.equal(result);
+      expect(spCursor.next.calledWith()).to.equal(true);
+    });
+    it('calls spCursor.isClosed and tryNext with arguments', async() => {
+      innerCursor.tryNext.resolves(null);
+      (spCursor as any).closed = true;
+      const actual = await cursor.isExhausted();
+      expect(actual).to.equal(true);
+      expect(innerCursor.tryNext.calledWith()).to.equal(true);
     });
   });
 });
