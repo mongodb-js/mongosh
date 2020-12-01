@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
@@ -40,11 +40,16 @@ describe('ChangeStreamCursor', () => {
     let spCursor: StubbedInstance<ChangeStream>;
     let innerCursor: StubbedInstance<SPCursor>;
     let cursor;
+    let warnSpy;
     beforeEach(() => {
       innerCursor = stubInterface<SPCursor>();
       spCursor = stubInterface<ChangeStream>();
       spCursor.cursor = innerCursor;
-      cursor = new ChangeStreamCursor(spCursor, 'source', {} as Mongo);
+      warnSpy = sinon.spy();
+
+      cursor = new ChangeStreamCursor(spCursor, 'source', {
+        _internalState: { context: { print: warnSpy } }
+      } as Mongo);
     });
 
     it('sets dynamic properties', async() => {
@@ -64,6 +69,7 @@ describe('ChangeStreamCursor', () => {
       const actual = await cursor.hasNext();
       expect(actual).to.equal(result);
       expect(spCursor.hasNext.calledWith()).to.equal(true);
+      expect(warnSpy.calledOnce).to.equal(true);
     });
     it('calls spCursor.close with arguments', async() => {
       await cursor.close();
@@ -82,6 +88,7 @@ describe('ChangeStreamCursor', () => {
       const actual = await cursor.next();
       expect(actual).to.equal(result);
       expect(spCursor.next.calledWith()).to.equal(true);
+      expect(warnSpy.calledOnce).to.equal(true);
     });
   });
   describe('integration', () => {

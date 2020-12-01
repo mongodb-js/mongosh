@@ -1561,7 +1561,6 @@ export default class Collection extends ShellApiClass {
         totalValue[`Shard ${shardStats.shardId}`] = [
           `${estDataPercent} % data`,
           `${estDocPercent} % docs in cluster`,
-          `${estDocPercent} % docs in cluster`,
           `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
         ];
       })()
