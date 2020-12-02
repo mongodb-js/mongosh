@@ -70,6 +70,13 @@ describe('changeHistory', () => {
       expect(cloned).to.deep.equal(i);
     });
 
+    it('leaves history as is if command is not sensitive but contains sensitive substrings', () => {
+      const i = ['db.shipwrecks.find({quasou: "connectionId"})', 'db.shipwrecks.findOne()', 'use ships'];
+      const cloned = Array.from(i);
+      changeHistory(cloned, true);
+      expect(cloned).to.deep.equal(i);
+    });
+
     it('removes command from history and does not redact even if info in command is redactable', () => {
       const i = ['db.createUser( { user: "restricted", pwd: passwordPrompt(),      // Or  "<cleartext password>" roles: [ { role: "readWrite", db: "reporting" } ], authenticationRestrictions: [ { clientSource: ["192.0.2.0"], serverAddress: ["198.51.100.0"] } ] })',
         'db.shipwrecks.findOne()', 'use ships'];
