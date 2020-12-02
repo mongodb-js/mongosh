@@ -74,6 +74,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     if (result is CursorResult) {
                         (result.value as Cursor<*>).hasNext() // test that value is iterable
                     }
+                    if (result is VoidResult) return@forEach
                     val actualValue = getActualValue(result, cmd.options)
                     if (result is CursorResult) {
                         (result.value as Cursor<*>).close() // test close

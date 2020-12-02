@@ -81,10 +81,8 @@ object NullResult : MongoShellResult<Any?>() {
         get() = null
 }
 
-object VoidResult : MongoShellResult<Unit>() {
-    override fun _asPrintable(): String = ""
-    override val value: Unit
-        get() = Unit
+object VoidResult : MongoShellResult<Any?>() {
+    override val value: Any? = null
 }
 
 class StringResult(override val value: String) : MongoShellResult<String>() {

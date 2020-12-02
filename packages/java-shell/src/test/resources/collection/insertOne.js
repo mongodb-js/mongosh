@@ -10,7 +10,9 @@ const res = db.coll.insertOne({
     date: new Date("2012-12-19"),
     isoDate: new ISODate("2012-12-19"),
     numberInt: NumberInt("24"),
-    timestamp: new Timestamp(0, 100)
+    timestamp: new Timestamp(0, 100),
+    "undefined": undefined,
+    "null": null
 });
 // command
 res

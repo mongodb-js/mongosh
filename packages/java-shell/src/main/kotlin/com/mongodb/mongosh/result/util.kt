@@ -3,6 +3,7 @@ package com.mongodb.mongosh.result
 import com.mongodb.DBRef
 import com.mongodb.util.JSONSerializers
 import org.apache.commons.text.StringEscapeUtils
+import org.bson.BsonUndefined
 import org.bson.types.*
 import java.util.*
 
@@ -16,6 +17,7 @@ internal fun Any?.toLiteral(): String = when (this) {
     is Map<*, *> -> this.toLiteral()
     is Collection<*> -> this.toLiteral()
     is String -> this.quote()
+    is BsonUndefined -> "undefined"
     is DBRef,
     is BSONTimestamp,
     is Decimal128,
