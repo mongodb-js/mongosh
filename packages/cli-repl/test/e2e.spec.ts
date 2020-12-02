@@ -410,7 +410,7 @@ describe('e2e', function() {
         return shell;
       };
       shell = await startTestShell();
-      logPath = path.join(mongoshdir, `${shell.sessionId}_log`);
+      logPath = path.join(mongoshdir, `${shell.logId}_log`);
     });
 
     afterEach(async() => {
