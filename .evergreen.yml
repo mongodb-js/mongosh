@@ -276,6 +276,17 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
+  - name: test_mlatest_n12
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
   - name: test_m40x_n12_win
     commands:
       - func: checkout
@@ -309,6 +320,17 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
+  - name: test_mlatest_n12_win
+    commands:
+      - func: checkout
+      - func: install_win
+        vars:
+          node_js_version: "12.20.0"
+      - func: test_win
+        vars:
+          mongosh_server_test_version: "latest-alpha"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
   - name: test_m40x_n14
     commands:
       - func: checkout
@@ -338,6 +360,16 @@ tasks:
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
+          node_js_version: "14.15.1"
+  - name: test_mlatest_n14
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha"
           node_js_version: "14.15.1"
   - name: test_m40x_n14_win
     commands:
@@ -369,6 +401,16 @@ tasks:
         vars:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "14.15.1"
+  - name: test_mlatest_n14_win
+    commands:
+      - func: checkout
+      - func: install_win
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_win
+        vars:
+          mongosh_server_test_version: "latest-alpha"
+          node_js_version: "14.15.1"
   - name: test_vscode
     commands:
       - func: checkout
@@ -386,11 +428,15 @@ tasks:
         variant: darwin
       - name: test_m44x_n12
         variant: darwin
+      - name: test_mlatest_n12
+        variant: darwin
       - name: test_m40x_n14
         variant: darwin
       - name: test_m42x_n14
         variant: darwin
       - name: test_m44x_n14
+        variant: darwin
+      - name: test_mlatest_n14
         variant: darwin
     commands:
       - func: checkout
@@ -409,11 +455,15 @@ tasks:
         variant: linux
       - name: test_m44x_n12
         variant: linux
+      - name: test_mlatest_n12
+        variant: linux
       - name: test_m40x_n14
         variant: linux
       - name: test_m42x_n14
         variant: linux
       - name: test_m44x_n14
+        variant: linux
+      - name: test_mlatest_n14
         variant: linux
     commands:
       - func: checkout
@@ -429,9 +479,11 @@ tasks:
       - name: test_m40x_n12_win
       - name: test_m42x_n12_win
       - name: test_m44x_n12_win
+      - name: test_mlatest_n12_win
       - name: test_m40x_n14_win
       - name: test_m42x_n14_win
       - name: test_m44x_n14_win
+      - name: test_mlatest_n14_win
     commands:
       - func: checkout
       - func: install_win
@@ -490,9 +542,11 @@ buildvariants:
       - name: test_m40x_n12
       - name: test_m42x_n12
       - name: test_m44x_n12
+      - name: test_mlatest_n12
       - name: test_m40x_n14
       - name: test_m42x_n14
       - name: test_m44x_n14
+      - name: test_mlatest_n14
   - name: linux
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-test
@@ -501,9 +555,11 @@ buildvariants:
       - name: test_m40x_n12
       - name: test_m42x_n12
       - name: test_m44x_n12
+      - name: test_mlatest_n12
       - name: test_m40x_n14
       - name: test_m42x_n14
       - name: test_m44x_n14
+      - name: test_mlatest_n14
       - name: test_vscode
       - name: compile_and_upload_artifact_linux
   - name: rhel
@@ -536,9 +592,11 @@ buildvariants:
       - name: test_m40x_n12_win
       - name: test_m42x_n12_win
       - name: test_m44x_n12_win
+      - name: test_mlatest_n12_win
       - name: test_m40x_n14_win
       - name: test_m42x_n14_win
       - name: test_m44x_n14_win
+      - name: test_mlatest_n14_win
       - name: compile_and_upload_artifact_win
   - name: darwin_release_publish
     display_name: "Publish Release"
