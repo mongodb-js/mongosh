@@ -1,6 +1,6 @@
 import redactInfo from 'mongodb-redact';
 
-export const HIDDEN_COMMANDS = 'createUser|auth|updateUser|changeUserPassword|connect|Mongo';
+export const HIDDEN_COMMANDS = String.raw `\b(createUser|auth|updateUser|changeUserPassword|connect|Mongo)\b`;
 
 export function removeCommand(history: string, redact = false): string {
   if (redact) {
