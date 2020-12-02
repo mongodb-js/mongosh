@@ -41,7 +41,7 @@
     "@mongosh/service-provider-core": "^0.6.1",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
-    "mongodb": "github:mongodb/node-mongodb-native#98ae02ce",
+    "mongodb": "github:aherlihy/node-mongodb-native#2937-dev",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "devDependencies": {
