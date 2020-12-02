@@ -1,14 +1,17 @@
-import Result from './result';
 import { ReplPlatform } from './platform';
-import AuthOptions from './auth-options';
-import CollectionOptions from './collection-options';
-import DatabaseOptions from './database-options';
-import ReadPreference from './read-preference';
-import ReadConcern from './read-concern';
-import WriteConcern from './write-concern';
-import Document from './document';
-import SessionOptions from './session-options';
-import ServiceProviderSession from './session';
+import ShellAuthOptions from './shell-auth-options';
+import type {
+  MongoClientOptions,
+  ReadConcern,
+  ReadPreference,
+  WriteConcern,
+  Document,
+  CreateCollectionOptions,
+  ClientSession,
+  DbOptions,
+  ClientSessionOptions
+} from './all-transport-types';
+
 
 export default interface Admin {
   /**
@@ -31,23 +34,23 @@ export default interface Admin {
    *
    * @returns {Promise} buildInfo object.
    */
-  buildInfo(): Promise<Result>;
+  buildInfo(): Promise<Document>;
 
   /**
    * Returns the cmdLineOpts.
    *
    * @returns {Promise} The server version.
    */
-  getCmdLineOpts(): Promise<Result>;
+  getCmdLineOpts(): Promise<Document>;
 
   /**
    * list databases.
    *
    * @param {String} database - The database name.
    *
-   * @returns {Promise} The promise of command results.
+   * @returns {Promise} The promise of command Documents.
    */
-  listDatabases(database: string): Promise<Result>;
+  listDatabases(database: string): Promise<Document>;
 
   /**
    * create a new service provider with a new connection.
@@ -55,22 +58,26 @@ export default interface Admin {
    * @param uri
    * @param options
    */
-  getNewConnection(uri: string, options: any): Promise<any>;
+  getNewConnection(uri: string, options: MongoClientOptions): Promise<any>; // returns the ServiceProvider instance
 
   /**
    * Return connection info
    */
-  getConnectionInfo(): Promise<any>;
+  getConnectionInfo(): Promise<Document>;
 
   /**
    * Authenticate
    */
-  authenticate(authDoc: AuthOptions): Promise<any>;
+  authenticate(authDoc: ShellAuthOptions): Promise<{ ok: number }>;
 
   /**
    * createCollection
    */
-  createCollection(dbName: string, collName: string, opts: CollectionOptions, dbOptions?: DatabaseOptions): Promise<any>;
+  createCollection(
+    dbName: string,
+    collName: string,
+    options: CreateCollectionOptions,
+    dbOptions?: DbOptions): Promise<{ ok: number }>;
 
   /**
    * Return read preference for connection.
@@ -94,5 +101,9 @@ export default interface Admin {
    */
   resetConnectionOptions(options: Document): Promise<void>;
 
-  startSession(options: SessionOptions): ServiceProviderSession;
+  /**
+   * Start a session.
+   * @param options
+   */
+  startSession(options: ClientSessionOptions): ClientSession;
 }

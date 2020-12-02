@@ -112,7 +112,7 @@ describe('e2e', function() {
 
       client = await (MongoClient as any).connect(
         connectionString,
-        { useNewUrlParser: true, useUnifiedTopology: true }
+        { useNewUrlParser: true }
       );
 
       db = client.db(dbName);
@@ -435,7 +435,7 @@ describe('e2e', function() {
         return shell;
       };
       shell = await startTestShell();
-      logPath = path.join(mongoshdir, `${shell.sessionId}_log`);
+      logPath = path.join(mongoshdir, `${shell.logId}_log`);
     });
 
     afterEach(async() => {

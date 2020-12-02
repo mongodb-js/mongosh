@@ -2,7 +2,7 @@ import semver from 'semver';
 // Installing @types/mongodb at the lerna root breaks some of the tests...
 // Yikes. Stick with ts-ignore for now.
 // @ts-ignore
-import { MongoClient } from 'mongodb';
+import {MongoClient, MongoClientOptions} from 'mongodb';
 import { promisify } from 'util';
 import child_process from 'child_process';
 import crypto from 'crypto';
@@ -243,11 +243,10 @@ export class MongodSetup {
     let client;
     try {
       client = await MongoClient.connect(await this.connectionString(), {
-        useUnifiedTopology: true,
         useNewUrlParser: true
-      });
+      } as MongoClientOptions);
 
-      const { version } = await client.db().admin().serverStatus();
+      const { version } = await client.db('db1').admin().serverStatus();
       this._serverVersion = version;
       return version;
     } finally {

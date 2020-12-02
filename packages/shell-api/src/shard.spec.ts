@@ -4,13 +4,14 @@ import Shard from './shard';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
-import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import Database from './database';
+import { ObjectId } from 'mongodb';
 
 describe('Shard', () => {
   describe('help', () => {
@@ -575,7 +576,7 @@ describe('Shard', () => {
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoSplit();
 
@@ -590,17 +591,18 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: { _id: 0 },
+          upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableAutoSplit();
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -631,7 +633,7 @@ describe('Shard', () => {
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoSplit();
 
@@ -646,17 +648,18 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: { _id: 0 },
+          upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableAutoSplit();
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -804,7 +807,7 @@ describe('Shard', () => {
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableBalancing('ns');
 
@@ -819,17 +822,18 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: { _id: 0 },
+          upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -860,7 +864,7 @@ describe('Shard', () => {
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableBalancing('ns');
 
@@ -875,17 +879,18 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
-          upsertedId: { _id: 0 },
+          upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null
-        };
+        } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, { _id: 0 }));
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
       it('throws if serviceProvider.updateOne rejects', async() => {
@@ -911,7 +916,7 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { stopped: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
-        findCursor.next.resolves(expectedResult);
+        findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
         const result = await shard.getBalancerState();
         expect(serviceProvider.find).to.have.been.calledWith(

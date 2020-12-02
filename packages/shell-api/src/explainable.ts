@@ -10,15 +10,15 @@ import {
 } from './decorators';
 import { asPrintable } from './enums';
 import { validateExplainableVerbosity } from './helpers';
-import { Document } from '@mongosh/service-provider-core';
+import { Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class Explainable extends ShellApiClass {
   _mongo: Mongo;
   _collection: Collection;
-  _verbosity: string;
-  constructor(mongo: Mongo, collection: Collection, verbosity: string) {
+  _verbosity: ExplainVerbosityLike;
+  constructor(mongo: Mongo, collection: Collection, verbosity: ExplainVerbosityLike) {
     super();
     this._mongo = mongo;
     this._collection = collection;
@@ -54,19 +54,19 @@ export default class Explainable extends ShellApiClass {
     return this._collection;
   }
 
-  getVerbosity(): string {
+  getVerbosity(): ExplainVerbosityLike {
     this._emitExplainableApiCall('getVerbosity');
     return this._verbosity;
   }
 
-  setVerbosity(verbosity: string): void {
+  setVerbosity(verbosity: ExplainVerbosityLike): void {
     validateExplainableVerbosity(verbosity);
     this._emitExplainableApiCall('setVerbosity', { verbosity });
     this._verbosity = verbosity;
   }
 
   @returnType('ExplainableCursor')
-  find(query?: any, projection?: any): ExplainableCursor {
+  find(query?: Document, projection?: Document): ExplainableCursor {
     this._emitExplainableApiCall('find', { query, projection });
 
     const cursor = this._collection.find(query, projection);
@@ -74,7 +74,7 @@ export default class Explainable extends ShellApiClass {
   }
 
   @returnsPromise
-  async aggregate(pipeline?: any, options?: any): Promise<any> {
+  async aggregate(pipeline?: Document, options?: Document): Promise<any> {
     this._emitExplainableApiCall('aggregate', { pipeline, options });
 
     const cursor = await this._collection.aggregate(pipeline, {

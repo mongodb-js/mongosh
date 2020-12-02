@@ -1,42 +1,26 @@
-import Document from './document';
-import Result from './result';
-import BulkWriteResult from './bulk-write-result';
-import CommandOptions from './command-options';
-import DatabaseOptions from './database-options';
-
-type DeleteWriteResult = {
-  result: {
-    ok?: number;
-    n?: number;
-  };
-  connection?: any;
-  deletedCount?: number;
-};
-
-type FindAndModifyResult = {
-  value?: any;
-  lastErrorObject?: any;
-  ok?: number;
-};
-
-type InsertResult = {
-  insertedCount: number;
-  ops: any[];
-  connection: any;
-  result: { ok: number; n: number };
-};
-type InsertOneResult = InsertResult & { insertedId: any };
-type InsertManyResult = InsertResult & { insertedIds: { [key: number]: any } };
-
-type UpdateResult = {
-  result: { ok: number; n: number; nModified: number };
-  connection: any;
-  matchedCount: number;
-  modifiedCount: number;
-  upsertedCount: number;
-  upsertedId: { _id: any };
-};
-type ReplaceResult = UpdateResult & { ops: any [] };
+import type {
+  Document,
+  InsertOneOptions,
+  InsertOneResult,
+  Collection,
+  RenameOptions,
+  FindAndModifyOptions,
+  BulkWriteOptions,
+  AnyBulkWriteOperation,
+  DeleteOptions,
+  DeleteResult,
+  InsertManyResult,
+  ReplaceOptions,
+  UpdateResult,
+  UpdateOptions,
+  DropDatabaseOptions,
+  CreateIndexesOptions,
+  DropCollectionOptions,
+  BulkWriteResult,
+  RunCommandOptions,
+  DbOptions
+} from './all-transport-types';
+import ServiceProviderBulkOp from './bulk';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -47,44 +31,44 @@ export default interface Writable {
    * @param {String} db - the db name
    * @param spec
    * @param options
-   * @param {DatabaseOptions} dbOptions - The database options
-   * @return {Promise<Result>}
+   * @param {DbOptions} dbOptions - The database options
+   * @return {Promise<Document>}
    */
   runCommand(
     db: string,
     spec: Document,
-    options?: CommandOptions,
-    dbOptions?: DatabaseOptions
-  ): Promise<any>;
+    options: RunCommandOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * @param {String} db - the db name
    * @param spec
    * @param options
-   * @param {DatabaseOptions} dbOptions - The database options
-   * @return {Promise<Result>}
+   * @param {DbOptions} dbOptions - The database options
+   * @return {Promise<Document>}
    */
   runCommandWithCheck(
     db: string,
     spec: Document,
-    options?: CommandOptions,
-    dbOptions?: DatabaseOptions
-  ): Promise<any>;
+    options: RunCommandOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Drop a database
    *
    * @param {String} database - The database name.
    * @param {Document} options - The options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
-   * @returns {Promise<Result>} The result of the operation.
+   * @returns {Promise<Document>} The result of the operation.
    */
   dropDatabase(
     database: string,
-    options?: Document,
-    dbOptions?: DatabaseOptions
-  ): Promise<Result>;
+    options: DropDatabaseOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Execute a mix of write operations.
@@ -93,16 +77,16 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Document} requests - The bulk write requests.
    * @param {Document} options - The bulk write options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
   bulkWrite(
     database: string,
     collection: string,
-    requests: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<BulkWriteResult>;
+    requests: AnyBulkWriteOperation[],
+    options: BulkWriteOptions,
+    dbOptions?: DbOptions): Promise<BulkWriteResult>;
 
   /**
    * Delete multiple documents from the collection.
@@ -111,7 +95,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The delete many options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -119,8 +103,8 @@ export default interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<DeleteWriteResult>;
+    options: DeleteOptions,
+    dbOptions?: DbOptions): Promise<DeleteResult>;
 
   /**
    * Delete one document from the collection.
@@ -129,7 +113,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The delete one options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -137,8 +121,8 @@ export default interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<DeleteWriteResult>;
+    options: DeleteOptions,
+    dbOptions?: DbOptions): Promise<DeleteResult>;
 
   /**
    * Find one document and delete it.
@@ -147,7 +131,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The find options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -155,8 +139,8 @@ export default interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<FindAndModifyResult>;
+    options: FindAndModifyOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Find one document and replace it.
@@ -166,7 +150,7 @@ export default interface Writable {
    * @param {Document} filter - The filter.
    * @param {Document} replacement - The replacement.
    * @param {Document} options - The find options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -175,8 +159,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     replacement: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<FindAndModifyResult>;
+    options: FindAndModifyOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Find one document and update it.
@@ -186,7 +170,7 @@ export default interface Writable {
    * @param {Document} filter - The filter.
    * @param {(Document|Array)} update - The update.
    * @param {Document} options - The find options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -195,8 +179,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<FindAndModifyResult>;
+    options: FindAndModifyOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Insert many documents into the colleciton.
@@ -205,7 +189,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Array} docs - The documents.
    * @param {Document} options - The insert many options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -213,8 +197,8 @@ export default interface Writable {
     database: string,
     collection: string,
     docs: Document[],
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<InsertManyResult>;
+    options: BulkWriteOptions,
+    dbOptions?: DbOptions): Promise<InsertManyResult>;
 
   /**
    * Insert one document into the collection.
@@ -223,7 +207,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Document} doc - The document.
    * @param {Document} options - The insert one options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -231,8 +215,8 @@ export default interface Writable {
     database: string,
     collection: string,
     doc: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<InsertOneResult>;
+    options: InsertOneOptions,
+    dbOptions?: DbOptions): Promise<InsertOneResult>;
 
   /**
    * Replace a document with another.
@@ -242,7 +226,7 @@ export default interface Writable {
    * @param {Document} filter - The filter.
    * @param {Document} replacement - The replacement document for matches.
    * @param {Document} options - The replace options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -251,8 +235,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     replacement: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<ReplaceResult>;
+    options?: ReplaceOptions,
+    dbOptions?: DbOptions): Promise<UpdateResult>;
 
   /**
    * Update many document.
@@ -262,7 +246,7 @@ export default interface Writable {
    * @param {Document} filter - The filter.
    * @param {(Document|Array)} update - The updates.
    * @param {Document} options - The update options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -271,8 +255,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<UpdateResult>;
+    options?: UpdateOptions,
+    dbOptions?: DbOptions): Promise<UpdateResult>;
 
   /**
    * find and update or remove a document.
@@ -283,7 +267,7 @@ export default interface Writable {
    * @param {Document} sort - The sort option.
    * @param {Document} update - The update document.
    * @param {Document} options - The update options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -293,9 +277,9 @@ export default interface Writable {
     query: Document,
     sort: any[] | Document | undefined,
     update: Document | undefined,
-    options?: Document,
-    dbOptions?: DatabaseOptions
-  ): Promise<FindAndModifyResult>;
+    options?: FindAndModifyOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Update a document.
@@ -305,7 +289,7 @@ export default interface Writable {
    * @param {Document} filter - The filter.
    * @param {(Document|Array)} update - The updates.
    * @param {Document} options - The update options.
-   * @param {DatabaseOptions} dbOptions - The DB options
+   * @param {DbOptions} dbOptions - The DB options
    *
    * @returns {Promise} The promise of the result.
    */
@@ -314,25 +298,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<UpdateResult>;
-
-  /**
-   * Deprecated save command.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} doc - The doc.
-   * @param {Object} options - The options.
-   * @param {DatabaseOptions} dbOptions - The DB options
-   * @return {Promise}
-   */
-  save(
-    database: string,
-    collection: string,
-    doc: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    options?: UpdateOptions,
+    dbOptions?: DbOptions): Promise<UpdateResult>;
 
   /**
    * Deprecated remove command.
@@ -341,7 +308,7 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Object} query - The query.
    * @param {Object} options - The options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
@@ -349,8 +316,8 @@ export default interface Writable {
     database: string,
     collection: string,
     query: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    options?: DeleteOptions,
+    dbOptions?: DbOptions): Promise<DeleteResult>;
 
   /**
    * Converts an existing, non-capped collection to
@@ -361,13 +328,15 @@ export default interface Writable {
    * @param {String} size - The maximum size, in bytes, for the capped collection.
    * @param {CommandOptions} options - The command options
    *
+   * @param dbOptions
    * @return {Promise}
    */
   convertToCapped(
     database: string,
     collection: string,
     size: number,
-    options?: CommandOptions): Promise<Result>;
+    options?: RunCommandOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Adds new indexes to a collection.
@@ -376,15 +345,15 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Object[]} indexSpecs the spec of the indexes to be created.
    * @param {Object} options - The command options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    * @return {Promise}
    */
   createIndexes(
     database: string,
     collection: string,
     indexSpecs: Document[],
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    options?: CreateIndexesOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Drop indexes for a collection.
@@ -393,15 +362,15 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {string|string[]|Object|Object[]} indexes the indexes to be removed.
    * @param {CommandOptions} commandOptions - The command options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    * @return {Promise}
    */
   dropIndexes(
     database: string,
     collection: string,
     indexes: string|string[]|Document|Document[],
-    commandOptions?: CommandOptions,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    commandOptions?: RunCommandOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Reindex all indexes on the collection.
@@ -409,30 +378,31 @@ export default interface Writable {
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
    * @param {CommandOptions} options - The command options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    * @return {Promise}
    */
   reIndex(
     database: string,
     collection: string,
-    options?: CommandOptions,
-    dbOptions?: DatabaseOptions
-  ): Promise<Result>;
+    options?: RunCommandOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Drops a collection.
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
   dropCollection(
     database: string,
     collection: string,
-    options: Document,
-    dbOptions?: DatabaseOptions
+    options: DropCollectionOptions,
+    dbOptions?: DbOptions
   ): Promise<boolean>;
 
   /**
@@ -440,14 +410,14 @@ export default interface Writable {
    * @param {String} oldName - The collection name.
    * @param {String} newName - The new collection name.
    * @param {String} options - The options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    */
   renameCollection(
     database: string,
     oldName: string,
     newName: string,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    options?: RenameOptions,
+    dbOptions?: DbOptions): Promise<Collection>;
 
   /**
    * Initialize a bulk operation.
@@ -462,8 +432,8 @@ export default interface Writable {
     dbName: string,
     collName: string,
     ordered: boolean,
-    options?: any,
-    dbOptions?: any
-  ): Promise<any>;
+    options?: BulkWriteOptions,
+    dbOptions?: DbOptions
+  ): Promise<ServiceProviderBulkOp>;
 }
 

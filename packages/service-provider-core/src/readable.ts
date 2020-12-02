@@ -1,7 +1,19 @@
-import Document from './document';
-import Cursor from './cursor';
-import Result from './result';
-import DatabaseOptions from './database-options';
+import type {
+  Document,
+  AggregateOptions,
+  CountOptions,
+  CountDocumentsOptions,
+  DistinctOptions,
+  EstimatedDocumentCountOptions,
+  FindOptions,
+  ListCollectionsOptions,
+  CollStatsOptions,
+  ListIndexesOptions,
+  AggregationCursor,
+  FindCursor,
+  DbOptions
+} from './all-transport-types';
+import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
 /**
  * Interface for read operations in the CRUD specification.
@@ -15,15 +27,15 @@ export default interface Readable {
    * @param {String} collection - The collection name.
    * @param {Array} pipeline - The aggregation pipeline.
    * @param {Document} options - The pipeline options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    * @returns {Cursor} A cursor.
    */
   aggregate(
     database: string,
     collection: string,
     pipeline: Document[],
-    options?: Document,
-    dbOptions?: DatabaseOptions): Cursor;
+    options?: AggregateOptions,
+    dbOptions?: DbOptions): AggregationCursor;
 
   /**
    * Run an aggregation pipeline on the DB.
@@ -38,9 +50,9 @@ export default interface Readable {
   aggregateDb(
     database: string,
     pipeline: Document[],
-    options?: Document,
-    dbOptions?: DatabaseOptions
-  ): Cursor;
+    options?: AggregateOptions,
+    dbOptions?: DbOptions
+  ): AggregationCursor;
 
   /**
    * Returns the count of documents that would match a find() query for the
@@ -52,7 +64,7 @@ export default interface Readable {
    * @param {String} coll - the collection name
    * @param query
    * @param options
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} A promise of the result.
    */
@@ -60,8 +72,8 @@ export default interface Readable {
     db: string,
     coll: string,
     query?: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<number>;
+    options?: CountOptions,
+    dbOptions?: DbOptions): Promise<number>;
 
   /**
    * Get an exact document count from the collection.
@@ -70,7 +82,7 @@ export default interface Readable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The count options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} A promise of the result.
    */
@@ -78,8 +90,8 @@ export default interface Readable {
     database: string,
     collection: string,
     filter?: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<number>;
+    options?: CountDocumentsOptions,
+    dbOptions?: DbOptions): Promise<number>;
 
   /**
    * Get distinct values for the field.
@@ -89,17 +101,17 @@ export default interface Readable {
    * @param {String} fieldName - The field name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The distinct options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
-   * @returns {Cursor} The cursor.
+   * @returns {Document}.
    */
   distinct(
     database: string,
     collection: string,
     fieldName: string,
     filter?: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<Result>;
+    options?: DistinctOptions,
+    dbOptions?: DbOptions): Promise<Document>;
 
   /**
    * Get an estimated document count from the collection.
@@ -107,15 +119,15 @@ export default interface Readable {
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
    * @param {Document} options - The count options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
   estimatedDocumentCount(
     database: string,
     collection: string,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<number>;
+    options?: EstimatedDocumentCountOptions,
+    dbOptions?: DbOptions): Promise<number>;
 
   /**
    * Find documents in the collection.
@@ -124,7 +136,7 @@ export default interface Readable {
    * @param {String} collection - The collection name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The find options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the cursor.
    */
@@ -132,29 +144,29 @@ export default interface Readable {
     database: string,
     collection: string,
     filter?: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Cursor;
+    options?: FindOptions,
+    dbOptions?: DbOptions): FindCursor;
 
   /**
    * Returns the server version.
    *
    * @returns {Promise} The server version.
    */
-  getTopology(): any;
+  getTopology(): any; // TODO: Node 4.0 upgrade, see NODE-2910
 
   /**
    * Is the collection capped?
    *
    * @param {String} database - The database name.
    * @param {String} collection - The collection name.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @returns {Promise} The promise of the result.
    */
   isCapped(
     database: string,
     collection: string,
-    dbOptions?: DatabaseOptions): Promise<any>;
+    dbOptions?: DbOptions): Promise<boolean>;
 
   /**
    * Returns an array that holds a list of documents that identify and
@@ -162,15 +174,16 @@ export default interface Readable {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
   getIndexes(
     database: string,
     collection: string,
-    options: Document,
-    dbOptions?: DatabaseOptions): Promise<any[]>;
+    options: ListIndexesOptions,
+    dbOptions?: DbOptions): Promise<Document[]>;
 
   /**
    * Returns an array of collection infos
@@ -178,15 +191,15 @@ export default interface Readable {
    * @param {String} database - The db name.
    * @param {Document} filter - The filter.
    * @param {Document} options - The command options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @return {Promise}
    */
   listCollections(
     database: string,
     filter?: Document,
-    options?: Document,
-    dbOptions?: DatabaseOptions): Promise<any[]>;
+    options?: ListCollectionsOptions,
+    dbOptions?: DbOptions): Promise<Document[]>;
 
   /**
    * Get all the collection statistics.
@@ -194,15 +207,31 @@ export default interface Readable {
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
    * @param {Object} options - The count options.
-   * @param {DatabaseOptions} dbOptions - The database options
+   * @param {DbOptions} dbOptions - The database options
    *
    * @return {Promise} returns Promise
    */
   stats(
     database: string,
     collection: string,
-    options?: Document,
-    dbOptions?: DatabaseOptions
-  ): Promise<any>;
+    options?: CollStatsOptions,
+    dbOptions?: DbOptions
+  ): Promise<Document>;
+
+  /**
+   * Start a change stream cursor on either the client, db, or collection.
+   * @param pipeline
+   * @param options
+   * @param db
+   * @param dbOptions
+   * @param coll
+   */
+  watch(
+    pipeline: Document[],
+    options: ChangeStreamOptions,
+    dbOptions?: DbOptions,
+    db?: string,
+    coll?: string
+  ): ChangeStream;
 }
 

@@ -15,3 +15,13 @@ export function printDeprecationWarning(
     warn(`DeprecationWarning: ${message}`);
   }
 }
+
+export function printWarning(
+  message: string,
+  warn = console.warn
+) {
+  if (!warningShown.has(message)) {
+    warningShown.add(message);
+    warn(`Warning: ${message}`);
+  }
+}

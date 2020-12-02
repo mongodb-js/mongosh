@@ -1,5 +1,4 @@
-import mongodb, { MongoClient, Db } from 'mongodb';
-const Collection = (mongodb as any).Collection;
+import { MongoClient, Db, Collection } from 'mongodb';
 
 import chai, { expect } from 'chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
@@ -22,17 +21,17 @@ const DEFAULT_BASE_OPTS = { serializeFunctions: true };
  *
  * @returns {Stub} The client stub to pass to the transport.
  */
-const createClientStub = (collectionStub): MongoClient => {
-  const dbStub: any = sinon.createStubInstance(Db, {
-    collection: sinon.stub().returns(collectionStub) as any
-  });
-  return sinon.createStubInstance(MongoClient, {
-    db: sinon.stub().returns(dbStub) as any
-  }) as any;
+const createClientStub = (collectionStub): StubbedInstance<MongoClient> => {
+  const clientStub = stubInterface<MongoClient>();
+  const dbStub = stubInterface<Db>();
+  dbStub.collection.returns(collectionStub);
+  clientStub.db.returns(dbStub);
+  return clientStub;
 };
 
 describe('CliServiceProvider', () => {
   let serviceProvider: CliServiceProvider;
+  let collectionStub: StubbedInstance<Collection>;
 
   describe('#constructor', () => {
     const mongoClient: any = sinon.spy();
@@ -46,13 +45,10 @@ describe('CliServiceProvider', () => {
   describe('#aggregate', () => {
     const pipeline = [{ $match: { name: 'Aphex Twin' } }];
     const aggResult = [{ name: 'Aphex Twin' }];
-    const aggMock = sinon.mock().withArgs(pipeline).
-      returns({ toArray: () => Promise.resolve(aggResult) });
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        aggregate: aggMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.aggregate.resolves({ toArray: async() => aggResult });
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -60,130 +56,114 @@ describe('CliServiceProvider', () => {
       const cursor = await serviceProvider.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
-      (aggMock as any).verify();
+      expect(collectionStub.aggregate).to.have.been.calledWith(pipeline);
     });
   });
 
   describe('#bulkWrite', () => {
-    const requests = [{ insertOne: { name: 'Aphex Twin' } }];
+    const requests = [{ insertOne: { name: 'Aphex Twin' } } as any];
     const commandResult = { result: { nInserted: 1, ok: 1 } };
-    const bulkMock = sinon.mock().once().withArgs(requests).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        bulkWrite: bulkMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.bulkWrite.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.bulkWrite('music', 'bands', requests);
       expect(result).to.deep.equal(commandResult);
-      (bulkMock as any).verify();
+      expect(collectionStub.bulkWrite).to.have.been.calledWith(requests);
     });
   });
 
   describe('#countDocuments', () => {
     const countResult = 10;
-    const countMock = sinon.mock().once().withArgs({}).resolves(countResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        countDocuments: countMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.countDocuments.resolves(countResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
-      (countMock as any).verify();
+      expect(collectionStub.countDocuments).to.have.been.calledWith({});
     });
   });
 
   describe('#deleteMany', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
-    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        deleteMany: deleteMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.deleteMany.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.deleteMany('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      (deleteMock as any).verify();
+      expect(collectionStub.deleteMany).to.have.been.calledWith({});
     });
   });
 
   describe('#deleteOne', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
-    const deleteMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        deleteOne: deleteMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.deleteOne.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.deleteOne('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      (deleteMock as any).verify();
+      expect(collectionStub.deleteOne).to.have.been.calledWith({});
     });
   });
 
   describe('#distinct', () => {
     const distinctResult = [ 'Aphex Twin' ];
-    const distinctMock = sinon.mock().once().
-      withArgs('name', {}, DEFAULT_BASE_OPTS).resolves(distinctResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        distinct: distinctMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.distinct.resolves(distinctResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.distinct('music', 'bands', 'name');
       expect(result).to.deep.equal(distinctResult);
-      (distinctMock as any).verify();
+      expect(collectionStub.distinct).to.have.been.calledWith('name', {}, DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#estimatedDocumentCount', () => {
     const countResult = 10;
-    const countMock = sinon.mock().once().withArgs(DEFAULT_BASE_OPTS).resolves(countResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        estimatedDocumentCount: countMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.estimatedDocumentCount.resolves(countResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.estimatedDocumentCount('music', 'bands');
       expect(result).to.deep.equal(countResult);
-      (countMock as any).verify();
+      expect(collectionStub.estimatedDocumentCount).to.have.been.calledWith(DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#find', () => {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
-    const findMock = sinon.mock().withArgs(filter).
-      returns({ toArray: () => Promise.resolve(findResult) });
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        find: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.find.resolves({ toArray: async() => findResult });
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -191,22 +171,17 @@ describe('CliServiceProvider', () => {
       const cursor = await serviceProvider.find('music', 'bands', filter);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
-      (findMock as any).verify();
+      expect(collectionStub.find).to.have.been.calledWith(filter);
     });
   });
   describe('#find with options', () => {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
     const options = { allowPartialResults: true, noCursorTimeout: true, tailable: true };
-    const findMock = sinon.mock().withArgs(
-      filter,
-      { ...DEFAULT_BASE_OPTS, ...options, partial: true, timeout: true, cursorType: 'TAILABLE' }
-    ).returns({ toArray: () => Promise.resolve(findResult) });
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        find: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.find.resolves({ toArray: async() => findResult });
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -214,23 +189,16 @@ describe('CliServiceProvider', () => {
       const cursor = await serviceProvider.find('music', 'bands', filter, options);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
-      (findMock as any).verify();
+      expect(collectionStub.find).to.have.been.calledWith(filter, { ...DEFAULT_BASE_OPTS, ...options, partial: true, timeout: true });
     });
   });
 
   describe('#findAndModify', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
-    const findMock = sinon.mock().once().withArgs(
-      { query: 1 },
-      { sort: 1 },
-      { update: 1 },
-      { ...DEFAULT_BASE_OPTS, options: 1 }
-    ).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        findAndModify: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.findAndModify.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -240,28 +208,29 @@ describe('CliServiceProvider', () => {
         { query: 1 },
         { sort: 1 },
         { update: 1 },
-        { options: 1 }
+        { options: 1 } as any
       );
       expect(result).to.deep.equal(commandResult);
-      (findMock as any).verify();
+      expect(collectionStub.findAndModify).to.have.been.calledWith({ query: 1 },
+        { sort: 1 },
+        { update: 1 },
+        { ...DEFAULT_BASE_OPTS, options: 1 });
     });
   });
 
   describe('#findOneAndDelete', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
-    const findMock = sinon.mock().once().withArgs({}).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        findOneAndDelete: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.findOneAndDelete.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.findOneAndDelete('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
-      (findMock as any).verify();
+      expect(collectionStub.findOneAndDelete).to.have.been.calledWith({});
     });
   });
 
@@ -269,13 +238,10 @@ describe('CliServiceProvider', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
-    const findMock = sinon.mock().once().withArgs(filter, replacement).
-      resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        findOneAndReplace: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.findOneAndReplace.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -283,7 +249,7 @@ describe('CliServiceProvider', () => {
       const result = await serviceProvider.
         findOneAndReplace('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
-      (findMock as any).verify();
+      expect(collectionStub.findOneAndReplace).to.have.been.calledWith(filter, replacement);
     });
   });
 
@@ -291,13 +257,10 @@ describe('CliServiceProvider', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
-    const findMock = sinon.mock().once().withArgs(filter, update).
-      resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        findOneAndUpdate: findMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.findOneAndUpdate.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -305,45 +268,41 @@ describe('CliServiceProvider', () => {
       const result = await serviceProvider.
         findOneAndUpdate('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      (findMock as any).verify();
+      expect(collectionStub.findOneAndUpdate).to.have.been.calledWith(filter, update);
     });
   });
 
   describe('#insertMany', () => {
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 } };
-    const insertMock = sinon.mock().once().withArgs([ doc ]).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        insertMany: insertMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.insertMany.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.insertMany('music', 'bands', [ doc ]);
       expect(result).to.deep.equal(commandResult);
-      (insertMock as any).verify();
+      expect(collectionStub.insertMany).to.have.been.calledWith([doc]);
     });
   });
 
   describe('#insertOne', () => {
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 } };
-    const insertMock = sinon.mock().once().withArgs(doc).resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        insertOne: insertMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.insertOne.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.insertOne('music', 'bands', doc);
       expect(result).to.deep.equal(commandResult);
-      (insertMock as any).verify();
+      expect(collectionStub.insertOne).to.have.been.calledWith(doc);
     });
   });
 
@@ -351,20 +310,17 @@ describe('CliServiceProvider', () => {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
     const commandResult = { result: { n: 1, ok: 1 } };
-    const replaceMock = sinon.mock().once().withArgs(filter, replacement).
-      resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        replaceOne: replaceMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.replaceOne.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.replaceOne('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
-      (replaceMock as any).verify();
+      expect(collectionStub.replaceOne).to.have.been.calledWith(filter, replacement);
     });
   });
 
@@ -372,16 +328,12 @@ describe('CliServiceProvider', () => {
     let clientStub: any;
     let dbStub: any;
     const commandResult = { ismaster: true };
-    const commandMock = sinon.mock().
-      withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
-      dbStub = sinon.createStubInstance(Db, {
-        command: commandMock as any
-      }) as any;
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub) as any
-      }) as any;
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(commandResult);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -394,7 +346,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database', async() => {
       const result = await serviceProvider.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
-      (commandMock as any).verify();
+      expect(dbStub.command).to.have.been.calledWith({ ismaster: 1 });
     });
   });
 
@@ -402,15 +354,12 @@ describe('CliServiceProvider', () => {
     let clientStub: any;
     let dbStub: any;
     const commandResult = { ok: 0 };
-    const commandMock = sinon.mock().withArgs({ ismaster: 1 }).resolves(commandResult);
 
     beforeEach(() => {
-      dbStub = sinon.createStubInstance(Db, {
-        command: commandMock as any
-      }) as any;
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub) as any
-      });
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(commandResult);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -436,20 +385,17 @@ describe('CliServiceProvider', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     const commandResult = { result: { n: 1, ok: 1 } };
-    const updateMock = sinon.mock().once().withArgs(filter, update).
-      resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        updateOne: updateMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.updateOne.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.updateOne('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      (updateMock as any).verify();
+      expect(collectionStub.updateOne).to.have.been.calledWith(filter, update);
     });
   });
 
@@ -457,83 +403,71 @@ describe('CliServiceProvider', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     const commandResult = { result: { n: 1, ok: 1 } };
-    const updateMock = sinon.mock().once().withArgs(filter, update).
-      resolves(commandResult);
 
     beforeEach(() => {
-      const collectionStub = sinon.createStubInstance(Collection, {
-        updateMany: updateMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.updateMany.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.updateMany('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
-      (updateMock as any).verify();
+      expect(collectionStub.updateMany).to.have.been.calledWith(filter, update);
     });
   });
 
   describe('#dropDatabase', () => {
-    let dropDatabaseMock;
-    let clientStub: MongoClient;
+    let clientStub: StubbedInstance<MongoClient>;
+    let dbStub: StubbedInstance<Db>;
 
     beforeEach(() => {
-      dropDatabaseMock = sinon.mock().resolves(true);
-
-      const dbStub = sinon.createStubInstance(Db, {
-        dropDatabase: dropDatabaseMock
-      });
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub) as any
-      }) as any;
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      clientStub.db.returns(dbStub);
 
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('returns ok: 1 if dropped', async() => {
+      dbStub.dropDatabase.resolves(true);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ ok: 1 });
     });
 
     it('returns ok: 0 if not dropped', async() => {
-      dropDatabaseMock.resolves(false);
+      dbStub.dropDatabase.resolves(false);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ ok: 0 });
     });
 
     it('returns dropped: "db name" if dropped', async() => {
+      dbStub.dropDatabase.resolves(true);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ dropped: 'db1' });
     });
 
     context('when write concern is omitted', () => {
       it('runs against the database with default write concern', async() => {
-        dropDatabaseMock.once().withArgs();
+        dbStub.dropDatabase.resolves(true);
         await serviceProvider.dropDatabase('db1');
-        expect((clientStub.db as any).calledOnce);
-        expect((clientStub.db as any).calledWith('db1'));
-        (dropDatabaseMock as any).verify();
+        expect(clientStub.db).to.have.been.calledOnceWith('db1');
       });
     });
 
     context('with write concern', () => {
       it('runs against the database passing write concern', async() => {
         const opts = { serializeFunctions: true, w: 1 };
-        dropDatabaseMock.once().withArgs(opts);
+        dbStub.dropDatabase.resolves(true);
         await serviceProvider.dropDatabase('db1', opts);
-        expect((clientStub.db as any).calledOnce);
-        expect((clientStub.db as any).calledWith('db1'));
-        (dropDatabaseMock as any).verify();
+        expect(clientStub.db).to.have.been.calledOnceWith('db1');
       });
     });
   });
 
   describe('#buildInfo', () => {
-    let commandMock;
-    let dbMock;
-    let clientStub: MongoClient;
+    let clientStub: StubbedInstance<MongoClient>;
+    let dbStub: StubbedInstance<Db>;
 
     const buildInfoResult = {
       version: '4.0.0',
@@ -543,37 +477,25 @@ describe('CliServiceProvider', () => {
     };
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({ buildInfo: 1 }, DEFAULT_BASE_OPTS)
-        .resolves(buildInfoResult);
-
-      const dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('admin')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(buildInfoResult);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes the command against the admin database', async() => {
+      const cmd = { buildInfo: 1 };
       const result = await serviceProvider.buildInfo();
       expect(result).to.deep.equal(buildInfoResult);
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(clientStub.db).to.have.been.calledWith('admin');
+      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#getCmdLineOpts', () => {
-    let commandMock;
-    let dbMock;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     const cmdLineOptsResult = {
       argv: [
@@ -589,70 +511,48 @@ describe('CliServiceProvider', () => {
     };
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({ getCmdLineOpts: 1 }, DEFAULT_BASE_OPTS)
-        .resolves(cmdLineOptsResult);
-
-      const dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('admin')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(cmdLineOptsResult);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes getCmdLineOpts against an admin db', async() => {
+      const cmd = { getCmdLineOpts: 1 };
       const result = await serviceProvider.getCmdLineOpts();
       expect(result).to.deep.equal(cmdLineOptsResult);
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(clientStub.db).to.have.been.calledWith('admin');
+      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#convertToCapped', () => {
-    let commandMock;
-    let dbMock;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({ convertToCapped: 'coll1', size: 1000 })
-        .resolves({ ok: 1 });
+      const result = { ok: 1 };
 
-      const dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(result);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes the command', async() => {
+      const cmd = { convertToCapped: 'coll1', size: 1000 };
       const result = await serviceProvider.convertToCapped('db1', 'coll1', 1000);
       expect(result).to.deep.equal({ ok: 1 });
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(clientStub.db).to.have.been.calledWith('db1');
+      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#createIndexes', () => {
     let indexSpecs;
     let nativeMethodResult;
-    let nativeMethodMock;
 
     beforeEach(() => {
       indexSpecs = [
@@ -666,13 +566,8 @@ describe('CliServiceProvider', () => {
         ok: 1
       };
 
-      nativeMethodMock = sinon.mock().once().withArgs(indexSpecs).
-        resolves(nativeMethodResult);
-
-      const collectionStub = sinon.createStubInstance(Collection, {
-        createIndexes: nativeMethodMock
-      });
-
+      collectionStub = stubInterface<Collection>();
+      collectionStub.createIndexes.resolves(nativeMethodResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
@@ -682,14 +577,13 @@ describe('CliServiceProvider', () => {
         'coll1',
         indexSpecs);
       expect(result).to.deep.equal(nativeMethodResult);
-      (nativeMethodMock as any).verify();
+      expect(collectionStub.createIndexes).to.have.been.calledWith(indexSpecs);
     });
   });
 
   describe('#getIndexes', () => {
     let indexSpecs;
     let nativeMethodResult;
-    let nativeMethodMock;
 
     beforeEach(() => {
       indexSpecs = [
@@ -700,90 +594,62 @@ describe('CliServiceProvider', () => {
         toArray: (): Promise<any[]> => Promise.resolve(indexSpecs)
       };
 
-      nativeMethodMock = sinon.mock().once().withArgs().
-        returns(nativeMethodResult);
-
-      const collectionStub = sinon.createStubInstance(Collection, {
-        listIndexes: nativeMethodMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.listIndexes.returns(nativeMethodResult);
 
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
-      const result = await (serviceProvider as any).getIndexes(
+      const result = await serviceProvider.getIndexes(
         'db1',
         'coll1'
       );
 
       expect(result).to.deep.equal(indexSpecs);
-      (nativeMethodMock as any).verify();
+      expect(collectionStub.listIndexes).to.have.been.calledWith(DEFAULT_BASE_OPTS);
     });
   });
 
   describe('#dropIndexes', () => {
-    let commandMock;
-    let dbMock;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
+    const args = { dropIndexes: 'coll1', index: ['index-1'] };
+    const result = { ok: 1 };
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({ dropIndexes: 'coll1', index: ['index-1'] })
-        .resolves({ ok: 1 });
-
-      const dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves(result);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes the command', async() => {
       const result = await serviceProvider.dropIndexes('db1', 'coll1', ['index-1']);
       expect(result).to.deep.equal({ ok: 1 });
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(dbStub.command).to.have.been.calledWith(args);
+      expect(clientStub.db).to.have.been.calledWith('db1');
     });
   });
 
   describe('#listCollections', () => {
-    let commandMock;
-    let dbMock;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({}, DEFAULT_BASE_OPTS)
-        .returns({
-          toArray: () => {
-            return Promise.resolve([
-              {
-                name: 'coll1'
-              }
-            ]);
-          }
-        });
-
-      const dbStub = sinon.createStubInstance(Db, {
-        listCollections: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.listCollections.returns({
+        toArray: () => {
+          return Promise.resolve([
+            {
+              name: 'coll1'
+            }
+          ]);
+        }
+      } as any);
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -795,97 +661,59 @@ describe('CliServiceProvider', () => {
         }
       ]);
 
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(dbStub.listCollections).to.have.been.calledWith({}, DEFAULT_BASE_OPTS);
+      expect(clientStub.db).to.have.been.calledWith('db1');
     });
   });
 
   describe('#stats', () => {
     let options;
     let expectedResult;
-    let statsMock;
 
     beforeEach(() => {
       options = { ...DEFAULT_BASE_OPTS, scale: 1 };
       expectedResult = { ok: 1 };
-      statsMock = sinon.mock().once().withArgs(options).
-        resolves(expectedResult);
 
-      const collectionStub = sinon.createStubInstance(Collection, {
-        stats: statsMock
-      });
+      collectionStub = stubInterface<Collection>();
+      collectionStub.stats.resolves(expectedResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.stats('db1', 'coll1', options);
       expect(result).to.deep.equal(expectedResult);
-      (statsMock as any).verify();
+      expect(collectionStub.stats).to.have.been.calledWith(options);
     });
   });
 
   describe('#reIndex', () => {
-    let commandMock: any;
-    let dbMock: any;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs({ reIndex: 'coll1' })
-        .resolves({ ok: 1 });
-
-      const dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves({ ok: 1 });
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes the command against the database', async() => {
       const result = await serviceProvider.reIndex('db1', 'coll1');
       expect(result).to.deep.equal({ ok: 1 });
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(dbStub.command).to.have.been.calledWith({ reIndex: 'coll1' });
     });
   });
 
   describe('#renameCollection', () => {
-    let commandMock: any;
-    let dbMock: any;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs(
-          'coll1',
-          'newName',
-          {
-            ...DEFAULT_BASE_OPTS,
-            dropTarget: true,
-            session: 1
-          })
-        .resolves({ ok: 1 });
-
-      const dbStub = sinon.createStubInstance(Db, {
-        renameCollection: commandMock
-      });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.renameCollection.resolves({ ok: 1 });
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -894,67 +722,55 @@ describe('CliServiceProvider', () => {
         'db1',
         'coll1',
         'newName',
-        { dropTarget: true, session: 1 }
+        { dropTarget: true, session: {} as any }
       );
       expect(result).to.deep.equal({ ok: 1 });
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(dbStub.renameCollection).to.have.been.calledOnceWith('coll1',
+        'newName',
+        {
+          ...DEFAULT_BASE_OPTS,
+          dropTarget: true,
+          session: {}
+        });
+      expect(clientStub.db).to.have.been.calledOnceWith('db1');
     });
   });
 
   describe('#createCollection', () => {
-    let commandMock: any;
-    let dbMock: any;
-    let clientStub: MongoClient;
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
 
     beforeEach(() => {
-      commandMock = sinon.mock()
-        .withArgs('newcoll', {})
-        .returns({
-          toArray: () => {
-            return Promise.resolve([
-              { collectionType: 1 }
-            ]);
-          }
-        });
-
-      const dbStub = sinon.createStubInstance(Db, {
-        createCollection: commandMock
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.createCollection.resolves({
+        toArray: () => {
+          return Promise.resolve([
+            { collectionType: 1 }
+          ]);
+        }
       });
-
-      dbMock = sinon.mock()
-        .withArgs('db1')
-        .returns(dbStub);
-
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: dbMock
-      }) as any;
-
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
     it('executes the command', async() => {
       const result = await serviceProvider.createCollection('db1', 'newcoll', {});
       expect(result).to.deep.equal({ ok: 1 });
-
-      (dbMock as any).verify();
-      (commandMock as any).verify();
+      expect(dbStub.createCollection).to.have.been.calledOnceWith('newcoll', {});
+      expect(clientStub.db).to.have.been.calledOnceWith('db1');
     });
   });
 
   describe('Throw error on ok: 0', () => {
     let clientStub;
     let dbStub;
-    let commandMock;
 
     beforeEach(() => {
-      commandMock = sinon.mock().resolves({ ok: 0 });
-      dbStub = sinon.createStubInstance(Db, {
-        command: commandMock
-      });
-      clientStub = sinon.createStubInstance(MongoClient, {
-        db: sinon.stub().returns(dbStub) as any
-      }) as any;
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.resolves({ ok: 0 });
+      clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub);
     });
 
@@ -982,7 +798,6 @@ describe('CliServiceProvider', () => {
     let serviceProvider: CliServiceProvider;
     let db: StubbedInstance<Db>;
     let driverSession;
-    let sampleOpts;
     beforeEach(() => {
       clientStub = stubInterface<MongoClient>();
       serviceProvider = new CliServiceProvider(clientStub);
@@ -990,73 +805,63 @@ describe('CliServiceProvider', () => {
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
       clientStub.db.returns(db);
-      sampleOpts = {
-        causalConsistency: false,
-        readConcern: { level: 'majority' },
-        writeConcern: { w: 1, j: false, wtimeout: 0 },
-        readPreference: { mode: 'primary', tagSet: [] }
-      };
     });
     describe('startSession', () => {
       it('calls startSession without args', () => {
-        const result = serviceProvider.startSession();
-        expect(clientStub.startSession).to.have.been.calledOnceWith();
+        const opts = { owner: Symbol.for('shell') };
+        const result = serviceProvider.startSession(opts);
+        expect(clientStub.startSession).to.have.been.calledOnceWith( opts);
         expect(result).to.equal(driverSession);
       });
-      it('can set default transaction options readconcern', () => {
-        const result = serviceProvider.startSession({
-          readConcern: sampleOpts.readConcern
-        });
-        expect(clientStub.startSession).to.have.been.calledOnceWith({
-          defaultTransactionOptions: {
-            readConcern: sampleOpts.readConcern
-          }
-        });
-        expect(result).to.equal(driverSession);
+    });
+  });
+
+  describe('#watch', () => {
+    let options;
+    let expectedResult;
+    let watchMock;
+    let watchMock2;
+    let watchMock3;
+    let pipeline;
+
+    beforeEach(() => {
+      pipeline = [{ $match: { operationType: 'insertOne' } }];
+      options = { batchSize: 1 };
+      expectedResult = { ChangeStream: 1 };
+
+      watchMock = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+      watchMock2 = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+      watchMock3 = sinon.mock().once().withArgs(pipeline, options).returns(expectedResult);
+
+      const collectionStub = sinon.createStubInstance(Collection, {
+        watch: watchMock3
       });
-      it('can set default transaction options writeConcern', () => {
-        const result = serviceProvider.startSession({
-          writeConcern: sampleOpts.writeConcern
-        });
-        expect(clientStub.startSession).to.have.been.calledOnceWith({
-          defaultTransactionOptions: {
-            writeConcern: sampleOpts.writeConcern
-          }
-        });
-        expect(result).to.equal(driverSession);
+      const dbStub = sinon.createStubInstance(Db, {
+        watch: watchMock2,
+        collection: sinon.stub().returns(collectionStub) as any
       });
-      it('can set default transaction options readPreference', () => {
-        const result = serviceProvider.startSession({
-          readPreference: sampleOpts.readPreference as any
-        });
-        expect(clientStub.startSession).to.have.been.calledOnceWith({
-          defaultTransactionOptions: {
-            readPreference: sampleOpts.readPreference
-          }
-        });
-        expect(result).to.equal(driverSession);
-      });
-      it('can set causalConsistency', () => {
-        const result = serviceProvider.startSession({
-          causalConsistency: false
-        });
-        expect(clientStub.startSession).to.have.been.calledOnceWith({
-          causalConsistency: false
-        });
-        expect(result).to.equal(driverSession);
-      });
-      it('sets everything', () => {
-        const result = serviceProvider.startSession(sampleOpts as any);
-        expect(clientStub.startSession).to.have.been.calledOnceWith({
-          causalConsistency: sampleOpts.causalConsistency,
-          defaultTransactionOptions: {
-            readPreference: sampleOpts.readPreference,
-            readConcern: sampleOpts.readConcern,
-            writeConcern: sampleOpts.writeConcern
-          }
-        });
-        expect(result).to.equal(driverSession);
-      });
+      const clientStub = sinon.createStubInstance(MongoClient, {
+        db: sinon.stub().returns(dbStub) as any,
+        watch: watchMock
+      }) as any;
+
+      serviceProvider = new CliServiceProvider(clientStub);
+    });
+
+    it('executes watch on MongoClient', () => {
+      const result = serviceProvider.watch(pipeline, options);
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock as any).verify();
+    });
+    it('executes watch on Db', () => {
+      const result = serviceProvider.watch(pipeline, options, {}, 'dbname');
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock2 as any).verify();
+    });
+    it('executes watch on collection', () => {
+      const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
+      expect(result).to.deep.equal(expectedResult);
+      (watchMock3 as any).verify();
     });
   });
 });

@@ -7,20 +7,22 @@ import {
   ShellApiClass,
   toShellResult
 } from './decorators';
-import {
-  Cursor as ServiceProviderCursor,
+import type {
+  AggregationCursor as ServiceProviderAggregationCursor,
+  ExplainVerbosityLike,
   Document
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
+import { iterate } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
 export default class AggregationCursor extends ShellApiClass {
   _mongo: Mongo;
-  _cursor: ServiceProviderCursor;
+  _cursor: ServiceProviderAggregationCursor;
   _currentIterationResult: CursorIterationResult | null = null;
-  constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
+  constructor(mongo: Mongo, cursor: ServiceProviderAggregationCursor) {
     super();
     this._cursor = cursor;
     this._mongo = mongo;
@@ -28,20 +30,7 @@ export default class AggregationCursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-
-    if (this.isClosed()) {
-      return results;
-    }
-
-    for (let i = 0; i < 20; i++) {
-      if (!await this.hasNext()) {
-        break;
-      }
-
-      results.push(await this.next());
-    }
-
-    return results;
+    return iterate(results, this._cursor);
   }
 
   /**
@@ -63,26 +52,33 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnsPromise
   hasNext(): Promise<boolean> {
+    // TODO: Node 4.0 Upgrade. Will warn user and suggest tryNext instead see NODE-2917.
     return this._cursor.hasNext();
   }
 
+  @returnsPromise
+  tryNext(): Promise<Document | null> {
+    return this._cursor.tryNext();
+  }
+
   isClosed(): boolean {
-    return this._cursor.isClosed();
+    return this._cursor.closed;
   }
 
   async isExhausted(): Promise<boolean> {
-    return this._cursor.isClosed() && !await this._cursor.hasNext();
+    return this.isClosed() && this.objsLeftInBatch() === 0;
+  }
+
+  objsLeftInBatch(): number {
+    return this._cursor.bufferedCount();
   }
 
   @returnsPromise
   async itcount(): Promise<number> {
     let count = 0;
-
-    while (await this.hasNext()) {
-      await this.next();
+    while (await this.tryNext()) {
       count++;
     }
-
     return count;
   }
 
@@ -93,7 +89,7 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  next(): Promise<any> {
+  next(): Promise<Document | null> {
     return this._cursor.next();
   }
 
@@ -103,7 +99,7 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  explain(verbosity: string): Promise<any> {
+  explain(verbosity: ExplainVerbosityLike): Promise<any> {
     return this._cursor.explain(verbosity);
   }
 

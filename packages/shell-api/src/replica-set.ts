@@ -30,7 +30,7 @@ export default class ReplicaSet extends ShellApiClass {
    * @param config
    */
   @returnsPromise
-  async initiate(config = {}): Promise<any> {
+  async initiate(config = {}): Promise<Document> {
     this._emitReplicaSetApiCall('initiate', { config });
     return this._database._runAdminCommand({ replSetInitiate: config });
   }
@@ -41,7 +41,7 @@ export default class ReplicaSet extends ShellApiClass {
    *  Returns a document that contains the current replica set configuration.
    */
   @returnsPromise
-  async config(): Promise<any> {
+  async config(): Promise<Document> {
     this._emitReplicaSetApiCall('config', {});
     try {
       const result = await this._database._runAdminCommand(
@@ -53,7 +53,11 @@ export default class ReplicaSet extends ShellApiClass {
       return result.config;
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
-        return await this._database.getSiblingDB('local').getCollection('system.replset').findOne();
+        const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne();
+        if (doc === null) {
+          throw new MongoshRuntimeError('No documents in local.system.replset');
+        }
+        return doc;
       }
       throw error;
     }
@@ -63,7 +67,7 @@ export default class ReplicaSet extends ShellApiClass {
    * Alias, conf is documented but config is not
    */
   @returnsPromise
-  async conf(): Promise<any> {
+  async conf(): Promise<Document> {
     return this.config();
   }
 
@@ -74,7 +78,7 @@ export default class ReplicaSet extends ShellApiClass {
    *  @param options
    */
   @returnsPromise
-  async reconfig(config: any, options = {}): Promise<any> {
+  async reconfig(config: Document, options = {}): Promise<Document> {
     assertArgsDefined(config);
     assertArgsType([ config, options ], ['object', 'object']);
     this._emitReplicaSetApiCall('reconfig', { config, options });
@@ -89,7 +93,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async status(): Promise<any> {
+  async status(): Promise<Document> {
     this._emitReplicaSetApiCall('status', {});
     return this._database._runAdminCommand(
       {
@@ -99,7 +103,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async isMaster(): Promise<any> {
+  async isMaster(): Promise<Document> {
     this._emitReplicaSetApiCall('isMaster', {});
     return this._database._runAdminCommand(
       {
@@ -126,7 +130,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async add(hostport: string | Document, arb?: boolean): Promise<any> {
+  async add(hostport: string | Document, arb?: boolean): Promise<Document> {
     assertArgsDefined(hostport);
     this._emitReplicaSetApiCall('add', { hostport, arb });
 
@@ -166,13 +170,13 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async addArb(hostname: string): Promise<void> {
+  async addArb(hostname: string): Promise<Document> {
     this._emitReplicaSetApiCall('addArb', { hostname });
     return this.add(hostname, true);
   }
 
   @returnsPromise
-  async remove(hostname: string): Promise<void> {
+  async remove(hostname: string): Promise<Document> {
     assertArgsDefined(hostname);
     assertArgsType([hostname], ['string']);
     this._emitReplicaSetApiCall('remove', { hostname });
@@ -200,7 +204,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async freeze(secs: number): Promise<any> {
+  async freeze(secs: number): Promise<Document> {
     assertArgsDefined(secs);
     assertArgsType([secs], ['number']);
     this._emitReplicaSetApiCall('freeze', { secs });
@@ -212,7 +216,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<any> {
+  async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<Document> {
     assertArgsType([stepdownSecs, catchUpSecs], ['number', 'number']);
     this._emitReplicaSetApiCall('stepDown', { stepdownSecs, catchUpSecs });
     const cmd = {
@@ -227,7 +231,7 @@ export default class ReplicaSet extends ShellApiClass {
   }
 
   @returnsPromise
-  async syncFrom(host: string): Promise<any> {
+  async syncFrom(host: string): Promise<Document> {
     assertArgsDefined(host);
     assertArgsType([host], ['string']);
     this._emitReplicaSetApiCall('syncFrom', { host });

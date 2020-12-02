@@ -6,7 +6,7 @@ import {
 } from './decorators';
 
 import {
-  Document
+  Document, UpdateResult
 } from '@mongosh/service-provider-core';
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
@@ -45,7 +45,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async enableSharding(database: string, primaryShard?: string): Promise<any> {
+  async enableSharding(database: string, primaryShard?: string): Promise<Document> {
     assertArgsDefined(database);
     this._emitShardApiCall('enableSharding', { database, primaryShard });
 
@@ -66,7 +66,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async shardCollection(namespace: string, key: Document, unique?: boolean, options?: any): Promise<any> {
+  async shardCollection(namespace: string, key: Document, unique?: boolean, options?: Document): Promise<Document> {
     assertArgsDefined(namespace, key);
     assertArgsType([namespace, key, options], ['string', 'object', 'object']);
     this._emitShardApiCall('shardCollection', { namespace, key, unique, options });
@@ -90,13 +90,13 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async status(verbose = false): Promise<any> {
+  async status(verbose = false): Promise<CommandResult> {
     const result = await getPrintableShardStatus(this._database, verbose);
     return new CommandResult('StatsResult', result);
   }
 
   @returnsPromise
-  async addShard(url: string): Promise<any> {
+  async addShard(url: string): Promise<Document> {
     assertArgsDefined(url);
     assertArgsType([url], ['string']);
     await getConfigDB(this._database);
@@ -108,7 +108,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async addShardToZone(shard: string, zone: string): Promise<any> {
+  async addShardToZone(shard: string, zone: string): Promise<Document> {
     assertArgsDefined(shard, zone);
     assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('addShardToZone', { shard, zone });
@@ -121,7 +121,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async addShardTag(shard: string, tag: string): Promise<any> {
+  async addShardTag(shard: string, tag: string): Promise<Document> {
     this._emitShardApiCall('addShardTag', { shard, tag });
     try {
       return await this.addShardToZone(shard, tag);
@@ -134,7 +134,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<any> {
+  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<Document> {
     assertArgsDefined(namespace, min, max, zone);
     assertArgsType([namespace, min, max], ['string', 'object', 'object']);
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
@@ -150,7 +150,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<any> {
+  async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<Document> {
     assertArgsDefined(namespace, min, max, zone);
     this._emitShardApiCall('addTagRange', { namespace, min, max, zone });
 
@@ -171,14 +171,14 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<any> {
+  async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<Document> {
     this._emitShardApiCall('removeRangeFromZone', { ns, min, max });
     return this.updateZoneKeyRange(ns, min, max, null);
   }
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeTagRange(ns: string, min: Document, max: Document): Promise<any> {
+  async removeTagRange(ns: string, min: Document, max: Document): Promise<Document> {
     this._emitShardApiCall('removeTagRange', { ns, min, max });
     try {
       return await this.updateZoneKeyRange(ns, min, max, null);
@@ -192,7 +192,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeShardFromZone(shard: string, zone: string): Promise<any> {
+  async removeShardFromZone(shard: string, zone: string): Promise<Document> {
     assertArgsDefined(shard, zone);
     assertArgsType([shard, zone], ['string', 'string']);
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
@@ -206,7 +206,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeShardTag(shard: string, tag: string): Promise<any> {
+  async removeShardTag(shard: string, tag: string): Promise<Document> {
     this._emitShardApiCall('removeTagRange', { shard, tag });
     try {
       return await this.removeShardFromZone(shard, tag);
@@ -220,7 +220,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async enableAutoSplit(): Promise<any> {
+  async enableAutoSplit(): Promise<UpdateResult> {
     this._emitShardApiCall('enableAutoSplit', {});
     const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
@@ -232,7 +232,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async disableAutoSplit(): Promise<any> {
+  async disableAutoSplit(): Promise<UpdateResult> {
     this._emitShardApiCall('disableAutoSplit', {});
     const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
@@ -243,7 +243,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async splitAt(ns: string, query: Document): Promise<any> {
+  async splitAt(ns: string, query: Document): Promise<Document> {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitAt', { ns, query });
@@ -254,7 +254,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async splitFind(ns: string, query: Document): Promise<any> {
+  async splitFind(ns: string, query: Document): Promise<Document> {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query], ['string', 'object']);
     this._emitShardApiCall('splitFind', { ns, query });
@@ -265,7 +265,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async moveChunk(ns: string, query: Document, destination: string): Promise<any> {
+  async moveChunk(ns: string, query: Document, destination: string): Promise<Document> {
     assertArgsDefined(ns, query);
     assertArgsType([ns, query, destination], ['string', 'object', 'string']);
     this._emitShardApiCall('moveChunk', { ns, query, destination });
@@ -278,7 +278,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   @serverVersions(['4.4.0', ServerVersions.latest])
-  async balancerCollectionStatus(ns: string): Promise<any> {
+  async balancerCollectionStatus(ns: string): Promise<Document> {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('balancerCollectionStatus', { ns });
@@ -289,7 +289,7 @@ export default class Shard extends ShellApiClass {
 
 
   @returnsPromise
-  async enableBalancing(ns: string): Promise<any> {
+  async enableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('enableBalancing', { ns });
@@ -302,7 +302,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async disableBalancing(ns: string): Promise<any> {
+  async disableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefined(ns);
     assertArgsType([ns], ['string']);
     this._emitShardApiCall('disableBalancing', { ns });
@@ -326,7 +326,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async isBalancerRunning(): Promise<any> {
+  async isBalancerRunning(): Promise<Document> {
     this._emitShardApiCall('isBalancerRunning', {});
     await getConfigDB(this._database);
     return this._database._runAdminCommand({
@@ -335,7 +335,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async startBalancer(timeout = 60000): Promise<any> {
+  async startBalancer(timeout = 60000): Promise<Document> {
     assertArgsDefined(timeout);
     assertArgsType([timeout], ['number']);
     this._emitShardApiCall('startBalancer', { timeout });
@@ -345,7 +345,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async stopBalancer(timeout = 60000): Promise<any> {
+  async stopBalancer(timeout = 60000): Promise<Document> {
     assertArgsDefined(timeout);
     assertArgsType([timeout], ['number']);
     this._emitShardApiCall('stopBalancer', { timeout });
@@ -355,7 +355,7 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async setBalancerState(state: boolean): Promise<any> {
+  async setBalancerState(state: boolean): Promise<Document> {
     assertArgsDefined(state);
     assertArgsType([state], ['boolean']);
     this._emitShardApiCall('setBalancerState', { state });

@@ -29,6 +29,11 @@ open class Cursor<out T> internal constructor(protected var cursor: Value?, priv
         return converter.toJava(cursor.invokeMember("next")).value as T
     }
 
+    fun tryNext(): T {
+        val (cursor, converter) = checkClosed()
+        return converter.toJava(cursor.invokeMember("tryNext")).value as T
+    }
+
     fun close() {
         val (c, _) = checkClosed()
         c.invokeMember("close")

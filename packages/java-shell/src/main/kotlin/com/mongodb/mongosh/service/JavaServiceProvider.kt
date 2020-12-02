@@ -65,8 +65,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val dbOptions = toDocument(dbOptions, "dbOptions")
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).insertOne(document)
-            mapOf("result" to mapOf("ok" to true),
-                    "insertedId" to "UNKNOWN")
+            mapOf("ok" to true, "insertedId" to "UNKNOWN")
         }
     }
 

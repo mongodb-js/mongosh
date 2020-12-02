@@ -195,11 +195,11 @@ export class TestShell {
       .map(m => m[1].trim());
   }
 
-  get sessionId(): string | null {
-    const match = this._output.match(/^Current sessionID:\s*(?<sessionId>[a-z0-9]{24})$/m);
+  get logId(): string | null {
+    const match = this._output.match(/^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m);
     if (!match) {
       return null;
     }
-    return match.groups.sessionId;
+    return match.groups.logId;
   }
 }

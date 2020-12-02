@@ -8,6 +8,7 @@ import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import { BulkWriteResult } from './result';
+import { ObjectId } from 'mongodb';
 
 describe('Bulk API', () => {
   describe('Bulk', () => {
@@ -67,7 +68,7 @@ describe('Bulk API', () => {
           const bulkWriteResult = {
             ok: 1,
             nInserted: 1,
-            insertedIds: [ 'oid' ],
+            insertedIds: { 0: new ObjectId() },
             nMatched: 0,
             nModified: 0,
             nRemoved: 0,

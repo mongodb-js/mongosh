@@ -1,4 +1,4 @@
-import Document from './document';
+import type { Document } from './all-transport-types';
 
 export interface BulkBatch {
   originalZeroIndex: number;

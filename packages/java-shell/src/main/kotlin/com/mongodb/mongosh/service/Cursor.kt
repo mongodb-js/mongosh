@@ -10,7 +10,10 @@ import org.graalvm.polyglot.Value
 
 internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private val converter: MongoShellConverter, private val wrapper: ValueWrapper) : ServiceProviderCursor {
     private var iterator: MongoCursor<out Any?>? = null
-    private var closed = false
+
+    @JvmField
+    @HostAccess.Export
+    var closed = false
 
     private fun getOrCreateIterator(): MongoCursor<out Any?> {
         var it = iterator
@@ -71,9 +74,6 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
-    override fun isClosed(): Boolean = closed
-
-    @HostAccess.Export
     override fun collation(v: Value): Cursor {
         checkQueryNotExecuted()
         if (!v.hasMembers()) {
@@ -132,7 +132,7 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
 
     @HostAccess.Export
     override fun isExhausted(): Boolean {
-        return isClosed() && !hasNext()
+        return closed && !hasNext()
     }
 
     @HostAccess.Export
@@ -195,6 +195,16 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
          * Mongosh core will try to defineProperty on it and fail if value is not wrapped in JS object */
         val shouldWrap = iterator == null && helper.limit() == 1
         val value = getOrCreateIterator().next()
+        return if (shouldWrap) wrapper.wrap(value) // it's possibly a findOne call
+        else value
+    }
+
+    @HostAccess.Export
+    override fun tryNext(): Any? {
+        /* findOne returns single document as a result.
+         * Mongosh core will try to defineProperty on it and fail if value is not wrapped in JS object */
+        val shouldWrap = iterator == null && helper.limit() == 1
+        val value = getOrCreateIterator().tryNext()
         return if (shouldWrap) wrapper.wrap(value) // it's possibly a findOne call
         else value
     }

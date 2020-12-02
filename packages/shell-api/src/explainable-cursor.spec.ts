@@ -6,7 +6,7 @@ import ExplainableCursor from './explainable-cursor';
 
 describe('ExplainableCursor', () => {
   describe('help', () => {
-    const apiClass = new ExplainableCursor({} as any, {} as any, 'verbosity');
+    const apiClass = new ExplainableCursor({} as any, {} as any, 'queryPlannerExtended');
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -37,14 +37,14 @@ describe('ExplainableCursor', () => {
         explain: (verbosity): any => ({ ok: verbosity })
       };
       wrappee._cursor = wrappee;
-      eCursor = new ExplainableCursor({} as any, wrappee as any, 'verbosity');
+      eCursor = new ExplainableCursor({} as any, wrappee as any, 'queryPlannerExtended');
     });
 
     it('sets dynamic properties', async() => {
       expect((await toShellResult(eCursor)).type).to.equal('ExplainableCursor');
       expect((await toShellResult(eCursor.help)).type).to.equal('Help');
-      expect((await toShellResult(eCursor)).printable).to.deep.equal({ ok: 'verbosity' });
-      expect(eCursor._verbosity).to.equal('verbosity');
+      expect((await toShellResult(eCursor)).printable).to.deep.equal({ ok: 'queryPlannerExtended' });
+      expect(eCursor._verbosity).to.equal('queryPlannerExtended');
     });
 
     it('returns the same ExplainableCursor', () => {

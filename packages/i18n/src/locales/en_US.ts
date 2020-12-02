@@ -149,7 +149,7 @@ const translations: Catalog = {
             },
             hasNext: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
-              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents.',
+              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents. NOTE: if the cursor is tailable with awaitData then hasNext will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
               example: 'db.collection.aggregate(pipeline, options).hasNext()'
             },
             isClosed: {
@@ -174,8 +174,11 @@ const translations: Catalog = {
             },
             next: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
-              description: 'The next document in the cursor returned by the db.collection.aggregate() method.',
+              description: 'The next document in the cursor returned by the db.collection.aggregate() method. NOTE: if the cursor is tailable with awaitData then next will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
               example: 'db.collection.aggregate(pipeline, options).next()'
+            },
+            tryNext: {
+              description: 'If a document is in the cursor\'s batch it will be returned, otherwise null will be returned'
             },
             explain: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.explain',
@@ -304,6 +307,11 @@ const translations: Catalog = {
         help: {
           description: 'Collection Class',
           attributes: {
+            watch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.watch',
+              description: 'Opens a change stream cursor on the collection',
+              example: 'const cursor = db.collection.watch(pipeline, options)'
+            },
             aggregate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.aggregate',
               description: 'Calculates aggregate values for the data in a collection or a view.',
@@ -591,6 +599,41 @@ const translations: Catalog = {
           }
         }
       },
+      ChangeStreamCursor: {
+        iteration: {
+          'no-cursor': 'no cursor',
+          'type-it-for-more': 'Type "it" for more'
+        },
+        help: {
+          description: 'Change Stream Cursor',
+          attributes: {
+            close: {
+              description: 'Instructs the server to close a cursor and free associated server resources.',
+            },
+            isClosed: {
+              description: 'Returns true if the cursor is closed'
+            },
+            itcount: {
+              description: 'Returns the number of documents in the current batch. NOTE: this method exhausts the cursor batch'
+            },
+            getResumeToken: {
+              description: 'Returns the ResumeToken of the change stream'
+            },
+            hasNext: {
+              description: 'WARNING: on change streams this method will block unless the cursor is closed. Use tryNext to check if there are any documents in the batch. This is a breaking change'
+            },
+            next: {
+              description: 'WARNING: on change streams this method will block unless the cursor is closed. Use tryNext to get the next document in the batch. This is a breaking change'
+            },
+            tryNext: {
+              description: 'If there is a document in the change stream, it will be returned. Otherwise returns null.'
+            },
+            isExhausted: {
+              description: 'This method is deprecated because because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use cursor.isClosed. If you want to see if there are documents left in the batch, use cursor.tryNext. This is a breaking change'
+            }
+          }
+        }
+      },
       Cursor: {
         iteration: {
           'no-cursor': 'no cursor',
@@ -613,11 +656,6 @@ const translations: Catalog = {
               link: '',
               description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
               example: 'db.collection.find(query, projection).'
-            },
-            clone: {
-              link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',
-              description: 'Clone the cursor.',
-              example: 'db.collection.find(query, projection).batchSize(10)'
             },
             close: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.close',
@@ -656,7 +694,7 @@ const translations: Catalog = {
             },
             hasNext: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
-              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents.',
+              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.find() query can iterate further to return more documents. NOTE: if the cursor is tailable with awaitData then hasNext will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
               example: 'db.collection.find(query, projection).hasNext()'
             },
             hint: {
@@ -724,8 +762,11 @@ const translations: Catalog = {
             },
             next: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
-              description: 'The next document in the cursor returned by the db.collection.find() method.',
+              description: 'The next document in the cursor returned by the db.collection.find() method. NOTE: if the cursor is tailable with awaitData then hasNext will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
               example: 'db.collection.find(query, projection).next()'
+            },
+            tryNext: {
+              description: 'If a document is in the cursor\'s batch it will be returned, otherwise null will be returned'
             },
             noCursorTimeout: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.noCursorTimeout',
@@ -818,6 +859,11 @@ const translations: Catalog = {
         help: {
           description: 'Database Class',
           attributes: {
+            watch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.watch',
+              description: 'Opens a change stream cursor on the database',
+              example: 'const cursor = db.watch(pipeline, options)'
+            },
             aggregate: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.aggregate',
               description: 'Runs a specified admin/diagnostic pipeline which does not require an underlying collection.',
@@ -1460,6 +1506,11 @@ const translations: Catalog = {
           description: 'The Mongo Class. Represents a connection to a server',
           link: 'https://docs.mongodb.com/manual/reference/method/Mongo/#Mongo',
           attributes: {
+            watch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.watch',
+              description: 'Opens a change stream cursor on the connection',
+              example: 'const cursor = db.getMongo().watch(pipeline, options)'
+            },
             startSession: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.startSession/',
               description: 'Starts a session for the connection.'

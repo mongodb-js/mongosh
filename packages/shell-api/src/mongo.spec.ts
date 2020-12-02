@@ -1,14 +1,28 @@
 import { expect } from 'chai';
 import Mongo from './mongo';
-import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, shellSession } from './enums';
 import { signatures, toShellResult } from './index';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import {
+  bson,
+  ReadConcern,
+  ReadPreference,
+  ServiceProvider,
+  WriteConcern
+} from '@mongosh/service-provider-core';
 import Database from './database';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import Cursor from './cursor';
+import ChangeStreamCursor from './change-stream-cursor';
+
+const sampleOpts = {
+  causalConsistency: false,
+  readConcern: { level: 'majority' } as ReadConcern,
+  writeConcern: { w: 1, j: false, wtimeout: 0 } as WriteConcern,
+  readPreference: { mode: 'primary', tagSet: [] } as unknown as ReadPreference
+};
 
 describe('Mongo', () => {
   describe('help', () => {
@@ -48,6 +62,7 @@ describe('Mongo', () => {
     });
   });
   describe('commands', () => {
+    const driverSession = { driverSession: 1 };
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: StubbedInstance<Database>;
@@ -60,6 +75,7 @@ describe('Mongo', () => {
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.startSession.returns({ driverSession: 1 } as any);
       internalState = new ShellInternalState(serviceProvider, bus);
       mongo = new Mongo(internalState);
       database = stubInterface<Database>();
@@ -386,25 +402,92 @@ describe('Mongo', () => {
       });
     });
     describe('startSession', () => {
-      it('calls serviceProvider.startSession', () => {
-        const driverSession = { driverSession: 1 };
-        const opts = { causalConsistency: false };
+      beforeEach(() => {
         serviceProvider.startSession.returns(driverSession as any);
+      });
+      it('calls serviceProvider.startSession', () => {
+        const opts = { causalConsistency: false };
         const s = mongo.startSession(opts);
-        expect(serviceProvider.startSession).to.have.been.calledWith();
+        const driverOpts = { owner: shellSession, ...opts };
+        expect(serviceProvider.startSession).to.have.been.calledWith(driverOpts);
         expect(s._session).to.deep.equal(driverSession);
-        expect(s._options).to.deep.equal(opts);
+        expect(s._options).to.deep.equal(driverOpts);
       });
 
       it('throws if startSession errors', () => {
         const expectedError = new Error();
         serviceProvider.startSession.throws(expectedError);
         try {
-          mongo.startSession({});
+          mongo.startSession();
         } catch (catchedError) {
           return expect(catchedError).to.equal(expectedError);
         }
         expect.fail();
+      });
+
+      it('calls startSession without args', () => {
+        const result = mongo.startSession();
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith( { owner: shellSession });
+        expect(result._session).to.equal(driverSession);
+      });
+      it('can set default transaction options readconcern', () => {
+        const result = mongo.startSession({
+          readConcern: sampleOpts.readConcern
+        });
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({
+          owner: shellSession,
+          defaultTransactionOptions: {
+            readConcern: sampleOpts.readConcern
+          }
+        });
+        expect(result._session).to.equal(driverSession);
+      });
+      it('can set default transaction options writeConcern', () => {
+        const result = mongo.startSession({
+          writeConcern: sampleOpts.writeConcern
+        });
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({
+          owner: shellSession,
+          defaultTransactionOptions: {
+            writeConcern: sampleOpts.writeConcern
+          }
+        });
+        expect(result._session).to.equal(driverSession);
+      });
+      it('can set default transaction options readPreference', () => {
+        const result = mongo.startSession({
+          readPreference: sampleOpts.readPreference as any
+        });
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({
+          owner: shellSession,
+          defaultTransactionOptions: {
+            readPreference: sampleOpts.readPreference
+          }
+        });
+        expect(result._session).to.equal(driverSession);
+      });
+      it('can set causalConsistency', () => {
+        const result = mongo.startSession({
+          causalConsistency: false
+        });
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({
+          owner: shellSession,
+          causalConsistency: false
+        });
+        expect(result._session).to.equal(driverSession);
+      });
+      it('sets everything', () => {
+        const result = mongo.startSession(sampleOpts as any);
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({
+          owner: shellSession,
+          causalConsistency: sampleOpts.causalConsistency,
+          defaultTransactionOptions: {
+            readPreference: sampleOpts.readPreference,
+            readConcern: sampleOpts.readConcern,
+            writeConcern: sampleOpts.writeConcern
+          }
+        });
+        expect(result._session).to.equal(driverSession);
       });
     });
     describe('deprecated mongo methods', () => {
@@ -417,6 +500,43 @@ describe('Mongo', () => {
           }
           expect.fail();
         });
+      });
+    });
+    describe('watch', () => {
+      it('calls serviceProvider.watch when given no args', () => {
+        mongo.watch();
+        expect(serviceProvider.watch).to.have.been.calledWith([], {});
+      });
+      it('calls serviceProvider.watch when given pipeline arg', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        mongo.watch(pipeline);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {});
+      });
+      it('calls serviceProvider.watch when given no args', () => {
+        const pipeline = [{ $match: { operationType: 'insertOne' } }];
+        const ops = { batchSize: 1 };
+        mongo.watch(pipeline, ops);
+        expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops);
+      });
+
+      it('returns whatever serviceProvider.watch returns', () => {
+        const expectedResult = { ChangeStreamCursor: 1 } as any;
+        serviceProvider.watch.returns(expectedResult);
+        const result = mongo.watch();
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/', mongo));
+        expect(mongo._internalState.currentCursor).to.equal(result);
+      });
+
+      it('throws if serviceProvider.watch throws', () => {
+        const expectedError = new Error();
+        serviceProvider.watch.throws(expectedError);
+        try {
+          mongo.watch();
+        } catch (e) {
+          expect(e).to.equal(expectedError);
+          return;
+        }
+        expect.fail('Failed to throw');
       });
     });
   });

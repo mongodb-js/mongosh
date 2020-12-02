@@ -2,7 +2,7 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { ReadPreferenceMode } from '@mongosh/service-provider-core';
+import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
 
 describe('CliServiceProvider [integration]', function() {
   const testServer = startTestServer('shared');
@@ -17,7 +17,7 @@ describe('CliServiceProvider [integration]', function() {
     connectionString = await testServer.connectionString();
     client = await MongoClient.connect(
       connectionString,
-      { useUnifiedTopology: true }
+      {} as MongoClientOptions
     );
 
     dbName = `test-db-${Date.now()}`;
@@ -140,7 +140,7 @@ describe('CliServiceProvider [integration]', function() {
       let result;
       const requests = [{
         insertOne: { name: 'Aphex Twin' }
-      }];
+      } as any];
 
       beforeEach(async() => {
         result = await serviceProvider.bulkWrite('music', 'bands', requests);
@@ -179,7 +179,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
+        expect(result.deletedCount).to.equal(0);
       });
     });
   });
@@ -193,7 +193,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
+        expect(result.deletedCount).to.equal(0);
       });
     });
   });
@@ -321,7 +321,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(1);
+        expect(result.insertedCount).to.equal(1);
       });
     });
   });
@@ -643,20 +643,20 @@ describe('CliServiceProvider [integration]', function() {
 
   describe('db fetching', () => {
     it('returns the same db instance when used with the same name and options', () => {
-      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
-      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).to.equal(db2);
     });
 
     it('returns the different db instances when used with different names', () => {
-      const db1 = serviceProvider._dbTestWrapper('bar', { readPreference: { mode: ReadPreferenceMode.secondary } });
-      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      const db1 = serviceProvider._dbTestWrapper('bar', { readPreference: { mode: 'secondary' } } as DbOptions);
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).not.to.equal(db2);
     });
 
     it('returns the different db instances when used with different options', () => {
-      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.primary } });
-      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: ReadPreferenceMode.secondary } });
+      const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'primary' } } as DbOptions);
+      const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).not.to.equal(db2);
     });
   });

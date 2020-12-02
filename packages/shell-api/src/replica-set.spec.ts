@@ -1,4 +1,4 @@
-import { bson, ServiceProvider, Cursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import ShellInternalState from './shell-internal-state';
 import { signatures, toShellResult } from './index';
@@ -65,7 +65,7 @@ describe('ReplicaSet', () => {
 
     const findResolvesWith = (expectedResult): void => {
       const findCursor = stubInterface<ServiceProviderCursor>();
-      findCursor.next.resolves(expectedResult);
+      findCursor.tryNext.resolves(expectedResult);
       serviceProvider.find.returns(findCursor);
     };
 
@@ -172,7 +172,7 @@ describe('ReplicaSet', () => {
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const expectedResult = { res: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
-        findCursor.next.resolves(expectedResult);
+        findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
 
         const conf = await rs.config();
@@ -684,6 +684,7 @@ describe('ReplicaSet', () => {
         const result = await rs.printSecondaryReplicationInfo();
         expect(result.type).to.equal('StatsResult');
       });
+      // TODO: NODE 4.0 upgrade see NODE-2921
       it('returns data for db.getReplicationInfo', async() => {
         const result = await rs._database.getReplicationInfo();
         expect(Object.keys(result)).to.include('logSizeMB');

@@ -10,7 +10,6 @@ interface ServiceProviderCursor {
   fun close(options: Value)
   fun close()
   fun clone(): ServiceProviderCursor
-  fun isClosed(): Boolean
   fun collation(v: Value): ServiceProviderCursor
   fun comment(v: String): ServiceProviderCursor
   fun count(): Long
@@ -25,6 +24,7 @@ interface ServiceProviderCursor {
   fun maxTimeMS(v: Long): ServiceProviderCursor
   fun maxAwaitTimeMS(value: Int): ServiceProviderCursor
   fun min(v: Value): ServiceProviderCursor
+  fun tryNext(): Any?
   fun next(): Any?
   fun project(v: Value): ServiceProviderCursor
   fun returnKey(v: Value): ServiceProviderCursor

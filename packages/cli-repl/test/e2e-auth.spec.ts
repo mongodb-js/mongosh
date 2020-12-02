@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import {
-  MongoClient
+  MongoClient, MongoClientOptions
 } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
@@ -49,10 +49,9 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
         connectionString,
         {
           useNewUrlParser: true,
-          useUnifiedTopology: true,
           auth: { user: username, password: pwd, authSource: dbName },
           connectTimeoutMS: 1000
-        }
+        } as unknown as MongoClientOptions // TODO: Node 4.0 update, Missing 'password' in Auth see NODE-2921
       );
       if (keepClient) {
         return c;
@@ -85,7 +84,7 @@ describe('Auth e2e', function() {
 
       client = await (MongoClient as any).connect(
         connectionString,
-        { useNewUrlParser: true, useUnifiedTopology: true }
+        { useNewUrlParser: true }
       );
 
       db = client.db(dbName);
@@ -774,7 +773,7 @@ describe('Auth e2e', function() {
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
           );
           await eventually(async() => {
-            shell.assertContainsError('MongoError: authentication mechanism not a mechanism not supported\', options.authMechanism');
+            shell.assertContainsError('MongoError: authentication mechanism NOT A MECHANISM not supported');
           }, { timeout: 40000 });
           await shell.writeInputLine(
             'db.runCommand({connectionStatus: 1})'
@@ -823,7 +822,7 @@ describe('Auth e2e', function() {
 
       client = await (MongoClient as any).connect(
         connectionString,
-        { useNewUrlParser: true, useUnifiedTopology: true }
+        { useNewUrlParser: true }
       );
 
       db = client.db(dbName);

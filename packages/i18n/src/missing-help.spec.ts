@@ -11,7 +11,12 @@ const IGNORED_TYPES = [
 
 const IGNORED_ATTRIBUTES = [
   'Mongo.show', // documented as top level command
-  'Mongo.use' // documented as top level command
+  'Mongo.use', // documented as top level command,
+  'ChangeStreamCursor.map',
+  'ChangeStreamCursor.forEach',
+  'ChangeStreamCursor.toArray',
+  'ChangeStreamCursor.objsLeftInBatch',
+  'ChangeStreamCursor.pretty',
 ];
 
 const localesDir = path.resolve(__dirname, 'locales');
