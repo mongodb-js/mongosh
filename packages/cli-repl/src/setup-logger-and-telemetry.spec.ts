@@ -18,7 +18,7 @@ describe('setupLoggerAndTelemetry', () => {
   };
 
   const userId = '53defe995fa47e6c13102d9d';
-  const sessionId = '5fb3c20ee1507e894e5340f3';
+  const logId = '5fb3c20ee1507e894e5340f3';
 
   beforeEach(() => {
     logOutput = [];
@@ -27,7 +27,7 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('works', () => {
-    setupLoggerAndTelemetry(sessionId, bus, () => logger, () => analytics);
+    setupLoggerAndTelemetry(logId, bus, () => logger, () => analytics);
     expect(logOutput).to.be.empty;
     expect(analyticsOutput).to.be.empty;
 
@@ -57,7 +57,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(16);
     expect(logOutput[0].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
     expect(logOutput[1].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[1].msg).to.match(/"sessionId":"5fb3c20ee1507e894e5340f3"/);
+    expect(logOutput[1].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
     expect(logOutput[1].msg).to.match(/"userId":"53defe995fa47e6c13102d9d"/);
     expect(logOutput[1].msg).to.match(/"connectionUri":"mongodb:\/\/localhost\/"/);
     expect(logOutput[1].msg).to.match(/"is_localhost":true/);
@@ -92,7 +92,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'New Connection',
           properties: {
-            sessionId: '5fb3c20ee1507e894e5340f3',
+            session_id: '5fb3c20ee1507e894e5340f3',
             is_localhost: true,
             is_atlas: false,
             node_version: 'v12.19.0'
