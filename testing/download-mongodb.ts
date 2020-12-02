@@ -81,9 +81,26 @@ async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
   return downloadInfo.archive.url;
 }
 
-const downloadPromises: Record<string, Promise<string>> = {};
+// Based on https://github.com/mongodb-labs/drivers-evergreen-tools/blob/master/.evergreen/download-mongodb.sh.
+async function lookupAlphaDownloadUrl(): Promise<string> {
+  switch (process.platform) {
+    case 'darwin':
+      return 'http://downloads.10gen.com/osx/mongodb-macos-x86_64-enterprise-latest.tgz';
+    case 'linux':
+      return 'http://downloads.10gen.com/linux/mongodb-linux-x86_64-enterprise-ubuntu1804-latest.tgz';
+    case 'win32':
+      return 'http://downloads.10gen.com/windows/mongodb-windows-x86_64-enterprise-latest.zip';
+    default:
+      throw new Error('Don’t know where to download the latest server build from');
+  }
+}
+
 // Download mongod + mongos and return the path to a directory containing them.
 export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promise<string> {
+  if (targetVersionSemverSpecifier === 'latest-alpha') {
+    return await doDownload('latest-alpha', () => lookupAlphaDownloadUrl());
+  }
+
   let fullJson: FullJSON;
   const fullJSONCachePath = path.resolve(__dirname, '..', 'tmp', 'full.json.gz');
   try {
@@ -98,12 +115,16 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
     .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
+  return await doDownload(versionInfo.version, () => lookupDownloadUrl(versionInfo));
+}
 
+const downloadPromises: Record<string, Promise<string>> = {};
+async function doDownload(version: string, lookupDownloadUrl: () => Promise<string>) {
   const downloadTarget = path.resolve(
     __dirname,
     '..',
     'tmp',
-    `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${versionInfo.version}`);
+    `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${version}`);
   return downloadPromises[downloadTarget] ??= (async() => {
     const bindir = path.resolve(downloadTarget, 'bin');
     try {
@@ -113,7 +134,7 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
     } catch {}
 
     await fs.mkdir(downloadTarget, { recursive: true });
-    const downloadInfo = await lookupDownloadUrl(versionInfo);
+    const downloadInfo = await lookupDownloadUrl();
     console.info('Downloading...', downloadInfo);
     await download(downloadInfo, downloadTarget, { extract: true, strip: 1 });
 

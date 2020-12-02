@@ -907,7 +907,7 @@ describe('Shell API (integration)', function() {
           .skip(1)
           .limit(1);
         const result = await toShellResult(cursor);
-        expect(result.printable).to.have.keys([
+        expect(result.printable).to.include.all.keys([
           'ok',
           'queryPlanner',
           'serverInfo'
@@ -921,7 +921,7 @@ describe('Shell API (integration)', function() {
           .skip(1)
           .limit(1);
         const result = await toShellResult(cursor);
-        expect(result.printable).to.have.keys([
+        expect(result.printable).to.include.all.keys([
           'ok',
           'queryPlanner',
           'serverInfo'
