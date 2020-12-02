@@ -4,6 +4,7 @@ import path from 'path';
 import os from 'os';
 
 (async() => {
+  let repl;
   try {
     const options = parseCliArgs(process.argv);
     const { version } = require('../package.json');
@@ -30,7 +31,7 @@ import os from 'os';
       const driverOptions = mapCliToDriver(options);
       const driverUri = generateUri(options);
       const appname = `${process.title} ${version}`;
-      const repl = new CliRepl({
+      repl = new CliRepl({
         shellCliOptions: options,
         input: process.stdin,
         output: process.stdout,
@@ -41,7 +42,10 @@ import os from 'os';
     }
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error(e.message);
+    console.error(`${e.name}: ${e.message}`);
+    if (repl !== undefined) {
+      repl.bus.emit('mongosh:error', e);
+    }
     process.exit(1);
   }
 })();

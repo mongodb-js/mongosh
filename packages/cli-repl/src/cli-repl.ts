@@ -34,7 +34,7 @@ export type CliReplOptions = {
 class CliRepl {
   mongoshRepl: MongoshNodeRepl;
   bus: Nanobus;
-  options: CliOptions;
+  cliOptions: CliOptions;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<UserConfig>;
   config: UserConfig = new UserConfig();
@@ -46,7 +46,7 @@ class CliRepl {
    */
   constructor(options: CliReplOptions) {
     this.bus = new Nanobus('mongosh');
-    this.options = options.shellCliOptions;
+    this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
 
@@ -85,8 +85,8 @@ class CliRepl {
       await this.requirePassword(driverUri, driverOptions);
     }
 
-    const sessionId = new bson.ObjectId().toString();
-    this.output.write(`Current sessionID:  ${sessionId}\n`);
+    const logId = new bson.ObjectId().toString();
+    this.output.write(`Current Mongosh Log ID: ${logId}\n`);
 
     try {
       await this.shellHomeDirectory.ensureExists();
@@ -95,9 +95,9 @@ class CliRepl {
     }
 
     setupLoggerAndTelemetry(
-      sessionId,
+      logId,
       this.bus,
-      () => pino({ name: 'monogsh' }, pino.destination(this.shellHomeDirectory.path(`${sessionId}_log`))),
+      () => pino({ name: 'monogsh' }, pino.destination(this.shellHomeDirectory.path(`${logId}_log`))),
       // analytics-config.js gets written as a part of a release
       () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
 
@@ -118,10 +118,10 @@ class CliRepl {
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
-    if (!this.options.nodb) {
+    if (!this.cliOptions.nodb) {
       this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactPassword(driverUri), ['bold', 'green']) + '\n');
     }
-    return await CliServiceProvider.connect(driverUri, driverOptions, this.options);
+    return await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
   }
 
   getHistoryFilePath(): string {

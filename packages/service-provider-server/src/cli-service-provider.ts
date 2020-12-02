@@ -117,19 +117,19 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * Create a new CLI service provider from the provided URI.
    *
    * @param {String} uri - The URI.
-   * @param {MongoClientOptions} options - The options.
+   * @param {MongoClientOptions} driverOptions - The options.
    * @param {Object} cliOptions - Options passed through CLI. Right now only being used for nodb.
    *
    * @returns {Promise} The promise with cli service provider.
    */
   static async connect(
     uri: string,
-    options: MongoClientOptions = {},
+    driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {}
   ): Promise<CliServiceProvider> {
     const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
-      ...options
+      ...driverOptions
     };
 
     const mongoClient = !cliOptions.nodb ?
@@ -160,8 +160,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   constructor(mongoClient: MongoClient, clientOptions = {}, uri?: string) {
     super(bsonlib);
-    // console.log('in cli-service-provider');
-    // console.log(bsonlib);
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;

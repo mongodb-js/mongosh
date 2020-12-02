@@ -60,7 +60,7 @@ class NoopAnalytics implements MongoshAnalytics {
 }
 
 export default function setupLoggerAndTelemetry(
-  sessionId: string,
+  logId: string,
   bus: Bus,
   makeLogger: () => Logger,
   makeAnalytics: () => MongoshAnalytics): void {
@@ -78,14 +78,14 @@ export default function setupLoggerAndTelemetry(
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = redactPassword(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
-    const params = { sessionId, userId, connectionUri, ...argsWithoutUri };
+    const params = { session_id: logId, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', params);
 
     if (telemetry) {
       analytics.track({
         userId,
         event: 'New Connection',
-        properties: { sessionId, ...argsWithoutUri }
+        properties: { session_id: logId, ...argsWithoutUri }
       });
     }
   });
