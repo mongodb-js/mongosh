@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { promises as fs } from 'fs';
+import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
@@ -333,8 +333,12 @@ describe('e2e', function() {
   });
 
   describe('pipe from stdin', () => {
-    it('reads and runs code from stdin', async() => {
-      const shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+    let shell: TestShell;
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+    });
+
+    it('reads and runs code from stdin, with .write()', async() => {
       const dbName = `test-${Date.now()}`;
       shell.process.stdin.write(`
       use ${dbName};
@@ -344,6 +348,27 @@ describe('e2e', function() {
       `);
       await eventually(() => {
         shell.assertContainsOutput('total: 144');
+      });
+    });
+
+    it('reads and runs code from stdin, with .end()', async() => {
+      const dbName = `test-${Date.now()}`;
+      shell.process.stdin.end(`
+      use ${dbName};
+      db.coll1.insertOne({ foo: 55 });
+      db.coll1.insertOne({ foo: 89 });
+      db.coll1.aggregate([{$group: {_id: null, total: {$sum: '$foo'}}}])
+      `);
+      await eventually(() => {
+        shell.assertContainsOutput('total: 144');
+      });
+    });
+
+    it('reads and runs the vscode extension example playground', async() => {
+      createReadStream(path.resolve(__dirname, 'fixtures', 'exampleplayground.js'))
+        .pipe(shell.process.stdin);
+      await eventually(() => {
+        shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
       });
     });
   });

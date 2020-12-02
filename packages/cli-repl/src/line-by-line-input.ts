@@ -25,7 +25,7 @@ export class LineByLineInput extends Readable {
   private _originalInput: NodeJS.ReadStream;
   private _forwarding: boolean;
   private _blockOnNewLineEnabled: boolean;
-  private _charQueue: string[];
+  private _charQueue: (string | null)[];
   private _decoder: StringDecoder;
 
   constructor(readable: NodeJS.ReadStream) {
@@ -70,7 +70,7 @@ export class LineByLineInput extends Readable {
 
   start(): void {
     this._originalInput.on('data', (chunk) => this._onData(chunk));
-    this._originalInput.on('end', () => this.push(null));
+    this._originalInput.on('end', () => this._onData(null));
   }
 
   _read(): void {
@@ -90,7 +90,7 @@ export class LineByLineInput extends Readable {
     this._flush();
   }
 
-  private _onData = (chunk: Buffer): void => {
+  private _onData = (chunk: Buffer | null): void => {
     if (this._blockOnNewLineEnabled) {
       return this._forwardAndBlockOnNewline(chunk);
     }
@@ -98,8 +98,8 @@ export class LineByLineInput extends Readable {
     return this._forwardWithoutBlocking(chunk);
   };
 
-  private _forwardAndBlockOnNewline(chunk: Buffer): void {
-    const chars = this._decoder.write(chunk);
+  private _forwardAndBlockOnNewline(chunk: Buffer | null): void {
+    const chars = chunk === null ? [null] : this._decoder.write(chunk);
     for (const char of chars) {
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
         this.push(char);
@@ -110,9 +110,11 @@ export class LineByLineInput extends Readable {
     this._flush();
   }
 
-  private _forwardWithoutBlocking(chunk: Buffer): void {
-    // keeps decoding state consistent
-    this._decoder.write(chunk);
+  private _forwardWithoutBlocking(chunk: Buffer | null): void {
+    if (chunk !== null) {
+      // keeps decoding state consistent
+      this._decoder.write(chunk);
+    }
     this.push(chunk);
   }
 
@@ -144,7 +146,7 @@ export class LineByLineInput extends Readable {
       // unexpected behaviors.
       !this._originalInput.isPaused()
     ) {
-      const char: string = this._charQueue.shift() as string;
+      const char = this._charQueue.shift() as string | null;
 
       if (this._isLineEnding(char)) {
         this._pauseForwarding();
@@ -154,15 +156,15 @@ export class LineByLineInput extends Readable {
     }
   }
 
-  private _isLineEnding(char: string): boolean {
-    return LINE_ENDING_RE.test(char);
+  private _isLineEnding(char: string | null): boolean {
+    return char !== null && LINE_ENDING_RE.test(char);
   }
 
-  private _isCtrlD(char: string): boolean {
+  private _isCtrlD(char: string | null): boolean {
     return char === CTRL_D;
   }
 
-  private _isCtrlC(char: string): boolean {
+  private _isCtrlC(char: string | null): boolean {
     return char === CTRL_C;
   }
 }
