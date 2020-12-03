@@ -73,6 +73,13 @@ export default class ChangeStreamCursor extends ShellApiClass {
     return this._cursor.cursor.tryNext();
   }
 
+  async* [Symbol.asyncIterator]() {
+    let doc;
+    while ((doc = await this.tryNext()) !== null) {
+      yield doc;
+    }
+  }
+
   isClosed(): boolean {
     return this._cursor.closed;
   }
