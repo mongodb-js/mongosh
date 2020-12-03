@@ -1097,6 +1097,18 @@ export default class Collection extends ShellApiClass {
         this._database._baseOptions);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
+        // If indexes is an array and we're on mongod 4.0, we fall back to trying
+        // to drop all the indexes individually.
+        if (error.errmsg === 'invalid index name spec' &&
+            Array.isArray(indexes) &&
+            indexes.length > 0 &&
+            (await this._mongo._serviceProvider.getConnectionInfo()).buildInfo.version.startsWith('4.0')) {
+          const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
+          const errored = all.find(result => !result.ok);
+          if (errored) return errored;
+          // Return the entry with the highest nIndexesWas value.
+          return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
+        }
         return {
           ok: error.ok,
           errmsg: error.errmsg,
@@ -1126,27 +1138,7 @@ export default class Collection extends ShellApiClass {
     if (Array.isArray(index)) {
       throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document.');
     }
-
-    try {
-      return await this._mongo._serviceProvider.runCommandWithCheck(
-        this._database._name,
-        {
-          dropIndexes: this._name,
-          index,
-        },
-        this._database._baseOptions);
-    } catch (error) {
-      if (error.codeName === 'IndexNotFound') {
-        return {
-          ok: error.ok,
-          errmsg: error.errmsg,
-          code: error.code,
-          codeName: error.codeName
-        };
-      }
-
-      throw error;
-    }
+    return this.dropIndexes(index);
   }
 
   /**
