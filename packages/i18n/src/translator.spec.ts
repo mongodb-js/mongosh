@@ -1,7 +1,7 @@
-import Translator from './translator';
-import { expect } from 'chai';
+import { CommonErrors, MongoshInternalError } from '@mongosh/errors';
 import { fail } from 'assert';
-import { InternationalizationErrors } from './error-codes';
+import { expect } from 'chai';
+import Translator from './translator';
 
 describe('Translator', () => {
   describe('#setLocale', () => {
@@ -123,8 +123,8 @@ describe('Translator', () => {
         translator.__('testing.testing.testing');
         fail('expected error');
       } catch (e) {
-        expect(e.name).to.equal('MongoshInternalError');
-        expect(e.code).to.equal(InternationalizationErrors.UntranslatedKey);
+        expect(e).to.be.instanceOf(MongoshInternalError);
+        expect(e.code).to.equal(CommonErrors.UnexpectedInternalError);
       }
     });
   });
