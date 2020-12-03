@@ -1488,7 +1488,9 @@ export default class Collection extends ShellApiClass {
 
     const isSharded = !!(await config.getCollection('collections').countDocuments({
       _id: `${this._database._name}.${this._name}`,
-      dropped: false
+      // dropped is gone on newer server versions, so check for !== true
+      // rather than for === false (SERVER-51880 and related)
+      dropped: { $ne: true }
     }));
     if (!isSharded) {
       throw new MongoshInvalidInputError(`Collection ${this._name} is not sharded`);
