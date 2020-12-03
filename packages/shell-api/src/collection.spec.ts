@@ -293,15 +293,15 @@ describe('Collection', () => {
     });
 
     describe('convertToCapped', () => {
-      it('calls service provider convertToCapped', async() => {
-        serviceProvider.convertToCapped.resolves({ ok: 1 });
-
+      it('calls service provider runCommandWithCheck', async() => {
         const result = await collection.convertToCapped(1000);
 
-        expect(serviceProvider.convertToCapped).to.have.been.calledWith(
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           'db1',
-          'coll1',
-          1000
+          {
+            convertToCapped: 'coll1',
+            size: 1000
+          }
         );
 
         expect(result).to.deep.equal({ ok: 1 });
@@ -449,7 +449,7 @@ describe('Collection', () => {
         let result;
         beforeEach(async() => {
           result = { nIndexesWas: 3, ok: 1 };
-          serviceProvider.dropIndexes.resolves(result);
+          serviceProvider.runCommandWithCheck.resolves(result);
         });
 
         it('returns the result of serviceProvider.dropIndexes', async() => {
@@ -468,7 +468,7 @@ describe('Collection', () => {
             name: 'MongoError'
           });
 
-          serviceProvider.dropIndexes.rejects(error);
+          serviceProvider.runCommandWithCheck.rejects(error);
         });
 
         it('returns the error as object', async() => {
@@ -485,7 +485,7 @@ describe('Collection', () => {
         let error;
         beforeEach(async() => {
           error = new Error('Some error');
-          serviceProvider.dropIndexes.rejects(new Error('Some error'));
+          serviceProvider.runCommandWithCheck.rejects(new Error('Some error'));
         });
 
         it('rejects with error', async() => {
@@ -501,7 +501,7 @@ describe('Collection', () => {
         let result;
         beforeEach(async() => {
           result = { nIndexesWas: 3, ok: 1 };
-          serviceProvider.dropIndexes.resolves(result);
+          serviceProvider.runCommandWithCheck.resolves(result);
         });
 
         it('returns the result of serviceProvider.dropIndexes', async() => {
@@ -552,16 +552,11 @@ describe('Collection', () => {
     });
 
     describe('reIndex', () => {
-      let result;
-
-      beforeEach(() => {
-        result = { ok: 1 };
-        serviceProvider.reIndex.resolves(result);
-      });
-
       it('returns the result of serviceProvider.dropIndexes', async() => {
-        expect(await collection.reIndex()).to.deep.equal(result);
-        expect(serviceProvider.reIndex).to.have.been.calledWith('db1', 'coll1');
+        expect(await collection.reIndex()).to.deep.equal({ ok: 1 });
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith('db1', {
+          reIndex: 'coll1'
+        });
       });
     });
 
@@ -1242,7 +1237,9 @@ describe('Collection', () => {
       getIndexSpecs: { m: 'getIndexes', i: 2 },
       getIndices: { m: 'getIndexes', i: 2 },
       getIndexKeys: { m: 'getIndexes', i: 2 },
-      dropIndex: { m: 'dropIndexes' },
+      dropIndex: { m: 'runCommandWithCheck', i: 2 },
+      dropIndexes: { m: 'runCommandWithCheck', i: 2 },
+      convertToCapped: { m: 'runCommandWithCheck', i: 2 },
       dataSize: { m: 'stats', i: 2 },
       storageSize: { m: 'stats', i: 2 },
       totalSize: { m: 'stats', i: 2 },
@@ -1265,7 +1262,7 @@ describe('Collection', () => {
       updateMany: { i: 4 },
       updateOne: { i: 4 },
       getIndexes: { i: 2 },
-      reIndex: { i: 2 },
+      reIndex: { m: 'runCommandWithCheck', i: 2 },
     };
     const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];

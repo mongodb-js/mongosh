@@ -934,10 +934,11 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async convertToCapped(size: number): Promise<Document> {
     this._emitCollectionApiCall('convertToCapped', { size });
-    return await this._mongo._serviceProvider.convertToCapped(
-      this._database._name,
-      this._name,
-      size,
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+      this._database._name, {
+        convertToCapped: this._name,
+        size
+      },
       this._database._baseOptions
     );
   }
@@ -1087,7 +1088,13 @@ export default class Collection extends ShellApiClass {
     assertArgsDefined(indexes);
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, indexes, this._database._baseOptions);
+      return await this._mongo._serviceProvider.runCommandWithCheck(
+        this._database._name,
+        {
+          dropIndexes: this._name,
+          index: indexes,
+        },
+        this._database._baseOptions);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
         return {
@@ -1121,7 +1128,13 @@ export default class Collection extends ShellApiClass {
     }
 
     try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, index, this._database._baseOptions);
+      return await this._mongo._serviceProvider.runCommandWithCheck(
+        this._database._name,
+        {
+          dropIndexes: this._name,
+          index,
+        },
+        this._database._baseOptions);
     } catch (error) {
       if (error.codeName === 'IndexNotFound') {
         return {
@@ -1162,7 +1175,9 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
-    return await this._mongo._serviceProvider.reIndex(this._database._name, this._name, this._database._baseOptions);
+    return await this._mongo._serviceProvider.runCommandWithCheck(this._database._name, {
+      reIndex: this._name
+    }, this._database._baseOptions);
   }
 
   /**
