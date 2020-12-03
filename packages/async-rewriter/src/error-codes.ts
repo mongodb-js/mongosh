@@ -141,7 +141,7 @@ enum AsyncRewriterErrors {
   AsyncTypeAsFunctionArgument = 'ASYNC-10007',
 
   /**
-   * Signals the declaration of a function or method that has multiple return statements and at least one returns an async type.
+   * Signals the declaration of a function or method that has a conditional return statement and at least one returns an async type.
    * Note that this includes the use of recursion - a recursive function call is treated as a different return type.
    *
    * Examples causing error:
@@ -170,7 +170,7 @@ enum AsyncRewriterErrors {
    *
    * **Solution: Include a single return statement in the function returning an unambiguous async type.**
    */
-  AsyncReturnTypeWithMultipleReturnsOrRecursion = 'ASYNC-10008',
+  ConditionalReturn = 'ASYNC-10008',
 
   /**
    * Signals using a member of a class before it has been defined. The only exception of this is inside the constructor.
@@ -207,7 +207,7 @@ enum AsyncRewriterErrors {
    *
    * **Solution: The conditional expression should evaluate to either no-async types or in all branches to a single async type.**
    */
-  ConditionalExpressionDifferentAsyncTypes = 'ASYNC-10010',
+  ConditionalAssignment = 'ASYNC-10010',
 
   /**
    * Signals code that tries to override, redeclare, or modify global Mongosh API variables or types.

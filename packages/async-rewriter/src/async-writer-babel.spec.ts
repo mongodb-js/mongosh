@@ -2429,7 +2429,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalReturn);
           }
         });
       });
@@ -2485,7 +2485,7 @@ function f() {
             compileCheckScopes(writer, input);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalReturn);
           }
         });
       });
@@ -3765,7 +3765,7 @@ switch(TEST) {
             compileCheckScopes(writer, inputLoop);
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
-            expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalExpressionDifferentAsyncTypes);
+            expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalAssignment);
           }
         });
       });
@@ -3948,7 +3948,7 @@ function f(arg) {
   `);
         } catch (e) {
           expect(e.name).to.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ConditionalReturn);
         }
       });
     });

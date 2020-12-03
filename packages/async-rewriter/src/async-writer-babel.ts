@@ -504,7 +504,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
            NOTE: this can be expanded with some effort so returning of the same type is allowed. */
         const someAsync = returnTypes.some((t) => (t.hasAsyncChild || t.returnsPromise));
         if (someAsync) {
-          throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.', AsyncRewriterErrors.AsyncReturnTypeWithMultipleReturnsOrRecursion);
+          throw new MongoshInvalidInputError('Cannot conditionally return different Mongosh API types.', AsyncRewriterErrors.ConditionalReturn);
         }
         rType = { type: 'unknown', attributes: {} };
       }
@@ -606,7 +606,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const cAsync = consType && (consType.hasAsyncChild || consType.returnsPromise);
             const aAsync = altType && (altType.hasAsyncChild || altType.returnsPromise);
             if (cAsync || aAsync) {
-              throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.', AsyncRewriterErrors.ConditionalExpressionDifferentAsyncTypes);
+              throw new MongoshInvalidInputError('Cannot conditionally assign different Mongosh API types.', AsyncRewriterErrors.ConditionalAssignment);
             }
             path.node['shellType'] = { type: 'unknown', attributes: {} };
           }
