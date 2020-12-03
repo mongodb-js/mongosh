@@ -1232,5 +1232,80 @@ describe('Shard', () => {
         expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(false);
       });
     });
+    describe('getShardDistribution', () => {
+      let db: Database;
+      const dbName = 'shard-distrib-test';
+      const ns = `${dbName}.test`;
+
+      before(() => {
+        db = sh._database.getSiblingDB(dbName);
+      });
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+      it('fails when running against an unsharded collection', async() => {
+        try {
+          await db.getCollection('test').getShardDistribution();
+        } catch (err) {
+          expect(err.name).to.equal('MongoshInvalidInputError');
+          return;
+        }
+        expect.fail('Missed exception');
+      });
+      it('gives information about the shard distribution', async() => {
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+
+        {
+          const ret = await db.getCollection('test').getShardDistribution();
+          expect(ret.type).to.equal('StatsResult');
+          const { Totals } = ret.value as any;
+          expect(Totals.data).to.equal('0B');
+          expect(Totals.docs).to.equal(0);
+          expect(Totals.chunks).to.equal(1);
+
+          const TotalsShardInfoKeys = Object.keys(Totals).filter(key => key.startsWith('Shard'));
+          expect(TotalsShardInfoKeys).to.have.lengthOf(1);
+          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal(
+            [ '0 % data', '0 % docs in cluster', '0B avg obj size on shard' ]);
+
+          const ValueShardInfoKeys = Object.keys(ret.value).filter(key => key.startsWith('Shard'));
+          expect(ValueShardInfoKeys).to.have.lengthOf(1);
+          expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
+            data: '0B',
+            docs: 0,
+            chunks: 1,
+            'estimated data per chunk': '0B',
+            'estimated docs per chunk': 0
+          });
+        }
+
+        // Insert a document, then check again
+        await db.getCollection('test').insertOne({ foo: 'bar' });
+
+        {
+          const ret = await db.getCollection('test').getShardDistribution();
+          expect(ret.type).to.equal('StatsResult');
+          const { Totals } = ret.value as any;
+          expect(Totals.docs).to.equal(1);
+          expect(Totals.chunks).to.equal(1);
+
+          const TotalsShardInfoKeys = Object.keys(Totals).filter(key => key.startsWith('Shard'));
+          expect(TotalsShardInfoKeys).to.have.lengthOf(1);
+          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal(
+            [ '100 % data', '100 % docs in cluster', `${Totals.data} avg obj size on shard` ]);
+
+          const ValueShardInfoKeys = Object.keys(ret.value).filter(key => key.startsWith('Shard'));
+          expect(ValueShardInfoKeys).to.have.lengthOf(1);
+          expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
+            data: Totals.data,
+            docs: 1,
+            chunks: 1,
+            'estimated data per chunk': Totals.data,
+            'estimated docs per chunk': 1
+          });
+        }
+      });
+    });
   });
 });
