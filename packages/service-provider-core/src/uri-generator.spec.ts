@@ -1,6 +1,6 @@
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { fail } from 'assert';
 import { expect } from 'chai';
-import { ServiceProviderCoreErrors } from './error-codes';
 import generateUri from './uri-generator';
 
 describe('uri-generator.generate-uri', () => {
@@ -30,8 +30,8 @@ describe('uri-generator.generate-uri', () => {
         generateUri({ _: [], host: 'localhost:27018', port: '27019' });
         fail('expected error');
       } catch (e) {
-        expect(e.name).to.equal('MongoshInvalidInputError');
-        expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
       }
     });
     it('handles host has port AND port set to equal value', () => {
@@ -59,8 +59,8 @@ describe('uri-generator.generate-uri', () => {
             generateUri(options);
             fail('expected error');
           } catch (e) {
-            expect(e.name).to.equal('MongoshInvalidInputError');
-            expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
         });
       });
@@ -75,7 +75,7 @@ describe('uri-generator.generate-uri', () => {
             fail('expected error');
           } catch (e) {
             expect(e.name).to.equal('MongoshInvalidInputError');
-            expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
         });
       });
@@ -110,8 +110,8 @@ describe('uri-generator.generate-uri', () => {
           generateUri(options);
           fail('expected error');
         } catch (e) {
-          expect(e.name).to.equal('MongoshInvalidInputError');
-          expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
     });
@@ -135,8 +135,8 @@ describe('uri-generator.generate-uri', () => {
             generateUri(options);
             fail('expected error');
           } catch (e) {
-            expect(e.name).to.equal('MongoshInvalidInputError');
-            expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
         });
       });
@@ -159,8 +159,8 @@ describe('uri-generator.generate-uri', () => {
             generateUri(options);
             fail('expected error');
           } catch (e) {
-            expect(e.name).to.equal('MongoshInvalidInputError');
-            expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
         });
       });
@@ -183,8 +183,8 @@ describe('uri-generator.generate-uri', () => {
             generateUri(options);
             fail('expected error');
           } catch (e) {
-            expect(e.name).to.equal('MongoshInvalidInputError');
-            expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidHostAndPortOptions);
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
         });
       });
@@ -202,8 +202,8 @@ describe('uri-generator.generate-uri', () => {
         fail('expected error');
       } catch (e) {
         expect(e.message).to.contain('Invalid URI: /x');
-        expect(e.name).to.equal('MongoshInvalidInputError');
-        expect(e.code).to.equal(ServiceProviderCoreErrors.InvalidUri);
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
       }
     });
   });
