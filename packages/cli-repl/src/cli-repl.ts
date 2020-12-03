@@ -1,6 +1,6 @@
 import { CliServiceProvider, MongoClientOptions, CliOptions } from '@mongosh/service-provider-server';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
-import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { CommonErrors, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
@@ -200,7 +200,9 @@ class CliRepl {
   exit(code: number): never {
     this.bus.emit('mongosh:exit', code);
     // Emitting mongosh:exit never returns. If it does, that's a bug.
-    throw new MongoshInternalError('mongosh:exit unexpectedly returned', CliReplErrors.UnexpectedExitReturn);
+    const error = new MongoshInternalError('mongosh:exit unexpectedly returned', CommonErrors.UnexpectedInternalError);
+    this.bus.emit('mongosh:error', error);
+    throw error;
   }
 
   clr(text: string, style: StyleDefinition): string {
