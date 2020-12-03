@@ -4,6 +4,7 @@ import prettyBytes from 'pretty-bytes';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
+import stripAnsi from 'strip-ansi';
 import clr from './clr';
 import type { HelpProperties } from '@mongosh/shell-api';
 
@@ -142,8 +143,18 @@ export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'], options)}: `;
   if (error.message) result += error.message;
-  // leave a bit of breathing room after the syntax error message output
-  if (error.name === 'SyntaxError') result += '\n\n';
+  if (error.name === 'SyntaxError') {
+    if (!options.colors) {
+      // Babel applies syntax highlighting to its errors by default.
+      // This is deep inside the dependency chain here, to the degree where
+      // it seems unreasonable to pass coloring options along all the way.
+      // Instead, we just strip the syntax highlighting away if coloring is
+      // disabled (e.g. in script usage).
+      result = stripAnsi(result);
+    }
+    // leave a bit of breathing room after the syntax error message output
+    result += '\n\n';
+  }
 
   return result;
 }

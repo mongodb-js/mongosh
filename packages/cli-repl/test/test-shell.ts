@@ -23,16 +23,19 @@ export class TestShell {
     env?: Record<string, string>;
     removeSigintListeners?: boolean;
     cwd?: string;
+    forceTerminal?: boolean;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
     let env = options.env || process.env;
+    if (options.forceTerminal) {
+      env = { ...env, MONGOSH_FORCE_TERMINAL: '1' };
+    }
 
-    // TODO: Test (some) cases also without MONGOSH_FORCE_TERMINAL.
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        env: env,
         cwd: options.cwd
       });
     } else {
@@ -48,7 +51,7 @@ export class TestShell {
 
       shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: { ...env, MONGOSH_FORCE_TERMINAL: '1' },
+        env: env,
         cwd: options.cwd
       });
     }
@@ -72,18 +75,22 @@ export class TestShell {
   private _process: ChildProcess;
 
   private _output: string;
+  private _rawOutput: string;
   private _onClose: Promise<number>;
 
   constructor(shellProcess: ChildProcess) {
     this._process = shellProcess;
     this._output = '';
+    this._rawOutput = '';
 
     shellProcess.stdout.setEncoding('utf8').on('data', (chunk) => {
       this._output += stripAnsi(chunk);
+      this._rawOutput += chunk;
     });
 
     shellProcess.stderr.setEncoding('utf8').on('data', (chunk) => {
       this._output += stripAnsi(chunk);
+      this._rawOutput += chunk;
     });
 
     this._onClose = (async() => {
@@ -94,6 +101,10 @@ export class TestShell {
 
   get output(): string {
     return this._output;
+  }
+
+  get rawOutput(): string {
+    return this._rawOutput;
   }
 
   get process(): ChildProcess {
@@ -182,8 +193,7 @@ export class TestShell {
   }
 
   private _getOutputLines(): string[] {
-    return this._output.split('\n')
-      .filter((line) => !line.match(PROMPT_PATTERN));
+    return this._output.split('\n');
   }
 
   private _getAllErrors(): string[] {

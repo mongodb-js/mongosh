@@ -40,6 +40,7 @@ class CliRepl {
   config: UserConfig = new UserConfig();
   input: Readable;
   output: Writable;
+  logId: string;
 
   /**
    * Instantiate the new CLI Repl.
@@ -49,6 +50,7 @@ class CliRepl {
     this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
+    this.logId = new bson.ObjectId().toString();
 
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePath);
     this.configDirectory = new ConfigManager<UserConfig>(
@@ -85,8 +87,7 @@ class CliRepl {
       await this.requirePassword(driverUri, driverOptions);
     }
 
-    const logId = new bson.ObjectId().toString();
-    this.output.write(`Current Mongosh Log ID: ${logId}\n`);
+    this.output.write(`Current Mongosh Log ID: ${this.logId}\n`);
 
     try {
       await this.shellHomeDirectory.ensureExists();
@@ -95,9 +96,9 @@ class CliRepl {
     }
 
     setupLoggerAndTelemetry(
-      logId,
+      this.logId,
       this.bus,
-      () => pino({ name: 'monogsh' }, pino.destination(this.shellHomeDirectory.path(`${logId}_log`))),
+      () => pino({ name: 'mongosh' }, pino.destination(this.shellHomeDirectory.path(`${this.logId}_log`))),
       // analytics-config.js gets written as a part of a release
       () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
 

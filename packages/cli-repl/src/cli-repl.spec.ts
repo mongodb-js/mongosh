@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, useTmpdir, waitEval, fakeTTYProps } from '../test/repl-helpers';
+import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
 
 describe('CliRepl', () => {
   let cliReplOptions: CliReplOptions;
@@ -14,6 +14,10 @@ describe('CliRepl', () => {
   let output = '';
   let exitCode: null|number = null;
   const tmpdir = useTmpdir();
+
+  async function log(): Promise<any[]> {
+    return readReplLogfile(path.join(tmpdir.path, `${cliRepl.logId}_log`));
+  }
 
   beforeEach(async() => {
     input = new PassThrough();
@@ -67,6 +71,25 @@ describe('CliRepl', () => {
         input.write('.exit\n');
         await onexit;
         expect(exitCode).to.equal(0);
+      });
+
+      it('writes syntax errors to the log file', async() => {
+        expect((await log()).filter(entry => entry.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(0);
+        input.write('<cat>\n');
+        await waitEval(cliRepl.bus);
+        expect((await log()).filter(entry => entry.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(1);
+      });
+
+      it('writes JS errors to the log file', async() => {
+        input.write('throw new Error("plain js error")\n');
+        await waitEval(cliRepl.bus);
+        expect((await log()).filter(entry => entry.stack?.startsWith('Error: plain js error'))).to.have.lengthOf(1);
+      });
+
+      it('writes Mongosh errors to the log file', async() => {
+        input.write('db.auth()\n');
+        await waitEval(cliRepl.bus);
+        expect((await log()).filter(entry => entry.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
       });
     });
 
@@ -157,6 +180,49 @@ describe('CliRepl', () => {
       input.write('db.cats.find()\n');
       await waitEval(cliRepl.bus);
       expect(output).to.include('pia');
+
+      input.write('.exit\n');
+    });
+
+    it('prints cursor output in batches as requested', async() => {
+      await cliRepl.start(await testServer.connectionString(), {});
+
+      input.write('use clirepltest\n');
+      await waitEval(cliRepl.bus);
+
+      input.write(`for (let i = 0; i < 100; i++) { \
+        db.coll.insertOne({ index: i }); \
+      }
+`);
+      await waitEval(cliRepl.bus);
+
+      // Get the first batch of 20 results.
+      output = '';
+      input.write('crs = db.coll.find()\n');
+      await waitEval(cliRepl.bus);
+      expect(output).to.include('index: 10');
+      expect(output).not.to.include('index: 30');
+
+      // Print it again -- no change until iterated.
+      output = '';
+      input.write('crs\n');
+      await waitEval(cliRepl.bus);
+      expect(output).to.include('index: 10');
+      expect(output).not.to.include('index: 30');
+
+      // Iterate forward explicitly.
+      output = '';
+      input.write('it\n');
+      await waitEval(cliRepl.bus);
+      expect(output).not.to.include('index: 10');
+      expect(output).to.include('index: 30');
+
+      // Still not iterating implicitly when we're printing the cursor itself.
+      output = '';
+      input.write('crs\n');
+      await waitEval(cliRepl.bus);
+      expect(output).not.to.include('index: 10');
+      expect(output).to.include('index: 30');
 
       input.write('.exit\n');
     });
