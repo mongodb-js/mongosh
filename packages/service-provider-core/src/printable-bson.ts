@@ -33,7 +33,7 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
 
   Code: function(): string {
     const j = this.toJSON();
-    return `Code(${j.code}"${j.scope ? `, ${JSON.stringify(j.scope)}` : ''})`;
+    return `Code("${j.code}"${j.scope ? `, ${JSON.stringify(j.scope)}` : ''})`;
   },
 
   Decimal128: function(): string {
