@@ -110,7 +110,12 @@ export default function setupLoggerAndTelemetry(
       analytics.track({
         userId,
         event: 'Error',
-        properties: { name: error.name, code: error.code, scope: error.scope }
+        properties: {
+          name: error.name,
+          code: error.code,
+          scope: error.scope,
+          metadata: error.metadata
+        }
       });
     }
   });

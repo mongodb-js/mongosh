@@ -16,7 +16,31 @@ function evaluate(input) {
 // throws: MongoshUnimplemetedError: some input is not implemented
 evaluate('some input')
 ```
+
+### Error Codes
+The idea of error codes is to allow easy identification of specific errors and map them to a proper documentation.
+Error codes consist of a _scope_ and a numeric part. They follow the pattern `/^([a-zA-Z0-9]+)-/`.
+
+Example: `code='ASYNC-01005'` produces `scope='ASYNC'`.
+
+To better group error codes by their meaning, we suggest the following numbering scheme:
+
+* Use 5 digit numbers for error codes to have enough spacing
+* Use the `10000 - 89999` range for error codes that can be solved immediately by the user.
+* Use the `90000 - 99999` range for error codes that are caused by internal limitations or violated assumptions.
+
+To generate an overview of all errors inside all packages with their documentation, you can run:
+```
+npx ts-node scripts/extract-errors.ts <path to /packages>
+```
+This will generate an `error-overview.md` file in the current directory.
+
+Remembery you can also use the `metadata` of an error to provide additional information.
+
 ### API
+
+#### CommonErrors
+This enum provides common error codes that can be used throughout all packages for errors that do not need individual tracking.
 
 #### MongoshBaseError
 All errors inherit from the abstract `MongoshBaseError` which in turn inherits from `Error`.
@@ -26,20 +50,21 @@ All `MongoshBaseError`s have the following properties:
 * `message`: _inherited from `Error`_. Descriptive message of the error.
 * `code`: _optional_. A unique identification code given when constructing the error.
 * `scope`: _optional_. The scope is automatically extracted from a given `code`.
-  The `scope` will be extracted from the `code` using the following pattern: `/^([a-zA-Z0-9]+)-/`.
-  Example: `code='ASYNC-01005'` produces `scope='ASYNC'`.
+* `metadata`: _optional_. Additional metadata for further analysis of the error cause.
 
 #### MongoshWarning(msg, code?)
 This error is used to give user a warning about the current execution.
 __args:__
 - __msg:__ type string. Describes the warning.
 - __code:__ *optional* type string. Unique identification code of the warning.
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 #### MongoshUnimplementedError(msg, code?)
 This error is used to API endpoints that are not yet implemented. 
 __args:__
 - __msg:__ type string. Describes what is not yet implemented.
 - __code:__ *optional* type string. Unique identification code of the error.
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 #### MongoshRuntimeError(msg, code?)
 Used for errors in evaluation, specific to MongoDB Shell. Should not be used for
@@ -49,6 +74,7 @@ __args:__
 - __msg:__ type string. Describes what caused the error and a potential fix, if
   avaialable.
 - __code:__ *optional* type string. Unique identification code of the error.
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 #### MongoshInternalError(msg, code?)
 Used for rare cases when MongoDB Shell is not able to parse and evaluate the
@@ -57,10 +83,11 @@ __args:__
 - __msg:__ type string. Describes error in detail, so the user can better report
   it.
 - __code:__ *optional* type string. Unique identification code of the error.
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 `e.message` will be appended with the following information:
-```js
-This is an error inside Mongosh. Please file a bug report. Please include a log file from this session.
+```
+This is an error inside Mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org.
 ```
 
 #### MongoshInvalidInputError(msg, code?)
@@ -70,6 +97,7 @@ __args:__
 - __msg:__ type string. Describes error in detail, providing current invalid
   input, and a fix, if available. 
 - __code:__ *optional* type string. Unique identification code of the error.
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 ## Installation
 ```shell
