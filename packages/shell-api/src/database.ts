@@ -1088,10 +1088,7 @@ export default class Database extends ShellApiClass {
       for (const node of status.members) {
         const nodeResult = {} as any;
         if (node === null || node === undefined) {
-          throw new MongoshInternalError(
-            'Member returned from command replSetGetStatus is null',
-            ShellApiErrors.DatabasePrintSecondaryReplicationInfoMemberNull
-          );
+          throw new MongoshInternalError('Member returned from command replSetGetStatus is null');
         }
         if (node.state === 1 || node.state === 7) { // ignore primaries (1) and arbiters (7)
           continue;
@@ -1100,10 +1097,7 @@ export default class Database extends ShellApiClass {
         if (node.optime && node.health !== 0) {
           // get repl lag
           if (startOptimeDate === null || startOptimeDate === undefined) {
-            throw new MongoshInternalError(
-              'getReplLag startOptimeDate is null',
-              ShellApiErrors.DatabasePrintSecondaryReplicationInfoStartOptimeDateNull
-            );
+            throw new MongoshInternalError('getReplLag startOptimeDate is null');
           }
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();

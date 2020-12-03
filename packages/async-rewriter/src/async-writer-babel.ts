@@ -18,7 +18,7 @@ const debug = (str, type?, indent?): void => {
 };
 
 function assertUnreachable(type?: never): never {
-  throw new MongoshInternalError(`type ${type} unhandled`, AsyncRewriterErrors.UnreachableAssertionViolated);
+  throw new MongoshInternalError(`type ${type} unhandled`);
 }
 
 export interface Babel {

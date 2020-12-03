@@ -1,20 +1,20 @@
-import { CliServiceProvider, MongoClientOptions, CliOptions } from '@mongosh/service-provider-server';
-import { ConfigManager, ShellHomeDirectory } from './config-directory';
-import { CommonErrors, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson } from '@mongosh/service-provider-core';
-import MongoshNodeRepl from './mongosh-repl';
-import Nanobus from 'nanobus';
-import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
-import type { StyleDefinition } from './clr';
+import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
+import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
+import Nanobus from 'nanobus';
+import pino from 'pino';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
-import Analytics from 'analytics-node';
-import pino from 'pino';
-import { UserConfig } from './types';
+import type { StyleDefinition } from './clr';
+import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { CliReplErrors } from './error-codes';
+import MongoshNodeRepl from './mongosh-repl';
+import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
+import { UserConfig } from './types';
 
 /**
  * Connecting text key.
@@ -200,7 +200,7 @@ class CliRepl {
   exit(code: number): never {
     this.bus.emit('mongosh:exit', code);
     // Emitting mongosh:exit never returns. If it does, that's a bug.
-    const error = new MongoshInternalError('mongosh:exit unexpectedly returned', CommonErrors.UnexpectedInternalError);
+    const error = new MongoshInternalError('mongosh:exit unexpectedly returned');
     this.bus.emit('mongosh:error', error);
     throw error;
   }

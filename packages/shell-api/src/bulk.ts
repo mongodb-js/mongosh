@@ -239,10 +239,7 @@ export default class Bulk extends ShellApiClass {
 
   getOperations(): BulkBatch[] {
     if (!this._checkInternalShape(this._serviceProviderBulkOp.s)) {
-      throw new MongoshInternalError(
-        'Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.',
-        ShellApiErrors.BulkStructureChanged
-      );
+      throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
     }
     if (!this._executed) {
       throw new MongoshInvalidInputError(

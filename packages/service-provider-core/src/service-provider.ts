@@ -1,4 +1,4 @@
-import { CommonErrors, MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import Admin from './admin';
 import Closable from './closable';
 import makePrintableBson from './printable-bson';
@@ -14,7 +14,7 @@ export class ServiceProviderCore {
   public bsonLibrary: any;
   constructor(bsonLibrary?: any) {
     if (bsonLibrary === undefined) {
-      throw new MongoshInternalError('BSON Library is undefined.', CommonErrors.UnexpectedInternalError);
+      throw new MongoshInternalError('BSON Library is undefined.');
     }
     makePrintableBson(bsonLibrary);
     this.bsonLibrary = bsonLibrary;

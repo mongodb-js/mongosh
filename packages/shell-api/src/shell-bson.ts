@@ -43,10 +43,7 @@ export default function constructShellBson(bson: any): any {
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
   ].forEach((className) => {
     if (!(className in bson)) {
-      throw new MongoshInternalError(
-        `${className} does not exist in provided BSON package. This is an internal error, please file a ticket!`,
-        ShellApiErrors.ShellBsonClassNotProvided
-      );
+      throw new MongoshInternalError(`${className} does not exist in provided BSON package.`);
     }
     bson[className].prototype.serverVersions = ALL_SERVER_VERSIONS;
     bson[className].prototype.platforms = ALL_PLATFORMS;

@@ -1,4 +1,4 @@
-import { CommonErrors, MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import { fail } from 'assert';
 import { expect } from 'chai';
 import Translator from './translator';
@@ -124,7 +124,6 @@ describe('Translator', () => {
         fail('expected error');
       } catch (e) {
         expect(e).to.be.instanceOf(MongoshInternalError);
-        expect(e.code).to.equal(CommonErrors.UnexpectedInternalError);
       }
     });
   });

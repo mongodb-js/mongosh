@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { CommonErrors, MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import Mustache from 'mustache';
 import type Catalog from './catalog';
 import de_DE from './locales/de_DE';
@@ -43,7 +43,7 @@ class Translator {
   __(key: string): string {
     const translation = this.translate(key);
     if (translation === undefined) {
-      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`, CommonErrors.UnexpectedInternalError);
+      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`);
     }
     return translation;
   }

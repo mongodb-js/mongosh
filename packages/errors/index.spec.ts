@@ -21,18 +21,12 @@ describe('errors', () => {
   });
 
   it('creates MongoshInternalError', () => {
-    const errorNoCode = new MongoshInternalError('Something went wrong.');
-    expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
-    expect(errorNoCode.name).to.be.equal('MongoshInternalError');
-    expect(errorNoCode.message).to.be.equal('Something went wrong.\nThis is an error inside Mongosh. Please file a bug report. Please include a log file from this session.');
-    expect(errorNoCode.code).to.be.undefined;
-
-    const errorWithCode = new MongoshInternalError('Something went wrong.', 'SHUPS-42');
-    expect(errorWithCode).to.be.instanceOf(MongoshBaseError);
-    expect(errorWithCode.name).to.be.equal('MongoshInternalError');
-    expect(errorWithCode.message).to.be.equal('[SHUPS-42] Something went wrong.\nThis is an error inside Mongosh. Please file a bug report. Please include a log file from this session.');
-    expect(errorWithCode.code).to.be.equal('SHUPS-42');
-    expect(errorWithCode.scope).to.be.equal('SHUPS');
+    const error = new MongoshInternalError('Something went wrong.');
+    expect(error).to.be.instanceOf(MongoshBaseError);
+    expect(error.name).to.be.equal('MongoshInternalError');
+    expect(error.message).to.be.equal('Something went wrong.\nThis is an error inside Mongosh. Please file a bug report. Please include a log file from this session.');
+    expect(error.code).to.be.equal('SHUPS-42');
+    expect(error.scope).to.be.equal('SHUPS');
   });
   it('creates MongoshUnimplementedError', () => {
     const errorNoCode = new MongoshUnimplementedError('Something went wrong.');

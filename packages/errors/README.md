@@ -52,21 +52,21 @@ All `MongoshBaseError`s have the following properties:
 * `scope`: _optional_. The scope is automatically extracted from a given `code`.
 * `metadata`: _optional_. Additional metadata for further analysis of the error cause.
 
-#### MongoshWarning(msg, code?)
+#### MongoshWarning(msg, code?, metadata?)
 This error is used to give user a warning about the current execution.
 __args:__
 - __msg:__ type string. Describes the warning.
 - __code:__ *optional* type string. Unique identification code of the warning.
 - __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
-#### MongoshUnimplementedError(msg, code?)
+#### MongoshUnimplementedError(msg, code?, metadata?)
 This error is used to API endpoints that are not yet implemented. 
 __args:__
 - __msg:__ type string. Describes what is not yet implemented.
 - __code:__ *optional* type string. Unique identification code of the error.
 - __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
-#### MongoshRuntimeError(msg, code?)
+#### MongoshRuntimeError(msg, code?, metadata?)
 Used for errors in evaluation, specific to MongoDB Shell. Should not be used for
 JavaScript runtime errors.
 
@@ -76,13 +76,12 @@ __args:__
 - __code:__ *optional* type string. Unique identification code of the error.
 - __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
-#### MongoshInternalError(msg, code?)
+#### MongoshInternalError(msg, metadata?)
 Used for rare cases when MongoDB Shell is not able to parse and evaluate the
 input.
 __args:__
 - __msg:__ type string. Describes error in detail, so the user can better report
   it.
-- __code:__ *optional* type string. Unique identification code of the error.
 - __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
 
 `e.message` will be appended with the following information:
@@ -90,7 +89,9 @@ __args:__
 This is an error inside Mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org.
 ```
 
-#### MongoshInvalidInputError(msg, code?)
+_Note: The error code will automatically be set to `CommonErrors.UnexpectedInternalError`._
+
+#### MongoshInvalidInputError(msg, code?, metadata?)
 This error is used for invalid MongoDB input. This should not be used for
 JavaScript syntax errors, but rather for those specific to MongoDB.
 __args:__
@@ -98,6 +99,16 @@ __args:__
   input, and a fix, if available. 
 - __code:__ *optional* type string. Unique identification code of the error.
 - __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
+
+#### MongoshCommandFailed(msg, metadata?)
+This error is used when running a database command unexpectedly failed but can be tried using `runCommand` to get more details.
+This should only be used when the result of a command returns with `{ok: 0}`.
+__args:__
+- __msg:__ type string. Describes error in detail, providing current invalid
+  input, and a fix, if available. 
+- __metadata:__ *optional* type Record<string, string>. Additional metadata for further analysis.
+
+_Note: The error code will automatically be set to `CommonErrors.CommandFailed`._
 
 ## Installation
 ```shell

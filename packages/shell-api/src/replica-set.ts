@@ -49,10 +49,7 @@ export default class ReplicaSet extends ShellApiClass {
         { replSetGetConfig: 1 }
       );
       if (result.config === undefined) {
-        throw new MongoshInternalError(
-          'Documented returned from command replSetReconfig does not contain \'config\'',
-          ShellApiErrors.ReplicaSetConfigFailed
-        );
+        throw new MongoshInternalError('Documented returned from command replSetReconfig does not contain \'config\'');
       }
       return result.config;
     } catch (error) {

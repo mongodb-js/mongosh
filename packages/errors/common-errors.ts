@@ -19,11 +19,18 @@ enum CommonErrors {
   DeprecatedMethod = 'COMMON-10002',
 
   /**
+   * Signals an error while running a specific command against the database.
+   *
+   * **Solution: Run the command directly using `runCommand` to see the full result.**
+   */
+  CommandFailed = 'COMMON-10003',
+
+  /**
    * Signals an unexpected internal error of mongosh.
    *
    * **Please file a bug report for the `MONGOSH` project here: https://jira.mongodb.org.**
    */
-  UnexpectedInternalError = 'COMMON-90001'
+  UnexpectedInternalError = 'COMMON-90001',
 }
 
 export {

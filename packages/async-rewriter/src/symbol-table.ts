@@ -52,7 +52,7 @@ export default class SymbolTable {
     try {
       return JSON.parse(JSON.stringify(symbol, this.replacer));
     } catch (error) {
-      throw new MongoshInternalError(`Internal error occurred for copying symbol ${symbol.type}. Please file a bug and attach the logfile.`, AsyncRewriterErrors.CopySymbolFailed);
+      throw new MongoshInternalError(`Internal error occurred for copying symbol ${symbol.type}.`);
     }
   }
 
@@ -84,7 +84,7 @@ export default class SymbolTable {
     try {
       return (JSON.stringify(t1, this.replacer) === JSON.stringify(t2, this.replacer));
     } catch (error) {
-      throw new MongoshInternalError(`Internal error occurred for comparing symbols ${t1.type} and ${t2.type}. Please file a bug and attach the logfile.`, AsyncRewriterErrors.CompareTypesFailed);
+      throw new MongoshInternalError(`Internal error occurred for comparing symbols ${t1.type} and ${t2.type}.`);
     }
   }
 
@@ -292,7 +292,7 @@ export default class SymbolTable {
       const keys = new Set();
       alternates.forEach((st) => {
         if (this.depth !== st.depth) {
-          throw new MongoshInternalError('Could not compare scopes.', AsyncRewriterErrors.CompareScopesDifferentDepth);
+          throw new MongoshInternalError('Could not compare scopes.');
         }
         Object.keys(st.scopeAt(i)).forEach(k => keys.add(k));
       });

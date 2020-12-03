@@ -114,7 +114,7 @@ export default class Mongo extends ShellApiClass {
       case 'dbs':
         const result = await this._serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
-          const err = new MongoshInternalError('Got invalid result from "listDatabases"', ShellApiErrors.MongoShowListDatabasesFailed);
+          const err = new MongoshInternalError('Got invalid result from "listDatabases"');
           this._internalState.messageBus.emit('mongosh:error', err);
           throw err;
         }
@@ -176,10 +176,7 @@ export default class Mongo extends ShellApiClass {
       const rc = this._serviceProvider.getReadConcern();
       return rc ? rc.level : undefined;
     } catch {
-      throw new MongoshInternalError(
-        'Error retrieving ReadConcern. Please file a JIRA ticket in the MONGOSH project',
-        ShellApiErrors.MongoReadConcernFailed
-      );
+      throw new MongoshInternalError('Error retrieving ReadConcern.');
     }
   }
 

@@ -29,12 +29,12 @@ class MongoshRuntimeError extends MongoshBaseError {
 }
 
 class MongoshInternalError extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, metadata?: Record<string, string>) {
     super(
       'MongoshInternalError',
       `${message}
 This is an error inside Mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org.`,
-      code,
+      CommonErrors.UnexpectedInternalError,
       metadata
     );
   }
@@ -59,11 +59,11 @@ class MongoshWarning extends MongoshBaseError {
 }
 
 class MongoshCommandFailed extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, metadata?: Record<string, string>) {
     super(
       'MongoshCommandFailed',
       `Command ${message} returned ok: 0. To see the raw results of the command, use 'runCommand' instead.`,
-      code,
+      CommonErrors.CommandFailed,
       metadata
     );
   }

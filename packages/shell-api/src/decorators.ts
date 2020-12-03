@@ -12,7 +12,6 @@ import {
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import { addHiddenDataProperty } from './helpers';
-import { ShellApiErrors } from './error-codes';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -56,10 +55,7 @@ export interface ShellResult {
 export class ShellApiClass implements ShellApiInterface {
   help: any;
   get [shellApiType](): string {
-    throw new MongoshInternalError(
-      'Shell API Type did not use decorators',
-      ShellApiErrors.ShellApiClassMissesDecorator
-    );
+    throw new MongoshInternalError('Shell API Type did not use decorators');
   }
   set [shellApiType](value: string) {
     addHiddenDataProperty(this, shellApiType, value);
