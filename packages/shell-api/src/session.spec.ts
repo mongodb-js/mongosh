@@ -16,8 +16,7 @@ import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 import { fail } from 'assert';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { ShellApiErrors } from './error-codes';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 describe('Session', () => {
   describe('help', () => {
@@ -80,7 +79,7 @@ describe('Session', () => {
           fail('expected error');
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
-          expect(e.code).to.equal(ShellApiErrors.SessionGetDatabaseNameInvalid);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
     });
@@ -94,7 +93,9 @@ describe('Session', () => {
         session.advanceClusterTime();
       } catch (e) {
         expect(e).to.be.instanceOf(MongoshUnimplementedError);
-        expect(e.code).to.equal(ShellApiErrors.SessionAdvanceClusterTimeUnsupported);
+        expect(e.code).to.equal(CommonErrors.NotImplemented);
+        expect(e.metadata?.driverCaused).to.equal(true);
+        expect(e.metadata?.api).to.equal('Session.advanceClusterTime');
         return;
       }
       expect.fail('Error not thrown');

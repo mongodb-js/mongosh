@@ -1,3 +1,4 @@
+import { CommonErrors } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { fail } from 'assert';
 import { expect } from 'chai';
@@ -6,7 +7,6 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
 import Collection from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { ShellApiErrors } from './error-codes';
 import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
 import { ObjectId } from 'mongodb';
@@ -226,7 +226,7 @@ describe('Bulk API', () => {
                 fail('expected error');
               } catch (e) {
                 expect(e.name).to.equal('MongoshInvalidInputError');
-                expect(e.code).to.equal(ShellApiErrors.BulkGetOperationsBeforeExecute);
+                expect(e.code).to.equal(CommonErrors.InvalidOperation);
               }
             });
           });
@@ -447,7 +447,8 @@ describe('Bulk API', () => {
             fail('expected error');
           } catch (e) {
             expect(e.name).to.equal('MongoshUnimplementedError');
-            expect(e.code).to.equal(ShellApiErrors.BulkUnimplementedArrayFilters);
+            expect(e.code).to.equal(CommonErrors.NotImplemented);
+            expect(e.metadata?.driverCaused).to.equal(true);
           }
         });
       });
@@ -458,7 +459,8 @@ describe('Bulk API', () => {
             fail('expected error');
           } catch (e) {
             expect(e.name).to.equal('MongoshUnimplementedError');
-            expect(e.code).to.equal(ShellApiErrors.BulkUnimplementedCollation);
+            expect(e.code).to.equal(CommonErrors.NotImplemented);
+            expect(e.metadata?.driverCaused).to.equal(true);
           }
         });
       });

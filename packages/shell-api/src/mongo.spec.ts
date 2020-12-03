@@ -16,6 +16,7 @@ import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
+import { MongoshDeprecatedError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -350,7 +351,7 @@ describe('Mongo', () => {
         try {
           mongo.getReadConcern();
         } catch (catchedError) {
-          return expect(catchedError.name).to.equal('MongoshInternalError');
+          return expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
         }
         expect.fail();
       });
@@ -490,13 +491,37 @@ describe('Mongo', () => {
         expect(result._session).to.equal(driverSession);
       });
     });
+    describe('setCausalConsistency', () => {
+      it('throws because it is unsupported by the driver', () => {
+        try {
+          mongo.setCausalConsistency();
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Mongo.setCausalConsistency');
+        }
+      });
+    });
+    describe('isCausalConsistency', () => {
+      it('throws because it is unsupported by the driver', () => {
+        try {
+          mongo.isCausalConsistency();
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Mongo.isCausalConsistency');
+        }
+      });
+    });
     describe('deprecated mongo methods', () => {
-      ['setCausalConsistency', 'isCausalConsistency', 'setSlaveOk', 'setSecondaryOk'].forEach((t) => {
+      ['setSlaveOk', 'setSecondaryOk'].forEach((t) => {
         it(t, () => {
           try {
             mongo[t]();
           } catch (e) {
-            return expect(e.name).to.equal('MongoshInvalidInputError');
+            return expect(e).to.be.instanceOf(MongoshDeprecatedError);
           }
           expect.fail();
         });

@@ -17,8 +17,7 @@ import ShellInternalState from './shell-internal-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
 import ChangeStreamCursor from './change-stream-cursor';
-import { MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
-import { ShellApiErrors } from './error-codes';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 
 
 describe('Database', () => {
@@ -350,7 +349,7 @@ describe('Database', () => {
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Collection name cannot be empty.');
-          expect(e.code).to.equal(ShellApiErrors.DatabaseGetCollectionNameEmpty);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
 
@@ -495,7 +494,7 @@ describe('Database', () => {
         }).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
         expect(catchedError.message).to.contain('Missing required property: "roles"');
-        expect(catchedError.code).to.equal(ShellApiErrors.GenericPropertyMissing);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
       it('throws if createUser option is provided', async() => {
@@ -507,7 +506,7 @@ describe('Database', () => {
         }).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
         expect(catchedError.message).to.contain('Cannot set createUser field in helper method');
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseCreateUserNoCreateUser);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('updateUser', () => {
@@ -606,7 +605,7 @@ describe('Database', () => {
         }, { w: 1 }).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
         expect(catchedError.message).to.contain('passwordDigestor must be \'client\' or \'server\'');
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseUpdateUserPasswordDigestorInvalid);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('changeUserPassword', () => {
@@ -760,7 +759,7 @@ describe('Database', () => {
         it('throws for invalid arguments', async() => {
           const catchedError = await database.auth(...args as any).catch(e => e);
           expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-          expect(catchedError.code).to.equal(ShellApiErrors.DatabaseAuthArgsInvalid);
+          expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
 
@@ -771,7 +770,7 @@ describe('Database', () => {
           digestPassword: 'nope'
         } as any).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshUnimplementedError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseAuthDigestPasswordUnsupported);
+        expect(catchedError.code).to.equal(CommonErrors.NotImplemented);
       });
     });
     describe('grantRolesToUser', () => {
@@ -1071,7 +1070,7 @@ describe('Database', () => {
           privileges: []
         }, { w: 1 }).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseCreateRoleNoCreateRole);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('updateRole', () => {
@@ -1573,7 +1572,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const catchedError = await database.version().catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseServerBuildInfoFailed);
+        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
       });
     });
 
@@ -1609,7 +1608,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const catchedError = await database.serverBits().catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseServerBuildInfoFailed);
+        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
       });
     });
 
@@ -1808,7 +1807,7 @@ describe('Database', () => {
       it('throws if scale is invalid', async() => {
         const error = await database.printCollectionStats(-1).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
-        expect(error.code).to.equal(ShellApiErrors.DatabasePrintCollectionStatsScaleInvalid);
+        expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -1877,7 +1876,7 @@ describe('Database', () => {
         const catchedError = await database.enableFreeMonitoring()
           .catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseEnableFreeMonitoringNotPrimary);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidOperation);
       });
 
       it('calls serviceProvider.runCommand on the database', async() => {
@@ -1938,7 +1937,7 @@ describe('Database', () => {
 
         const error = await database.enableFreeMonitoring().catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(ShellApiErrors.DatabaseEnableFreeMonitoringFailed);
+        expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommand rejects without auth error', async() => {
@@ -2037,7 +2036,7 @@ describe('Database', () => {
       it('throws if profiling level is invalid', async() => {
         const catchedError = await database.setProfilingLevel(4).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseSetProfilingLevelLevelInvalid);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -2085,7 +2084,7 @@ describe('Database', () => {
       it('throws if component is given but not a string', async() => {
         const catchedError = await database.setLogLevel(1, {}).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseSetLogLevelComponentInvalid);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -2114,7 +2113,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const catchedError = await database.getLogComponents().catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseGetLogComponentsFailed);
+        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
@@ -2128,18 +2127,13 @@ describe('Database', () => {
 
     describe('cloneDatabase, cloneCollection, copyDatabase', () => {
       it('throws a helpful exception regarding their removal', () => {
-        [
-          ['cloneDatabase', ShellApiErrors.DatabaseCloneDatabaseRemoved],
-          ['cloneCollection', ShellApiErrors.DatabaseCloneCollectionRemoved],
-          ['copyDatabase', ShellApiErrors.DatabaseCopyDatabaseRemoved]
-        ].forEach((args) => {
-          const [method, code] = args;
+        ['cloneDatabase', 'cloneCollection', 'copyDatabase'].forEach((method) => {
           try {
             database[method]();
             expect.fail('expected error');
           } catch (e) {
+            expect(e).to.be.instanceOf(MongoshDeprecatedError);
             expect(e.message).to.contain(`\`${method}()\` was removed because it was deprecated in MongoDB 4.0`);
-            expect(e.code).to.equal(code);
           }
         });
       });
@@ -2171,7 +2165,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const catchedError = await database.commandHelp('listDatabases').catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseCommandHelpFailed);
+        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
@@ -2209,7 +2203,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const catchedError = await database.listCommands().catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(ShellApiErrors.DatabaseListCommandsFailed);
+        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {

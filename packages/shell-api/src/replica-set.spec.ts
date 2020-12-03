@@ -17,8 +17,7 @@ import { startTestCluster, MongodSetup, skipIfServerVersion } from '../../../tes
 import { ensureMaster } from '../../../testing/helpers';
 import Database from './database';
 import sinonChai from 'sinon-chai';
-import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
-import { ShellApiErrors } from './error-codes';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 chai.use(sinonChai);
 
 describe('ReplicaSet', () => {
@@ -406,7 +405,7 @@ describe('ReplicaSet', () => {
 
         const error = await rs.add(hostname, true).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
-        expect(error.code).to.equal(ShellApiErrors.ReplicaSetAddHostportInvalid);
+        expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
       it('throws if local.system.replset.count <= 1', async() => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
@@ -415,7 +414,7 @@ describe('ReplicaSet', () => {
         serviceProvider.countDocuments.resolves(2);
         const error = await rs.add(hostname, true).catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(ShellApiErrors.ReplicaSetLocalDataUnexpected);
+        expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
       it('throws if local.system.replset.findOne has no docs', async() => {
         const hostname = { host: 'localhost:27017' };
@@ -423,7 +422,7 @@ describe('ReplicaSet', () => {
         serviceProvider.countDocuments.resolves(1);
         const error = await rs.add(hostname, true).catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(ShellApiErrors.ReplicaSetLocalDataUnexpected);
+        expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
@@ -471,14 +470,14 @@ describe('ReplicaSet', () => {
         serviceProvider.countDocuments.resolves(0);
         const error = await rs.remove('').catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(ShellApiErrors.ReplicaSetLocalDataUnexpected);
+        expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
       it('throws if local.system.replset.count <= 1', async() => {
         findResolvesWith(null);
         serviceProvider.countDocuments.resolves(1);
         const error = await rs.remove('').catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(ShellApiErrors.ReplicaSetLocalDataUnexpected);
+        expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'localhost:1' }] };
@@ -497,7 +496,7 @@ describe('ReplicaSet', () => {
         const catchedError = await rs.remove('localhost:2')
           .catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(ShellApiErrors.ReplicSetRemoveHostNotFound);
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('freeze', () => {

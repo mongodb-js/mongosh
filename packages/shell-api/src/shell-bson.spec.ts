@@ -5,8 +5,7 @@ import { ALL_SERVER_VERSIONS } from './enums';
 import { bson } from '@mongosh/service-provider-core';
 import { toShellResult } from './index';
 import { fail } from 'assert';
-import { ShellApiErrors } from './error-codes';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 const shellBson = constructShellBson(bson);
 
 const hex_1234 = '31323334';
@@ -272,7 +271,7 @@ describe('Shell BSON', () => {
       } catch (e) {
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.message).to.contain('"\\"" is not a valid ISODate');
-        expect(e.code).to.equal(ShellApiErrors.ShellBsonIsoDateInvalid);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
       }
     });
   });

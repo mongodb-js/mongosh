@@ -5,8 +5,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } fr
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { ShellApiErrors } from './error-codes';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 chai.use(sinonChai);
 const { expect } = chai;
 
@@ -96,7 +95,7 @@ describe('Cursor', () => {
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.message).to.contain('the slaveOk option is not supported.');
-          expect(e.code).to.equal(ShellApiErrors.CursorAddOptionSlaveOkUnsupported);
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
         }
       });
 
@@ -107,7 +106,7 @@ describe('Cursor', () => {
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Unknown option flag number: 123123');
-          expect(e.code).to.equal(ShellApiErrors.CursorAddOptionUnknownFlag);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
     });
@@ -437,7 +436,9 @@ describe('Cursor', () => {
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.message).to.contain('the tagSet argument is not yet supported.');
-          expect(e.code).to.equal(ShellApiErrors.CursorReadPrefTagSetUnsupported);
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Cursor.readPref#tagSet');
         }
       });
     });
@@ -679,9 +680,8 @@ describe('Cursor', () => {
           shellApiCursor.maxScan();
           expect.fail('expected error');
         } catch (e) {
-          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e).to.be.instanceOf(MongoshDeprecatedError);
           expect(e.message).to.contain('`maxScan()` was removed because it was deprecated in MongoDB 4.0');
-          expect(e.code).to.equal(ShellApiErrors.CusrorMaxScanRemoved);
         }
       });
     });
@@ -735,7 +735,9 @@ describe('Cursor', () => {
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.message).to.contain('NODE-2806');
-          expect(e.code).to.equal(ShellApiErrors.CursorReadConcernNotSupported);
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Cursor.readConcern');
         }
       });
     });

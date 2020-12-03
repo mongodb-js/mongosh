@@ -20,7 +20,7 @@ import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
 import { fail } from 'assert';
 import { ShellApiErrors } from './error-codes';
-import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
 const sinonChai = require('sinon-chai'); // weird with import
 
@@ -348,7 +348,7 @@ describe('Collection', () => {
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain('The "options" argument must be an object.');
-          expect(error.code).to.equal(ShellApiErrors.GenericOptionsMustBeAnObject);
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
     });
@@ -392,7 +392,7 @@ describe('Collection', () => {
 
             expect(error).to.be.instanceOf(MongoshInvalidInputError);
             expect(error.message).to.contain('The "options" argument must be an object.');
-            expect(error.code).to.equal(ShellApiErrors.GenericOptionsMustBeAnObject);
+            expect(error.code).to.equal(CommonErrors.InvalidArgument);
           });
         });
       });
@@ -521,7 +521,7 @@ describe('Collection', () => {
           expect(catched.message).to.contain(
             'To drop indexes in the collection using \'*\', use db.collection.dropIndexes().'
           );
-          expect(catched.code).to.equal(ShellApiErrors.CollectionDropIndexStarInvalid);
+          expect(catched.code).to.equal(CommonErrors.InvalidArgument);
         });
 
         it('throws if index is an array', async() => {
@@ -532,7 +532,7 @@ describe('Collection', () => {
           expect(catched.message).to.contain(
             'The index to drop must be either the index name or the index specification document.'
           );
-          expect(catched.code).to.equal(ShellApiErrors.CollectionDropIndexNoArray);
+          expect(catched.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
     });
@@ -558,7 +558,7 @@ describe('Collection', () => {
         expect(catched.message).to.contain(
           '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
         );
-        expect(catched.code).to.equal(ShellApiErrors.CollectionTotalIndexSizeNoArguments);
+        expect(catched.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -648,7 +648,7 @@ describe('Collection', () => {
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain('Cannot filter indexDetails on both indexDetailsKey and indexDetailsName');
-          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsKeyAndName);
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
         });
         it('throws when indexDetailsKey is not an object', async() => {
           const error = await collection.stats(
@@ -657,7 +657,7 @@ describe('Collection', () => {
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain('Expected options.indexDetailsKey to be a document');
-          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsKeyInvalid);
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
         });
         it('throws when indexDetailsName is not a string', async() => {
           const error = await collection.stats(
@@ -666,7 +666,7 @@ describe('Collection', () => {
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain('Expected options.indexDetailsName to be a string');
-          expect(error.code).to.equal(ShellApiErrors.CollectionStatsIndexDetailsNameInvalid);
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
 
@@ -686,7 +686,6 @@ describe('Collection', () => {
 
         expect(error).to.be.instanceOf(MongoshRuntimeError);
         expect(error.message).to.contain('Error running collStats command');
-        expect(error.code).to.equal(ShellApiErrors.CollectionStatsFailed);
       });
     });
 
@@ -889,7 +888,7 @@ describe('Collection', () => {
         } catch (e) {
           expect(e.message).to.include('type string');
           expect(e.name).to.equal('MongoshInvalidInputError');
-          expect(e.code).to.equal(ShellApiErrors.CollectionRenameCollectionNewNameInvalid);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
     });
@@ -927,7 +926,7 @@ describe('Collection', () => {
 
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.message).to.include('type string');
-        expect(e.code).to.equal(ShellApiErrors.CollectionRunCommandCommandNameInvalid);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
       });
 
       it('throws an error if commandName is passed as option', async() => {
@@ -937,7 +936,7 @@ describe('Collection', () => {
 
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.message).to.contain('The "commandName" argument cannot be passed as an option to "runCommand".');
-        expect(e.code).to.equal(ShellApiErrors.CollectionRunCommandCommandNameInvalid);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -1156,7 +1155,7 @@ describe('Collection', () => {
         const error = await collection.mapReduce(mapFn, reduceFn, {}).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('Missing \'out\' option');
-        expect(error.code).to.equal(ShellApiErrors.CollectionMapReduceOutOptionMissing);
+        expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('getShardVersion', () => {
@@ -1192,7 +1191,7 @@ describe('Collection', () => {
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('is not sharded');
-        expect(error.code).to.equal(ShellApiErrors.CollectionShardDistributionNotSharded);
+        expect(error.code).to.equal(ShellApiErrors.NoSharding);
       });
     });
 
