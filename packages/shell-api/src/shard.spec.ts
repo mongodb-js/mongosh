@@ -1281,7 +1281,7 @@ describe('Shard', () => {
         }
 
         // Insert a document, then check again
-        await db.getCollection('test').insertOne({ foo: 'bar' });
+        await db.getCollection('test').insertOne({ foo: 'bar', key: 99 });
 
         {
           const ret = await db.getCollection('test').getShardDistribution();
