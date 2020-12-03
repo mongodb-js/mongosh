@@ -16,7 +16,7 @@ describe('toIterator', () => {
   });
 
   for (const Cls of [ Cursor, AggregationCursor ]) {
-    it(`provides forEach for ${cls.name}`, async() => {
+    it(`provides forEach for ${Cls.name}`, async() => {
       const iterator = sinon.spy();
       const tryNext = sinon.stub();
       tryNext.onFirstCall().resolves({ a: 1 });
