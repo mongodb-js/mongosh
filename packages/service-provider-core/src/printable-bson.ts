@@ -16,11 +16,11 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
   },
 
   MaxKey: function(): string {
-    return '{ "$maxKey" : 1 }';
+    return 'MaxKey()';
   },
 
   MinKey: function(): string {
-    return '{ "$minKey" : 1 }';
+    return 'MinKey()';
   },
 
   Timestamp: function(): string {
@@ -28,24 +28,24 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
   },
 
   BSONSymbol: function(): string {
-    return `"${this.valueOf()}"`;
+    return `BSONSymbol("${this.valueOf()}")`;
   },
 
   Code: function(): string {
     const j = this.toJSON();
-    return `{ "code" : "${j.code}"${j.scope ? `, "scope" : ${JSON.stringify(j.scope)}` : ''} }`;
+    return `Code(${j.code}"${j.scope ? `, ${JSON.stringify(j.scope)}` : ''})`;
   },
 
   Decimal128: function(): string {
-    return `NumberDecimal("${this.toString()}")`;
+    return `Decimal128("${this.toString()}")`;
   },
 
   Int32: function(): string {
-    return `NumberInt(${this.valueOf()})`;
+    return `Int32(${this.valueOf()})`;
   },
 
   Long: function(): string {
-    return `NumberLong("${this.toString()}")`;
+    return `Long("${this.toString()}")`;
   },
 
   Binary: function(): string {
@@ -66,10 +66,11 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
         // with a non-standard length.
         // eslint-disable-next-line no-fallthrough
       default:
-        return `BinData(${this.sub_type}, "${asBuffer.toString('base64')}")`;
+        return `Binary("${asBuffer.toString('base64')}", ${this.sub_type})`;
     }
   },
 };
+bsonStringifiers.ObjectID = bsonStringifiers.ObjectId;
 
 /**
  * This method modifies the BSON class passed in as argument. This is required so that

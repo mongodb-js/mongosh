@@ -45,7 +45,7 @@ describe('inspect', () => {
     });
   });
 
-  context.skip('with BSON types', () => { // TODO: Node 4.0 upgrade fix BSON types
+  context('with BSON types', () => {
     it('inspects ObjectId', () => {
       expect(
         inspect(new bson.ObjectId('0000007b3db627730e26fd0b'))
