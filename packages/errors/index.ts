@@ -11,9 +11,9 @@ function getScopeFromErrorCode(code: string | null | undefined): string | undefi
 abstract class MongoshBaseError extends Error {
   readonly code: string | undefined;
   readonly scope: string | undefined;
-  readonly metadata: Record<string, string> | undefined;
+  readonly metadata: Object | undefined;
 
-  constructor(name: string, message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(name: string, message: string, code?: string, metadata?: Object) {
     super(code ? `[${code}] ${message}` : message);
     this.name = name;
     this.code = code;
@@ -23,13 +23,13 @@ abstract class MongoshBaseError extends Error {
 }
 
 class MongoshRuntimeError extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, code?: string, metadata?: Object) {
     super('MongoshRuntimeError', message, code, metadata);
   }
 }
 
 class MongoshInternalError extends MongoshBaseError {
-  constructor(message: string, metadata?: Record<string, string>) {
+  constructor(message: string, metadata?: Object) {
     super(
       'MongoshInternalError',
       `${message}
@@ -41,25 +41,36 @@ This is an error inside Mongosh. Please file a bug report for the MONGOSH projec
 }
 
 class MongoshUnimplementedError extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, code?: string, metadata?: Object) {
     super('MongoshUnimplementedError', message, code, metadata);
   }
 }
 
 class MongoshInvalidInputError extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, code?: string, metadata?: Object) {
     super('MongoshInvalidInputError', message, code, metadata);
   }
 }
 
 class MongoshWarning extends MongoshBaseError {
-  constructor(message: string, code?: string, metadata?: Record<string, string>) {
+  constructor(message: string, code?: string, metadata?: Object) {
     super('MongoshWarning', message, code, metadata);
   }
 }
 
+class MongoshDeprecatedError extends MongoshBaseError {
+  constructor(message: string, metadata?: Object) {
+    super(
+      'MongoshDeprecatedError',
+      message,
+      CommonErrors.Deprecated,
+      metadata
+    );
+  }
+}
+
 class MongoshCommandFailed extends MongoshBaseError {
-  constructor(message: string, metadata?: Record<string, string>) {
+  constructor(message: string, metadata?: Object) {
     super(
       'MongoshCommandFailed',
       `Command ${message} returned ok: 0. To see the raw results of the command, use 'runCommand' instead.`,
@@ -77,6 +88,7 @@ export {
   MongoshInternalError,
   MongoshInvalidInputError,
   MongoshUnimplementedError,
+  MongoshDeprecatedError,
   MongoshCommandFailed,
   CommonErrors
 };

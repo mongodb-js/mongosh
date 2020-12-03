@@ -1,3 +1,6 @@
+import { MongoshDeprecatedError } from '@mongosh/errors';
+import { Document } from '@mongosh/service-provider-core';
+import Collection from './collection';
 import {
   hasAsyncChild,
   returnsPromise,
@@ -5,11 +8,7 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { Document } from '@mongosh/service-provider-core';
-import Collection from './collection';
-import { ServerVersions, asPrintable } from './enums';
-import { MongoshUnimplementedError } from '@mongosh/errors';
-import { ShellApiErrors } from './error-codes';
+import { asPrintable, ServerVersions } from './enums';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -49,21 +48,15 @@ export default class PlanCache extends ShellApiClass {
   @returnsPromise
   async list(pipeline?: Document[]): Promise<Document> {
     const p = pipeline || [];
-    const agg = await this._collection.aggregate([ { $planCacheStats: {} }, ...p ]);
+    const agg = await this._collection.aggregate([{ $planCacheStats: {} }, ...p]);
     return await agg.toArray();
   }
 
   planCacheQueryShapes(): void {
-    throw new MongoshUnimplementedError(
-      'PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead',
-      ShellApiErrors.PlanCacheQueryShapesRemoved
-    );
+    throw new MongoshDeprecatedError('PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead');
   }
 
   getPlansByQuery(): void {
-    throw new MongoshUnimplementedError(
-      'PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead',
-      ShellApiErrors.PlanCachePlansByQueryRemoved
-    );
+    throw new MongoshDeprecatedError('PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead');
   }
 }

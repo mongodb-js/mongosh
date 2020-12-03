@@ -1,4 +1,5 @@
 /* eslint-disable complexity */
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -21,13 +22,12 @@ import {
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
 import { asPrintable, ServerVersions, shellSession } from './enums';
 import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
-import { ShellApiErrors } from './error-codes';
+import { blockedByDriverMetadata } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -84,7 +84,7 @@ export default class Mongo extends ShellApiClass {
     assertArgsDefined(name);
     assertArgsType([name], ['string']);
     if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.', ShellApiErrors.MongoDatabaseNameInvalid);
+      throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.NotImplemented);
     }
 
     if (!(name in this._databases)) {
@@ -114,7 +114,7 @@ export default class Mongo extends ShellApiClass {
       case 'dbs':
         const result = await this._serviceProvider.listDatabases('admin');
         if (!('databases' in result)) {
-          const err = new MongoshInternalError('Got invalid result from "listDatabases"');
+          const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
           this._internalState.messageBus.emit('mongosh:error', err);
           throw err;
         }
@@ -149,7 +149,7 @@ export default class Mongo extends ShellApiClass {
       default:
         const err = new MongoshInvalidInputError(
           `'${cmd}' is not a valid argument for "show".`,
-          ShellApiErrors.MongoShowArgumentInvalid
+          CommonErrors.InvalidArgument
         );
         this._internalState.messageBus.emit('mongosh:error', err);
         throw err;
@@ -176,7 +176,7 @@ export default class Mongo extends ShellApiClass {
       const rc = this._serviceProvider.getReadConcern();
       return rc ? rc.level : undefined;
     } catch {
-      throw new MongoshInternalError('Error retrieving ReadConcern.');
+      throw new MongoshRuntimeError('Error retrieving ReadConcern.', CommonErrors.CommandFailed);
     }
   }
 
@@ -213,31 +213,27 @@ export default class Mongo extends ShellApiClass {
   }
 
   setCausalConsistency(): void {
-    throw new MongoshInvalidInputError(
+    throw new MongoshUnimplementedError(
       'It is not possible to set causal consistency for an entire connection due to the driver, use startSession({causalConsistency: <>}) instead.',
-      ShellApiErrors.MongoCausalConsistencyNotSupportedForConnection
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('Mongo.setCausalConsistency')
     );
   }
 
   isCausalConsistency(): void {
-    throw new MongoshInvalidInputError(
+    throw new MongoshUnimplementedError(
       'Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true',
-      ShellApiErrors.MongoCausalConsistencyNotSupportedForConnection
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('Mongo.isCausalConsistency')
     );
   }
 
   setSlaveOk(): void {
-    throw new MongoshInvalidInputError(
-      'setSlaveOk is deprecated.',
-      ShellApiErrors.MongoSetSlaveOkRemoved
-    );
+    throw new MongoshDeprecatedError('setSlaveOk is deprecated.');
   }
 
   setSecondaryOk(): void {
-    throw new MongoshInvalidInputError(
-      'Setting secondaryOk is deprecated, use setReadPreference instead',
-      ShellApiErrors.MongoSetSecondaryOkRemoved
-    );
+    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPreference instead');
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])

@@ -13,7 +13,7 @@ import {
   AggregationCursor as SPAggregationCursor,
   ChangeStreamCursor as SPChangeStreamCursor
 } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
 import Database from './database';
 import { CursorIterationResult } from './result';
@@ -57,14 +57,14 @@ export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): v
   if (!allowedVerbosity.includes(verbosity as string)) {
     throw new MongoshInvalidInputError(
       `verbosity can only be one of ${allowedVerbosity.join(', ')}. Received ${verbosity}.`,
-      ShellApiErrors.GenericExplainableVerbosityInvalid
+      CommonErrors.InvalidArgument
     );
   }
 }
 
 export function assertArgsDefined(...args: any[]): void {
   if (args.some(a => a === undefined)) {
-    throw new MongoshInvalidInputError('Missing required argument', ShellApiErrors.GenericArgumentsMissing);
+    throw new MongoshInvalidInputError('Missing required argument', CommonErrors.InvalidArgument);
   }
 }
 
@@ -73,7 +73,7 @@ export function assertArgsType(args: any[], expectedTypes: string[]): void {
     if (arg !== undefined && typeof arg !== expectedTypes[i]) {
       throw new MongoshInvalidInputError(
         `Argument at position ${i} must be of type ${expectedTypes[i]}, got ${typeof arg} instead`,
-        ShellApiErrors.GenericArgumentTypeMismatch
+        CommonErrors.InvalidArgument
       );
     }
   });
@@ -82,7 +82,7 @@ export function assertArgsType(args: any[], expectedTypes: string[]): void {
 export function assertKeysDefined(object: any, keys: string[]): void {
   for (const key of keys) {
     if (object[key] === undefined) {
-      throw new MongoshInvalidInputError(`Missing required property: ${JSON.stringify(key)}`, ShellApiErrors.GenericPropertyMissing);
+      throw new MongoshInvalidInputError(`Missing required property: ${JSON.stringify(key)}`, CommonErrors.InvalidArgument);
     }
   }
 }
@@ -121,14 +121,14 @@ export function processDigestPassword(
   if (passwordDigestor !== 'server' && passwordDigestor !== 'client') {
     throw new MongoshInvalidInputError(
       `Invalid field: passwordDigestor must be 'client' or 'server', got ${passwordDigestor}`,
-      ShellApiErrors.GenericDigestPasswordPasswordDigestorInvalid
+      CommonErrors.InvalidArgument
     );
   }
   if (passwordDigestor === 'client') {
     if (typeof command.pwd !== 'string') {
       throw new MongoshInvalidInputError(
         `User passwords must be of type string. Was given password with type ${typeof command.pwd}`,
-        ShellApiErrors.GenericDigestPasswordPasswordInvalid
+        CommonErrors.InvalidArgument
       );
     }
     const hash = crypto.createHash('md5');
@@ -163,7 +163,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
   if (version === null) {
     throw new MongoshInvalidInputError(
       'This db does not have sharding enabled. Be sure you are connecting to a mongos from the shell and not to a mongod.',
-      ShellApiErrors.ShardPrintableShardStatusDbNoSharding
+      ShellApiErrors.NoSharding
     );
   }
 
@@ -461,7 +461,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 export async function getConfigDB(db: Database): Promise<any> {
   const isM = await db._runAdminCommand({ isMaster: 1 });
   if (isM.msg !== 'isdbgrid') {
-    throw new MongoshInvalidInputError('Not connected to a mongos', ShellApiErrors.GenericNoMongos);
+    throw new MongoshInvalidInputError('Not connected to a mongos', ShellApiErrors.NotConnectedToMongos);
   }
   return db.getSiblingDB('config');
 }

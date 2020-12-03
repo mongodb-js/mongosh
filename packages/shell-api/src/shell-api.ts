@@ -1,22 +1,17 @@
 /* eslint-disable new-cap */
-import {
-  shellApiClassDefault,
-  hasAsyncChild,
-  ShellApiClass,
-  returnsPromise,
-  returnType,
-  platforms
-} from './decorators';
-import { CursorIterationResult } from './result';
-import Mongo from './mongo';
+import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
+import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import Database from './database';
-import { CommandResult } from './result';
-import ShellInternalState from './shell-internal-state';
-import { assertArgsDefined } from './helpers';
-import { ReplPlatform, DEFAULT_DB } from '@mongosh/service-provider-core';
-import { MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  hasAsyncChild,
+  platforms, returnsPromise,
+  returnType, ShellApiClass, shellApiClassDefault
+} from './decorators';
 import { DBQuery } from './deprecated';
-import { ShellApiErrors } from './error-codes';
+import { assertArgsDefined } from './helpers';
+import Mongo from './mongo';
+import { CommandResult, CursorIterationResult } from './result';
+import ShellInternalState from './shell-internal-state';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -47,7 +42,7 @@ export default class ShellApi extends ShellApiClass {
     } else {
       throw new MongoshUnimplementedError(
         `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
-        ShellApiErrors.ShellApiPlatformUnsupported
+        CommonErrors.NotImplemented
       );
     }
   }
@@ -63,7 +58,7 @@ export default class ShellApi extends ShellApiClass {
         `new Mongo connection are not supported for current platform: ${
           ReplPlatform[this.internalState.initialServiceProvider.platform]
         }`,
-        ShellApiErrors.ShellApiPlatformUnsupported
+        CommonErrors.NotImplemented
       );
     }
     const mongo = new Mongo(this.internalState, uri, options);
@@ -102,7 +97,7 @@ export default class ShellApi extends ShellApiClass {
     throw new MongoshUnimplementedError(
       'load is not currently implemented. If you are running mongosh from the CLI ' +
       'then you can use .load <filename> as an alternative.',
-      ShellApiErrors.ShellApiLoadUnsupported
+      CommonErrors.NotImplemented
     );
   }
 
@@ -123,7 +118,7 @@ export default class ShellApi extends ShellApiClass {
   async passwordPrompt(): Promise<string> {
     const { evaluationListener } = this.internalState;
     if (!evaluationListener.onPrompt) {
-      throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', ShellApiErrors.ShellApiPasswordPromptUnsupported);
+      throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', CommonErrors.NotImplemented);
     }
     return await evaluationListener.onPrompt('Enter password', 'password');
   }

@@ -1,15 +1,28 @@
 /* eslint-disable complexity */
-import Mongo from './mongo';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+  MongoshUnimplementedError,
+  MongoshInternalError
+} from '@mongosh/errors';
+import { HIDDEN_COMMANDS } from '@mongosh/history';
+import {
+  Document,
+  WriteConcern,
+  ChangeStreamOptions
+} from '@mongosh/service-provider-core';
 import Collection from './collection';
 import {
-  shellApiClassDefault,
-  returnsPromise,
+  hasAsyncChild, returnsPromise,
   returnType,
-  hasAsyncChild,
-  ShellApiClass,
-  serverVersions
+
+
+  serverVersions, ShellApiClass, shellApiClassDefault
 } from './decorators';
-import { ServerVersions, ADMIN_DB, asPrintable } from './enums';
+import { ADMIN_DB, asPrintable, ServerVersions } from './enums';
+import { ShellApiErrors } from './error-codes';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -17,23 +30,11 @@ import {
   assertKeysDefined, getPrintableShardStatus,
   processDigestPassword, tsToSeconds
 } from './helpers';
-
-import {
-  Document,
-  WriteConcern,
-  ChangeStreamOptions
-} from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
-import {
-  MongoshInternalError,
-  MongoshInvalidInputError,
-  MongoshRuntimeError,
-  MongoshUnimplementedError
-} from '@mongosh/errors';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
+import Mongo from './mongo';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
-import { ShellApiErrors } from './error-codes';
+
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -273,7 +274,7 @@ export default class Database extends ShellApiClass {
     assertArgsType([coll], ['string']);
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!coll.trim()) {
-      throw new MongoshInvalidInputError('Collection name cannot be empty.', ShellApiErrors.DatabaseGetCollectionNameEmpty);
+      throw new MongoshInvalidInputError('Collection name cannot be empty.', CommonErrors.InvalidArgument);
     }
 
     const collections: Record<string, Collection> = this._collections;
@@ -299,7 +300,7 @@ export default class Database extends ShellApiClass {
     assertKeysDefined(user, ['user', 'roles', 'pwd']);
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
-      throw new MongoshInvalidInputError('Cannot set createUser field in helper method', ShellApiErrors.DatabaseCreateUserNoCreateUser);
+      throw new MongoshInvalidInputError('Cannot set createUser field in helper method', CommonErrors.InvalidArgument);
     }
     const command = adaptOptions(
       { user: 'createUser', passwordDigestor: null },
@@ -323,7 +324,7 @@ export default class Database extends ShellApiClass {
     if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
       throw new MongoshInvalidInputError(
         `Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`,
-        ShellApiErrors.DatabaseUpdateUserPasswordDigestorInvalid
+        CommonErrors.InvalidArgument
       );
     }
 
@@ -407,19 +408,19 @@ export default class Database extends ShellApiClass {
     } else {
       throw new MongoshInvalidInputError(
         'auth expects (username), (username, password), or ({ user: username, pwd: password })',
-        ShellApiErrors.DatabaseAuthArgsInvalid
+        CommonErrors.InvalidArgument
       );
     }
     if (!authDoc.user || !authDoc.pwd) {
       throw new MongoshInvalidInputError(
         'auth expects user document with \'user\' and \'pwd\' fields',
-        ShellApiErrors.DatabaseAuthArgsInvalid
+        CommonErrors.InvalidArgument
       );
     }
     if ('digestPassword' in authDoc) {
       throw new MongoshUnimplementedError(
         'digestPassword is not supported for authentication.',
-        ShellApiErrors.DatabaseAuthDigestPasswordUnsupported
+        CommonErrors.NotImplemented
       );
     }
     authDoc.authDb = this._name;
@@ -520,7 +521,7 @@ export default class Database extends ShellApiClass {
     if (role.createRole) {
       throw new MongoshInvalidInputError(
         'Cannot set createRole field in helper method',
-        ShellApiErrors.DatabaseCreateRoleNoCreateRole
+        CommonErrors.InvalidArgument
       );
     }
     const command = adaptOptions(
@@ -725,7 +726,7 @@ export default class Database extends ShellApiClass {
     if (!info || info.version === undefined) {
       throw new MongoshRuntimeError(
         `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
-        ShellApiErrors.DatabaseServerBuildInfoFailed
+        CommonErrors.CommandFailed
       );
     }
     return info.version;
@@ -742,7 +743,7 @@ export default class Database extends ShellApiClass {
     if (!info || info.bits === undefined) {
       throw new MongoshRuntimeError(
         `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
-        ShellApiErrors.DatabaseServerBuildInfoFailed
+        CommonErrors.CommandFailed
       );
     }
     return info.bits;
@@ -814,7 +815,7 @@ export default class Database extends ShellApiClass {
     if (typeof scale !== 'number' || scale < 1) {
       throw new MongoshInvalidInputError(
         `scale has to be a number >=1, got ${scale}`,
-        ShellApiErrors.DatabasePrintCollectionStatsScaleInvalid
+        CommonErrors.InvalidArgument
       );
     }
     this._emitDatabaseApiCall('printCollectionStats', { scale: scale });
@@ -858,7 +859,7 @@ export default class Database extends ShellApiClass {
     if (!isMaster.ismaster) {
       throw new MongoshInvalidInputError(
         'db.enableFreeMonitoring() may only be run on a primary',
-        ShellApiErrors.DatabaseEnableFreeMonitoringNotPrimary
+        CommonErrors.InvalidOperation
       );
     }
 
@@ -887,7 +888,7 @@ export default class Database extends ShellApiClass {
     } else if (error || !result || !result.ok) {
       throw new MongoshRuntimeError(
         `Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`,
-        ShellApiErrors.DatabaseEnableFreeMonitoringFailed
+        CommonErrors.CommandFailed
       );
     }
     if (result.state !== 'enabled') {
@@ -920,7 +921,7 @@ export default class Database extends ShellApiClass {
     if (level < 0 || level > 2) {
       throw new MongoshInvalidInputError(
         `Input level ${level} is out of range [0..2]`,
-        ShellApiErrors.DatabaseSetProfilingLevelLevelInvalid
+        CommonErrors.InvalidArgument
       );
     }
     if (typeof opts === 'number') {
@@ -945,7 +946,7 @@ export default class Database extends ShellApiClass {
     } else if (component !== undefined) {
       throw new MongoshInvalidInputError(
         `setLogLevel component must be a string: got ${typeof component}`,
-        ShellApiErrors.DatabaseSetLogLevelComponentInvalid
+        CommonErrors.InvalidArgument
       );
     }
     let vDoc: any = { verbosity: logLevel };
@@ -974,31 +975,22 @@ export default class Database extends ShellApiClass {
     if (!result || result.logComponentVerbosity === undefined) {
       throw new MongoshRuntimeError(
         `Error running command  ${result ? result.errmsg || '' : ''}`,
-        ShellApiErrors.DatabaseGetLogComponentsFailed
+        CommonErrors.CommandFailed
       );
     }
     return result.logComponentVerbosity;
   }
 
   cloneDatabase(): void {
-    throw new MongoshUnimplementedError(
-      '`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0',
-      ShellApiErrors.DatabaseCloneDatabaseRemoved
-    );
+    throw new MongoshDeprecatedError('`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
 
   cloneCollection(): void {
-    throw new MongoshUnimplementedError(
-      '`cloneCollection()` was removed because it was deprecated in MongoDB 4.0',
-      ShellApiErrors.DatabaseCloneCollectionRemoved
-    );
+    throw new MongoshDeprecatedError('`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
   }
 
   copyDatabase(): void {
-    throw new MongoshUnimplementedError(
-      '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0',
-      ShellApiErrors.DatabaseCopyDatabaseRemoved
-    );
+    throw new MongoshDeprecatedError('`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
 
   async commandHelp(name: string): Promise<Document> {
@@ -1014,7 +1006,7 @@ export default class Database extends ShellApiClass {
     if (!result || result.help === undefined) {
       throw new MongoshRuntimeError(
         `Error running command commandHelp ${result ? result.errmsg || '' : ''}`,
-        ShellApiErrors.DatabaseCommandHelpFailed
+        CommonErrors.CommandFailed
       );
     }
     return result.help;
@@ -1031,7 +1023,7 @@ export default class Database extends ShellApiClass {
     if (!result || result.commands === undefined) {
       throw new MongoshRuntimeError(
         `Error running command listCommands ${result ? result.errmsg || '' : ''}`,
-        ShellApiErrors.DatabaseListCommandsFailed
+        CommonErrors.CommandFailed
       );
     }
     return new CommandResult('ListCommandsResult', result.commands);
@@ -1088,7 +1080,7 @@ export default class Database extends ShellApiClass {
       for (const node of status.members) {
         const nodeResult = {} as any;
         if (node === null || node === undefined) {
-          throw new MongoshInternalError('Member returned from command replSetGetStatus is null');
+          throw new MongoshRuntimeError('Member returned from command replSetGetStatus is null', CommonErrors.CommandFailed);
         }
         if (node.state === 1 || node.state === 7) { // ignore primaries (1) and arbiters (7)
           continue;
@@ -1097,7 +1089,7 @@ export default class Database extends ShellApiClass {
         if (node.optime && node.health !== 0) {
           // get repl lag
           if (startOptimeDate === null || startOptimeDate === undefined) {
-            throw new MongoshInternalError('getReplLag startOptimeDate is null');
+            throw new MongoshRuntimeError('getReplLag startOptimeDate is null', CommonErrors.CommandFailed);
           }
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();
@@ -1121,7 +1113,7 @@ export default class Database extends ShellApiClass {
     }
     throw new MongoshInvalidInputError(
       'local.system.replset is empty. Are you connected to a replica set?',
-      ShellApiErrors.DatabasePrintSecondaryReplicationInfoNoReplicaSet
+      ShellApiErrors.NotConnectedToReplicaSet
     );
   }
 
@@ -1137,7 +1129,7 @@ export default class Database extends ShellApiClass {
     } else {
       throw new MongoshInvalidInputError(
         'Replication not detected. Are you connected to a replset?',
-        ShellApiErrors.DatabaseGetReplicationInfoNoReplicaSet
+        ShellApiErrors.NotConnectedToReplicaSet
       );
     }
 
@@ -1149,7 +1141,7 @@ export default class Database extends ShellApiClass {
     } else {
       throw new MongoshRuntimeError(
         `Could not get stats for local. ${oplog} collection. collstats returned ${JSON.stringify(olStats)}`,
-        ShellApiErrors.DatabaseGetReplicationInfoLocalStatsFailed
+        CommonErrors.CommandFailed
       );
     }
 
@@ -1161,7 +1153,7 @@ export default class Database extends ShellApiClass {
     if (first === null || last === null) {
       throw new MongoshRuntimeError(
         'objects not found in local.oplog.$main -- is this a new and empty db instance?',
-        ShellApiErrors.DatabasGetReplicationInfoLocalOplogEmpty
+        CommonErrors.CommandFailed
       );
     }
 
@@ -1211,10 +1203,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
-    throw new MongoshInvalidInputError(
-      'Method deprecated, use db.printSecondaryReplicationInfo instead',
-      ShellApiErrors.DatabasePrintSlaveReplicationInfoRemoved
-    );
+    throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])

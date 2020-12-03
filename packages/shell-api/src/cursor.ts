@@ -1,5 +1,10 @@
-import Mongo from './mongo';
-import { CursorIterationResult } from './result';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  Cursor as ServiceProviderCursor,
+  CursorFlag,
+  CURSOR_FLAGS,
+  Document
+} from '@mongosh/service-provider-core';
 import {
   hasAsyncChild,
   returnsPromise,
@@ -10,22 +15,11 @@ import {
   toShellResult
 } from './decorators';
 import {
-  ServerVersions,
-  asPrintable,
-  CURSOR_FLAGS
+  asPrintable, ServerVersions
 } from './enums';
-import {
-  FindCursor as ServiceProviderCursor,
-  CursorFlag,
-  Document,
-  CollationOptions,
-  ExplainVerbosityLike, ReadPreferenceMode
-} from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { iterate } from './helpers';
-import { printWarning } from './deprecation-warning';
-
-import { ShellApiErrors } from './error-codes';
+import { blockedByDriverMetadata } from './error-codes';
+import Mongo from './mongo';
+import { CursorIterationResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -68,13 +62,13 @@ export default class Cursor extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
     if (optionFlagNumber === 4) {
-      throw new MongoshUnimplementedError('the slaveOk option is not supported.', ShellApiErrors.CursorAddOptionSlaveOkUnsupported);
+      throw new MongoshUnimplementedError('the slaveOk option is not supported.', CommonErrors.NotImplemented);
     }
 
     const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
-      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`, ShellApiErrors.CursorAddOptionUnknownFlag);
+      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`, CommonErrors.InvalidArgument);
     }
 
     this._cursor.addCursorFlag(optionFlag, true);
@@ -262,7 +256,11 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   readPref(mode: ReadPreferenceMode, tagSet?: Document[]): Cursor {
     if (tagSet) {
-      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.', ShellApiErrors.CursorReadPrefTagSetUnsupported);
+      throw new MongoshUnimplementedError(
+        'the tagSet argument is not yet supported.',
+        CommonErrors.NotImplemented,
+        blockedByDriverMetadata('Cursor.readPref#tagSet')
+      );
     }
 
     this._cursor.setReadPreference(mode);
@@ -317,9 +315,8 @@ export default class Cursor extends ShellApiClass {
 
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
-    throw new MongoshUnimplementedError(
-      '`maxScan()` was removed because it was deprecated in MongoDB 4.0',
-      ShellApiErrors.CusrorMaxScanRemoved
+    throw new MongoshDeprecatedError(
+      '`maxScan()` was removed because it was deprecated in MongoDB 4.0'
     );
   }
 
@@ -337,7 +334,8 @@ export default class Cursor extends ShellApiClass {
   readConcern(): Cursor {
     throw new MongoshUnimplementedError(
       'Setting readConcern on the cursor is not currently supported. See NODE-2806',
-      ShellApiErrors.CursorReadConcernNotSupported
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('Cursor.readConcern')
     );
   }
 }

@@ -1,17 +1,16 @@
-import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
-import Mongo from './mongo';
-import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
-  Document,
-  WriteConcern,
-  ServiceProviderBulkOp,
-  ServiceProviderBulkFindOp,
-  BulkBatch
+  BulkBatch, Document,
+
+
+  ServiceProviderBulkFindOp, ServiceProviderBulkOp, WriteConcern
 } from '@mongosh/service-provider-core';
+import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
 import { asPrintable } from './enums';
+import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefined } from './helpers';
+import Mongo from './mongo';
 import { BulkWriteResult } from './result';
-import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiClass {
@@ -35,7 +34,8 @@ export class BulkFindOp extends ShellApiClass {
       'collation method on fluent Bulk API is not currently supported. ' +
       'As an alternative, consider using the \'db.collection.bulkWrite(...)\' helper ' +
       'which accepts \'collation\' as a field in the operations.',
-      ShellApiErrors.BulkUnimplementedCollation
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('BulkFindOp.arrayFilters')
     );
   }
 
@@ -43,7 +43,8 @@ export class BulkFindOp extends ShellApiClass {
   arrayFilters(): BulkFindOp {
     throw new MongoshUnimplementedError(
       'arrayFilters method on fluent Bulk API is not currently supported.',
-      ShellApiErrors.BulkUnimplementedArrayFilters
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('BulkFindOp.arrayFilters')
     );
   }
 
@@ -244,7 +245,7 @@ export default class Bulk extends ShellApiClass {
     if (!this._executed) {
       throw new MongoshInvalidInputError(
         'Cannot call getOperations on an unexecuted Bulk operation',
-        ShellApiErrors.BulkGetOperationsBeforeExecute
+        CommonErrors.InvalidOperation
       );
     }
     return this._batches.map((b) => ({
