@@ -304,19 +304,9 @@ class MlaunchSetup extends MongodSetup {
     }
 
     // Make sure mongod and mongos are accessible
-    const mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
-    try {
-      await Promise.all([which('mongod'), which('mongos')]);
-      if (mongodVersion) {
-        const { stdout } = await execFile('mongod', ['--version']);
-        const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
-        if (!semver.satisfies(version, mongodVersion)) {
-          console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
-          throw new Error();
-        }
-      }
-    } catch {
-      args.unshift('--binarypath', await downloadMongoDb(mongodVersion));
+    const binarypath = await ensureMongodAvailable();
+    if (binarypath) {
+      args.unshift('--binarypath', binarypath);
     }
 
     if (await statIfExists(this._mlaunchdir)) {
@@ -340,6 +330,22 @@ class MlaunchSetup extends MongodSetup {
   }
 }
 
+export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION): Promise<string | null> {
+  try {
+    await Promise.all([which('mongod'), which('mongos')]);
+    if (mongodVersion) {
+      const { stdout } = await execFile('mongod', ['--version']);
+      const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
+      if (!semver.satisfies(version, mongodVersion)) {
+        console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
+        throw new Error();
+      }
+    }
+    return null;
+  } catch {
+    return await downloadMongoDb(mongodVersion);
+  }
+}
 
 /**
  * Starts a local server unless the `MONGOSH_TEST_SERVER_URL`
