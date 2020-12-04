@@ -66,7 +66,7 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
         // with a non-standard length.
         // eslint-disable-next-line no-fallthrough
       default:
-        return `Binary("${asBuffer.toString('base64')}", ${this.sub_type})`;
+        return `Binary(Buffer.from("${asBuffer.toString('hex')}", "hex"), ${this.sub_type})`;
     }
   },
 };
