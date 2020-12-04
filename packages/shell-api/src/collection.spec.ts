@@ -332,7 +332,8 @@ describe('Collection', () => {
           expect(serviceProvider.createIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [{ key: { x: 1 }, name: 'index-1' }]
+            [{ key: { x: 1 }, name: 'index-1' }],
+            { name: 'index-1' }
           );
         });
       });
@@ -375,7 +376,8 @@ describe('Collection', () => {
             expect(serviceProvider.createIndexes).to.have.been.calledWith(
               'db1',
               'coll1',
-              [{ key: { x: 1 }, name: 'index-1' }]
+              [{ key: { x: 1 }, name: 'index-1' }],
+              { name: 'index-1' }
             );
           });
         });
@@ -1227,13 +1229,13 @@ describe('Collection', () => {
     let internalSession: StubbedInstance<ServiceProviderSession>;
     const exceptions = {
       renameCollection: { a: ['name'] },
-      createIndexes: { a: [[]], i: 4 },
+      createIndexes: { a: [[]] },
       runCommand: { a: ['coll', {} ], m: 'runCommandWithCheck', i: 2 },
       findOne: { m: 'find' },
       insert: { m: 'insertMany' },
       update: { m: 'updateOne', i: 4 },
-      createIndex: { m: 'createIndexes', i: 2 },
-      ensureIndex: { m: 'createIndexes', i: 2 },
+      createIndex: { m: 'createIndexes' },
+      ensureIndex: { m: 'createIndexes' },
       getIndexSpecs: { m: 'getIndexes', i: 2 },
       getIndices: { m: 'getIndexes', i: 2 },
       getIndexKeys: { m: 'getIndexes', i: 2 },
@@ -1306,7 +1308,7 @@ describe('Collection', () => {
           } catch (e) {
             expect.fail(`Collection.${method} failed, error thrown ${e.message}`);
           }
-          expect(serviceProvider[method].calledOnce).to.equal(true, `expected ${method} to be called but it was not`);
+          expect(serviceProvider[method].calledOnce).to.equal(true, `expected sp.${method} to be called but it was not`);
           expect((serviceProvider[method].getCall(-1).args[3] as any).session).to.equal(internalSession);
         }
       }
@@ -1321,14 +1323,14 @@ describe('Collection', () => {
         } catch (e) {
           expect.fail(`${method} failed, error thrown ${e.message}`);
         }
-        expect(serviceProvider[customM].called).to.equal(true, `expecting ${customM} to be called but it was not`);
+        expect(serviceProvider[customM].called).to.equal(true, `expecting sp.${customM} to be called but it was not`);
         const call = serviceProvider[customM].getCall(-1).args[customI];
         if (Array.isArray(call)) {
           for (const k of call) {
-            expect(k.session).to.equal(internalSession);
+            expect(k.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
           }
         } else {
-          expect(call.session).to.equal(internalSession);
+          expect(call.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
         }
       }
     });
