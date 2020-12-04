@@ -1104,7 +1104,7 @@ export default class Collection extends ShellApiClass {
           (error.errmsg === 'invalid index name spec' || error.errmsg === undefined) &&
           Array.isArray(indexes) &&
           indexes.length > 0 &&
-          (await this._mongo._serverVersion()).match(/^4\.0\./)) {
+          (await this._database.version()).match(/^4\.0\./)) {
         const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
         const errored = all.find(result => !result.ok);
         if (errored) return errored;

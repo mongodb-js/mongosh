@@ -37,7 +37,6 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _serverVersionCached: Promise<string> | null = null;
   private _options: Document;
 
   constructor(
@@ -237,12 +236,5 @@ export default class Mongo extends ShellApiClass {
     );
     this._internalState.currentCursor = cursor;
     return cursor;
-  }
-
-  _serverVersion(): Promise<string> {
-    this._serverVersionCached ??= (async() => {
-      return (await this._serviceProvider.runCommandWithCheck('admin', { buildInfo: 1 }, {})).version;
-    })();
-    return this._serverVersionCached;
   }
 }
