@@ -50,16 +50,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun buildInfo(): Value = promise<Any?> {
-        Left(NotImplementedError())
-    }
-
-    @HostAccess.Export
-    override fun getCmdLineOpts(): Value = promise<Any?> {
-        Left(NotImplementedError())
-    }
-
-    @HostAccess.Export
     override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
         val document = toDocument(document, "document")
         val dbOptions = toDocument(dbOptions, "dbOptions")
@@ -492,11 +482,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun convertToCapped(database: String, collection: String, size: Number, options: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
-    }
-
-    @HostAccess.Export
     override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options") ?: Document()
         getDatabase(database, null).flatMap { db ->
@@ -549,29 +534,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
                 db.getCollection(collection).createIndexes(indexes)
             }
         }
-    }
-
-    @HostAccess.Export
-    override fun dropIndexes(database: String, collection: String, indexes: Value?, options: Value?): Value = promise<Any?> {
-        val indexes = if (indexes != null && !indexes.isNull) indexes else throw IllegalArgumentException("Indexes parameter must not be null")
-        val indexesList = if (indexes.hasArrayElements()) toList(indexes, "indexes")!!
-        else listOf(converter.toJava(indexes).value)
-        getDatabase(database, null).map { db ->
-            val coll = db.getCollection(collection)
-            indexesList.forEach { index ->
-                when (index) {
-                    is String -> coll.dropIndex(index)
-                    is Document -> coll.dropIndex(index)
-                    else -> throw IllegalArgumentException("Unknown index specification $index")
-                }
-            }
-
-        }
-    }
-
-    @HostAccess.Export
-    override fun reIndex(database: String, collection: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
     }
 
     @HostAccess.Export

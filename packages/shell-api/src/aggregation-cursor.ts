@@ -61,6 +61,13 @@ export default class AggregationCursor extends ShellApiClass {
     return this._cursor.tryNext();
   }
 
+  async* [Symbol.asyncIterator]() {
+    let doc;
+    while ((doc = await this.tryNext()) !== null) {
+      yield doc;
+    }
+  }
+
   isClosed(): boolean {
     return this._cursor.closed;
   }

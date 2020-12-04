@@ -6,8 +6,6 @@ import org.graalvm.polyglot.Value
  * see service-provider-core/src/admin.ts
  */
 internal interface AdminServiceProvider {
-    fun buildInfo(): Value
-    fun getCmdLineOpts(): Value
     fun listDatabases(database: String): Value
     fun getNewConnection(uri: String, options: Value?): Value
     fun getConnectionInfo(): Value

@@ -320,25 +320,6 @@ export default interface Writable {
     dbOptions?: DbOptions): Promise<DeleteResult>;
 
   /**
-   * Converts an existing, non-capped collection to
-   * a capped collection within the same database.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {String} size - The maximum size, in bytes, for the capped collection.
-   * @param {CommandOptions} options - The command options
-   *
-   * @param dbOptions
-   * @return {Promise}
-   */
-  convertToCapped(
-    database: string,
-    collection: string,
-    size: number,
-    options?: RunCommandOptions,
-    dbOptions?: DbOptions): Promise<Document>;
-
-  /**
    * Adds new indexes to a collection.
    *
    * @param {String} database - The db name.
@@ -354,39 +335,6 @@ export default interface Writable {
     indexSpecs: Document[],
     options?: CreateIndexesOptions,
     dbOptions?: DbOptions): Promise<Document>;
-
-  /**
-   * Drop indexes for a collection.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {string|string[]|Object|Object[]} indexes the indexes to be removed.
-   * @param {CommandOptions} commandOptions - The command options.
-   * @param {DbOptions} dbOptions - The database options
-   * @return {Promise}
-   */
-  dropIndexes(
-    database: string,
-    collection: string,
-    indexes: string|string[]|Document|Document[],
-    commandOptions?: RunCommandOptions,
-    dbOptions?: DbOptions): Promise<Document>;
-
-  /**
-   * Reindex all indexes on the collection.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {CommandOptions} options - The command options.
-   * @param {DbOptions} dbOptions - The database options
-   * @return {Promise}
-   */
-  reIndex(
-    database: string,
-    collection: string,
-    options?: RunCommandOptions,
-    dbOptions?: DbOptions
-  ): Promise<Document>;
 
   /**
    * Drops a collection.

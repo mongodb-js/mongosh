@@ -29,20 +29,6 @@ export default interface Admin {
    */
   bsonLibrary: any;
 
-   /**
-   * Returns buildInfo.
-   *
-   * @returns {Promise} buildInfo object.
-   */
-  buildInfo(): Promise<Document>;
-
-  /**
-   * Returns the cmdLineOpts.
-   *
-   * @returns {Promise} The server version.
-   */
-  getCmdLineOpts(): Promise<Document>;
-
   /**
    * list databases.
    *
