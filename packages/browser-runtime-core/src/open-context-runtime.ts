@@ -41,7 +41,7 @@ export class OpenContextRuntime implements Runtime {
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
       await this.internalState.fetchConnectionInfo();
-      this.autocompleter = new ShellApiAutocompleter(this.internalState.connectionInfo.buildInfo.version);
+      this.autocompleter = new ShellApiAutocompleter(this.internalState.getAutocompleteParameters());
     }
 
     return this.autocompleter.getCompletions(code);

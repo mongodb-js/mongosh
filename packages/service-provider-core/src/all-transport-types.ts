@@ -55,5 +55,6 @@ export type {
   WriteConcern,
   ObjectId as ObjectIdType,
   Timestamp as TimestampType,
-  Binary as BinaryType
+  Binary as BinaryType,
+  TopologyType
 } from 'mongodb';

@@ -14,16 +14,22 @@ import {
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
-import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
+import { Topologies } from './enums';
 
 export interface ShellCliOptions {
   nodb?: boolean;
+}
+
+export interface AutocompleteParameters {
+  topology: () => Topologies;
+  connectionInfo: () => ConnectInfo | undefined;
 }
 
 export interface EvaluationListener {
@@ -199,5 +205,30 @@ export default class ShellInternalState {
 
   public setEvaluationListener(listener: EvaluationListener): void {
     this.evaluationListener = listener;
+  }
+
+  public getAutocompleteParameters(): AutocompleteParameters {
+    return {
+      topology: () => {
+        let topology: Topologies;
+        const topologyType: TopologyType | undefined = this.connectionInfo.topology?.description?.type;
+        switch (topologyType) {
+          case 'ReplicaSetNoPrimary':
+          case 'ReplicaSetWithPrimary':
+            topology = Topologies.ReplSet;
+            break;
+          case 'Sharded':
+            topology = Topologies.Sharded;
+            break;
+          default:
+            topology = Topologies.Standalone;
+            break;
+        }
+        return topology;
+      },
+      connectionInfo: () => {
+        return this.connectionInfo.extraInfo;
+      }
+    };
   }
 }
