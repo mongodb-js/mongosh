@@ -39,15 +39,15 @@ describe('e2e', function() {
     });
     it('db throws', async() => {
       await shell.executeLine('db');
-      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
     });
     it('show dbs throws InvalidInput', async() => {
       await shell.executeLine('show dbs');
-      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
     });
     it('db.coll.find() throws InvalidInput', async() => {
       await shell.executeLine('db.coll.find()');
-      shell.assertContainsError('MongoshInvalidInputError: No connected database');
+      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
       // We're seeing the prompt and not a stack trace.
       expect(shell.output).to.include('No connected database\n> ');
     });

@@ -5,6 +5,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } fr
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 chai.use(sinonChai);
 const { expect } = chai;
 
@@ -88,11 +89,25 @@ describe('Cursor', () => {
       });
 
       it('throws if a SlaveOk flag passed', () => {
-        expect(() => shellApiCursor.addOption(4)).to.throw('the slaveOk option is not supported.');
+        try {
+          shellApiCursor.addOption(4);
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e.message).to.contain('the slaveOk option is not supported.');
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
+        }
       });
 
       it('throws if an unknown flag passed', () => {
-        expect(() => shellApiCursor.addOption(123123)).to.throw('Unknown option flag number: 123123');
+        try {
+          shellApiCursor.addOption(123123);
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('Unknown option flag number: 123123');
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
       });
     });
 
@@ -415,7 +430,16 @@ describe('Cursor', () => {
       });
 
       it('throws MongoshUnimplementedError if tagset is passed', () => {
-        expect(() => shellApiCursor.readPref(value, [])).to.throw('the tagSet argument is not yet supported.');
+        try {
+          shellApiCursor.readPref(value, []);
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e.message).to.contain('the tagSet argument is not yet supported.');
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Cursor.readPref#tagSet');
+        }
       });
     });
 
@@ -652,8 +676,13 @@ describe('Cursor', () => {
       });
 
       it('throws a helpful exception regarding its removal', () => {
-        expect(() => shellApiCursor.maxScan()).to.throw(
-          '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+        try {
+          shellApiCursor.maxScan();
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshDeprecatedError);
+          expect(e.message).to.contain('`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+        }
       });
     });
 
@@ -687,6 +716,29 @@ describe('Cursor', () => {
         const result3 = (await toShellResult(shellApiCursor)).printable;
         expect(result1).to.not.deep.equal(result3);
         expect(i).to.equal(40);
+      });
+    });
+
+    describe('#readConcern', () => {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('throws an error linking the ticket', () => {
+        try {
+          shellApiCursor.readConcern();
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshUnimplementedError);
+          expect(e.message).to.contain('NODE-2806');
+          expect(e.code).to.equal(CommonErrors.NotImplemented);
+          expect(e.metadata?.driverCaused).to.equal(true);
+          expect(e.metadata?.api).to.equal('Cursor.readConcern');
+        }
       });
     });
   });

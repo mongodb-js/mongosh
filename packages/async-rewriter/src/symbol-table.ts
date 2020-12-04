@@ -2,6 +2,7 @@ import {
   MongoshInternalError,
   MongoshInvalidInputError
 } from '@mongosh/errors';
+import { AsyncRewriterErrors } from './error-codes';
 /* eslint no-console:0 */
 
 export function addApi(newobj): any {
@@ -51,7 +52,7 @@ export default class SymbolTable {
     try {
       return JSON.parse(JSON.stringify(symbol, this.replacer));
     } catch (error) {
-      throw new MongoshInternalError(`Internal error occurred for copying symbol ${symbol.type}. Please file a bug and attach the logfile.`);
+      throw new MongoshInternalError(`Internal error occurred for copying symbol ${symbol.type}.`);
     }
   }
 
@@ -83,7 +84,7 @@ export default class SymbolTable {
     try {
       return (JSON.stringify(t1, this.replacer) === JSON.stringify(t2, this.replacer));
     } catch (error) {
-      throw new MongoshInternalError(`Internal error occurred for comparing symbols ${t1.type} and ${t2.type}. Please file a bug and attach the logfile.`);
+      throw new MongoshInternalError(`Internal error occurred for comparing symbols ${t1.type} and ${t2.type}.`);
     }
   }
 
@@ -141,7 +142,7 @@ export default class SymbolTable {
 
   private checkIfApi(key): void {
     if (key !== 'db' && key in this.scopeAt(0)) {
-      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`);
+      throw new MongoshInvalidInputError(`Cannot modify Mongosh type ${key}`, AsyncRewriterErrors.ModifyMongoshType);
     }
   }
 
@@ -197,7 +198,7 @@ export default class SymbolTable {
     this.checkIfApi(lhs);
     const item = this.lookup(lhs);
     if (item.api) {
-      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`);
+      throw new MongoshInvalidInputError(`Cannot modify attribute of Mongosh type ${lhs}`, AsyncRewriterErrors.ModifyMongoshType);
     }
     keys.reduce((sym, key, i) => {
       if (sym.type === 'unknown') {
@@ -291,7 +292,7 @@ export default class SymbolTable {
       const keys = new Set();
       alternates.forEach((st) => {
         if (this.depth !== st.depth) {
-          throw new MongoshInternalError('Could not compare scopes. ');
+          throw new MongoshInternalError('Could not compare scopes.');
         }
         Object.keys(st.scopeAt(i)).forEach(k => keys.add(k));
       });
@@ -304,7 +305,7 @@ export default class SymbolTable {
           // Otherwise, check if any of the alternatives has that key as a Shell API type.
           const hasAsync = alternates.some((a) => a.scopeAt(i)[k] !== undefined && (a.scopeAt(i)[k].hasAsyncChild || a.scopeAt(i)[k].returnsPromise));
           if (hasAsync) {
-            throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`);
+            throw new MongoshInvalidInputError(`Cannot conditionally assign Mongosh API types. Type type of ${k} is unable to be inferred. Try using a locally scoped variable instead.`, AsyncRewriterErrors.MixedApiTypeInScope);
           } else {
             // Types differ, but none are async, so can safely just call it unknown.
             thisScope[k] = { type: 'unknown', attributes: {} };

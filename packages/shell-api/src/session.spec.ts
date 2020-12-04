@@ -15,6 +15,7 @@ import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 describe('Session', () => {
   describe('help', () => {
@@ -65,10 +66,21 @@ describe('Session', () => {
       expect((await toShellResult(session)).printable).to.deep.equal(serviceProviderSession.id);
       expect((await toShellResult(session.help)).type).to.equal('Help');
     });
-    it('getDatabase', () => {
-      const db = session.getDatabase('test');
-      expect(db).to.deep.equal(new Database(mongo, 'test', session));
-      expect(session.getDatabase('test')).to.equal(db); // reuses db
+    describe('getDatabase', () => {
+      it('works for a regular database', () => {
+        const db = session.getDatabase('test');
+        expect(db).to.deep.equal(new Database(mongo, 'test', session));
+        expect(session.getDatabase('test')).to.equal(db); // reuses db
+      });
+      it('throws for an invalid name', () => {
+        try {
+          session.getDatabase('');
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      });
     });
     it('advanceOperationTime', () => {
       const ts = { ts: 1 } as any;
@@ -79,7 +91,11 @@ describe('Session', () => {
       try {
         session.advanceClusterTime();
       } catch (e) {
-        return expect(e.name).to.equal('MongoshUnimplementedError');
+        expect(e).to.be.instanceOf(MongoshUnimplementedError);
+        expect(e.code).to.equal(CommonErrors.NotImplemented);
+        expect(e.metadata?.driverCaused).to.equal(true);
+        expect(e.metadata?.api).to.equal('Session.advanceClusterTime');
+        return;
       }
       expect.fail('Error not thrown');
     });

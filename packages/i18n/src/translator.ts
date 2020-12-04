@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
+import { MongoshInternalError } from '@mongosh/errors';
 import Mustache from 'mustache';
 import type Catalog from './catalog';
-import en_US from './locales/en_US';
 import de_DE from './locales/de_DE';
-import { MongoshInternalError } from '@mongosh/errors';
+import en_US from './locales/en_US';
 
 /**
  * The default locale.

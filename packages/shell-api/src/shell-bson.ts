@@ -1,7 +1,7 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
 import { BinaryType, bson as BSON } from '@mongosh/service-provider-core';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
 function constructHelp(className: string): Help {
@@ -130,7 +130,7 @@ export default function constructShellBson(bson: any): any {
           return date;
         }
       }
-      throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`);
+      throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`, CommonErrors.InvalidArgument);
     },
     BinData: function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);

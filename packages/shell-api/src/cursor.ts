@@ -1,5 +1,4 @@
-import Mongo from './mongo';
-import { CursorIterationResult } from './result';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
   hasAsyncChild,
   returnsPromise,
@@ -21,10 +20,11 @@ import {
   CollationOptions,
   ExplainVerbosityLike, ReadPreferenceMode
 } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { blockedByDriverMetadata } from './error-codes';
 import { iterate } from './helpers';
+import Mongo from './mongo';
+import { CursorIterationResult } from './result';
 import { printWarning } from './deprecation-warning';
-
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -67,13 +67,13 @@ export default class Cursor extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
     if (optionFlagNumber === 4) {
-      throw new MongoshUnimplementedError('the slaveOk option is not supported.');
+      throw new MongoshUnimplementedError('the slaveOk option is not supported.', CommonErrors.NotImplemented);
     }
 
     const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
-      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`);
+      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`, CommonErrors.InvalidArgument);
     }
 
     this._cursor.addCursorFlag(optionFlag, true);
@@ -268,7 +268,11 @@ export default class Cursor extends ShellApiClass {
   @returnType('Cursor')
   readPref(mode: ReadPreferenceMode, tagSet?: Document[]): Cursor {
     if (tagSet) {
-      throw new MongoshUnimplementedError('the tagSet argument is not yet supported.');
+      throw new MongoshUnimplementedError(
+        'the tagSet argument is not yet supported.',
+        CommonErrors.NotImplemented,
+        blockedByDriverMetadata('Cursor.readPref#tagSet')
+      );
     }
 
     this._cursor.setReadPreference(mode);
@@ -323,8 +327,9 @@ export default class Cursor extends ShellApiClass {
 
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
-    throw new MongoshUnimplementedError(
-      '`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+    throw new MongoshDeprecatedError(
+      '`maxScan()` was removed because it was deprecated in MongoDB 4.0'
+    );
   }
 
   @returnType('Cursor')
@@ -339,6 +344,10 @@ export default class Cursor extends ShellApiClass {
   }
 
   readConcern(): Cursor {
-    throw new MongoshUnimplementedError('Setting readConcern on the cursor is not currently supported. See NODE-2806');
+    throw new MongoshUnimplementedError(
+      'Setting readConcern on the cursor is not currently supported. See NODE-2806',
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('Cursor.readConcern')
+    );
   }
 }

@@ -5,6 +5,8 @@ import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
+import { CliReplErrors } from './error-codes';
+import { MongoshInternalError } from '@mongosh/errors';
 
 describe('CliRepl', () => {
   let cliReplOptions: CliReplOptions;
@@ -98,6 +100,20 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
         expect((await log()).filter(entry => entry.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
       });
+
+      it('emits the error event when exit() fails', async() => {
+        const onerror = once(cliRepl.bus, 'mongosh:error');
+        try {
+          // calling exit will not "exit" since we are not stopping the process
+          cliRepl.exit(1);
+        } catch (e) {
+          const [emitted] = await onerror;
+          expect(emitted).to.be.instanceOf(MongoshInternalError);
+          expect((await log()).filter(entry => entry.stack?.startsWith('MongoshInternalError:'))).to.have.lengthOf(1);
+          return;
+        }
+        expect.fail('expected error');
+      });
     });
 
     context('during startup', () => {
@@ -149,7 +165,9 @@ describe('CliRepl', () => {
           try {
             await cliRepl.start('', {});
           } catch { /* not empty */ }
-          await onerror;
+          const [e] = await onerror;
+          expect(e.name).to.equal('MongoshWarning');
+          expect(e.code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
           process.version = process.versions.node;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';

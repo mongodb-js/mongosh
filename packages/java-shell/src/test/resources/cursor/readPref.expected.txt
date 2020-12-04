@@ -1,3 +1,3 @@
 [ { "_id": <ObjectID>, "a": "a" }, { "_id": <ObjectID>, "a": "A" }, { "_id": <ObjectID>, "a": "\u00E1" } ]
-java.lang.Exception: MongoshUnimplementedError: the tagSet argument is not yet supported.
-java.lang.Exception: MongoshUnimplementedError: the tagSet argument is not yet supported.
+java.lang.Exception: MongoshUnimplementedError: [COMMON-90002] the tagSet argument is not yet supported.
+java.lang.Exception: MongoshUnimplementedError: [COMMON-90002] the tagSet argument is not yet supported.
