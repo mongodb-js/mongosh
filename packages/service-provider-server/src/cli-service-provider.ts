@@ -14,7 +14,9 @@ import {
   Decimal128,
   Map,
   BSONSymbol,
-  BSONRegExp
+  BSONRegExp,
+  ClientMetadata,
+  Topology
 } from 'mongodb';
 
 const bsonlib = {
@@ -188,13 +190,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 
   async getConnectionInfo(): Promise<{
     buildInfo: any;
-    topology: any;
+    topology: Topology;
     extraInfo: ConnectionInfo;
   }> {
     const buildInfo = await this.runCommandWithCheck('admin', {
       buildInfo: 1
     }, this.baseCmdOptions);
-    const topology = await this.getTopology();
+    const topology = await this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
@@ -885,8 +887,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Promise} topology.
    */
-  getTopology(): any {
-    return (this.mongoClient as any).topology; // TODO Node 4.0 upgrade, see NODE-2910
+  getTopology(): Topology | undefined {
+    return this.mongoClient.topology;
   }
 
   /**
@@ -1130,6 +1132,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       return (this.db(db, dbOptions).collection(coll) as any).watch(pipeline, options);
     }
     throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
+  }
+
+  get driverMetadata(): ClientMetadata | undefined {
+    return this.getTopology()?.clientMetadata;
   }
 }
 

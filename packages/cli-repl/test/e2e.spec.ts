@@ -521,12 +521,20 @@ describe('e2e', function() {
     describe('log file', () => {
       it('creates a log file that keeps track of session events', async() => {
         await shell.executeLine('print(123 + 456)');
-        await eventually(() => {
+        await eventually(async() => {
           expect(shell.output).to.include('579');
+          const log = await readLogfile();
+          expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
+            .to.have.lengthOf(1);
         });
-        const log = await readLogfile();
-        expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
-          .to.have.lengthOf(1);
+      });
+
+      it('includes information about the driver version', async() => {
+        await eventually(async() => {
+          const log = await readLogfile();
+          expect(log.filter(logEntry => /driver-initialized/.test(logEntry.msg)))
+            .to.have.lengthOf(1);
+        });
       });
     });
 
