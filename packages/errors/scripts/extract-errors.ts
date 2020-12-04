@@ -10,7 +10,8 @@ type PackageErrors = { package: string, errors: PackageError[] };
 const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
 
 (async function() {
-  const pathToPackages = path.resolve(process.argv[process.argv.length - 1]);
+  const pathToPackages = path.resolve(process.argv[process.argv.length - 2]);
+  const pathToOutput = path.resolve(process.argv[process.argv.length - 1]);
   if (!pathToPackages || !(await isDirectory(pathToPackages))) {
     ux.fatal('Could not find given packages directory:', pathToPackages);
     return;
@@ -51,10 +52,10 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
     return;
   }
 
-  await renderErrorOverview(packageErrors);
+  await renderErrorOverview(pathToOutput, packageErrors);
 
   ux.success('👏👏👏👏');
-  ux.success('Wrote generated overview page to: error-overview.md');
+  ux.success(`Wrote generated overview page to: ${pathToOutput}`);
   ux.success('👏👏👏👏');
 })().catch(err => process.nextTick(() => { throw err; }));
 
@@ -197,7 +198,7 @@ function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: t
   return { enumName, enumDeclaration };
 }
 
-async function renderErrorOverview(packageErrors: PackageErrors[]): Promise<void> {
+async function renderErrorOverview(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
   const templateContent = await fs.readFile(
     path.resolve(__dirname, 'error-overview.tmpl.md'),
     { encoding: 'utf-8' }
@@ -209,7 +210,7 @@ async function renderErrorOverview(packageErrors: PackageErrors[]): Promise<void
   });
 
   await fs.writeFile(
-    'error-overview.md',
+    outputPath,
     output,
     { encoding: 'utf-8' }
   );

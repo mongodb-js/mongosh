@@ -50,7 +50,8 @@
     "report-missing-help": "lerna run --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --scope @mongosh/shell-api report-supported-api",
     "generate-homebrew-formula": "node scripts/generate-homebrew-formula",
-    "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=80"
+    "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=80",
+    "generate-error-overview": "lerna run --scope @mongosh/errors generate-error-overview"
   },
   "config": {
     "unsafe-perm": true
