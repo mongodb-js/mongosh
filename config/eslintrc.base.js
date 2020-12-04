@@ -29,7 +29,8 @@ module.exports = {
     '@typescript-eslint/semi': [2, 'always'],
     'no-console': [1, { allow: ['warn', 'error', 'info'] }],
     'no-shadow': 0,
-    'no-use-before-define': 0
+    'no-use-before-define': 0,
+    'no-cond-assign': [2, 'except-parens']
   },
   overrides: [{
     files: ['**/*.js'],
