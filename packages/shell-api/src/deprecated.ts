@@ -1,8 +1,9 @@
-import { MongoshDeprecatedError } from '@mongosh/errors';
 import {
-  ShellApiClass, shellApiClassDefault
+  ShellApiClass,
+  shellApiClassDefault
 } from './decorators';
 import { asPrintable } from './enums';
+import { MongoshDeprecatedError } from '@mongosh/errors';
 
 
 @shellApiClassDefault

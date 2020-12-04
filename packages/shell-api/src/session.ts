@@ -1,15 +1,3 @@
-import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import {
-  ClientSession,
-  ClientSessionOptions,
-  ClusterTime,
-  Document,
-  ReplPlatform,
-  ServerSessionId,
-  TimestampType,
-  TransactionOptions
-} from '@mongosh/service-provider-core';
-import Database from './database';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -18,10 +6,22 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
+import {
+  Document,
+  ReplPlatform,
+  ClientSessionOptions,
+  ClientSession,
+  TransactionOptions,
+  ClusterTime,
+  TimestampType,
+  ServerSessionId
+} from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
+import Mongo from './mongo';
+import Database from './database';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefined, assertArgsType } from './helpers';
-import Mongo from './mongo';
 
 @shellApiClassDefault
 @hasAsyncChild

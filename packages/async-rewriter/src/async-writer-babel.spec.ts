@@ -8,7 +8,6 @@ const signatures = require('../test/shell-api-signatures');
 import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
 import { AsyncRewriterErrors } from './error-codes';
-import { fail } from 'assert';
 
 const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
@@ -2926,7 +2925,7 @@ class Test {
   }`;
           try {
             compileCheckScopes(writer, input);
-            fail('expected error');
+            expect.fail('expected error');
           } catch (e) {
             expect(e.name).to.be.equal('MongoshUnimplementedError');
             expect(e.code).to.be.equal(AsyncRewriterErrors.NestedThisAssignment);

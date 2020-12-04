@@ -1,4 +1,28 @@
 /* eslint-disable complexity */
+import Mongo from './mongo';
+import Collection from './collection';
+import {
+  hasAsyncChild,
+  returnsPromise,
+  returnType,
+  serverVersions,
+  ShellApiClass,
+  shellApiClassDefault
+} from './decorators';
+import { ADMIN_DB, asPrintable, ServerVersions } from './enums';
+import {
+  adaptAggregateOptions,
+  adaptOptions,
+  assertArgsDefined, assertArgsType,
+  assertKeysDefined, getPrintableShardStatus,
+  processDigestPassword, tsToSeconds
+} from './helpers';
+import {
+  Document,
+  WriteConcern,
+  ChangeStreamOptions
+} from '@mongosh/service-provider-core';
+import { AggregationCursor, CommandResult } from './index';
 import {
   CommonErrors,
   MongoshDeprecatedError,
@@ -8,32 +32,9 @@ import {
   MongoshInternalError
 } from '@mongosh/errors';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
-import {
-  Document,
-  WriteConcern,
-  ChangeStreamOptions
-} from '@mongosh/service-provider-core';
-import Collection from './collection';
-import {
-  hasAsyncChild, returnsPromise,
-  returnType,
-
-
-  serverVersions, ShellApiClass, shellApiClassDefault
-} from './decorators';
-import { ADMIN_DB, asPrintable, ServerVersions } from './enums';
-import { ShellApiErrors } from './error-codes';
-import {
-  adaptAggregateOptions,
-  adaptOptions,
-  assertArgsDefined, assertArgsType,
-  assertKeysDefined, getPrintableShardStatus,
-  processDigestPassword, tsToSeconds
-} from './helpers';
-import { AggregationCursor, CommandResult } from './index';
-import Mongo from './mongo';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
+import { ShellApiErrors } from './error-codes';
 
 
 @shellApiClassDefault

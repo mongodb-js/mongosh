@@ -1,17 +1,20 @@
 /* eslint-disable new-cap */
-import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
-import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
-import Database from './database';
 import {
+  shellApiClassDefault,
   hasAsyncChild,
-  platforms, returnsPromise,
-  returnType, ShellApiClass, shellApiClassDefault
+  ShellApiClass,
+  returnsPromise,
+  returnType,
+  platforms,
 } from './decorators';
-import { DBQuery } from './deprecated';
-import { assertArgsDefined } from './helpers';
 import Mongo from './mongo';
+import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
 import ShellInternalState from './shell-internal-state';
+import { assertArgsDefined } from './helpers';
+import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
+import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
+import { DBQuery } from './deprecated';
 
 @shellApiClassDefault
 @hasAsyncChild

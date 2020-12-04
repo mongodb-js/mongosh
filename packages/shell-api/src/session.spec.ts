@@ -15,7 +15,6 @@ import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
-import { fail } from 'assert';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 describe('Session', () => {
@@ -76,7 +75,7 @@ describe('Session', () => {
       it('throws for an invalid name', () => {
         try {
           session.getDatabase('');
-          fail('expected error');
+          expect.fail('expected error');
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.code).to.equal(CommonErrors.InvalidArgument);

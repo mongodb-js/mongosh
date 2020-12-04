@@ -1,24 +1,26 @@
-import AsyncWriter from '@mongosh/async-rewriter';
-import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
-import { EventEmitter } from 'events';
-import { toIgnore } from './decorators';
 import {
   AggregationCursor,
   Cursor,
   Database,
-  getShellApiType, Mongo,
+  Mongo,
   ReplicaSet,
   Shard,
-  ShellApi,
-  ShellResult, signatures,
+  signatures,
   toIterator,
-  toShellResult
+  ShellApi,
+  getShellApiType,
+  toShellResult,
+  ShellResult
 } from './index';
+import constructShellBson from './shell-bson';
+import { EventEmitter } from 'events';
+import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
+import AsyncWriter from '@mongosh/async-rewriter';
+import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
-import constructShellBson from './shell-bson';
 
 export interface ShellCliOptions {
   nodb?: boolean;

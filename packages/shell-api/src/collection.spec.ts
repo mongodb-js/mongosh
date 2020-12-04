@@ -18,7 +18,6 @@ import {
 } from '@mongosh/service-provider-core';
 import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
-import { fail } from 'assert';
 import { ShellApiErrors } from './error-codes';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
@@ -884,7 +883,7 @@ describe('Collection', () => {
       it('throws an error if newName is not a string', async() => {
         try {
           await collection.renameCollection({} as any);
-          fail('expected error');
+          expect.fail('expected error');
         } catch (e) {
           expect(e.message).to.include('type string');
           expect(e.name).to.equal('MongoshInvalidInputError');

@@ -1,14 +1,16 @@
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import Database from './database';
+import {
+  shellApiClassDefault,
+  hasAsyncChild,
+  ShellApiClass,
+  returnsPromise
+} from './decorators';
 import {
   Document
 } from '@mongosh/service-provider-core';
-import Database from './database';
-import {
-  hasAsyncChild,
-  returnsPromise, ShellApiClass, shellApiClassDefault
-} from './decorators';
 import { asPrintable } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
 
 

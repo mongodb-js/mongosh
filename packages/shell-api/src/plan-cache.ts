@@ -1,6 +1,3 @@
-import { MongoshDeprecatedError } from '@mongosh/errors';
-import { Document } from '@mongosh/service-provider-core';
-import Collection from './collection';
 import {
   hasAsyncChild,
   returnsPromise,
@@ -8,7 +5,10 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
+import { Document } from '@mongosh/service-provider-core';
+import Collection from './collection';
 import { asPrintable, ServerVersions } from './enums';
+import { MongoshDeprecatedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 @hasAsyncChild
