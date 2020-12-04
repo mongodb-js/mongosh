@@ -326,7 +326,7 @@ describe('ShellApi', () => {
           await internalState.context.passwordPrompt();
           expect.fail('missed exception');
         } catch (err) {
-          expect(err.message).to.equal('passwordPrompt() is not available in this shell');
+          expect(err.message).to.equal('[COMMON-90002] passwordPrompt() is not available in this shell');
         }
       });
     });
