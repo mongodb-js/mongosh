@@ -1,4 +1,14 @@
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  ClientSession,
+  ClientSessionOptions,
+  ClusterTime,
+  Document,
+  ReplPlatform,
+  ServerSessionId,
+  TimestampType,
+  TransactionOptions
+} from '@mongosh/service-provider-core';
 import Database from './database';
 import {
   classPlatforms,

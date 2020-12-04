@@ -86,7 +86,7 @@ import {
   ChangeStream
 } from '@mongosh/service-provider-core';
 
-import { MongoshCommandFailed } from '@mongosh/errors';
+import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 
 type DropDatabaseResult = {
   ok: 0 | 1;

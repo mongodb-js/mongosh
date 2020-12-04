@@ -724,7 +724,7 @@ describe('Cursor', () => {
       let shellApiCursor;
 
       beforeEach(() => {
-        spCursor = sinon.createStubInstance(ServiceProviderCursor);
+        spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 

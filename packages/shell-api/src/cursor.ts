@@ -1,11 +1,5 @@
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
-  Cursor as ServiceProviderCursor,
-  CursorFlag,
-  CURSOR_FLAGS,
-  Document
-} from '@mongosh/service-provider-core';
-import {
   hasAsyncChild,
   returnsPromise,
   returnType,
@@ -15,11 +9,22 @@ import {
   toShellResult
 } from './decorators';
 import {
-  asPrintable, ServerVersions
+  ServerVersions,
+  asPrintable,
+  CURSOR_FLAGS
 } from './enums';
+import {
+  FindCursor as ServiceProviderCursor,
+  CursorFlag,
+  Document,
+  CollationOptions,
+  ExplainVerbosityLike, ReadPreferenceMode
+} from '@mongosh/service-provider-core';
 import { blockedByDriverMetadata } from './error-codes';
+import { iterate } from './helpers';
 import Mongo from './mongo';
 import { CursorIterationResult } from './result';
+import { printWarning } from './deprecation-warning';
 
 @shellApiClassDefault
 @hasAsyncChild
