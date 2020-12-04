@@ -743,7 +743,7 @@ describe('Auth e2e', function() {
             'db.auth({user: "anna", pwd: "pwd", digestPassword: true})'
           );
           await eventually(async() => {
-            shell.assertContainsError('MongoshUnimplementedError: digestPassword is not supported for authentication');
+            shell.assertContainsError('MongoshUnimplementedError: [COMMON-90002] digestPassword is not supported for authentication');
           });
           await shell.writeInputLine(
             'db.runCommand({connectionStatus: 1})'

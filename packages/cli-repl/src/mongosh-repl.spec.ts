@@ -114,6 +114,7 @@ describe('MongoshNodeRepl', () => {
     it('emits error events when somebody throws something', async() => {
       input.write('throw new Error("meow")\n');
       const [ error ] = await once(bus, 'mongosh:error');
+      expect(error.name).to.equal('Error');
       expect(error.message).to.equal('meow');
     });
 

@@ -1,10 +1,10 @@
 import {
-  shellApiClassDefault,
-  ShellApiClass
+  ShellApiClass,
+  shellApiClassDefault
 } from './decorators';
 import { asPrintable } from './enums';
+import { MongoshDeprecatedError } from '@mongosh/errors';
 
-import { MongoshUnimplementedError } from '@mongosh/errors';
 
 @shellApiClassDefault
 class DeprecatedClass extends ShellApiClass {
@@ -16,7 +16,7 @@ class DeprecatedClass extends ShellApiClass {
       get: (obj, prop): any => {
         if (typeof prop === 'string' && !(prop in obj)) {
           const alt = alternatives[prop] || '';
-          throw new MongoshUnimplementedError(`The class ${name} is deprecated.${alt}`);
+          throw new MongoshDeprecatedError(`The class ${name} is deprecated.${alt}`);
         }
         return (obj as any)[prop];
       }

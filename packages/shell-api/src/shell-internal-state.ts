@@ -14,8 +14,8 @@ import {
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
-import { Document, ServiceProvider, DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
@@ -131,7 +131,7 @@ export default class ShellInternalState {
     Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
       if (toIgnore.concat(['hasAsyncChild', 'help']).includes(name) ||
-          typeof (this.shellApi as any)[name] !== 'function') {
+        typeof (this.shellApi as any)[name] !== 'function') {
         continue;
       }
       contextObject[name] = (...args: any[]): any => {
@@ -167,7 +167,7 @@ export default class ShellInternalState {
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
-        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type');
+        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type', CommonErrors.InvalidOperation);
       }
       return this.setDbFunc(newDb);
     };

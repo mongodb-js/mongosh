@@ -1,4 +1,5 @@
 import {
+  CommonErrors,
   MongoshInvalidInputError
 } from '@mongosh/errors';
 class Iterator {
@@ -7,7 +8,10 @@ class Iterator {
   constructor(iterable: AsyncIterable<any> | Iterable<any>) {
     this.iterable = iterable;
     if (!Array.isArray(iterable) && !(Symbol.iterator in iterable) && !(Symbol.asyncIterator in iterable)) {
-      throw new MongoshInvalidInputError('Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.');
+      throw new MongoshInvalidInputError(
+        'Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.',
+        CommonErrors.InvalidArgument
+      );
     }
     const proxy = new Proxy(this, {
       get: (obj, prop) => {

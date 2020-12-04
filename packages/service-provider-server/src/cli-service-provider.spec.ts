@@ -1,11 +1,12 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-
+import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import sinonChai from 'sinon-chai';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import CliServiceProvider from './cli-service-provider';
+
 chai.use(sinonChai);
 
-import CliServiceProvider from './cli-service-provider';
 
 const DEFAULT_BASE_OPTS = { serializeFunctions: true };
 
@@ -375,6 +376,7 @@ describe('CliServiceProvider', () => {
       } catch (e) {
         expect(e.message).to.include(JSON.stringify({ ismaster: 1 }));
         expect(e.name).to.equal('MongoshCommandFailed');
+        expect(e.code).to.equal(CommonErrors.CommandFailed);
         return;
       }
       expect.fail('Error not thrown');

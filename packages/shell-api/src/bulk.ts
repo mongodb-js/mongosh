@@ -1,14 +1,15 @@
 import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
 import Mongo from './mongo';
-import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
+  BulkBatch,
   Document,
-  WriteConcern,
-  ServiceProviderBulkOp,
   ServiceProviderBulkFindOp,
-  BulkBatch
+  ServiceProviderBulkOp,
+  WriteConcern
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
+import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
 
@@ -33,14 +34,18 @@ export class BulkFindOp extends ShellApiClass {
     throw new MongoshUnimplementedError(
       'collation method on fluent Bulk API is not currently supported. ' +
       'As an alternative, consider using the \'db.collection.bulkWrite(...)\' helper ' +
-      'which accepts \'collation\' as a field in the operations.'
+      'which accepts \'collation\' as a field in the operations.',
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('BulkFindOp.arrayFilters')
     );
   }
 
   // Blocked by NODE-2751
   arrayFilters(): BulkFindOp {
     throw new MongoshUnimplementedError(
-      'arrayFilters method on fluent Bulk API is not currently supported.'
+      'arrayFilters method on fluent Bulk API is not currently supported.',
+      CommonErrors.NotImplemented,
+      blockedByDriverMetadata('BulkFindOp.arrayFilters')
     );
   }
 
@@ -239,7 +244,10 @@ export default class Bulk extends ShellApiClass {
       throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
     }
     if (!this._executed) {
-      throw new MongoshInvalidInputError('Cannot call getOperations on an unexecuted Bulk operation');
+      throw new MongoshInvalidInputError(
+        'Cannot call getOperations on an unexecuted Bulk operation',
+        CommonErrors.InvalidOperation
+      );
     }
     return this._batches.map((b) => ({
       originalZeroIndex: b.originalZeroIndex,

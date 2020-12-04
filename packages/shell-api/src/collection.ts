@@ -41,12 +41,13 @@ import {
   InsertOneResult,
   UpdateResult
 } from './index';
-import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import { printDeprecationWarning } from './deprecation-warning';
 import ChangeStreamCursor from './change-stream-cursor';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -964,7 +965,10 @@ export default class Collection extends ShellApiClass {
   ): Promise<Document> {
     assertArgsDefined(keyPatterns);
     if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError('The "options" argument must be an object.');
+      throw new MongoshInvalidInputError(
+        'The "options" argument must be an object.',
+        CommonErrors.InvalidArgument
+      );
     }
 
     const specs = keyPatterns.map((pattern) => ({
@@ -994,7 +998,10 @@ export default class Collection extends ShellApiClass {
   ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError('The "options" argument must be an object.');
+      throw new MongoshInvalidInputError(
+        'The "options" argument must be an object.',
+        CommonErrors.InvalidArgument
+      );
     }
     this._emitCollectionApiCall('createIndex', { keys, options });
 
@@ -1020,7 +1027,10 @@ export default class Collection extends ShellApiClass {
   ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError('The "options" argument must be an object.');
+      throw new MongoshInvalidInputError(
+        'The "options" argument must be an object.',
+        CommonErrors.InvalidArgument
+      );
     }
     this._emitCollectionApiCall('ensureIndex', { keys, options });
 
@@ -1139,11 +1149,17 @@ export default class Collection extends ShellApiClass {
     assertArgsDefined(index);
     this._emitCollectionApiCall('dropIndex', { index });
     if (index === '*') {
-      throw new MongoshInvalidInputError('To drop indexes in the collection using \'*\', use db.collection.dropIndexes().');
+      throw new MongoshInvalidInputError(
+        'To drop indexes in the collection using \'*\', use db.collection.dropIndexes().',
+        CommonErrors.InvalidArgument
+      );
     }
 
     if (Array.isArray(index)) {
-      throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document.');
+      throw new MongoshInvalidInputError(
+        'The index to drop must be either the index name or the index specification document.',
+        CommonErrors.InvalidArgument
+      );
     }
     return this.dropIndexes(index);
   }
@@ -1158,7 +1174,8 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('totalIndexSize');
     if (args.length) {
       throw new MongoshInvalidInputError(
-        '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
+        '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.',
+        CommonErrors.InvalidArgument
       );
     }
 
@@ -1302,7 +1319,10 @@ export default class Collection extends ShellApiClass {
     assertArgsType([commandName], ['string']);
 
     if (options && commandName in options) {
-      throw new MongoshInvalidInputError('The "commandName" argument cannot be passed as an option to "runCommand".');
+      throw new MongoshInvalidInputError(
+        'The "commandName" argument cannot be passed as an option to "runCommand".',
+        CommonErrors.InvalidArgument
+      );
     }
 
 
@@ -1333,13 +1353,22 @@ export default class Collection extends ShellApiClass {
       typeof originalOptions === 'number' ? { scale: originalOptions } : originalOptions;
 
     if (options.indexDetailsKey && options.indexDetailsName) {
-      throw new MongoshInvalidInputError('Cannot filter indexDetails on both indexDetailsKey and indexDetailsName');
+      throw new MongoshInvalidInputError(
+        'Cannot filter indexDetails on both indexDetailsKey and indexDetailsName',
+        CommonErrors.InvalidArgument
+      );
     }
     if (options.indexDetailsKey && typeof options.indexDetailsKey !== 'object') {
-      throw new MongoshInvalidInputError(`Expected options.indexDetailsKey to be a document, got ${typeof options.indexDetailsKey}`);
+      throw new MongoshInvalidInputError(
+        `Expected options.indexDetailsKey to be a document, got ${typeof options.indexDetailsKey}`,
+        CommonErrors.InvalidArgument
+      );
     }
     if (options.indexDetailsName && typeof options.indexDetailsName !== 'string') {
-      throw new MongoshInvalidInputError(`Expected options.indexDetailsName to be a string, got ${typeof options.indexDetailsName}`);
+      throw new MongoshInvalidInputError(
+        `Expected options.indexDetailsName to be a string, got ${typeof options.indexDetailsName}`,
+        CommonErrors.InvalidArgument
+      );
     }
     options.scale = options.scale || 1;
     options.indexDetails = options.indexDetails || false;
@@ -1353,7 +1382,10 @@ export default class Collection extends ShellApiClass {
       this._database._baseOptions
     );
     if (!result) {
-      throw new MongoshRuntimeError(`Error running collStats command on ${this.getFullName()}`);
+      throw new MongoshRuntimeError(
+        `Error running collStats command on ${this.getFullName()}`,
+        CommonErrors.CommandFailed
+      );
     }
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
@@ -1456,7 +1488,7 @@ export default class Collection extends ShellApiClass {
     if (typeof optionsOrOutString === 'string') {
       cmd.out = optionsOrOutString;
     } else if (optionsOrOutString.out === undefined) {
-      throw new MongoshInvalidInputError('Missing \'out\' option');
+      throw new MongoshInvalidInputError('Missing \'out\' option', CommonErrors.InvalidArgument);
     } else {
       cmd = { ...cmd, ...optionsOrOutString };
     }
@@ -1509,7 +1541,10 @@ export default class Collection extends ShellApiClass {
       dropped: { $ne: true }
     }));
     if (!isSharded) {
-      throw new MongoshInvalidInputError(`Collection ${this._name} is not sharded`);
+      throw new MongoshInvalidInputError(
+        `Collection ${this._name} is not sharded`,
+        ShellApiErrors.NotConnectedToShardedCluster
+      );
     }
 
     const collStats = await (await this.aggregate({ '$collStats': { storageStats: {} } })).toArray();

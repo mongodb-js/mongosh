@@ -1,5 +1,7 @@
-import Translator from './translator';
+import { MongoshInternalError } from '@mongosh/errors';
+import { fail } from 'assert';
 import { expect } from 'chai';
+import Translator from './translator';
 
 describe('Translator', () => {
   describe('#setLocale', () => {
@@ -106,6 +108,23 @@ describe('Translator', () => {
           });
         });
       });
+    });
+  });
+
+  describe('#__', () => {
+    const translator = new Translator();
+
+    it('returns the string for existing key', () => {
+      expect(translator.__('shell-api.classes.ShellApi.help.description')).to.equal('Shell Help');
+    });
+
+    it('throws an error for missing key', () => {
+      try {
+        translator.__('testing.testing.testing');
+        fail('expected error');
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInternalError);
+      }
     });
   });
 });

@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { ALL_SERVER_VERSIONS } from './enums';
 import { bson } from '@mongosh/service-provider-core';
 import { toShellResult } from './index';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 const shellBson = constructShellBson(bson);
 
 const hex_1234 = '31323334';
@@ -262,7 +263,15 @@ describe('Shell BSON', () => {
       expect(() => shellBson.ISODate('1-4-1977')).to.throw('"1-4-1977" is not a valid ISODate');
       expect(() => shellBson.ISODate('9999-12-31T23:99:59.999Z')).to.throw('"9999-12-31T23:99:59.999Z" is not a valid ISODate');
       expect(() => shellBson.ISODate('bah')).to.throw('"bah" is not a valid ISODate');
-      expect(() => shellBson.ISODate('"')).to.throw('"\\"" is not a valid ISODate');
+
+      try {
+        shellBson.ISODate('"');
+        expect.fail('expected error');
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.message).to.contain('"\\"" is not a valid ISODate');
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+      }
     });
   });
   describe('BinData', () => {
