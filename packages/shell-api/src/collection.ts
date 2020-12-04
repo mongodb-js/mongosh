@@ -1,39 +1,42 @@
 /* eslint-disable complexity */
 import Mongo from './mongo';
 import {
-  shellApiClassDefault,
+  addSourceToResults,
   hasAsyncChild,
-  ShellApiClass,
+  Namespace,
   returnsPromise,
   returnType,
   serverVersions,
-  Namespace,
-  addSourceToResults
+  ShellApiClass,
+  shellApiClassDefault,
+  topologies
 } from './decorators';
-import { ADMIN_DB, ServerVersions, asPrintable, namespaceInfo } from './enums';
+import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
-  validateExplainableVerbosity,
   assertArgsDefined,
+  assertArgsType,
   assertKeysDefined,
-  dataFormat, assertArgsType, getAcknowledged
+  dataFormat,
+  getAcknowledged,
+  validateExplainableVerbosity
 } from './helpers';
 import {
+  AnyBulkWriteOperation,
+  ChangeStreamOptions,
   DbOptions,
   Document,
-  AnyBulkWriteOperation,
   ExplainVerbosityLike,
-  FindOptions,
-  ChangeStreamOptions
+  FindOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
-  Cursor,
-  CommandResult,
-  Database,
-  Explainable,
   BulkWriteResult,
+  CommandResult,
+  Cursor,
+  Database,
   DeleteResult,
+  Explainable,
   InsertManyResult,
   InsertOneResult,
   UpdateResult
@@ -1468,6 +1471,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.Sharded])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
     return await this._mongo._serviceProvider.runCommandWithCheck(
@@ -1480,6 +1484,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.Sharded])
   async getShardDistribution(): Promise<CommandResult> {
     this._emitCollectionApiCall('getShardDistribution', {});
 
@@ -1572,6 +1577,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
   watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
