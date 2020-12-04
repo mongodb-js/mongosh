@@ -7,8 +7,8 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson } from '@mongosh/service-provider-core';
-import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
+import { EventEmitter, once } from 'events';
+import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 
 describe('ShellApi', () => {
   describe('signatures', () => {
@@ -175,12 +175,13 @@ describe('ShellApi', () => {
   });
   describe('from context', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let bus: StubbedInstance<EventEmitter>;
+    let bus: EventEmitter;
     let internalState: ShellInternalState;
     let mongo: Mongo;
+    let evaluationListener: StubbedInstance<EvaluationListener>;
 
     beforeEach(() => {
-      bus = stubInterface<EventEmitter>();
+      bus = new EventEmitter();
       const newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
@@ -189,9 +190,12 @@ describe('ShellApi', () => {
       serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
+      evaluationListener = stubInterface<EvaluationListener>();
       internalState = new ShellInternalState(serviceProvider, bus);
       internalState.setCtx({});
+      internalState.mongos.push(mongo);
       internalState.currentDb._mongo = mongo;
+      internalState.setEvaluationListener(evaluationListener);
     });
     it('calls help function', async() => {
       expect((await toShellResult(internalState.context.use.help())).type).to.equal('Help');
@@ -280,6 +284,50 @@ describe('ShellApi', () => {
       });
       it('throws for asPrintable', async() => {
         expect((await toShellResult(internalState.context.DBQuery)).printable).to.contain('deprecated');
+      });
+    });
+    describe('exit', () => {
+      it('instructs the shell to exit', async() => {
+        const onExit = once(bus, 'mongosh:exit');
+        try {
+          await internalState.context.exit();
+          expect.fail('missed exception');
+        } catch (e) {
+          // We should be getting an exception because we’re not actually exiting.
+          expect(e.message).to.contain('exit not supported for current platform');
+        }
+        const [ exitCode ] = await onExit;
+        expect(exitCode).to.equal(0);
+        expect(mongo.close).to.have.been.calledWith(true);
+      });
+    });
+    describe('enableTelemetry', () => {
+      it('calls .toggleTelemetry() with true', () => {
+        internalState.context.enableTelemetry();
+        expect(evaluationListener.toggleTelemetry).to.have.been.calledWith(true);
+      });
+    });
+    describe('disableTelemetry', () => {
+      it('calls .toggleTelemetry() with false', () => {
+        internalState.context.disableTelemetry();
+        expect(evaluationListener.toggleTelemetry).to.have.been.calledWith(false);
+      });
+    });
+    describe('passwordPrompt', () => {
+      it('asks the evaluation listener for a password', async() => {
+        evaluationListener.onPrompt.resolves('passw0rd');
+        const pwd = await internalState.context.passwordPrompt();
+        expect(pwd).to.equal('passw0rd');
+        expect(evaluationListener.onPrompt).to.have.been.calledWith('Enter password', 'password');
+      });
+      it('fails for currently unsupported platforms', async() => {
+        internalState.setEvaluationListener({});
+        try {
+          await internalState.context.passwordPrompt();
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.message).to.equal('passwordPrompt() is not available in this shell');
+        }
       });
     });
   });

@@ -66,6 +66,16 @@ describe('e2e', function() {
         expect(shell.rawOutput).to.match(/>(\x1b\[.*m)+ 1 \| (\x1b\[.*m)+<(\x1b\[.*m)+cat(\x1b\[.*m)+>(\x1b\[.*m)+/);
       });
     });
+    it('closes the shell when "exit" is entered', async() => {
+      const onExit = shell.waitForExit();
+      await shell.writeInputLine('exit');
+      expect(await onExit).to.equal(0);
+    });
+    it('closes the shell when "quit" is entered', async() => {
+      const onExit = shell.waitForExit();
+      await shell.writeInputLine('quit');
+      expect(await onExit).to.equal(0);
+    });
   });
 
   describe('set db', () => {
