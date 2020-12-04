@@ -222,18 +222,6 @@ describe('arg-parser', () => {
             });
           });
 
-          context('when providing --disableImplicitSessions', () => {
-            const argv = [ ...baseArgv, uri, '--disableImplicitSessions' ];
-
-            it('returns the URI in the object', () => {
-              expect(parse(argv)._[0]).to.equal(uri);
-            });
-
-            it('sets the disableImplicitSessions value in the object', () => {
-              expect(parse(argv).disableImplicitSessions).to.equal(true);
-            });
-          });
-
           context('when providing an unknown parameter', () => {
             const argv = [ ...baseArgv, uri, '--what' ];
 
@@ -719,18 +707,6 @@ describe('arg-parser', () => {
 
             it('sets the retryWrites value in the object', () => {
               expect(parse(argv).retryWrites).to.equal(true);
-            });
-          });
-
-          context('when providing --disableImplicitSessions', () => {
-            const argv = [ ...baseArgv, uri, '--disableImplicitSessions' ];
-
-            it('returns the URI in the object', () => {
-              expect(parse(argv)._[0]).to.equal(uri);
-            });
-
-            it('sets the disableImplicitSessions value in the object', () => {
-              expect(parse(argv).disableImplicitSessions).to.equal(true);
             });
           });
 

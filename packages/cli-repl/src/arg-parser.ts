@@ -44,7 +44,6 @@ const OPTIONS = {
   ],
   boolean: [
     'async',
-    'disableImplicitSessions',
     'help',
     'ipv6',
     'nodb',

@@ -20,7 +20,6 @@ const translations: Catalog = {
       norc: "Will not run the '.mongorc.js' file on start up",
       eval: 'Evaluate javascript',
       retryWrites: 'Automatically retry write operations upon transient network errors',
-      disableImplicitSessions: 'Do not automatically create and use implicit sessions',
       authenticationOptions: 'Authentication Options:',
       username: 'Username for authentication',
       password: 'Password for authentication',
