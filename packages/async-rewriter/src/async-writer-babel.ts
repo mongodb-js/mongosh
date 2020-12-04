@@ -105,7 +105,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const help = lhsType.type === 'Database' ?
               '\nIf you are accessing a collection try Database.get(\'collection\').' :
               '';
-            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`, AsyncRewriterErrors.DynamicAccessOfAsyncType);
+            throw new MongoshInvalidInputError(`Cannot access Mongosh API types dynamically. ${help}`, AsyncRewriterErrors.DynamicAccessOfApiType);
           }
           path.node['shellType'] = { type: 'unknown', attributes: {} };
           debug(`MemberExpression: { object.sType: ${lhsType.type}, property.name: ${rhs} }`, path.node['shellType']);
@@ -166,16 +166,16 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               }
             // eslint-disable-next-line no-fallthrough
             default:
-              throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+              throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.ApiTypeAsFunctionArgument);
           }
         } else {
-          throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       }
       /* Check that the user is not passing a type that has async children to a self-defined function.
          This is possible for scripts but not for line-by-line execution, so turned off for everything. */
       if (!isException && path.node.arguments.some(a => a['shellType'].hasAsyncChild)) {
-        throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function', AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+        throw new MongoshInvalidInputError('Cannot pass a Mongosh API object as an argument to a function', AsyncRewriterErrors.ApiTypeAsFunctionArgument);
       }
 
       // determine return type
@@ -293,7 +293,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
               // eslint-disable-next-line no-fallthrough
               default:
                 if (sType.hasAsyncChild || sType.returnsPromise) {
-                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfAsyncType);
+                  throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfApiType);
                 }
             }
             lhsNode = lhsNode.object as babel.types.MemberExpression;
