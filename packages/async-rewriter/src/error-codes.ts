@@ -230,28 +230,28 @@ enum AsyncRewriterErrors {
    * Signals that an internal assertion was violated that guards uncovered code paths.
    * This error is only thrown when an assumed impossible situation occurs.
    *
-   * Please file a bug report and attach the current log file for analysis.
+   * **Please file a bug report for the `MONGOSH` project here: https://jira.mongodb.org.**
    */
   UnreachableAssertionViolated = 'ASYNC-90001',
 
   /**
    * Signals an internal error while trying to process user input.
    *
-   * Please file a bug report and attach the current log file for analysis.
+   * **Please file a bug report for the `MONGOSH` project here: https://jira.mongodb.org.**
    */
   CopySymbolFailed = 'ASYNC-90002',
 
   /**
    * Signals an internal error while trying to process user input.
    *
-   * Please file a bug report and attach the current log file for analysis.
+   * **Please file a bug report for the `MONGOSH` project here: https://jira.mongodb.org.**
    */
   CompareTypesFailed = 'ASYNC-90003',
 
   /**
    * Signals an internal error while trying to process user input.
    *
-   * Please file a bug report and attach the current log file for analysis.
+   * **Please file a bug report for the `MONGOSH` project here: https://jira.mongodb.org.**
    */
   CompareScopesDifferentDepth = 'ASYNC-90004'
 }
