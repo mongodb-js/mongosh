@@ -1,39 +1,42 @@
 /* eslint-disable complexity */
 import Mongo from './mongo';
 import {
-  shellApiClassDefault,
+  addSourceToResults,
   hasAsyncChild,
-  ShellApiClass,
+  Namespace,
   returnsPromise,
   returnType,
   serverVersions,
-  Namespace,
-  addSourceToResults
+  ShellApiClass,
+  shellApiClassDefault,
+  topologies
 } from './decorators';
-import { ADMIN_DB, ServerVersions, asPrintable, namespaceInfo } from './enums';
+import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
-  validateExplainableVerbosity,
   assertArgsDefined,
+  assertArgsType,
   assertKeysDefined,
-  dataFormat, assertArgsType, getAcknowledged
+  dataFormat,
+  getAcknowledged,
+  validateExplainableVerbosity
 } from './helpers';
 import {
+  AnyBulkWriteOperation,
+  ChangeStreamOptions,
   DbOptions,
   Document,
-  AnyBulkWriteOperation,
   ExplainVerbosityLike,
-  FindOptions,
-  ChangeStreamOptions
+  FindOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
-  Cursor,
-  CommandResult,
-  Database,
-  Explainable,
   BulkWriteResult,
+  CommandResult,
+  Cursor,
+  Database,
   DeleteResult,
+  Explainable,
   InsertManyResult,
   InsertOneResult,
   UpdateResult
@@ -934,10 +937,11 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async convertToCapped(size: number): Promise<Document> {
     this._emitCollectionApiCall('convertToCapped', { size });
-    return await this._mongo._serviceProvider.convertToCapped(
-      this._database._name,
-      this._name,
-      size,
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+      this._database._name, {
+        convertToCapped: this._name,
+        size
+      },
       this._database._baseOptions
     );
   }
@@ -1087,8 +1091,30 @@ export default class Collection extends ShellApiClass {
     assertArgsDefined(indexes);
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, indexes, this._database._baseOptions);
+      return await this._mongo._serviceProvider.runCommandWithCheck(
+        this._database._name,
+        {
+          dropIndexes: this._name,
+          index: indexes,
+        },
+        this._database._baseOptions);
     } catch (error) {
+      // If indexes is an array and we're failing because of that, we fall back to
+      // trying to drop all the indexes individually because that's what's supported
+      // on mongod 4.0. In the java-shell, error properties are unavailable,
+      // so we are a bit more generous there in terms of situation in which we retry.
+      if ((error.codeName === 'IndexNotFound' || error.codeName === undefined) &&
+          (error.errmsg === 'invalid index name spec' || error.errmsg === undefined) &&
+          Array.isArray(indexes) &&
+          indexes.length > 0 &&
+          (await this._database.version()).match(/^4\.0\./)) {
+        const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
+        const errored = all.find(result => !result.ok);
+        if (errored) return errored;
+        // Return the entry with the highest nIndexesWas value.
+        return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
+      }
+
       if (error.codeName === 'IndexNotFound') {
         return {
           ok: error.ok,
@@ -1119,21 +1145,7 @@ export default class Collection extends ShellApiClass {
     if (Array.isArray(index)) {
       throw new MongoshInvalidInputError('The index to drop must be either the index name or the index specification document.');
     }
-
-    try {
-      return await this._mongo._serviceProvider.dropIndexes(this._database._name, this._name, index, this._database._baseOptions);
-    } catch (error) {
-      if (error.codeName === 'IndexNotFound') {
-        return {
-          ok: error.ok,
-          errmsg: error.errmsg,
-          code: error.code,
-          codeName: error.codeName
-        };
-      }
-
-      throw error;
-    }
+    return this.dropIndexes(index);
   }
 
   /**
@@ -1162,7 +1174,9 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
-    return await this._mongo._serviceProvider.reIndex(this._database._name, this._name, this._database._baseOptions);
+    return await this._mongo._serviceProvider.runCommandWithCheck(this._database._name, {
+      reIndex: this._name
+    }, this._database._baseOptions);
   }
 
   /**
@@ -1468,6 +1482,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.Sharded])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
     return await this._mongo._serviceProvider.runCommandWithCheck(
@@ -1480,6 +1495,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.Sharded])
   async getShardDistribution(): Promise<CommandResult> {
     this._emitCollectionApiCall('getShardDistribution', {});
 
@@ -1572,6 +1588,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
   watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(

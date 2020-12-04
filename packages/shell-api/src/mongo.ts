@@ -4,26 +4,28 @@ import {
   classReturnsPromise,
   hasAsyncChild,
   returnsPromise,
-  returnType, serverVersions,
+  returnType,
+  serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  topologies
 } from './decorators';
 import {
-  ReplPlatform,
+  ChangeStreamOptions,
+  Document,
   generateUri,
   ReadPreference,
   ReadPreferenceMode,
-  Document,
+  ReplPlatform,
   ServiceProvider,
-  TransactionOptions,
-  ChangeStreamOptions
+  TransactionOptions
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
-import { asPrintable, ServerVersions, shellSession } from './enums';
+import { asPrintable, ServerVersions, shellSession, Topologies } from './enums';
 import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -190,6 +192,7 @@ export default class Mongo extends ShellApiClass {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
   }
 
+  @topologies([Topologies.ReplSet])
   startSession(options: Document = {}): Session {
     const driverOptions = { owner: shellSession }; // TODO: Node 4.0 upgrade should allow optional owner field see NODE-2918
     if (options === undefined) {
@@ -227,6 +230,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
   watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
