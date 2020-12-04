@@ -194,7 +194,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     extraInfo: ConnectionInfo;
   }> {
     const buildInfo = await this.buildInfo();
-    const topology = await this.getTopology();
+    const topology = await this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
@@ -914,8 +914,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Promise} topology.
    */
-  getTopology(): Topology {
-    return this.mongoClient.topology as Topology;
+  getTopology(): Topology | undefined {
+    return this.mongoClient.topology;
   }
 
   /**
@@ -1234,8 +1234,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
   }
 
-  get driverMetadata(): ClientMetadata {
-    return this.getTopology().clientMetadata;
+  get driverMetadata(): ClientMetadata | undefined {
+    return this.getTopology()?.clientMetadata;
   }
 }
 
