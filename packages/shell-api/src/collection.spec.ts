@@ -1185,7 +1185,7 @@ describe('Collection', () => {
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('is not sharded');
-        expect(error.code).to.equal(ShellApiErrors.NoSharding);
+        expect(error.code).to.equal(ShellApiErrors.NotConnectedToShardedCluster);
       });
     });
 

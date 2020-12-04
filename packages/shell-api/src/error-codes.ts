@@ -21,7 +21,7 @@ enum ShellApiErrors {
    *
    * **Solution: Be sure to enable sharding on the database or that the collection is sharded.**
    */
-  NoSharding = 'SHAPI-10001',
+  NotConnectedToShardedCluster = 'SHAPI-10001',
 
   /**
    * Signals calling a method requiring a replica set without being connected to a replica set.

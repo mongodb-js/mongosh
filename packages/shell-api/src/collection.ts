@@ -1543,7 +1543,7 @@ export default class Collection extends ShellApiClass {
     if (!isSharded) {
       throw new MongoshInvalidInputError(
         `Collection ${this._name} is not sharded`,
-        ShellApiErrors.NoSharding
+        ShellApiErrors.NotConnectedToShardedCluster
       );
     }
 

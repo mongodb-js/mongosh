@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshDeprecatedError, MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -86,7 +86,7 @@ export default class Mongo extends ShellApiClass {
     assertArgsDefined(name);
     assertArgsType([name], ['string']);
     if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.NotImplemented);
+      throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.InvalidArgument);
     }
 
     if (!(name in this._databases)) {
@@ -178,7 +178,7 @@ export default class Mongo extends ShellApiClass {
       const rc = this._serviceProvider.getReadConcern();
       return rc ? rc.level : undefined;
     } catch {
-      throw new MongoshRuntimeError('Error retrieving ReadConcern.', CommonErrors.CommandFailed);
+      throw new MongoshInternalError('Error retrieving ReadConcern.');
     }
   }
 

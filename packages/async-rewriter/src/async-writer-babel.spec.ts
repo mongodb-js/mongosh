@@ -441,7 +441,7 @@ class Test {
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
                 expect(e.message).to.not.contain('Database');
-                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
               }
             });
             it('throws an error with suggestion for db', () => {
@@ -450,7 +450,7 @@ class Test {
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
                 expect(e.message).to.contain('Database');
-                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
               }
             });
           });
@@ -576,7 +576,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.not.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
             }
           });
           it('throws an error for null', () => {
@@ -585,7 +585,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.not.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
             }
           });
           it('throws an error with db suggestion', () => {
@@ -594,7 +594,7 @@ class Test {
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
               expect(e.message).to.contain('try Database.get');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
             }
           });
         });
@@ -644,7 +644,7 @@ class Test {
           } catch (e) {
             expect(e.name).to.be.equal('MongoshInvalidInputError');
             expect(e.message).to.not.contain('Database');
-            expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+            expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
           }
         });
       });
@@ -1139,7 +1139,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       });
       it('ignores exceptions', () => {
@@ -1151,7 +1151,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db.coll)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       });
       it('throws an error for db.coll.insertOne', () => {
@@ -1159,7 +1159,7 @@ class Test {
           compileCheckScopes(writer, 'fn(db.coll.insertOne)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       });
       it('throws an error for async method', () => {
@@ -1168,7 +1168,7 @@ class Test {
           compileCheckScopes(writer, 'fb(f)');
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       });
       it('does not throw error for regular arg', () => {
@@ -1767,7 +1767,7 @@ function f() {
                 compileCheckScopes(writer, 'x[a] = 1');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
-                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
               }
             });
           });
@@ -1859,7 +1859,7 @@ function f() {
                 compileCheckScopes(writer, 'x[a] = db');
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
-                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfAsyncType);
+                expect(e.code).to.be.equal(AsyncRewriterErrors.DynamicAccessOfApiType);
               }
             });
           });
@@ -3039,7 +3039,7 @@ if (TEST) {
                 compileCheckScopes(writer, throwInput);
               } catch (e) {
                 expect(e.name).to.be.equal('MongoshInvalidInputError');
-                expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+                expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
               }
             });
           });
@@ -3060,7 +3060,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
-                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3083,7 +3083,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
-                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3156,7 +3156,7 @@ if (TEST) {
               compileCheckScopes(writer, 'if (TEST) { a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3183,7 +3183,7 @@ if (TEST) {
               compileCheckScopes(writer, 'if (TEST) { var a = db }');
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3233,7 +3233,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
-                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3257,7 +3257,7 @@ if (TEST) {
                   compileCheckScopes(writer, throwInput);
                 } catch (e) {
                   expect(e.name).to.be.equal('MongoshInvalidInputError');
-                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+                  expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
                 }
               });
               it('symbol table final state is correct', () => {
@@ -3383,7 +3383,7 @@ while (TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3454,7 +3454,7 @@ for (let t = 0; t < 100; t++) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3525,7 +3525,7 @@ do {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3660,7 +3660,7 @@ switch(TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3716,7 +3716,7 @@ switch(TEST) {
               compileCheckScopes(writer, inputLoop);
             } catch (e) {
               expect(e.name).to.be.equal('MongoshInvalidInputError');
-              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedAsyncTypeInScope);
+              expect(e.code).to.be.equal(AsyncRewriterErrors.MixedApiTypeInScope);
             }
           });
         });
@@ -3995,7 +3995,7 @@ function f(arg) {
           compileCheckScopes(writer, input);
         } catch (e) {
           expect(e.name).to.be.equal('MongoshInvalidInputError');
-          expect(e.code).to.be.equal(AsyncRewriterErrors.AsyncTypeAsFunctionArgument);
+          expect(e.code).to.be.equal(AsyncRewriterErrors.ApiTypeAsFunctionArgument);
         }
       });
     });

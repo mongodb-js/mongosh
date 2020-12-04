@@ -167,7 +167,7 @@ export default class ShellInternalState {
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
-        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type', CommonErrors.InvalidArgument);
+        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type', CommonErrors.InvalidOperation);
       }
       return this.setDbFunc(newDb);
     };

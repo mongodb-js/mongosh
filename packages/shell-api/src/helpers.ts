@@ -163,7 +163,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
   if (version === null) {
     throw new MongoshInvalidInputError(
       'This db does not have sharding enabled. Be sure you are connecting to a mongos from the shell and not to a mongod.',
-      ShellApiErrors.NoSharding
+      ShellApiErrors.NotConnectedToMongos
     );
   }
 

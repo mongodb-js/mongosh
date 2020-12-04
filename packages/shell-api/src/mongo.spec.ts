@@ -16,7 +16,7 @@ import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
-import { MongoshDeprecatedError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshDeprecatedError, MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -351,7 +351,7 @@ describe('Mongo', () => {
         try {
           mongo.getReadConcern();
         } catch (catchedError) {
-          return expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
+          return expect(catchedError).to.be.instanceOf(MongoshInternalError);
         }
         expect.fail();
       });
