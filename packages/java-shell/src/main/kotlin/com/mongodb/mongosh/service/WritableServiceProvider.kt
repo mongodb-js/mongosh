@@ -25,7 +25,7 @@ internal interface WritableServiceProvider {
     fun save(database: String, collection: String, document: Value, options: Value?, dbOptions: Value?): Value
     fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value
     fun convertToCapped(database: String, collection: String, size: Number, options: Value?): Value
-    fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?, dbOptions: Value?): Value
+    fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?): Value
     fun dropIndexes(database: String, collection: String, indexes: Value?, options: Value?): Value
     fun reIndex(database: String, collection: String, options: Value?, dbOptions: Value?): Value
     fun dropCollection(database: String, collection: String, options: Value?): Value
