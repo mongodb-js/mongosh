@@ -14,7 +14,8 @@ import {
   Decimal128,
   Map,
   BSONSymbol,
-  BSONRegExp
+  BSONRegExp,
+  ClientMetadata
 } from 'mongodb';
 
 const bsonlib = {
@@ -1230,6 +1231,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       return (this.db(db, dbOptions).collection(coll) as any).watch(pipeline, options);
     }
     throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
+  }
+
+  get driverMetadata(): ClientMetadata | undefined {
+    return this.mongoClient.topology?.clientMetadata;
   }
 }
 

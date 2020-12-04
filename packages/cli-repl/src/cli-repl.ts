@@ -122,7 +122,9 @@ class CliRepl {
     if (!this.cliOptions.nodb) {
       this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactPassword(driverUri), ['bold', 'green']) + '\n');
     }
-    return await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
+    const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
+    this.bus.emit('mongosh:driver-initialized', provider.driverMetadata);
+    return provider;
   }
 
   getHistoryFilePath(): string {

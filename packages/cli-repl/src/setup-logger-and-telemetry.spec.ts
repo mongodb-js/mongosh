@@ -53,8 +53,9 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:api-call', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
     bus.emit('mongosh:api-call', { method: 'redactable', arguments: { email: 'mongosh@example.com' } });
     bus.emit('mongosh:rewritten-async-input', { original: '1+1', rewritten: '2' });
+    bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
-    expect(logOutput).to.have.lengthOf(16);
+    expect(logOutput).to.have.lengthOf(17);
     expect(logOutput[0].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
     expect(logOutput[1].msg).to.match(/^mongosh:connect/);
     expect(logOutput[1].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
@@ -83,6 +84,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[15].msg).to.match(/^mongosh:rewritten-async-input/);
     expect(logOutput[15].msg).to.match(/"original":"1\+1"/);
     expect(logOutput[15].msg).to.match(/"rewritten":"2"/);
+    expect(logOutput[16].msg).to.match(/"version":"3.6.1"/);
     expect(analyticsOutput).to.deep.equal([
       [ 'identify', { userId: '53defe995fa47e6c13102d9d' } ],
       [ 'identify', { userId: '53defe995fa47e6c13102d9d' } ],

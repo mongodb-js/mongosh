@@ -90,6 +90,10 @@ export default function setupLoggerAndTelemetry(
     }
   });
 
+  bus.on('mongosh:driver-initialized', function(driverMetadata: any) {
+    log.info('mongosh:driver-initialized', driverMetadata);
+  });
+
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
