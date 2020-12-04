@@ -1096,19 +1096,23 @@ export default class Collection extends ShellApiClass {
         },
         this._database._baseOptions);
     } catch (error) {
+      // If indexes is an array and we're failing because of that, we fall back to
+      // trying to drop all the indexes individually because that's what's supported
+      // on mongod 4.0. In the java-shell, error properties are unavailable,
+      // so we are a bit more generous there in terms of situation in which we retry.
+      if ((error.codeName === 'IndexNotFound' || error.codeName === undefined) &&
+          (error.errmsg === 'invalid index name spec' || error.errmsg === undefined) &&
+          Array.isArray(indexes) &&
+          indexes.length > 0 &&
+          (await this._mongo._serverVersion()).match(/^4\.0\./)) {
+        const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
+        const errored = all.find(result => !result.ok);
+        if (errored) return errored;
+        // Return the entry with the highest nIndexesWas value.
+        return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
+      }
+
       if (error.codeName === 'IndexNotFound') {
-        // If indexes is an array and we're on mongod 4.0, we fall back to trying
-        // to drop all the indexes individually.
-        if (error.errmsg === 'invalid index name spec' &&
-            Array.isArray(indexes) &&
-            indexes.length > 0 &&
-            (await this._mongo._serviceProvider.getConnectionInfo()).buildInfo.version.startsWith('4.0')) {
-          const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
-          const errored = all.find(result => !result.ok);
-          if (errored) return errored;
-          // Return the entry with the highest nIndexesWas value.
-          return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
-        }
         return {
           ok: error.ok,
           errmsg: error.errmsg,
