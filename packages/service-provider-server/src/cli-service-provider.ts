@@ -191,12 +191,16 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     topology: any;
     extraInfo: ConnectionInfo;
   }> {
-    const buildInfo = await this.buildInfo();
+    const buildInfo = await this.runCommandWithCheck('admin', {
+      buildInfo: 1
+    }, this.baseCmdOptions);
     const topology = await this.getTopology();
     const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
-      cmdLineOpts = await this.getCmdLineOpts();
+      cmdLineOpts = await this.runCommandWithCheck('admin', {
+        getCmdLineOpts: 1
+      }, this.baseCmdOptions);
       // eslint-disable-next-line no-empty
     } catch (e) {
     }
@@ -239,37 +243,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return await (this.db(database, dbOptions)
       .collection(collection) as any)
       .findAndModify(query, sort, update, options);
-  }
-
-  /**
-   * Converts an existing, non-capped collection to
-   * a capped collection within the same database.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {String} size - The maximum size, in bytes, for the capped collection.
-   *
-   * @param options
-   * @param dbOptions
-   * @return {Promise}
-   */
-  async convertToCapped(
-    database: string,
-    collection: string,
-    size: number,
-    options: RunCommandOptions = {},
-    dbOptions?: DbOptions
-  ): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
-    return await this.runCommandWithCheck(
-      database,
-      {
-        convertToCapped: collection,
-        size: size
-      },
-      options,
-      dbOptions
-    );
   }
 
   /**
@@ -917,34 +890,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Return buildInfo.
-   *
-   * @returns {Promise} buildInfo.
-   */
-  async buildInfo(): Promise<Document> {
-    const result: any = await this.runCommandWithCheck(
-      'admin',
-      {
-        buildInfo: 1
-      },
-      this.baseCmdOptions
-    );
-    return result;
-  }
-
-  /**
-   * Return cmdLineOpts.
-   *
-   * @returns {Promise} buildInfo.
-   */
-  async getCmdLineOpts(): Promise<Document> {
-    const result: any = await this.runCommandWithCheck(
-      'admin', { getCmdLineOpts: 1 }, this.baseCmdOptions
-    );
-    return result;
-  }
-
-  /**
    * Drop a database
    *
    * @param {String} db - The database name.
@@ -1014,30 +959,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Drop indexes for a collection
-   *
-   * @param {string} database - the db name.
-   * @param {string} collection - the collection name.
-   * @param {(string|string[]|Document|Document[])} indexes - the indexes to be removed.
-   * @param {CommandOptions} [options] - The command options.
-   * @param {DbOptions} [dbOptions] - The database options.
-   *
-   * @returns {Promise<Document>}
-   */
-  async dropIndexes(
-    database: string,
-    collection: string,
-    indexes: string|string[]|Document|Document[],
-    options: RunCommandOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
-    return await this.runCommandWithCheck(database, {
-      dropIndexes: collection,
-      index: indexes,
-    }, options, dbOptions);
-  }
-
-  /**
    * Returns an array of collection infos
    *
    * @param {String} database - The db name.
@@ -1077,27 +998,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return await this.db(database, dbOptions)
       .collection(collection)
       .stats(options as { scale: 1 });
-  }
-
-  /**
-   * Reindex all indexes on the collection.i
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} options - The command options.
-   * @param {Object} dbOptions - The database options (i.e. readConcern, writeConcern. etc).
-   * @return {Promise}
-   */
-  async reIndex(
-    database: string,
-    collection: string,
-    options: RunCommandOptions = {},
-    dbOptions?: DbOptions
-  ): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
-    return await this.runCommandWithCheck(database, {
-      reIndex: collection
-    }, options, dbOptions);
   }
 
   /**

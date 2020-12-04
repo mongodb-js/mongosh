@@ -699,7 +699,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async version(): Promise<Document> {
+  async version(): Promise<string> {
     this._emitDatabaseApiCall('version', {});
     const info: Document = await this._runAdminCommand(
       {
