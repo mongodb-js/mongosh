@@ -40,22 +40,22 @@ describe('BSON e2e', function() {
       client.close();
     });
     const outputDoc = {
-      // ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")', TODO: Node 4.0 upgrade see NODE-2929
+      ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
       DBRef: 'DBRef("a", "5f16b8bebe434dc98cdfc9cb", "db")',
-      MinKey: '{ "$minKey" : 1 }',
-      MaxKey: '{ "$maxKey" : 1 }',
-      NumberInt: 'NumberInt(32)',
-      NumberLong: 'NumberLong("64")',
+      MinKey: 'MinKey()',
+      MaxKey: 'MaxKey()',
+      NumberInt: 'Int32(32)',
+      NumberLong: 'Long("64")',
       Timestamp: 'Timestamp(1, 100)',
-      Symbol: '"abc"',
-      Code: '{ "code" : "abc" }',
-      NumberDecimal: 'NumberDecimal("1")',
-      BinData: 'BinData(128, "MTIzNA==")'
+      Symbol: 'abc',
+      Code: 'Code("abc")',
+      NumberDecimal: 'Decimal128("1")',
+      BinData: 'Binary("MTIzNA==", 128)'
     };
     it('Entire doc prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const inputDoc = {
-        // ObjectId: new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'), TODO: Node 4.0 upgrade see NODE-2929
+        ObjectId: new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'),
         DBRef: new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
         MinKey: new bson.MinKey(),
         MaxKey: new bson.MaxKey(),
@@ -69,7 +69,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne(inputDoc);
       await shell.writeInputLine('db.test.findOne()');
       await eventually(() => {
-        // shell.assertContainsOutput(outputDoc.ObjectId); TODO: Node 4.0 upgrade see NODE-2929
+        shell.assertContainsOutput(outputDoc.ObjectId);
         shell.assertContainsOutput(outputDoc.DBRef);
         shell.assertContainsOutput(outputDoc.MinKey);
         shell.assertContainsOutput(outputDoc.MaxKey);
@@ -82,8 +82,8 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Entire doc prints when created by user', async() => {
-      // ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'), TODO: Node 4.0 upgrade see NODE-2929
       const value = `doc = {
+        ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
         DBRef: new DBRef('a', '5f16b8bebe434dc98cdfc9cb', 'db'),
         MinKey: new MinKey(),
         MaxKey: new MaxKey(),
@@ -97,7 +97,7 @@ describe('BSON e2e', function() {
       }\n`;
       await shell.writeInputLine(value);
       await eventually(() => {
-        // shell.assertContainsOutput(outputDoc.ObjectId); TODO: Node 4.0 upgrade see NODE-2929
+        shell.assertContainsOutput(outputDoc.ObjectId);
         shell.assertContainsOutput(outputDoc.DBRef);
         shell.assertContainsOutput(outputDoc.MinKey);
         shell.assertContainsOutput(outputDoc.MaxKey);
@@ -109,7 +109,7 @@ describe('BSON e2e', function() {
       });
       shell.assertNoErrors();
     });
-    it.skip('ObjectId prints when returned from the server', async() => { // TODO: Node 4.0 upgrade see NODE-2929
+    it('ObjectId prints when returned from the server', async() => {
       const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
@@ -135,7 +135,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('{ "$minKey" : 1 }');
+        shell.assertContainsOutput('MinKey()');
       });
       shell.assertNoErrors();
     });
@@ -145,7 +145,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('{ "$maxKey" : 1 }');
+        shell.assertContainsOutput('MaxKey()');
       });
       shell.assertNoErrors();
     });
@@ -159,23 +159,13 @@ describe('BSON e2e', function() {
       });
       shell.assertNoErrors();
     });
-    it.skip('Symbol prints when returned from the server', async() => { //  TODO: Node 4.0 upgrade see NODE-2929
-      const value = new bson.BSONSymbol('abc');
-      await shell.writeInputLine(`use ${dbName}`);
-      await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('"abc"');
-      });
-      shell.assertNoErrors();
-    });
     it('Code prints when returned from the server', async() => {
       const value = new bson.Code('abc');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('{ "code" : "abc" }');
+        shell.assertContainsOutput('Code("abc")');
       });
       shell.assertNoErrors();
     });
@@ -185,7 +175,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('NumberDecimal("1")');
+        shell.assertContainsOutput('Decimal128("1")');
       });
       shell.assertNoErrors();
     });
@@ -196,11 +186,11 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('BinData(128, "MTIzNA==")');
+        shell.assertContainsOutput('Binary("MTIzNA==", 128)');
       });
       shell.assertNoErrors();
     });
-    it.skip('ObjectId prints when created by user', async() => { // TODO: Node 4.0 upgrade see NODE-2929
+    it('ObjectId prints when created by user', async() => {
       const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
       await shell.writeInputLine(value);
       await eventually(() => {
@@ -220,7 +210,7 @@ describe('BSON e2e', function() {
       const value = 'new MaxKey()';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('{ "$maxKey" : 1 }');
+        shell.assertContainsOutput('MaxKey()');
       });
       shell.assertNoErrors();
     });
@@ -228,7 +218,7 @@ describe('BSON e2e', function() {
       const value = 'new MinKey()';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('{ "$minKey" : 1 }');
+        shell.assertContainsOutput('MinKey()');
       });
       shell.assertNoErrors();
     });
@@ -236,7 +226,7 @@ describe('BSON e2e', function() {
       const value = 'NumberInt("32.5")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberInt(32)');
+        shell.assertContainsOutput('Int32(32)');
       });
       shell.assertNoErrors();
     });
@@ -244,7 +234,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong("64")');
+        shell.assertContainsOutput('Long("64")');
       });
       shell.assertNoErrors();
     });
@@ -252,7 +242,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("345678654321234561")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberLong("345678654321234561")');
+        shell.assertContainsOutput('Long("345678654321234561")');
       });
       shell.assertNoErrors();
     });
@@ -276,7 +266,7 @@ describe('BSON e2e', function() {
       const value = 'new Code("abc")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('{ "code" : "abc" }');
+        shell.assertContainsOutput('Code("abc")');
       });
       shell.assertNoErrors();
     });
@@ -284,7 +274,7 @@ describe('BSON e2e', function() {
       const value = 'new Code("abc", { s: 1 })';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('{ "code" : "abc", "scope" : {"s":1} }');
+        shell.assertContainsOutput('Code("abc", {"s":1})');
       });
       shell.assertNoErrors();
     });
@@ -292,7 +282,7 @@ describe('BSON e2e', function() {
       const value = 'NumberDecimal("100")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('NumberDecimal("100")');
+        shell.assertContainsOutput('Decimal128("100")');
       });
       shell.assertNoErrors();
     });
@@ -302,7 +292,7 @@ describe('BSON e2e', function() {
       const value = 'BinData(128, "MTIzNA==")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput(value);
+        shell.assertContainsOutput('Binary("MTIzNA==", 128)');
       });
       shell.assertNoErrors();
     });
@@ -326,7 +316,7 @@ describe('BSON e2e', function() {
       const value = 'UUID("abcdef")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('BinData(4, "q83v")');
+        shell.assertContainsOutput('Binary("q83v", 4)');
       });
       shell.assertNoErrors();
     });
@@ -404,16 +394,6 @@ describe('BSON e2e', function() {
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
-      shell.assertNoErrors();
-    });
-    it.skip('Symbol has help when returned from the server', async() => { // TODO: Node 4.0 upgrade see NODE-2929
-      const value = new bson.BSONSymbol('1');
-      await shell.writeInputLine(`use ${dbName}`);
-      await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help');
       await eventually(() => {
         shell.assertContainsOutput('BSON Class');
       });
@@ -502,7 +482,7 @@ describe('BSON e2e', function() {
       const value = 'new Timestamp(0, 100)';
       await shell.writeInputLine(`${value}.help`);
       await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
+        shell.assertContainsOutput('Timestamp BSON Class');
       });
       shell.assertNoErrors();
     });
@@ -588,14 +568,6 @@ describe('BSON e2e', function() {
     });
     it('Timestamp type has help when created by user', async() => {
       const value = 'Timestamp.help';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
-      shell.assertNoErrors();
-    });
-    it('Symbol type has help when created by user', async() => {
-      const value = 'Symbol.help()';
       await shell.writeInputLine(`${value}.help`);
       await eventually(() => {
         shell.assertContainsOutput('BSON Class');

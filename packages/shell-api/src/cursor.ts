@@ -168,6 +168,13 @@ export default class Cursor extends ShellApiClass {
     return this._cursor.tryNext();
   }
 
+  async* [Symbol.asyncIterator]() {
+    let doc;
+    while ((doc = await this.tryNext()) !== null) {
+      yield doc;
+    }
+  }
+
   @returnType('Cursor')
   hint(index: string): Cursor {
     this._cursor.hint(index);

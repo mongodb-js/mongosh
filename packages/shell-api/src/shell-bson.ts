@@ -1,6 +1,6 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
-import { makePrintableBson, BinaryType, bson as BSON } from '@mongosh/service-provider-core';
+import { BinaryType, bson as BSON } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
 
@@ -8,6 +8,7 @@ function constructHelp(className: string): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp = {
     help: `${classHelpKeyPrefix}.description`,
+    example: `${classHelpKeyPrefix}.example`,
     docs: `${classHelpKeyPrefix}.link`,
     attr: []
   };
@@ -32,15 +33,17 @@ function dateHelper(...args: DateConstructorArguments): Date {
  * @param {Object} bson
  */
 export default function constructShellBson(bson: any): any {
+  const bsonNames = [
+    'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol'
+  ]; // Statically set this so we can error if any are missing
+
   // If the service provider doesn't provide a BSON version, use service-provider-core's BSON package (js-bson 4.x)
   if (bson === undefined) {
     bson = BSON;
   }
-  makePrintableBson(bson);
   const helps: any = {};
-  [
-    'Binary', 'Code', 'DBRef', 'Decimal128', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map'
-  ].forEach((className) => {
+  bsonNames.forEach((className) => {
     if (!(className in bson)) {
       throw new MongoshInternalError(`${className} does not exist in provided BSON package.`);
     }
@@ -55,28 +58,8 @@ export default function constructShellBson(bson: any): any {
   });
   // Symbol is deprecated
   bson.BSONSymbol.prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
-  bson.BSONSymbol.prototype.platforms = ALL_PLATFORMS;
-  bson.BSONSymbol.prototype.topologies = ALL_TOPOLOGIES;
-
-  // Classes whose names differ from shell to driver
-  const helpSymbol = constructHelp('Symbol');
-  bson.BSONSymbol.prototype.help = (): Help => (helpSymbol);
-  Object.setPrototypeOf(bson.BSONSymbol.prototype.help, helpSymbol);
-  const helpDecimal = constructHelp('NumberDecimal');
-  bson.Decimal128.prototype.help = (): Help => (helpDecimal);
-  Object.setPrototypeOf(bson.Decimal128.prototype.help, helpDecimal);
-  const helpInt = constructHelp('NumberInt');
-  bson.Int32.prototype.help = (): Help => (helpInt);
-  Object.setPrototypeOf(bson.Int32.prototype.help, helpInt);
-  const helpLong = constructHelp('NumberLong');
-  bson.Long.prototype.help = (): Help => (helpLong);
-  Object.setPrototypeOf(bson.Long.prototype.help, helpLong);
-  const helpBinData = constructHelp('BinData');
-  bson.Binary.prototype.help = (): Help => (helpBinData);
-  Object.setPrototypeOf(bson.Binary.prototype.help, helpBinData);
 
   const bsonPkg = {
-    RegExp: RegExp,
     DBRef: function(namespace: string, oid: any, db?: string): any {
       assertArgsDefined(namespace, oid);
       assertArgsType([namespace, db], ['string', 'string']);
@@ -174,25 +157,19 @@ export default function constructShellBson(bson: any): any {
       assertArgsType([hexstr], ['string']);
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
-    }
-  };
-  const keys: (keyof typeof bsonPkg)[] = [
-    'ObjectId', 'Code', 'DBRef', 'MaxKey', 'MinKey', 'Timestamp', 'Map'
-  ];
-  keys.forEach((className) => {
-    bsonPkg[className].help = (): Help => (helps[className]);
-    Object.setPrototypeOf(bsonPkg[className].help, helps[className]);
+    },
+    // Add the driver types to bsonPkg so we can deprecate the shell ones later
+    Decimal128: bson.Decimal128,
+    BSONSymbol: bson.BSONSymbol,
+    Int32: bson.Int32,
+    Long: bson.Long,
+    Binary: bson.Binary
+  } as any;
+
+  Object.keys(bsonPkg).forEach((className) => {
+    const help = helps[className] || constructHelp(className);
+    bsonPkg[className].help = (): Help => (help);
+    Object.setPrototypeOf(bsonPkg[className].help, help);
   });
-  // Classes whose names differ from shell to driver
-  (bsonPkg.Symbol as any).help = (): Help => (helpSymbol);
-  Object.setPrototypeOf((bsonPkg.Symbol as any).help, helpSymbol);
-  (bsonPkg.NumberDecimal as any).help = (): Help => (helpDecimal);
-  Object.setPrototypeOf((bsonPkg.NumberDecimal as any).help, helpDecimal);
-  (bsonPkg.NumberInt as any).help = (): Help => (helpInt);
-  Object.setPrototypeOf((bsonPkg.NumberInt as any).help, helpInt);
-  (bsonPkg.NumberLong as any).help = (): Help => (helpLong);
-  Object.setPrototypeOf((bsonPkg.NumberLong as any).help, helpLong);
-  (bsonPkg.BinData as any).help = (): Help => (helpBinData);
-  Object.setPrototypeOf((bsonPkg.BinData as any).help, helpBinData);
   return bsonPkg;
 }

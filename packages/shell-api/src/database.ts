@@ -7,21 +7,22 @@ import {
   returnType,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  topologies
 } from './decorators';
-import { ADMIN_DB, asPrintable, ServerVersions } from './enums';
+import { ADMIN_DB, asPrintable, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
-  assertArgsDefined, assertArgsType,
-  assertKeysDefined, getPrintableShardStatus,
-  processDigestPassword, tsToSeconds
+  assertArgsDefined,
+  assertArgsType,
+  assertKeysDefined,
+  getPrintableShardStatus,
+  processDigestPassword,
+  tsToSeconds
 } from './helpers';
-import {
-  Document,
-  WriteConcern,
-  ChangeStreamOptions
-} from '@mongosh/service-provider-core';
+
+import { ChangeStreamOptions, Document, WriteConcern } from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
 import {
   CommonErrors,
@@ -717,7 +718,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async version(): Promise<Document> {
+  async version(): Promise<string> {
     this._emitDatabaseApiCall('version', {});
     const info: Document = await this._runAdminCommand(
       {
@@ -1044,6 +1045,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.Sharded])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(this, verbose);
@@ -1051,6 +1053,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.ReplSet])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
     const local = this.getSiblingDB('local');
@@ -1119,6 +1122,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.ReplSet])
   async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
 
@@ -1176,6 +1180,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  @topologies([Topologies.ReplSet])
   async printReplicationInfo(): Promise<CommandResult> {
     const result = {} as any;
     let replInfo;
@@ -1208,6 +1213,7 @@ export default class Database extends ShellApiClass {
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
   watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(

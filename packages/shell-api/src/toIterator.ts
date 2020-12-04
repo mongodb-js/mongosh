@@ -2,15 +2,12 @@ import {
   CommonErrors,
   MongoshInvalidInputError
 } from '@mongosh/errors';
-import Cursor from './cursor';
 class Iterator {
-  iterable: Cursor | any[];
-  isCursor: boolean;
+  iterable: AsyncIterable<any> | Iterable<any>;
 
-  constructor(iterable: Cursor | any[]) {
+  constructor(iterable: AsyncIterable<any> | Iterable<any>) {
     this.iterable = iterable;
-    this.isCursor = this.iterable instanceof Cursor;
-    if (!this.isCursor && !Array.isArray(this.iterable)) {
+    if (!Array.isArray(iterable) && !(Symbol.iterator in iterable) && !(Symbol.asyncIterator in iterable)) {
       throw new MongoshInvalidInputError(
         'Calling custom forEach method may not work as expected because callback is async. Try converting to array type before calling forEach.',
         CommonErrors.InvalidArgument
@@ -26,23 +23,15 @@ class Iterator {
     });
     return proxy;
   }
-  async forEach(func: (...args: any[]) => void | Promise<void>, thisArg: any) {
-    if (this.isCursor) {
-      const cursor = this.iterable as Cursor;
-      let doc = await cursor.tryNext();
-      while (doc !== null) {
-        await func(doc);
-        doc = await cursor.tryNext();
-      }
-    } else {
-      const arr = this.iterable as any[];
-      for (let i = 0; i < arr.length; i++) {
-        await func(arr[i], i, arr, thisArg);
-      }
+
+  async forEach(func: (...args: any[]) => void | Promise<void>, thisArg?: any) {
+    let i = 0;
+    for await (const value of this.iterable) {
+      await func.call(thisArg, value, i++, this.iterable);
     }
   }
 }
 
-export default (iterable: Cursor | any[]) => {
+export default (iterable: AsyncIterable<any> | Iterable<any>) => {
   return new Iterator(iterable);
 };

@@ -467,91 +467,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#buildInfo', () => {
-    let clientStub: StubbedInstance<MongoClient>;
-    let dbStub: StubbedInstance<Db>;
-
-    const buildInfoResult = {
-      version: '4.0.0',
-      gitVersion: 'a4b751dcf51dd249c5865812b390cfd1c0129c30',
-      javascriptEngine: 'mozjs',
-      versionArray: [4, 0, 0, 0],
-    };
-
-    beforeEach(() => {
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves(buildInfoResult);
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    it('executes the command against the admin database', async() => {
-      const cmd = { buildInfo: 1 };
-      const result = await serviceProvider.buildInfo();
-      expect(result).to.deep.equal(buildInfoResult);
-      expect(clientStub.db).to.have.been.calledWith('admin');
-      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
-    });
-  });
-
-  describe('#getCmdLineOpts', () => {
-    let dbStub: StubbedInstance<Db>;
-    let clientStub: StubbedInstance<MongoClient>;
-
-    const cmdLineOptsResult = {
-      argv: [
-        '/opt/mongodb-osx-x86_64-enterprise-3.6.3/bin/mongod',
-        '--dbpath=/Users/user/testdata'
-      ],
-      parsed: {
-        storage: {
-          dbPath: '/Users/user/testdata'
-        }
-      },
-      ok: 1
-    };
-
-    beforeEach(() => {
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves(cmdLineOptsResult);
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    it('executes getCmdLineOpts against an admin db', async() => {
-      const cmd = { getCmdLineOpts: 1 };
-      const result = await serviceProvider.getCmdLineOpts();
-      expect(result).to.deep.equal(cmdLineOptsResult);
-      expect(clientStub.db).to.have.been.calledWith('admin');
-      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
-    });
-  });
-
-  describe('#convertToCapped', () => {
-    let dbStub: StubbedInstance<Db>;
-    let clientStub: StubbedInstance<MongoClient>;
-
-    beforeEach(() => {
-      const result = { ok: 1 };
-
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves(result);
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    it('executes the command', async() => {
-      const cmd = { convertToCapped: 'coll1', size: 1000 };
-      const result = await serviceProvider.convertToCapped('db1', 'coll1', 1000);
-      expect(result).to.deep.equal({ ok: 1 });
-      expect(clientStub.db).to.have.been.calledWith('db1');
-      expect(dbStub.command).to.have.been.calledWith(cmd, DEFAULT_BASE_OPTS);
-    });
-  });
-
   describe('#createIndexes', () => {
     let indexSpecs;
     let nativeMethodResult;
@@ -613,28 +528,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#dropIndexes', () => {
-    let dbStub: StubbedInstance<Db>;
-    let clientStub: StubbedInstance<MongoClient>;
-    const args = { dropIndexes: 'coll1', index: ['index-1'] };
-    const result = { ok: 1 };
-
-    beforeEach(() => {
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves(result);
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    it('executes the command', async() => {
-      const result = await serviceProvider.dropIndexes('db1', 'coll1', ['index-1']);
-      expect(result).to.deep.equal({ ok: 1 });
-      expect(dbStub.command).to.have.been.calledWith(args);
-      expect(clientStub.db).to.have.been.calledWith('db1');
-    });
-  });
-
   describe('#listCollections', () => {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;
@@ -685,25 +578,6 @@ describe('CliServiceProvider', () => {
       const result = await serviceProvider.stats('db1', 'coll1', options);
       expect(result).to.deep.equal(expectedResult);
       expect(collectionStub.stats).to.have.been.calledWith(options);
-    });
-  });
-
-  describe('#reIndex', () => {
-    let dbStub: StubbedInstance<Db>;
-    let clientStub: StubbedInstance<MongoClient>;
-
-    beforeEach(() => {
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves({ ok: 1 });
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    it('executes the command against the database', async() => {
-      const result = await serviceProvider.reIndex('db1', 'coll1');
-      expect(result).to.deep.equal({ ok: 1 });
-      expect(dbStub.command).to.have.been.calledWith({ reIndex: 'coll1' });
     });
   });
 
@@ -764,38 +638,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('Throw error on ok: 0', () => {
-    let clientStub;
-    let dbStub;
-
-    beforeEach(() => {
-      dbStub = stubInterface<Db>();
-      clientStub = stubInterface<MongoClient>();
-      dbStub.command.resolves({ ok: 0 });
-      clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
-    });
-
-    afterEach(() => {
-      dbStub = null;
-      clientStub = null;
-      serviceProvider = null;
-    });
-
-    ['convertToCapped', 'buildInfo', 'getCmdLineOpts', 'dropIndexes', 'reIndex'].forEach((cmd) => {
-      it(cmd, async() => {
-        try {
-          await serviceProvider[cmd]('db', 'coll', 1);
-        } catch (e) {
-          expect(e.message).to.include(cmd);
-          expect(e.name).to.equal('MongoshCommandFailed');
-          expect(e.code).to.equal(CommonErrors.CommandFailed);
-          return;
-        }
-        expect.fail(`Error not thrown for ok:0 on cmd ${cmd}`);
-      });
-    });
-  });
   describe('sessions', () => {
     let clientStub: StubbedInstance<MongoClient>;
     let serviceProvider: CliServiceProvider;

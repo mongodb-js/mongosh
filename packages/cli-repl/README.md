@@ -19,7 +19,6 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --norc                                 Will not run the '.mongorc.js' file on start up
         --eval [arg]                           Evaluate javascript
         --retryWrites                          Automatically retry write operations upon transient network errors
-        --disableImplicitSessions              Do not automatically create and use implicit sessions
 
   Authentication Options:
 

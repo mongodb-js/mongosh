@@ -280,5 +280,29 @@ describe('CliRepl', () => {
       const [ err ] = await errored;
       expect(err.message).to.equal('The request was aborted by the user');
     });
+
+    it('allows .forEach with async code for cursors', async() => {
+      await cliRepl.start(await testServer.connectionString(), {});
+
+      input.write('use clirepltest\n');
+      await waitEval(cliRepl.bus);
+      input.write('db.test.insertMany([{a:2},{a:4},{a:6}])\n');
+      await waitEval(cliRepl.bus);
+      input.write('let cursor = db.test.find();\n');
+      await waitEval(cliRepl.bus);
+
+      const rewrittenPromise = once(cliRepl.bus, 'mongosh:rewritten-async-input');
+      input.write('cursor.forEach(doc => db.test.insertOne({ a: doc.a + 1 }))\n');
+      const [{ rewritten }] = await rewrittenPromise;
+      expect(rewritten).to.include('toIterator'); // Make sure we're testing the right thing
+      await waitEval(cliRepl.bus);
+
+      output = '';
+      input.write('db.test.find().sort({a:1}).map(doc => doc.a)\n');
+      await waitEval(cliRepl.bus);
+      expect(output).to.include('[ 2, 3, 4, 5, 6, 7 ]');
+
+      input.write('.exit\n');
+    });
   });
 });

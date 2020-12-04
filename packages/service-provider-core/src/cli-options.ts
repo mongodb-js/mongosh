@@ -10,7 +10,6 @@ export default interface CliOptions {
   awsSecretAccessKey?: string;
   awsSessionToken?: string;
   db?: string;
-  disableImplicitSessions?: boolean;
   eval?: string;
   gssapiHostName?: string;
   gssapiServiceName?: string;

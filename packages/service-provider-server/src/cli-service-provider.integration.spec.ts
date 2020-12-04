@@ -392,20 +392,6 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#buildInfo', () => {
-    context('when the filter is empty', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await serviceProvider.buildInfo();
-      });
-
-      it('returns a semver', () => {
-        expect(result.version).to.match(/^\d+.\d+/);
-      });
-    });
-  });
-
   describe('#dropDatabase', () => {
     context('when a database does not exist', () => {
       let result;
@@ -439,29 +425,6 @@ describe('CliServiceProvider [integration]', function() {
       it('deletes the database', async() => {
         expect(await dbExists()).to.be.false;
       });
-    });
-  });
-
-  describe('#convertToCapped', () => {
-    it('converts a collection to capped', async() => {
-      const collName = 'coll1';
-      const nativeCollection = db.collection(collName);
-
-      await db.createCollection(collName);
-
-      expect(
-        await nativeCollection.isCapped()
-      ).to.be.false;
-
-      await serviceProvider.convertToCapped(
-        dbName,
-        collName,
-        10000
-      );
-
-      expect(
-        await nativeCollection.isCapped()
-      ).to.be.true;
     });
   });
 
@@ -506,44 +469,6 @@ describe('CliServiceProvider [integration]', function() {
       expect(
         result.map((spec) => spec.key)
       ).to.deep.equal([{ _id: 1 }, { x: 1 }]);
-    });
-  });
-
-  describe('#dropIndexes', () => {
-    it('drop existing indexes', async() => {
-      const collName = 'coll1';
-      const nativeCollection = db.collection(collName);
-
-      await nativeCollection.createIndex({ x: 1 }, { name: 'index_1' });
-
-      expect(
-        await nativeCollection.indexExists('index_1')
-      ).to.be.true;
-
-      await serviceProvider.dropIndexes(
-        dbName,
-        collName,
-        'index_1'
-      );
-
-      expect(
-        await nativeCollection.indexExists('index_1')
-      ).to.be.false;
-    });
-
-    it('throws an error if index does not exist', async() => {
-      const collName = 'coll1';
-      await db.createCollection(collName);
-
-      let error;
-      await serviceProvider.dropIndexes(
-        dbName,
-        collName,
-        ['index_1']
-      ).catch(err => {error = err;});
-
-      expect(error.ok).to.equal(0);
-      expect(error.codeName).to.equal('IndexNotFound');
     });
   });
 
@@ -609,34 +534,6 @@ describe('CliServiceProvider [integration]', function() {
       ).to.deep.contain({
         name: 'coll2',
         type: 'collection'
-      });
-    });
-  });
-
-  describe('#reIndex', () => {
-    it('runs against the db', async() => {
-      const collName = 'coll1';
-      await db.createCollection(collName);
-
-      const result: any = await serviceProvider.reIndex(
-        dbName,
-        collName
-      );
-
-      expect(
-        result
-      ).to.deep.include({
-        nIndexesWas: 1,
-        nIndexes: 1,
-        ok: 1
-      });
-      expect(result.indexes.length).to.equal(1);
-      expect(result.indexes[0]).to.deep.include({
-        v: 2,
-        key: {
-          '_id': 1
-        },
-        name: '_id_'
       });
     });
   });
