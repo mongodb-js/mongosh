@@ -17,10 +17,11 @@ import {
   Long,
   Binary,
   Map,
-  calculateObjectSize
+  calculateObjectSize,
+  Double
 } from 'bson';
 import ServiceProviderBulkOp, { ServiceProviderBulkFindOp, BulkBatch } from './bulk';
-import makePrintableBson, { bsonStringifiers } from './printable-bson';
+import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
 
@@ -37,7 +38,8 @@ const bson = {
   Long,
   Binary,
   Map,
-  calculateObjectSize
+  calculateObjectSize,
+  Double
 };
 
 export {
@@ -51,7 +53,6 @@ export {
   DEFAULT_DB,
   ServiceProviderCore,
   bson,
-  makePrintableBson,
   bsonStringifiers,
   ServiceProviderBulkFindOp,
   ServiceProviderBulkOp,

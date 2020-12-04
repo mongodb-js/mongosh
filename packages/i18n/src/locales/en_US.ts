@@ -1573,116 +1573,190 @@ const translations: Catalog = {
       },
       DBRef: {
         help: {
-          description: 'The DBRef BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/DBRef.html'
+          description: 'The DBRef BSON Class.',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/DBRef.html',
+          example: 'new DBRef(namespace: string, oid: ObjectId, db: string [optional])'
         },
         attributes: {}
       },
       MaxKey: {
         help: {
-          description: 'The MaxKey BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MaxKey.html'
+          description: 'The MaxKey BSON Class.',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MaxKey.html',
+          example: 'new MaxKey()'
         },
         attributes: {}
       },
       MinKey: {
         help: {
           description: 'The MinKey BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MinKey.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MinKey.html',
+          example: 'new MinKey()'
         },
         attributes: {}
       },
       ObjectId: {
         help: {
           description: 'The ObjectId BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectID.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectID.html',
+          example: 'new ObjectId(id: string|number [optional])'
         },
         attributes: {}
       },
       Symbol: {
         help: {
-          description: 'The Symbol BSON Class. Deprecated since 1.6',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html'
+          description: 'The Symbol BSON Class helper method that constructs a BSONSymbol type. Deprecated since server version 1.6',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html',
+          example: 'Symbol("abc")'
+        },
+        attributes: {}
+      },
+      BSONSymbol: {
+        help: {
+          description: 'The Symbol BSON Class. Deprecated since server version 1.6',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html',
+          example: 'new BSONSymbol("abc")'
         },
         attributes: {}
       },
       Timestamp: {
         help: {
           description: 'The Timestamp BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Timestamp.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Timestamp.html',
+          example: 'new Timestamp(low: signed 32 bit number, high: signed 32 bit number)'
         },
         attributes: {}
       },
       Code: {
         help: {
           description: 'The Code BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Code.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Code.html',
+          example: 'new Code("x", { x: 1 } [optional])'
         },
         attributes: {}
       },
       NumberDecimal: {
         help: {
-          description: 'The Decimal128 BSON Class',
+          description: 'A helper method that constructs a Decimal128 BSON Class from a string',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Decimal128.html',
+          example: 'NumberDecimal("1.23423423")'
+        },
+      },
+      Decimal128: {
+        help: {
+          description: 'The Decimal128 BSON Class. Takes a Buffer as an argument.',
           link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Decimal128.html'
         },
         attributes: {}
       },
       NumberInt: {
         help: {
+          description: 'A helper method that constructs an Int32 BSON Class from a string',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html',
+          example: 'NumberInt("123")'
+        },
+      },
+      Int32: {
+        help: {
           description: 'The 32-bit Integer BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html'
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html',
+          example: 'new Int32(123)'
+        },
+        attributes: {}
+      },
+      Long: {
+        help: {
+          description: 'The Long BSON Class',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          example: 'new Long(low: signed 32 bit number, high: signed 32 bit number)'
+        },
+        attributes: {}
+      },
+      Double: {
+        help: {
+          description: 'The Double BSON Class.',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          example: 'new Double(123)'
         },
         attributes: {}
       },
       NumberLong: {
         help: {
-          description: 'The Long BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html'
+          description: 'A helper method that constructs a Long BSON Class from a string',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          example: 'NumberLong("123")'
         },
-        attributes: {}
       },
       Date: {
         help: {
           description: 'The Date Class'
         },
-        attributes: {}
       },
       ISODate: {
         help: {
-          description: 'Helper method for creating dates using ISO'
-        },
-        attributes: {}
+          description: 'Helper method for creating dates using ISO',
+        }
       },
       BinData: {
         help: {
-          description: 'The Binary BSON Class',
+          description: 'A helper method that constructs a Binary BSON Class.',
+          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Binary.html',
+          example: 'BinData(subtype: number, base64string)'
+        },
+      },
+      Binary: {
+        help: {
+          description: 'The Binary BSON Class that takes in (Buffer, subtype: number) as arguments.',
           link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Binary.html'
         },
-        attributes: {}
+        attributes: {
+          SUBTYPE_BYTE_ARRAY: {
+            description: 'The byte array BSON type'
+          },
+          SUBTYPE_DEFAULT: {
+            description: 'The default BSON type'
+          },
+          SUBTYPE_FUNCTION: {
+            description: 'The function BSON type'
+          },
+          SUBTYPE_MD5: {
+            description: 'The MD5 BSON type'
+          },
+          SUBTYPE_USER_DEFINED: {
+            description: 'The user BSON type'
+          },
+          SUBTYPE_UUID: {
+            description: 'The UUID BSON type'
+          },
+          SUBTYPE_UUID_OLD: {
+            description: 'The Old UUID BSON type'
+          }
+        }
       },
       HexData: {
         help: {
           description: 'Helper method to create BinData with subtype hex. Accepts hex string'
         },
-        attributes: {}
       },
       UUID: {
         help: {
           description: 'Helper method to create BinData with subtype UUID. Accepts hex string'
         },
-        attributes: {}
       },
       MD5: {
         help: {
           description: 'Helper method to create BinData with subtype MD5. Accepts hex string'
         },
-        attributes: {}
       },
       bsonsize: {
         help: {
-          description: 'Helper method to calculate object size'
+          description: 'Helper method to calculate BSON object size'
         },
-        attributes: {}
+      },
+      Map: {
+        help: {
+          description: 'BSON Map'
+        },
       },
       Bulk: {
         help: {
