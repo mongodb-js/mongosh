@@ -21,28 +21,28 @@ enum ShellApiErrors {
    *
    * **Solution: Be sure to enable sharding on the database or that the collection is sharded.**
    */
-  NoSharding = 'SHAPI-10110',
+  NoSharding = 'SHAPI-10001',
 
   /**
    * Signals calling a method requiring a replica set without being connected to a replica set.
    *
    * **Solution: Make sure you are connected to a replica set.**
    */
-  NotConnectedToReplicaSet = 'SHAPI-10314',
+  NotConnectedToReplicaSet = 'SHAPI-10002',
 
   /**
    * Signals calling a method that requires to be connected to a `mongos` instead of just a `mongod`.
    *
    * **Solution: Ensure you are connected to a `mongos` instances.**
    */
-  NotConnectedToMongos = 'SHAPI-19009',
+  NotConnectedToMongos = 'SHAPI-10003',
 
   /**
    * Signals calling an operation that requires an active database connection without being connected.
    *
    * **Solution: Connect to a database before executing the operation.**
    */
-  NotConnected = 'SHAPI-19010',
+  NotConnected = 'SHAPI-10004',
 }
 
 export {
