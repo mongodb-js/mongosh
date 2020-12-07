@@ -755,7 +755,7 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
 
-      [['anna'], [{}], [{ user: 'anna', pass: 'pwd' }]].forEach(args => {
+      [['anna'], [{}], [{ user: 'anna', pass: 'pwd' }], ['name', 'pwd', 'hmm']].forEach(args => {
         it('throws for invalid arguments', async() => {
           const catchedError = await database.auth(...args as any).catch(e => e);
           expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
@@ -1808,6 +1808,12 @@ describe('Database', () => {
         const error = await database.printCollectionStats(-1).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.code).to.equal(CommonErrors.InvalidArgument);
+      });
+      it('returns an object with per-collection stats', async() => {
+        serviceProvider.listCollections.resolves([{ name: 'abc' }]);
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, totalSize: 1000 });
+        const result = await database.printCollectionStats(1);
+        expect(result.value.abc).to.deep.equal({ ok: 1, totalSize: 1000 });
       });
     });
 

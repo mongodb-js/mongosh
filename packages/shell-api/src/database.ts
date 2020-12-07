@@ -1204,7 +1204,7 @@ export default class Database extends ShellApiClass {
     result['oplog first event time'] = replInfo.tFirst;
     result['oplog last event time'] = replInfo.tLast;
     result.now = replInfo.now;
-    return new CommandResult('StatResult', result);
+    return new CommandResult('StatsResult', result);
   }
 
   @returnsPromise
