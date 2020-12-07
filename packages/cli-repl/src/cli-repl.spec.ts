@@ -68,9 +68,16 @@ describe('CliRepl', () => {
         expect(JSON.parse(content).enableTelemetry).to.be.false;
       });
 
-      it('emits exit when asked to', async() => {
+      it('emits exit when asked to, Node.js-style', async() => {
         const onexit = once(cliRepl.bus, 'mongosh:exit');
         input.write('.exit\n');
+        await onexit;
+        expect(exitCode).to.equal(0);
+      });
+
+      it('emits exit when asked to, mongosh-style', async() => {
+        const onexit = once(cliRepl.bus, 'mongosh:exit');
+        input.write('exit\n');
         await onexit;
         expect(exitCode).to.equal(0);
       });

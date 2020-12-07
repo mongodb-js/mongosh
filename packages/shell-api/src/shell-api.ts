@@ -40,14 +40,11 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async exit(): Promise<void> {
     await this.internalState.close(true);
-    if (this.internalState.initialServiceProvider.platform === ReplPlatform.CLI) {
-      process.exit();
-    } else {
-      throw new MongoshUnimplementedError(
-        `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
-        CommonErrors.NotImplemented
-      );
-    }
+    this.internalState.messageBus.emit('mongosh:exit', 0);
+    throw new MongoshUnimplementedError(
+      `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
+      CommonErrors.NotImplemented
+    );
   }
 
   @returnsPromise
