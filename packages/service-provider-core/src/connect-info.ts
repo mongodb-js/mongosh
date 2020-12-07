@@ -3,7 +3,7 @@
 
 import getBuildInfo from 'mongodb-build-info';
 
-interface ConnectInfo {
+export interface ConnectInfo {
   is_atlas: boolean;
   is_localhost: boolean;
   server_version: string;

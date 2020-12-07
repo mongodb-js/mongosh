@@ -12,7 +12,7 @@ import type { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { CliReplErrors } from './error-codes';
-import MongoshNodeRepl from './mongosh-repl';
+import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { UserConfig } from './types';
 
@@ -27,7 +27,7 @@ export type CliReplOptions = {
   output: Writable;
   shellHomePath: string;
   onExit: (code: number) => never;
-};
+} & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /**
  * The REPL used from the terminal.
@@ -65,7 +65,7 @@ class CliRepl {
 
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
-      nodeReplOptions: {
+      nodeReplOptions: options.nodeReplOptions ?? {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
       bus: this.bus,

@@ -1,12 +1,22 @@
 import { ShellApiAutocompleter } from './shell-api-autocompleter';
 import { expect } from 'chai';
+import { Topologies } from '@mongosh/shell-api';
+
+const standalone440 = {
+  topology: () => Topologies.Standalone,
+  connectionInfo: () => ({
+    is_atlas: false,
+    is_data_lake: false,
+    server_version: '4.4.0'
+  })
+};
 
 describe('Autocompleter', () => {
   describe('getCompletions', () => {
     let autocompleter: ShellApiAutocompleter;
 
     beforeEach(() => {
-      autocompleter = new ShellApiAutocompleter('4.2.1');
+      autocompleter = new ShellApiAutocompleter(standalone440);
     });
 
     it('returns completions for text before cursor', async() => {

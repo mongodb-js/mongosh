@@ -3,8 +3,8 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
+import { startTestServer, MongodSetup } from '../../../testing/integration-testing-hooks';
+import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile, tick } from '../test/repl-helpers';
 import { CliReplErrors } from './error-codes';
 import { MongoshInternalError } from '@mongosh/errors';
 
@@ -174,6 +174,12 @@ describe('CliRepl', () => {
         }
       });
     });
+
+    verifyAutocompletion({
+      testServer: null,
+      wantWatch: true,
+      wantShardDistribution: true
+    });
   });
 
   context('with an actual server', () => {
@@ -311,5 +317,73 @@ describe('CliRepl', () => {
 
       input.write('.exit\n');
     });
+
+    verifyAutocompletion({
+      testServer: testServer,
+      wantWatch: false,
+      wantShardDistribution: false
+    });
   });
+
+  context('with a replset node', () => {
+    verifyAutocompletion({
+      testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
+      wantWatch: true,
+      wantShardDistribution: false
+    });
+  });
+
+  context('with a mongos', () => {
+    verifyAutocompletion({
+      testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
+      wantWatch: true,
+      wantShardDistribution: true
+    });
+  });
+
+  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution }: {
+    testServer: MongodSetup | null,
+    wantWatch: boolean,
+    wantShardDistribution: boolean
+  }): void {
+    describe('autocompletion', () => {
+      let cliRepl: CliRepl;
+
+      beforeEach(async() => {
+        if (testServer === null) {
+          cliReplOptions.shellCliOptions = { nodb: true };
+        }
+        cliReplOptions.nodeReplOptions = { terminal: true };
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(testServer ? await testServer.connectionString() : '', {});
+      });
+
+      afterEach(async() => {
+        await cliRepl.mongoshRepl.close();
+      });
+
+      it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
+        output = '';
+        input.write('db.wat\u0009\u0009');
+        await tick();
+        if (wantWatch) {
+          expect(output).to.include('db.watch');
+        } else {
+          expect(output).not.to.include('db.watch');
+        }
+      });
+
+      it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
+        output = '';
+        input.write('db.coll.getShardDis\u0009\u0009');
+        await tick();
+        if (wantShardDistribution) {
+          expect(output).to.include('db.coll.getShardDistribution');
+        } else {
+          expect(output).not.to.include('db.coll.getShardDistribution');
+        }
+      });
+    });
+  }
 });
+

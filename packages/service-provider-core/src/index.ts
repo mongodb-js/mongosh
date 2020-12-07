@@ -1,5 +1,5 @@
 import ServiceProvider, { ServiceProviderCore } from './service-provider';
-import getConnectInfo from './connect-info';
+import getConnectInfo, { ConnectInfo } from './connect-info';
 import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
 import generateUri, { Scheme } from './uri-generator';
@@ -56,5 +56,6 @@ export {
   bsonStringifiers,
   ServiceProviderBulkFindOp,
   ServiceProviderBulkOp,
-  BulkBatch
+  BulkBatch,
+  ConnectInfo
 };

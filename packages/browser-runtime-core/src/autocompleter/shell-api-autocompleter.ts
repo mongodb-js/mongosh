@@ -1,11 +1,11 @@
-import cliReplCompleter from '@mongosh/autocomplete';
+import cliReplCompleter, { AutocompleteParameters } from '@mongosh/autocomplete';
 import { Autocompleter, Completion } from './autocompleter';
 
 export class ShellApiAutocompleter implements Autocompleter {
-  private serverVersion: string;
+  private parameters: AutocompleteParameters;
 
-  constructor(serverVersion: string) {
-    this.serverVersion = serverVersion;
+  constructor(parameters: AutocompleteParameters) {
+    this.parameters = parameters;
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
@@ -13,7 +13,7 @@ export class ShellApiAutocompleter implements Autocompleter {
       return [];
     }
 
-    const completions = cliReplCompleter(this.serverVersion, code);
+    const completions = cliReplCompleter(this.parameters, code);
 
     if (!completions || !completions.length) {
       return [];

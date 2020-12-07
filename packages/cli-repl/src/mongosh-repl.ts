@@ -82,7 +82,7 @@ class MongoshNodeRepl {
       output: this.output,
       prompt: '> ',
       writer: this.writer.bind(this),
-      completer: completer.bind(null, mongodVersion),
+      completer: completer.bind(null, internalState.getAutocompleteParameters()),
       breakEvalOnSigint: true,
       preview: false,
       asyncEval: this.eval.bind(this),
