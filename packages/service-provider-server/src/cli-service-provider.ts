@@ -618,10 +618,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options: FindAndModifyOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     const findOneAndReplaceOptions: any = { ...this.baseCmdOptions, ...options };
-    if ('returnDocument' in options) {
-      findOneAndReplaceOptions.returnOriginal = (options as any).returnDocument;
-      delete (findOneAndReplaceOptions as any).returnDocument;
-    }
 
     return (
       this.db(database, dbOptions).collection(collection) as any
@@ -648,10 +644,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options: FindAndModifyOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };
-    if ('returnDocument' in options) {
-      findOneAndUpdateOptions.returnOriginal = (options as any).returnDocument;
-      delete (findOneAndUpdateOptions as any).returnDocument;
-    }
 
     return this.db(database, dbOptions)
       .collection(collection)

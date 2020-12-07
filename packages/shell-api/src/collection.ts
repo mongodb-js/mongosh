@@ -19,15 +19,29 @@ import {
   assertKeysDefined,
   dataFormat,
   getAcknowledged,
-  validateExplainableVerbosity
+  validateExplainableVerbosity,
+  FindAndModifyShellOptions,
+  processFindAndModifyOptions
 } from './helpers';
 import {
   AnyBulkWriteOperation,
+  BulkWriteOptions,
+  CollStatsOptions,
+  CountOptions,
+  CountDocumentsOptions,
   ChangeStreamOptions,
-  DbOptions,
+  CreateIndexesOptions,
+  DeleteOptions,
+  DistinctOptions,
   Document,
+  EstimatedDocumentCountOptions,
   ExplainVerbosityLike,
-  FindOptions
+  FindAndModifyOptions,
+  FindOptions,
+  InsertOneOptions,
+  ReplaceOptions,
+  RunCommandOptions,
+  UpdateOptions,
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -48,6 +62,12 @@ import PlanCache from './plan-cache';
 import { printDeprecationWarning } from './deprecation-warning';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+
+type CollStatsShellOptions = CollStatsOptions & {
+  indexDetails?: boolean;
+  indexDetailsKey?: Document;
+  indexDetailsName?: string;
+};
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -168,25 +188,18 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async bulkWrite(
     operations: AnyBulkWriteOperation[],
-    options: Document = {}
+    options: BulkWriteOptions = {}
   ): Promise<BulkWriteResult> {
-    assertArgsDefined(options);
-    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall(
       'bulkWrite',
       { options }
     );
 
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
-
     const result = await this._mongo._serviceProvider.bulkWrite(
       this._database._name,
       this._name,
       operations,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new BulkWriteResult(
@@ -214,23 +227,17 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '4.0.0'])
-  async count(query = {}, options: Document = {}): Promise<number> {
-    const dbOpts: Document = {};
+  async count(query = {}, options: CountOptions = {}): Promise<number> {
     this._emitCollectionApiCall(
       'count',
       { query, options }
     );
 
-    if ('readConcern' in options) {
-      dbOpts.readConcern = options.readConcern;
-    }
-
     return this._mongo._serviceProvider.count(
       this._database._name,
       this._name,
       query,
-      { ...this._database._baseOptions, ...options },
-      dbOpts
+      { ...this._database._baseOptions, ...options }
     );
   }
 
@@ -245,7 +252,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
-  async countDocuments(query: Document, options: Document = {}): Promise<number> {
+  async countDocuments(query: Document, options: CountDocumentsOptions = {}): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(
       this._database._name,
@@ -268,21 +275,15 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteMany(filter: Document, options: Document = {}): Promise<DeleteResult> {
+  async deleteMany(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
-    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('deleteMany', { filter, options });
-
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
 
     const result = await this._mongo._serviceProvider.deleteMany(
       this._database._name,
       this._name,
       filter,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new DeleteResult(
@@ -304,20 +305,15 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteOne(filter: Document, options: Document = {}): Promise<DeleteResult> {
+  async deleteOne(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult> {
     assertArgsDefined(filter);
-    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('deleteOne', { filter, options });
 
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
     const result = await this._mongo._serviceProvider.deleteOne(
       this._database._name,
       this._name,
       filter,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new DeleteResult(
@@ -339,7 +335,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Array} The promise of the result.
    */
   @returnsPromise
-  async distinct(field: string, query: Document, options: Document = {}): Promise<Document> {
+  async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
     return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, { ...this._database._baseOptions, ...options });
   }
@@ -354,7 +350,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
-  async estimatedDocumentCount(options: Document = {}): Promise<number> {
+  async estimatedDocumentCount(options: EstimatedDocumentCountOptions = {}): Promise<number> {
     this._emitCollectionApiCall('estimatedDocumentCount', { options });
     return this._mongo._serviceProvider.estimatedDocumentCount(this._database._name, this._name, { ...this._database._baseOptions, ...options });
   }
@@ -500,7 +496,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndDelete(filter: Document, options: Document = {}): Promise<Document> {
+  async findOneAndDelete(filter: Document, options: FindAndModifyOptions = {}): Promise<Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
@@ -530,14 +526,12 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndReplace(filter: Document, replacement: Document, options: Document = {}): Promise<Document> {
+  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
     assertArgsDefined(filter);
-    const findOneAndReplaceOptions = { ...this._database._baseOptions, ...options };
-
-    if ('returnNewDocument' in findOneAndReplaceOptions) {
-      findOneAndReplaceOptions.returnDocument = findOneAndReplaceOptions.returnNewDocument;
-      delete findOneAndReplaceOptions.returnNewDocument;
-    }
+    const findOneAndReplaceOptions = processFindAndModifyOptions({
+      ...this._database._baseOptions,
+      ...options
+    });
 
     this._emitCollectionApiCall('findOneAndReplace', { filter, findOneAndReplaceOptions });
     const result = await this._mongo._serviceProvider.findOneAndReplace(
@@ -566,14 +560,12 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndUpdate(filter: Document, update: Document, options: Document = {}): Promise<Document> {
+  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
     assertArgsDefined(filter);
-    const findOneAndUpdateOptions = { ...this._database._baseOptions, ...options };
-
-    if ('returnNewDocument' in findOneAndUpdateOptions) {
-      findOneAndUpdateOptions.returnDocument = findOneAndUpdateOptions.returnNewDocument;
-      delete findOneAndUpdateOptions.returnNewDocument;
-    }
+    const findOneAndUpdateOptions = processFindAndModifyOptions({
+      ...this._database._baseOptions,
+      ...options
+    });
 
     this._emitCollectionApiCall('findOneAndUpdate', { filter, findOneAndUpdateOptions });
     const result = await this._mongo._serviceProvider.findOneAndUpdate(
@@ -598,26 +590,20 @@ export default class Collection extends ShellApiClass {
    * @return {InsertManyResult}
    */
   @returnsPromise
-  async insert(docs: Document | Document[], options: Document = {}): Promise<InsertManyResult> {
+  async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     printDeprecationWarning(
       'Collection.insert() is deprecated. Use insertOne, insertMany or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(docs);
     const d: Document[] = Array.isArray(docs) ? docs : [docs];
-    const dbOptions: DbOptions = {};
-
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
 
     this._emitCollectionApiCall('insert', { options });
     const result = await this._mongo._serviceProvider.insertMany(
       this._database._name,
       this._name,
       d,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new InsertManyResult(
@@ -641,21 +627,15 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async insertMany(docs: Document[], options: Document = {}): Promise<InsertManyResult> {
+  async insertMany(docs: Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
-    const dbOptions: DbOptions = {};
-
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
 
     this._emitCollectionApiCall('insertMany', { options });
     const result = await this._mongo._serviceProvider.insertMany(
       this._database._name,
       this._name,
       docs,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new InsertManyResult(
@@ -679,21 +659,15 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async insertOne(doc: Document, options: Document = {}): Promise<InsertOneResult> {
+  async insertOne(doc: Document, options: InsertOneOptions = {}): Promise<InsertOneResult> {
     assertArgsDefined(doc);
-    const dbOptions: DbOptions = {};
-
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
 
     this._emitCollectionApiCall('insertOne', { options });
     const result = await this._mongo._serviceProvider.insertOne(
       this._database._name,
       this._name,
       doc,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new InsertOneResult(
@@ -727,17 +701,12 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async remove(query: Document, options: boolean | Document = {}): Promise<DeleteResult> {
+  async remove(query: Document, options: boolean | DeleteOptions = {}): Promise<DeleteResult> {
     printDeprecationWarning(
       'Collection.remove() is deprecated. Use deleteOne, deleteMany or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(query);
-    const dbOptions: DbOptions = {};
-
-    if (typeof options !== 'boolean' && 'writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
 
     let removeOptions: any = {};
     if (typeof options === 'boolean') {
@@ -751,8 +720,7 @@ export default class Collection extends ShellApiClass {
       this._database._name,
       this._name,
       query,
-      { ...this._database._baseOptions, ...removeOptions },
-      dbOptions
+      { ...this._database._baseOptions, ...removeOptions }
     );
     return new DeleteResult(
       getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
@@ -782,21 +750,16 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async replaceOne(filter: Document, replacement: Document, options: Document = {}): Promise<UpdateResult> {
+  async replaceOne(filter: Document, replacement: Document, options: ReplaceOptions = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DbOptions = {};
 
     this._emitCollectionApiCall('replaceOne', { filter, options });
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
     const result = await this._mongo._serviceProvider.replaceOne(
       this._database._name,
       this._name,
       filter,
       replacement,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
     return new UpdateResult(
       getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
@@ -809,7 +772,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async update(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
+  async update(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult> {
     printDeprecationWarning(
       'Collection.update() is deprecated. Use updateOne, updateMany or bulkWrite.',
       this._mongo._internalState.context.print
@@ -859,20 +822,15 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async updateMany(filter: Document, update: Document, options: Document = {}): Promise<UpdateResult> {
+  async updateMany(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('updateMany', { filter, options });
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
     const result = await this._mongo._serviceProvider.updateMany(
       this._database._name,
       this._name,
       filter,
       update,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new UpdateResult(
@@ -902,21 +860,16 @@ export default class Collection extends ShellApiClass {
   async updateOne(
     filter: Document,
     update: Document,
-    options: Document = {}
+    options: UpdateOptions = {}
   ): Promise<UpdateResult> {
     assertArgsDefined(filter);
-    const dbOptions: DbOptions = {};
     this._emitCollectionApiCall('updateOne', { filter, options });
-    if ('writeConcern' in options) {
-      Object.assign(dbOptions, options.writeConcern);
-    }
     const result = await this._mongo._serviceProvider.updateOne(
       this._database._name,
       this._name,
       filter,
       update,
-      { ...this._database._baseOptions, ...options },
-      dbOptions
+      { ...this._database._baseOptions, ...options }
     );
 
     return new UpdateResult(
@@ -961,7 +914,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async createIndexes(
     keyPatterns: Document[],
-    options: Document = {}
+    options: CreateIndexesOptions = {}
   ): Promise<Document> {
     assertArgsDefined(keyPatterns);
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -994,7 +947,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async createIndex(
     keys: Document,
-    options: Document = {}
+    options: CreateIndexesOptions = {}
   ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1023,7 +976,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async ensureIndex(
     keys: Document,
-    options: Document = {}
+    options: CreateIndexesOptions = {}
   ): Promise<Document> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1315,7 +1268,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async runCommand(commandName: string, options?: Document): Promise<Document> {
+  async runCommand(commandName: string, options?: RunCommandOptions): Promise<Document> {
     assertArgsType([commandName], ['string']);
 
     if (options && commandName in options) {
@@ -1348,8 +1301,8 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async stats(originalOptions: Document | number = {}): Promise<Document> {
-    const options: Document =
+  async stats(originalOptions: CollStatsShellOptions | number = {}): Promise<Document> {
+    const options: CollStatsShellOptions =
       typeof originalOptions === 'number' ? { scale: originalOptions } : originalOptions;
 
     if (options.indexDetailsKey && options.indexDetailsName) {

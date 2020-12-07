@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Session from './session';
-import { ServiceProvider, ClientSession as ServiceProviderSession } from '@mongosh/service-provider-core';
+import { ServiceProvider, ClientSession as ServiceProviderSession, bson } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import ShellInternalState from './shell-internal-state';
 import { signatures, toShellResult } from './index';
@@ -16,6 +16,7 @@ import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { EventEmitter } from 'events';
 
 describe('Session', () => {
   describe('help', () => {
@@ -43,9 +44,11 @@ describe('Session', () => {
   });
   describe('instance', () => {
     let serviceProviderSession: StubbedInstance<ServiceProviderSession>;
-    let mongo: StubbedInstance<Mongo>;
+    let mongo: Mongo;
     let options;
     let session: Session;
+    let internalState: ShellInternalState;
+    let serviceProvider: StubbedInstance<ServiceProvider>;
     beforeEach(() => {
       options = {
         owner: shellSession,
@@ -56,8 +59,11 @@ describe('Session', () => {
       };
       serviceProviderSession = stubInterface<ServiceProviderSession>();
       (serviceProviderSession as any).id = { id: 1 };
-      mongo = stubInterface<Mongo>();
-      mongo._serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
+      internalState = new ShellInternalState(serviceProvider, new EventEmitter());
+      mongo = new Mongo(internalState);
       session = new Session(mongo, options, serviceProviderSession);
     });
 
@@ -69,6 +75,11 @@ describe('Session', () => {
     describe('getDatabase', () => {
       it('works for a regular database', () => {
         const db = session.getDatabase('test');
+        expect(db).to.deep.equal(new Database(mongo, 'test', session));
+        expect(session.getDatabase('test')).to.equal(db); // reuses db
+      });
+      it('also affects Database.getSiblingDB', () => {
+        const db = session.getDatabase('othername').getSiblingDB('test');
         expect(db).to.deep.equal(new Database(mongo, 'test', session));
         expect(session.getDatabase('test')).to.equal(db); // reuses db
       });

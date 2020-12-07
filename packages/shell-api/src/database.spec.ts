@@ -972,7 +972,7 @@ describe('Database', () => {
         );
       });
       it('calls serviceProvider.createCollection on the database with options', async() => {
-        await database.createView('newcoll', 'sourcecoll', [], { collation: { x: 1 } });
+        await database.createView('newcoll', 'sourcecoll', [], { collation: { x: 1 } } as any);
 
         expect(serviceProvider.createCollection).to.have.been.calledWith(
           database._name,
