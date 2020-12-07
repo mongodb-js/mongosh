@@ -33,7 +33,7 @@ internal fun <T> convert(o: T,
     return Right(accumulator)
 }
 
-internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
+internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
         "w" to { db, value ->
             when (value) {
                 is Number -> Right(db.withWriteConcern(db.writeConcern.withW(value.toInt())))
@@ -53,6 +53,14 @@ internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoData
                 is Number -> Right(db.withWriteConcern(db.writeConcern.withWTimeout(value.toLong(), TimeUnit.MILLISECONDS)))
                 else -> Right(db.withWriteConcern(db.writeConcern.withWTimeout(0, TimeUnit.MILLISECONDS)))
             }
+        }
+)
+
+internal val writeConcernDefaultConverter = unrecognizedField<MongoDatabase>("write concern")
+
+internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
+        typed("writeConcern", Map::class.java) { db, value ->
+            convert(db, writeConcernConverters, writeConcernDefaultConverter, value).getOrThrow()
         },
         "readConcern" to { db, value ->
             if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
@@ -64,7 +72,7 @@ internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoData
         }
 )
 
-internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("write concern")
+internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("db options")
 
 internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
         typed("level", String::class.java) { db, value ->
