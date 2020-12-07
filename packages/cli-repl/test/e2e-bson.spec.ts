@@ -50,7 +50,7 @@ describe('BSON e2e', function() {
       Symbol: 'abc',
       Code: 'Code("abc")',
       NumberDecimal: 'Decimal128("1")',
-      BinData: 'Binary("MTIzNA==", 128)'
+      BinData: 'Binary(Buffer.from("31323334", "hex"), 128)'
     };
     it('Entire doc prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
@@ -186,7 +186,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('Binary("MTIzNA==", 128)');
+        shell.assertContainsOutput('Binary(Buffer.from("31323334", "hex"), 128)');
       });
       shell.assertNoErrors();
     });
@@ -292,7 +292,7 @@ describe('BSON e2e', function() {
       const value = 'BinData(128, "MTIzNA==")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Binary("MTIzNA==", 128)');
+        shell.assertContainsOutput('Binary(Buffer.from("31323334", "hex"), 128)');
       });
       shell.assertNoErrors();
     });
@@ -316,7 +316,7 @@ describe('BSON e2e', function() {
       const value = 'UUID("abcdef")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Binary("q83v", 4)');
+        shell.assertContainsOutput('Binary(Buffer.from("abcdef", "hex"), 4)');
       });
       shell.assertNoErrors();
     });
