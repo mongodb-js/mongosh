@@ -59,7 +59,8 @@ export class OpenContextRuntime implements Runtime {
 
   setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
     const prev = this.evaluationListener;
-    this.shellEvaluator.setEvaluationListener(listener);
+    this.evaluationListener = listener;
+    this.internalState.setEvaluationListener(listener);
     return prev;
   }
 }
