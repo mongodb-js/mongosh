@@ -8,22 +8,22 @@ describe('uri-generator.generate-uri', () => {
     const options = { _: [] };
 
     it('returns the default uri', () => {
-      expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017');
+      expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017?directConnection=true');
     });
   });
 
   context('when no URI is provided', () => {
     it('handles host', () => {
-      expect(generateUri({ _: [], host: 'localhost' })).to.equal('mongodb://localhost:27017');
+      expect(generateUri({ _: [], host: 'localhost' })).to.equal('mongodb://localhost:27017?directConnection=true');
     });
     it('handles port', () => {
-      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018');
+      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018?directConnection=true');
     });
     it('handles both host and port', () => {
-      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018');
+      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018?directConnection=true');
     });
     it('handles host with port included', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018');
+      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018?directConnection=true');
     });
     it('throws if host has port AND port set to other value', () => {
       try {
@@ -35,17 +35,16 @@ describe('uri-generator.generate-uri', () => {
       }
     });
     it('handles host has port AND port set to equal value', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018');
+      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018?directConnection=true');
     });
   });
 
   context('when a full URI is provided', () => {
     context('when no additional options are provided', () => {
-      const uri = 'mongodb://192.0.0.1:27018/foo';
-      const options = { _: [uri] };
+      const options = { _: ['mongodb://192.0.0.1:27018/foo'] };
 
       it('returns the uri', () => {
-        expect(generateUri(options)).to.equal(uri);
+        expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/foo?directConnection=true');
       });
     });
 
@@ -80,6 +79,48 @@ describe('uri-generator.generate-uri', () => {
         });
       });
     });
+
+    context('when providing a URI with query parameters', () => {
+      context('that do not conflict with directConnection', () => {
+        const uri = 'mongodb://192.0.0.1:27018/db?readPreference=primary';
+        const options = { _: [uri] };
+        it('still includes directConnection', () => {
+          expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/db?readPreference=primary&directConnection=true');
+        });
+      });
+
+      context('including replicaSet', () => {
+        const uri = 'mongodb://192.0.0.1:27018/db?replicaSet=replicaset';
+        const options = { _: [uri] };
+        it('does not add the directConnection parameter', () => {
+          expect(generateUri(options)).to.equal(uri);
+        });
+      });
+
+      context('including explicit directConnection', () => {
+        const uri = 'mongodb://192.0.0.1:27018/db?directConnection=false';
+        const options = { _: [uri] };
+        it('does not change the directConnection parameter', () => {
+          expect(generateUri(options)).to.equal(uri);
+        });
+      });
+    });
+
+    context('when providing a URI with SRV record', () => {
+      const uri = 'mongodb+srv://192.0.0.1:27018/db?readPreference=primary';
+      const options = { _: [uri] };
+      it('no directConnection is added', () => {
+        expect(generateUri(options)).to.equal(uri);
+      });
+    });
+
+    context('when providing a URI with multiple seeds', () => {
+      const uri = 'mongodb://192.42.42.42:27017,192.0.0.1:27018/db?readPreference=primary';
+      const options = { _: [uri] };
+      it('no directConnection is added', () => {
+        expect(generateUri(options)).to.equal(uri);
+      });
+    });
   });
 
   context('when a URI is provided without a scheme', () => {
@@ -88,7 +129,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { _: [uri] };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}:27017/test`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}:27017/test?directConnection=true`);
       });
     });
 
@@ -97,7 +138,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { _: [uri] };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}/test`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}/test?directConnection=true`);
       });
     });
 
@@ -121,7 +162,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { _: [uri] };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}?directConnection=true`);
       });
     });
 
@@ -146,7 +187,7 @@ describe('uri-generator.generate-uri', () => {
         const options = { _: [uri], host: '127.0.0.2' };
 
         it('uses the provided host with default port', () => {
-          expect(generateUri(options)).to.equal('mongodb://127.0.0.2:27017/foo');
+          expect(generateUri(options)).to.equal('mongodb://127.0.0.2:27017/foo?directConnection=true');
         });
       });
 
@@ -170,7 +211,7 @@ describe('uri-generator.generate-uri', () => {
         const options = { _: [uri], port: '27018' };
 
         it('uses the provided host with default port', () => {
-          expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo');
+          expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo?directConnection=true');
         });
       });
 
@@ -186,6 +227,32 @@ describe('uri-generator.generate-uri', () => {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
+        });
+      });
+    });
+
+    context('when providing a URI with query parameters', () => {
+      context('that do not conflict with directConnection', () => {
+        const uri = '192.0.0.1:27018/db?readPreference=primary';
+        const options = { _: [uri] };
+        it('still includes directConnection', () => {
+          expect(generateUri(options)).to.equal(`mongodb://${uri}&directConnection=true`);
+        });
+      });
+
+      context('including replicaSet', () => {
+        const uri = '192.0.0.1:27018/db?replicaSet=replicaset';
+        const options = { _: [uri] };
+        it('does not add the directConnection parameter', () => {
+          expect(generateUri(options)).to.equal(`mongodb://${uri}`);
+        });
+      });
+
+      context('including explicit directConnection', () => {
+        const uri = '192.0.0.1:27018/db?directConnection=false';
+        const options = { _: [uri] };
+        it('does not change the directConnection parameter', () => {
+          expect(generateUri(options)).to.equal(`mongodb://${uri}`);
         });
       });
     });
