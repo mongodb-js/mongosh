@@ -18,7 +18,6 @@ import {
   assertArgsType,
   assertKeysDefined,
   dataFormat,
-  getAcknowledged,
   validateExplainableVerbosity,
   FindAndModifyShellOptions,
   processFindAndModifyOptions
@@ -203,7 +202,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new BulkWriteResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.ok,
       result.insertedCount,
       result.insertedIds,
       result.matchedCount,
@@ -287,7 +286,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.deletedCount
     );
   }
@@ -317,7 +316,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new DeleteResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.deletedCount
     );
   }
@@ -607,7 +606,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.insertedIds
     );
   }
@@ -639,7 +638,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertManyResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.insertedIds
     );
   }
@@ -671,7 +670,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new InsertOneResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.insertedId
     );
   }
@@ -723,7 +722,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...removeOptions }
     );
     return new DeleteResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.deletedCount
     );
   }
@@ -762,7 +761,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options }
     );
     return new UpdateResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -799,7 +798,7 @@ export default class Collection extends ShellApiClass {
       );
     }
     return new UpdateResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -834,7 +833,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,
@@ -873,7 +872,7 @@ export default class Collection extends ShellApiClass {
     );
 
     return new UpdateResult(
-      getAcknowledged(result), // TODO: Node 4.0 upgrade See NODE-2920
+      !!result.acknowledged,
       result.matchedCount,
       result.modifiedCount,
       result.upsertedCount,

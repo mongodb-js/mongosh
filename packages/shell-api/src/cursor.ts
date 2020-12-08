@@ -18,7 +18,9 @@ import {
   CursorFlag,
   Document,
   CollationOptions,
-  ExplainVerbosityLike, ReadPreferenceMode
+  ExplainVerbosityLike,
+  ReadPreferenceMode,
+  ReadConcernLevelLike
 } from '@mongosh/service-provider-core';
 import { blockedByDriverMetadata } from './error-codes';
 import { iterate } from './helpers';
@@ -164,8 +166,8 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  tryNext(): Promise<Document | null> {
-    return this._cursor.tryNext();
+  tryNext(): Promise<Document | null> { // TODO: tryNext private, see NODE-2952
+    return (this._cursor as any).tryNext();
   }
 
   async* [Symbol.asyncIterator]() {
@@ -212,7 +214,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   max(indexBounds: Document): Cursor {
-    this._cursor.max(indexBounds as any); // TODO: Node 4.0 upgrade only supports number, see NODE-2913
+    this._cursor.max(indexBounds);
     return this;
   }
 
@@ -231,7 +233,7 @@ export default class Cursor extends ShellApiClass {
 
   @returnType('Cursor')
   min(indexBounds: Document): Cursor {
-    this._cursor.min(indexBounds as any); // TODO: Node 4.0 upgrade only supports number, see NODE-2913
+    this._cursor.min(indexBounds);
     return this;
   }
 
@@ -275,8 +277,7 @@ export default class Cursor extends ShellApiClass {
       );
     }
 
-    this._cursor.setReadPreference(mode);
-
+    this._cursor = this._cursor.withReadPreference(mode);
     return this;
   }
 
@@ -343,11 +344,9 @@ export default class Cursor extends ShellApiClass {
     return this._cursor.bufferedCount();
   }
 
-  readConcern(): Cursor {
-    throw new MongoshUnimplementedError(
-      'Setting readConcern on the cursor is not currently supported. See NODE-2806',
-      CommonErrors.NotImplemented,
-      blockedByDriverMetadata('Cursor.readConcern')
-    );
+  @returnType('Cursor')
+  readConcern(level: ReadConcernLevelLike): Cursor {
+    this._cursor = this._cursor.withReadConcern( { level });
+    return this;
   }
 }

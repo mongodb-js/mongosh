@@ -3130,7 +3130,7 @@ if (TEST) {
 }`);
           });
           it('symbol table final state is correct', () => {
-            expect(spy.scopeAt(1)).to.deep.equal({ }); // TODO: ensure cond is like block
+            expect(spy.scopeAt(1)).to.deep.equal({ });
           });
         });
         describe('assignment to undecl var gets hoisted', () => {
@@ -3149,7 +3149,7 @@ if (TEST) {
 }`);
           });
           it('symbol table final state is correct', () => {
-            expect(spy.scopeAt(1)).to.deep.equal({ a: { type: 'unknown', attributes: {} } }); // TODO: ensure cond is like block
+            expect(spy.scopeAt(1)).to.deep.equal({ a: { type: 'unknown', attributes: {} } });
           });
           it('throws for shell type', () => {
             try {

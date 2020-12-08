@@ -293,7 +293,8 @@ describe('Collection', () => {
           deletedCount: 4,
           upsertedCount: 5,
           insertedIds: { 0: id1 },
-          upsertedIds: { 0: id2 }
+          upsertedIds: { 0: id2 },
+          ok: true
         } as any);
 
         const result = await collection.bulkWrite(requests);

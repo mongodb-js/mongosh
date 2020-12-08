@@ -30,7 +30,7 @@
     "@mongosh/errors": "^0.6.1",
     "@mongosh/i18n": "^0.6.1",
     "bson": "^4.2.2",
-    "mongodb": "github:mongodb/node-mongodb-native#98ae02ce",
+    "mongodb": "github:mongodb/node-mongodb-native#f6d9b81f",
     "mongodb-build-info": "^1.1.1"
   },
   "devDependencies": {

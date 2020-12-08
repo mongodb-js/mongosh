@@ -55,7 +55,7 @@ describe('Shell API (integration)', function() {
       { '_id': 5, 'item': 'jkl', 'price': 15, 'quantity': 15, 'type': 'electronics' }
     ]);
     expect(res.acknowledged).to.equal(true);
-    // TODO: Node 4.0 upgrade bug with createIndexes, see NODE-2922
+    // TODO: createIndexes does not return full spec, see NODE-2602
     // expect((await collection.createIndex({ item: 1 })).ok).to.equal(1);
     // expect((await collection.createIndex({ item: 1, quantity: 1 })).ok).to.equal(1);
     // expect((await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } })).ok).to.equal(1);
@@ -316,10 +316,7 @@ describe('Shell API (integration)', function() {
             upsertedCount
           }).to.deep.equal({
             acknowledged: true,
-            insertedId: {
-              _id: 'new-doc',
-              index: 0
-            },
+            insertedId: 'new-doc',
             matchedCount: 0,
             modifiedCount: 0,
             upsertedCount: 1
@@ -368,7 +365,7 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      it.skip('returns creation result', () => { // TODO: Node 4.0 upgrade bug indexe doc not returned, see NODE-2922
+      it.skip('returns creation result', () => { // TODO: Node 4.0 index doc not returned, see NODE-2602
         expect(result).to.contain({
           createdCollectionAutomatically: false,
           numIndexesBefore: 1,
@@ -1241,14 +1238,14 @@ describe('Shell API (integration)', function() {
         //   });
         // });
         describe('error states', () => {
-          it.skip('cannot be executed twice', async() => { // TODO: NODE 4.0 upgrade bug, bulk insert doesnt throw on second execute see NODE-2926
+          it('cannot be executed twice', async() => {
             bulk = await collection[m]();
             bulk.insert({ x: 1 });
             await bulk.execute();
             try {
               await bulk.execute();
             } catch (err) {
-              expect(err.name).to.equal('BulkWriteError');
+              expect(err.name).to.equal('MongoError');
               return;
             }
             expect.fail('Error not thrown');
@@ -1269,7 +1266,7 @@ describe('Shell API (integration)', function() {
             try {
               await bulk.execute();
             } catch (err) {
-              expect(err.name).to.include('Error'); // Node 4.0 upgrade now throws TypeError instead of MongoError, see NODE-2927
+              expect(err.name).to.include('Error');
               return;
             }
             expect.fail('Error not thrown');

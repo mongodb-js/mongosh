@@ -52,13 +52,12 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnsPromise
   hasNext(): Promise<boolean> {
-    // TODO: Node 4.0 Upgrade. Will warn user and suggest tryNext instead see NODE-2917.
     return this._cursor.hasNext();
   }
 
   @returnsPromise
   tryNext(): Promise<Document | null> {
-    return this._cursor.tryNext();
+    return (this._cursor as any).tryNext() as any; // TODO: tryNext private, see NODE-2952
   }
 
   async* [Symbol.asyncIterator]() {

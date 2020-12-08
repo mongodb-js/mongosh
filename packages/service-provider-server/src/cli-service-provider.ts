@@ -880,7 +880,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} topology.
    */
   getTopology(): Topology | undefined {
-    return this.mongoClient.topology;
+    return this.mongoClient.topology; // TODO: maybe return topology description instead, see NODE-2910
   }
 
   /**
@@ -1085,7 +1085,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @param options
    */
-  async resetConnectionOptions(options: Document): Promise<void> { // TODO: Node 4.0 upgrade - find a type that works
+  async resetConnectionOptions(options: Document): Promise<void> {
     // NOTE: we keep all the original options and just overwrite the passed.
     if (options.readPreference !== undefined) {
       const pr = new ReadPreference(
@@ -1116,7 +1116,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   watch(pipeline: Document[], options: ChangeStreamOptions, dbOptions: DbOptions = {}, db?: string, coll?: string): ChangeStream {
-    if (db === undefined && coll === undefined) {
+    if (db === undefined && coll === undefined) { // TODO: watch not exported, see NODE-2934
       return (this.mongoClient as any).watch(pipeline, options);
     } else if (db !== undefined && coll === undefined) {
       return (this.db(db, dbOptions) as any).watch(pipeline, options);

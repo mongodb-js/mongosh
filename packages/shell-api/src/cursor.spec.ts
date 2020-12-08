@@ -426,7 +426,7 @@ describe('Cursor', () => {
 
       it('fluidly sets the read preference', () => {
         expect(shellApiCursor.readPref(value)).to.equal(shellApiCursor);
-        expect(spCursor.setReadPreference).to.have.been.calledWith(value);
+        expect(spCursor.withReadPreference).to.have.been.calledWith(value);
       });
 
       it('throws MongoshUnimplementedError if tagset is passed', () => {
@@ -440,6 +440,22 @@ describe('Cursor', () => {
           expect(e.metadata?.driverCaused).to.equal(true);
           expect(e.metadata?.api).to.equal('Cursor.readPref#tagSet');
         }
+      });
+    });
+
+    describe('#readConcern', () => {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+      const value = 'local';
+
+      beforeEach(() => {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('fluidly sets the read concern', () => {
+        expect(shellApiCursor.readConcern(value)).to.equal(shellApiCursor);
+        expect(spCursor.withReadConcern).to.have.been.calledWith({ level: value });
       });
     });
 

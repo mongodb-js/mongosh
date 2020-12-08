@@ -7,7 +7,6 @@ interface CursorOutputProps {
   value: Document[];
 }
 
-// TODO: use a shared constant?
 const MAX_DOCUMENT_PER_ITERATION = 20;
 
 export class CursorOutput extends Component<CursorOutputProps> {
