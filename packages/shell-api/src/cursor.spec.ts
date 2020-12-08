@@ -734,28 +734,5 @@ describe('Cursor', () => {
         expect(i).to.equal(40);
       });
     });
-
-    describe('#readConcern', () => {
-      let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
-
-      beforeEach(() => {
-        spCursor = stubInterface<ServiceProviderCursor>();
-        shellApiCursor = new Cursor(mongo, spCursor);
-      });
-
-      it('throws an error linking the ticket', () => {
-        try {
-          shellApiCursor.readConcern();
-          expect.fail('expected error');
-        } catch (e) {
-          expect(e).to.be.instanceOf(MongoshUnimplementedError);
-          expect(e.message).to.contain('NODE-2806');
-          expect(e.code).to.equal(CommonErrors.NotImplemented);
-          expect(e.metadata?.driverCaused).to.equal(true);
-          expect(e.metadata?.api).to.equal('Cursor.readConcern');
-        }
-      });
-    });
   });
 });
