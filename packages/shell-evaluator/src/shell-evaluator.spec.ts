@@ -10,13 +10,20 @@ describe('ShellEvaluator', () => {
   let shellEvaluator: ShellEvaluator;
   let busMock: EventEmitter;
   let internalStateMock: any;
+  let showSpy: any;
+  let itSpy: any;
+  let exitSpy: any;
   let useSpy: any;
+  const dontCallEval = () => { throw new Error('unreachable'); };
 
   beforeEach(() => {
     useSpy = sinon.spy();
+    showSpy = sinon.spy();
+    itSpy = sinon.spy();
+    exitSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      shellApi: { use: useSpy },
+      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy },
       asyncWriter: {
         process: (i: string): string => (i),
         symbols: {
@@ -31,9 +38,34 @@ describe('ShellEvaluator', () => {
 
   describe('customEval', () => {
     it('strips trailing spaces and ; before calling commands', async() => {
-      const dontCallEval = () => { throw new Error('unreachable'); };
       await shellEvaluator.customEval(dontCallEval, 'use somedb;  ', {}, '');
       expect(useSpy).to.have.been.calledWith('somedb');
+    });
+
+    it('forwards show commands', async() => {
+      const dontCallEval = () => { throw new Error('unreachable'); };
+      await shellEvaluator.customEval(dontCallEval, 'show dbs;', {}, '');
+      expect(showSpy).to.have.been.calledWith('dbs', undefined);
+      await shellEvaluator.customEval(dontCallEval, 'show log startupWarnings;', {}, '');
+      expect(showSpy).to.have.been.calledWith('log', 'startupWarnings');
+    });
+
+    it('forwards the it command', async() => {
+      const dontCallEval = () => { throw new Error('unreachable'); };
+      await shellEvaluator.customEval(dontCallEval, 'it', {}, '');
+      expect(itSpy).to.have.been.calledWith();
+    });
+
+    it('forwards the exit/quit command', async() => {
+      const dontCallEval = () => { throw new Error('unreachable'); };
+      await shellEvaluator.customEval(dontCallEval, 'exit', {}, '');
+      expect(exitSpy).to.have.been.calledWith();
+    });
+
+    it('forwards the exit/quit command', async() => {
+      const dontCallEval = () => { throw new Error('unreachable'); };
+      await shellEvaluator.customEval(dontCallEval, 'quit', {}, '');
+      expect(exitSpy).to.have.been.calledWith();
     });
 
     it('calls original eval for plain javascript', async() => {

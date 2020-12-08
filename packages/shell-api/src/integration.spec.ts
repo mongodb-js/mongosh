@@ -6,7 +6,7 @@ import Explainable from './explainable';
 import AggregationCursor from './aggregation-cursor';
 import ShellApi from './shell-api';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { toShellResult } from './index';
+import { toShellResult, Topologies } from './index';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -1482,6 +1482,28 @@ describe('Shell API (integration)', function() {
         'Don Quis'
       ]);
       expect(result.results.map(k => k.value)).to.deep.equal([1, 1, 1, 1]);
+    });
+  });
+
+  describe('ShellInternalState', () => {
+    beforeEach(async() => {
+      await internalState.fetchConnectionInfo();
+    });
+
+    describe('fetchConnectionInfo', () => {
+      it('returns information about the connection', async() => {
+        expect(internalState.connectionInfo.buildInfo.version).to.equal(await database.version());
+      });
+    });
+
+    describe('getAutocompleteParameters', () => {
+      it('returns information that is meaningful for autocompletion', async() => {
+        const params = await internalState.getAutocompleteParameters();
+        expect(params.topology()).to.equal(Topologies.Standalone);
+        expect(params.connectionInfo().uri).to.equal(await testServer.connectionString());
+        expect(params.connectionInfo().is_atlas).to.equal(false);
+        expect(params.connectionInfo().is_localhost).to.equal(true);
+      });
     });
   });
 });
