@@ -1,23 +1,23 @@
-import { bson, ServiceProvider, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
-import ShellInternalState from './shell-internal-state';
-import { signatures, toShellResult } from './index';
-import ReplicaSet from './replica-set';
-import { EventEmitter } from 'events';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { bson, FindCursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import chai, { expect } from 'chai';
-import Mongo from './mongo';
+import { EventEmitter } from 'events';
+import sinonChai from 'sinon-chai';
+import { StubbedInstance, stubInterface } from 'ts-sinon';
+import { ensureMaster } from '../../../testing/helpers';
+import { MongodSetup, skipIfServerVersion, startTestCluster } from '../../../testing/integration-testing-hooks';
+import { CliServiceProvider } from '../../service-provider-server';
+import Database from './database';
 import {
   ADMIN_DB,
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES
 } from './enums';
-import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster, MongodSetup, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { ensureMaster } from '../../../testing/helpers';
-import Database from './database';
-import sinonChai from 'sinon-chai';
-import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { signatures, toShellResult } from './index';
+import Mongo from './mongo';
+import ReplicaSet from './replica-set';
+import ShellInternalState from './shell-internal-state';
 chai.use(sinonChai);
 
 describe('ReplicaSet', () => {
@@ -605,16 +605,15 @@ describe('ReplicaSet', () => {
   });
 
   describe('integration', () => {
-    const replId = 'replset'; // 'rs0';
+    const replId = 'rs0';
 
-    // const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
-    //   ['--single', '--replSet', replId],
-    //   ['--single', '--replSet', replId],
-    //   ['--single', '--replSet', replId],
-    //   ['--single', '--replSet', replId]
-    // );
-    //
-    const [ srv0, srv3 ] = startTestCluster(['--replicaset'], ['--single', '--replSet', replId]);
+    const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
+      ['--single', '--replSet', replId],
+      ['--single', '--replSet', replId],
+      ['--single', '--replSet', replId],
+      ['--single', '--replSet', replId]
+    );
+
     type ReplSetConfig = {
       _id: string;
       members: {_id: number, host: string, priority: number}[];
@@ -628,38 +627,30 @@ describe('ReplicaSet', () => {
 
     before(async function() {
       this.timeout(100_000);
-      // cfg = {
-      //   _id: replId,
-      //   members: [
-      //     { _id: 0, host: `${await srv0.hostport()}`, priority: 1 },
-      //     { _id: 1, host: `${await srv1.hostport()}`, priority: 0 },
-      //     { _id: 2, host: `${await srv2.hostport()}`, priority: 0 }
-      //   ]
-      // };
       cfg = {
         _id: replId,
         members: [
-          { _id: 0, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10)}`, priority: 1 },
-          { _id: 1, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10) + 1}`, priority: 0 },
-          { _id: 2, host: `${await srv0.host()}:${parseInt(await srv0.port(), 10) + 2}`, priority: 0 }
+          { _id: 0, host: `${await srv0.hostport()}`, priority: 1 },
+          { _id: 1, host: `${await srv1.hostport()}`, priority: 0 },
+          { _id: 2, host: `${await srv2.hostport()}`, priority: 0 }
         ]
       };
       additionalServer = srv3;
 
-      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`);
       internalState = new ShellInternalState(serviceProvider);
       rs = new ReplicaSet(internalState.currentDb);
 
       // check replset uninitialized
       try {
-        return await rs.status();
-        // expect.fail();
+        await rs.status();
+        expect.fail();
       } catch (error) {
         expect(error.message).to.include('no replset config');
       }
       const result = await rs.initiate(cfg);
       expect(result.ok).to.equal(1);
-      return expect(result.$clusterTime).to.not.be.undefined;
+      expect(result.$clusterTime).to.not.be.undefined;
     });
 
     beforeEach(async() => {
