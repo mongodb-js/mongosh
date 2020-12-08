@@ -5,13 +5,14 @@
  *
  * @param options
  */
-import {
+import type {
   DbOptions,
   Document,
   ExplainVerbosityLike,
   FindCursor,
   AggregationCursor as SPAggregationCursor,
-  ChangeStreamCursor as SPChangeStreamCursor
+  ChangeStreamCursor as SPChangeStreamCursor,
+  FindAndModifyOptions
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
@@ -522,3 +523,25 @@ export function getAcknowledged(result: Document): boolean {
   if ('acknowledged' in result) return !!result.acknowledged;
   return false;
 }
+
+export type FindAndModifyShellOptions = FindAndModifyOptions & {
+  returnNewDocument?: boolean;
+};
+
+export function processFindAndModifyOptions(options: FindAndModifyShellOptions): FindAndModifyOptions {
+  options = { ...options };
+  if ('returnOriginal' in options) {
+    delete options.returnNewDocument;
+    return options;
+  }
+  if ('returnNewDocument' in options) {
+    options.returnOriginal = !options.returnNewDocument;
+    delete options.returnNewDocument;
+    return options;
+  }
+  // No explicit option passed: We set 'returnOriginal' to true because the
+  // default of the shell differs from the default of the browser.
+  options.returnOriginal = true;
+  return options;
+}
+

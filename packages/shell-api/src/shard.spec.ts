@@ -1307,5 +1307,11 @@ describe('Shard', () => {
         }
       });
     });
+    describe('collection.isCapped', () => {
+      it('returns true for config.changelog', async() => {
+        const ret = await sh._database.getSiblingDB('config').getCollection('changelog').isCapped();
+        expect(ret).to.equal(true);
+      });
+    });
   });
 });

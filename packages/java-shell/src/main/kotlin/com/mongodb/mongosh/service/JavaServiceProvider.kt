@@ -50,9 +50,10 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun insertOne(database: String, collection: String, document: Value?, options: Value?, dbOptions: Value?): Value = promise {
+    override fun insertOne(database: String, collection: String, document: Value?, options: Value?): Value = promise {
         val document = toDocument(document, "document")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val options = toDocument(options, "options")
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).insertOne(document)
             mapOf("ok" to true, "insertedId" to "UNKNOWN")
@@ -60,14 +61,15 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun replaceOne(database: String, collection: String, filter: Value, replacement: Value, options: Value?, dbOptions: Value?): Value = promise {
+    override fun replaceOne(database: String, collection: String, filter: Value, replacement: Value, options: Value?): Value = promise {
         val filter = toDocument(filter, "filter")
         val replacement = toDocument(replacement, "replacement")
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, options).map { options ->
-                val res = db.getCollection(collection).replaceOne(filter, replacement, options)
+            convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, opt).map { opt ->
+                val res = db.getCollection(collection).replaceOne(filter, replacement, opt)
                 mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
                         "matchedCount" to res.matchedCount,
                         "modifiedCount" to res.modifiedCount,
@@ -78,11 +80,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(UpdateOptions(), updateConverters, updateDefaultConverter, options).flatMap { updateOptions ->
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(UpdateOptions(), updateConverters, updateDefaultConverter, opt).flatMap { updateOptions ->
                 when {
                     update.hasArrayElements() -> {
                         val updatePipeline = toList(update, "update")
@@ -108,17 +112,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value {
-        return updateOne(database, collection, filter, update, options, null)
-    }
-
-    @HostAccess.Export
-    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(UpdateOptions(), updateConverters, updateDefaultConverter, options).map { updateOptions ->
+            convert(UpdateOptions(), updateConverters, updateDefaultConverter, opt).map { updateOptions ->
                 val coll = db.getCollection(collection)
                 val res = if (update.hasArrayElements()) {
                     val pipeline = toList(update, "update")?.map { it as Document }
@@ -139,7 +139,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    private fun getDatabase(database: String, dbOptions: Document?): Either<MongoDatabase> {
+    private fun getDatabase(database: String, dbOptions: Map<String, Any?>?): Either<MongoDatabase> {
         val db = client.getDatabase(database)
         return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
@@ -153,13 +153,14 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun bulkWrite(database: String, collection: String, requests: Value, options: Value?): Value = promise<Any?> {
         val requests = toList(requests, "requests")
         if (requests == null || requests.any { it !is Document }) return@promise Left(IllegalArgumentException("requests must be a list of objects"))
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(BulkWriteOptions(), bulkWriteOptionsConverters, bulkWriteOptionsDefaultConverter, options).flatMap { options ->
+            convert(BulkWriteOptions(), bulkWriteOptionsConverters, bulkWriteOptionsDefaultConverter, opt).flatMap { options ->
                 val writeModels = requests.map { getWriteModel(it as Document) }
                 unwrap(writeModels).map { requests ->
                     val result = db.getCollection(collection).bulkWrite(requests, options)
@@ -241,12 +242,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun deleteMany(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise {
+    override fun deleteMany(database: String, collection: String, filter: Value, options: Value?): Value = promise {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, opt).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteMany(filter, deleteOptions)
                 mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
                         "deletedCount" to result.deletedCount)
@@ -255,12 +257,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun deleteOne(database: String, collection: String, filter: Value, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun deleteOne(database: String, collection: String, filter: Value, options: Value?): Value = promise<Any?> {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, options).map { deleteOptions ->
+            convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, opt).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteOne(filter, deleteOptions)
                 mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
                         "deletedCount" to result.deletedCount)
@@ -272,9 +275,11 @@ internal class JavaServiceProvider(private val client: MongoClient,
     override fun findOneAndDelete(database: String, collection: String, filter: Value, options: Value?): Value = promise<Any?> {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(FindOneAndDeleteOptions(), findOneAndDeleteConverters, findOneAndDeleteDefaultConverter, options).map { options ->
-                val res = db.getCollection(collection).findOneAndDelete(filter, options)
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(FindOneAndDeleteOptions(), findOneAndDeleteConverters, findOneAndDeleteDefaultConverter, opt).map { opt ->
+                val res = db.getCollection(collection).findOneAndDelete(filter, opt)
                 mapOf("value" to res)
             }
         }
@@ -285,10 +290,12 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val filter = toDocument(filter, "filter")
         val replacement = toDocument(replacement, "replacement")
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, options)
-                    .map { options ->
-                        val res = db.getCollection(collection).findOneAndReplace(filter, replacement, options)
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(FindOneAndReplaceOptions(), findOneAndReplaceOptionsConverters, findOneAndReplaceOptionsDefaultConverters, opt)
+                    .map { opt ->
+                        val res = db.getCollection(collection).findOneAndReplace(filter, replacement, opt)
                         mapOf("value" to res)
                     }
         }
@@ -299,9 +306,11 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val filter = toDocument(filter, "filter")
         val update = toDocument(update, "update")
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, options).map { options ->
-                val res = db.getCollection(collection).findOneAndUpdate(filter, update, options)
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(FindOneAndUpdateOptions(), findOneAndUpdateConverters, findOneAndUpdateDefaultConverter, opt).map { opt ->
+                val res = db.getCollection(collection).findOneAndUpdate(filter, update, opt)
                 mapOf("value" to res)
             }
         }
@@ -309,14 +318,15 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun insertMany(database: String, collection: String, docs: Value?, options: Value?, dbOptions: Value?): Value = promise<Any?> {
+    override fun insertMany(database: String, collection: String, docs: Value?, options: Value?): Value = promise<Any?> {
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         val docs = toList(docs, "docs")
         if (docs == null || docs.any { it !is Document }) return@promise Left(IllegalArgumentException("docs must be a list of objects"))
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(InsertManyOptions(), insertManyConverters, insertManyDefaultConverter, options).map { options ->
-                db.getCollection(collection).insertMany(docs.filterIsInstance<Document>(), options)
+            convert(InsertManyOptions(), insertManyConverters, insertManyDefaultConverter, opt).map { opt ->
+                db.getCollection(collection).insertMany(docs.filterIsInstance<Document>(), opt)
                 mapOf("result" to mapOf("ok" to true),
                         "insertedIds" to emptyList<String>())
             }
@@ -348,12 +358,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun count(database: String, collection: String, query: Value?, options: Value?, dbOptions: Value?): Value = promise {
+    override fun count(database: String, collection: String, query: Value?, options: Value?): Value = promise {
         val query = toDocument(query, "query")
         val options = toDocument(options, "options")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, opt).map { countOptions ->
                 @Suppress("DEPRECATION")
                 db.getCollection(collection).count(query, countOptions)
             }
@@ -364,8 +375,10 @@ internal class JavaServiceProvider(private val client: MongoClient,
     override fun countDocuments(database: String, collection: String, filter: Value?, options: Value?): Value = promise {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, options).map { countOptions ->
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, opt).map { countOptions ->
                 db.getCollection(collection).countDocuments(filter, countOptions)
             }
         }
@@ -379,8 +392,10 @@ internal class JavaServiceProvider(private val client: MongoClient,
     @HostAccess.Export
     override fun estimatedDocumentCount(database: String, collection: String, options: Value?): Value = promise<Any?> {
         val options = toDocument(options, "options")
-        getDatabase(database, null).flatMap { db ->
-            convert(EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, options).map { countOptions ->
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) }
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            convert(EstimatedDocumentCountOptions(), estimatedCountOptionsConverters, estimatedCountOptionsDefaultConverter, opt).map { countOptions ->
                 db.getCollection(collection).estimatedDocumentCount(countOptions)
             }
         }
@@ -471,29 +486,23 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun remove(database: String, collection: String, query: Value, options: Value?, dbOptions: Value?): Value = promise {
-        val query = toDocument(query, "query")
-        val dbOptions = toDocument(dbOptions, "dbOptions")
-        getDatabase(database, dbOptions).map { db ->
-            val result = db.getCollection(collection).deleteMany(query)
-            mapOf("acknowledged" to result.wasAcknowledged(),
-                    "deletedCount" to result.deletedCount)
-        }
-    }
+    override fun remove(database: String, collection: String, query: Value, options: Value?): Value = deleteMany(database, collection, query, options)
 
     @HostAccess.Export
     override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
-        val options = toDocument(options, "options") ?: Document()
-        getDatabase(database, null).flatMap { db ->
-            val viewOn = options["viewOn"]
+        val options = toDocument(options, "options")
+        val opt = options?.filterKeys { !dbConverters.containsKey(it) } ?: Document()
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
+            val viewOn = opt["viewOn"]
             if (viewOn is String) {
-                convert(CreateViewOptions(), createViewOptionsConverters, createViewOptionsConverter, options).map { opt ->
-                    val pipeline = (options["pipeline"] as? List<*>)?.filterIsInstance(Document::class.java)
-                    db.createView(collection, viewOn, pipeline?.toMutableList() ?: mutableListOf(), opt)
+                convert(CreateViewOptions(), createViewOptionsConverters, createViewOptionsConverter, opt).map { createViewOptions ->
+                    val pipeline = (opt["pipeline"] as? List<*>)?.filterIsInstance(Document::class.java)
+                    db.createView(collection, viewOn, pipeline?.toMutableList() ?: mutableListOf(), createViewOptions)
                 }
             }
             else {
-                convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, options).map { opt ->
+                convert(CreateCollectionOptions(), createCollectionOptionsConverters, createCollectionOptionsConverter, opt).map { opt ->
                     db.createCollection(collection, opt)
                 }
             }
@@ -524,7 +533,9 @@ internal class JavaServiceProvider(private val client: MongoClient,
     override fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?): Value = promise<Any?> {
         val indexSpecs = toList(indexSpecs, "indexSpecs") ?: emptyList()
         if (indexSpecs.any { it !is Document }) throw IllegalArgumentException("Index specs must be a list of documents. Got $indexSpecs")
-        getDatabase(database, null).flatMap { db ->
+        val options = toDocument(options, "options")
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).flatMap { db ->
             val convertedIndexes = indexSpecs.map { spec ->
                 convert(IndexModel(Document()), indexModelConverters, indexModelDefaultConverter, spec as Document)
             }
@@ -537,7 +548,9 @@ internal class JavaServiceProvider(private val client: MongoClient,
 
     @HostAccess.Export
     override fun dropCollection(database: String, collection: String, options: Value?): Value = promise {
-        getDatabase(database, null).map { db ->
+        val options = toDocument(options, "options")
+        val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).drop()
         }
     }

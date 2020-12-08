@@ -265,6 +265,23 @@ describe('Collection', () => {
         );
       });
 
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.bulkWrite = sinon.spy(() => Promise.resolve({
+          result: { ok: 1 }
+        })) as any;
+
+        await collection.bulkWrite(requests, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.bulkWrite).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          requests,
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+
       it('adapts the result', async() => {
         const id1 = new ObjectId();
         const id2 = new ObjectId();
@@ -310,6 +327,262 @@ describe('Collection', () => {
       });
     });
 
+    describe('count', () => {
+      it('passes readConcern through if specified', async() => {
+        serviceProvider.count = (sinon.spy(() => Promise.resolve(10))) as any;
+
+        await collection.count({}, {
+          readConcern: { level: 'majority' }
+        });
+
+        expect(serviceProvider.count).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          { readConcern: { level: 'majority' } }
+        );
+      });
+    });
+
+    describe('deleteMany', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.deleteMany = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, deletedCount: 10 }
+        })) as any;
+
+        await collection.deleteMany({}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.deleteMany).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('deleteOne', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.deleteOne = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, deletedCount: 1 }
+        })) as any;
+
+        await collection.deleteOne({}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.deleteOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('findOneAndReplace', () => {
+      it('sets returnOriginal to true by default', async() => {
+        serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndReplace({}, {});
+
+        expect(serviceProvider.findOneAndReplace).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnOriginal: true }
+        );
+      });
+
+      it('lets returnNewDocument determine returnOriginal', async() => {
+        serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndReplace({}, {}, {
+          returnNewDocument: true
+        });
+
+        expect(serviceProvider.findOneAndReplace).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnOriginal: false }
+        );
+      });
+    });
+
+    describe('findOneAndUpdate', () => {
+      it('sets returnOriginal to true by default', async() => {
+        serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndUpdate({}, {});
+
+        expect(serviceProvider.findOneAndUpdate).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnOriginal: true }
+        );
+      });
+
+      it('lets returnNewDocument determine returnOriginal', async() => {
+        serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndUpdate({}, {}, {
+          returnNewDocument: true
+        });
+
+        expect(serviceProvider.findOneAndUpdate).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnOriginal: false }
+        );
+      });
+    });
+
+    describe('getDb', () => {
+      it('returns the db instance', () => {
+        expect(collection.getDB()).to.equal(database);
+      });
+    });
+
+    describe('getMongo', () => {
+      it('returns the Mongo instance', () => {
+        expect(collection.getMongo()).to.equal(mongo);
+      });
+    });
+
+    describe('insert', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.insertMany = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, insertedIds: {} }
+        })) as any;
+
+        await collection.insert({}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.insertMany).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{}],
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('insertMany', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.insertMany = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, insertedIds: {} }
+        })) as any;
+
+        await collection.insertMany([{}], {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.insertMany).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{}],
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('insertOne', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.insertOne = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, insertedId: null }
+        })) as any;
+
+        await collection.insertOne({}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.insertOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('replaceOne', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.replaceOne = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null }
+        })) as any;
+
+        await collection.replaceOne({}, {}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.replaceOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('updateOne', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.updateOne = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null }
+        })) as any;
+
+        await collection.updateOne({}, {}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
+    describe('updateMany', () => {
+      it('passes writeConcern through if specified', async() => {
+        serviceProvider.updateMany = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null }
+        })) as any;
+
+        await collection.updateMany({}, {}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.updateMany).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+      });
+    });
+
     describe('createIndexes', () => {
       beforeEach(async() => {
         serviceProvider.createIndexes.resolves({ ok: 1 });
@@ -352,7 +625,6 @@ describe('Collection', () => {
         });
       });
     });
-
 
     ['ensureIndex', 'createIndex'].forEach((method) => {
       describe(method, () => {
@@ -484,6 +756,39 @@ describe('Collection', () => {
             code: 27,
             codeName: 'IndexNotFound'
           });
+        });
+      });
+
+      context('when serviceProvider.dropIndexes rejects IndexNotFound because mongod 4.0 does not support arrays', () => {
+        beforeEach(async() => {
+          const error = new Error('invalid index name spec');
+          Object.assign(error, {
+            ok: 0,
+            errmsg: 'invalid index name spec',
+            code: 27,
+            codeName: 'IndexNotFound',
+            name: 'MongoError'
+          });
+
+          serviceProvider.runCommandWithCheck.callsFake(async(db, cmd) => {
+            if (cmd.dropIndexes) {
+              if (Array.isArray(cmd.index)) {
+                throw error;
+              } else if (cmd.index === 'index_1') {
+                return { nIndexesWas: 2, ok: 1 };
+              } else {
+                return { nIndexesWas: 3, ok: 1 };
+              }
+            } else if (cmd.buildInfo) {
+              return { version: '4.0.0' };
+            } else {
+              expect.fail('unknown runCommandWithCheck');
+            }
+          });
+        });
+
+        it('falls back to multiple dropIndexes calls', async() => {
+          expect(await collection.dropIndexes(['index_1', 'index_2'])).to.deep.equal({ nIndexesWas: 3, ok: 1 });
         });
       });
 
@@ -648,7 +953,7 @@ describe('Collection', () => {
         });
         it('throws when indexDetailsKey is not an object', async() => {
           const error = await collection.stats(
-            { indexDetails: true, indexDetailsKey: 'string' }
+            { indexDetails: true, indexDetailsKey: 'string' } as any
           ).catch(e => e);
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
@@ -657,7 +962,7 @@ describe('Collection', () => {
         });
         it('throws when indexDetailsName is not a string', async() => {
           const error = await collection.stats(
-            { indexDetails: true, indexDetailsName: {} }
+            { indexDetails: true, indexDetailsName: {} } as any
           ).catch(e => e);
 
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
@@ -893,7 +1198,7 @@ describe('Collection', () => {
       it('calls serviceProvider.runCommand with the collection set', async() => {
         await collection.runCommand('someCommand', {
           someOption: 1
-        });
+        } as any);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           collection._database._name,

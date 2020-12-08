@@ -33,7 +33,7 @@ internal fun <T> convert(o: T,
     return Right(accumulator)
 }
 
-internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
+internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
         "w" to { db, value ->
             when (value) {
                 is Number -> Right(db.withWriteConcern(db.writeConcern.withW(value.toInt())))
@@ -53,6 +53,14 @@ internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoData
                 is Number -> Right(db.withWriteConcern(db.writeConcern.withWTimeout(value.toLong(), TimeUnit.MILLISECONDS)))
                 else -> Right(db.withWriteConcern(db.writeConcern.withWTimeout(0, TimeUnit.MILLISECONDS)))
             }
+        }
+)
+
+internal val writeConcernDefaultConverter = unrecognizedField<MongoDatabase>("write concern")
+
+internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
+        typed("writeConcern", Map::class.java) { db, value ->
+            convert(db, writeConcernConverters, writeConcernDefaultConverter, value).getOrThrow()
         },
         "readConcern" to { db, value ->
             if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
@@ -64,7 +72,7 @@ internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoData
         }
 )
 
-internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("write concern")
+internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("db options")
 
 internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
         typed("level", String::class.java) { db, value ->
@@ -135,9 +143,7 @@ internal val iterableConverters: Map<String, (MongoIterable<*>, Any?) -> Either<
         },
         typed("cursor", Document::class.java) { iterable, value ->
             convert(iterable, cursorConverters, cursorDefaultConverter, value).getOrThrow() as AggregateIterable<*>
-        },
-        "readConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
-        "writeConcern" to { iterable, _ -> Right(iterable) } // the value is copied to dbOptions
+        }
 )
 
 internal val aggregateConverters: Map<String, (AggregateIterable<*>, Any?) -> Either<AggregateIterable<*>>> = iterableConverters + mapOf(
@@ -259,7 +265,6 @@ internal val countOptionsConverters: Map<String, (CountOptions, Any?) -> Either<
         typed("maxTimeMS", Number::class.java) { opt, value ->
             opt.maxTime(value.toLong(), TimeUnit.MILLISECONDS)
         },
-        "readConcern" to { opt, _ -> Right(opt) }, // the value is copied to dbOptions
         typed("collation", Map::class.java) { opt, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
                     .getOrThrow()
@@ -282,7 +287,6 @@ internal val replaceOptionsConverters: Map<String, (ReplaceOptions, Any?) -> Eit
         typed("upsert", Boolean::class.java) { opt, value ->
             opt.upsert(value)
         },
-        "writeConcern" to { iterable, _ -> Right(iterable) }, // the value is copied to dbOptions
         typed("collation", Map::class.java) { opt, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
                     .getOrThrow()
@@ -311,8 +315,8 @@ internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceO
         typed("upsert", Boolean::class.java) { opt, value ->
             opt.upsert(value)
         },
-        typed("returnDocument", Boolean::class.java) { opt, value ->
-            opt.returnDocument(if (value) ReturnDocument.AFTER else ReturnDocument.BEFORE)
+        typed("returnOriginal", Boolean::class.java) { opt, value ->
+            opt.returnDocument(if (value) ReturnDocument.BEFORE else ReturnDocument.AFTER)
         },
         typed("collation", Map::class.java) { opt, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
@@ -330,8 +334,7 @@ internal val bulkWriteOptionsConverters: Map<String, (BulkWriteOptions, Any?) ->
         },
         typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
             opt.bypassDocumentValidation(value)
-        },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        }
 )
 
 internal val bulkWriteOptionsDefaultConverter = unrecognizedField<BulkWriteOptions>("bulk write options")
@@ -343,8 +346,7 @@ internal val deleteConverters: Map<String, (DeleteOptions, Any?) -> Either<Delet
                     .getOrThrow()
                     .build()
             opt.collation(collation)
-        },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        }
 )
 
 internal val deleteDefaultConverter = unrecognizedField<DeleteOptions>("delete options")
@@ -368,16 +370,15 @@ internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, A
         typed("upsert", Boolean::class.java) { opt, value ->
             opt.upsert(value)
         },
-        typed("returnDocument", Boolean::class.java) { opt, value ->
-            opt.returnDocument(if (value) ReturnDocument.AFTER else ReturnDocument.BEFORE)
+        typed("returnOriginal", Boolean::class.java) { opt, value ->
+            opt.returnDocument(if (value) ReturnDocument.BEFORE else ReturnDocument.AFTER)
         },
         typed("arrayFilters", List::class.java) { opt, value ->
             if (value.any { it !is Document }) {
                 throw IllegalArgumentException("arrayFilters must be a list of objects: $value")
             }
             opt.arrayFilters(value.filterIsInstance<Document>())
-        },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        }
 )
 
 internal val findOneAndUpdateDefaultConverter = unrecognizedField<FindOneAndUpdateOptions>("find one and update options")
@@ -496,8 +497,7 @@ internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOpt
                     .getOrThrow()
                     .build()
             opt.collation(collation)
-        },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        }
 )
 
 internal val createCollectionOptionsConverter = unrecognizedField<CreateCollectionOptions>("create collection options")
@@ -510,8 +510,7 @@ internal val createViewOptionsConverters: Map<String, (CreateViewOptions, Any?) 
             opt.collation(collation)
         },
         "viewOn" to { opt, _ -> Right(opt) },
-        "pipeline" to { opt, _ -> Right(opt) },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        "pipeline" to { opt, _ -> Right(opt) }
 )
 
 internal val createViewOptionsConverter = unrecognizedField<CreateViewOptions>("create view options")
@@ -545,8 +544,7 @@ internal val insertManyConverters: Map<String, (InsertManyOptions, Any?) -> Eith
         },
         typed("bypassDocumentValidation", Boolean::class.java) { opt, value ->
             opt.bypassDocumentValidation(value)
-        },
-        "writeConcern" to { opt, _ -> Right(opt) } // the value is copied to dbOptions
+        }
 )
 
 internal val insertManyDefaultConverter = unrecognizedField<InsertManyOptions>("insert many options")

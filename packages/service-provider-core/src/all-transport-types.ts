@@ -13,6 +13,7 @@ export type {
   CollationOptions,
   CollStatsOptions,
   Collection,
+  CommandOperationOptions,
   CountDocumentsOptions,
   CountOptions,
   CreateCollectionOptions,

@@ -171,6 +171,13 @@ describe('Shell API (integration)', function() {
   });
 
   describe('collection', () => {
+    describe('isCapped', () => {
+      it('returns false for a plain collection', async() => {
+        await collection.insertOne({});
+        const ret = await collection.isCapped();
+        expect(ret).to.equal(false);
+      });
+    });
     describe('bulkWrite', () => {
       context('with an insertOne request', () => {
         let requests;

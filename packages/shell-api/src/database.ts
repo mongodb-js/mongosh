@@ -22,7 +22,13 @@ import {
   tsToSeconds
 } from './helpers';
 
-import { ChangeStreamOptions, Document, WriteConcern } from '@mongosh/service-provider-core';
+import type {
+  ChangeStreamOptions,
+  CommandOperationOptions,
+  CreateCollectionOptions,
+  Document,
+  WriteConcern
+} from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
 import {
   CommonErrors,
@@ -44,7 +50,8 @@ export default class Database extends ShellApiClass {
   _mongo: Mongo;
   _name: string;
   _collections: Record<string, Collection>;
-  _baseOptions: Record<string, any>;
+  _baseOptions: CommandOperationOptions;
+  _session: Session | undefined;
 
   constructor(mongo: Mongo, name: string, session?: Session) {
     super();
@@ -54,6 +61,7 @@ export default class Database extends ShellApiClass {
     this._collections = collections;
     this._baseOptions = {};
     if (session !== undefined) {
+      this._session = session;
       this._baseOptions.session = session._session;
     }
     const proxy = new Proxy(this, {
@@ -264,8 +272,8 @@ export default class Database extends ShellApiClass {
   getSiblingDB(db: string): Database {
     assertArgsDefined(db);
     this._emitDatabaseApiCall('getSiblingDB', { db });
-    if (this._baseOptions.session) {
-      return this._baseOptions.session.getDatabase(db);
+    if (this._session) {
+      return this._session.getDatabase(db);
     }
     return this._mongo._getDb(db);
   }
@@ -486,7 +494,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createCollection(name: string, options: Document = {}): Promise<{ ok: number }> {
+  async createCollection(name: string, options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
     assertArgsDefined(name);
     this._emitDatabaseApiCall('createCollection', { name: name, options: options });
     return await this._mongo._serviceProvider.createCollection(
@@ -497,7 +505,7 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async createView(name: string, source: string, pipeline: Document[], options: Document = {}): Promise<{ ok: number }> {
+  async createView(name: string, source: string, pipeline: Document[], options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
     assertArgsDefined(name, source, pipeline);
     this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
     const ccOpts = {
