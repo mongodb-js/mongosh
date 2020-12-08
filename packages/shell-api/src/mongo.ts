@@ -25,7 +25,7 @@ import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
 import { redactPassword } from '@mongosh/history';
-import { asPrintable, ServerVersions, shellSession, Topologies } from './enums';
+import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -196,7 +196,7 @@ export default class Mongo extends ShellApiClass {
 
   @topologies([Topologies.ReplSet])
   startSession(options: Document = {}): Session {
-    const driverOptions = { owner: shellSession }; // TODO: Node 4.0 upgrade should allow optional owner field see NODE-2918
+    const driverOptions = {};
     if (options === undefined) {
       return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
     }

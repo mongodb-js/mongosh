@@ -3,7 +3,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { ChangeStream, ChangeStreamCursor as SPCursor } from '@mongosh/service-provider-core';
+import { ChangeStream } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server/lib';
 import ShellInternalState from './shell-internal-state';
@@ -38,13 +38,10 @@ describe('ChangeStreamCursor', () => {
   });
   describe('instance', () => {
     let spCursor: StubbedInstance<ChangeStream>;
-    let innerCursor: StubbedInstance<SPCursor>;
     let cursor;
     let warnSpy;
     beforeEach(() => {
-      innerCursor = stubInterface<SPCursor>();
       spCursor = stubInterface<ChangeStream>();
-      spCursor.cursor = innerCursor;
       warnSpy = sinon.spy();
 
       cursor = new ChangeStreamCursor(spCursor, 'source', {
@@ -76,11 +73,18 @@ describe('ChangeStreamCursor', () => {
       expect(spCursor.close.calledWith()).to.equal(true);
     });
     it('calls spCursor.cursor.tryNext with arguments', async() => {
+      // TODO: tryNext private, see NODE-2952
       const result = { doc: 1 };
-      innerCursor.tryNext.resolves(result);
-      const actual = await cursor.tryNext();
+      const tryNextSpy = sinon.stub();
+      tryNextSpy.resolves(result);
+      const cursor2 = new ChangeStreamCursor({
+        cursor: { tryNext: tryNextSpy }
+      } as any, 'source', {
+        _internalState: { context: { print: warnSpy } }
+      } as Mongo);
+      const actual = await cursor2.tryNext();
       expect(actual).to.equal(result);
-      expect(innerCursor.tryNext.calledWith()).to.equal(true);
+      expect(tryNextSpy.calledWith()).to.equal(true);
     });
     it('calls spCursor.next with arguments', async() => {
       const result = { doc: 1 };

@@ -49,6 +49,7 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
     open fun tailable(): Unit = throw NotImplementedError("tailable is not supported")
     open fun explain(verbosity: String?): Any? = throw NotImplementedError("explain is not supported")
     open fun readPrev(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readPrev is not supported")
+    open fun readConcern(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readConcern is not supported")
 
     protected fun set(key: String, value: Any?) {
         options[key] = value

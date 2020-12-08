@@ -692,7 +692,6 @@ describe('ReplicaSet', () => {
         const result = await rs.printReplicationInfo();
         expect(result.type).to.equal('StatsResult');
       });
-      // TODO: NODE 4.0 upgrade see NODE-2921
       it('returns data for db.getReplicationInfo', async() => {
         const result = await rs._database.getReplicationInfo();
         expect(Object.keys(result)).to.include('logSizeMB');

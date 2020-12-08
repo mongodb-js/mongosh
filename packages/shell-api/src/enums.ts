@@ -28,6 +28,5 @@ export const CURSOR_FLAGS = {
 export const shellApiType = Symbol.for('@@mongosh.shellApiType');
 export const asPrintable = Symbol.for('@@mongosh.asPrintable');
 export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
-export const shellSession = Symbol.for('@@mongosh.shellSession');
 
 export const ADMIN_DB = 'admin';

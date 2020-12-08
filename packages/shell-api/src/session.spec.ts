@@ -9,7 +9,7 @@ import {
   ADMIN_DB,
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
-  ALL_TOPOLOGIES, shellSession
+  ALL_TOPOLOGIES
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
@@ -20,7 +20,7 @@ import { EventEmitter } from 'events';
 
 describe('Session', () => {
   describe('help', () => {
-    const apiClass = new Session({} as Mongo, { owner: shellSession }, {} as ServiceProviderSession);
+    const apiClass = new Session({} as Mongo, {}, {} as ServiceProviderSession);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -51,7 +51,6 @@ describe('Session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     beforeEach(() => {
       options = {
-        owner: shellSession,
         causalConsistency: false,
         readConcern: { level: 'majority' },
         writeConcern: { w: 1, j: false, wtimeout: 0 },

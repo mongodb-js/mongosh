@@ -11,7 +11,6 @@ import type {
   ExplainVerbosityLike,
   FindCursor,
   AggregationCursor as SPAggregationCursor,
-  ChangeStreamCursor as SPChangeStreamCursor,
   FindAndModifyOptions
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
@@ -500,7 +499,7 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
   });
 }
 
-export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | SPChangeStreamCursor ): Promise<CursorIterationResult> {
+export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | any ): Promise<CursorIterationResult> { // TODO: tryNext private, see NODE-2952
   if (cursor.closed) {
     return results;
   }
@@ -515,13 +514,6 @@ export async function iterate(results: CursorIterationResult, cursor: FindCursor
   }
 
   return results;
-}
-
-export function getAcknowledged(result: Document): boolean {
-  if ('ok' in result) return !!result.ok;
-  if ('result' in result) return !!result.result.ok;
-  if ('acknowledged' in result) return !!result.acknowledged;
-  return false;
 }
 
 export type FindAndModifyShellOptions = FindAndModifyOptions & {

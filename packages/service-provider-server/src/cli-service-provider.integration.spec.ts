@@ -372,7 +372,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(1);
+        expect(result.acknowledged).to.equal(true);
       });
     });
   });
@@ -390,7 +390,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.insertedCount).to.equal(1);
+        expect(result.acknowledged).to.equal(true);
       });
     });
   });
@@ -452,7 +452,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
+        expect(result.acknowledged).to.equal(true);
       });
     });
   });
@@ -483,7 +483,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
+        expect(result.acknowledged).to.equal(true);
       });
     });
   });
@@ -500,7 +500,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the count with an empty filter and resolves the result', () => {
-        expect(result.result.n).to.equal(0);
+        expect(result.acknowledged).to.equal(true);
       });
     });
   });

@@ -426,7 +426,7 @@ describe('Cursor', () => {
 
       it('fluidly sets the read preference', () => {
         expect(shellApiCursor.readPref(value)).to.equal(shellApiCursor);
-        expect(spCursor.setReadPreference).to.have.been.calledWith(value);
+        expect(spCursor.withReadPreference).to.have.been.calledWith(value);
       });
 
       it('throws MongoshUnimplementedError if tagset is passed', () => {
@@ -440,6 +440,22 @@ describe('Cursor', () => {
           expect(e.metadata?.driverCaused).to.equal(true);
           expect(e.metadata?.api).to.equal('Cursor.readPref#tagSet');
         }
+      });
+    });
+
+    describe('#readConcern', () => {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+      const value = 'local';
+
+      beforeEach(() => {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('fluidly sets the read concern', () => {
+        expect(shellApiCursor.readConcern(value)).to.equal(shellApiCursor);
+        expect(spCursor.withReadConcern).to.have.been.calledWith({ level: value });
       });
     });
 
@@ -716,29 +732,6 @@ describe('Cursor', () => {
         const result3 = (await toShellResult(shellApiCursor)).printable;
         expect(result1).to.not.deep.equal(result3);
         expect(i).to.equal(40);
-      });
-    });
-
-    describe('#readConcern', () => {
-      let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
-
-      beforeEach(() => {
-        spCursor = stubInterface<ServiceProviderCursor>();
-        shellApiCursor = new Cursor(mongo, spCursor);
-      });
-
-      it('throws an error linking the ticket', () => {
-        try {
-          shellApiCursor.readConcern();
-          expect.fail('expected error');
-        } catch (e) {
-          expect(e).to.be.instanceOf(MongoshUnimplementedError);
-          expect(e.message).to.contain('NODE-2806');
-          expect(e.code).to.equal(CommonErrors.NotImplemented);
-          expect(e.metadata?.driverCaused).to.equal(true);
-          expect(e.metadata?.api).to.equal('Cursor.readConcern');
-        }
       });
     });
   });

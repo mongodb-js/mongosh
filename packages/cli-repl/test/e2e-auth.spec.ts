@@ -51,7 +51,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
           useNewUrlParser: true,
           auth: { user: username, password: pwd, authSource: dbName },
           connectTimeoutMS: 1000
-        } as unknown as MongoClientOptions // TODO: Node 4.0 update, Missing 'password' in Auth see NODE-2921
+        } as MongoClientOptions
       );
       if (keepClient) {
         return c;

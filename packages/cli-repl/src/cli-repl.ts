@@ -168,7 +168,7 @@ class CliRepl {
   isPasswordMissing(driverOptions: MongoClientOptions): boolean {
     return !!(driverOptions.auth &&
       driverOptions.auth.user &&
-      !(driverOptions.auth as any).password); // TODO: Node 4.0 takes pass?
+      !driverOptions.auth.password);
   }
 
   /**

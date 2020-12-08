@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Mongo from './mongo';
-import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, shellSession } from './enums';
+import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import {
@@ -332,7 +332,7 @@ describe('Mongo', () => {
     describe('getReadConcern', () => {
       it('calls serviceProvider.getReadConcern', async() => {
         const expectedResult = { level: 'majority' };
-        serviceProvider.getReadConcern.returns(expectedResult);
+        serviceProvider.getReadConcern.returns(expectedResult as any);
         const res = await mongo.getReadConcern();
         expect(serviceProvider.getReadConcern).to.have.been.calledWith();
         expect(res).to.equal('majority');
@@ -409,7 +409,7 @@ describe('Mongo', () => {
       it('calls serviceProvider.startSession', () => {
         const opts = { causalConsistency: false };
         const s = mongo.startSession(opts);
-        const driverOpts = { owner: shellSession, ...opts };
+        const driverOpts = { ...opts };
         expect(serviceProvider.startSession).to.have.been.calledWith(driverOpts);
         expect(s._session).to.deep.equal(driverSession);
         expect(s._options).to.deep.equal(driverOpts);
@@ -428,7 +428,7 @@ describe('Mongo', () => {
 
       it('calls startSession without args', () => {
         const result = mongo.startSession();
-        expect(serviceProvider.startSession).to.have.been.calledOnceWith( { owner: shellSession });
+        expect(serviceProvider.startSession).to.have.been.calledOnceWith({});
         expect(result._session).to.equal(driverSession);
       });
       it('can set default transaction options readconcern', () => {
@@ -436,7 +436,6 @@ describe('Mongo', () => {
           readConcern: sampleOpts.readConcern
         });
         expect(serviceProvider.startSession).to.have.been.calledOnceWith({
-          owner: shellSession,
           defaultTransactionOptions: {
             readConcern: sampleOpts.readConcern
           }
@@ -448,7 +447,6 @@ describe('Mongo', () => {
           writeConcern: sampleOpts.writeConcern
         });
         expect(serviceProvider.startSession).to.have.been.calledOnceWith({
-          owner: shellSession,
           defaultTransactionOptions: {
             writeConcern: sampleOpts.writeConcern
           }
@@ -460,7 +458,6 @@ describe('Mongo', () => {
           readPreference: sampleOpts.readPreference as any
         });
         expect(serviceProvider.startSession).to.have.been.calledOnceWith({
-          owner: shellSession,
           defaultTransactionOptions: {
             readPreference: sampleOpts.readPreference
           }
@@ -472,7 +469,6 @@ describe('Mongo', () => {
           causalConsistency: false
         });
         expect(serviceProvider.startSession).to.have.been.calledOnceWith({
-          owner: shellSession,
           causalConsistency: false
         });
         expect(result._session).to.equal(driverSession);
@@ -480,7 +476,6 @@ describe('Mongo', () => {
       it('sets everything', () => {
         const result = mongo.startSession(sampleOpts as any);
         expect(serviceProvider.startSession).to.have.been.calledOnceWith({
-          owner: shellSession,
           causalConsistency: sampleOpts.causalConsistency,
           defaultTransactionOptions: {
             readPreference: sampleOpts.readPreference,

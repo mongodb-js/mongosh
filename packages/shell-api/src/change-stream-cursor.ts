@@ -35,12 +35,12 @@ export default class ChangeStreamCursor extends ShellApiClass {
     this._mongo = mongo;
   }
 
-  async _it(): Promise<CursorIterationResult> {
-    if (this._cursor.cursor === undefined) {
+  async _it(): Promise<CursorIterationResult> { // TODO: tryNext private, see NODE-2952
+    if ((this._cursor as any).cursor === undefined) {
       throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
     const result = this._currentIterationResult = new CursorIterationResult();
-    return iterate(result, this._cursor.cursor);
+    return iterate(result, (this._cursor as any).cursor);
   }
 
   /**
@@ -66,11 +66,11 @@ export default class ChangeStreamCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  async tryNext(): Promise<Document | null> {
-    if (this._cursor.cursor === undefined) {
+  async tryNext(): Promise<Document | null> { // TODO: tryNext private, see NODE-2952
+    if ((this._cursor as any).cursor === undefined) {
       throw new MongoshRuntimeError('Cannot call tryNext on closed cursor');
     }
-    return this._cursor.cursor.tryNext();
+    return (this._cursor as any).cursor.tryNext();
   }
 
   async* [Symbol.asyncIterator]() {

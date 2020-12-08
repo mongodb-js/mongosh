@@ -63,11 +63,9 @@ function completer(params: AutocompleteParameters, line: string): [string[], str
   const elToComplete = splitLine[splitLine.length - 1];
 
   if (splitLine.length <= 1) {
-    // TODO: this should also explicitly suggest 'sh', 'rs', and 'db' strings
     const hits = filterShellAPI(params, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length === 2) {
-    // TODO: @lrlna this also needs to suggest currently available collections
     const hits = filterShellAPI(params, DB_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length > 2) {

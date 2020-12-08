@@ -20,7 +20,6 @@ import {
   calculateObjectSize,
   Double
 } from 'bson';
-import ServiceProviderBulkOp, { ServiceProviderBulkFindOp, BulkBatch } from './bulk';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
@@ -54,8 +53,5 @@ export {
   ServiceProviderCore,
   bson,
   bsonStringifiers,
-  ServiceProviderBulkFindOp,
-  ServiceProviderBulkOp,
-  BulkBatch,
   ConnectInfo
 };

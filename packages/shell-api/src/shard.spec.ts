@@ -598,7 +598,8 @@ describe('Shard', () => {
           upsertedCount: 1,
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
+          acknowledged: true
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableAutoSplit();
@@ -615,7 +616,7 @@ describe('Shard', () => {
       });
 
       it('throws if not mongos', async() => {
-        const expectedResult = { ok: 1 } as any;
+        const expectedResult = { acknowledged: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
         const catchedError = await shard.enableAutoSplit()
@@ -632,7 +633,8 @@ describe('Shard', () => {
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
+          acknowledged: true
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoSplit();
@@ -655,7 +657,8 @@ describe('Shard', () => {
           upsertedCount: 1,
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
+          acknowledged: true
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableAutoSplit();
@@ -829,7 +832,8 @@ describe('Shard', () => {
           upsertedCount: 1,
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
+          acknowledged: true
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableBalancing('ns');
@@ -886,7 +890,8 @@ describe('Shard', () => {
           upsertedCount: 1,
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
+          acknowledged: true
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableBalancing('ns');

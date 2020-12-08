@@ -2,11 +2,11 @@ import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } fr
 import Mongo from './mongo';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
-  BulkBatch,
   Document,
-  ServiceProviderBulkFindOp,
-  ServiceProviderBulkOp,
-  WriteConcern
+  WriteConcern,
+  OrderedBulkOperation,
+  UnorderedBulkOperation,
+  FindOperators
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { blockedByDriverMetadata } from './error-codes';
@@ -15,11 +15,11 @@ import { BulkWriteResult } from './result';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiClass {
-  _serviceProviderBulkFindOp: ServiceProviderBulkFindOp;
+  _serviceProviderBulkFindOp: FindOperators;
   _parentBulk: Bulk;
   _hint: Document | undefined;
   _arrayFilters: Document[] | undefined;
-  constructor(innerFind: ServiceProviderBulkFindOp, parentBulk: Bulk) {
+  constructor(innerFind: FindOperators, parentBulk: Bulk) {
     super();
     this._serviceProviderBulkFindOp = innerFind;
     this._parentBulk = parentBulk;
@@ -121,11 +121,11 @@ export default class Bulk extends ShellApiClass {
   _collection: any; // to avoid circular ref
   _batchCounts: any;
   _executed: boolean;
-  _batches: BulkBatch[];
-  _serviceProviderBulkOp: ServiceProviderBulkOp;
+  _batches: any[]; // TODO: public batch information see NODE-2768
+  _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
   _ordered: boolean;
 
-  constructor(collection: any, innerBulk: ServiceProviderBulkOp, ordered = false) {
+  constructor(collection: any, innerBulk: OrderedBulkOperation | UnorderedBulkOperation, ordered = false) {
     super();
     this._collection = collection;
     this._mongo = collection._mongo;
@@ -147,22 +147,23 @@ export default class Bulk extends ShellApiClass {
     );
   }
 
-  private _getBatches(): BulkBatch[] {
-    const batches = [...this._serviceProviderBulkOp.s.batches];
+  private _getBatches(): any[] {
+    const internalBatches = (this._serviceProviderBulkOp as any).s;
+    const batches = [...internalBatches.batches];
     if (this._ordered) {
-      if (this._serviceProviderBulkOp.s.currentBatch) {
-        batches.push(this._serviceProviderBulkOp.s.currentBatch);
+      if (internalBatches.currentBatch) {
+        batches.push(internalBatches.currentBatch);
       }
       return batches;
     }
-    if (this._serviceProviderBulkOp.s.currentInsertBatch) {
-      batches.push(this._serviceProviderBulkOp.s.currentInsertBatch);
+    if (internalBatches.currentInsertBatch) {
+      batches.push(internalBatches.currentInsertBatch);
     }
-    if (this._serviceProviderBulkOp.s.currentUpdateBatch) {
-      batches.push(this._serviceProviderBulkOp.s.currentUpdateBatch);
+    if (internalBatches.currentUpdateBatch) {
+      batches.push(internalBatches.currentUpdateBatch);
     }
-    if (this._serviceProviderBulkOp.s.currentRemoveBatch) {
-      batches.push(this._serviceProviderBulkOp.s.currentRemoveBatch);
+    if (internalBatches.currentRemoveBatch) {
+      batches.push(internalBatches.currentRemoveBatch);
     }
     return batches;
   }
@@ -193,10 +194,10 @@ export default class Bulk extends ShellApiClass {
 
   @returnsPromise
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    if (!this._executed && this._checkInternalShape(this._serviceProviderBulkOp.s)) {
+    if (!this._executed && this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
       this._batches = this._getBatches();
     }
-    const { result } = await this._serviceProviderBulkOp.execute();
+    const { result } = await this._serviceProviderBulkOp.execute() as any;
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });
     return new BulkWriteResult(
@@ -225,7 +226,7 @@ export default class Bulk extends ShellApiClass {
 
   tojson(): Record<'nInsertOps' | 'nUpdateOps' | 'nRemoveOps' | 'nBatches', number> {
     let batches = -1;
-    if (this._checkInternalShape(this._serviceProviderBulkOp.s)) {
+    if (this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
       batches = this._getBatches().length;
     }
 
@@ -239,8 +240,8 @@ export default class Bulk extends ShellApiClass {
     return JSON.stringify(this.tojson());
   }
 
-  getOperations(): BulkBatch[] {
-    if (!this._checkInternalShape(this._serviceProviderBulkOp.s)) {
+  getOperations(): any[] {
+    if (!this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
       throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
     }
     if (!this._executed) {

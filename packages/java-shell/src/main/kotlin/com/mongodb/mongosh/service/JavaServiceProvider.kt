@@ -56,7 +56,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).insertOne(document)
-            mapOf("ok" to true, "insertedId" to "UNKNOWN")
+            mapOf("acknowledged" to true, "insertedId" to "UNKNOWN")
         }
     }
 
@@ -70,7 +70,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         getDatabase(database, dbOptions).flatMap { db ->
             convert(ReplaceOptions(), replaceOptionsConverters, replaceOptionsDefaultConverter, opt).map { opt ->
                 val res = db.getCollection(collection).replaceOne(filter, replacement, opt)
-                mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                mapOf("acknowledged" to res.wasAcknowledged(),
                         "matchedCount" to res.matchedCount,
                         "modifiedCount" to res.modifiedCount,
                         "upsertedCount" to if (res.upsertedId == null) 0 else 1,
@@ -96,7 +96,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
                     update.hasMembers() -> Right(db.getCollection(collection).updateMany(filter, toDocument(update, "update"), updateOptions))
                     else -> Left<UpdateResult>(IllegalArgumentException("updatePipeline must be a list or object"))
                 }.map { res ->
-                    mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                    mapOf("acknowledged" to res.wasAcknowledged(),
                             "matchedCount" to res.matchedCount,
                             "modifiedCount" to res.modifiedCount,
                             "upsertedCount" to if (res.upsertedId == null) 0 else 1,
@@ -124,7 +124,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
                     val pipeline = toList(update, "update")?.map { it as Document }
                     coll.updateOne(filter, pipeline, updateOptions)
                 } else coll.updateOne(filter, toDocument(update, "update"), updateOptions)
-                mapOf("result" to mapOf("ok" to res.wasAcknowledged()),
+                mapOf("acknowledged" to res.wasAcknowledged(),
                         "matchedCount" to res.matchedCount,
                         "modifiedCount" to res.modifiedCount,
                         "upsertedCount" to if (res.upsertedId == null) 0 else 1,
@@ -165,7 +165,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
                 unwrap(writeModels).map { requests ->
                     val result = db.getCollection(collection).bulkWrite(requests, options)
                     mapOf(
-                            "result" to mapOf("ok" to result.wasAcknowledged()),
+                            "ok" to result.wasAcknowledged(),
                             "insertedCount" to result.insertedCount,
                             "insertedIds" to "UNKNOWN",
                             "matchedCount" to result.matchedCount,
@@ -250,7 +250,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         getDatabase(database, dbOptions).flatMap { db ->
             convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, opt).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteMany(filter, deleteOptions)
-                mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
+                mapOf("acknowledged" to result.wasAcknowledged(),
                         "deletedCount" to result.deletedCount)
             }
         }
@@ -265,7 +265,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         getDatabase(database, dbOptions).flatMap { db ->
             convert(DeleteOptions(), deleteConverters, deleteDefaultConverter, opt).map { deleteOptions ->
                 val result = db.getCollection(collection).deleteOne(filter, deleteOptions)
-                mapOf("result" to mapOf("ok" to result.wasAcknowledged()),
+                mapOf("acknowledged" to result.wasAcknowledged(),
                         "deletedCount" to result.deletedCount)
             }
         }
@@ -327,7 +327,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         getDatabase(database, dbOptions).flatMap { db ->
             convert(InsertManyOptions(), insertManyConverters, insertManyDefaultConverter, opt).map { opt ->
                 db.getCollection(collection).insertMany(docs.filterIsInstance<Document>(), opt)
-                mapOf("result" to mapOf("ok" to true),
+                mapOf("acknowledged" to true,
                         "insertedIds" to emptyList<String>())
             }
         }

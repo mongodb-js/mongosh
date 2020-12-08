@@ -653,7 +653,7 @@ describe('CliServiceProvider', () => {
     });
     describe('startSession', () => {
       it('calls startSession without args', () => {
-        const opts = { owner: Symbol.for('shell') };
+        const opts = {};
         const result = serviceProvider.startSession(opts);
         expect(clientStub.startSession).to.have.been.calledOnceWith( opts);
         expect(result).to.equal(driverSession);
