@@ -880,7 +880,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} topology.
    */
   getTopology(): Topology | undefined {
-    return this.mongoClient.topology; // TODO: maybe return topology description instead, see NODE-2910
+    return this.mongoClient.topology;
   }
 
   /**

@@ -18,9 +18,10 @@ import type {
   DropCollectionOptions,
   BulkWriteResult,
   RunCommandOptions,
-  DbOptions
+  DbOptions,
+  OrderedBulkOperation,
+  UnorderedBulkOperation
 } from './all-transport-types';
-import ServiceProviderBulkOp from './bulk';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -382,6 +383,6 @@ export default interface Writable {
     ordered: boolean,
     options?: BulkWriteOptions,
     dbOptions?: DbOptions
-  ): Promise<ServiceProviderBulkOp>;
+  ): Promise<OrderedBulkOperation | UnorderedBulkOperation>;
 }
 
