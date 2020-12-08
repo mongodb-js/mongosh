@@ -27,14 +27,13 @@ appRegistry.onActivated();
 
 const root = document.createElement('div');
 
-
 root.id = 'root';
 root.style.height = '100%';
 root.style.width = '100%';
 document.body.appendChild(root);
 
 // Create a HMR enabled render function
-const render = Component => {
+const render = (Component) => {
   ReactDOM.render(
     <AppContainer>
       <Component />
@@ -58,22 +57,41 @@ render(CompassShellPlugin);
 // mongoclient is. For that reason we can use a mocked one, this avoid
 // the dependency to keytar:
 //
-const localUri = 'mongodb://localhost:27017/test';
-MongoClient.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true }, (error, client) => {
-  const dataService = { client: { client } };
-  appRegistry.emit('data-service-initialized', dataService);
-  appRegistry.emit('data-service-connected', error, dataService);
+const connectionParams = {
+  url: 'mongodb://localhost:27017/test?readPreference=primary&ssl=false',
+  options: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    connectWithNoPrimary: true,
+    sslValidate: false,
+  },
+};
 
-  if (error) {
-    console.error('Unable to connect to', localUri, error);
-    return;
+MongoClient.connect(
+  connectionParams.url,
+  connectionParams.options,
+  (error, client) => {
+    const dataService = {
+      client: { client },
+      getConnectionParams() {
+        return connectionParams;
+      },
+    };
+
+    appRegistry.emit('data-service-initialized', dataService);
+    appRegistry.emit('data-service-connected', error, dataService);
+
+    if (error) {
+      console.error('Unable to connect to', connectionParams.url, error);
+      return;
+    }
+
+    console.info('Connected to', connectionParams.url);
+
+    appRegistry.emit('data-service-initialized', dataService);
+    appRegistry.emit('data-service-connected', error, dataService);
   }
-
-  console.info('Connected to', localUri);
-
-  appRegistry.emit('data-service-initialized', dataService);
-  appRegistry.emit('data-service-connected', error, dataService);
-});
+);
 
 if (module.hot) {
   module.hot.accept('plugin', () => render(CompassShellPlugin));
