@@ -433,7 +433,7 @@ describe('CliServiceProvider [integration]', function() {
       });
 
       it('executes the remove op with and resolves the result', () => {
-        expect(result.ok).to.equal(1);
+        expect(result.acknowledged).to.equal(true);
         expect(result.deletedCount).to.equal(0);
       });
     });

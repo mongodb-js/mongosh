@@ -139,7 +139,7 @@ describe('ChangeStreamCursor', () => {
       it('tryNext returns document when there is a doc', async() => {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
-          1000,
+          100,
           async() => await cursor.tryNext(),
           (t) => (t !== null),
           'tryNext to return a document');
@@ -147,10 +147,46 @@ describe('ChangeStreamCursor', () => {
         expect(result.fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
+      it('_it iterates over the cursor', async() => {
+        await coll.insertOne({ myDoc: 1 });
+        const result = await ensureResult(
+          100,
+          async() => await cursor._it(),
+          (t) => (t.length > 0),
+          '_it to return a batch');
+        expect(result).to.have.lengthOf(1);
+        expect(result[0].operationType).to.equal('insert');
+        expect(result[0].fullDocument.myDoc).to.equal(1);
+        await cursor.close();
+      });
+      it('async iteration iterates over the cursor', async() => {
+        await coll.insertOne({ myDoc: 1 });
+        const result = await ensureResult(
+          100,
+          async() => {
+            for await (const doc of cursor) {
+              return doc;
+            }
+            return null;
+          },
+          (t) => (t !== null),
+          'async iteration to return a batch');
+        expect(result.operationType).to.equal('insert');
+        expect(result.fullDocument.myDoc).to.equal(1);
+        await cursor.close();
+      });
+      it('isClosed returns whether the cursor is closed', async() => {
+        expect(cursor.isClosed()).to.equal(false);
+        await cursor.close();
+        expect(cursor.isClosed()).to.equal(true);
+      });
+      it('getResumeToken returns a resumeToken', async() => {
+        expect(cursor.getResumeToken()).to.be.an('object');
+      });
       it('itcount returns batch size', async() => {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
-          1000,
+          100,
           async() => await cursor.itcount(),
           (t) => t > 0,
           'itcount to return 1');
@@ -175,7 +211,7 @@ describe('ChangeStreamCursor', () => {
       it('tryNext returns document when there is a doc', async() => {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
-          1000,
+          100,
           async() => await cursor.tryNext(),
           (t) => (t !== null),
           'tryNext to return a document');
@@ -186,7 +222,7 @@ describe('ChangeStreamCursor', () => {
       it('itcount returns batch size', async() => {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
-          1000,
+          100,
           async() => await cursor.itcount(),
           (t) => t > 0,
           'itcount to return 1');
@@ -211,7 +247,7 @@ describe('ChangeStreamCursor', () => {
       it('tryNext returns document when there is a doc', async() => {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
-          1000,
+          100,
           async() => await cursor.tryNext(),
           (t) => (t !== null),
           'tryNext to return a document');
