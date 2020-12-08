@@ -758,6 +758,18 @@ describe('Shell API (integration)', function() {
   });
 
   describe('db', () => {
+    describe('printShardingStatus', () => {
+      it('fails for non-sharded dbs', async() => {
+        try {
+          await database.printShardingStatus();
+        } catch (err) {
+          expect(err.name).to.equal('MongoshInvalidInputError');
+          return;
+        }
+        expect.fail('Missed exception');
+      });
+    });
+
     describe('getCollectionInfos', () => {
       it('returns an array with collection infos', async() => {
         await serviceProvider.createCollection(dbName, collectionName);

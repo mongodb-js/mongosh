@@ -689,7 +689,7 @@ describe('ReplicaSet', () => {
         expect(result.type).to.equal('StatsResult');
       });
       it('returns StatsResult for print replication info', async() => {
-        const result = await rs.printSecondaryReplicationInfo();
+        const result = await rs.printReplicationInfo();
         expect(result.type).to.equal('StatsResult');
       });
       // TODO: NODE 4.0 upgrade see NODE-2921
