@@ -365,7 +365,7 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      it('returns creation result', () => { // TODO: Node 4.0 index doc not returned, see NODE-2602
+      it.skip('returns creation result', () => { // TODO: Node 4.0 index doc not returned, see NODE-2602
         expect(result).to.contain({
           createdCollectionAutomatically: false,
           numIndexesBefore: 1,
