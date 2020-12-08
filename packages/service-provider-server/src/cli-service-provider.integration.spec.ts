@@ -22,7 +22,7 @@ describe('CliServiceProvider [integration]', function() {
 
     dbName = `test-db-${Date.now()}`;
     db = client.db(dbName);
-    serviceProvider = new CliServiceProvider(client);
+    serviceProvider = new CliServiceProvider(client, {}, connectionString);
   });
 
   afterEach(() => {
@@ -45,6 +45,61 @@ describe('CliServiceProvider [integration]', function() {
 
     it('connects mongo client', () => {
       expect(instance.mongoClient.isConnected()).to.equal(true);
+    });
+  });
+
+  describe('.getNewConnection', () => {
+    let instance;
+
+    beforeEach(async() => {
+      instance = await serviceProvider.getNewConnection(connectionString);
+    });
+
+    afterEach(() => {
+      instance.close(true);
+    });
+
+    it('returns a CliServiceProvider', async() => {
+      expect(instance).to.be.instanceOf(CliServiceProvider);
+    });
+
+    it('connects mongo client', () => {
+      expect(instance.mongoClient.isConnected()).to.equal(true);
+    });
+
+    it('differs from the original CliServiceProvider', () => {
+      expect(instance).to.not.equal(serviceProvider);
+    });
+  });
+
+  describe('.authenticate', () => {
+    beforeEach(async() => {
+      await serviceProvider.runCommandWithCheck('admin', {
+        createUser: 'xyz', pwd: 'asdf', roles: []
+      });
+    });
+
+    afterEach(async() => {
+      await serviceProvider.runCommandWithCheck('admin', {
+        dropUser: 'xyz'
+      });
+    });
+
+    it('resets the MongoClient', async() => {
+      const mongoClientBefore = serviceProvider.mongoClient;
+      await serviceProvider.authenticate({ user: 'xyz', pwd: 'asdf', authDb: 'admin' });
+      expect(serviceProvider.mongoClient).to.not.equal(mongoClientBefore);
+    });
+  });
+
+  describe('.resetConnectionOptions', () => {
+    it('resets the MongoClient', async() => {
+      const mongoClientBefore = serviceProvider.mongoClient;
+      await serviceProvider.resetConnectionOptions({
+        readPreference: { mode: 'secondaryPreferred' }
+      });
+      expect(serviceProvider.mongoClient).to.not.equal(mongoClientBefore);
+      expect(serviceProvider.getReadPreference().mode).to.equal('secondaryPreferred');
     });
   });
 
@@ -152,6 +207,20 @@ describe('CliServiceProvider [integration]', function() {
 
       it('executes the count with an empty filter and resolves the result', () => {
         expect(result.result.nInserted).to.equal(1);
+      });
+    });
+  });
+
+  describe('#count', () => {
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await serviceProvider.count('music', 'bands');
+      });
+
+      it('executes the count with an empty filter and resolves the result', () => {
+        expect(result).to.equal(0);
       });
     });
   });
@@ -326,6 +395,50 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
+  describe('#isCapped', () => {
+    context('for regular collections', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await serviceProvider.isCapped('music', 'bands');
+      });
+
+      it('returns false', () => {
+        expect(result).to.equal(false);
+      });
+    });
+  });
+
+  describe('#listDatabases', () => {
+    let result;
+
+    beforeEach(async() => {
+      result = await serviceProvider.listDatabases('admin');
+    });
+
+    it('returns a list of databases', () => {
+      expect(result.ok).to.equal(1);
+      expect(result.databases.map(db => db.name)).to.include('admin');
+    });
+  });
+
+  describe('#remove', () => {
+    const filter = { name: 'Aphex Twin' };
+
+    context('when the filter is empty', () => {
+      let result;
+
+      beforeEach(async() => {
+        result = await serviceProvider.remove('music', 'bands', filter);
+      });
+
+      it('executes the remove op with and resolves the result', () => {
+        expect(result.ok).to.equal(1);
+        expect(result.deletedCount).to.equal(0);
+      });
+    });
+  });
+
   describe('#replaceOne', () => {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
@@ -388,6 +501,16 @@ describe('CliServiceProvider [integration]', function() {
 
       it('executes the count with an empty filter and resolves the result', () => {
         expect(result.result.n).to.equal(0);
+      });
+    });
+  });
+
+  describe('#dropCollection', () => {
+    context('when a collection existed', () => {
+      it('returns  {ok: 1}', async() => {
+        await serviceProvider.createCollection('test', 'collectionexists');
+        const result = await serviceProvider.dropCollection('test', 'collectionexists');
+        expect(result).to.equal(true);
       });
     });
   });
@@ -555,6 +678,12 @@ describe('CliServiceProvider [integration]', function() {
       const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'primary' } } as DbOptions);
       const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).not.to.equal(db2);
+    });
+  });
+
+  describe('#driverMetadata', () => {
+    it('returns information about the driver instance', () => {
+      expect(serviceProvider.driverMetadata.driver.name).to.equal('nodejs');
     });
   });
 });
