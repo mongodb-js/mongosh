@@ -128,5 +128,11 @@ module.exports = {
         exclude: /(node_modules)/
       }
     ]
+  },
+  resolveLoader: {
+    modules: [
+      'node_modules',
+      path.resolve(__dirname, 'loaders')
+    ]
   }
 };
