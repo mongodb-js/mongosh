@@ -28,10 +28,6 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     this.internalState.asyncWriter.symbols.saveState();
   }
 
-  public setEvaluationListener(listener: EvaluationListener): void {
-    this.internalState.setEvaluationListener(listener);
-  }
-
   /**
    * Checks for linux-style commands then evaluates input using originalEval.
    *

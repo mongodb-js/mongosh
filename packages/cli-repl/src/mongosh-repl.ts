@@ -70,7 +70,7 @@ class MongoshNodeRepl {
   async start(serviceProvider: ServiceProvider): Promise<void> {
     const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(internalState);
-    shellEvaluator.setEvaluationListener(this);
+    internalState.setEvaluationListener(this);
     await internalState.fetchConnectionInfo();
 
     const mongodVersion = internalState.connectionInfo.buildInfo.version;
