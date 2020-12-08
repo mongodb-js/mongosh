@@ -1,4 +1,4 @@
-import { MongodSetup, startTestCluster } from '../../../testing/integration-testing-hooks';
+import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
 
@@ -13,10 +13,12 @@ describe('e2e direct connection', () => {
       ['--single', '--replSet', replSetId]
     );
 
-    [ [rs0, 'rs0'], [rs1, 'rs1'], [rs2, 'rs2'] ].forEach((elem) => {
-      const server = elem[0] as MongodSetup;
-      const node = elem[1] as string;
-      it(`works when connecting to node ${node} of uninitialized set`, async() => {
+    [
+      { server: rs0, name: 'rs0' },
+      { server: rs1, name: 'rs1' },
+      { server: rs2, name: 'rs2' }
+    ].forEach(({ server, name }) => {
+      it(`works when connecting to node ${name} of uninitialized set`, async() => {
         const shell = TestShell.start({ args: [await server.connectionString()] });
         await shell.waitForPrompt();
         await shell.executeLine('db.isMaster()');
