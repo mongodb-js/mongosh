@@ -11,6 +11,7 @@ import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../../../testing/helpers';
 import Database from './database';
 import Collection from './collection';
+import { MongoshUnimplementedError } from '@mongosh/errors';
 
 describe('ChangeStreamCursor', () => {
   describe('help', () => {
@@ -264,6 +265,27 @@ describe('ChangeStreamCursor', () => {
           'itcount to return 1');
         expect(result).to.equal(1);
       });
+    });
+  });
+  describe('unsupported methods', () => {
+    let cursor;
+    beforeEach(() => {
+      cursor = new ChangeStreamCursor({} as ChangeStream, 'source', {} as Mongo);
+    });
+
+    for (const name of ['map', 'forEach', 'toArray', 'objsLeftInBatch']) {
+      // eslint-disable-next-line no-loop-func
+      it(`${name} fails`, () => {
+        expect(() => cursor[name]()).to.throw(MongoshUnimplementedError);
+      });
+    }
+    it('isExhausted fails', async() => {
+      try {
+        await cursor.isExhausted();
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.name).to.equal('MongoshInvalidInputError');
+      }
     });
   });
 });

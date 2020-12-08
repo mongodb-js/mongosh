@@ -204,6 +204,11 @@ describe('Cursor', () => {
         expect(await shellApiCursor.count()).to.equal(5);
         expect(spCursor.count).to.have.been.calledWith();
       });
+
+      it('is aliased by size()', async() => {
+        expect(await shellApiCursor.size()).to.equal(5);
+        expect(spCursor.count).to.have.been.calledWith();
+      });
     });
 
     describe('#hasNext', () => {
@@ -551,6 +556,12 @@ describe('Cursor', () => {
       it('fluidly adds the cursor flag', () => {
         expect(shellApiCursor.tailable()).to.equal(shellApiCursor);
         expect(spCursor.addCursorFlag).to.have.been.calledWith('tailable', true);
+      });
+
+      it('fluidly adds the awaitData flag', () => {
+        expect(shellApiCursor.tailable({ awaitData: true })).to.equal(shellApiCursor);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith('tailable', true);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith('awaitData', true);
       });
     });
 

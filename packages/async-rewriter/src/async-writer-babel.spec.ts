@@ -141,6 +141,18 @@ describe('async-writer-babel', () => {
       expect(writer.process('function fn() { db.coll.insertOne({}); }'))
         .to.equal('async function fn() {\n  await db.coll.insertOne({});\n}');
     });
+    it('compiles variable declarations', () => {
+      expect(writer.process('db.coll.insertOne({}); var a = "foo";'))
+        .to.equal('(async () => { await db.coll.insertOne({});\nvoid (a = "foo"); })()');
+      expect(writer.process('db.coll.insertOne({}); var b;'))
+        .to.equal('(async () => { await db.coll.insertOne({});\nvoid (b=undefined); })()');
+      expect(writer.process('db.coll.insertOne({}); var q=0,p=1;'))
+        .to.equal('(async () => { await db.coll.insertOne({});\nvoid ( (q = 0),\n    (p = 1)); })()');
+    });
+    it('does not add TLA if there is a return statement', () => {
+      expect(writer.process('(() => { db.coll.insertOne({}); return; var a = "foo"; })()'))
+        .to.include('var a = "foo"');
+    });
     it('compiles async function within a class function', () => {
       const i = `
 class Test {

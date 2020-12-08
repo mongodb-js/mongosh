@@ -1514,14 +1514,16 @@ export default class Collection extends ShellApiClass {
     await Promise.all(collStats.map((extShardStats) => (
       (async(): Promise<void> => {
         // Extract and store only the relevant subset of the stats for this shard
-        const host = await config.getCollection('shards').findOne({ _id: extShardStats.shard });
+        const [ host, numChunks ] = await Promise.all([
+          config.getCollection('shards').findOne({ _id: extShardStats.shard }),
+          config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard })
+        ]);
         const shardStats = {
           shardId: extShardStats.shard,
           host: host !== null ? host.host : null,
           size: extShardStats.storageStats.size,
           count: extShardStats.storageStats.count,
-          numChunks:
-            await config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard }),
+          numChunks: numChunks,
           avgObjSize: extShardStats.storageStats.avgObjSize
         };
 
