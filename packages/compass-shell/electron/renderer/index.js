@@ -58,7 +58,7 @@ render(CompassShellPlugin);
 // the dependency to keytar:
 //
 const connectionParams = {
-  url: 'mongodb://localhost:27017/test?readPreference=primary&ssl=false',
+  url: 'mongodb://localhost:27020/test?readPreference=primary&ssl=false',
   options: {
     useNewUrlParser: true,
     useUnifiedTopology: true,

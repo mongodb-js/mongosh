@@ -1,5 +1,7 @@
-import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
-import { CompassServiceProvider } from '@mongosh/service-provider-server';
+// import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
+// import { CompassServiceProvider } from '@mongosh/service-provider-server';
+
+import WorkerRuntime from './worker-runtime/runtime';
 
 /**
  * The prefix.
@@ -38,22 +40,38 @@ export default function reducer(state = INITIAL_STATE, action) {
 
 function reduceSetupRuntime(state, action) {
   if (action.error || !action.dataService) {
-    return {error: action.error, dataService: null, runtime: null};
+    return { error: action.error, dataService: null, runtime: null };
   }
 
   if (state.dataService === action.dataService) {
     return state;
   }
 
-  const runtime = new ElectronRuntime(
-    CompassServiceProvider.fromDataService(action.dataService),
-    action.appRegistry
-  );
+  // const runtime = new ElectronRuntime(
+  //   CompassServiceProvider.fromDataService(action.dataService),
+  //   action.appRegistry
+  // );
+
+  // const origEval = runtime.evaluate;
+
+  // runtime.evaluate = async function _evaluate(...args) {
+  //   console.info("input:", ...args);
+  //   const result = await origEval.call(runtime, ...args);
+  //   console.info("output:", result);
+  //   return result;
+  // };
+
+  if (state.runtime) {
+    state.runtime.terminate();
+  }
+
+  const { url, options } = action.dataService.getConnectionParams();
+  const newRuntime = new WorkerRuntime(url, options);
 
   return {
     error: action.error,
     dataService: action.dataService,
-    runtime: runtime
+    runtime: newRuntime,
   };
 }
 
@@ -70,5 +88,5 @@ export const setupRuntime = (error, dataService, appRegistry) => ({
   type: SETUP_RUNTIME,
   error,
   dataService,
-  appRegistry
+  appRegistry,
 });
