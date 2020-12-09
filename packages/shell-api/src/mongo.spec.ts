@@ -136,169 +136,176 @@ describe('Mongo', () => {
             expect(catchedError).to.equal(expectedError);
           });
         });
-        describe('users', () => {
-          it('calls database.getUsers', async() => {
-            const expectedResult = { ok: 1, users: [] };
-            database.getUsers.resolves(expectedResult);
-            await mongo.show('users');
-            expect(database.getUsers).to.have.been.calledWith(
+      });
+      describe('users', () => {
+        it('calls database.getUsers', async() => {
+          const expectedResult = { ok: 1, users: [] };
+          database.getUsers.resolves(expectedResult);
+          await mongo.show('users');
+          expect(database.getUsers).to.have.been.calledWith(
 
-            );
-          });
-
-          it('returns ShowResult CommandResult', async() => {
-            const expectedResult = { ok: 1, users: ['a', 'b'] };
-            database.getUsers.resolves(expectedResult);
-            const result = await mongo.show('users');
-            expect(result.value).to.deep.equal(expectedResult.users);
-            expect(result.type).to.equal('ShowResult');
-          });
-
-          it('throws if database.getUsers rejects', async() => {
-            const expectedError = new Error();
-            database.getUsers.rejects(expectedError);
-            const catchedError = await mongo.show('users')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
+          );
         });
-        describe('roles', () => {
-          it('calls database.getRoles', async() => {
-            const expectedResult = { ok: 1, roles: [] };
-            database.getRoles.resolves(expectedResult);
-            await mongo.show('roles');
-            expect(database.getRoles).to.have.been.calledWith(
-              { showBuiltinRoles: true }
-            );
-          });
 
-          it('returns ShowResult CommandResult', async() => {
-            const expectedResult = { ok: 1, roles: ['a', 'b'] };
-            database.getRoles.resolves(expectedResult);
-            const result = await mongo.show('roles');
-            expect(result.value).to.deep.equal(expectedResult.roles);
-            expect(result.type).to.equal('ShowResult');
-          });
-
-          it('throws if database.getRoles rejects', async() => {
-            const expectedError = new Error();
-            database.getRoles.rejects(expectedError);
-            const catchedError = await mongo.show('roles')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
+        it('returns ShowResult CommandResult', async() => {
+          const expectedResult = { ok: 1, users: ['a', 'b'] };
+          database.getUsers.resolves(expectedResult);
+          const result = await mongo.show('users');
+          expect(result.value).to.deep.equal(expectedResult.users);
+          expect(result.type).to.equal('ShowResult');
         });
-        describe('log', () => {
-          it('calls database.adminCommand without arg', async() => {
-            const expectedResult = { ok: 1, log: [] };
-            database.adminCommand.resolves(expectedResult);
-            await mongo.show('log');
-            expect(database.adminCommand).to.have.been.calledWith(
-              { getLog: 'global' }
-            );
-          });
-          it('calls database.adminCommand with arg', async() => {
-            const expectedResult = { ok: 1, log: [] };
-            database.adminCommand.resolves(expectedResult);
-            await mongo.show('log', 'other');
-            expect(database.adminCommand).to.have.been.calledWith(
-              { getLog: 'other' }
-            );
-          });
 
-          it('returns ShowResult CommandResult', async() => {
-            const expectedResult = { ok: 1, log: ['a', 'b'] };
-            database.adminCommand.resolves(expectedResult);
-            const result = await mongo.show('log');
-            expect(result.value).to.deep.equal(expectedResult.log);
-            expect(result.type).to.equal('ShowResult');
-          });
-
-          it('throws if database.adminCommand rejects', async() => {
-            const expectedError = new Error();
-            database.adminCommand.rejects(expectedError);
-            const catchedError = await mongo.show('log')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
+        it('throws if database.getUsers rejects', async() => {
+          const expectedError = new Error();
+          database.getUsers.rejects(expectedError);
+          const catchedError = await mongo.show('users')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
         });
-        describe('logs', () => {
-          it('calls database.adminCommand', async() => {
-            const expectedResult = { ok: 1, names: [] };
-            database.adminCommand.resolves(expectedResult);
-            await mongo.show('logs');
-            expect(database.adminCommand).to.have.been.calledWith(
-              { getLog: '*' }
-            );
-          });
-
-          it('returns ShowResult CommandResult', async() => {
-            const expectedResult = { ok: 1, names: ['a', 'b'] };
-            database.adminCommand.resolves(expectedResult);
-            const result = await mongo.show('logs');
-            expect(result.value).to.deep.equal(expectedResult.names);
-            expect(result.type).to.equal('ShowResult');
-          });
-
-          it('throws if database.adminCommand rejects', async() => {
-            const expectedError = new Error();
-            database.adminCommand.rejects(expectedError);
-            const catchedError = await mongo.show('logs')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
+      });
+      describe('roles', () => {
+        it('calls database.getRoles', async() => {
+          const expectedResult = { ok: 1, roles: [] };
+          database.getRoles.resolves(expectedResult);
+          await mongo.show('roles');
+          expect(database.getRoles).to.have.been.calledWith(
+            { showBuiltinRoles: true }
+          );
         });
-        describe('profile', () => {
-          it('calls database.count but not find when count < 1', async() => {
-            const syscoll = stubInterface<Collection>();
-            database.getCollection.returns(syscoll);
-            syscoll.countDocuments.resolves(0);
-            syscoll.find.rejects(new Error());
-            const result = await mongo.show('profile');
-            expect(database.getCollection).to.have.been.calledWith('system.profile');
-            expect(syscoll.countDocuments).to.have.been.calledWith({});
-            expect(result.type).to.equal('ShowProfileResult');
-            expect(result.value).to.deep.equal({ count: 0 });
-          });
-          it('calls database.count and find when count > 0', async() => {
-            const expectedResult = [{ a: 'a' }, { b: 'b' }];
-            const syscoll = stubInterface<Collection>();
-            const cursor = stubInterface<Cursor>();
-            cursor.sort.returns(cursor);
-            cursor.limit.returns(cursor);
-            cursor.toArray.resolves(expectedResult);
-            database.getCollection.returns(syscoll);
-            syscoll.countDocuments.resolves(1);
-            syscoll.find.returns(cursor);
-            const result = await mongo.show('profile');
-            expect(database.getCollection).to.have.been.calledWith('system.profile');
-            expect(syscoll.countDocuments).to.have.been.calledWith({});
-            expect(cursor.sort).to.have.been.calledWith({ $natural: -1 });
-            expect(cursor.limit).to.have.been.calledWith(5);
-            expect(cursor.toArray).to.have.been.calledWith();
-            expect(result.type).to.equal('ShowProfileResult');
-            expect(result.value).to.deep.equal({ count: 1, result: expectedResult });
-          });
 
-          it('throws if collection.find throws', async() => {
-            const syscoll = stubInterface<Collection>();
-            database.getCollection.returns(syscoll);
-            syscoll.countDocuments.resolves(1);
-            const expectedError = new Error();
-            syscoll.find.throws(expectedError);
-            const catchedError = await mongo.show('profile')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
-          it('throws if collection.countDocuments rejects', async() => {
-            const syscoll = stubInterface<Collection>();
-            database.getCollection.returns(syscoll);
-            const expectedError = new Error();
-            syscoll.countDocuments.rejects(expectedError);
-            const catchedError = await mongo.show('profile')
-              .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
-          });
+        it('returns ShowResult CommandResult', async() => {
+          const expectedResult = { ok: 1, roles: ['a', 'b'] };
+          database.getRoles.resolves(expectedResult);
+          const result = await mongo.show('roles');
+          expect(result.value).to.deep.equal(expectedResult.roles);
+          expect(result.type).to.equal('ShowResult');
+        });
+
+        it('throws if database.getRoles rejects', async() => {
+          const expectedError = new Error();
+          database.getRoles.rejects(expectedError);
+          const catchedError = await mongo.show('roles')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
+        });
+      });
+      describe('log', () => {
+        it('calls database.adminCommand without arg', async() => {
+          const expectedResult = { ok: 1, log: [] };
+          database.adminCommand.resolves(expectedResult);
+          await mongo.show('log');
+          expect(database.adminCommand).to.have.been.calledWith(
+            { getLog: 'global' }
+          );
+        });
+        it('calls database.adminCommand with arg', async() => {
+          const expectedResult = { ok: 1, log: [] };
+          database.adminCommand.resolves(expectedResult);
+          await mongo.show('log', 'other');
+          expect(database.adminCommand).to.have.been.calledWith(
+            { getLog: 'other' }
+          );
+        });
+
+        it('returns ShowResult CommandResult', async() => {
+          const expectedResult = { ok: 1, log: ['a', 'b'] };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('log');
+          expect(result.value).to.deep.equal(expectedResult.log);
+          expect(result.type).to.equal('ShowResult');
+        });
+
+        it('throws if database.adminCommand rejects', async() => {
+          const expectedError = new Error();
+          database.adminCommand.rejects(expectedError);
+          const catchedError = await mongo.show('log')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
+        });
+      });
+      describe('logs', () => {
+        it('calls database.adminCommand', async() => {
+          const expectedResult = { ok: 1, names: [] };
+          database.adminCommand.resolves(expectedResult);
+          await mongo.show('logs');
+          expect(database.adminCommand).to.have.been.calledWith(
+            { getLog: '*' }
+          );
+        });
+
+        it('returns ShowResult CommandResult', async() => {
+          const expectedResult = { ok: 1, names: ['a', 'b'] };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('logs');
+          expect(result.value).to.deep.equal(expectedResult.names);
+          expect(result.type).to.equal('ShowResult');
+        });
+
+        it('throws if database.adminCommand rejects', async() => {
+          const expectedError = new Error();
+          database.adminCommand.rejects(expectedError);
+          const catchedError = await mongo.show('logs')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
+        });
+      });
+      describe('profile', () => {
+        it('calls database.count but not find when count < 1', async() => {
+          const syscoll = stubInterface<Collection>();
+          database.getCollection.returns(syscoll);
+          syscoll.countDocuments.resolves(0);
+          syscoll.find.rejects(new Error());
+          const result = await mongo.show('profile');
+          expect(database.getCollection).to.have.been.calledWith('system.profile');
+          expect(syscoll.countDocuments).to.have.been.calledWith({});
+          expect(result.type).to.equal('ShowProfileResult');
+          expect(result.value).to.deep.equal({ count: 0 });
+        });
+        it('calls database.count and find when count > 0', async() => {
+          const expectedResult = [{ a: 'a' }, { b: 'b' }];
+          const syscoll = stubInterface<Collection>();
+          const cursor = stubInterface<Cursor>();
+          cursor.sort.returns(cursor);
+          cursor.limit.returns(cursor);
+          cursor.toArray.resolves(expectedResult);
+          database.getCollection.returns(syscoll);
+          syscoll.countDocuments.resolves(1);
+          syscoll.find.returns(cursor);
+          const result = await mongo.show('profile');
+          expect(database.getCollection).to.have.been.calledWith('system.profile');
+          expect(syscoll.countDocuments).to.have.been.calledWith({});
+          expect(cursor.sort).to.have.been.calledWith({ $natural: -1 });
+          expect(cursor.limit).to.have.been.calledWith(5);
+          expect(cursor.toArray).to.have.been.calledWith();
+          expect(result.type).to.equal('ShowProfileResult');
+          expect(result.value).to.deep.equal({ count: 1, result: expectedResult });
+        });
+
+        it('throws if collection.find throws', async() => {
+          const syscoll = stubInterface<Collection>();
+          database.getCollection.returns(syscoll);
+          syscoll.countDocuments.resolves(1);
+          const expectedError = new Error();
+          syscoll.find.throws(expectedError);
+          const catchedError = await mongo.show('profile')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
+        });
+        it('throws if collection.countDocuments rejects', async() => {
+          const syscoll = stubInterface<Collection>();
+          database.getCollection.returns(syscoll);
+          const expectedError = new Error();
+          syscoll.countDocuments.rejects(expectedError);
+          const catchedError = await mongo.show('profile')
+            .catch(e => e);
+          expect(catchedError).to.equal(expectedError);
+        });
+      });
+      describe('invalid command', () => {
+        it('throws an error', async() => {
+          const caughtError = await mongo.show('aslkdjhekjghdskjhfds')
+            .catch(e => e);
+          expect(caughtError.name).to.equal('MongoshInvalidInputError');
         });
       });
     });
@@ -508,6 +515,13 @@ describe('Mongo', () => {
           expect(e.metadata?.driverCaused).to.equal(true);
           expect(e.metadata?.api).to.equal('Mongo.isCausalConsistency');
         }
+      });
+    });
+    describe('use', () => {
+      it('sets the current db', () => {
+        const msg = mongo.use('moo');
+        expect(msg).to.equal('switched to db moo');
+        expect(internalState.context.db.getName()).to.equal('moo');
       });
     });
     describe('deprecated mongo methods', () => {

@@ -28,7 +28,8 @@ async function generateInput(input: string, execInput: string, analyticsConfig: 
     target: 'node',
     bundleNodeModules: true,
     sourceMaps: false,
-    logLevel: 3
+    logLevel: 3,
+    watch: false
   });
 
   // Sigh! Parcel does not understand that you can't just use an ES6 module file

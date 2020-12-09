@@ -85,7 +85,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  async isExhausted(): Promise<boolean> {
+  isExhausted(): Promise<boolean> {
     throw new MongoshInvalidInputError('isExhausted is not implemented for ChangeStreams because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use isClosed. If you want to see if there are documents left in the batch, use tryNext.');
   }
 
