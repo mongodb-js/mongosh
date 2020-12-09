@@ -152,7 +152,7 @@ export default interface Readable {
    *
    * @returns {Promise} The server version.
    */
-  getTopology(): any; // TODO: topology description is private, see NODE-2910
+  getTopology(): any;
 
   /**
    * Is the collection capped?

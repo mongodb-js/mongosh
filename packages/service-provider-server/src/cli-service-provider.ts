@@ -277,7 +277,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 
       // Ensure that we actually get a fresh database instance from the driver.
       returnNonCachedInstance: true
-    } as any; // Node 4.0 upgrade, see NODE-2931
+    } as any; // TODO: returnNonCachedInstance supported? see NODE-2931
 
     const db = this.mongoClient.db(name, optionsWithForceNewInstace);
     dbcache.set(key, db);

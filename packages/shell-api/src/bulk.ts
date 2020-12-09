@@ -29,7 +29,7 @@ export class BulkFindOp extends ShellApiClass {
     return 'BulkFindOp';
   }
 
-  // Blocked by NODE-2757
+  // Blocked by NODE-2757, bulk collation
   collation(): BulkFindOp {
     throw new MongoshUnimplementedError(
       'collation method on fluent Bulk API is not currently supported. ' +
@@ -40,7 +40,7 @@ export class BulkFindOp extends ShellApiClass {
     );
   }
 
-  // Blocked by NODE-2751
+  // Blocked by NODE-2751, bulk arrayFilters
   arrayFilters(): BulkFindOp {
     throw new MongoshUnimplementedError(
       'arrayFilters method on fluent Bulk API is not currently supported.',

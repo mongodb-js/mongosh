@@ -55,17 +55,11 @@ describe('Shell API (integration)', function() {
       { '_id': 5, 'item': 'jkl', 'price': 15, 'quantity': 15, 'type': 'electronics' }
     ]);
     expect(res.acknowledged).to.equal(true);
-    // TODO: createIndexes does not return full spec, see NODE-2602
-    // expect((await collection.createIndex({ item: 1 })).ok).to.equal(1);
-    // expect((await collection.createIndex({ item: 1, quantity: 1 })).ok).to.equal(1);
-    // expect((await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } })).ok).to.equal(1);
-    // expect((await collection.createIndex({ quantity: 1 })).ok).to.equal(1);
-    // expect((await collection.createIndex({ quantity: 1, type: 1 })).ok).to.equal(1);
-    await collection.createIndex({ item: 1 });
-    await collection.createIndex({ item: 1, quantity: 1 });
-    await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } });
-    await collection.createIndex({ quantity: 1 });
-    await collection.createIndex({ quantity: 1, type: 1 });
+    expect(await collection.createIndex({ item: 1 })).to.equal('item_1');
+    expect(await collection.createIndex({ item: 1, quantity: 1 })).to.not.be.undefined;
+    expect(await collection.createIndex({ item: 1, price: 1 }, { partialFilterExpression: { price: { $gte: 10 } } })).to.not.be.undefined;
+    expect(await collection.createIndex({ quantity: 1 })).to.not.be.undefined;
+    expect(await collection.createIndex({ quantity: 1, type: 1 })).to.not.be.undefined;
 
     await collection.find( { item: 'abc', price: { $gte: 10 } } ).toArray();
     await collection.find( { item: 'abc', price: { $gte: 5 } } ).toArray();
@@ -365,13 +359,8 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      it.skip('returns creation result', () => { // TODO: Node 4.0 index doc not returned, see NODE-2602
-        expect(result).to.contain({
-          createdCollectionAutomatically: false,
-          numIndexesBefore: 1,
-          numIndexesAfter: 2,
-          ok: 1
-        });
+      it('returns index name list', () => {
+        expect(result).to.equal(['index-1']);
       });
 
       it('creates the index', async() => {
