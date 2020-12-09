@@ -359,12 +359,32 @@ describe('Shell API (integration)', function() {
         });
       });
 
-      it('returns index name list', () => {
-        expect(result).to.equal(['index-1']);
+      it('returns index name', () => {
+        expect(result).to.equal('index-1');
       });
 
       it('creates the index', async() => {
         expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
+      });
+    });
+
+    describe.skip('createIndexes with multiple indexes', () => { // TODO: see NODE-2602 index names only
+      let result;
+
+      beforeEach(async() => {
+        await serviceProvider.createCollection(dbName, collectionName);
+        expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
+
+        result = await collection.createIndexes([{ x: 1 }, { y: 1 }]);
+      });
+
+      it('returns index name list', () => {
+        expect(result).to.equal(['x_1', 'y_1']);
+      });
+
+      it('creates the index', async() => {
+        expect(await getIndexNames(dbName, collectionName)).to.contain('x_1');
+        expect(await getIndexNames(dbName, collectionName)).to.contain('y_1');
       });
     });
 
