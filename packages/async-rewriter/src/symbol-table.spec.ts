@@ -1,3 +1,4 @@
+import { MongoshInternalError } from '@mongosh/errors';
 import { expect } from 'chai';
 import SymbolTable, { addApi } from './symbol-table';
 const s = require('../test/shell-api-signatures');
@@ -107,6 +108,20 @@ describe('SymbolTable', () => {
       expect(copy2).to.deep.equal(st);
       expect(copy2.lookup('typeWithPath').path === st.lookup('typeWithPath').path).to.be.true;
       expect(copy2.lookup('typeWithPath').attributes === st.lookup('typeWithPath').attributes).to.be.false;
+    });
+    it('throws an exception of copy symbol fails', () => {
+      const replacer = st.replacer;
+      st.replacer = () => { return undefined; };
+      try {
+        st.deepCopy();
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInternalError);
+        expect(e.message).to.contain('Internal error occurred for copying symbol');
+        return;
+      } finally {
+        st.replacer = replacer;
+      }
+      expect.fail('expected error');
     });
   });
   describe('#lookup', () => {
@@ -327,6 +342,20 @@ describe('SymbolTable', () => {
         });
       });
     });
+    it('fails on different stack heights', () => {
+      const st = new SymbolTable([{}], {});
+      const alternatives = [
+        new SymbolTable([{}, { myVar: myType }], {})
+      ];
+      try {
+        st.compareSymbolTables(alternatives);
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInternalError);
+        expect(e.message).to.contain('Could not compare scopes');
+        return;
+      }
+      expect.fail('expected error');
+    });
   });
   describe('#updateAttribute', () => {
     describe('all sub types exist', () => {
@@ -398,6 +427,15 @@ describe('SymbolTable', () => {
         st.revertState();
         expect(st.scopeAt(1)).to.deep.equal({});
       });
+    });
+  });
+  describe('#print/#printSymbol', () => {
+    const st = new SymbolTable([{
+      a: { type: 'object', attributes: {} },
+      a1: { type: 'object', attributes: {} },
+    }], {});
+    it('works without error', () => {
+      st.print();
     });
   });
 });
