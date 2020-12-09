@@ -2,6 +2,7 @@
 
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
+import { URL } from 'url';
 import CliOptions from './cli-options';
 import { DEFAULT_DB } from './index';
 
@@ -107,13 +108,17 @@ function generateUri(options: CliOptions): string {
 
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
-    return `${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}`;
+    return `${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}/?directConnection=true`;
   }
 
-  // A mongodb:// or mongodb+srv:// URI is provided, treat as correct.
-  if (uri.startsWith(Scheme.Mongo) || uri.startsWith(Scheme.MongoSrv)) {
+  // mongodb+srv:// URI is provided, treat as correct and immediately return
+  if (uri.startsWith(Scheme.MongoSrv)) {
     validateConflicts(options);
     return uri;
+  } else if (uri.startsWith(Scheme.Mongo)) {
+    // we need to figure out if we have to add the directConnection query parameter
+    validateConflicts(options);
+    return addDirectConnectionQueryParameterToMongoUriIfRequired(uri);
   }
 
   // Capture host, port and db from the string and generate a URI from
@@ -127,12 +132,12 @@ function generateUri(options: CliOptions): string {
 
   let host: string | undefined = parts[1];
   const port = parts[2];
-  let db = parts[3];
+  let dbAndQueryString = parts[3];
 
   // If there is no port and db, host becomes db if there is no
   // '.' in the string. (legacy shell behaviour)
-  if (!port && !db && host.indexOf('.') < 0) {
-    db = host;
+  if (!port && !dbAndQueryString && host.indexOf('.') < 0) {
+    dbAndQueryString = host;
     host = undefined;
   }
 
@@ -142,7 +147,61 @@ function generateUri(options: CliOptions): string {
     validateConflicts(options);
   }
 
-  return `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${db || DEFAULT_DB}`;
+  return `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}${getDbAndQueryStringWithDirectConnectionIfRequired(dbAndQueryString || DEFAULT_DB)}`;
+}
+
+/**
+ * Parses a given mongodb:// connection string and adds the `directConnection=true` query parameter if required.
+ * See: https://github.com/mongodb/specifications/blob/master/source/connection-string/connection-string-spec.rst#reference-implementation
+ * @param uri mongodb:// connection string
+ */
+function addDirectConnectionQueryParameterToMongoUriIfRequired(uri: string): string {
+  const uriNoScheme = uri.substr(Scheme.Mongo.length);
+
+  // Split URI at first "/"
+  let splitIndex = uriNoScheme.indexOf('/');
+  if (splitIndex < 0) {
+    // maybe there's a question mark as separator
+    splitIndex = uriNoScheme.indexOf('?');
+  }
+
+  const userAndHostInfo = splitIndex < 0 ? uriNoScheme : uriNoScheme.substr(0, splitIndex);
+  const authDbAndOptions = splitIndex < 0 || splitIndex === uriNoScheme.length - 1 ? '' : uriNoScheme.substr(splitIndex);
+
+  // Check user and host informatino part to extract only hosts
+  const atIndex = userAndHostInfo.lastIndexOf('@');
+  const hostInfo = atIndex < 0 ? userAndHostInfo : userAndHostInfo.substr(atIndex + 1);
+  if (hostInfo.indexOf(',') > -1) {
+    // multiple hosts, i.e. a seed list is present -> return original uri
+    return uri;
+  }
+
+  if (authDbAndOptions) {
+    // Check if a replicaSet or directConnection parameter is already present
+    return `mongodb://${userAndHostInfo}` + getDbAndQueryStringWithDirectConnectionIfRequired(authDbAndOptions);
+  }
+  return `${uri.endsWith('/') ? uri : uri + '/'}?directConnection=true`;
+}
+
+/**
+ * Takes the given URI path and query string representing the auth database and connection options
+ * and checks if a `directConnection=true` parameter should be added.
+ *
+ * The returned string always starts with a `/`.
+ *
+ * @param dbAndQueryString URI Path and Query String
+ */
+function getDbAndQueryStringWithDirectConnectionIfRequired(dbAndQueryString: string): string {
+  if (!dbAndQueryString.startsWith('/')) {
+    dbAndQueryString = '/' + dbAndQueryString;
+  }
+  const params = new URL(`mongodb://localhost${dbAndQueryString}`).searchParams;
+  if (params.has('replicaSet') || params.has('directConnection')) {
+    return dbAndQueryString;
+  }
+
+  const directConnQueryParam = (!params.entries().next().done ? '&' : '?') + 'directConnection=true';
+  return dbAndQueryString + directConnQueryParam;
 }
 
 export default generateUri;

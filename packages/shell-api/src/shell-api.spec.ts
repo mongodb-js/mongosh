@@ -127,7 +127,7 @@ describe('ShellApi', () => {
       it('returns a new Mongo object', async() => {
         const m = await internalState.shellApi.Mongo('localhost:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
-        expect(m._uri).to.equal('mongodb://localhost:27017/test');
+        expect(m._uri).to.equal('mongodb://localhost:27017/test?directConnection=true');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
@@ -140,11 +140,11 @@ describe('ShellApi', () => {
       });
       it('parses URI with mongodb://', async() => {
         const m = await internalState.shellApi.Mongo('mongodb://127.0.0.1:27017');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
       });
       it('parses URI with just db', async() => {
         const m = await internalState.shellApi.Mongo('dbname');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true');
       });
     });
     describe('connect', () => {
@@ -152,7 +152,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test');
+        expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test?directConnection=true');
       });
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
@@ -236,7 +236,7 @@ describe('ShellApi', () => {
       it('returns a new Mongo object', async() => {
         const m = await internalState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
@@ -253,13 +253,13 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017');
+        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
       });
       it('handles username/pwd', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017');
+        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
         expect(db.getMongo()._options).to.deep.equal({ auth: { username: 'username', password: 'pwd' } });
       });
     });
