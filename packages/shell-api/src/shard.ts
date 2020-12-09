@@ -5,12 +5,10 @@ import {
   ShellApiClass, returnsPromise, serverVersions
 } from './decorators';
 
-import {
-  Document, UpdateResult
-} from '@mongosh/service-provider-core';
+import type { Document } from '@mongosh/service-provider-core';
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
-import { CommandResult } from './result';
+import { CommandResult, UpdateResult } from './result';
 
 @shellApiClassDefault
 @hasAsyncChild
