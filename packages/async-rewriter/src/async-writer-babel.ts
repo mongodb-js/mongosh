@@ -764,15 +764,15 @@ export default class AsyncWriter {
    * Returns translated code.
    * @param {string} code - string to compile.
    */
-  compile(code): string {
+  compile(code: string): string {
     return this.getTransform(code).code;
   }
 
   /**
    * Returns translated code.
-   * @param {string} code - string to compile.
+   * @param code - string to compile.
    */
-  process(code): string {
+  process(code: string): string {
     const input = this.compile(code);
     return processTopLevelAwait(input) || input;
   }

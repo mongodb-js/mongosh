@@ -79,7 +79,7 @@ for (const nodeType of Object.keys(walk.base)) {
   };
 }
 
-function processTopLevelAwait(src): null | string {
+function processTopLevelAwait(src: string): null | string {
   const wrapped = `(async () => { ${src} })()`;
   const wrappedArray = wrapped.split('');
   let root;
@@ -92,17 +92,17 @@ function processTopLevelAwait(src): null | string {
   const state = {
     body,
     ancestors: [],
-    replace(from, to, str): void {
+    replace(from: number, to: number, str: string): void {
       for (let i = from; i < to; i++) {
         wrappedArray[i] = '';
       }
       if (from === to) str += wrappedArray[from];
       wrappedArray[from] = str;
     },
-    prepend(node, str): void {
+    prepend(node, str: string): void {
       wrappedArray[node.start] = str + wrappedArray[node.start];
     },
-    append(node, str): void {
+    append(node, str: string): void {
       wrappedArray[node.end - 1] += str;
     },
     containsAwait: false,

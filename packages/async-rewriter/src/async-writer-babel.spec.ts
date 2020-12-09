@@ -160,6 +160,26 @@ class Test {
 
 ;`);
     });
+    it('compiles forEach with top-level variable calling a function and returning', () => {
+      const code = `
+var names = ['Angela', 'Barack', 'Charles'];
+function insertDoc(name) {
+  db.coll.insertOne({ name });
+}
+names.forEach(n => insertDoc(n));
+(names.length);
+`;
+      expect(writer.process(code)).to.equal(`(async () => { void (names = ['Angela', 'Barack', 'Charles']);
+
+insertDoc=async function insertDoc(name) {
+  await db.coll.insertOne({
+    name
+  });
+}
+
+await toIterator(names).forEach(async n => await insertDoc(n));
+return (names.length); })()`);
+    });
   });
   describe('MemberExpression', () => {
     describe('with Identifier lhs', () => {
