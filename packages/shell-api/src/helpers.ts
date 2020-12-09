@@ -159,7 +159,11 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
   const settingsColl = configDB.getCollection('settings');
   const changelogColl = configDB.getCollection('changelog');
 
-  const version = await versionColl.findOne();
+  const [ version, shards, mostRecentMongos ] = await Promise.all([
+    versionColl.findOne(),
+    shardsColl.find().sort({ _id: 1 }).toArray(),
+    mongosColl.find().sort({ ping: -1 }).limit(1).tryNext()
+  ]);
   if (version === null) {
     throw new MongoshInvalidInputError(
       'This db does not have sharding enabled. Be sure you are connecting to a mongos from the shell and not to a mongod.',
@@ -169,11 +173,10 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
   result.shardingVersion = version;
 
-  result.shards = await shardsColl.find().sort({ _id: 1 }).toArray();
+  result.shards = shards;
 
   // (most recently) active mongoses
   const mongosActiveThresholdMs = 60000;
-  const mostRecentMongos = await mongosColl.find().sort({ ping: -1 }).limit(1).tryNext();
   let mostRecentMongosTime = null;
   let mongosAdjective = 'most recently active';
   if (mostRecentMongos !== null) {
@@ -210,18 +213,19 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
         { $match: recentMongosQuery },
         { $group: { _id: '$mongoVersion', num: { $sum: 1 } } },
         { $sort: { num: -1 } }
-      ])).toArray()).map((z: { _id: string; num: number }) => {
+      ])).toArray() as any[]).map((z: { _id: string; num: number }) => {
         return { [z._id]: z.num };
       });
     }
   }
 
-  // Is autosplit currently enabled
-  const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
-  result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
-
   const balancerRes: Record<string, any> = {};
   await Promise.all([
+    (async(): Promise<void> => {
+      // Is autosplit currently enabled
+      const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
+      result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
+    })(),
     (async(): Promise<void> => {
       // Is the balancer currently enabled
       const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
@@ -249,16 +253,10 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     (async(): Promise<void> => {
       // Output the list of active migrations
       type Lock = { _id: string; when: Date };
-      const activeLocks: Lock[] = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray();
-      const activeMigrations: Lock[] = [];
-      if (activeLocks !== null) {
-        activeLocks.forEach((lock) => {
-          activeMigrations.push({ _id: lock._id, when: lock.when });
-        });
-      }
-      if (activeMigrations.length > 0) {
-        balancerRes['Collections with active migrations'] = activeMigrations.map((migration) => {
-          return `${migration._id} started at ${migration.when}`;
+      const activeLocks: Lock[] = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray() as Lock[];
+      if (activeLocks?.length > 0) {
+        balancerRes['Collections with active migrations'] = activeLocks.map((lock) => {
+          return `${lock._id} started at ${lock.when}`;
         });
       }
     })(),
@@ -302,7 +300,6 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
         // const migrations = sh.getRecentMigrations(configDB);
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-
 
         // Successful migrations.
         let migrations = await (await changelogColl
@@ -380,85 +377,80 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     return a._id > b._id;
   });
 
-  for (const db of databases) {
-    const collList: Record<string, any> = {};
+  result.databases = await Promise.all(databases.filter(db => db.partitioned).map(async(db) => {
+    const escapeRegex = (string: string): string => {
+      return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    };
+    const colls = await configDB.getCollection('collections')
+      .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') })
+      .sort({ _id: 1 })
+      .toArray();
 
-    if (db.partitioned) {
-      const escapeRegex = (string: string): string => {
-        return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      };
-      const colls = await configDB.getCollection('collections')
-        .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') })
-        .sort({ _id: 1 })
-        .toArray();
-
-      for (const coll of colls) {
-        if (!coll.dropped) {
-          const collRes = {} as any;
-          collRes.shardKey = coll.key;
-          collRes.unique = !!coll.unique;
-          if (typeof coll.unique !== 'boolean' && typeof coll.unique !== 'undefined') {
-            collRes.unique = [ !!coll.unique, { unique: coll.unique } ];
-          }
-          collRes.balancing = !coll.noBalance;
-          if (typeof coll.noBalance !== 'boolean' && typeof coll.noBalance !== 'undefined') {
-            collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
-          }
-          const chunksRes = [];
-          const chunks = await
-          (await chunksColl.aggregate({ $match: { ns: coll._id } },
-            { $group: { _id: '$shard', cnt: { $sum: 1 } } },
-            { $project: { _id: 0, shard: '$_id', nChunks: '$cnt' } },
-            { $sort: { shard: 1 } })
-          ).toArray();
-          let totalChunks = 0;
-          chunks.forEach((z: any) => {
-            totalChunks += z.nChunks;
-            collRes.chunkMetadata = { shard: z.shard, nChunks: z.nChunks };
-          });
-
-          // NOTE: this will return the chunk info as a string, and will print ugly BSON
-          if (totalChunks < 20 || verbose) {
-            (await chunksColl.find({ 'ns': coll._id })
-              .sort({ min: 1 }).toArray())
-              .forEach((chunk: any) => {
-                const c = {
-                  min: chunk.min,
-                  max: chunk.max,
-                  'on shard': chunk.shard,
-                  'last modified': chunk.lastmod
-                } as any;
-                if (chunk.jumbo) c.jumbo = 'yes';
-                chunksRes.push(c);
-              });
-          } else {
-            chunksRes.push('too many chunks to print, use verbose if you want to force print');
-          }
-
-          const tagsRes: any[] = [];
-          (await configDB.getCollection('tags')
-            .find({ ns: coll._id })
-            .sort({ min: 1 })
-            .toArray())
-            .forEach((tag: any) => {
-              tagsRes.push({
-                tag: tag.tag,
-                min: tag.min,
-                max: tag.max
-              });
-            });
-          collRes.chunks = chunksRes;
-          collRes.tags = tagsRes;
-          collList[coll._id] = collRes;
+    const collList: any =
+      await Promise.all(colls.filter(coll => !coll.dropped).map(async(coll) => {
+        const collRes = {} as any;
+        collRes.shardKey = coll.key;
+        collRes.unique = !!coll.unique;
+        if (typeof coll.unique !== 'boolean' && typeof coll.unique !== 'undefined') {
+          collRes.unique = [ !!coll.unique, { unique: coll.unique } ];
         }
-      }
-      dbRes.push({ database: db, collections: collList });
-    }
-  }
+        collRes.balancing = !coll.noBalance;
+        if (typeof coll.noBalance !== 'boolean' && typeof coll.noBalance !== 'undefined') {
+          collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
+        }
+        const chunksRes = [];
+        const chunks = await
+        (await chunksColl.aggregate({ $match: { ns: coll._id } },
+          { $group: { _id: '$shard', cnt: { $sum: 1 } } },
+          { $project: { _id: 0, shard: '$_id', nChunks: '$cnt' } },
+          { $sort: { shard: 1 } })
+        ).toArray();
+        let totalChunks = 0;
+        chunks.forEach((z: any) => {
+          totalChunks += z.nChunks;
+          collRes.chunkMetadata = { shard: z.shard, nChunks: z.nChunks };
+        });
+
+        // NOTE: this will return the chunk info as a string, and will print ugly BSON
+        if (totalChunks < 20 || verbose) {
+          (await chunksColl.find({ 'ns': coll._id })
+            .sort({ min: 1 }).toArray())
+            .forEach((chunk: any) => {
+              const c = {
+                min: chunk.min,
+                max: chunk.max,
+                'on shard': chunk.shard,
+                'last modified': chunk.lastmod
+              } as any;
+              if (chunk.jumbo) c.jumbo = 'yes';
+              chunksRes.push(c);
+            });
+        } else {
+          chunksRes.push('too many chunks to print, use verbose if you want to force print');
+        }
+
+        const tagsRes: any[] = [];
+        (await configDB.getCollection('tags')
+          .find({ ns: coll._id })
+          .sort({ min: 1 })
+          .toArray())
+          .forEach((tag: any) => {
+            tagsRes.push({
+              tag: tag.tag,
+              min: tag.min,
+              max: tag.max
+            });
+          });
+        collRes.chunks = chunksRes;
+        collRes.tags = tagsRes;
+        return [coll._id, collRes];
+      }));
+    return { database: db, collections: Object.fromEntries(collList) };
+  }));
   return result;
 }
 
-export async function getConfigDB(db: Database): Promise<any> {
+export async function getConfigDB(db: Database): Promise<Database> {
   const isM = await db._runAdminCommand({ isMaster: 1 });
   if (isM.msg !== 'isdbgrid') {
     throw new MongoshInvalidInputError('Not connected to a mongos', ShellApiErrors.NotConnectedToMongos);
