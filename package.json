@@ -101,7 +101,7 @@
     "adm-zip": "^0.4.14",
     "aws-sdk": "^2.674.0",
     "axios": "^0.19.2",
-    "boxednode": "^1.7.1",
+    "boxednode": "^1.8.0",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
     "command-exists": "^1.2.9",
