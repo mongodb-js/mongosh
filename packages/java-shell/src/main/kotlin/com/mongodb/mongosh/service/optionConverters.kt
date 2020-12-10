@@ -58,21 +58,11 @@ internal val writeConcernConverters: Map<String, (MongoDatabase, Any?) -> Either
 
 internal val writeConcernDefaultConverter = unrecognizedField<MongoDatabase>("write concern")
 
-internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
-        typed("writeConcern", Map::class.java) { db, value ->
-            convert(db, writeConcernConverters, writeConcernDefaultConverter, value).getOrThrow()
-        },
-        "readConcern" to { db, value ->
-            if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
-            else Left(CommandException("invalid parameter: expected an object (readConcern)", "FailedToParse"))
-        },
-        "readPreference" to { db, value ->
-            if (value is Map<*, *>) convert(db, readPreferenceConverters, readPreferenceDefaultConverter, value)
-            else Left(CommandException("invalid parameter: expected an object (readPreference)", "FailedToParse"))
-        }
-)
 
-internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("db options")
+internal val readConcernConverter: (MongoDatabase, Any?) -> Either<MongoDatabase> = { db, value ->
+    if (value is Map<*, *>) convert(db, readConcernConverters, readConcernDefaultConverter, value)
+    else Left(CommandException("invalid parameter: expected an object (readConcern)", "FailedToParse"))
+}
 
 internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
         typed("level", String::class.java) { db, value ->
@@ -81,6 +71,20 @@ internal val readConcernConverters: Map<String, (MongoDatabase, Any?) -> Either<
 )
 
 internal val readConcernDefaultConverter = unrecognizedField<MongoDatabase>("read concern")
+
+
+internal val dbConverters: Map<String, (MongoDatabase, Any?) -> Either<MongoDatabase>> = mapOf(
+        typed("writeConcern", Map::class.java) { db, value ->
+            convert(db, writeConcernConverters, writeConcernDefaultConverter, value).getOrThrow()
+        },
+        "readConcern" to readConcernConverter,
+        "readPreference" to { db, value ->
+            if (value is Map<*, *>) convert(db, readPreferenceConverters, readPreferenceDefaultConverter, value)
+            else Left(CommandException("invalid parameter: expected an object (readPreference)", "FailedToParse"))
+        }
+)
+
+internal val dbDefaultConverter = unrecognizedField<MongoDatabase>("db options")
 
 internal fun <T> unrecognizedField(objectName: String): (T, String, Any?) -> Either<T> = { _, key, _ ->
     Left(CommandException("unrecognized $objectName field: $key", "FailedToParse"))
