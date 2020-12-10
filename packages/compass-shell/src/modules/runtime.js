@@ -68,6 +68,9 @@ function reduceSetupRuntime(state, action) {
   const { url, options } = action.dataService.getConnectionParams();
   const newRuntime = new WorkerRuntime(url, options);
 
+  // TODO: For testing purposes
+  window.restart = newRuntime.restart.bind(newRuntime);
+
   return {
     error: action.error,
     dataService: action.dataService,

@@ -32,7 +32,14 @@ function createChildFromSource(src) {
 
 class WorkerRuntime {
   constructor(uri, options, cliOptions) {
+    this.initOptions = { uri, options, cliOptions };
     this.evaluationListener = null;
+    this.cancelEvaluate = () => {};
+    this.initWorker();
+  }
+
+  initWorker() {
+    const { uri, options, cliOptions } = this.initOptions;
     this.childProcess = createChildFromSource(worker);
     this.worker = createCaller(
       ['init', 'evaluate', 'getCompletions'],
@@ -67,7 +74,10 @@ class WorkerRuntime {
   async evaluate(code) {
     await this.initPromise;
 
-    const result = await this.worker.evaluate(code);
+    const result = await Promise.race([
+      this.waitForCancelEvaluate(),
+      this.worker.evaluate(code),
+    ]);
 
     if (result && result.__error) {
       const error = new Error();
@@ -98,8 +108,22 @@ class WorkerRuntime {
     return prev;
   }
 
-  terminate() {
+  terminateWorker() {
+    this.cancelEvaluate();
     this.childProcess.kill();
+  }
+
+  restart() {
+    this.terminateWorker();
+    this.initWorker();
+  }
+
+  waitForCancelEvaluate() {
+    return new Promise((resolve, reject) => {
+      this.cancelEvaluate = () => {
+        reject(new Error('Script execution was interrupted'));
+      };
+    });
   }
 }
 
