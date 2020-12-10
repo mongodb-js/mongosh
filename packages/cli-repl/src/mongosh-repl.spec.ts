@@ -3,7 +3,6 @@ import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { EventEmitter, once } from 'events';
 import path from 'path';
-import { match } from 'sinon';
 import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
@@ -396,7 +395,7 @@ describe('MongoshNodeRepl', () => {
       it('they are shown as returned by database', async() => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
-        }, match.any).resolves({ ok: 1, log: logLines });
+        }, {}).resolves({ ok: 1, log: logLines });
         await mongoshRepl.start(serviceProvider);
 
         expect(output).to.contain('The server generated these startup warnings when booting');
@@ -406,21 +405,28 @@ describe('MongoshNodeRepl', () => {
         });
       });
       it('does not show anything when there are no warnings', async() => {
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
-        }, match.any).resolves({ ok: 1, log: [] });
+        }, {}).resolves({ ok: 1, log: [] });
         await mongoshRepl.start(serviceProvider);
 
         expect(output).to.not.contain('The server generated these startup warnings when booting');
+        expect(error).to.be.null;
       });
-      it('does not show anything if retrieving the warnings fails', async() => {
+      it('does not show anything if retrieving the warnings fails but logs it', async() => {
+        const expectedError = new Error('failed');
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
-        }, match.any).rejects();
+        }, {}).rejects(expectedError);
         await mongoshRepl.start(serviceProvider);
 
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(output).to.not.contain('Error');
+        expect(error).to.equal(expectedError);
       });
     });
   });
