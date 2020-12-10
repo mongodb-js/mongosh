@@ -5,9 +5,10 @@ import traverse from '@babel/traverse';
 
 const signatures = require('../test/shell-api-signatures');
 
-import AsyncWriter, { checkHasAsyncChild } from './async-writer-babel';
+import AsyncWriter, { assertUnreachable, checkHasAsyncChild } from './async-writer-babel';
 import SymbolTable from './symbol-table';
 import { AsyncRewriterErrors } from './error-codes';
+import { MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 
 const skipPath = (p): any => {
   expect(Object.keys(p)).to.deep.equal([ 'type', 'returnsPromise', 'returnType', 'path' ]);
@@ -76,6 +77,16 @@ describe('checkHasAsyncChild', () => {
         }
       }
     })).to.equal(false);
+  });
+});
+describe('assertUnreachable', () => {
+  it('throws an error containing the type that failed', () => {
+    try {
+      assertUnreachable('AnExpression' as never);
+    } catch (e) {
+      expect(e).to.be.instanceOf(MongoshInternalError);
+      expect(e.message).to.contain('type AnExpression unhandled');
+    }
   });
 });
 describe('async-writer-babel', () => {
@@ -851,7 +862,7 @@ return (names.length); })()`);
         db: signatures.Database,
       });
     });
-    describe('with known type', () => {
+    describe('with known simple type', () => {
       before(() => {
         input = '[db]';
         ast = writer.getTransform(input).ast;
@@ -875,6 +886,43 @@ return (names.length); })()`);
         traverse(ast, {
           Identifier(path) {
             expect(path.node['shellType']).to.deep.equal(signatures.Database);
+            done();
+          }
+        });
+      });
+    });
+    describe('with known function return type', () => {
+      before(() => {
+        input = '[function callMe() { return db; }]';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(compileCheckScopes(writer, input)).to.equal('[function callMe() {\n  return db;\n}];');
+      });
+      it('decorates array', (done) => {
+        traverse(ast, {
+          ArrayExpression(path) {
+            expect(path.node['shellType']).to.include({
+              type: 'array',
+              hasAsyncChild: true
+            });
+            expect(path.node['shellType'].attributes['0']).to.include({
+              type: 'function',
+              returnsPromise: false
+            });
+            expect(path.node['shellType'].attributes['0'].returnType).to.deep.equal(signatures.Database);
+            done();
+          }
+        });
+      });
+      it('decorates element', (done) => {
+        traverse(ast, {
+          FunctionExpression(path) {
+            expect(path.node['shellType']).to.include({
+              type: 'function',
+              returnsPromise: false
+            });
+            expect(path.node['shellType'].returnType).to.deep.equal(signatures.Database);
             done();
           }
         });
@@ -1665,6 +1713,22 @@ function f() {
             });
             it('final symbol table state updated', () => {
               expect(spy.scopeAt(1).x).to.deep.equal({ type: 'object', hasAsyncChild: false, attributes: { y: { type: 'unknown', attributes: {} } } });
+            });
+          });
+          describe('this expressions', () => {
+            before(() => {
+              spy = sinon.spy(new SymbolTable([{ db: signatures.Database }, {}], signatures));
+              writer = new AsyncWriter(signatures, spy);
+            });
+            it('fails on nested expressions', () => {
+              input = 'class TestClass { testFn() { this.nested.whatever = bla } }';
+              try {
+                compileCheckScopes(writer, input);
+              } catch (e) {
+                expect(e).to.be.instanceOf(MongoshUnimplementedError);
+                return;
+              }
+              expect.fail('expected error');
             });
           });
           describe('with string index', () => {
@@ -3013,6 +3077,17 @@ class Test {
       expect(call.args[1].type).to.equal('Test');
       expect(skipPath(call.args[1].attributes.regularFn)).to.deep.equal(type.returnType.attributes.regularFn);
       expect(skipPath(call.args[1].attributes.awaitFn)).to.deep.equal(type.returnType.attributes.awaitFn);
+    });
+    it('throws when passing an async type', () => {
+      const code = 'new Whatever(db)';
+      try {
+        compileCheckScopes(writer, code);
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.message).to.contain('Argument in position 0 is now an asynchronous function');
+        return;
+      }
+      expect.fail('expected error');
     });
   });
   describe('branching', () => {

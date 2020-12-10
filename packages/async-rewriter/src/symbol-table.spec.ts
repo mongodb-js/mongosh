@@ -87,6 +87,23 @@ describe('SymbolTable', () => {
         { type: 'same', attributes: {} },
       )).to.be.false;
     });
+    it('throws an exception if comparison fails', () => {
+      const replacer = st.replacer;
+      st.replacer = () => { throw new Error('crap'); };
+      try {
+        st.compareTypes(
+          { type: 'same', attributes: { missing: true } },
+          { type: 'same', attributes: {} },
+        );
+      } catch (e) {
+        expect(e).to.be.instanceOf(MongoshInternalError);
+        expect(e.message).to.contain('Internal error occurred for comparing symbols');
+        return;
+      } finally {
+        st.replacer = replacer;
+      }
+      expect.fail('expected error');
+    });
   });
   describe('#deepCopy', () => {
     const st = new SymbolTable([{}], {});
@@ -109,7 +126,7 @@ describe('SymbolTable', () => {
       expect(copy2.lookup('typeWithPath').path === st.lookup('typeWithPath').path).to.be.true;
       expect(copy2.lookup('typeWithPath').attributes === st.lookup('typeWithPath').attributes).to.be.false;
     });
-    it('throws an exception of copy symbol fails', () => {
+    it('throws an exception if copy symbol fails', () => {
       const replacer = st.replacer;
       st.replacer = () => { return undefined; };
       try {
