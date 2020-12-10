@@ -69,7 +69,7 @@ export default class SymbolTable {
     this.pushScope();
   }
 
-  public replacer(k, v): any {
+  public replacer(k: string, v: any): any {
     if (k === 'path') return undefined;
     return v;
   }
@@ -93,21 +93,15 @@ export default class SymbolTable {
    * Do not deep copy path attributes as they must stay as references to the AST.
    */
   public deepCopy(): SymbolTable {
-    const newStack = [];
-    this.scopeStack.forEach(oldScope => {
-      const newScope = {};
-      Object.keys(oldScope).forEach(key => {
-        newScope[key] = this.deepCopySymbol(oldScope[key]);
-        if ('path' in oldScope[key]) {
-          newScope[key].path = oldScope[key].path;
-        }
-      });
-      newStack.push(newScope);
-    });
+    const newStack = this.deepCopyStack();
     return new SymbolTable(newStack, this.signatures);
   }
 
   public saveState(): void {
+    this.savedState = this.deepCopyStack();
+  }
+
+  private deepCopyStack(): object[] {
     const newStack = [];
     this.scopeStack.forEach(oldScope => {
       const newScope = {};
@@ -119,7 +113,7 @@ export default class SymbolTable {
       });
       newStack.push(newScope);
     });
-    this.savedState = newStack;
+    return newStack;
   }
 
   public revertState(): void {

@@ -17,7 +17,10 @@ const debug = (str, type?, indent?): void => {
   // console.log(str);
 };
 
-function assertUnreachable(type?: never): never {
+/**
+ * Exported for testing
+ */
+export function assertUnreachable(type?: never): never {
   throw new MongoshInternalError(`type ${type} unhandled`);
 }
 
@@ -113,13 +116,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       }
       if (path.node.object.type === 'ThisExpression') {
         const classPath = path.findParent((p) => p.isClassDeclaration());
-        if (!classPath) {
-          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
-        }
         const methodPath = path.findParent((p) => p.isMethod()) as babel.NodePath<babel.types.ClassMethod>;
-        if (!methodPath) {
-          throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition');
-        }
         // if not within constructor
         if (methodPath.node.kind !== 'constructor' && classPath.node['shellType'].returnType.attributes[rhs] === 'unset') {
           throw new MongoshInvalidInputError(`Unable to use attribute ${rhs} because it's not defined yet`, AsyncRewriterErrors.UsedMemberInClassBeforeDefinition);
@@ -304,13 +301,10 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
             const id = tyTS as babel.types.Identifier;
             state.symbols.updateAttribute(id.name, attrs, sType);
           } else if (lhsNode.type === 'ThisExpression') {
-            const classPath = path.findParent((p) => p.isClassDeclaration());
-            if (!classPath) {
-              throw new MongoshUnimplementedError('Unable to handle \'this\' keyword outside of method definition of class declaration', AsyncRewriterErrors.UsedThisOutsideOfMethodOfClassDeclaration);
-            }
             if (attrs.length > 1) {
               throw new MongoshUnimplementedError('Unable to handle nested assignment to \'this\' keyword', AsyncRewriterErrors.NestedThisAssignment);
             }
+            const classPath = path.findParent((p) => p.isClassDeclaration());
             if (classPath.node['shellType'].returnType.type === 'unknown') {
               classPath.node['shellType'].returnType.type = 'object';
             }
@@ -764,15 +758,15 @@ export default class AsyncWriter {
    * Returns translated code.
    * @param {string} code - string to compile.
    */
-  compile(code): string {
+  compile(code: string): string {
     return this.getTransform(code).code;
   }
 
   /**
    * Returns translated code.
-   * @param {string} code - string to compile.
+   * @param code - string to compile.
    */
-  process(code): string {
+  process(code: string): string {
     const input = this.compile(code);
     return processTopLevelAwait(input) || input;
   }
