@@ -1,4 +1,5 @@
 /* eslint-disable no-control-regex */
+import { MongoshCommandFailed } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { EventEmitter, once } from 'events';
@@ -401,8 +402,17 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.contain('The server generated these startup warnings when booting');
         logLines.forEach(l => {
           const { t: { $date: date }, msg: message } = JSON.parse(l);
-          expect(output).to.contain(`${date} ${message}`);
+          expect(output).to.contain(`${date}: ${message}`);
         });
+      });
+      it('they are shown even if the log format cannot be parsed', async() => {
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves({ ok: 1, log: ['Not JSON'] });
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.contain('The server generated these startup warnings when booting');
+        expect(output).to.contain('Unexpected log line format: Not JSON');
       });
       it('does not show anything when there are no warnings', async() => {
         let error = null;
@@ -415,7 +425,7 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(error).to.be.null;
       });
-      it('does not show anything if retrieving the warnings fails but logs it', async() => {
+      it('does not show anything if retrieving the warnings fails with exception', async() => {
         const expectedError = new Error('failed');
         let error = null;
         bus.on('mongosh:error', err => { error = err; });
@@ -427,6 +437,18 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(output).to.not.contain('Error');
         expect(error).to.equal(expectedError);
+      });
+      it('does not show anything if retrieving the warnings returns undefined', async() => {
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves(undefined);
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.not.contain('The server generated these startup warnings when booting');
+        expect(output).to.not.contain('Error');
+        expect(error).to.be.instanceof(MongoshCommandFailed);
       });
     });
   });
