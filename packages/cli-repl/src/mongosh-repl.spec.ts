@@ -1,12 +1,14 @@
 /* eslint-disable no-control-regex */
-import { ServiceProvider, bson } from '@mongosh/service-provider-core';
-import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
-import { PassThrough, Duplex } from 'stream';
-import path from 'path';
+import { MongoshCommandFailed } from '@mongosh/errors';
+import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { EventEmitter, once } from 'events';
-import { expect, tick, useTmpdir, fakeTTYProps } from '../test/repl-helpers';
-import { stubInterface } from 'ts-sinon';
+import path from 'path';
+import { Duplex, PassThrough } from 'stream';
+import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
+import { expect, fakeTTYProps, tick, useTmpdir } from '../test/repl-helpers';
+import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
 
 const delay = promisify(setTimeout);
 
@@ -22,6 +24,7 @@ describe('MongoshNodeRepl', () => {
   let output = '';
   let bus: EventEmitter;
   let configProvider: MongoshConfigProvider;
+  let sp: StubbedInstance<ServiceProvider>;
   let serviceProvider: ServiceProvider;
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
@@ -41,7 +44,7 @@ describe('MongoshNodeRepl', () => {
 
     configProvider = cp;
 
-    const sp = stubInterface<ServiceProvider>();
+    sp = stubInterface<ServiceProvider>();
     sp.bsonLibrary = bson;
     sp.initialDb = 'test';
     sp.getConnectionInfo.resolves({
@@ -367,6 +370,86 @@ describe('MongoshNodeRepl', () => {
 
     it('skips telemetry intro', () => {
       expect(output).not.to.match(/You can opt-out by running the .*disableTelemetry\(\).* command/);
+    });
+  });
+
+  context('startup warnings', () => {
+    context('when connecting with nodb', () => {
+      beforeEach(async() => {
+        mongoshReplOptions.shellCliOptions = {
+          nodb: true
+        };
+        mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+        await mongoshRepl.start(serviceProvider);
+      });
+
+      it('does not show warnings', () => {
+        expect(output).to.not.contain('The server generated these startup warnings when booting');
+      });
+    });
+
+    context('when connecting to a db', () => {
+      const logLines = [
+        '{"t":{"$date":"2020-12-07T07:51:30.691+01:00"},"s":"W",  "c":"CONTROL",  "id":20698,   "ctx":"main","msg":"***** SERVER RESTARTED *****","tags":["startupWarnings"]}',
+        '{"t":{"$date":"2020-12-07T07:51:32.763+01:00"},"s":"W",  "c":"CONTROL",  "id":22120,   "ctx":"initandlisten","msg":"Access control is not enabled for the database. Read and write access to data and configuration is unrestricted","tags":["startupWarnings"]}'
+      ];
+      it('they are shown as returned by database', async() => {
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves({ ok: 1, log: logLines });
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.contain('The server generated these startup warnings when booting');
+        logLines.forEach(l => {
+          const { t: { $date: date }, msg: message } = JSON.parse(l);
+          expect(output).to.contain(`${date}: ${message}`);
+        });
+      });
+      it('they are shown even if the log format cannot be parsed', async() => {
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves({ ok: 1, log: ['Not JSON'] });
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.contain('The server generated these startup warnings when booting');
+        expect(output).to.contain('Unexpected log line format: Not JSON');
+      });
+      it('does not show anything when there are no warnings', async() => {
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves({ ok: 1, log: [] });
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.not.contain('The server generated these startup warnings when booting');
+        expect(error).to.be.null;
+      });
+      it('does not show anything if retrieving the warnings fails with exception', async() => {
+        const expectedError = new Error('failed');
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).rejects(expectedError);
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.not.contain('The server generated these startup warnings when booting');
+        expect(output).to.not.contain('Error');
+        expect(error).to.equal(expectedError);
+      });
+      it('does not show anything if retrieving the warnings returns undefined', async() => {
+        let error = null;
+        bus.on('mongosh:error', err => { error = err; });
+        sp.runCommandWithCheck.withArgs(ADMIN_DB, {
+          getLog: 'startupWarnings'
+        }, {}).resolves(undefined);
+        await mongoshRepl.start(serviceProvider);
+
+        expect(output).to.not.contain('The server generated these startup warnings when booting');
+        expect(output).to.not.contain('Error');
+        expect(error).to.be.instanceof(MongoshCommandFailed);
+      });
     });
   });
 });

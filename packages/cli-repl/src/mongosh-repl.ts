@@ -2,7 +2,7 @@ import { ShellInternalState, ShellCliOptions } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import completer from '@mongosh/autocomplete';
-import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import prettyRepl from 'pretty-repl';
@@ -75,6 +75,7 @@ class MongoshNodeRepl {
 
     const mongodVersion = internalState.connectionInfo.buildInfo.version;
     await this.greet(mongodVersion);
+    await this.printStartupLog(internalState);
 
     const repl = asyncRepl.start({
       start: prettyRepl.start,
@@ -160,6 +161,44 @@ class MongoshNodeRepl {
     if (!await this.configProvider.getConfig('disableGreetingMessage')) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
     }
+    this.output.write(text);
+  }
+
+  async printStartupLog(internalState: ShellInternalState): Promise<void> {
+    if (this.shellCliOptions.nodb) {
+      return;
+    }
+
+    type GetLogResult = { ok: number, totalLinesWritten: number, log: string[] | undefined };
+    let result;
+    try {
+      result = await internalState.currentDb.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
+      if (!result) {
+        throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
+      }
+    } catch (error) {
+      this.bus.emit('mongosh:error', error);
+      return;
+    }
+
+    if (!result.log || !result.log.length) {
+      return;
+    }
+
+    let text = '';
+    text += `${this.clr('------', ['bold', 'yellow'])}\n`;
+    text += `   ${this.clr('The server generated these startup warnings when booting:', ['bold', 'yellow'])}\n`;
+    result.log.forEach(logLine => {
+      type LogEntry = { t: { $date: string }, msg: string };
+      try {
+        const entry: LogEntry = JSON.parse(logLine);
+        text += `   ${entry.t.$date}: ${entry.msg}\n`;
+      } catch (e) {
+        text += `   Unexpected log line format: ${logLine}\n`;
+      }
+    });
+    text += `${this.clr('------', ['bold', 'yellow'])}\n`;
+    text += '\n';
     this.output.write(text);
   }
 
