@@ -49,7 +49,7 @@ class SignableCompiler {
   async compile(exec: (opts: any) => void): Promise<void> {
     const fleAddon = {
       path: await findModulePath('mongodb-client-encryption'),
-      requireRegexp: /\bmongocrypt.node$/
+      requireRegexp: /\bmongocrypt\.node$/
     };
 
     // This compiles the executable along with Node from source.
