@@ -1,0 +1,12 @@
+{
+  "name": "connectivity-tests",
+  "version": "0.6.1",
+  "private": true,
+  "license": "Apache-2.0",
+  "scripts": {
+    "test-connectivity": "bash test/all.sh"
+  },
+  "devDependencies": {
+    "mongosh": "^0.6.1"
+  }
+}

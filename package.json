@@ -31,6 +31,7 @@
     "test-ci": "rimraf .nyc_output && lerna exec -- nyc --no-clean --cwd ../.. --reporter=none npm run test-ci && npm run report-coverage",
     "test-e2e": "lerna run test-e2e",
     "test-e2e-ci": "lerna run test-e2e-ci",
+    "test-connectivity": "lerna run test-connectivity",
     "compile-ts": "lerna run compile-ts",
     "compile-cli": "lerna run compile-ts --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
