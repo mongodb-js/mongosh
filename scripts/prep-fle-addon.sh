@@ -20,12 +20,12 @@ set -x
 # This isn't a lot, but hopefully after https://jira.mongodb.org/browse/WRITING-7164
 # we'll be able to simplify this further.
 
-MONGOSH_ROOT_DIR="$(realpath -s $(dirname "$0"))"/..
+cd "$(dirname "$0")"/..
+MONGOSH_ROOT_DIR="$PWD"
 BUILDROOT="$MONGOSH_ROOT_DIR"/tmp/fle-buildroot
 rm -rf "$BUILDROOT"
 mkdir -p "$BUILDROOT"
 cd "$BUILDROOT"
-BUILDROOT="$PWD"
 PREBUILT_OSNAME=''
 
 [ -z "$LIBMONGOCRYPT_VERSION" ] && LIBMONGOCRYPT_VERSION=latest
@@ -44,7 +44,7 @@ fi
 if [ x"$PREBUILT_OSNAME" != x"" ]; then
   if [ $LIBMONGOCRYPT_VERSION != latest ]; then
     # Replace LIBMONGOCRYPT_VERSION through its git SHA
-    git clone https://github.com/mongodb/libmongocrypt --branch LIBMONGOCRYPT_VERSION --depth 2
+    git clone https://github.com/mongodb/libmongocrypt --branch $LIBMONGOCRYPT_VERSION --depth 2
     LIBMONGOCRYPT_VERSION=$(cd libmongocrypt && git rev-parse $LIBMONGOCRYPT_VERSION)
     rm -rf libmongocrypt
   fi
