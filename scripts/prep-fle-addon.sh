@@ -36,8 +36,9 @@ if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
   # Use prebuilt binaries where available.
   case `uname` in
       Darwin*)                          PREBUILT_OSNAME=macos;;
-      CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
       Linux*)                           PREBUILT_OSNAME=ubuntu1604;;
+      # Windows doesn't work because of dllimport/dllexport issues.
+      #CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
   esac
 fi
 
