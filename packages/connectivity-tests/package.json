@@ -4,7 +4,8 @@
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
-    "test-connectivity": "bash test/all.sh"
+    "test-connectivity": "bash test/all.sh",
+    "test-ci": "npm run test"
   },
   "devDependencies": {
     "mongosh": "^0.6.1"
