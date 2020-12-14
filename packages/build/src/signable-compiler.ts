@@ -22,7 +22,7 @@ async function preCompileHook(nodeSourceTree: string) {
 }
 
 async function findModulePath(mod: string): Promise<string> {
-  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', 'cli-repl', 'src'));
+  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', 'service-provider-server', 'src'));
   return path.dirname(await pkgUp({ cwd: cliReplRequire.resolve(mod) }) as string);
 }
 
