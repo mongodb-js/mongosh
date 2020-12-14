@@ -144,7 +144,6 @@ class MongoshNodeRepl {
     });
 
     internalState.setCtx(repl.context);
-    repl.context.fle = require('mongodb-client-encryption');
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();

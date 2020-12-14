@@ -69,8 +69,5 @@
     "@types/pino": "^6.3.3",
     "@types/read": "^0.0.28",
     "@types/text-table": "^0.2.1"
-  },
-  "optionalDependencies": {
-    "mongodb-client-encryption": "^1.1.0"
   }
 }
