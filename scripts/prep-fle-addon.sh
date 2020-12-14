@@ -20,28 +20,40 @@ set -x
 # This isn't a lot, but hopefully after https://jira.mongodb.org/browse/WRITING-7164
 # we'll be able to simplify this further.
 
-BUILDROOT="$(dirname "$0")"/../tmp/fle-buildroot
+MONGOSH_ROOT_DIR="$(realpath -s $(dirname "$0"))"/..
+BUILDROOT="$MONGOSH_ROOT_DIR"/tmp/fle-buildroot
 rm -rf "$BUILDROOT"
 mkdir -p "$BUILDROOT"
 cd "$BUILDROOT"
 BUILDROOT="$PWD"
 PREBUILT_OSNAME=''
 
+[ -z "$LIBMONGOCRYPT_VERSION" ] && LIBMONGOCRYPT_VERSION=latest
+
+echo Using libmongocrypt at git tag "$LIBMONGOCRYPT_VERSION"
+
 if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
-  # Use prebuilt binaries for macOS and Windows. Linux builds are available,
-  # but may not match the correct OpenSSL version that we end up linking
-  # against.
+  # Use prebuilt binaries where available.
   case `uname` in
       Darwin*)                          PREBUILT_OSNAME=macos;;
       CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
+      Linux*)                           PREBUILT_OSNAME=ubuntu1604;;
   esac
 fi
 
 if [ x"$PREBUILT_OSNAME" != x"" ]; then
+  if [ $LIBMONGOCRYPT_VERSION != latest ]; then
+    # Replace LIBMONGOCRYPT_VERSION through its git SHA
+    git clone https://github.com/mongodb/libmongocrypt --branch LIBMONGOCRYPT_VERSION --depth 2
+    LIBMONGOCRYPT_VERSION=$(cd libmongocrypt && git rev-parse $LIBMONGOCRYPT_VERSION)
+    rm -rf libmongocrypt
+  fi
+
   # Download and extract prebuilt binaries.
-  curl -LO https://s3.amazonaws.com/mciuploads/libmongocrypt/all/master/latest/libmongocrypt-all.tar.gz
-  tar --strip-components=2 -xzvf libmongocrypt-all.tar.gz "$PREBUILT_OSNAME/nocrypto/"
-  tar --strip-components=1 -xzvf libmongocrypt-all.tar.gz "$PREBUILT_OSNAME/lib/libbson-static-1.0.a"
+  curl -LO https://s3.amazonaws.com/mciuploads/libmongocrypt/$PREBUILT_OSNAME/master/$LIBMONGOCRYPT_VERSION/libmongocrypt.tar.gz
+  tar --wildcards --strip-components=1 -xzvf libmongocrypt.tar.gz "nocrypto/"
+  tar --wildcards --strip-components=0 -xzvf libmongocrypt.tar.gz "lib/*bson-*"
+  cp lib/bson-1.0.lib lib/bson-static-1.0.lib || true # Windows
 else
   if [ `uname` = Darwin ]; then
     export CFLAGS="-mmacosx-version-min=10.13";
@@ -52,8 +64,11 @@ else
   # libmongocrypt currently determines its own version at build time by using
   # `git describe`, so there's no way to do anything but a full checkout of the
   # repository at this point.
-  git clone https://github.com/mongodb/mongo-c-driver
   git clone https://github.com/mongodb/libmongocrypt
+  if [ $LIBMONGOCRYPT_VERSION != "latest" ]; then
+    git checkout $LIBMONGOCRYPT_VERSION
+  fi
+  ./libmongocrypt/.evergreen/prep_c_driver_source.sh # clones the c driver source
 
   # build libbson
   cd mongo-c-driver

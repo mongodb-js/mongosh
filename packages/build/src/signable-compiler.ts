@@ -8,11 +8,17 @@ import childProcess from 'child_process';
 import { once } from 'events';
 
 async function preCompileHook(nodeSourceTree: string) {
+  const fleAddonVersion = require(path.join(
+    await findModulePath('mongodb-client-encryption'), 'package.json')).version;
   const proc = childProcess.spawn(
     'bash',
     [path.resolve(__dirname, '..', '..', '..', 'scripts', 'prep-fle-addon.sh')],
     {
-      env: { ...process.env, FLE_NODE_SOURCE_PATH: nodeSourceTree },
+      env: {
+        ...process.env,
+        FLE_NODE_SOURCE_PATH: nodeSourceTree,
+        LIBMONGOCRYPT_VERSION: `node-v${fleAddonVersion}`
+      },
       stdio: 'inherit'
     });
   const [ code ] = await once(proc, 'exit');
