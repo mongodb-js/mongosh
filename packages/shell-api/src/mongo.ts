@@ -236,7 +236,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   setSecondaryOk(): void {
-    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPreference instead');
+    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead');
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
