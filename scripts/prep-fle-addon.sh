@@ -45,14 +45,18 @@ if [ x"$PREBUILT_OSNAME" != x"" ]; then
   if [ $LIBMONGOCRYPT_VERSION != latest ]; then
     # Replace LIBMONGOCRYPT_VERSION through its git SHA
     git clone https://github.com/mongodb/libmongocrypt --branch $LIBMONGOCRYPT_VERSION --depth 2
-    LIBMONGOCRYPT_VERSION=$(cd libmongocrypt && git rev-parse $LIBMONGOCRYPT_VERSION)
+    LIBMONGOCRYPT_VERSION=$(cd libmongocrypt && git rev-parse HEAD)
     rm -rf libmongocrypt
   fi
 
   # Download and extract prebuilt binaries.
-  curl -LO https://s3.amazonaws.com/mciuploads/libmongocrypt/$PREBUILT_OSNAME/master/$LIBMONGOCRYPT_VERSION/libmongocrypt.tar.gz
-  tar --wildcards --strip-components=1 -xzvf libmongocrypt.tar.gz "nocrypto/"
-  tar --wildcards --strip-components=0 -xzvf libmongocrypt.tar.gz "lib/*bson-*"
+  curl -sSfLO https://s3.amazonaws.com/mciuploads/libmongocrypt/$PREBUILT_OSNAME/master/$LIBMONGOCRYPT_VERSION/libmongocrypt.tar.gz
+  mkdir -p prebuilts
+  tar -xzvf libmongocrypt.tar.gz -C prebuilts nocrypto/ lib/
+  mkdir -p lib
+  mv -v prebuilts/nocrypto/lib/* lib
+  mv -v prebuilts/nocrypto/include include
+  mv -v prebuilts/lib/*bson* lib
   cp lib/bson-1.0.lib lib/bson-static-1.0.lib || true # Windows
 else
   if [ `uname` = Darwin ]; then
