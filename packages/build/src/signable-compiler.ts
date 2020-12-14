@@ -67,10 +67,7 @@ class SignableCompiler {
         ...process.env,
         // Custom env vars for sccache:
         AWS_ACCESS_KEY_ID: process.env.DEVTOOLS_CI_AWS_KEY,
-        AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET,
-        ...(os.platform() === Platform.MacOs ? {
-          LDFLAGS: '-framework CoreFoundation -framework Security'
-        } : {})
+        AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET
       },
       addons: [
         fleAddon

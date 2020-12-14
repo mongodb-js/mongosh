@@ -7,6 +7,16 @@ set -x
 # files for the mongodb-client-encryption addon will be stored after
 # compiling them.
 
+# One thing that is not obvious from the build instructions for libmongocrypt
+# and the Node.js bindings is that the Node.js driver uses libmongocrypt in
+# DISABLE_NATIVE_CRYPTO aka nocrypto mode, that is, instead of using native
+# system libraries for crypto operations, it provides callbacks to libmongocrypt
+# which, in the Node.js addon case, call JS functions that in turn call built-in
+# Node.js crypto methods.
+# That’s way more convoluted than it needs to be, considering that we always
+# have a copy of OpenSSL available directly, but for now it seems to make sense
+# to stick with what the Node.js addon does here.
+
 # This isn't a lot, but hopefully after https://jira.mongodb.org/browse/WRITING-7164
 # we'll be able to simplify this further.
 
@@ -29,23 +39,12 @@ fi
 
 if [ x"$PREBUILT_OSNAME" != x"" ]; then
   # Download and extract prebuilt binaries.
-  curl -L https://s3.amazonaws.com/mciuploads/libmongocrypt/all/master/latest/libmongocrypt-all.tar.gz | \
-    tar --strip-components=1 -xzvf - $PREBUILT_OSNAME
+  curl -LO https://s3.amazonaws.com/mciuploads/libmongocrypt/all/master/latest/libmongocrypt-all.tar.gz
+  tar --strip-components=2 -xzvf libmongocrypt-all.tar.gz "$PREBUILT_OSNAME/nocrypto/"
+  tar --strip-components=1 -xzvf libmongocrypt-all.tar.gz "$PREBUILT_OSNAME/lib/libbson-static-1.0.a"
 else
   if [ `uname` = Darwin ]; then
     export CFLAGS="-mmacosx-version-min=10.13";
-  fi
-
-  if [ `uname` = Linux -a x"$FLE_NODE_SOURCE_PATH" != x"" ]; then
-    # Build a copy of the Node.js bundled OpenSSL package and install it locally
-    # so that libmongocrypt is built against the right version of it.
-    # If we wanted to, we could probably adjust the libmongocrypt build config
-    # to enable static-library-only builds, which would then only require the
-    # OpenSSL *headers* to be present, rather than the compiled libraries as
-    # well (which is currently the case).
-    cp -r "$FLE_NODE_SOURCE_PATH"/deps/openssl/openssl .
-    (cd openssl && ./config --prefix="$BUILDROOT" && make -j8 && make -j8 install)
-    export CMAKE_EXTRA_ARGS="-DOPENSSL_ROOT_DIR=$BUILDROOT -DOPENSSL_INCLUDE_DIR=$BUILDROOT/include -DOPENSSL_LIBRARIES=$BUILDROOT/lib"
   fi
 
   if [ -z "$CMAKE" ]; then CMAKE=cmake; fi
@@ -60,7 +59,7 @@ else
   cd mongo-c-driver
   mkdir -p cmake-build
   cd cmake-build
-  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF $CMAKE_EXTRA_ARGS ..
+  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF ..
   make -j8 install
   cd ../../
 
@@ -68,7 +67,7 @@ else
   cd libmongocrypt
   mkdir -p cmake-build
   cd cmake-build
-  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF $CMAKE_EXTRA_ARGS ..
+  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF -DDISABLE_NATIVE_CRYPTO=1 ..
   make -j8 install
   cd ../../
 fi
