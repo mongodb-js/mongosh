@@ -1515,4 +1515,11 @@ describe('Shell API (integration)', function() {
       });
     });
   });
+  describe('Field-level encryption', () => {
+    // This test is temporary and can go away once we actually implement FLE
+    // functionality.
+    it('native addon is present', () => {
+      expect(typeof serviceProvider.fle.ClientEncryption).to.equal('function');
+    });
+  });
 });

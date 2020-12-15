@@ -151,6 +151,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   private initialOptions: any;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
+  public fle: any;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -173,6 +174,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.initialOptions = clientOptions;
     this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
+    try {
+      this.fle = require('mongodb-client-encryption');
+    } catch { /* not empty */ }
   }
 
   async getNewConnection(uri: string, options: MongoClientOptions = {}): Promise<CliServiceProvider> {

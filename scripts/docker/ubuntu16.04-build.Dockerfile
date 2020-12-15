@@ -12,7 +12,7 @@ RUN echo "deb-src https://deb.nodesource.com/node_14.x xenial main" | tee -a /et
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 
 RUN apt-get update
-RUN apt-get -y -qq install nodejs g++-6 rpm
+RUN apt-get -y -qq install nodejs g++-6 rpm git cmake
 
 # Add sccache
 RUN curl -L https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz | tar -C /usr/local/bin -xzvf - --strip=1 sccache-0.2.13-x86_64-unknown-linux-musl/sccache
