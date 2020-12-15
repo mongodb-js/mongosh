@@ -60,7 +60,7 @@ export default class Explainable extends ShellApiClass {
   }
 
   setVerbosity(verbosity: ExplainVerbosityLike): void {
-    validateExplainableVerbosity(verbosity);
+    verbosity = validateExplainableVerbosity(verbosity);
     this._emitExplainableApiCall('setVerbosity', { verbosity });
     this._verbosity = verbosity;
   }

@@ -1259,6 +1259,14 @@ describe('Collection', () => {
         expect(
           collection.explain('allPlansExecution')._verbosity
         ).to.equal('allPlansExecution');
+
+        expect(
+          collection.explain(true)._verbosity
+        ).to.equal('allPlansExecution');
+
+        expect(
+          collection.explain(false)._verbosity
+        ).to.equal('queryPlanner');
       });
 
       it('throws in case of non valid verbosity', () => {

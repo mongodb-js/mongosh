@@ -14,7 +14,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable } from './enums';
-import { iterate } from './helpers';
+import { iterate, validateExplainableVerbosity } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -106,6 +106,7 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnsPromise
   explain(verbosity: ExplainVerbosityLike): Promise<any> {
+    verbosity = validateExplainableVerbosity(verbosity);
     return this._cursor.explain(verbosity);
   }
 

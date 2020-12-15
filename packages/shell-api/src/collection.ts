@@ -1294,7 +1294,7 @@ export default class Collection extends ShellApiClass {
 
   @returnType('Explainable')
   explain(verbosity = 'queryPlanner' as ExplainVerbosityLike): Explainable {
-    validateExplainableVerbosity(verbosity);
+    verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
     return new Explainable(this._mongo, this, verbosity);
   }
