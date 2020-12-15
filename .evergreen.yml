@@ -94,6 +94,7 @@ variables:
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
 #   test_vscode - Clones the vscode extension repository and runs its tests.
+#   test_connectivity - Runs extra connectivity tests.
 #   compile_and_upload_artifact - Compile the release binary and upload it to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
@@ -179,6 +180,17 @@ functions:
           docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
+  test_connectivity:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export EVERGREEN_EXPANSIONS_PATH="$(pwd)/../tmp/expansions.yaml"
+          npm run test-connectivity
   compile_and_upload_artifact:
     - command: expansions.write
       params:
@@ -221,6 +233,7 @@ functions:
 #   check - Performs linter and dependency checks.
 #   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
+#   test_connectivity - Runs extra connectivity tests.
 #   compile_and_upload_artifact - Compile the release binary and upload it to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
@@ -418,6 +431,13 @@ tasks:
         vars:
           node_js_version: "12.20.0"
       - func: test_vscode
+  - name: test_connectivity
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test_connectivity
   - name: compile_and_upload_artifact_macos
     depends_on:
       - name: check
@@ -561,6 +581,7 @@ buildvariants:
       - name: test_m44x_n14
       - name: test_mlatest_n14
       - name: test_vscode
+      - name: test_connectivity
       - name: compile_and_upload_artifact_linux
   - name: rhel
     display_name: "Ubuntu 18.04 (rpm target)"
