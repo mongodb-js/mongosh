@@ -105,8 +105,10 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  explain(verbosity: ExplainVerbosityLike): Promise<any> {
-    verbosity = validateExplainableVerbosity(verbosity);
+  explain(verbosity?: ExplainVerbosityLike): Promise<any> {
+    if (verbosity !== undefined) {
+      verbosity = validateExplainableVerbosity(verbosity);
+    }
     return this._cursor.explain(verbosity);
   }
 
