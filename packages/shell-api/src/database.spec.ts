@@ -1,5 +1,6 @@
 /* eslint-disable key-spacing */
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
@@ -18,7 +19,7 @@ import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
 import ChangeStreamCursor from './change-stream-cursor';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
-
+chai.use(sinonChai);
 
 describe('Database', () => {
   const MD5_HASH = crypto.createHash('md5').update('anna:mongo:pwd').digest('hex');
@@ -755,7 +756,7 @@ describe('Database', () => {
         expect(catchedError).to.equal(expectedError);
       });
 
-      [['anna'], [{}], [{ user: 'anna', pass: 'pwd' }], ['name', 'pwd', 'hmm']].forEach(args => {
+      [[{}], [{ user: 'anna', pass: 'pwd' }], ['name', 'pwd', 'hmm']].forEach(args => {
         it('throws for invalid arguments', async() => {
           const catchedError = await database.auth(...args as any).catch(e => e);
           expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
@@ -771,6 +772,23 @@ describe('Database', () => {
         } as any).catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshUnimplementedError);
         expect(catchedError.code).to.equal(CommonErrors.NotImplemented);
+      });
+
+      it('asks for password if only username is passed', async() => {
+        internalState.setEvaluationListener({
+          onPrompt: () => 'superSecretPassword'
+        });
+        const expectedResult = { ok: 1 } as any;
+        serviceProvider.authenticate.resolves(expectedResult);
+        const result = await database.auth('anna');
+        expect(result).to.deep.equal(expectedResult);
+        expect(serviceProvider.authenticate).to.have.been.calledWith(
+          {
+            user: 'anna',
+            pwd: 'superSecretPassword',
+            authDb: 'db1'
+          }
+        );
       });
     });
     describe('grantRolesToUser', () => {

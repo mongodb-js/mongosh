@@ -43,6 +43,7 @@ import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
+type AuthDoc = {user: string, pwd: string, authDb?: string, mechanism?: string};
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -405,11 +406,19 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
-  async auth(...args: [{user: string, pwd: string, authDb?: string, mechanism?: string}] | [string, string]): Promise<{ ok: number }> {
+  async auth(...args: [AuthDoc] | [string, string] | [string]): Promise<{ ok: number }> {
     this._emitDatabaseApiCall('auth', {});
-    let authDoc;
+    let authDoc: AuthDoc;
     if (args.length === 1) {
-      authDoc = args[0];
+      const { evaluationListener } = this._mongo._internalState;
+      if (typeof args[0] === 'string' && evaluationListener.onPrompt) {
+        authDoc = {
+          user: args[0],
+          pwd: await evaluationListener.onPrompt('Enter password', 'password')
+        };
+      } else {
+        authDoc = args[0] as AuthDoc;
+      }
     } else if (args.length === 2) {
       authDoc = {
         user: args[0],
