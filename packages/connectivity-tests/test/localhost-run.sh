@@ -2,7 +2,7 @@
 set -e
 set -x
 
-/opt/mongodb/bin/mongod --dbpath /var/mongodb/db &
+mongod --dbpath /var/mongodb/db &
 MONGOD_PID=$!
 FAILED=no
 
