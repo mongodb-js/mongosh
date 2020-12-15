@@ -23,11 +23,11 @@ export interface AutocompleteParameters {
   };
 }
 
-const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
+export const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
   CONVERSION_OPERATORS.concat(BSON_TYPES.concat(STAGE_OPERATORS)
   ));
 
-const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
+export const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
 
 /**
  * The project stage operator.
