@@ -164,6 +164,12 @@ describe('e2e', function() {
       shell.assertContainsOutput(expected);
     });
 
+    it('fle addon is available', async() => {
+      const result = await shell.executeLine(
+        '`<${typeof db._mongo._serviceProvider.fle.ClientEncryption}>`');
+      expect(result).to.include('<function>');
+    });
+
     describe('error formatting', () => {
       it('throws when a syntax error is encountered', async() => {
         await shell.executeLine('<x');
