@@ -950,14 +950,36 @@ describe('Shell API (integration)', function() {
 
     describe('aggregate', () => {
       it('returns a cursor that has the explain as result of toShellResult', async() => {
-        const cursor = await explainable.find()
-          .skip(1)
-          .limit(1);
+        const cursor = await collection.explain().aggregate([
+          { $match: {} }, { $skip: 1 }, { $limit: 1 }
+        ]);
         const result = await toShellResult(cursor);
         expect(result.printable).to.include.all.keys([
           'ok',
-          'queryPlanner',
+          'stages',
           'serverInfo'
+        ]);
+        expect(result.printable.stages[0].$cursor).to.include.all.keys([
+          'queryPlanner'
+        ]);
+        expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
+          'executionStats'
+        ]);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const cursor = await collection.explain('executionStats').aggregate([
+          { $match: {} }, { $skip: 1 }, { $limit: 1 }
+        ]);
+        const result = await toShellResult(cursor);
+        expect(result.printable).to.include.all.keys([
+          'ok',
+          'stages',
+          'serverInfo'
+        ]);
+        expect(result.printable.stages[0].$cursor).to.include.all.keys([
+          'queryPlanner',
+          'executionStats'
         ]);
       });
     });
