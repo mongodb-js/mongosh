@@ -47,7 +47,14 @@ export function adaptAggregateOptions(options: any = {}): {
   return { aggOptions, dbOptions, explain };
 }
 
-export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): void {
+export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): ExplainVerbosityLike & string {
+  // Legacy shell behavior.
+  if (verbosity === true) {
+    verbosity = 'allPlansExecution';
+  } else if (verbosity === false) {
+    verbosity = 'queryPlanner';
+  }
+
   const allowedVerbosity = [
     'queryPlanner',
     'executionStats',
@@ -60,6 +67,8 @@ export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): v
       CommonErrors.InvalidArgument
     );
   }
+
+  return verbosity;
 }
 
 export function assertArgsDefined(...args: any[]): void {
