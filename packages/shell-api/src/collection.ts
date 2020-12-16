@@ -20,7 +20,12 @@ import {
   dataFormat,
   validateExplainableVerbosity,
   FindAndModifyShellOptions,
-  processFindAndModifyOptions
+  FindAndModifyMethodShellOptions,
+  processFindAndModifyOptions,
+  processRemoveOptions,
+  RemoveShellOptions,
+  MapReduceShellOptions,
+  processMapReduceOptions
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -276,7 +281,7 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteMany(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult> {
+  async deleteMany(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult | Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('deleteMany', { filter, options });
 
@@ -286,6 +291,9 @@ export default class Collection extends ShellApiClass {
       filter,
       { ...this._database._baseOptions, ...options }
     );
+    if (options.explain) {
+      return result;
+    }
 
     return new DeleteResult(
       !!result.acknowledged,
@@ -306,7 +314,7 @@ export default class Collection extends ShellApiClass {
    * @returns {DeleteResult} The promise of the result.
    */
   @returnsPromise
-  async deleteOne(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult> {
+  async deleteOne(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult | Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('deleteOne', { filter, options });
 
@@ -316,6 +324,9 @@ export default class Collection extends ShellApiClass {
       filter,
       { ...this._database._baseOptions, ...options }
     );
+    if (options.explain) {
+      return result;
+    }
 
     return new DeleteResult(
       !!result.acknowledged,
@@ -385,21 +396,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async findAndModify(
-    options: {
-      query?: Document;
-      sort?: Document | Document[];
-      update?: Document | Document[];
-      remove?: boolean;
-      new?: boolean;
-      fields?: Document;
-      upsert?: boolean;
-      bypassDocumentValidation?: boolean;
-      writeConcern?: Document;
-      collation?: Document;
-      arrayFilters?: Document[];
-    } = {}
-  ): Promise<Document> {
+  async findAndModify(options: FindAndModifyMethodShellOptions = {}): Promise<Document> {
     assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall(
       'findAndModify',
@@ -420,8 +417,11 @@ export default class Collection extends ShellApiClass {
       options.query || {},
       options.sort,
       options.update,
-      providerOptions as any // required because of the weird way providerOptions is constructed
+      providerOptions as Omit<FindAndModifyMethodShellOptions, 'query' | 'sort' | 'update' | 'collation'>
     );
+    if (options.explain) {
+      return result;
+    }
 
     return result.value;
   }
@@ -702,27 +702,24 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async remove(query: Document, options: boolean | DeleteOptions = {}): Promise<DeleteResult> {
+  async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
     printDeprecationWarning(
       'Collection.remove() is deprecated. Use deleteOne, deleteMany or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(query);
-
-    let removeOptions: any = {};
-    if (typeof options === 'boolean') {
-      removeOptions.justOne = options;
-    } else {
-      removeOptions = options;
-    }
+    const removeOptions = processRemoveOptions(options);
 
     this._emitCollectionApiCall('remove', { query, removeOptions });
-    const result = await this._mongo._serviceProvider.remove(
+    const result = await this._mongo._serviceProvider[removeOptions.justOne ? 'deleteOne' : 'deleteMany'](
       this._database._name,
       this._name,
       query,
       { ...this._database._baseOptions, ...removeOptions }
     );
+    if (removeOptions.explain) {
+      return result;
+    }
     return new DeleteResult(
       !!result.acknowledged,
       result.deletedCount
@@ -773,7 +770,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult> {
+  async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
     printDeprecationWarning(
       'Collection.update() is deprecated. Use updateOne, updateMany or bulkWrite.',
       this._mongo._internalState.context.print
@@ -799,6 +796,9 @@ export default class Collection extends ShellApiClass {
         { ...this._database._baseOptions, ...options },
       );
     }
+    if (options.explain) {
+      return result;
+    }
     return new UpdateResult(
       !!result.acknowledged,
       result.matchedCount,
@@ -823,7 +823,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async updateMany(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult> {
+  async updateMany(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult | Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('updateMany', { filter, options });
     const result = await this._mongo._serviceProvider.updateMany(
@@ -833,6 +833,9 @@ export default class Collection extends ShellApiClass {
       update,
       { ...this._database._baseOptions, ...options }
     );
+    if (options.explain) {
+      return result;
+    }
 
     return new UpdateResult(
       !!result.acknowledged,
@@ -862,7 +865,7 @@ export default class Collection extends ShellApiClass {
     filter: Document,
     update: Document,
     options: UpdateOptions = {}
-  ): Promise<UpdateResult> {
+  ): Promise<UpdateResult | Document> {
     assertArgsDefined(filter);
     this._emitCollectionApiCall('updateOne', { filter, options });
     const result = await this._mongo._serviceProvider.updateOne(
@@ -872,6 +875,9 @@ export default class Collection extends ShellApiClass {
       update,
       { ...this._database._baseOptions, ...options }
     );
+    if (options.explain) {
+      return result;
+    }
 
     return new UpdateResult(
       !!result.acknowledged,
@@ -1302,7 +1308,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnType('Explainable')
-  explain(verbosity = 'queryPlanner' as ExplainVerbosityLike): Explainable {
+  explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Explainable {
     verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
     return new Explainable(this._mongo, this, verbosity);
@@ -1436,22 +1442,24 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: Document | string): Promise<Document> {
+  async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
     assertArgsDefined(map, reduce, optionsOrOutString);
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
 
     let cmd = {
       mapReduce: this._name,
       map: map,
-      reduce: reduce
+      reduce: reduce,
+      ...processMapReduceOptions(optionsOrOutString)
     } as Document;
 
-    if (typeof optionsOrOutString === 'string') {
-      cmd.out = optionsOrOutString;
-    } else if (optionsOrOutString.out === undefined) {
-      throw new MongoshInvalidInputError('Missing \'out\' option', CommonErrors.InvalidArgument);
-    } else {
-      cmd = { ...cmd, ...optionsOrOutString };
+    if (cmd.explain) {
+      const verbosity = cmd.explain;
+      delete cmd.explain;
+      cmd = {
+        explain: cmd,
+        verbosity
+      };
     }
 
     return await this._mongo._serviceProvider.runCommandWithCheck(

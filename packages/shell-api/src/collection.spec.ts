@@ -383,6 +383,47 @@ describe('Collection', () => {
       });
     });
 
+    describe('remove', () => {
+      beforeEach(() => {
+        serviceProvider.deleteOne = sinon.spy(() => Promise.resolve({
+          acknowledged: true, deletedCount: 1
+        })) as any;
+        serviceProvider.deleteMany = sinon.spy(() => Promise.resolve({
+          acknowledged: true, deletedCount: 2
+        })) as any;
+      });
+
+      it('calls deleteOne if justOne is passed as an argument', async() => {
+        expect((await collection.remove({}, true)).deletedCount).to.equal(1);
+        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, { justOne: true });
+        expect(serviceProvider.deleteMany).to.not.have.been.called;
+      });
+
+      it('calls deleteOne if justOne is passed as an option', async() => {
+        expect((await collection.remove({}, { justOne: true })).deletedCount).to.equal(1);
+        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, { justOne: true });
+        expect(serviceProvider.deleteMany).to.not.have.been.called;
+      });
+
+      it('calls deleteMany if !justOne is passed as an argument', async() => {
+        expect((await collection.remove({}, false)).deletedCount).to.equal(2);
+        expect(serviceProvider.deleteOne).to.not.have.been.called;
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+      });
+
+      it('calls deleteMany if !justOne is passed as an option', async() => {
+        expect((await collection.remove({}, { justOne: false })).deletedCount).to.equal(2);
+        expect(serviceProvider.deleteOne).to.not.have.been.called;
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+      });
+
+      it('calls deleteMany by default', async() => {
+        expect((await collection.remove({})).deletedCount).to.equal(2);
+        expect(serviceProvider.deleteOne).to.not.have.been.called;
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+      });
+    });
+
     describe('findOneAndReplace', () => {
       it('sets returnOriginal to true by default', async() => {
         serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
@@ -1649,6 +1690,7 @@ describe('Collection', () => {
       updateOne: { i: 4 },
       getIndexes: { i: 2 },
       reIndex: { m: 'runCommandWithCheck', i: 2 },
+      remove: { m: 'deleteMany' },
     };
     const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
@@ -1666,7 +1708,6 @@ describe('Collection', () => {
       serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.countDocuments.resolves(1);
-      serviceProvider.remove.resolves({ ok: 1, deletedCount: 0 } as any);
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
       [ 'bulkWrite', 'deleteMany', 'deleteOne', 'insert', 'insertMany',
