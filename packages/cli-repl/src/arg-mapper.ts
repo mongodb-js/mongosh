@@ -19,7 +19,7 @@ const MAPPINGS = {
   tlsCAFile: 'tlsCAFile',
   tlsCertificateKeyFile: 'tlsCertificateKeyFile',
   tlsCertificateKeyFilePassword: 'tlsCertificateKeyFilePassword',
-  username: 'auth.user',
+  username: 'auth.username',
   verbose: [ 'loggerLevel', 'debug' ]
 };
 

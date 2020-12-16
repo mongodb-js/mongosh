@@ -335,7 +335,7 @@ export default interface Writable {
     collection: string,
     indexSpecs: Document[],
     options?: CreateIndexesOptions,
-    dbOptions?: DbOptions): Promise<Document>;
+    dbOptions?: DbOptions): Promise<string[]>;
 
   /**
    * Drops a collection.

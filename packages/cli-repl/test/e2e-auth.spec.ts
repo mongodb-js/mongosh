@@ -49,7 +49,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
         connectionString,
         {
           useNewUrlParser: true,
-          auth: { user: username, password: pwd, authSource: dbName },
+          auth: { username: username, password: pwd, authSource: dbName },
           connectTimeoutMS: 1000
         } as MongoClientOptions
       );
@@ -773,7 +773,7 @@ describe('Auth e2e', function() {
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
           );
           await eventually(async() => {
-            shell.assertContainsError('MongoError: authentication mechanism NOT A MECHANISM not supported');
+            shell.assertContainsError('TypeError: authMechanism one of MONGODB-AWS,MONGODB-CR,DEFAULT,GSSAPI,PLAIN,SCRAM-SHA-1,SCRAM-SHA-256,MONGODB-X509, got not a mechanism');
           }, { timeout: 40000 });
           await shell.writeInputLine(
             'db.runCommand({connectionStatus: 1})'

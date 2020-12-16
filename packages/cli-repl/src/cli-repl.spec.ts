@@ -264,7 +264,7 @@ describe('CliRepl', () => {
           setImmediate(() => input.write('i want food\n'));
         }
       });
-      const auth = { user: 'amy', password: '' };
+      const auth = { username: 'amy', password: '' };
       let threw = true;
       try {
         await cliRepl.start(await testServer.connectionString(), { auth });
@@ -285,7 +285,7 @@ describe('CliRepl', () => {
       });
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
-      const auth = { user: 'foo', password: '' };
+      const auth = { username: 'foo', password: '' };
       const errored = once(cliRepl.bus, 'mongosh:error');
       try {
         await cliRepl.start(await testServer.connectionString(), { auth });

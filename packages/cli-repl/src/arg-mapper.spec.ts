@@ -49,7 +49,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     it('maps to auth object', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
-          user: 'richard'
+          username: 'richard'
         }
       });
     });
@@ -73,7 +73,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     it('maps to auth object', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
-          user: 'richard',
+          username: 'richard',
           password: 'aphextwin'
         }
       });

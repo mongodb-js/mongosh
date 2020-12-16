@@ -1,2 +1,2 @@
-[ "category_1" ]
+category_1
 "category_1"

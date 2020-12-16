@@ -1,4 +1,6 @@
 import {
+  Auth,
+  AuthMechanismId,
   MongoClient,
   ReadPreference,
   Binary,
@@ -139,7 +141,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         uri,
         clientOptions
       ) :
-      new MongoClient(uri, clientOptions);
+      new MongoClient(uri || 'mongodb://nodb/', clientOptions);
 
     return new CliServiceProvider(mongoClient, clientOptions, uri);
   }
@@ -148,7 +150,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: string;
-  private initialOptions: any;
+  private initialOptions: MongoClientOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
   public fle: any;
@@ -767,7 +769,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .replaceOne(filter, replacement, options);
+      .replaceOne(filter, replacement, options) as Promise<UpdateResult>;
+    // `as UpdateResult` because we know we didn't request .explain() here.
   }
 
   /**
@@ -850,7 +853,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
-      .updateMany(filter, update, options);
+      .updateMany(filter, update, options) as Promise<UpdateResult>;
+    // `as UpdateResult` because we know we didn't request .explain() here.
   }
 
   /**
@@ -875,7 +879,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .updateOne(filter, update, options);
+      .updateOne(filter, update, options) as Promise<UpdateResult>;
+    // `as UpdateResult` because we know we didn't request .explain() here.
   }
 
   /**
@@ -926,7 +931,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     indexSpecs: IndexDescription[],
     options: CreateIndexesOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
+    dbOptions?: DbOptions): Promise<string[]> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -1027,14 +1032,15 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async authenticate(
     authDoc: ShellAuthOptions
   ): Promise<{ ok: number }> {
+    const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
     // NOTE: we keep all the original options and just overwrite the auth ones.
     const clientOptions: MongoClientOptions = {
       ...DEFAULT_DRIVER_OPTIONS,
       ...this.initialOptions,
-      auth: { user: authDoc.user, password: authDoc.pwd },
-      authMechanism: authDoc.mechanism,
-      authSource: authDoc.authDb
+      auth: auth
     };
+    if (authDoc.mechanism) clientOptions.authMechanism = authDoc.mechanism as AuthMechanismId;
+    if (authDoc.authDb) clientOptions.authSource = authDoc.authDb;
     const mc = await MongoClient.connect(
       this.uri as string,
       clientOptions

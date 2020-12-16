@@ -586,7 +586,7 @@ describe('Collection', () => {
 
     describe('createIndexes', () => {
       beforeEach(async() => {
-        serviceProvider.createIndexes.resolves({ ok: 1 });
+        serviceProvider.createIndexes.resolves(['index_1']);
       });
 
       context('when options is not passed', () => {
@@ -630,7 +630,7 @@ describe('Collection', () => {
     ['ensureIndex', 'createIndex'].forEach((method) => {
       describe(method, () => {
         beforeEach(async() => {
-          serviceProvider.createIndexes.resolves({ ok: 1 });
+          serviceProvider.createIndexes.resolves(['index_1']);
         });
 
         context('when options is not passed', () => {
@@ -1662,6 +1662,7 @@ describe('Collection', () => {
       serviceProvider.aggregate.returns(stubInterface<ServiceProviderAggregationCursor>());
       serviceProvider.find.returns(stubInterface<ServiceProviderCursor>());
       serviceProvider.getIndexes.resolves([]);
+      serviceProvider.createIndexes.resolves(['index_1']);
       serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.countDocuments.resolves(1);
@@ -1705,7 +1706,7 @@ describe('Collection', () => {
         try {
           await collection[method](...customA);
         } catch (e) {
-          expect.fail(`${method} failed, error thrown ${e.message}`);
+          expect.fail(`${method} failed, error thrown ${e.stack}`);
         }
         expect(serviceProvider[customM].called).to.equal(true, `expecting sp.${customM} to be called but it was not`);
         const call = serviceProvider[customM].getCall(-1).args[customI];

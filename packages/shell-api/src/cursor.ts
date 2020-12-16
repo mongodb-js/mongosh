@@ -19,8 +19,8 @@ import {
   Document,
   CollationOptions,
   ExplainVerbosityLike,
-  ReadPreferenceMode,
-  ReadConcernLevelLike
+  ReadPreferenceLike,
+  ReadConcernLevelId
 } from '@mongosh/service-provider-core';
 import { blockedByDriverMetadata } from './error-codes';
 import { iterate, validateExplainableVerbosity } from './helpers';
@@ -270,7 +270,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
-  readPref(mode: ReadPreferenceMode, tagSet?: Document[]): Cursor {
+  readPref(mode: ReadPreferenceLike, tagSet?: Document[]): Cursor {
     if (tagSet) {
       throw new MongoshUnimplementedError(
         'the tagSet argument is not yet supported.',
@@ -347,8 +347,8 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
-  readConcern(level: ReadConcernLevelLike): Cursor {
-    this._cursor = this._cursor.withReadConcern( { level });
+  readConcern(level: ReadConcernLevelId): Cursor {
+    this._cursor = this._cursor.withReadConcern({ level });
     return this;
   }
 }
