@@ -58,7 +58,7 @@ type FullJSON = {
 // use mongodb-download-url for that. For macOS, either would probably be fine.
 // TODO: upstream all of this into mongodb-download-url :(
 async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
-  const knownDistroRegex = /^(?<name>rhel80|debian10)/;
+  const knownDistroRegex = /^(?<name>rhel80|rhel7[0-9]|debian10)/;
   const { version } = versionInfo;
   const distroId = process.env.DISTRO_ID || '';
   if ((process.platform === 'win32' && semver.lt(version, '4.4.0')) ||
@@ -73,7 +73,8 @@ async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
       .find((downloadInfo: DownloadInfo) =>
         downloadInfo.target === 'windows' && downloadInfo.edition === 'base') as DownloadInfo;
   } else {
-    const distro = distroId.match(knownDistroRegex)!.groups!.name;
+    let distro = distroId.match(knownDistroRegex)!.groups!.name;
+    if (distro.match(/rhel7[0-9]/)) distro = 'rhel70';
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
         downloadInfo.target === distro && downloadInfo.edition === 'targeted') as DownloadInfo;
