@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@mongosh/shell-api": "^0.6.1",
-    "mongodb-ace-autocompleter": "^0.4.8",
+    "mongodb-ace-autocompleter": "^0.4.14",
     "semver": "^7.3.2"
   }
 }

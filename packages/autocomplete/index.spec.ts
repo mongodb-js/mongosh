@@ -1,4 +1,4 @@
-import completer from './';
+import completer, { BASE_COMPLETIONS } from './';
 import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
@@ -118,6 +118,25 @@ describe('completer.completer', () => {
   });
 
   context('datalake features', () => {
+    let origBaseCompletions: any[];
+    beforeEach(() => {
+      // Undo https://github.com/mongodb-js/ace-autocompleter/pull/65 for testing
+      // because it's the only DataLake-only feature.
+      origBaseCompletions = [...BASE_COMPLETIONS];
+      BASE_COMPLETIONS.push({
+        name: '$sql',
+        value: '$sql',
+        label: '$sql',
+        score: 1,
+        env: [ 'adl' ],
+        meta: 'stage',
+        version: '4.0.0'
+      });
+    });
+    afterEach(() => {
+      BASE_COMPLETIONS.splice(0, BASE_COMPLETIONS.length, ...origBaseCompletions);
+    });
+
     it('includes them when not connected', () => {
       const i = 'db.shipwrecks.aggregate([ { $sq';
       expect(completer(noParams, i)).to.deep.equal([
