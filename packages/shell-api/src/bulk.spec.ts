@@ -46,10 +46,7 @@ describe('Bulk API', () => {
     describe('Metadata', () => {
       describe('toShellResult', () => {
         const mongo = sinon.spy();
-        const inner = {
-          s: { batches: [1, 2, 3], currentInsertBatch: {} as any }
-        } as any;
-        const b = new Bulk(mongo, inner);
+        const b = new Bulk(mongo, {} as any);
         it('value', async() => {
           expect((await toShellResult(b)).printable).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
         });
@@ -87,7 +84,9 @@ describe('Bulk API', () => {
             const db = internalState.currentDb;
             collection = new Collection(db._mongo, db, 'coll1');
             innerStub = stubInterface<any>();
-            innerStub.s = { batches: [1, 2, 3], currentInsertBatch: 4, currentBatch: 4 };
+            innerStub.batches = [{
+              originalZeroIndex: 0
+            }];
             bulk = new Bulk(collection, innerStub, t === 'ordered');
           });
           describe('insert', () => {
@@ -123,13 +122,7 @@ describe('Bulk API', () => {
             it('counts current batches', () => {
               const bulk2 = new Bulk({} as any, {
                 insert: () => {},
-                s: {
-                  batches: [],
-                  currentInsertBatch: {} as any,
-                  currentUpdateBatch: {} as any,
-                  currentRemoveBatch: {} as any,
-                  currentBatch: {} as any
-                }
+                batches: []
               } as any,
               t === 'ordered'
               ).insert({}).insert({});
@@ -179,7 +172,6 @@ describe('Bulk API', () => {
                 )
               );
               expect(bulk._executed).to.equal(true);
-              expect(bulk._batches).to.deep.equal([1, 2, 3, 4]);
             });
             it('throws if innerBulk.execute rejects', async() => {
               const expectedError = new Error();
@@ -192,7 +184,7 @@ describe('Bulk API', () => {
           describe('getOperations', () => {
             it('returns batches', () => {
               bulk._executed = true;
-              bulk._batches = [
+              (bulk._serviceProviderBulkOp as any).batches = [
                 {
                   originalZeroIndex: 1,
                   batchType: 1,
@@ -281,7 +273,7 @@ describe('Bulk API', () => {
       let bulkFindOp: BulkFindOp;
       beforeEach(() => {
         innerStub = stubInterface<any>();
-        innerStub.s = { batches: [1, 2, 3, 4] };
+        innerStub.batches = [{ originalZeroIndex: 0 }];
         bulk = stubInterface<Bulk>();
         bulk._batchCounts = {
           nRemoveOps: 0, nInsertOps: 0, nUpdateOps: 0
