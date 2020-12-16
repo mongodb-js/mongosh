@@ -231,9 +231,9 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
-    override fun withReadConcern(v: String): Cursor {
+    override fun withReadConcern(v: Value): Cursor {
         checkQueryNotExecuted()
-        helper = helper.readConcern(v, null)
+        helper = helper.readConcern(v)
         return this
     }
 

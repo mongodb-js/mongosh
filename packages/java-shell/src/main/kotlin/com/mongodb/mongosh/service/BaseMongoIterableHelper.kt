@@ -1,14 +1,13 @@
 package com.mongodb.mongosh.service
 
-import com.mongodb.CursorType
-import com.mongodb.ReadPreference
-import com.mongodb.TagSet
+import com.mongodb.*
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.CountOptions
 import com.mongodb.mongosh.MongoShellConverter
+import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.Value
 
@@ -49,7 +48,7 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
     open fun tailable(): Unit = throw NotImplementedError("tailable is not supported")
     open fun explain(verbosity: String?): Any? = throw NotImplementedError("explain is not supported")
     open fun readPrev(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readPrev is not supported")
-    open fun readConcern(v: String, tags: List<TagSet>?): BaseMongoIterableHelper<*> = throw NotImplementedError("readConcern is not supported")
+    open fun readConcern(v: Value): BaseMongoIterableHelper<*> = throw NotImplementedError("readConcern is not supported")
 
     protected fun set(key: String, value: Any?) {
         options[key] = value
@@ -90,6 +89,15 @@ internal class AggregateIterableHelper(iterable: AggregateIterable<*>,
         check(createOptions != null) { "createOptions were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
+        val newCreateOptions = createOptions.copy(db = newDb)
+        val newIterable = aggregate(options, newCreateOptions)
+        return AggregateIterableHelper(newIterable, converter, options, newCreateOptions)
+    }
+
+    override fun readConcern(v: Value): AggregateIterableHelper {
+        check(createOptions != null) { "createOptions were not saved" }
+        if (!v.hasMembers()) throw IllegalArgumentException("document was expected. Got $v")
+        val newDb = readConcernConverter(createOptions.db, (converter.toJava(v) as DocumentResult).value).getOrThrow()
         val newCreateOptions = createOptions.copy(db = newDb)
         val newIterable = aggregate(options, newCreateOptions)
         return AggregateIterableHelper(newIterable, converter, options, newCreateOptions)
@@ -137,6 +145,15 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
         check(createOptions != null) { "createOptions were not saved" }
         val newDb = if (tags == null) createOptions.db.withReadPreference(ReadPreference.valueOf(v))
         else createOptions.db.withReadPreference(ReadPreference.valueOf(v, tags))
+        val newCreateOptions = createOptions.copy(db = newDb)
+        val newIterable = find(options, newCreateOptions)
+        return FindIterableHelper(newIterable, converter, options, newCreateOptions)
+    }
+
+    override fun readConcern(v: Value): FindIterableHelper {
+        check(createOptions != null) { "createOptions were not saved" }
+        if (!v.hasMembers()) throw IllegalArgumentException("document was expected. Got $v")
+        val newDb = readConcernConverter(createOptions.db, (converter.toJava(v) as DocumentResult).value).getOrThrow()
         val newCreateOptions = createOptions.copy(db = newDb)
         val newIterable = find(options, newCreateOptions)
         return FindIterableHelper(newIterable, converter, options, newCreateOptions)

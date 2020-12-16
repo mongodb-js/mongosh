@@ -1,1 +1,2 @@
-org.graalvm.polyglot.PolyglotException: Error: Setting readConcern on the cursor is not currently supported. See NODE-2806
+[ { "_id": <ObjectID>, "a": 1 } ]
+java.lang.IllegalArgumentException: 'unknown' is not a valid readConcernLevel
