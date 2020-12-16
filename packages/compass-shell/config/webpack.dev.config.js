@@ -10,7 +10,9 @@ const project = require('./project');
 const config = {
   mode: 'development',
   target: 'electron-renderer',
-  devtool: 'eval-source-map',
+  // Due to inlined source this makes the bundle extremely big and slow,
+  // disabled for testing purposes
+  // devtool: 'eval-source-map',
   entry: {
     index: [
       // Activate HMR for React
