@@ -1,23 +1,12 @@
-import path from 'path';
-import fs from 'fs';
-// eslint-disable-next-line camelcase
-import child_process from 'child_process';
-import crypto from 'crypto';
-import electron from 'electron';
-import worker from 'inline-entry-loader!./worker';
+import { once } from 'events';
+import { spawn } from 'child_process';
 import { createCaller, exposeAll } from './rpc';
 
-function createChildFromSource(src) {
-  const tmpFile = path.resolve(
-    (electron.app || electron.remote.app).getPath('temp'),
-    `worker-runtime-${crypto.randomBytes(32).toString('hex')}`
-  );
+import childSrc from 'inline-entry-loader!./child';
 
-  // eslint-disable-next-line no-sync
-  fs.writeFileSync(tmpFile, src, 'utf8');
-
-  const childProcess = child_process.spawn(process.execPath, [tmpFile], {
-    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+async function createChildFromSource(src) {
+  const childProcess = spawn(process.execPath, [], {
+    stdio: ['pipe', 'inherit', 'inherit', 'ipc'],
     env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
     /**
      * This would be awesome, but only supported since node 12.16.0, compass
@@ -27,22 +16,34 @@ function createChildFromSource(src) {
     serialization: 'advanced',
   });
 
+  childProcess.stdin.write(src);
+  childProcess.stdin.end();
+
+  // First message is a "ready" message
+  await once(childProcess, 'message');
+
   return childProcess;
 }
 
 class WorkerRuntime {
   constructor(uri, options, cliOptions) {
     this.initOptions = { uri, options, cliOptions };
+    // Creating worker is an async process, we want to "lock"
+    // evaluate/getCompletions methods until worker is initiated from the get-go
+    this.initPromiseResolve = null;
+    this.initPromise = new Promise((resolve) => {
+      this.initPromiseResolve = resolve;
+    });
     this.evaluationListener = null;
     this.cancelEvaluate = () => {};
     this.initWorker();
   }
 
-  initWorker() {
+  async initWorker() {
     const { uri, options, cliOptions } = this.initOptions;
-    this.childProcess = createChildFromSource(worker);
+    this.childProcess = await createChildFromSource(childSrc);
     this.worker = createCaller(
-      ['init', 'evaluate', 'getCompletions'],
+      ['init', 'evaluate', 'getCompletions', 'ping'],
       this.childProcess
     );
     this.workerEvaluationListener = exposeAll(
@@ -68,7 +69,7 @@ class WorkerRuntime {
       },
       this.childProcess
     );
-    this.initPromise = this.worker.init(uri, options, cliOptions);
+    this.initPromiseResolve(await this.worker.init(uri, options, cliOptions));
   }
 
   async evaluate(code) {
@@ -108,18 +109,23 @@ class WorkerRuntime {
     return prev;
   }
 
+  interruptWorker() {
+    this.childProcess.kill('SIGINT');
+  }
+
   terminateWorker() {
     this.cancelEvaluate();
     this.childProcess.kill();
+    this.childProcess = null;
   }
 
-  restart() {
+  restartWorker() {
     this.terminateWorker();
     this.initWorker();
   }
 
   waitForCancelEvaluate() {
-    return new Promise((resolve, reject) => {
+    return new Promise((_resolve, reject) => {
       this.cancelEvaluate = () => {
         reject(new Error('Script execution was interrupted'));
       };

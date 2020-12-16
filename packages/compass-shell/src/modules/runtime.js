@@ -69,7 +69,7 @@ function reduceSetupRuntime(state, action) {
   const newRuntime = new WorkerRuntime(url, options);
 
   // TODO: For testing purposes
-  window.restart = newRuntime.restart.bind(newRuntime);
+  window.shellRuntime = newRuntime;
 
   return {
     error: action.error,

@@ -1,3 +1,4 @@
+import { parentPort } from 'worker_threads';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
@@ -8,7 +9,7 @@ let runtime = null;
 
 const evaluationListener = createCaller(
   ['onPrint', 'onPrompt', 'toggleTelemetry'],
-  process
+  parentPort
 );
 
 async function init(uri, options, cliOptions) {
@@ -56,4 +57,8 @@ async function getCompletions(code) {
 
 const worker = { init, evaluate, getCompletions };
 
-exposeAll(worker, process);
+exposeAll(worker, parentPort);
+
+process.nextTick(() => {
+  parentPort.postMessage('ready');
+});
