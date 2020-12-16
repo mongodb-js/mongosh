@@ -167,7 +167,7 @@ class CliRepl {
    */
   isPasswordMissing(driverOptions: MongoClientOptions): boolean {
     return !!(driverOptions.auth &&
-      driverOptions.auth.user &&
+      driverOptions.auth.username &&
       !driverOptions.auth.password);
   }
 

@@ -54,7 +54,9 @@ import {
   InsertOneResult,
   UpdateResult
 } from './index';
-import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import {
+  CommonErrors, MongoshInvalidInputError, MongoshRuntimeError, MongoshInternalError
+} from '@mongosh/errors';
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
@@ -771,7 +773,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  async update(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult> {
+  async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult> {
     printDeprecationWarning(
       'Collection.update() is deprecated. Use updateOne, updateMany or bulkWrite.',
       this._mongo._internalState.context.print
@@ -914,7 +916,7 @@ export default class Collection extends ShellApiClass {
   async createIndexes(
     keyPatterns: Document[],
     options: CreateIndexesOptions = {}
-  ): Promise<Document> {
+  ): Promise<string[]> {
     assertArgsDefined(keyPatterns);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError(
@@ -929,7 +931,8 @@ export default class Collection extends ShellApiClass {
 
     this._emitCollectionApiCall('createIndexes', { specs });
 
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, specs, { ...this._database._baseOptions, ...options });
+    return await this._mongo._serviceProvider.createIndexes(
+      this._database._name, this._name, specs, { ...this._database._baseOptions, ...options });
   }
 
   /**
@@ -947,7 +950,7 @@ export default class Collection extends ShellApiClass {
   async createIndex(
     keys: Document,
     options: CreateIndexesOptions = {}
-  ): Promise<Document> {
+  ): Promise<string> {
     assertArgsDefined(keys);
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError(
@@ -958,7 +961,13 @@ export default class Collection extends ShellApiClass {
     this._emitCollectionApiCall('createIndex', { keys, options });
 
     const spec = { key: keys, ...options }; // keep options for java
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], { ...this._database._baseOptions, ...options });
+    const names = await this._mongo._serviceProvider.createIndexes(
+      this._database._name, this._name, [spec], { ...this._database._baseOptions, ...options });
+    if (!Array.isArray(names) || names.length !== 1) {
+      throw new MongoshInternalError(
+        `Expected createIndexes() to return array of length 1, saw ${names}`);
+    }
+    return names[0];
   }
 
   /**

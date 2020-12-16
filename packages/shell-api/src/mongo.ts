@@ -12,11 +12,12 @@ import {
   topologies
 } from './decorators';
 import {
+  MongoClientOptions,
   ChangeStreamOptions,
   Document,
   generateUri,
   ReadPreference,
-  ReadPreferenceMode,
+  ReadPreferenceModeId,
   ReplPlatform,
   ServiceProvider,
   TransactionOptions
@@ -40,18 +41,18 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _options: Document;
+  private _options: MongoClientOptions;
 
   constructor(
     internalState: ShellInternalState,
     uri = 'mongodb://localhost/',
-    fleOptions?: any
+    mongoClientOptions?: MongoClientOptions
   ) {
     super();
     this._internalState = internalState;
     this._databases = {};
     this._uri = generateUri({ _: [uri] });
-    this._options = fleOptions;
+    this._options = mongoClientOptions ?? {};
     this._serviceProvider = this._internalState.initialServiceProvider;
   }
 
@@ -161,7 +162,7 @@ export default class Mongo extends ShellApiClass {
     return await this._serviceProvider.close(force);
   }
 
-  getReadPrefMode(): ReadPreferenceMode {
+  getReadPrefMode(): ReadPreferenceModeId {
     return this._serviceProvider.getReadPreference().mode;
   }
 
