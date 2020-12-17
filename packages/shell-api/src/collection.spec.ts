@@ -395,32 +395,32 @@ describe('Collection', () => {
 
       it('calls deleteOne if justOne is passed as an argument', async() => {
         expect((await collection.remove({}, true)).deletedCount).to.equal(1);
-        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, { justOne: true });
+        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, {});
         expect(serviceProvider.deleteMany).to.not.have.been.called;
       });
 
       it('calls deleteOne if justOne is passed as an option', async() => {
         expect((await collection.remove({}, { justOne: true })).deletedCount).to.equal(1);
-        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, { justOne: true });
+        expect(serviceProvider.deleteOne).to.have.been.calledWith('db1', 'coll1', {}, {});
         expect(serviceProvider.deleteMany).to.not.have.been.called;
       });
 
       it('calls deleteMany if !justOne is passed as an argument', async() => {
         expect((await collection.remove({}, false)).deletedCount).to.equal(2);
         expect(serviceProvider.deleteOne).to.not.have.been.called;
-        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, {});
       });
 
       it('calls deleteMany if !justOne is passed as an option', async() => {
         expect((await collection.remove({}, { justOne: false })).deletedCount).to.equal(2);
         expect(serviceProvider.deleteOne).to.not.have.been.called;
-        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, {});
       });
 
       it('calls deleteMany by default', async() => {
         expect((await collection.remove({})).deletedCount).to.equal(2);
         expect(serviceProvider.deleteOne).to.not.have.been.called;
-        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, { justOne: false });
+        expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, {});
       });
     });
 

@@ -709,9 +709,11 @@ export default class Collection extends ShellApiClass {
     );
     assertArgsDefined(query);
     const removeOptions = processRemoveOptions(options);
+    const method = removeOptions.justOne ? 'deleteOne' : 'deleteMany';
+    delete removeOptions.justOne;
 
     this._emitCollectionApiCall('remove', { query, removeOptions });
-    const result = await this._mongo._serviceProvider[removeOptions.justOne ? 'deleteOne' : 'deleteMany'](
+    const result = await this._mongo._serviceProvider[method](
       this._database._name,
       this._name,
       query,
