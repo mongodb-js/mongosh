@@ -6,7 +6,10 @@ import rimraf from 'rimraf';
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
+import chaiAsPromised from 'chai-as-promised';
+
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
 // MongoshNodeRepl performs no I/O, so it's safe to assume that all operations
 // finish within a single nextTick/microtask cycle. We can use `setImmediate()`

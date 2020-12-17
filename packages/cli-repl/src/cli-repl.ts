@@ -63,6 +63,13 @@ class CliRepl {
       .on('update-config', (config: UserConfig) =>
         this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
 
+    // We can't really do anything meaningfull if the output stream is broken or
+    // closed. To avoid throwing an error while writing to it, let's send it to
+    // the telemetry instead
+    this.output.on('error', (err: Error) => {
+      this.bus.emit('mongosh:error', err);
+    });
+
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
       nodeReplOptions: options.nodeReplOptions ?? {
