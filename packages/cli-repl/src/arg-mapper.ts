@@ -35,7 +35,7 @@ function isExistingMappingKey(key: string, options: CliOptions): key is keyof ty
  *
  * @returns {} The driver options.
  */
-function mapCliToDriver(options: CliOptions): MongoClientOptions {
+async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> {
   // @note: Durran: TS wasn't liking shorter reduce function here.
   //   come back an revisit to refactor.
   const nodeOptions = {};
