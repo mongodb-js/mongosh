@@ -17,6 +17,7 @@ import clr, { StyleDefinition } from './clr';
 import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { promisify } from 'util';
 import askpassword from 'askpassword';
+import { once } from 'events';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -297,6 +298,9 @@ class MongoshNodeRepl {
       this._runtimeState = null;
       rs.repl.close();
       await rs.internalState.close(true);
+      if (this.output.writableLength > 0) {
+        await once(this.output, 'drain');
+      }
     }
   }
 }
