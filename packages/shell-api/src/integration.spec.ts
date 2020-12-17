@@ -1111,6 +1111,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('mapReduce', () => {
+      skipIfServerVersion(testServer, '< 4.4');
+
       let mapFn;
       let reduceFn;
       beforeEach(async() => {
