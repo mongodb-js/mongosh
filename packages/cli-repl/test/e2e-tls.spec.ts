@@ -76,9 +76,7 @@ describe('e2e TLS', () => {
       shell.assertContainsOutput('unable to verify the first certificate');
     });
 
-    // TODO: unskip this test when the --tlsCRLFile option is supported
-    // eslint-disable-next-line mocha/no-skipped-tests
-    xit('fails when providing a CRL including the servers cert', async() => {
+    it('fails when providing a CRL including the servers cert', async() => {
       const shell = TestShell.start({
         args: [
           `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
@@ -87,7 +85,7 @@ describe('e2e TLS', () => {
       });
       const result = await waitForPromptOrExit(shell);
       expect(result.state).to.equal('exit');
-      shell.assertContainsOutput('self signed certificate');
+      shell.assertContainsOutput('certificate revoked');
     });
   });
 
