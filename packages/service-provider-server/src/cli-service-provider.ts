@@ -262,30 +262,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Db} The database.
    */
   private db(name: string, dbOptions: DbOptions = {}): Db {
-    // Usually, we'd let the driver do the caching of the Database objects, but
-    // due to our particular needs, we need to cache DBs both by name *and* by
-    // options (so that subsequent calls to this method have their db options
-    // respected, instead of receiving the instance that was cached only by name
-    // and might have been configured with different options, e.g. read/write
-    // concern, read preference, etc.).
-    // We still need caching, though, since otherwise every call to
-    // this method creates a new driver Database object that registers itself
-    // and effectively cannot be garbage collected on its own, which would
-    // lead to memory leaks. We thus maintain our own cache.
     const key = `${name}-${JSON.stringify(dbOptions)}`;
     const dbcache = this.getDBCache();
     const cached = dbcache.get(key);
     if (cached) {
       return cached;
     }
-    const optionsWithForceNewInstace: DbOptions = {
-      ...dbOptions,
-
-      // Ensure that we actually get a fresh database instance from the driver.
-      returnNonCachedInstance: true
-    } as any; // TODO: returnNonCachedInstance supported? see NODE-2931
-
-    const db = this.mongoClient.db(name, optionsWithForceNewInstace);
+    const db = this.mongoClient.db(name, dbOptions);
     dbcache.set(key, db);
     return db;
   }
