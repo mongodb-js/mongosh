@@ -6,9 +6,10 @@ import {
   returnsPromise,
   returnType,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  serverVersions
 } from './decorators';
-import { asPrintable } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import {
   validateExplainableVerbosity,
   processRemoveOptions,
@@ -138,6 +139,7 @@ export default class Explainable extends ShellApiClass {
   }
 
   @returnsPromise
+  @serverVersions(['4.4.0', ServerVersions.latest])
   async mapReduce(
     map: Function | string,
     reduce: Function | string,

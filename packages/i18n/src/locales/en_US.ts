@@ -1207,6 +1207,36 @@ const translations: Catalog = {
               description: 'Returns information on the query plan.',
               example: 'db.coll.explain().find()'
             },
+            count: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.count().',
+              example: 'db.coll.explain().count()'
+            },
+            remove: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.remove().',
+              example: 'db.coll.explain().remove({})'
+            },
+            update: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.update().',
+              example: 'db.coll.explain().update({}, { $inc: ${ a: 1 } })'
+            },
+            distinct: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.distinct().',
+              example: 'db.coll.explain().distinct("_id")'
+            },
+            mapReduce: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.mapReduce().',
+              example: 'db.coll.explain().mapReduce(map, reduce, options)'
+            },
+            findAndModify: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.findAndModify().',
+              example: 'db.coll.explain().findAndModify({ query: { ... }, update: { ... } })'
+            },
             getCollection: {
               link: '',
               description: 'Returns the explainable collection.',
