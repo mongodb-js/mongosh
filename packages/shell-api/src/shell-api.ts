@@ -15,6 +15,8 @@ import { assertArgsDefined } from './helpers';
 import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
+import { promisify } from 'util';
+const sleep = promisify(setTimeout);
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -121,5 +123,10 @@ export default class ShellApi extends ShellApiClass {
       throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', CommonErrors.NotImplemented);
     }
     return await evaluationListener.onPrompt('Enter password', 'password');
+  }
+
+  @returnsPromise
+  async sleep(ms: number): Promise<void> {
+    return await sleep(ms);
   }
 }

@@ -330,5 +330,13 @@ describe('ShellApi', () => {
         }
       });
     });
+    describe('sleep', () => {
+      it('suspends execution', async() => {
+        const now = Date.now();
+        await internalState.context.sleep(50);
+        const then = Date.now();
+        expect(then - now).to.be.greaterThan(40);
+      });
+    });
   });
 });
