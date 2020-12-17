@@ -16,7 +16,6 @@ import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
 import { promisify } from 'util';
-const sleep = promisify(setTimeout);
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -127,6 +126,6 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   async sleep(ms: number): Promise<void> {
-    return await sleep(ms);
+    return await promisify(setTimeout)(ms);
   }
 }
