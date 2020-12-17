@@ -267,10 +267,31 @@ describe('MongoshNodeRepl', () => {
       expect(code).to.equal(0);
     });
 
-    it('autocompletes', async() => {
-      input.write('db.coll.\u0009\u0009'); // U+0009 is TAB
-      await tick();
-      expect(output).to.include('db.coll.updateOne');
+    context('autocompletion', () => {
+      it('autocompletes collection methods', async() => {
+        input.write('db.coll.\u0009\u0009'); // U+0009 is TAB
+        await tick();
+        expect(output).to.include('db.coll.updateOne');
+      });
+      it('autocompletes shell-api methods (once)', async() => {
+        input.write('slee\u0009\u0009'); // U+0009 is TAB
+        await tick();
+        expect(output).to.include('sleep');
+        expect(output).to.not.match(/sleep\s+sleep/);
+      });
+      it('autocompletes async shell api methods', async() => {
+        input.write('db.coll.find().\u0009\u0009'); // U+0009 is TAB
+        await tick();
+        expect(output).to.include('db.coll.find().close');
+      });
+      it('autocompletes local variables', async() => {
+        input.write('let somelongvariable = 0\n');
+        await tick();
+        output = '';
+        input.write('somelong\u0009\u0009'); // U+0009 is TAB
+        await tick();
+        expect(output).to.include('somelongvariable');
+      });
     });
   });
 
