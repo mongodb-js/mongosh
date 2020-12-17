@@ -274,10 +274,10 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.include('db.coll.updateOne');
       });
       it('autocompletes shell-api methods (once)', async() => {
-        input.write('slee\u0009\u0009'); // U+0009 is TAB
+        input.write('vers\u0009\u0009'); // U+0009 is TAB
         await tick();
-        expect(output).to.include('sleep');
-        expect(output).to.not.match(/sleep\s+sleep/);
+        expect(output).to.include('version');
+        expect(output).to.not.match(/version\s+version/);
       });
       it('autocompletes async shell api methods', async() => {
         input.write('db.coll.find().\u0009\u0009'); // U+0009 is TAB
