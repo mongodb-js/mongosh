@@ -197,7 +197,7 @@ export default class Bulk extends ShellApiClass {
 
     return {
       ...this._batchCounts,
-      nBatches: batches < 0 ? 'unknown' : batches
+      nBatches: batches
     };
   }
 

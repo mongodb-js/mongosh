@@ -1323,7 +1323,7 @@ describe('Collection', () => {
       });
 
       it('returns Bulk wrapping whatever serviceProvider returns', async() => {
-        const expectedResult = { s: { batches: [] } } as any;
+        const expectedResult = { batches: [] } as any;
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeUnorderedBulkOp();
         expect((await toShellResult(result)).type).to.equal('Bulk');
@@ -1350,7 +1350,7 @@ describe('Collection', () => {
       });
 
       it('returns Bulk wrapped in whatever serviceProvider returns', async() => {
-        const expectedResult = { s: { batches: [] } } as any;
+        const expectedResult = { batches: [] } as any;
         serviceProvider.initializeBulkOp.resolves(expectedResult);
         const result = await collection.initializeOrderedBulkOp();
         expect((await toShellResult(result)).type).to.equal('Bulk');

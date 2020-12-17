@@ -1,7 +1,8 @@
 import { CommonErrors } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { fail } from 'assert';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
 import { EventEmitter } from 'events';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
@@ -11,6 +12,7 @@ import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
 import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
+chai.use(sinonChai);
 
 describe('Bulk API', () => {
   describe('Bulk', () => {
@@ -46,7 +48,9 @@ describe('Bulk API', () => {
     describe('Metadata', () => {
       describe('toShellResult', () => {
         const mongo = sinon.spy();
-        const b = new Bulk(mongo, {} as any);
+        const b = new Bulk(mongo, {
+          batches: [1, 2, 3, 4]
+        } as any);
         it('value', async() => {
           expect((await toShellResult(b)).printable).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
         });
@@ -84,9 +88,12 @@ describe('Bulk API', () => {
             const db = internalState.currentDb;
             collection = new Collection(db._mongo, db, 'coll1');
             innerStub = stubInterface<any>();
-            innerStub.batches = [{
-              originalZeroIndex: 0
-            }];
+            innerStub.batches = [
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 }
+            ];
             bulk = new Bulk(collection, innerStub, t === 'ordered');
           });
           describe('insert', () => {
@@ -111,23 +118,6 @@ describe('Bulk API', () => {
             it('returns the batches length + currentInsert/Update/RemoveBatch?', () => {
               expect(bulk.tojson()).to.deep.equal({
                 nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4
-              });
-            });
-            it('returns unknown if batches cannot be counted', () => {
-              const bulk2 = new Bulk({} as any, { insert: () => {} } as any, t === 'ordered').insert({}).insert({});
-              expect(bulk2.tojson()).to.deep.equal({
-                nInsertOps: 2, nUpdateOps: 0, nRemoveOps: 0, nBatches: 'unknown'
-              });
-            });
-            it('counts current batches', () => {
-              const bulk2 = new Bulk({} as any, {
-                insert: () => {},
-                batches: []
-              } as any,
-              t === 'ordered'
-              ).insert({}).insert({});
-              expect(bulk2.tojson()).to.deep.equal({
-                nInsertOps: 2, nUpdateOps: 0, nRemoveOps: 0, nBatches: t === 'ordered' ? 1 : 3
               });
             });
           });
