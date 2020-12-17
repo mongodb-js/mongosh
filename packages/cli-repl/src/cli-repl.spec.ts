@@ -38,6 +38,24 @@ describe('CliRepl', () => {
     };
   });
 
+  context('with a broken output stream', () => {
+    beforeEach(async() => {
+      cliReplOptions.shellCliOptions = { nodb: true };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      cliReplOptions.output.end();
+    });
+
+    it("doesn't throw errors", (done) => {
+      const replCall = async() => {
+        input.write('21 + 13\n');
+        await waitEval(cliRepl.bus);
+      };
+
+      expect(replCall()).to.be.fulfilled.and.notify(done);
+    });
+  });
+
   context('with nodb', () => {
     beforeEach(() => {
       cliReplOptions.shellCliOptions = { nodb: true };
