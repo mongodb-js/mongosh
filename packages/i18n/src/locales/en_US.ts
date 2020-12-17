@@ -128,6 +128,11 @@ const translations: Catalog = {
             passwordPrompt: {
               description: 'Prompts the user for a password',
               link: 'https://docs.mongodb.com/manual/reference/method/passwordPrompt/'
+            },
+            sleep: {
+              description: 'Sleep for the specified number of milliseconds',
+              link: 'https://docs.mongodb.com/manual/reference/method/sleep/',
+              example: 'sleep(5000)'
             }
           }
         },
