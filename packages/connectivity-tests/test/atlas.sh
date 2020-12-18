@@ -15,7 +15,12 @@ if
     [[ -z "${DATA_LAKE_HOSTNAME}" ]]
 then
   echo "Atlas credentials are not provided"
-  exit 0
+
+  if [[ -z "${IS_CI}" ]] || [[ -z "${CI}" ]]; then
+    exit 1
+  else
+    exit 0
+  fi
 fi
 
 FAILED=no
