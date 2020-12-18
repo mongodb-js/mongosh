@@ -168,8 +168,8 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  tryNext(): Promise<Document | null> { // TODO: tryNext private, see NODE-2952
-    return (this._cursor as any).tryNext();
+  tryNext(): Promise<Document | null> {
+    return this._cursor.tryNext();
   }
 
   async* [Symbol.asyncIterator]() {

@@ -57,7 +57,7 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnsPromise
   tryNext(): Promise<Document | null> {
-    return (this._cursor as any).tryNext() as any; // TODO: tryNext private, see NODE-2952
+    return this._cursor.tryNext();
   }
 
   async* [Symbol.asyncIterator]() {

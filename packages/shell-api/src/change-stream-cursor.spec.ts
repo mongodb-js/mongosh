@@ -73,13 +73,12 @@ describe('ChangeStreamCursor', () => {
       await cursor.close();
       expect(spCursor.close.calledWith()).to.equal(true);
     });
-    it('calls spCursor.cursor.tryNext with arguments', async() => {
-      // TODO: tryNext private, see NODE-2952
+    it('calls spCursor.tryNext with arguments', async() => {
       const result = { doc: 1 };
       const tryNextSpy = sinon.stub();
       tryNextSpy.resolves(result);
       const cursor2 = new ChangeStreamCursor({
-        cursor: { tryNext: tryNextSpy }
+        tryNext: tryNextSpy
       } as any, 'source', {
         _internalState: { context: { print: warnSpy } }
       } as Mongo);
