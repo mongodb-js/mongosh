@@ -13,8 +13,7 @@ import type {
   AggregationCursor as SPAggregationCursor,
   FindAndModifyOptions,
   DeleteOptions,
-  MapReduceOptions
-  FindAndModifyOptions,
+  MapReduceOptions,
   ChangeStream
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
