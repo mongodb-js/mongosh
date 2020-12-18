@@ -27,17 +27,13 @@ const MAPPINGS = {
 };
 
 async function readCrlFileContent(crlFilePath: string): Promise<string | Buffer> {
-  let error: Error | undefined = undefined;
   try {
-    if ((await fs.stat(crlFilePath)).isFile()) {
-      return await fs.readFile(crlFilePath, { encoding: 'utf-8' });
-    }
-  } catch (e) {
-    error = e;
+    return await fs.readFile(crlFilePath, { encoding: 'utf-8' });
+  } catch (error) {
+    throw new MongoshInvalidInputError(
+      `The file specified by --tlsCRLFile does not exist or cannot be read${error ? ': ' + error.message : ''}`
+    );
   }
-  throw new MongoshInvalidInputError(
-    `The file specified by --tlsCRLFile does not exist or cannot be read${error ? ': ' + error.message : ''}`
-  );
 }
 
 function isExistingMappingKey(key: string, options: CliOptions): key is keyof typeof MAPPINGS {
