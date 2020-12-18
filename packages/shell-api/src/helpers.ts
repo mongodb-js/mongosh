@@ -18,7 +18,8 @@ import type {
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
-import Database from './database';
+import type Database from './database';
+import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 
@@ -573,4 +574,19 @@ export function processMapReduceOptions(optionsOrOutString: MapReduceShellOption
   } else {
     return optionsOrOutString;
   }
+}
+
+export async function setHideIndex(coll: Collection, index: string | Document, hidden: boolean): Promise<Document> {
+  const cmd = typeof index === 'string' ? {
+    name: index, hidden
+  } : {
+    keyPattern: index, hidden
+  };
+  return await coll._mongo._serviceProvider.runCommandWithCheck(
+    coll._database._name, {
+      collMod: coll._name,
+      index: cmd
+    },
+    coll._database._baseOptions
+  );
 }
