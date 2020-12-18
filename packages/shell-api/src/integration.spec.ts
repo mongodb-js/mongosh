@@ -493,6 +493,42 @@ describe('Shell API (integration)', function() {
       });
     });
 
+    describe('#(un)hideIndex', () => {
+      skipIfServerVersion(testServer, '< 4.4');
+
+      beforeEach(async() => {
+        await serviceProvider.createCollection(dbName, collectionName);
+        await collection.insertOne({ a: 1 });
+        await collection.createIndex({ a: 1 }, { name: 'a-1' });
+      });
+
+      for (const { description, index } of [
+        { description: 'by name', index: 'a-1' },
+        { description: 'by key pattern', index: { a: 1 } }
+      ]) {
+        // eslint-disable-next-line no-loop-func
+        it(`hides/unhides indexes ${description}`, async() => {
+          const indexesBefore = await collection.getIndexes();
+          expect(indexesBefore).to.have.lengthOf(2);
+          expect(indexesBefore.find(ix => ix.key.a).hidden).to.equal(undefined);
+
+          const hideResult = await collection.hideIndex(index);
+          expect(hideResult.hidden_old).to.equal(false);
+          expect(hideResult.hidden_new).to.equal(true);
+
+          const indexesWithHidden = await collection.getIndexes();
+          expect(indexesWithHidden.find(ix => ix.key.a).hidden).to.equal(true);
+
+          const unhideResult = await collection.unhideIndex(index);
+          expect(unhideResult.hidden_old).to.equal(true);
+          expect(unhideResult.hidden_new).to.equal(false);
+
+          const indexesAfter = await collection.getIndexes();
+          expect(indexesAfter.find(ix => ix.key.a).hidden).to.equal(undefined);
+        });
+      }
+    });
+
     describe('totalIndexSize', () => {
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);

@@ -1607,4 +1607,33 @@ export default class Collection extends ShellApiClass {
     this._mongo._internalState.currentCursor = cursor;
     return cursor;
   }
+
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  @returnsPromise
+  async hideIndex(index: string | Document): Promise<Document> {
+    this._emitCollectionApiCall('hideIndex');
+    return this._setHideIndex(index, true);
+  }
+
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  @returnsPromise
+  async unhideIndex(index: string | Document): Promise<Document> {
+    this._emitCollectionApiCall('unhideIndex');
+    return this._setHideIndex(index, false);
+  }
+
+  async _setHideIndex(index: string | Document, hidden: boolean): Promise<Document> {
+    const cmd = typeof index === 'string' ? {
+      name: index, hidden
+    } : {
+      keyPattern: index, hidden
+    };
+    return await this._mongo._serviceProvider.runCommandWithCheck(
+      this._database._name, {
+        collMod: this._name,
+        index: cmd
+      },
+      this._database._baseOptions
+    );
+  }
 }
