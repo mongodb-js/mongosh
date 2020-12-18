@@ -449,6 +449,9 @@ export function skipIfServerVersion(server: MongodSetup, semverCondition: string
  * (configured as environment variable or the currently installed one)
  * matches a specific semver version.
  * 
+ * IMPORTANT: As the environment variable might be `4.0.x` it will be converted
+ * to `4.0.0` to be able to do a semver comparison!
+ * 
  * @param semverCondition Semver condition
  */
 export function skipIfEnvServerVersion(semverCondition: string): void {
@@ -456,6 +459,10 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
     let testServerVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
     if (!testServerVersion) {
       testServerVersion = await getInstalledMongodVersion();
+    } else {
+      testServerVersion = testServerVersion.split('.')
+        .map(num => /[0-9]+/.test(num) ? num : '0')
+        .join('.');
     }
     skipIfVersion(this, testServerVersion, semverCondition);
   });

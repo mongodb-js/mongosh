@@ -37,18 +37,28 @@ describe('e2e TLS', () => {
 
   context('for server < 4.2', () => {
     skipIfEnvServerVersion('>= 4.2');
-    registerTlsTests('--sslMode', '--sslPEMKeyFile', '--sslCAFile');
+    registerTlsTests({
+      tlsMode: '--sslMode',
+      tlsModeValue: 'requireSSL',
+      tlsCertificateFile: '--sslPEMKeyFile',
+      tlsCaFile: '--sslCAFile'
+    });
   });
   context('for server >= 4.2', () => {
     skipIfEnvServerVersion('< 4.2');
-    registerTlsTests('--tlsMode', '--tlsCertificateKeyFile', '--tlsCAFile');
+    registerTlsTests({
+      tlsMode: '--tlsMode',
+      tlsModeValue: 'requireTLS',
+      tlsCertificateFile: '--tlsCertificateKeyFile',
+      tlsCaFile: '--tlsCAFile'
+    });
   });
 
-  function registerTlsTests(serverTlsModeOption: string, serverTlsCertificateKeyFileOption: string, serverTlsCAFileOption: string) {
+  function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
     context('connecting without client cert', () => {
       const server = startTestServer(
         'not-shared',
-        serverTlsModeOption, 'requireTLS',
+        serverTlsModeOption, serverTlsModeValue,
         serverTlsCertificateKeyFileOption, SERVER_KEY
       );
 
@@ -136,7 +146,7 @@ describe('e2e TLS', () => {
     context('connecting with client cert', () => {
       const server = startTestServer(
         'not-shared',
-        serverTlsModeOption, 'requireTLS',
+        serverTlsModeOption, serverTlsModeValue,
         serverTlsCertificateKeyFileOption, SERVER_KEY,
         serverTlsCAFileOption, CA_CERT
       );
