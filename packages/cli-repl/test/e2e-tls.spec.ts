@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { skipIfEnvServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { TestShell } from './test-shell';
 
 function getCertPath(filename: string): string {
@@ -35,115 +35,126 @@ describe('e2e TLS', () => {
     await TestShell.killall();
   });
 
-  context('connecting without client cert', () => {
-    const server = startTestServer(
-      'not-shared',
-      '--tlsMode', 'requireTLS',
-      '--tlsCertificateKeyFile', SERVER_KEY
-    );
-
-    it('works with matching CA', async() => {
-      const shell = TestShell.start({
-        args: [
-          await server.connectionString(),
-          '--tls', '--tlsCAFile', CA_CERT
-        ]
-      });
-      const result = await waitForPromptOrExit(shell);
-      expect(result.state).to.equal('prompt');
-    });
-
-    it('fails when not using --tls', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
-        ]
-      });
-      const result = await waitForPromptOrExit(shell);
-      expect(result.state).to.equal('exit');
-      shell.assertContainsOutput('MongoServerSelectionError');
-    });
-
-    it('fails with invalid CA', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
-          '--tls', '--tlsCAFile', NON_CA_CERT
-        ]
-      });
-      const result = await waitForPromptOrExit(shell);
-      expect(result.state).to.equal('exit');
-      shell.assertContainsOutput('unable to verify the first certificate');
-    });
-
-    it('fails when providing a CRL including the servers cert', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
-          '--tls', '--tlsCAFile', CA_CERT, '--tlsCRLFile', CRL_INCLUDING_SERVER
-        ]
-      });
-      const result = await waitForPromptOrExit(shell);
-      expect(result.state).to.equal('exit');
-      shell.assertContainsOutput('certificate revoked');
-    });
+  context('for server < 4.2', () => {
+    skipIfEnvServerVersion('>= 4.2');
+    registerTlsTests('--sslMode', '--sslPEMKeyFile', '--sslCAFile');
+  });
+  context('for server >= 4.2', () => {
+    skipIfEnvServerVersion('< 4.2');
+    registerTlsTests('--tlsMode', '--tlsCertificateKeyFile', '--tlsCAFile');
   });
 
-  context('connecting with client cert', () => {
-    const server = startTestServer(
-      'not-shared',
-      '--tlsMode', 'requireTLS',
-      '--tlsCertificateKeyFile', SERVER_KEY,
-      '--tlsCAFile', CA_CERT
-    );
-    const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
+  function registerTlsTests(serverTlsModeOption: string, serverTlsCertificateKeyFileOption: string, serverTlsCAFileOption: string) {
+    context('connecting without client cert', () => {
+      const server = startTestServer(
+        'not-shared',
+        serverTlsModeOption, 'requireTLS',
+        serverTlsCertificateKeyFileOption, SERVER_KEY
+      );
 
-    it('can connect with cert to create user', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
-          '--tls', '--tlsCAFile', CA_CERT,
-          '--tlsCertificateKeyFile', CLIENT_CERT
-        ]
+      it('works with matching CA', async() => {
+        const shell = TestShell.start({
+          args: [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('prompt');
       });
-      const prompt = await waitForPromptOrExit(shell);
-      expect(prompt.state).to.equal('prompt');
-      await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
+
+      it('fails when not using --tls', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('MongoServerSelectionError');
+      });
+
+      it('fails with invalid CA', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsCAFile', NON_CA_CERT
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('unable to verify the first certificate');
+      });
+
+      it('fails when providing a CRL including the servers cert', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsCAFile', CA_CERT, '--tlsCRLFile', CRL_INCLUDING_SERVER
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('certificate revoked');
+      });
+    });
+
+    context('connecting with client cert', () => {
+      const server = startTestServer(
+        'not-shared',
+        serverTlsModeOption, 'requireTLS',
+        serverTlsCertificateKeyFileOption, SERVER_KEY,
+        serverTlsCAFileOption, CA_CERT
+      );
+      const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
+
+      it('can connect with cert to create user', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', CLIENT_CERT
+          ]
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('prompt');
+        await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
         createUser: '${certUser}',
         roles: [
           {role: 'userAdminAnyDatabase', db: 'admin'}
         ]
       })`);
-      shell.assertContainsOutput('{ ok: 1 }');
-    });
-
-    it('works with valid cert', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
-          '--authenticationMechanism', 'MONGODB-X509',
-          '--tls', '--tlsCAFile', CA_CERT,
-          '--tlsCertificateKeyFile', CLIENT_CERT
-        ]
+        shell.assertContainsOutput('{ ok: 1 }');
       });
-      const prompt = await waitForPromptOrExit(shell);
-      expect(prompt.state).to.equal('prompt');
-      await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
-      shell.assertContainsOutput(`user: '${certUser}'`);
-    });
 
-    it('fails with invalid cert', async() => {
-      const shell = TestShell.start({
-        args: [
-          `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
-          '--authenticationMechanism', 'MONGODB-X509',
-          '--tls', '--tlsCAFile', CA_CERT,
-          '--tlsCertificateKeyFile', INVALID_CLIENT_CERT
-        ]
+      it('works with valid cert', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', CLIENT_CERT
+          ]
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('prompt');
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        shell.assertContainsOutput(`user: '${certUser}'`);
       });
-      const exit = await waitForPromptOrExit(shell);
-      expect(exit.state).to.equal('exit');
-      shell.assertContainsOutput('MongoServerSelectionError');
+
+      it('fails with invalid cert', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', INVALID_CLIENT_CERT
+          ]
+        });
+        const exit = await waitForPromptOrExit(shell);
+        expect(exit.state).to.equal('exit');
+        shell.assertContainsOutput('MongoServerSelectionError');
+      });
     });
-  });
+  }
 });
