@@ -14,6 +14,8 @@ import type {
   FindAndModifyOptions,
   DeleteOptions,
   MapReduceOptions
+  FindAndModifyOptions,
+  ChangeStream
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
@@ -502,7 +504,7 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
   });
 }
 
-export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | any ): Promise<CursorIterationResult> { // TODO: tryNext private, see NODE-2952
+export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | ChangeStream ): Promise<CursorIterationResult> {
   if (cursor.closed) {
     return results;
   }
