@@ -142,41 +142,49 @@ describe('Session', () => {
     });
   });
   describe('integration', () => {
-    const [ srv0 ] = startTestCluster(['--replicaset'] );
+    const [ srv0 ] = startTestCluster(['--replicaset']);
     let serviceProvider: CliServiceProvider;
     let internalState: ShellInternalState;
     let mongo: Mongo;
     let session: Session;
+    let databaseName: string;
 
-    before(async function() {
+    before(function() {
+      if (process.platform === 'win32') {
+        return this.skip();
+      }
+
       this.timeout(100_000);
-      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
-      internalState = new ShellInternalState(serviceProvider);
-      mongo = new Mongo(internalState);
     });
 
     beforeEach(async() => {
+      databaseName = `test-${Date.now()}`;
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
+      internalState = new ShellInternalState(serviceProvider);
+      mongo = new Mongo(internalState);
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 
     afterEach(async() => {
-      await session.endSession();
-    });
+      if (session) {
+        await session.endSession();
+      }
 
-    after(() => {
-      return serviceProvider.close(true);
+      if (serviceProvider) {
+        await serviceProvider.close(true);
+      }
     });
 
     describe('server starts and stops sessions', () => {
       it('starts a session', async() => {
         session = mongo.startSession();
-        await session.getDatabase('test').getCollection('coll').insertOne({});
+        await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         await ensureSessionExists(mongo, 1000, JSON.stringify(session.id.id));
         expect(session.hasEnded()).to.be.false;
         await session.endSession();
         expect(session.hasEnded()).to.be.true;
         try {
-          await session.getDatabase('test').getCollection('coll').insertOne({});
+          await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         } catch (e) {
           return expect(e.message).to.include('expired sessions');
         }
@@ -189,7 +197,7 @@ describe('Session', () => {
           mongo.startSession()
         ];
         for (const s of sessions) {
-          await s.getDatabase('test').getCollection('coll').insertOne({});
+          await s.getDatabase(databaseName).getCollection('coll').insertOne({});
           expect(s.hasEnded()).to.be.false;
           await ensureSessionExists(mongo, 1000, JSON.stringify(s.id.id));
         }
@@ -197,7 +205,7 @@ describe('Session', () => {
           await s.endSession();
           expect(s.hasEnded()).to.be.true;
           try {
-            await s.getDatabase('test').getCollection('coll').insertOne({});
+            await s.getDatabase(databaseName).getCollection('coll').insertOne({});
           } catch (e) {
             expect(e.message).to.include('expired sessions');
             continue;
@@ -209,7 +217,7 @@ describe('Session', () => {
         session = mongo.startSession();
         await session.endSession();
         try {
-          await session.getDatabase('test').getCollection('coll').insertOne({});
+          await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         } catch (e) {
           return expect(e.message).to.include('expired');
         }
@@ -247,13 +255,13 @@ describe('Session', () => {
       });
       it('commits a transaction', async() => {
         const doc = { value: 'test', count: 0 };
-        const testColl = mongo.getDB('test').getCollection('coll');
+        const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
         session = mongo.startSession();
         session.startTransaction();
-        const sessionColl = session.getDatabase('test').getCollection('coll');
+        const sessionColl = session.getDatabase(databaseName).getCollection('coll');
         expect((await sessionColl.updateOne(
           { value: 'test' },
           { $inc: { count: 1 } }
@@ -264,13 +272,13 @@ describe('Session', () => {
       });
       it('aborts a transaction', async() => {
         const doc = { value: 'test', count: 0 };
-        const testColl = mongo.getDB('test').getCollection('coll');
+        const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
         session = mongo.startSession();
         session.startTransaction();
-        const sessionColl = session.getDatabase('test').getCollection('coll');
+        const sessionColl = session.getDatabase(databaseName).getCollection('coll');
         expect((await sessionColl.updateOne(
           { value: 'test' },
           { $inc: { count: 1 } }
@@ -285,19 +293,19 @@ describe('Session', () => {
         session = mongo.startSession();
         await mongo.setReadConcern('majority');
         try {
-          await session.getDatabase('test').getCollection('coll').insertOne({});
+          await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         } catch (e) {
           return expect(e.message).to.include('expired');
         }
       });
       it('authentication', async() => {
-        await mongo.getDB('test').createUser({ user: 'anna', pwd: 'pwd', roles: [] });
+        await mongo.getDB(databaseName).createUser({ user: 'anna', pwd: 'pwd', roles: [] });
         session = mongo.startSession();
-        await mongo.getDB('test').auth('anna', 'pwd');
+        await mongo.getDB(databaseName).auth('anna', 'pwd');
         try {
-          await session.getDatabase('test').getCollection('coll').insertOne({});
+          await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         } catch (e) {
-          await mongo.getDB('test').logout();
+          await mongo.getDB(databaseName).logout();
           return expect(e.message).to.include('expired');
         }
       });
