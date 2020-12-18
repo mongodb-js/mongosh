@@ -1,17 +1,14 @@
-import semver from 'semver';
-// Installing @types/mongodb at the lerna root breaks some of the tests...
-// Yikes. Stick with ts-ignore for now.
-// @ts-ignore
-import {MongoClient, MongoClientOptions} from 'mongodb';
-import { promisify } from 'util';
 import child_process from 'child_process';
 import crypto from 'crypto';
+import { once } from 'events';
 import { promises as fs } from 'fs';
+import { MongoClient, MongoClientOptions } from 'mongodb';
 import path from 'path';
 import rimraf from 'rimraf';
+import semver from 'semver';
 import { URL } from 'url';
+import { promisify } from 'util';
 import which from 'which';
-import { once } from 'events';
 import { downloadMongoDb } from './download-mongodb';
 
 const execFile = promisify(child_process.execFile);
@@ -330,16 +327,19 @@ class MlaunchSetup extends MongodSetup {
   }
 }
 
+async function getInstalledMongodVersion(): Promise<string> {
+  await Promise.all([which('mongod'), which('mongos')]);
+  const { stdout } = await execFile('mongod', ['--version']);
+  const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
+  return version;
+}
+
 export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION): Promise<string | null> {
   try {
-    await Promise.all([which('mongod'), which('mongos')]);
-    if (mongodVersion) {
-      const { stdout } = await execFile('mongod', ['--version']);
-      const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
-      if (!semver.satisfies(version, mongodVersion)) {
-        console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
-        throw new Error();
-      }
+    const version = await getInstalledMongodVersion();
+    if (mongodVersion && !semver.satisfies(version, mongodVersion)) {
+      console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
+      throw new Error();
     }
     return null;
   } catch {
@@ -422,6 +422,14 @@ export function startTestCluster(...argLists: string[][]): MongodSetup[] {
   return servers;
 }
 
+function skipIfVersion(test: any, testServerVersion: string, semverCondition: string): void {
+  // Strip -rc.0, -alpha, etc. from the server version because semver rejects those otherwise.
+  testServerVersion = testServerVersion.replace(/-.*$/, '');
+  if (semver.satisfies(testServerVersion, semverCondition)) {
+    test.skip();
+  }
+}
+
 /**
  * Skip tests in the suite if the test server version matches a specific semver
  * condition.
@@ -429,17 +437,33 @@ export function startTestCluster(...argLists: string[][]): MongodSetup[] {
  * describe('...', () => {
  *   ie. skipIfServerVersion(testServer, '< 4.4')
  * });
- *
- * @export
- * @returns {string} - uri that can be used to connect to the server.
  */
-export function skipIfServerVersion(server: MongodSetup, semverCondition: string) {
+export function skipIfServerVersion(server: MongodSetup, semverCondition: string): void {
   before(async function() {
-    let testServerVersion = await server.serverVersion();
-    // Strip -rc.0, -alpha, etc. from the server version because semver rejects those otherwise.
-    testServerVersion = testServerVersion.replace(/-.*$/, '');
-    if (semver.satisfies(testServerVersion, semverCondition)) {
-      this.skip();
+    skipIfVersion(this, await server.serverVersion(), semverCondition);
+  });
+}
+
+/**
+ * Skip tests in the suite if the test server version
+ * (configured as environment variable or the currently installed one)
+ * matches a specific semver version.
+ * 
+ * IMPORTANT: As the environment variable might be `4.0.x` it will be converted
+ * to `4.0.0` to be able to do a semver comparison!
+ * 
+ * @param semverCondition Semver condition
+ */
+export function skipIfEnvServerVersion(semverCondition: string): void {
+  before(async function() {
+    let testServerVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
+    if (!testServerVersion) {
+      testServerVersion = await getInstalledMongodVersion();
+    } else {
+      testServerVersion = testServerVersion.split('.')
+        .map(num => /[0-9]+/.test(num) ? num : '0')
+        .join('.');
     }
+    skipIfVersion(this, testServerVersion, semverCondition);
   });
 }

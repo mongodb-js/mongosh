@@ -28,7 +28,7 @@ import os from 'os';
       }
 
       process.title = 'mongosh';
-      const driverOptions = mapCliToDriver(options);
+      const driverOptions = await mapCliToDriver(options);
       const driverUri = generateUri(options);
       const appname = `${process.title} ${version}`;
       repl = new CliRepl({
