@@ -15,7 +15,7 @@ import { LineByLineInput } from './line-by-line-input';
 import formatOutput, { formatError } from './format-output';
 import clr, { StyleDefinition } from './clr';
 import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
-import { promisify } from 'util';
+import { promisify, callbackify } from 'util';
 import askpassword from 'askpassword';
 import { once } from 'events';
 
@@ -42,6 +42,11 @@ type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator;
   internalState: ShellInternalState;
   repl: REPLServer;
+};
+
+// Utility, inverse of Readonly<T>
+type Mutable<T> = {
+  -readonly[P in keyof T]: T[P]
 };
 
 /**
@@ -84,7 +89,6 @@ class MongoshNodeRepl {
       output: this.output,
       prompt: '> ',
       writer: this.writer.bind(this),
-      completer: completer.bind(null, internalState.getAutocompleteParameters()),
       breakEvalOnSigint: true,
       preview: false,
       asyncEval: this.eval.bind(this),
@@ -92,11 +96,29 @@ class MongoshNodeRepl {
         (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
       ...this.nodeReplOptions
     });
+
     this._runtimeState = {
       shellEvaluator,
       internalState,
       repl
     };
+
+    const origReplCompleter =
+      promisify(repl.completer.bind(repl)); // repl.completer is callback-style
+    const mongoshCompleter =
+      completer.bind(null, internalState.getAutocompleteParameters());
+    (repl as Mutable<typeof repl>).completer =
+      callbackify(async(text: string): Promise<[string[], string]> => {
+        // Merge the results from the repl completer and the mongosh completer.
+        const [ [replResults], [mongoshResults] ] = await Promise.all([
+          (async() => await origReplCompleter(text) || [[]])(),
+          (async() => await mongoshCompleter(text))()
+        ]);
+        // Remove duplicates, because shell API methods might otherwise show
+        // up in both completions.
+        const deduped = [...new Set([...replResults, ...mongoshResults])];
+        return [deduped, text];
+      });
 
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
