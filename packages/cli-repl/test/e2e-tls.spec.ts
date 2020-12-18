@@ -52,7 +52,7 @@ describe('e2e TLS', () => {
         serverTlsCertificateKeyFileOption, SERVER_KEY
       );
 
-      it('works with matching CA', async() => {
+      it('works with matching CA (args)', async() => {
         const shell = TestShell.start({
           args: [
             await server.connectionString(),
@@ -63,7 +63,19 @@ describe('e2e TLS', () => {
         expect(result.state).to.equal('prompt');
       });
 
-      it('fails when not using --tls', async() => {
+      // TODO: investigate why it does not work in connection string
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('works with matching CA (connection string)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}`
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('prompt');
+      });
+
+      it('fails when not using --tls (args)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
@@ -74,11 +86,33 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      it('fails with invalid CA', async() => {
+      it('fails when not using --tls (connection string)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=false`
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('MongoServerSelectionError');
+      });
+
+      it('fails with invalid CA (args)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
             '--tls', '--tlsCAFile', NON_CA_CERT
+          ]
+        });
+        const result = await waitForPromptOrExit(shell);
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('unable to verify the first certificate');
+      });
+
+      it('fails with invalid CA (connection string)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=true&tlsCAFile=${encodeURIComponent(NON_CA_CERT)}`
           ]
         });
         const result = await waitForPromptOrExit(shell);
@@ -127,7 +161,7 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('{ ok: 1 }');
       });
 
-      it('works with valid cert', async() => {
+      it('works with valid cert (args)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
@@ -142,13 +176,44 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput(`user: '${certUser}'`);
       });
 
-      it('fails with invalid cert', async() => {
+      // TODO: investigate why it does not work in connection string
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('works with valid cert (connection string)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
+            + '&authenticationMechanism=MONGODB-X509'
+            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}`
+          ]
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('prompt');
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        shell.assertContainsOutput(`user: '${certUser}'`);
+      });
+
+      it('fails with invalid cert (args)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
             '--authenticationMechanism', 'MONGODB-X509',
             '--tls', '--tlsCAFile', CA_CERT,
             '--tlsCertificateKeyFile', INVALID_CLIENT_CERT
+          ]
+        });
+        const exit = await waitForPromptOrExit(shell);
+        expect(exit.state).to.equal('exit');
+        shell.assertContainsOutput('MongoServerSelectionError');
+      });
+
+      // TODO: investigate why it does not work in connection string
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('fails with invalid cert (connection string)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
+            + '&authenticationMechanism=MONGODB-X509'
+            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(INVALID_CLIENT_CERT)}`
           ]
         });
         const exit = await waitForPromptOrExit(shell);

@@ -2,10 +2,6 @@ import child_process from 'child_process';
 import crypto from 'crypto';
 import { once } from 'events';
 import { promises as fs } from 'fs';
-import { Test } from 'mocha';
-// Installing @types/mongodb at the lerna root breaks some of the tests...
-// Yikes. Stick with ts-ignore for now.
-// @ts-ignore
 import { MongoClient, MongoClientOptions } from 'mongodb';
 import path from 'path';
 import rimraf from 'rimraf';
