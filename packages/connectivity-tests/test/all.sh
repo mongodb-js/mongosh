@@ -15,5 +15,11 @@ git clone git@github.com:mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 git checkout de257688e6b7ce265a70bf75c7127c6da0bf2cf0
 
+# To avoid printing secrets to logs
+set +x
+eval $(node "$MONGOSH_ROOT_DIR/scripts/print-expansions.js")
+set -x
+
 source "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 source "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
+source "$CONNECTIVITY_TEST_SOURCE_DIR/atlas.sh"
