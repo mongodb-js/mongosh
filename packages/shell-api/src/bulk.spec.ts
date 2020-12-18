@@ -1,7 +1,8 @@
 import { CommonErrors } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { fail } from 'assert';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
 import { EventEmitter } from 'events';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
@@ -11,6 +12,7 @@ import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
 import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
+chai.use(sinonChai);
 
 describe('Bulk API', () => {
   describe('Bulk', () => {
@@ -46,10 +48,9 @@ describe('Bulk API', () => {
     describe('Metadata', () => {
       describe('toShellResult', () => {
         const mongo = sinon.spy();
-        const inner = {
-          s: { batches: [1, 2, 3], currentInsertBatch: {} as any }
-        } as any;
-        const b = new Bulk(mongo, inner);
+        const b = new Bulk(mongo, {
+          batches: [1, 2, 3, 4]
+        } as any);
         it('value', async() => {
           expect((await toShellResult(b)).printable).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
         });
@@ -87,7 +88,12 @@ describe('Bulk API', () => {
             const db = internalState.currentDb;
             collection = new Collection(db._mongo, db, 'coll1');
             innerStub = stubInterface<any>();
-            innerStub.s = { batches: [1, 2, 3], currentInsertBatch: 4, currentBatch: 4 };
+            innerStub.batches = [
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 },
+              { originalZeroIndex: 0 }
+            ];
             bulk = new Bulk(collection, innerStub, t === 'ordered');
           });
           describe('insert', () => {
@@ -112,29 +118,6 @@ describe('Bulk API', () => {
             it('returns the batches length + currentInsert/Update/RemoveBatch?', () => {
               expect(bulk.tojson()).to.deep.equal({
                 nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4
-              });
-            });
-            it('returns unknown if batches cannot be counted', () => {
-              const bulk2 = new Bulk({} as any, { insert: () => {} } as any, t === 'ordered').insert({}).insert({});
-              expect(bulk2.tojson()).to.deep.equal({
-                nInsertOps: 2, nUpdateOps: 0, nRemoveOps: 0, nBatches: 'unknown'
-              });
-            });
-            it('counts current batches', () => {
-              const bulk2 = new Bulk({} as any, {
-                insert: () => {},
-                s: {
-                  batches: [],
-                  currentInsertBatch: {} as any,
-                  currentUpdateBatch: {} as any,
-                  currentRemoveBatch: {} as any,
-                  currentBatch: {} as any
-                }
-              } as any,
-              t === 'ordered'
-              ).insert({}).insert({});
-              expect(bulk2.tojson()).to.deep.equal({
-                nInsertOps: 2, nUpdateOps: 0, nRemoveOps: 0, nBatches: t === 'ordered' ? 1 : 3
               });
             });
           });
@@ -179,7 +162,6 @@ describe('Bulk API', () => {
                 )
               );
               expect(bulk._executed).to.equal(true);
-              expect(bulk._batches).to.deep.equal([1, 2, 3, 4]);
             });
             it('throws if innerBulk.execute rejects', async() => {
               const expectedError = new Error();
@@ -192,7 +174,7 @@ describe('Bulk API', () => {
           describe('getOperations', () => {
             it('returns batches', () => {
               bulk._executed = true;
-              bulk._batches = [
+              (bulk._serviceProviderBulkOp as any).batches = [
                 {
                   originalZeroIndex: 1,
                   batchType: 1,
@@ -281,7 +263,7 @@ describe('Bulk API', () => {
       let bulkFindOp: BulkFindOp;
       beforeEach(() => {
         innerStub = stubInterface<any>();
-        innerStub.s = { batches: [1, 2, 3, 4] };
+        innerStub.batches = [{ originalZeroIndex: 0 }];
         bulk = stubInterface<Bulk>();
         bulk._batchCounts = {
           nRemoveOps: 0, nInsertOps: 0, nUpdateOps: 0

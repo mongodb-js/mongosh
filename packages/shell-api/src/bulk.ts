@@ -1,7 +1,8 @@
 import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
 import Mongo from './mongo';
-import { CommonErrors, MongoshInternalError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
+  Batch,
   Document,
   WriteConcern,
   OrderedBulkOperation,
@@ -121,7 +122,6 @@ export default class Bulk extends ShellApiClass {
   _collection: any; // to avoid circular ref
   _batchCounts: any;
   _executed: boolean;
-  _batches: any[]; // TODO: public batch information see NODE-2768
   _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
   _ordered: boolean;
 
@@ -130,7 +130,6 @@ export default class Bulk extends ShellApiClass {
     this._collection = collection;
     this._mongo = collection._mongo;
     this._serviceProviderBulkOp = innerBulk;
-    this._batches = [];
     this._batchCounts = {
       nInsertOps: 0,
       nUpdateOps: 0,
@@ -138,34 +137,6 @@ export default class Bulk extends ShellApiClass {
     };
     this._executed = false;
     this._ordered = ordered;
-  }
-
-  private _checkInternalShape(innerBulkState: any): boolean {
-    return (
-      innerBulkState !== undefined &&
-      Array.isArray(innerBulkState.batches)
-    );
-  }
-
-  private _getBatches(): any[] {
-    const internalBatches = (this._serviceProviderBulkOp as any).s;
-    const batches = [...internalBatches.batches];
-    if (this._ordered) {
-      if (internalBatches.currentBatch) {
-        batches.push(internalBatches.currentBatch);
-      }
-      return batches;
-    }
-    if (internalBatches.currentInsertBatch) {
-      batches.push(internalBatches.currentInsertBatch);
-    }
-    if (internalBatches.currentUpdateBatch) {
-      batches.push(internalBatches.currentUpdateBatch);
-    }
-    if (internalBatches.currentRemoveBatch) {
-      batches.push(internalBatches.currentRemoveBatch);
-    }
-    return batches;
   }
 
   /**
@@ -194,9 +165,6 @@ export default class Bulk extends ShellApiClass {
 
   @returnsPromise
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    if (!this._executed && this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
-      this._batches = this._getBatches();
-    }
     const { result } = await this._serviceProviderBulkOp.execute() as any;
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });
@@ -225,14 +193,11 @@ export default class Bulk extends ShellApiClass {
   }
 
   tojson(): Record<'nInsertOps' | 'nUpdateOps' | 'nRemoveOps' | 'nBatches', number> {
-    let batches = -1;
-    if (this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
-      batches = this._getBatches().length;
-    }
+    const batches = this._serviceProviderBulkOp.batches.length;
 
     return {
       ...this._batchCounts,
-      nBatches: batches < 0 ? 'unknown' : batches
+      nBatches: batches
     };
   }
 
@@ -240,17 +205,14 @@ export default class Bulk extends ShellApiClass {
     return JSON.stringify(this.tojson());
   }
 
-  getOperations(): any[] {
-    if (!this._checkInternalShape((this._serviceProviderBulkOp as any).s)) {
-      throw new MongoshInternalError('Bulk error: cannot access operation list because internal structure of MongoDB Bulk class has changed.');
-    }
+  getOperations(): Pick<Batch, 'originalZeroIndex' | 'batchType' | 'operations'>[] {
     if (!this._executed) {
       throw new MongoshInvalidInputError(
         'Cannot call getOperations on an unexecuted Bulk operation',
         CommonErrors.InvalidOperation
       );
     }
-    return this._batches.map((b) => ({
+    return this._serviceProviderBulkOp.batches.map((b) => ({
       originalZeroIndex: b.originalZeroIndex,
       batchType: b.batchType,
       operations: b.operations

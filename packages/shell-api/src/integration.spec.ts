@@ -1466,19 +1466,6 @@ describe('Shell API (integration)', function() {
             }
             expect.fail('Error not thrown');
           });
-          it('Driver structure change', async() => {
-            bulk = await collection[m]();
-            bulk.insert({});
-            await bulk.execute();
-            bulk._serviceProviderBulkOp.s = undefined;
-            try {
-              bulk.getOperations();
-            } catch (err) {
-              expect(err.name).to.equal('MongoshInternalError');
-              return;
-            }
-            expect.fail('Error not thrown');
-          });
           it('collation', async() => {
             bulk = await collection[m]();
             try {
