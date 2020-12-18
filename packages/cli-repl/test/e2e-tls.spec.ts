@@ -61,7 +61,7 @@ describe('e2e TLS', () => {
       });
       const result = await waitForPromptOrExit(shell);
       expect(result.state).to.equal('exit');
-      shell.assertContainsOutput(`connection <monitor> to 127.0.0.1:${await server.port()} closed`);
+      shell.assertContainsOutput('MongoServerSelectionError');
     });
 
     it('fails with invalid CA', async() => {
@@ -143,7 +143,7 @@ describe('e2e TLS', () => {
       });
       const exit = await waitForPromptOrExit(shell);
       expect(exit.state).to.equal('exit');
-      shell.assertContainsOutput(`connection <monitor> to 127.0.0.1:${await server.port()} closed`);
+      shell.assertContainsOutput('MongoServerSelectionError');
     });
   });
 });
