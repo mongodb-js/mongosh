@@ -11,7 +11,9 @@ import type {
   ExplainVerbosityLike,
   FindCursor,
   AggregationCursor as SPAggregationCursor,
-  FindAndModifyOptions
+  FindAndModifyOptions,
+  DeleteOptions,
+  MapReduceOptions
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import crypto from 'crypto';
@@ -517,6 +519,21 @@ export async function iterate(results: CursorIterationResult, cursor: FindCursor
   return results;
 }
 
+export type FindAndModifyMethodShellOptions = {
+  query?: Document;
+  sort?: Document | Document[];
+  update?: Document | Document[];
+  remove?: boolean;
+  new?: boolean;
+  fields?: Document;
+  upsert?: boolean;
+  bypassDocumentValidation?: boolean;
+  writeConcern?: Document;
+  collation?: Document;
+  arrayFilters?: Document[];
+  explain?: ExplainVerbosityLike;
+};
+
 export type FindAndModifyShellOptions = FindAndModifyOptions & {
   returnNewDocument?: boolean;
 };
@@ -538,3 +555,21 @@ export function processFindAndModifyOptions(options: FindAndModifyShellOptions):
   return options;
 }
 
+export type RemoveShellOptions = DeleteOptions & { justOne?: boolean };
+export function processRemoveOptions(options: boolean | RemoveShellOptions): RemoveShellOptions {
+  if (typeof options === 'boolean') {
+    return { justOne: options };
+  }
+  return { justOne: false, ...options };
+}
+
+export type MapReduceShellOptions = Document | string;
+export function processMapReduceOptions(optionsOrOutString: MapReduceShellOptions): MapReduceOptions {
+  if (typeof optionsOrOutString === 'string') {
+    return { out: optionsOrOutString } as any;
+  } else if (optionsOrOutString.out === undefined) {
+    throw new MongoshInvalidInputError('Missing \'out\' option', CommonErrors.InvalidArgument);
+  } else {
+    return optionsOrOutString;
+  }
+}

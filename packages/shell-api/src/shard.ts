@@ -225,7 +225,7 @@ export default class Shard extends ShellApiClass {
       { _id: 'autosplit' },
       { $set: { enabled: true } },
       { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    );
+    ) as UpdateResult;
   }
 
   @returnsPromise
@@ -237,7 +237,7 @@ export default class Shard extends ShellApiClass {
       { _id: 'autosplit' },
       { $set: { enabled: false } },
       { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    );
+    ) as UpdateResult;
   }
 
   @returnsPromise
@@ -296,7 +296,7 @@ export default class Shard extends ShellApiClass {
       { _id: ns },
       { $set: { 'noBalance': false } },
       { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    );
+    ) as UpdateResult;
   }
 
   @returnsPromise
@@ -309,7 +309,7 @@ export default class Shard extends ShellApiClass {
       { _id: ns },
       { $set: { 'noBalance': true } },
       { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    );
+    ) as UpdateResult;
   }
 
   @returnsPromise

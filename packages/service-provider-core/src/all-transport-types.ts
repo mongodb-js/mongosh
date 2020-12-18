@@ -41,6 +41,7 @@ export type {
   ListCollectionsOptions,
   ListDatabasesOptions,
   ListIndexesOptions,
+  MapReduceOptions,
   MongoClientOptions,
   OrderedBulkOperation,
   ReadConcern,

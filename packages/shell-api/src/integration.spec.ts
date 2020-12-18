@@ -1038,6 +1038,104 @@ describe('Shell API (integration)', function() {
         });
       });
     });
+
+    describe('count', () => {
+      it('provides explain information', async() => {
+        const explained = await collection.explain().count();
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const explained = await collection.explain('executionStats').count();
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('distinct', () => {
+      it('provides explain information', async() => {
+        const explained = await collection.explain().distinct('_id');
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const explained = await collection.explain('executionStats').distinct('_id');
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('findAndModify', () => {
+      it('provides explain information', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain()
+          .findAndModify({ query: {}, update: {} });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain('executionStats')
+          .findAndModify({ query: {}, update: {} });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('remove', () => {
+      it('provides explain information', async() => {
+        const explained = await collection.explain().remove({ notfound: 1 });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const explained = await collection.explain('executionStats').remove({ notfound: 1 });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('update', () => {
+      it('provides explain information', async() => {
+        const explained = await collection.explain()
+          .update({ notfound: 1 }, { $unset: { laksjdhkgh: '' } });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const explained = await collection.explain('executionStats')
+          .update({ notfound: 1 }, { $unset: { laksjdhkgh: '' } });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('mapReduce', () => {
+      skipIfServerVersion(testServer, '< 4.4');
+
+      let mapFn;
+      let reduceFn;
+      beforeEach(async() => {
+        await loadMRExample(collection);
+        mapFn = compileExpr `function() {
+          emit(this.cust_id, this.price);
+        }`;
+        reduceFn = compileExpr `function(keyCustId, valuesPrices) {
+          return valuesPrices.reduce((s, t) => s + t);
+        }`;
+      });
+      it('provides explain information', async() => {
+        const explained = await collection.explain().mapReduce(mapFn, reduceFn, 'map_reduce_example');
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'stages']);
+        expect(explained.stages[0].$cursor).to.include.all.keys(['queryPlanner']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        const explained = await collection.explain('executionStats').mapReduce(mapFn, reduceFn, 'map_reduce_example');
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'stages']);
+        expect(explained.stages[0].$cursor).to.include.all.keys(['queryPlanner', 'executionStats']);
+      });
+    });
   });
 
   describe('Bulk API', async() => {

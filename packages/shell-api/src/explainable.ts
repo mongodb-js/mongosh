@@ -1,16 +1,30 @@
-import Collection from './collection';
-import Mongo from './mongo';
+import type Collection from './collection';
+import type Mongo from './mongo';
 import ExplainableCursor from './explainable-cursor';
 import {
   hasAsyncChild,
   returnsPromise,
   returnType,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  serverVersions
 } from './decorators';
-import { asPrintable } from './enums';
-import { validateExplainableVerbosity } from './helpers';
-import { Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
+import { asPrintable, ServerVersions } from './enums';
+import {
+  validateExplainableVerbosity,
+  processRemoveOptions,
+  RemoveShellOptions,
+  FindAndModifyMethodShellOptions,
+  processMapReduceOptions,
+  MapReduceShellOptions
+} from './helpers';
+import type {
+  Document,
+  ExplainVerbosityLike,
+  CountOptions,
+  DistinctOptions,
+  UpdateOptions
+} from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -83,5 +97,55 @@ export default class Explainable extends ShellApiClass {
     });
 
     return await cursor.explain(this._verbosity);
+  }
+
+  @returnsPromise
+  async count(query = {}, options: CountOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('count', { query, options });
+    // This is the only one that currently lacks explicit driver support.
+    return this._collection._database._runCommand({
+      explain: {
+        count: `${this._collection._database._name}.${this._collection._name}`,
+        query,
+        ...options
+      },
+      verbosity: this._verbosity
+    });
+  }
+
+  @returnsPromise
+  async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('distinct', { field, query, options });
+    return this._collection.distinct(field, query, { ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
+    this._emitExplainableApiCall('findAndModify', { options });
+    return this._collection.findAndModify({ ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('remove', { query, options });
+    options = { ...processRemoveOptions(options), explain: this._verbosity };
+    return this._collection.remove(query, options);
+  }
+
+  @returnsPromise
+  async update(filter: Document, update: Document, options: UpdateOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('update', { filter, update, options });
+    return this._collection.update(filter, update, { ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  async mapReduce(
+    map: Function | string,
+    reduce: Function | string,
+    optionsOrOutString: MapReduceShellOptions): Promise<Document> {
+    this._emitExplainableApiCall('mapReduce', { map, reduce, optionsOrOutString });
+    const options = { ...processMapReduceOptions(optionsOrOutString), explain: this._verbosity };
+    return this._collection.mapReduce(map, reduce, options);
   }
 }
