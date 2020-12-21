@@ -91,7 +91,9 @@ describe('e2e TLS', () => {
         expect(result.state).to.equal('prompt');
       });
 
-      it('works with matching CA (connection string)', async() => {
+      // TODO: enable when NODE-2977 is solved
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('works with matching CA (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}`
@@ -112,7 +114,9 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      it('fails when not using --tls (connection string)', async() => {
+      // TODO: enable when NODE-2977 is solved
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('fails when not using --tls (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=false`
@@ -135,7 +139,9 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('unable to verify the first certificate');
       });
 
-      it('fails with invalid CA (connection string)', async() => {
+      // TODO: enable when NODE-2977 is solved
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('fails with invalid CA (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=true&tlsCAFile=${encodeURIComponent(NON_CA_CERT)}`
@@ -215,7 +221,9 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput(`user: '${certUser}'`);
       });
 
-      it('works with valid cert (connection string)', async() => {
+      // TODO: enable when NODE-2977 is solved
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('works with valid cert (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
@@ -243,7 +251,9 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      it('fails with invalid cert (connection string)', async() => {
+      // TODO: enable when NODE-2977 is solved
+      // eslint-disable-next-line mocha/no-skipped-tests
+      it.skip('fails with invalid cert (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
