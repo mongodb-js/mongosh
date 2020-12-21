@@ -448,7 +448,10 @@ export function skipIfServerVersion(server: MongodSetup, semverCondition: string
  * Skip tests in the suite if the test server version
  * (configured as environment variable or the currently installed one)
  * matches a specific semver version.
- * 
+ *
+ * If this method cannot find an environment variable or already installed
+ * mongod, it uses `startTestServer` to spawn a server and determine its version.
+ *
  * IMPORTANT: As the environment variable might be `4.0.x` it will be converted
  * to `4.0.0` to be able to do a semver comparison!
  * 
@@ -458,7 +461,17 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
   before(async function() {
     let testServerVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
     if (!testServerVersion) {
-      testServerVersion = await getInstalledMongodVersion();
+      try {
+        testServerVersion = await getInstalledMongodVersion();
+      } catch(e) {
+        // no explicitly specified version but also no local mongod installation
+        // -> spawn a server to get the "live" version
+        console.log('Starting server to detect runtime version...');
+        const server = startTestServer('shared');
+        await server.start();
+        skipIfServerVersion(server, semverCondition);
+        return;
+      }
     } else {
       testServerVersion = testServerVersion.split('.')
         .map(num => /[0-9]+/.test(num) ? num : '0')
