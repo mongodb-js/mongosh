@@ -11,6 +11,8 @@ const os = require('os');
  * we don't getting logging of our keys in Evergreen.
  */
 const printExpansions = () => {
+  const filter = process.argv.slice(2);
+
   if (!process.env.EVERGREEN_EXPANSIONS_PATH) {
     return;
   }
@@ -32,6 +34,7 @@ const printExpansions = () => {
 
   console.log(
     Object.keys(expansions)
+      .filter((expansion) => filter.length === 0 || filter.includes(expansion))
       .map((key) => `${key.toUpperCase()}="${expansions[key]}"`)
       .join('\n')
   );
