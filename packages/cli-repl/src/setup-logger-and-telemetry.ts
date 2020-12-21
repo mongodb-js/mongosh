@@ -109,6 +109,7 @@ export default function setupLoggerAndTelemetry(
 
   bus.on('mongosh:error', function(error: any) {
     log.error(error);
+    console.log(error);
 
     if (telemetry && error.name.includes('Mongosh')) {
       analytics.track({
