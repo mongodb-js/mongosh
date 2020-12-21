@@ -25,7 +25,8 @@ import {
   processRemoveOptions,
   RemoveShellOptions,
   MapReduceShellOptions,
-  processMapReduceOptions
+  processMapReduceOptions,
+  setHideIndex
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -1606,5 +1607,19 @@ export default class Collection extends ShellApiClass {
     );
     this._mongo._internalState.currentCursor = cursor;
     return cursor;
+  }
+
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  @returnsPromise
+  async hideIndex(index: string | Document): Promise<Document> {
+    this._emitCollectionApiCall('hideIndex');
+    return setHideIndex(this, index, true);
+  }
+
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  @returnsPromise
+  async unhideIndex(index: string | Document): Promise<Document> {
+    this._emitCollectionApiCall('unhideIndex');
+    return setHideIndex(this, index, false);
   }
 }

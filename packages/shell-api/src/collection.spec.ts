@@ -1690,6 +1690,8 @@ describe('Collection', () => {
       updateOne: { i: 4 },
       getIndexes: { i: 2 },
       reIndex: { m: 'runCommandWithCheck', i: 2 },
+      hideIndex: { m: 'runCommandWithCheck', i: 2 },
+      unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
     };
     const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];

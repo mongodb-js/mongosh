@@ -516,6 +516,16 @@ const translations: Catalog = {
               description: 'Rebuilds all existing indexes on a collection.',
               example: ''
             },
+            hideIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.hideIndex',
+              description: 'Hides an existing index from the query planner.',
+              example: 'db.collection.hideIndex("index_1")'
+            },
+            unhideIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.unhideIndex',
+              description: 'Unhides an existing index from the query planner.',
+              example: 'db.collection.unhideIndex("index_1")'
+            },
             drop: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.drop',
               description: 'Removes a collection or view from the database.',
