@@ -29,7 +29,7 @@ To recreate the certificates follow the steps outlined below.
    new_certs_dir=.
    serial=ca.serial
 
-   default_md=sha1
+   default_md=sha256
    default_crl_days=99999
 
    policy=policy_anything
