@@ -181,6 +181,10 @@ functions:
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
   test_connectivity:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src

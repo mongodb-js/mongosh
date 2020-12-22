@@ -17,3 +17,4 @@ git checkout de257688e6b7ce265a70bf75c7127c6da0bf2cf0
 
 source "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 source "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
+source "$CONNECTIVITY_TEST_SOURCE_DIR/atlas.sh"
