@@ -1,6 +1,6 @@
 import i18n from '@mongosh/i18n';
 import { CliOptions } from '@mongosh/service-provider-server';
-import yargsParse from 'yargs-parser';
+import parser from 'yargs-parser';
 import { colorizeForStderr as clr } from './clr';
 import { USAGE } from './constants';
 
@@ -97,7 +97,7 @@ function parse(args: string[]): CliOptions {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
-  const parsed = yargsParse(programArgs, OPTIONS);
+  const parsed = parser(programArgs, OPTIONS);
   parsed._ = parsed._.filter(arg => {
     if (arg === START) {
       return false;
