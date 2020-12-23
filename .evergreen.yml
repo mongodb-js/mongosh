@@ -67,22 +67,15 @@ variables:
         npm run test-e2e-ci
 
   - &compile_and_upload_artifact_win
-    command: shell.exec
+    command: subprocess.exec
     params:
       working_dir: src
-      shell: powershell
-      script: |
-        $Env:NODE_JS_VERSION = "${node_js_version}"
-        $ErrorActionPreference = "Stop"
-        .\.evergreen\SetupEnv
-        node --version
-        npm --version
-        $Env:PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-        $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-        npm run evergreen-release package
-        $Env:MONGOSH_TEST_EXECUTABLE_PATH = $(Join-Path -Path '.' -ChildPath 'dist/mongosh.exe' -Resolve)
-        echo "$Env:MONGOSH_TEST_EXECUTABLE_PATH"
-        npm run test-e2e-ci
+      binary: powershell
+      args:
+        - .\.evergreen\CompileAndUpload
+      env:
+        NODE_JS_VERSION: ${node_js_version}
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
 # Functions are any command that can be run.
 # Variables ending with _win do the same thing as their non-suffixed counterparts
@@ -114,13 +107,14 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.install_node
   install_win:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
-        shell: powershell
-        script: |
-          $Env:NODE_JS_VERSION = "${node_js_version}"
-          .\.evergreen\InstallNode
+        binary: powershell
+        args:
+          - .\.evergreen\InstallNode
+        env:
+          NODE_JS_VERSION: ${node_js_version}
   check:
     - command: shell.exec
       params:
@@ -131,14 +125,14 @@ functions:
           source .evergreen/.setup_env
           npm run check-ci
   check_win:
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
-        shell: powershell
-        script: |
-          $Env:NODE_JS_VERSION = "${node_js_version}"
-          .\.evergreen\SetupEnv
-          npm run check-ci
+        binary: powershell
+        args:
+          - .\.evergreen\Check
+        env:
+          NODE_JS_VERSION: ${node_js_version}
   test:
     - command: expansions.write
       params:
@@ -159,16 +153,14 @@ functions:
       params:
         file: tmp\expansions.yaml
         redacted: true
-    - command: shell.exec
+    - command: subprocess.exec
       params:
         working_dir: src
-        shell: powershell
-        script: |
-          $ErrorActionPreference = "Stop"
-          $Env:NODE_JS_VERSION = "${node_js_version}"
-          .\.evergreen\SetupEnv
-          $Env:EVERGREEN_EXPANSIONS_PATH = $(Join-Path -Path '..' -ChildPath 'tmp/expansions.yaml' -Resolve)
-          npm run test-ci
+        binary: powershell
+        args:
+          - .\.evergreen\Test
+        env:
+          NODE_JS_VERSION: ${node_js_version}
   test_vscode:
     - command: shell.exec
       params:

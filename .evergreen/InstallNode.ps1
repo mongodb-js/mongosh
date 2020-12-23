@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 $version = "$Env:NODE_JS_VERSION"
 $url = "https://nodejs.org/download/release/v$version/node-v$version-win-x64.zip"
 $filename = "node.zip"
