@@ -91,7 +91,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: '> ',
+      prompt: await internalState.getDefaultPrompt(),
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -136,7 +136,10 @@ class MongoshNodeRepl implements EvaluationListener {
 
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
-    repl.displayPrompt = (...args: any[]): any => {
+    repl.displayPrompt = async(...args: any[]): Promise<void> => {
+      this.lineByLineInput.enableBlockOnNewLine();
+      const prompt = await this.getPrompt();
+      repl.setPrompt(prompt);
       originalDisplayPrompt(...args);
       this.lineByLineInput.nextLine();
     };
@@ -316,6 +319,10 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     return this.formatOutput({ type: result.type, value: result.printable });
+  }
+
+  async getPrompt(): Promise<string> {
+    return await this.runtimeState().internalState.getDefaultPrompt();
   }
 
   async toggleTelemetry(enabled: boolean): Promise<string> {

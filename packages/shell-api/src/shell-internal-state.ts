@@ -269,4 +269,12 @@ export default class ShellInternalState {
       }
     };
   }
+
+  public async getDefaultPrompt(): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(`${new Date()} > `);
+      }, 1500);
+    });
+  }
 }
