@@ -59,7 +59,7 @@ describe('e2e TLS', () => {
   function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
     context('connecting without client cert', () => {
       const server = startTestServer(
-        'not-shared',
+        'not-shared', '--hostname', 'localhost',
         serverTlsModeOption, serverTlsModeValue,
         serverTlsCertificateKeyFileOption, SERVER_KEY
       );
@@ -149,7 +149,7 @@ describe('e2e TLS', () => {
 
     context('connecting with client cert', () => {
       const server = startTestServer(
-        'not-shared',
+        'not-shared', '--hostname', 'localhost',
         serverTlsModeOption, serverTlsModeValue,
         serverTlsCertificateKeyFileOption, SERVER_KEY,
         serverTlsCAFileOption, CA_CERT
