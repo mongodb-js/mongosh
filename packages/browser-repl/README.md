@@ -32,8 +32,7 @@ Shell is a React component with the following properties:
 
 - `runtime: Runtime`: The runtime used to evaluate code.
 - `onOutputChanged?: (output: readonly ShellOutputEntry[]) => void`: A function called each time the output changes with an array of `ShellOutputEntryes`.
-- `onOutputChanged?: (output: readonly ShellOutputEntry[]) => void`: A function called each time the history changes with an array of history entries ordered from the most recent to the oldest entry.
-- `onHistoryChanged?: (history: readonly string[]) => void`
+- `onHistoryChanged?: (history: readonly string[]) => void`: A function called each time the history changes with an array of history entries ordered from the most recent to the oldest entry.
 - `redactInfo?: boolean`: If set, the shell will omit or redact entries containing sensitive info from history. Defaults to `false`.
 - `maxOutputLength?: number`: The maxiumum number of lines to keep in the output. Defaults to `1000`.
 - `maxHistoryLength?: number`: The maxiumum number of lines to keep in the history. Defaults to `1000`.
