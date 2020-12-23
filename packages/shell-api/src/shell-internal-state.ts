@@ -132,7 +132,7 @@ export default class ShellInternalState {
    * Add each attribute to the AsyncWriter also.
    *
    * The `contextObject` is prepared so that it can be used as global object
-   * for the repl evaluationi.
+   * for the repl evaluation.
    *
    * @note The `contextObject` is mutated, it will retain all of its existing
    * properties but also have the global shell api objects and functions.
