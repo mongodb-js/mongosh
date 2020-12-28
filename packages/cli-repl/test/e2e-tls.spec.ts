@@ -64,6 +64,21 @@ describe('e2e TLS', () => {
         serverTlsCertificateKeyFileOption, SERVER_KEY
       );
 
+      after(async() => {
+        // mlaunch has some trouble interpreting all the server options correctly,
+        // and subsequently can't connect to the server to find out if it's up,
+        // then thinks it isn't and doesn't shut it down cleanly. We shut it down
+        // here to work around that.
+        const shell = TestShell.start({ args:
+          [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT
+          ]
+        });
+        await shell.executeLine('db.shutdownServer({ force: true })');
+        await TestShell.killall();
+      });
+
       it('works with matching CA (args)', async() => {
         const shell = TestShell.start({
           args: [
@@ -155,6 +170,18 @@ describe('e2e TLS', () => {
         serverTlsCAFileOption, CA_CERT
       );
       const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
+
+      after(async() => {
+        const shell = TestShell.start({ args:
+          [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', CLIENT_CERT
+          ]
+        });
+        await shell.executeLine('db.shutdownServer({ force: true })');
+        await TestShell.killall();
+      });
 
       it('can connect with cert to create user', async() => {
         const shell = TestShell.start({
