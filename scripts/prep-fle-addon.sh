@@ -37,8 +37,7 @@ if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
   case `uname` in
       Darwin*)                          PREBUILT_OSNAME=macos;;
       Linux*)                           PREBUILT_OSNAME=rhel-70-64-bit;;
-      # Windows doesn't work because of dllimport/dllexport issues.
-      #CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
+      CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
   esac
 fi
 
@@ -59,7 +58,11 @@ if [ x"$PREBUILT_OSNAME" != x"" ]; then
   mv -v prebuilts/nocrypto/$LIB/* lib
   mv -v prebuilts/nocrypto/include include
   mv -v prebuilts/$LIB/*bson* lib
-  cp lib/bson-1.0.lib lib/bson-static-1.0.lib || true # Windows
+  rm -rf prebuilts
+  if [ ! -e lib/bson-static-1.0.lib ]; then # Windows, work around MONGOCRYPT-301
+    curl -sSfL -o libmongocrypt-windows-with-static-bson.tar.gz https://mciuploads.s3.amazonaws.com/libmongocrypt/windows-test/master/latest/5fea04b22fbabe3a83ad533c/libmongocrypt.tar.gz
+    tar -xzvf libmongocrypt-windows-with-static-bson.tar.gz lib/bson-static-1.0.lib
+  fi
 else
   if [ `uname` = Darwin ]; then
     export CFLAGS="-mmacosx-version-min=10.13";
@@ -72,7 +75,7 @@ else
   # repository at this point.
   git clone https://github.com/mongodb/libmongocrypt
   if [ $LIBMONGOCRYPT_VERSION != "latest" ]; then
-    git checkout $LIBMONGOCRYPT_VERSION
+    (cd libmongocrypt && git checkout $LIBMONGOCRYPT_VERSION)
   fi
   ./libmongocrypt/.evergreen/prep_c_driver_source.sh # clones the c driver source
 
