@@ -58,12 +58,6 @@ describe('e2e TLS', () => {
 
   function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
     context('connecting without client cert', () => {
-      const server = startTestServer(
-        'not-shared', '--hostname', 'localhost',
-        serverTlsModeOption, serverTlsModeValue,
-        serverTlsCertificateKeyFileOption, SERVER_KEY
-      );
-
       after(async() => {
         // mlaunch has some trouble interpreting all the server options correctly,
         // and subsequently can't connect to the server to find out if it's up,
@@ -79,6 +73,12 @@ describe('e2e TLS', () => {
         await shell.executeLine('db.shutdownServer({ force: true })');
         await TestShell.killall();
       });
+
+      const server = startTestServer(
+        'not-shared', '--hostname', 'localhost',
+        serverTlsModeOption, serverTlsModeValue,
+        serverTlsCertificateKeyFileOption, SERVER_KEY
+      );
 
       it('works with matching CA (args)', async() => {
         const shell = TestShell.start({
@@ -164,14 +164,6 @@ describe('e2e TLS', () => {
     });
 
     context('connecting with client cert', () => {
-      const server = startTestServer(
-        'not-shared', '--hostname', 'localhost',
-        serverTlsModeOption, serverTlsModeValue,
-        serverTlsCertificateKeyFileOption, SERVER_KEY,
-        serverTlsCAFileOption, CA_CERT
-      );
-      const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
-
       after(async() => {
         const shell = TestShell.start({ args:
           [
@@ -184,6 +176,14 @@ describe('e2e TLS', () => {
         await shell.executeLine('db.shutdownServer({ force: true })');
         await TestShell.killall();
       });
+
+      const server = startTestServer(
+        'not-shared', '--hostname', 'localhost',
+        serverTlsModeOption, serverTlsModeValue,
+        serverTlsCertificateKeyFileOption, SERVER_KEY,
+        serverTlsCAFileOption, CA_CERT
+      );
+      const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
 
       it('can connect with cert to create user', async() => {
         const shell = TestShell.start({
