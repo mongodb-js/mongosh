@@ -22,7 +22,7 @@ Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
 Shell on three different platforms - Windows(zip), MacOS(tgz) and Linux(tgz).
 Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
-[installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install)
+[installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install).
 
 ## CLI Usage
 ```shell
@@ -171,13 +171,13 @@ npm run evergreen-release package -- --dry --build-variant=Debian
 ```
 
 ## Contributing
-For issues, please create a ticket in our [JIRA Pr
-ject](https://jira.mongodb.org/browse/MONGOSH).
+For issues, please create a ticket in our 
+[JIRA Project](https://jira.mongodb.org/browse/MONGOSH).
 
 For contributing, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Is there anything else you’d like to see in MongoDB Shell? Let us know by
-submitting suggestions in out [feedback
+submitting suggestions in our [feedback
 forum](https://feedback.mongodb.com/forums/929233-mongodb-shell).
 
 ## License
