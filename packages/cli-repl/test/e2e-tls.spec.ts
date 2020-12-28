@@ -75,6 +75,7 @@ describe('e2e TLS', () => {
             '--tls', '--tlsCAFile', CA_CERT
           ]
         });
+        await shell.waitForPrompt();
         await shell.executeLine('db.shutdownServer({ force: true })');
         await TestShell.killall();
       });
@@ -179,6 +180,7 @@ describe('e2e TLS', () => {
             '--tlsCertificateKeyFile', CLIENT_CERT
           ]
         });
+        await shell.waitForPrompt();
         await shell.executeLine('db.shutdownServer({ force: true })');
         await TestShell.killall();
       });
