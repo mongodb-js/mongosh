@@ -77,7 +77,7 @@ bsonStringifiers.ObjectID = bsonStringifiers.ObjectId;
  * we can have the driver return our BSON classes without having to write our own serializer.
  * @param {Object} bson
  */
-export default function(bson?: any): void {
+export default function(bson?: typeof BSON): void {
   if (!bson) {
     bson = BSON;
   }
@@ -86,7 +86,7 @@ export default function(bson?: any): void {
     if (!(key in bson)) {
       continue;
     }
-    const cls = bson[key];
+    const cls = bson[key as keyof typeof BSON];
     for (const key of [inspectCustom, 'inspect']) {
       try {
         (cls as any).prototype[key] = stringifier;

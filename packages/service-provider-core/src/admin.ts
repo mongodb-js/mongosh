@@ -11,7 +11,7 @@ import type {
   DbOptions,
   ClientSessionOptions
 } from './all-transport-types';
-
+import type { bson as BSON } from './index';
 
 export default interface Admin {
   /**
@@ -27,7 +27,7 @@ export default interface Admin {
   /**
    * The BSON package
    */
-  bsonLibrary: any;
+  bsonLibrary: typeof BSON;
 
   /**
    * list databases.

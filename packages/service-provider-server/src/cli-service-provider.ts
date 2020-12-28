@@ -16,27 +16,9 @@ import {
   Decimal128,
   Map,
   BSONSymbol,
-  BSONRegExp,
   ClientMetadata,
   Topology
 } from 'mongodb';
-
-const bsonlib = {
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  Map,
-  BSONSymbol,
-  BSONRegExp
-};
 
 import {
   ServiceProvider,
@@ -87,10 +69,28 @@ import {
   UpdateResult,
   WriteConcern,
   ChangeStreamOptions,
-  ChangeStream
+  ChangeStream,
+  bson as BSON
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
+
+const bsonlib = {
+  Binary,
+  Code,
+  DBRef,
+  Double,
+  Int32,
+  Long,
+  MinKey,
+  MaxKey,
+  ObjectId,
+  Timestamp,
+  Decimal128,
+  Map,
+  BSONSymbol,
+  calculateObjectSize: BSON.calculateObjectSize
+};
 
 type DropDatabaseResult = {
   ok: 0 | 1;

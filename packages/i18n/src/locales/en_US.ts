@@ -1779,22 +1779,26 @@ const translations: Catalog = {
       },
       HexData: {
         help: {
-          description: 'Helper method to create BinData with subtype hex. Accepts hex string'
+          description: 'Helper method to create BinData. Accepts subtype hex string',
+          example: 'HexData(0, "0123456789abcdef")'
         },
       },
       UUID: {
         help: {
-          description: 'Helper method to create BinData with subtype UUID. Accepts hex string'
+          description: 'Helper method to create BinData with subtype UUID. Accepts hex string (with optional dashes)',
+          example: 'UUID("01234567-89ab-cdef-0123-456789abcdef")'
         },
       },
       MD5: {
         help: {
-          description: 'Helper method to create BinData with subtype MD5. Accepts hex string'
+          description: 'Helper method to create BinData with subtype MD5. Accepts hex string',
+          example: 'MD5("0123456789abcdef0123456789abcdef")'
         },
       },
       bsonsize: {
         help: {
-          description: 'Helper method to calculate BSON object size'
+          description: 'Helper method to calculate BSON object size',
+          example: 'bsonsize({ foo: "bar" })'
         },
       },
       Map: {

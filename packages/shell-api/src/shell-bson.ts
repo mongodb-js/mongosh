@@ -32,8 +32,8 @@ function dateHelper(...args: DateConstructorArguments): Date {
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
  * @param {Object} bson
  */
-export default function constructShellBson(bson: any): any {
-  const bsonNames = [
+export default function constructShellBson(bson: typeof BSON): any {
+  const bsonNames: (keyof typeof BSON)[] = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol'
   ]; // Statically set this so we can error if any are missing
@@ -57,7 +57,7 @@ export default function constructShellBson(bson: any): any {
     Object.setPrototypeOf(bson[className].prototype.help, help);
   });
   // Symbol is deprecated
-  bson.BSONSymbol.prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
+  (bson.BSONSymbol as any).prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
 
   const bsonPkg = {
     DBRef: function(namespace: string, oid: any, db?: string): any {
