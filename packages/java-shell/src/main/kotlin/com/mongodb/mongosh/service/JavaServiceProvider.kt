@@ -41,12 +41,17 @@ internal class JavaServiceProvider(private val client: MongoClient,
             } else {
                 db.runCommand(toDocument(spec, "spec"))
             }
-            val isOk = res["ok"] == 1.0
-            if (!isOk) {
-                throw Exception(res.toJson())
+            if (!interpretAsBoolean(res["ok"])) {
+                throw Exception("Command failed. Spec: ${if (spec.isString) spec.asString() else toDocument(spec, "spec")?.toJson()}. Result: ${res.toJson()}")
             }
             res
         }
+    }
+
+    private fun interpretAsBoolean(v: Any?): Boolean {
+        return (v as? Number)?.toInt()?.equals(1)
+                ?: v as? Boolean
+                ?: false
     }
 
     @HostAccess.Export
