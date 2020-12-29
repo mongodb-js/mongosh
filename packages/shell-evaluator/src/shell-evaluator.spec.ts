@@ -23,7 +23,7 @@ describe('ShellEvaluator', () => {
     exitSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy },
+      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy },
       asyncWriter: {
         process: (i: string): string => (i),
         symbols: {
@@ -31,6 +31,9 @@ describe('ShellEvaluator', () => {
         }
       }
     } as any;
+    for (const name of ['use', 'show', 'it', 'exit', 'quit']) {
+      internalStateMock.shellApi[name].isDirectShellCommand = true;
+    }
     busMock = new EventEmitter();
 
     shellEvaluator = new ShellEvaluator(internalStateMock);
@@ -42,10 +45,15 @@ describe('ShellEvaluator', () => {
       expect(useSpy).to.have.been.calledWith('somedb');
     });
 
+    it('splits commands at an arbitrary amount of whitespace', async() => {
+      await shellEvaluator.customEval(dontCallEval, 'use   somedb;', {}, '');
+      expect(useSpy).to.have.been.calledWith('somedb');
+    });
+
     it('forwards show commands', async() => {
       const dontCallEval = () => { throw new Error('unreachable'); };
       await shellEvaluator.customEval(dontCallEval, 'show dbs;', {}, '');
-      expect(showSpy).to.have.been.calledWith('dbs', undefined);
+      expect(showSpy).to.have.been.calledWith('dbs');
       await shellEvaluator.customEval(dontCallEval, 'show log startupWarnings;', {}, '');
       expect(showSpy).to.have.been.calledWith('log', 'startupWarnings');
     });

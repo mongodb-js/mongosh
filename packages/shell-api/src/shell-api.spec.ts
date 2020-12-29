@@ -48,6 +48,38 @@ describe('ShellApi', () => {
         topologies: ALL_TOPOLOGIES,
         serverVersions: ALL_SERVER_VERSIONS
       });
+      expect(signatures.ShellApi.attributes.print).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: { type: 'unknown', attributes: {} },
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.printjson).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: { type: 'unknown', attributes: {} },
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.sleep).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: { type: 'unknown', attributes: {} },
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
+      expect(signatures.ShellApi.attributes.cls).to.deep.equal({
+        type: 'function',
+        returnsPromise: true,
+        returnType: { type: 'unknown', attributes: {} },
+        platforms: ALL_PLATFORMS,
+        topologies: ALL_TOPOLOGIES,
+        serverVersions: ALL_SERVER_VERSIONS
+      });
       expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -336,6 +368,13 @@ describe('ShellApi', () => {
         await internalState.context.sleep(50);
         const then = Date.now();
         expect(then - now).to.be.greaterThan(40);
+      });
+    });
+    describe('cls', () => {
+      it('clears the screen', async() => {
+        evaluationListener.onClearCommand.resolves();
+        await internalState.context.cls();
+        expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
   });

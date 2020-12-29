@@ -305,6 +305,9 @@ export function topologies(topologiesArray: any[]): Function {
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.returnsPromise = true;
 }
+export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+  descriptor.value.isDirectShellCommand = true;
+}
 export function returnType(type: string | TypeSignature): Function {
   return function(
     _target: any,

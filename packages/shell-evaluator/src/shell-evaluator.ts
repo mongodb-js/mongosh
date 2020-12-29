@@ -37,37 +37,29 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
    * @param {String} filename
    */
   private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
-    const argv = input.trim().replace(/;$/, '').split(' ');
-    const cmd = argv[0];
-    argv.shift();
-    switch (cmd) {
-      case 'use':
-        return this.internalState.shellApi.use(argv[0]);
-      case 'show':
-        return this.internalState.shellApi.show(argv[0], argv[1]);
-      case 'it':
-        return this.internalState.shellApi.it();
-      case 'exit':
-      case 'quit':
-        return await this.internalState.shellApi.exit();
-      default:
-        this.saveState();
-        const rewrittenInput = this.internalState.asyncWriter.process(input);
+    const { shellApi } = this.internalState;
+    const argv = input.trim().replace(/;$/, '').split(/\s+/g);
+    const cmd = argv.shift() as keyof typeof shellApi;
+    if (shellApi[cmd]?.isDirectShellCommand) {
+      return shellApi[cmd](...argv);
+    }
 
-        const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
-        if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
-          this.internalState.messageBus.emit(
-            'mongosh:rewritten-async-input',
-            { original: removeCommand(input.trim()), rewritten: removeCommand(rewrittenInput.trim()) }
-          );
-        }
-        try {
-          return await originalEval(rewrittenInput, context, filename);
-        } catch (err) {
-          // This is for browser/Compass
-          this.revertState();
-          throw err;
-        }
+    this.saveState();
+    const rewrittenInput = this.internalState.asyncWriter.process(input);
+
+    const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
+    if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
+      this.internalState.messageBus.emit(
+        'mongosh:rewritten-async-input',
+        { original: removeCommand(input.trim()), rewritten: removeCommand(rewrittenInput.trim()) }
+      );
+    }
+    try {
+      return await originalEval(rewrittenInput, context, filename);
+    } catch (err) {
+      // This is for browser/Compass
+      this.revertState();
+      throw err;
     }
   }
 

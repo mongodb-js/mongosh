@@ -9,7 +9,6 @@ import {
   toIterator,
   ShellApi,
   getShellApiType,
-  toShellResult,
   ShellResult
 } from './index';
 import constructShellBson from './shell-bson';
@@ -49,6 +48,11 @@ export interface EvaluationListener {
    * Called when e.g. passwordPrompt() is called from the shell.
    */
   onPrompt?: (question: string, type: 'password') => Promise<string> | string;
+
+  /**
+   * Called when cls is entered in the shell.
+   */
+  onClearCommand?: () => Promise<void> | void;
 }
 
 /**
@@ -129,11 +133,6 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    contextObject.print = async(...origArgs: any[]): Promise<void> => {
-      const args: ShellResult[] =
-        await Promise.all(origArgs.map(arg => toShellResult(arg)));
-      await this.evaluationListener.onPrint?.(args);
-    };
     Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
       if (toIgnore.concat(['hasAsyncChild', 'help']).includes(name) ||
@@ -145,9 +144,7 @@ export default class ShellInternalState {
       };
       contextObject[name].help = (this.shellApi as any)[name].help;
     }
-    contextObject.quit = contextObject.exit;
     contextObject.help = this.shellApi.help;
-    contextObject.printjson = contextObject.print;
     Object.assign(contextObject, this.shellBson);
     if (contextObject.console === undefined) {
       contextObject.console = {};
@@ -157,6 +154,7 @@ export default class ShellInternalState {
         return await contextObject.print(...args);
       };
     }
+    contextObject.console.clear = contextObject.cls;
 
     contextObject.rs = new ReplicaSet(this.currentDb);
     contextObject.sh = new Shard(this.currentDb);

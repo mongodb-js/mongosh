@@ -1,4 +1,4 @@
-import { ShellInternalState, ShellCliOptions } from '@mongosh/shell-api';
+import { ShellInternalState, ShellCliOptions, EvaluationListener } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import completer from '@mongosh/autocomplete';
@@ -18,6 +18,7 @@ import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { promisify, callbackify } from 'util';
 import askpassword from 'askpassword';
 import { once } from 'events';
+import { Console } from 'console';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -42,6 +43,7 @@ type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator;
   internalState: ShellInternalState;
   repl: REPLServer;
+  console: Console;
 };
 
 // Utility, inverse of Readonly<T>
@@ -52,7 +54,7 @@ type Mutable<T> = {
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
  */
-class MongoshNodeRepl {
+class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
   input: Readable;
   lineByLineInput: LineByLineInput;
@@ -61,6 +63,7 @@ class MongoshNodeRepl {
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
   configProvider: MongoshConfigProvider;
+  onClearCommand?: EvaluationListener['onClearCommand'];
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -97,10 +100,19 @@ class MongoshNodeRepl {
       ...this.nodeReplOptions
     });
 
+    const console = new Console({
+      stdout: this.output,
+      stderr: this.output,
+      colorMode: this.getFormatOptions().colors
+    });
+    this.onClearCommand = console.clear.bind(console);
+    repl.context.console = console;
+
     this._runtimeState = {
       shellEvaluator,
       internalState,
-      repl
+      repl,
+      console
     };
 
     const origReplCompleter =

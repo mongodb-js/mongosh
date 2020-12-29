@@ -367,6 +367,16 @@ describe('<Shell />', () => {
     ]);
   });
 
+  it('clears the current output when cls is used', () => {
+    wrapper.setState({ output: [
+      { format: 'input', value: 'some code' },
+      { format: 'output', value: 'some result' }
+    ] });
+
+    wrapper.instance().onClearCommand();
+
+    expect(onOutputChangedSpy).to.have.been.calledWith([]);
+  });
   describe('password prompt', () => {
     let pressKey: (key: string) => Promise<void>;
     beforeEach(() => {

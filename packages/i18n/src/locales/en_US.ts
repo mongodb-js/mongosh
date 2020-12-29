@@ -133,6 +133,16 @@ const translations: Catalog = {
               description: 'Sleep for the specified number of milliseconds',
               link: 'https://docs.mongodb.com/manual/reference/method/sleep/',
               example: 'sleep(5000)'
+            },
+            cls: {
+              description: 'Clears the screen like console.clear()'
+            },
+            print: {
+              description: 'Prints the contents of an object to the output',
+              example: 'print({ some: "value" })'
+            },
+            printjson: {
+              description: 'Alias for print()'
             }
           }
         },
