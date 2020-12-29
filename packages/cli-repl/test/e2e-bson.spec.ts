@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import {
   MongoClient
 } from 'mongodb';
@@ -10,35 +11,34 @@ import {
 
 describe('BSON e2e', function() {
   const testServer = startTestServer('shared');
+  let db;
+  let client;
+  let shell: TestShell;
+  let dbName;
 
-  afterEach(async() => await TestShell.killall());
+  beforeEach(async() => {
+    const connectionString = await testServer.connectionString();
+    dbName = `test-${Date.now()}`;
+    shell = TestShell.start({ args: [connectionString] });
+
+    client = await (MongoClient as any).connect(
+      connectionString,
+      { useNewUrlParser: true }
+    );
+
+    db = client.db(dbName);
+
+    await shell.waitForPrompt();
+    shell.assertNoErrors();
+  });
+
+  afterEach(async() => {
+    await db.dropDatabase();
+
+    await client.close();
+    await TestShell.killall();
+  });
   describe('printed BSON', () => {
-    let db;
-    let client;
-    let shell: TestShell;
-    let dbName;
-
-    beforeEach(async() => {
-      const connectionString = await testServer.connectionString();
-      dbName = `test-${Date.now()}`;
-      shell = TestShell.start({ args: [connectionString] });
-
-      client = await (MongoClient as any).connect(
-        connectionString,
-        { useNewUrlParser: true }
-      );
-
-      db = client.db(dbName);
-
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
-    });
-
-    afterEach(async() => {
-      await db.dropDatabase();
-
-      client.close();
-    });
     const outputDoc = {
       ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
       DBRef: 'DBRef("a", "5f16b8bebe434dc98cdfc9cb", "db")',
@@ -322,32 +322,6 @@ describe('BSON e2e', function() {
     });
   });
   describe('help methods', () => {
-    let db;
-    let client;
-    let shell: TestShell;
-    let dbName;
-
-    beforeEach(async() => {
-      const connectionString = await testServer.connectionString();
-      dbName = `test-${Date.now()}`;
-      shell = TestShell.start({ args: [connectionString] });
-
-      client = await (MongoClient as any).connect(
-        connectionString,
-        { useNewUrlParser: true }
-      );
-
-      db = client.db(dbName);
-
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
-    });
-
-    afterEach(async() => {
-      await db.dropDatabase();
-
-      client.close();
-    });
     // NOTE: the driver returns regular JS objects for Int32, Long
     it('ObjectId has help when returned from the server', async() => {
       const value = new bson.ObjectId();
@@ -597,6 +571,12 @@ describe('BSON e2e', function() {
         shell.assertContainsOutput('BSON Class');
       });
       shell.assertNoErrors();
+    });
+  });
+  describe('bsonsize', () => {
+    it('works in the shell', async() => {
+      const result = await shell.executeLine('({ size: bsonsize({ a: 1 }) })');
+      expect(result).to.match(/size: \d+/);
     });
   });
 });
