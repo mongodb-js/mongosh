@@ -37,11 +37,23 @@ async function generateInput(input: string, execInput: string, analyticsConfig: 
   // of 'package.json' instead of the 'main' key. This works fine for most of
   // our direct code, because TypeScript handles the discrepancy for us,
   // but it's causing trouble for nested dependencies like is-recoverable-error.
+  // On the other hand, it also cannot deal with '.cjs' files and would place them
+  // in a separate "bundle" which won't work, e.g. for yargs-parser. So we need to
+  // make sure that we take the '.js' exported main or module.
   const originalGPE = (bundler as any).resolver.getPackageEntries;
   (bundler as any).resolver.getPackageEntries = function(packageJsonContent: any): any {
+    const mainField = packageJsonContent.main;
     const moduleField = packageJsonContent.module;
+    if (mainField?.endsWith('.cjs')) {
+      if (!moduleField || !moduleField.endsWith('.js')) {
+        console.warn('mongosh: bundling detected potential issue - ' + packageJsonContent.name + ' only has a .cjs main file...');
+      } else {
+        packageJsonContent.main = moduleField;
+      }
+    }
     delete packageJsonContent.module;
     const result = originalGPE.call(this, packageJsonContent);
+    packageJsonContent.main = mainField;
     packageJsonContent.module = moduleField;
     return result;
   };

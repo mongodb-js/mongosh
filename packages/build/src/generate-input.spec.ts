@@ -59,4 +59,22 @@ describe('input bundling', function() {
     const { stdout } = await execFile(process.execPath, [path.join(tmpdir, 'compiled.js')]);
     expect(stdout.trim()).to.equal('cjs');
   });
+
+  it('picks the .js module if main is a .cjs file because parcel cannot handle .cjs properly', async() => {
+    const pkg = path.join(tmpdir, 'node_modules', 'some-fake-module');
+    await fs.mkdir(pkg, { recursive: true });
+    await fs.writeFile(path.join(pkg, 'package.json'), '{"main":"./cjs.cjs","module":"./plain.js"}');
+    await fs.writeFile(path.join(pkg, 'cjs.cjs'), 'module.exports = "cjs"');
+    await fs.writeFile(path.join(pkg, 'plain.js'), 'module.exports = "plain"');
+    await fs.writeFile(path.join(tmpdir, 'b.js'), `
+      console.log(require("some-fake-module"));
+      `);
+    await generateInput(
+      path.join(tmpdir, 'b.js'),
+      path.join(tmpdir, 'compiled.js'),
+      path.join(tmpdir, 'analytics.js'),
+      '...segment-key...');
+    const { stdout } = await execFile(process.execPath, [path.join(tmpdir, 'compiled.js')]);
+    expect(stdout.trim()).to.equal('plain');
+  });
 });

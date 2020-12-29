@@ -1,8 +1,8 @@
-import { CliOptions } from '@mongosh/service-provider-server';
-import { USAGE } from './constants';
 import i18n from '@mongosh/i18n';
-import minimist from 'minimist';
+import { CliOptions } from '@mongosh/service-provider-server';
+import parser from 'yargs-parser';
 import { colorizeForStderr as clr } from './clr';
+import { USAGE } from './constants';
 
 /**
  * Unknown translation key.
@@ -15,7 +15,7 @@ const UNKNOWN = 'cli-repl.arg-parser.unknown-option';
 const START = 'start';
 
 /**
- * The minimist options.
+ * The yargs-parser options configuration.
  */
 const OPTIONS = {
   string: [
@@ -64,17 +64,9 @@ const OPTIONS = {
     p: 'password',
     u: 'username'
   },
-  unknown: (parameter: string): boolean => {
-    if (parameter === START) {
-      return false;
-    }
-    if (!parameter.startsWith('-')) {
-      return true;
-    }
-    throw new Error(
-      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(parameter, 'bold')}
-      ${USAGE}`
-    );
+  configuration: {
+    'camel-case-expansion': false,
+    'unknown-options-as-args': true
   }
 };
 
@@ -104,7 +96,21 @@ function getLocale(args: string[], env: any): string {
 function parse(args: string[]): CliOptions {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
-  return minimist(programArgs, OPTIONS);
+
+  const parsed = parser(programArgs, OPTIONS);
+  parsed._ = parsed._.filter(arg => {
+    if (arg === START) {
+      return false;
+    }
+    if (!arg.startsWith('-')) {
+      return true;
+    }
+    throw new Error(
+      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(arg, 'bold')}
+      ${USAGE}`
+    );
+  });
+  return parsed;
 }
 
 export default parse;
