@@ -151,7 +151,43 @@ class MongoshNodeRepl {
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
       repl.on('flushHistory', function() {
-        changeHistory((repl as any).history, redactInfo);
+        const history: string[] = (repl as any).history;
+        changeHistory(history, redactInfo);
+      });
+      // We also want to group multiline history entries into a single entry
+      // per evaluation, so that arrow-up functionality is more useful.
+      let originalHistory: string[] | null = null;
+      (repl as any).on(asyncRepl.evalFinish, (ev: asyncRepl.EvalFinishEvent) => {
+        const history: string[] = (repl as any).history;
+        if (ev.success === false && ev.recoverable) {
+          if (originalHistory === null) {
+            // If this is the first recoverable error we encounter, store the
+            // current history in order to be later able to restore it.
+            // We skip the first entry because it is part of the multiline
+            // input.
+            originalHistory = history.slice(1);
+          }
+        } else if (originalHistory !== null) {
+          // We are seeing the first completion after a recoverable error that
+          // did not result in a recoverable error, i.e. the multiline input
+          // is complete.
+          // Add the current input, with newlines replaced by spaces, to the
+          // front of the history array. We restore the original history, i.e.
+          // any intermediate lines added to the history while we were gathering
+          // the multiline input are replaced at this point.
+          const newHistoryEntry = ev.input.split(/[\r\n]+/g)
+            .map(line => line.trim())
+            .join(' ')
+            .trim();
+          if (newHistoryEntry.length > 0) {
+            originalHistory.unshift(newHistoryEntry);
+          }
+          history.splice(
+            0,
+            history.length,
+            ...originalHistory);
+          originalHistory = null;
+        }
       });
     } catch (err) {
       // repl.setupHistory() only reports failure when something went wrong

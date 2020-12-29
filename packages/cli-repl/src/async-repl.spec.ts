@@ -1,7 +1,8 @@
 import { start as originalStart, REPLServer } from 'repl';
-import { start, OriginalEvalFunction, AsyncREPLOptions } from './async-repl';
+import { start, OriginalEvalFunction, AsyncREPLOptions, evalStart, evalFinish } from './async-repl';
 import { Readable, Writable, PassThrough } from 'stream';
 import { promisify, inspect } from 'util';
+import { once } from 'events';
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
@@ -195,5 +196,46 @@ describe('AsyncRepl', () => {
     input.write('process.domain.on("x", onEvent); process.domain.emit("x"); 0\n');
     await expectInStream(output, '0');
     expect(repl.context.onEvent).to.have.been.calledWith();
+  });
+
+  context('emits information about the current evaluation', () => {
+    it('for successful completion', async() => {
+      const { input, repl } = createDefaultAsyncRepl();
+      const startEvent = once(repl, evalStart);
+      const finishEvent = once(repl, evalFinish);
+      input.write('a = 1\n');
+      expect(await startEvent).to.deep.equal([{
+        input: 'a = 1\n'
+      }]);
+      expect(await finishEvent).to.deep.equal([{
+        input: 'a = 1\n',
+        success: true
+      }]);
+    });
+
+    it('for error completion', async() => {
+      const { input, repl } = createDefaultAsyncRepl();
+      const finishEvent = once(repl, evalFinish);
+      input.write('throw { msg: "foo" }\n');
+      expect(await finishEvent).to.deep.equal([{
+        input: 'throw { msg: "foo" }\n',
+        success: false,
+        recoverable: false,
+        err: { msg: 'foo' }
+      }]);
+    });
+
+    it('for unfinished (incomplete multiline) input', async() => {
+      const { input, repl } = createDefaultAsyncRepl();
+      const finishEvent = once(repl, evalFinish);
+      input.write('({\n');
+      const ev = (await finishEvent)[0];
+      expect(ev).to.deep.equal({
+        input: '({\n',
+        success: false,
+        recoverable: true,
+        err: ev.err
+      });
+    });
   });
 });
