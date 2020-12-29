@@ -18,6 +18,20 @@ export type AsyncREPLOptions = Omit<ReplOptions, 'eval'> & {
   asyncEval: AsyncEvalFunction;
 };
 
+export type EvalStartEvent = {
+  input: string;
+};
+export type EvalFinishEvent = EvalStartEvent & ({
+  success: true;
+} | {
+  success: false;
+  err: unknown;
+  recoverable: boolean;
+});
+
+export const evalStart = Symbol('async-repl:evalStart');
+export const evalFinish = Symbol('async-repl:evalFinish');
+
 // Start a REPLSever that supports asynchronous evaluation, rather than just
 // synchronous, and integrates nicely with Ctrl+C handling in that respect.
 export function start(opts: AsyncREPLOptions): REPLServer {
@@ -31,6 +45,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     filename: string,
     callback: (err: Error|null, result?: any) => void): Promise<void> => {
     let result;
+    repl.emit(evalStart, { input } as EvalStartEvent);
 
     try {
       let sigintListener: (() => void) | undefined = undefined;
@@ -72,14 +87,17 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     } catch (err) {
       try {
         if (isRecoverableError(input)) {
+          repl.emit(evalFinish, { input, success: false, err, recoverable: true } as EvalFinishEvent);
           return callback(new Recoverable(err));
         }
+        repl.emit(evalFinish, { input, success: false, err, recoverable: false } as EvalFinishEvent);
         return callback(err);
       } catch (callbackErr) {
         return callback(wrapCallbackError(callbackErr));
       }
     }
     try {
+      repl.emit(evalFinish, { input, success: true } as EvalFinishEvent);
       return callback(null, result);
     } catch (callbackErr) {
       return callback(wrapCallbackError(callbackErr));

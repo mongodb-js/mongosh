@@ -293,6 +293,95 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.include('somelongvariable');
       });
     });
+
+    context('history support', () => {
+      const arrowUp = '\x1b[A';
+
+      for (const { mode, prefill } of [
+        { mode: 'with no existing history', prefill: 0 },
+        { mode: 'with existing history', prefill: 100 }
+      ]) {
+        // eslint-disable-next-line no-loop-func
+        context(mode, () => {
+          let getHistory: () => string[];
+
+          beforeEach(() => {
+            const { history } = mongoshRepl.runtimeState().repl as any;
+            getHistory = () => history.filter(line => !line.startsWith('prefill-'));
+            for (let i = 0; i < prefill; i++) {
+              history.unshift(`prefill-${i}`);
+            }
+          });
+
+          it('looks up existing entries, if there are any', async() => {
+            output = '';
+            input.write(arrowUp);
+            await tick();
+            if (prefill === 0) {
+              expect(output).to.equal('');
+            } else {
+              expect(output).to.include(`prefill-${prefill - 1}`);
+            }
+          });
+
+          it('works for single-line input', async() => {
+            output = '';
+            input.write(`let a = 16\na = a**2\n${arrowUp}\n`);
+            await tick();
+            expect(output).to.include('256');
+            input.write(`${arrowUp}\n`);
+            await tick();
+            expect(output).to.include('65536');
+            expect(getHistory()).to.deep.equal([
+              'a = a**2',
+              'let a = 16'
+            ]);
+          });
+
+          it('works for multi-line input', async() => {
+            output = '';
+            input.write('obj = ({ foo: \n');
+            await tick();
+            input.write('"bar" })\n');
+            await tick();
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
+            expect(output).not.to.include('obj = ({ foo: "bar" })');
+
+            output = '';
+            input.write(`${arrowUp}\n`);
+            await tick();
+            expect(output).to.include('obj = ({ foo: "bar" })');
+            expect(getHistory()).to.deep.equal([
+              'obj = ({ foo: "bar" })'
+            ]);
+          });
+
+          it('works for interrupted multi-line input', async() => {
+            input.write('const a = 20\n');
+            await tick();
+            input.write('obj = ({ foo: \n');
+            await tick();
+            input.write('\u0003'); // Ctrl+C
+            await tick();
+
+            output = '';
+            input.write(`${arrowUp}`);
+            await tick();
+            expect(output).to.include('obj = ({ foo: ');
+
+            output = '';
+            input.write(`${arrowUp}`);
+            await tick();
+            expect(output).to.include('const a = 20');
+
+            expect(getHistory()).to.deep.equal([
+              'obj = ({ foo: ',
+              'const a = 20'
+            ]);
+          });
+        });
+      }
+    });
   });
 
   context('with fake TTY', () => {
