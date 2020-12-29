@@ -58,6 +58,22 @@ describe('e2e TLS', () => {
 
   function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
     context('connecting without client cert', () => {
+      after(async() => {
+        // mlaunch has some trouble interpreting all the server options correctly,
+        // and subsequently can't connect to the server to find out if it's up,
+        // then thinks it isn't and doesn't shut it down cleanly. We shut it down
+        // here to work around that.
+        const shell = TestShell.start({ args:
+          [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT
+          ]
+        });
+        await shell.waitForPrompt();
+        await shell.executeLine('db.shutdownServer({ force: true })');
+        await TestShell.killall();
+      });
+
       const server = startTestServer(
         'not-shared', '--hostname', 'localhost',
         serverTlsModeOption, serverTlsModeValue,
@@ -148,6 +164,19 @@ describe('e2e TLS', () => {
     });
 
     context('connecting with client cert', () => {
+      after(async() => {
+        const shell = TestShell.start({ args:
+          [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', CLIENT_CERT
+          ]
+        });
+        await shell.waitForPrompt();
+        await shell.executeLine('db.shutdownServer({ force: true })');
+        await TestShell.killall();
+      });
+
       const server = startTestServer(
         'not-shared', '--hostname', 'localhost',
         serverTlsModeOption, serverTlsModeValue,
