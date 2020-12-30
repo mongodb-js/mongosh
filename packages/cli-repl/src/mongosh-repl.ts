@@ -91,7 +91,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: '> ',
+      prompt: await this.getPrompt(internalState),
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -223,7 +223,6 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     internalState.setCtx(repl.context);
-    await this.updatePrompt();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
@@ -284,12 +283,12 @@ class MongoshNodeRepl implements EvaluationListener {
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     this.lineByLineInput.enableBlockOnNewLine();
-    const shellEvaluator = this.runtimeState().shellEvaluator;
+    const { internalState, repl, shellEvaluator } = this.runtimeState();
 
     try {
       return await shellEvaluator.customEval(originalEval, input, context, filename);
     } finally {
-      await this.updatePrompt();
+      repl.setPrompt(await this.getPrompt(internalState));
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
   }
@@ -319,16 +318,6 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     return this.formatOutput({ type: result.type, value: result.printable });
-  }
-
-  async updatePrompt(): Promise<void> {
-    let prompt = '> ';
-    try {
-      prompt = await this.runtimeState().internalState.getDefaultPrompt();
-    } catch (e) {
-      // ignore - we will use the default prompt
-    }
-    this.runtimeState().repl.setPrompt(prompt);
   }
 
   async toggleTelemetry(enabled: boolean): Promise<string> {
@@ -399,6 +388,16 @@ class MongoshNodeRepl implements EvaluationListener {
   async onExit(): Promise<never> {
     await this.close();
     return this.configProvider.exit(0);
+  }
+
+  private async getPrompt(internalState: ShellInternalState): Promise<string> {
+    let prompt = '> ';
+    try {
+      prompt = await internalState.getDefaultPrompt();
+    } catch (e) {
+      // ignore - we will use the default prompt
+    }
+    return prompt;
   }
 }
 
