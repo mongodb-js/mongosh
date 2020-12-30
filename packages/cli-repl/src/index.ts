@@ -3,6 +3,7 @@ import parseCliArgs from './arg-parser';
 import mapCliToDriver from './arg-mapper';
 import clr from './clr';
 import { USAGE, TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
+import { getStoragePaths } from './config-directory';
 
 export default CliRepl;
 
@@ -13,5 +14,6 @@ export {
   MONGOSH_WIKI,
   CliRepl,
   parseCliArgs,
-  mapCliToDriver
+  mapCliToDriver,
+  getStoragePaths
 };

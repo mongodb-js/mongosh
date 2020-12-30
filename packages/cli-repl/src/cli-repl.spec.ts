@@ -31,7 +31,10 @@ describe('CliRepl', () => {
       shellCliOptions: {},
       input: input,
       output: outputStream,
-      shellHomePath: tmpdir.path,
+      shellHomePaths: {
+        shellRoamingDataPath: tmpdir.path,
+        shellLocalDataPath: tmpdir.path,
+      },
       onExit: ((code: number) => {
         exitCode = code;
       }) as ((code: number) => never)
@@ -162,7 +165,8 @@ describe('CliRepl', () => {
           this.skip(); // TODO: Figure out why this doesn't work on Windows.
           return;
         }
-        cliReplOptions.shellHomePath = '/nonexistent/inaccesible';
+        cliReplOptions.shellHomePaths.shellRoamingDataPath = '/nonexistent/inaccesible';
+        cliReplOptions.shellHomePaths.shellLocalDataPath = '/nonexistent/inaccesible';
         cliRepl = new CliRepl(cliReplOptions);
         const onerror = once(cliRepl.bus, 'mongosh:error');
         try {

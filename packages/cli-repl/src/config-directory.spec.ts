@@ -22,7 +22,10 @@ describe('home directory management', () => {
 
   beforeEach(() => {
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
-    shellHomeDirectory = new ShellHomeDirectory(base);
+    shellHomeDirectory = new ShellHomeDirectory({
+      shellRoamingDataPath: base,
+      shellLocalDataPath: base
+    });
     manager = new ConfigManager(shellHomeDirectory);
     manager.on('error', onError = sinon.spy());
     manager.on('new-config', onNewConfig = sinon.spy());
@@ -48,7 +51,7 @@ describe('home directory management', () => {
     });
 
     it('provides a way to access subpaths', async() => {
-      const subpath = shellHomeDirectory.path('banana');
+      const subpath = shellHomeDirectory.localPath('banana');
       expect(subpath).to.equal(path.join(base, 'banana'));
     });
   });

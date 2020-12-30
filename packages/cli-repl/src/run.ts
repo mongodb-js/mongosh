@@ -1,7 +1,5 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, USAGE } from './index';
+import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
-import path from 'path';
-import os from 'os';
 
 (async() => {
   let repl;
@@ -31,12 +29,13 @@ import os from 'os';
       const driverOptions = await mapCliToDriver(options);
       const driverUri = generateUri(options);
       const appname = `${process.title} ${version}`;
+      const shellHomePaths = getStoragePaths();
       repl = new CliRepl({
         shellCliOptions: options,
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,
-        shellHomePath: path.join(os.homedir(), '.mongodb/mongosh/')
+        shellHomePaths: shellHomePaths
       });
       await repl.start(driverUri, { appName: appname, ...driverOptions });
     }
