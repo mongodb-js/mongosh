@@ -83,6 +83,13 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
+  @serverVersions(['4.4.0', ServerVersions.latest])
+  allowDiskUse(): Cursor {
+    this._cursor.allowDiskUse();
+    return this;
+  }
+
+  @returnType('Cursor')
   allowPartialResults(): Cursor {
     this._addFlag('partial' as CursorFlag);
     return this;

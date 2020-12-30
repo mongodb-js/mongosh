@@ -126,6 +126,21 @@ describe('Cursor', () => {
       });
     });
 
+    describe('#allowDiskUse', () => {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('calls the driver method', () => {
+        expect(shellApiCursor.allowDiskUse()).to.equal(shellApiCursor);
+        expect(spCursor.allowDiskUse).to.have.been.calledWith();
+      });
+    });
+
     describe('#batchSize', () => {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
