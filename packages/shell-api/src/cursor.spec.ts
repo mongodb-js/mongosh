@@ -41,7 +41,8 @@ describe('Cursor', () => {
     beforeEach(() => {
       wrappee = {
         map: sinon.spy(),
-        closed: true
+        closed: true,
+        bufferedCount() { return 0; }
       };
       cursor = new Cursor({
         _serviceProvider: { platform: ReplPlatform.CLI }
