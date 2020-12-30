@@ -1,24 +1,24 @@
-import { ShellInternalState, ShellCliOptions, EvaluationListener } from '@mongosh/shell-api';
-import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import type { ServiceProvider } from '@mongosh/service-provider-core';
 import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
+import { EvaluationListener, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
+import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
+import type { MongoshBus, UserConfig } from '@mongosh/types';
+import askpassword from 'askpassword';
+import { Console } from 'console';
+import { once } from 'events';
 import prettyRepl from 'pretty-repl';
-import * as asyncRepl from './async-repl';
-import { REPLServer, ReplOptions } from 'repl';
+import { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
-import type { UserConfig, MongoshBus } from '@mongosh/types';
-import { LineByLineInput } from './line-by-line-input';
-import formatOutput, { formatError } from './format-output';
+import { callbackify, promisify } from 'util';
+import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
-import { TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
-import { promisify, callbackify } from 'util';
-import askpassword from 'askpassword';
-import { once } from 'events';
-import { Console } from 'console';
+import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
+import formatOutput, { formatError } from './format-output';
+import { LineByLineInput } from './line-by-line-input';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -91,7 +91,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: await internalState.getDefaultPrompt(),
+      prompt: '> ',
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -136,10 +136,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
-    repl.displayPrompt = async(...args: any[]): Promise<void> => {
-      this.lineByLineInput.enableBlockOnNewLine();
-      const prompt = await this.getPrompt();
-      repl.setPrompt(prompt);
+    repl.displayPrompt = (...args: any[]) => {
       originalDisplayPrompt(...args);
       this.lineByLineInput.nextLine();
     };
@@ -226,6 +223,7 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     internalState.setCtx(repl.context);
+    await this.updatePrompt();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
@@ -287,8 +285,22 @@ class MongoshNodeRepl implements EvaluationListener {
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     this.lineByLineInput.enableBlockOnNewLine();
     const shellEvaluator = this.runtimeState().shellEvaluator;
+
     try {
-      return await shellEvaluator.customEval(originalEval, input, context, filename);
+      let error: Error | undefined = undefined;
+      let result: any = undefined;
+      try {
+        result = await shellEvaluator.customEval(originalEval, input, context, filename);
+      } catch (e) {
+        error = e;
+      }
+
+      await this.updatePrompt();
+
+      if (error) {
+        throw error;
+      }
+      return result;
     } finally {
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
@@ -321,8 +333,14 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.formatOutput({ type: result.type, value: result.printable });
   }
 
-  async getPrompt(): Promise<string> {
-    return await this.runtimeState().internalState.getDefaultPrompt();
+  async updatePrompt(): Promise<void> {
+    let prompt = '> ';
+    try {
+      prompt = await this.runtimeState().internalState.getDefaultPrompt();
+    } catch (e) {
+      // ignore - we will use the default prompt
+    }
+    this.runtimeState().repl.setPrompt(prompt);
   }
 
   async toggleTelemetry(enabled: boolean): Promise<string> {

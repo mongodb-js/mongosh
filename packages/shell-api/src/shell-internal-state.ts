@@ -274,7 +274,7 @@ export default class ShellInternalState {
     return new Promise(resolve => {
       setTimeout(() => {
         resolve(`${new Date()} > `);
-      }, 1500);
+      }, 10);
     });
   }
 }

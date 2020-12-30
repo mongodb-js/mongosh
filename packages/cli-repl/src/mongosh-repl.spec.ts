@@ -7,7 +7,7 @@ import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
-import { expect, fakeTTYProps, tick, useTmpdir } from '../test/repl-helpers';
+import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
 import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
 
 const delay = promisify(setTimeout);
@@ -98,13 +98,13 @@ describe('MongoshNodeRepl', () => {
 
     it('evaluates javascript', async() => {
       input.write('21 + 13\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('34');
     });
 
     it('does not print "undefined"', async() => {
       input.write('const foo = "bar";\n');
-      await tick();
+      await waitEval(bus);
       expect(output).not.to.include('undefined');
       expect(output).not.to.include('bar');
     });
@@ -137,16 +137,16 @@ describe('MongoshNodeRepl', () => {
 
     it('prints values when asked to', async() => {
       input.write('print("see this?"); 42\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('see this?');
     });
 
     it('forwards telemetry config requests', async() => {
       input.write('disableTelemetry()\n');
-      await tick();
+      await waitEval(bus);
       expect(configProvider.setConfig).to.have.been.calledWith('enableTelemetry', false);
       input.write('enableTelemetry()\n');
-      await tick();
+      await waitEval(bus);
       expect(configProvider.setConfig).to.have.been.calledWith('enableTelemetry', true);
     });
 
@@ -155,36 +155,35 @@ describe('MongoshNodeRepl', () => {
       const prevOutput = output;
       input.write('.clear\n');
       await tick();
-      expect(output.slice(prevOutput.length)).to.equal('> ');
+      expect(output.slice(prevOutput.length)).to.match(/> $/);
     });
 
     it('keeps variables defined before .clear', async() => {
       input.write('a = 14987135; 0\n');
-      await tick();
+      await waitEval(bus);
       input.write('.clear\n');
       await tick();
       expect(output).not.to.include('14987135');
       input.write('a\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('14987135');
     });
 
     it('prints a fancy syntax error when encountering one', async() => {
       input.write('<cat>\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('SyntaxError: Unexpected token');
       expect(output).to.include(`
 > 1 | <cat>
     | ^
-  2 |\u0020
-
->`); // ← This is the prompt – We’re seeing no stack trace for syntax errors.
+  2 | `);
+      expect(output).to.not.match(/ at [^ ]+ \n/g); // <- no stack trace lines
     });
 
     it('can enter multiline code', async() => {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
-        await tick();
+        await waitEval(bus);
       }
       // Two ... because we entered two incomplete lines.
       expect(output).to.include('... ... 987');
@@ -193,20 +192,20 @@ describe('MongoshNodeRepl', () => {
 
     it('Mongosh errors do not have a stack trace', async() => {
       input.write('db.auth()\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('MongoshInvalidInputError:');
       expect(output).not.to.include(' at ');
     });
 
     it('prints help', async() => {
       input.write('help()\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.match(/connect\s*Create a new connection and return the Database object/);
     });
 
     it('prints help for cursor commands', async() => {
       input.write('db.coll.find().hasNext.help()\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('returns true if the cursor returned by the');
     });
   });
@@ -231,14 +230,14 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.include('Entering editor mode');
       input.write('2**16+1\n');
       input.write('\u0004'); // Ctrl+D
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('65537');
     });
 
     it('can enter multiline code', async() => {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
-        await tick();
+        await waitEval(bus);
       }
       expect(output).to.include('987');
       expect(output).not.to.include('Error');
@@ -247,6 +246,7 @@ describe('MongoshNodeRepl', () => {
     it('can enter multiline code with delays after newlines', async() => {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
+        await waitEval(bus);
         await delay(150);
       }
       expect(output).to.include('987');
@@ -270,8 +270,12 @@ describe('MongoshNodeRepl', () => {
 
     context('autocompletion', () => {
       it('autocompletes collection methods', async() => {
-        input.write('db.coll.\u0009\u0009'); // U+0009 is TAB
-        await tick();
+        // this triggers an eval
+        input.write('db.coll.\u0009\u0009');
+        // first tab
+        await waitEval(bus);
+        // second tab
+        await waitEval(bus);
         expect(output).to.include('db.coll.updateOne');
       });
       it('autocompletes shell-api methods (once)', async() => {
@@ -287,7 +291,7 @@ describe('MongoshNodeRepl', () => {
       });
       it('autocompletes local variables', async() => {
         input.write('let somelongvariable = 0\n');
-        await tick();
+        await waitEval(bus);
         output = '';
         input.write('somelong\u0009\u0009'); // U+0009 is TAB
         await tick();
@@ -415,7 +419,7 @@ describe('MongoshNodeRepl', () => {
 
     it('colorizes output', async() => {
       input.write('ISODate()\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
     });
 
@@ -426,12 +430,12 @@ describe('MongoshNodeRepl', () => {
 
       output = '';
       input.write('hello!\n');
-      await tick();
+      await waitEval(bus);
       expect(output).not.to.include('hello!');
 
       output = '';
       input.write('pw\n');
-      await tick();
+      await waitEval(bus);
       expect(output).to.include('hello!');
     });
 
@@ -442,13 +446,13 @@ describe('MongoshNodeRepl', () => {
 
       output = '';
       input.write('hello!\u0003'); // Ctrl+C
-      await tick();
+      await waitEval(bus);
       expect(output).not.to.include('hello!');
       expect(output).to.include('aborted by the user');
 
       output = '';
       input.write('pw\n');
-      await tick();
+      await waitEval(bus);
       expect(output).not.to.include('hello!');
       expect(output).to.include('ReferenceError');
     });
