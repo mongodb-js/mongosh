@@ -124,7 +124,6 @@ export default class AggregationCursor extends ShellApiClass {
   @returnType('AggregationCursor')
   batchSize(size: number): AggregationCursor {
     this._batchSize = size;
-    this._cursor.batchSize(size);
     return this;
   }
 }
