@@ -676,6 +676,11 @@ const translations: Catalog = {
               description: "Sets the 'partial' option to true.",
               example: 'db.collection.find(query, projection).allowPartialResults()'
             },
+            allowDiskUse: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.allowDiskUse',
+              description: "Sets the 'allowDiskUse' option to true.",
+              example: 'db.collection.find(query, projection).allowDiskUse()'
+            },
             batchSize: {
               link: '',
               description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
