@@ -6,6 +6,9 @@ import {
   returnsPromise,
   returnType,
   platforms,
+  toShellResult,
+  ShellResult,
+  directShellCommand
 } from './decorators';
 import Mongo from './mongo';
 import Database from './database';
@@ -29,15 +32,18 @@ export default class ShellApi extends ShellApiClass {
     this.DBQuery = new DBQuery();
   }
 
+  @directShellCommand
   use(db: string): any {
     return this.internalState.currentDb._mongo.use(db);
   }
 
+  @directShellCommand
   @returnsPromise
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     return await this.internalState.currentDb._mongo.show(cmd, arg);
   }
 
+  @directShellCommand
   @returnsPromise
   async exit(): Promise<void> {
     await this.internalState.close(true);
@@ -46,6 +52,12 @@ export default class ShellApi extends ShellApiClass {
       `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
       CommonErrors.NotImplemented
     );
+  }
+
+  @directShellCommand
+  @returnsPromise
+  async quit(): Promise<void> {
+    return await this.exit();
   }
 
   @returnsPromise
@@ -81,6 +93,7 @@ export default class ShellApi extends ShellApiClass {
     return mongo.getDB(db);
   }
 
+  @directShellCommand
   @returnsPromise
   async it(): Promise<any> {
     if (!this.internalState.currentCursor) {
@@ -127,5 +140,25 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async sleep(ms: number): Promise<void> {
     return await promisify(setTimeout)(ms);
+  }
+
+  @returnsPromise
+  async print(...origArgs: any[]): Promise<void> {
+    const { evaluationListener } = this.internalState;
+    const args: ShellResult[] =
+      await Promise.all(origArgs.map(arg => toShellResult(arg)));
+    await evaluationListener.onPrint?.(args);
+  }
+
+  @returnsPromise
+  async printjson(...origArgs: any[]): Promise<void> {
+    return this.print(...origArgs);
+  }
+
+  @directShellCommand
+  @returnsPromise
+  async cls(): Promise<void> {
+    const { evaluationListener } = this.internalState;
+    await evaluationListener.onClearCommand?.();
   }
 }

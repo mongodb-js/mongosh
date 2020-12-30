@@ -451,6 +451,20 @@ describe('MongoshNodeRepl', () => {
       expect(output).not.to.include('hello!');
       expect(output).to.include('ReferenceError');
     });
+
+    it('clears the console when console.clear() is used', async() => {
+      output = '';
+      input.write('console.clear()\n');
+      await tick();
+      expect(output).to.match(/\x1b\[[0-9]+J/); // 'CSI n J' is clear display
+    });
+
+    it('clears the console when cls is used', async() => {
+      output = '';
+      input.write('cls\n');
+      await tick();
+      expect(output).to.match(/\x1b\[[0-9]+J/); // 'CSI n J' is clear display
+    });
   });
 
   context('with somewhat unreachable history file', () => {

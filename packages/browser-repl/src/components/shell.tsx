@@ -154,7 +154,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     return output;
   }
 
-  private onClearCommand = (): void => {
+  onClearCommand = (): void => {
     const output: [] = [];
 
     Object.freeze(output);
