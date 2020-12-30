@@ -10,7 +10,7 @@ import pino from 'pino';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
-import { ConfigManager, ShellHomeDirectory } from './config-directory';
+import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
@@ -25,7 +25,7 @@ export type CliReplOptions = {
   shellCliOptions: CliOptions,
   input: Readable;
   output: Writable;
-  shellHomePath: string;
+  shellHomePaths: ShellHomePaths;
   onExit: (code: number) => never;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
@@ -53,7 +53,7 @@ class CliRepl {
     this.output = options.output;
     this.logId = new bson.ObjectId().toString();
 
-    this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePath);
+    this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<UserConfig>(
       this.shellHomeDirectory)
       .on('error', (err: Error) =>
@@ -106,7 +106,10 @@ class CliRepl {
     setupLoggerAndTelemetry(
       this.logId,
       this.bus,
-      () => pino({ name: 'mongosh' }, pino.destination(this.shellHomeDirectory.path(`${this.logId}_log`))),
+      () => pino(
+        { name: 'mongosh' },
+        pino.destination(
+          this.shellHomeDirectory.localPath(`${this.logId}_log`))),
       // analytics-config.js gets written as a part of a release
       () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
 
@@ -136,7 +139,7 @@ class CliRepl {
   }
 
   getHistoryFilePath(): string {
-    return this.shellHomeDirectory.path('.mongosh_repl_history');
+    return this.shellHomeDirectory.roamingPath('mongosh_repl_history');
   }
 
   async getConfig<K extends keyof UserConfig>(key: K): Promise<UserConfig[K]> {

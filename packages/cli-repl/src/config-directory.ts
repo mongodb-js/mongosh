@@ -1,20 +1,31 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import os from 'os';
 import { EventEmitter } from 'events';
 
-export class ShellHomeDirectory {
-  baseDirectory: string;
+export type ShellHomePaths = {
+  shellRoamingDataPath: string;
+  shellLocalDataPath: string;
+};
 
-  constructor(baseDirectory: string) {
-    this.baseDirectory = baseDirectory;
+export class ShellHomeDirectory {
+  paths: ShellHomePaths;
+
+  constructor(paths: ShellHomePaths) {
+    this.paths = paths;
   }
 
   async ensureExists(): Promise<void> {
-    await fs.mkdir(this.baseDirectory, { recursive: true });
+    await fs.mkdir(this.paths.shellRoamingDataPath, { recursive: true });
+    await fs.mkdir(this.paths.shellLocalDataPath, { recursive: true });
   }
 
-  path(subpath: string): string {
-    return path.join(this.baseDirectory, subpath);
+  roamingPath(subpath: string): string {
+    return path.join(this.paths.shellRoamingDataPath, subpath);
+  }
+
+  localPath(subpath: string): string {
+    return path.join(this.paths.shellLocalDataPath, subpath);
   }
 }
 
@@ -29,7 +40,7 @@ export class ConfigManager<Config> extends EventEmitter {
   }
 
   path() {
-    return this.shellHomeDirectory.path('config');
+    return this.shellHomeDirectory.roamingPath('config');
   }
 
   /**
@@ -85,4 +96,24 @@ export class ConfigManager<Config> extends EventEmitter {
       throw err;
     }
   }
+}
+
+export function getStoragePaths(): ShellHomePaths {
+  let shellLocalDataPath;
+  let shellRoamingDataPath;
+  if (process.platform === 'win32') {
+    const appData = process.env.APPDATA;
+    const localAppData = process.env.LOCALAPPDATA ?? process.env.APPDATA;
+    if (localAppData && appData) {
+      shellLocalDataPath = path.join(localAppData, 'mongodb', 'mongosh');
+      shellRoamingDataPath = path.join(appData, 'mongodb', 'mongosh');
+    }
+  }
+  const homedir = path.join(os.homedir(), '.mongodb', 'mongosh');
+  shellLocalDataPath ??= homedir;
+  shellRoamingDataPath ??= homedir;
+  return {
+    shellLocalDataPath,
+    shellRoamingDataPath
+  };
 }

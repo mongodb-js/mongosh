@@ -459,7 +459,6 @@ describe('e2e', function() {
   describe('config and logging', async() => {
     let shell: TestShell;
     let homedir: string;
-    let mongoshdir: string;
     let configPath: string;
     let logPath: string;
     let historyPath: string;
@@ -471,15 +470,24 @@ describe('e2e', function() {
       homedir = path.resolve(
         __dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
       await fs.mkdir(homedir, { recursive: true });
-      mongoshdir = path.resolve(homedir, '.mongodb', 'mongosh');
-      configPath = path.resolve(mongoshdir, 'config');
-      historyPath = path.resolve(mongoshdir, '.mongosh_repl_history');
+      const env: Record<string, string> = {
+        ...process.env, HOME: homedir, USERPROFILE: homedir
+      };
+      if (process.platform === 'win32') {
+        env.LOCALAPPDATA = path.join(homedir, 'local');
+        env.APPDATA = path.join(homedir, 'roaming');
+        configPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'config');
+        historyPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'mongosh_repl_history');
+      } else {
+        configPath = path.resolve(homedir, '.mongodb', 'mongosh', 'config');
+        historyPath = path.resolve(homedir, '.mongodb', 'mongosh', 'mongosh_repl_history');
+      }
       readConfig = async() => JSON.parse(await fs.readFile(configPath, 'utf8'));
       readLogfile = async() => readReplLogfile(logPath);
       startTestShell = async() => {
         const shell = TestShell.start({
           args: [ '--nodb' ],
-          env: { ...process.env, HOME: homedir, USERPROFILE: homedir },
+          env: env,
           forceTerminal: true
         });
         await shell.waitForPrompt();
@@ -487,7 +495,11 @@ describe('e2e', function() {
         return shell;
       };
       shell = await startTestShell();
-      logPath = path.join(mongoshdir, `${shell.logId}_log`);
+      if (process.platform === 'win32') {
+        logPath = path.join(homedir, 'local', 'mongodb', 'mongosh', `${shell.logId}_log`);
+      } else {
+        logPath = path.join(homedir, '.mongodb', 'mongosh', `${shell.logId}_log`);
+      }
     });
 
     afterEach(async() => {
