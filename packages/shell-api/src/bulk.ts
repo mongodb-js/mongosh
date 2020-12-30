@@ -1,4 +1,4 @@
-import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
+import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault, returnType } from './decorators';
 import Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
@@ -7,7 +7,8 @@ import {
   WriteConcern,
   OrderedBulkOperation,
   UnorderedBulkOperation,
-  FindOperators
+  FindOperators,
+  CollationOptions
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { blockedByDriverMetadata } from './error-codes';
@@ -30,15 +31,10 @@ export class BulkFindOp extends ShellApiClass {
     return 'BulkFindOp';
   }
 
-  // Blocked by NODE-2757, bulk collation
-  collation(): BulkFindOp {
-    throw new MongoshUnimplementedError(
-      'collation method on fluent Bulk API is not currently supported. ' +
-      'As an alternative, consider using the \'db.collection.bulkWrite(...)\' helper ' +
-      'which accepts \'collation\' as a field in the operations.',
-      CommonErrors.NotImplemented,
-      blockedByDriverMetadata('BulkFindOp.arrayFilters')
-    );
+  @returnType('BulkFindOp')
+  collation(spec: CollationOptions): BulkFindOp {
+    this._serviceProviderBulkFindOp.collation(spec);
+    return this;
   }
 
   // Blocked by NODE-2751, bulk arrayFilters
@@ -50,24 +46,28 @@ export class BulkFindOp extends ShellApiClass {
     );
   }
 
+  @returnType('BulkFindOp')
   hint(hintDoc: Document): BulkFindOp {
     assertArgsDefined(hintDoc);
     this._hint = hintDoc;
     return this;
   }
 
+  @returnType('Bulk')
   remove(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
     this._serviceProviderBulkFindOp.remove();
     return this._parentBulk;
   }
 
+  @returnType('Bulk')
   removeOne(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
     this._serviceProviderBulkFindOp.removeOne();
     return this._parentBulk;
   }
 
+  @returnType('Bulk')
   replaceOne(replacement: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefined(replacement);
@@ -79,6 +79,7 @@ export class BulkFindOp extends ShellApiClass {
     return this._parentBulk;
   }
 
+  @returnType('Bulk')
   updateOne(update: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefined(update);
@@ -93,6 +94,7 @@ export class BulkFindOp extends ShellApiClass {
     return this._parentBulk;
   }
 
+  @returnType('Bulk')
   update(update: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefined(update);
@@ -107,6 +109,7 @@ export class BulkFindOp extends ShellApiClass {
     return this._parentBulk;
   }
 
+  @returnType('Bulk')
   upsert(): BulkFindOp {
     assertArgsDefined();
     this._serviceProviderBulkFindOp.upsert();
@@ -180,11 +183,13 @@ export default class Bulk extends ShellApiClass {
     );
   }
 
+  @returnType('BulkFindOp')
   find(query: Document): BulkFindOp {
     assertArgsDefined(query);
     return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
 
+  @returnType('Bulk')
   insert(document: Document): Bulk {
     this._batchCounts.nInsertOps++;
     assertArgsDefined(document);

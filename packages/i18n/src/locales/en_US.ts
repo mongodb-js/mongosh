@@ -1871,7 +1871,7 @@ const translations: Catalog = {
             },
             'collation': {
               link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.collation/',
-              description: 'Not currently implemented, use db.collection.bulkWrite as an alternative',
+              description: 'Adds collation options to the bulk operation.',
               example: 'bulkOp.find(...).collation(<collation doc>)',
             },
             'remove': {

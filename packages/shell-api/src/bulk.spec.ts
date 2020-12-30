@@ -435,15 +435,10 @@ describe('Bulk API', () => {
         });
       });
       describe('collation', () => {
-        it('throws as it is not implemented yet', () => {
-          try {
-            bulkFindOp.collation();
-            fail('expected error');
-          } catch (e) {
-            expect(e.name).to.equal('MongoshUnimplementedError');
-            expect(e.code).to.equal(CommonErrors.NotImplemented);
-            expect(e.metadata?.driverCaused).to.equal(true);
-          }
+        it('sets the collation and returns self', () => {
+          const coll = { locale: 'fa', strength: 2 } as any;
+          expect(bulkFindOp.collation(coll)).to.equal(bulkFindOp);
+          expect(innerStub.collation).to.have.been.calledWith(coll);
         });
       });
     });
