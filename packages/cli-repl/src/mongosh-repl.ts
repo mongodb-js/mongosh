@@ -287,21 +287,9 @@ class MongoshNodeRepl implements EvaluationListener {
     const shellEvaluator = this.runtimeState().shellEvaluator;
 
     try {
-      let error: Error | undefined = undefined;
-      let result: any = undefined;
-      try {
-        result = await shellEvaluator.customEval(originalEval, input, context, filename);
-      } catch (e) {
-        error = e;
-      }
-
-      await this.updatePrompt();
-
-      if (error) {
-        throw error;
-      }
-      return result;
+      return await shellEvaluator.customEval(originalEval, input, context, filename);
     } finally {
+      await this.updatePrompt();
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
   }
