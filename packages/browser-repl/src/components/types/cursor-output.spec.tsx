@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from '../../../testing/chai';
-import { shallow } from '../../../testing/enzyme';
+import { shallow, mount } from '../../../testing/enzyme';
 
 import { CursorOutput } from './cursor-output';
 import { CursorIterationResultOutput } from './cursor-iteration-result-output';
@@ -20,30 +20,21 @@ describe('CursorOutput', () => {
     expect(wrapper.find(CursorIterationResultOutput).prop('value')).to.deep.equal(docs);
   });
 
-  context('when value contains more than 20 docs', () => {
+  context('when value has more elements available', () => {
     it('prompts to type "it"', () => {
-      const docs = new Array(21).fill({});
-      const wrapper = shallow(<CursorOutput value={docs} />);
+      const docs = Object.assign([{}], { cursorHasMore: true });
+      const wrapper = mount(<CursorOutput value={docs} />);
 
-      expect(wrapper.text()).to.contain('Type "it" for more');
+      expect(wrapper.find(CursorIterationResultOutput).text()).to.contain('Type "it" for more');
     });
   });
 
-  context('when value contains 20 docs', () => {
-    it('prompts to type "it"', () => {
-      const docs = new Array(20).fill({});
-      const wrapper = shallow(<CursorOutput value={docs} />);
-
-      expect(wrapper.text()).to.contain('Type "it" for more');
-    });
-  });
-
-  context('when value contains less than 20 docs', () => {
+  context('when value does not have more elements available', () => {
     it('does not prompt to type "it"', () => {
-      const docs = new Array(1).fill({});
-      const wrapper = shallow(<CursorOutput value={docs} />);
+      const docs = Object.assign([{}], { cursorHasMore: false });
+      const wrapper = mount(<CursorOutput value={docs} />);
 
-      expect(wrapper.text()).not.to.contain('Type "it" for more');
+      expect(wrapper.find(CursorIterationResultOutput).text()).not.to.contain('Type "it" for more');
     });
   });
 });

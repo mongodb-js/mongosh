@@ -8,7 +8,7 @@ export interface Document {
 }
 
 interface CursorIterationResultOutputProps {
-  value: Document[];
+  value: Document[] & { cursorHasMore: boolean };
 }
 
 export class CursorIterationResultOutput extends Component<CursorIterationResultOutputProps> {
@@ -17,11 +17,17 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
   };
 
   render(): JSX.Element {
-    if (this.props.value.length) {
-      return <div>{this.props.value.map(this.renderDocument)}</div>;
+    if (!this.props.value.length) {
+      return <div>{i18n.__('shell-api.classes.Cursor.iteration.no-cursor')}</div>;
     }
 
-    return <div>{i18n.__('shell-api.classes.Cursor.iteration.no-cursor')}</div>;
+    const more = this.props.value.cursorHasMore ?
+      (<pre>{i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more')}</pre>) :
+      '';
+    return (<div>
+      {this.props.value.map(this.renderDocument)}
+      {more}
+    </div>);
   }
 
   renderDocument = (document: Document, i: number): JSX.Element => {

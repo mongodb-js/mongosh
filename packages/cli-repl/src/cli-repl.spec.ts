@@ -239,7 +239,7 @@ describe('CliRepl', () => {
       input.write('use clirepltest\n');
       await waitEval(cliRepl.bus);
 
-      input.write(`for (let i = 0; i < 100; i++) { \
+      input.write(`for (let i = 0; i < 35; i++) { \
         db.coll.insertOne({ index: i }); \
       }
 `);
@@ -251,6 +251,7 @@ describe('CliRepl', () => {
       await waitEval(cliRepl.bus);
       expect(output).to.include('index: 10');
       expect(output).not.to.include('index: 30');
+      expect(output).to.include('Type "it" for more');
 
       // Print it again -- no change until iterated.
       output = '';
@@ -265,6 +266,7 @@ describe('CliRepl', () => {
       await waitEval(cliRepl.bus);
       expect(output).not.to.include('index: 10');
       expect(output).to.include('index: 30');
+      expect(output).not.to.include('Type "it" for more');
 
       // Still not iterating implicitly when we're printing the cursor itself.
       output = '';

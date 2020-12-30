@@ -728,6 +728,9 @@ describe('Cursor', () => {
             if (prop === 'tryNext') {
               return async() => ({ key: i++ });
             }
+            if (prop === 'batchSize') {
+              return () => {};
+            }
             return (target as any)[prop];
           }
         });
@@ -743,6 +746,13 @@ describe('Cursor', () => {
         const result3 = (await toShellResult(shellApiCursor)).printable;
         expect(result1).to.not.deep.equal(result3);
         expect(i).to.equal(40);
+      });
+
+      it('lets .batchSize() control the output length', async() => {
+        shellApiCursor.batchSize(10);
+        const result = (await toShellResult(shellApiCursor)).printable;
+        expect(i).to.equal(10);
+        expect(result.length).to.equal(10);
       });
     });
   });

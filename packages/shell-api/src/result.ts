@@ -112,9 +112,17 @@ export class DeleteResult extends ShellApiClass {
 @shellApiClassDefault
 export class CursorIterationResult extends Array {
   [shellApiType]: string;
+  hasMore: boolean;
 
-  constructor(...args: any[]) {
-    super(...args);
+  constructor() {
+    super();
+    this.hasMore = true; // filled by iterate() in helpers.ts or the _it() methods
     addHiddenDataProperty(this, shellApiType, 'CursorIterationResult');
+  }
+
+  [asPrintable]() {
+    const ret = [...this];
+    addHiddenDataProperty(ret, 'cursorHasMore', this.hasMore);
+    return ret;
   }
 }

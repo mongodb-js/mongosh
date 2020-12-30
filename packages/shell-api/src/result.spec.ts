@@ -119,7 +119,8 @@ describe('Results', () => {
     });
   });
   describe('CursorIterationResult', () => {
-    const r = new results.CursorIterationResult(1, 2, 3) as ShellApiInterface;
+    const r = new results.CursorIterationResult() as ShellApiInterface;
+    r.push(1, 2, 3);
     it('superclass attributes set', () => {
       expect(r.length).to.equal(3);
     });

@@ -214,6 +214,13 @@ describe('AggregationCursor', () => {
         expect(result1).to.not.deep.equal(result3);
         expect(i).to.equal(40);
       });
+
+      it('lets .batchSize() control the output length', async() => {
+        shellApiCursor.batchSize(10);
+        const result = (await toShellResult(shellApiCursor)).printable;
+        expect(i).to.equal(10);
+        expect(result.length).to.equal(10);
+      });
     });
   });
 });
