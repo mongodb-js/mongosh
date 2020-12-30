@@ -1426,6 +1426,20 @@ describe('Shell API (integration)', function() {
             expect(bulk.tojson().nBatches).to.equal(m === 'initializeUnorderedBulkOp' ? 3 : 4);
           });
         });
+        describe('collation', () => {
+          it('respects collation settings', async() => {
+            await collection.insertOne({ name: 'cafe', customers: 10 });
+            const bulk = await collection[m]();
+            await bulk
+              .find({ name: 'café' })
+              .collation({ locale: 'fr', strength: 1 })
+              .update({ $set: { customers: 20 } })
+              .execute();
+            expect(await collection.find({ name: 'cafe' }, { _id: 0 }).toArray()).to.deep.equal([{
+              name: 'cafe', customers: 20
+            }]);
+          });
+        });
         // NOTE: blocked by NODE-2751
         // describe('arrayFilters().update', async() => {
         //   beforeEach(async() => {
@@ -1498,16 +1512,6 @@ describe('Shell API (integration)', function() {
               await bulk.execute();
             } catch (err) {
               expect(err.name).to.include('BulkWriteError');
-              return;
-            }
-            expect.fail('Error not thrown');
-          });
-          it('collation', async() => {
-            bulk = await collection[m]();
-            try {
-              await bulk.find({}).collation({});
-            } catch (err) {
-              expect(err.name).to.equal('MongoshUnimplementedError');
               return;
             }
             expect.fail('Error not thrown');

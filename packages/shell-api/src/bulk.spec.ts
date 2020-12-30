@@ -35,7 +35,7 @@ describe('Bulk API', () => {
         expect(signatures.Bulk.attributes.find).to.deep.equal({
           type: 'function',
           returnsPromise: false,
-          returnType: { attributes: {}, type: 'unknown' }, // no async calls, so don't need to track
+          returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
           serverVersions: ALL_SERVER_VERSIONS
@@ -236,7 +236,7 @@ describe('Bulk API', () => {
         expect(signatures.BulkFindOp.attributes.hint).to.deep.equal({
           type: 'function',
           returnsPromise: false,
-          returnType: { attributes: {}, type: 'unknown' }, // no async calls, so don't need to track
+          returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
           serverVersions: ALL_SERVER_VERSIONS
@@ -435,15 +435,10 @@ describe('Bulk API', () => {
         });
       });
       describe('collation', () => {
-        it('throws as it is not implemented yet', () => {
-          try {
-            bulkFindOp.collation();
-            fail('expected error');
-          } catch (e) {
-            expect(e.name).to.equal('MongoshUnimplementedError');
-            expect(e.code).to.equal(CommonErrors.NotImplemented);
-            expect(e.metadata?.driverCaused).to.equal(true);
-          }
+        it('sets the collation and returns self', () => {
+          const coll = { locale: 'fa', strength: 2 } as any;
+          expect(bulkFindOp.collation(coll)).to.equal(bulkFindOp);
+          expect(innerStub.collation).to.have.been.calledWith(coll);
         });
       });
     });
