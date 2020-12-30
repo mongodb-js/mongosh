@@ -8,18 +8,23 @@ import askpassword from 'askpassword';
 import Nanobus from 'nanobus';
 import pino from 'pino';
 import semver from 'semver';
-import type { Readable, Writable } from 'stream';
+import { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { UserConfig } from './types';
+import { once } from 'events';
+import { createWriteStream } from 'fs';
+import { promisify } from 'util';
 
 /**
  * Connecting text key.
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
+
+type AnalyticsOptions = { host?: string, apiKey?: string };
 
 export type CliReplOptions = {
   shellCliOptions: CliOptions,
@@ -27,6 +32,7 @@ export type CliReplOptions = {
   output: Writable;
   shellHomePaths: ShellHomePaths;
   onExit: (code: number) => never;
+  analyticsOptions?: AnalyticsOptions;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /**
@@ -42,6 +48,11 @@ class CliRepl {
   input: Readable;
   output: Writable;
   logId: string;
+  analyticsOptions?: AnalyticsOptions;
+  analytics?: Analytics;
+  warnedAboutInaccessibleFiles = false;
+  onExit: (code: number) => Promise<never>;
+  closing = false;
 
   /**
    * Instantiate the new CLI Repl.
@@ -51,7 +62,9 @@ class CliRepl {
     this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
+    this.analyticsOptions = options.analyticsOptions;
     this.logId = new bson.ObjectId().toString();
+    this.onExit = options.onExit;
 
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<UserConfig>(
@@ -78,8 +91,6 @@ class CliRepl {
       bus: this.bus,
       configProvider: this
     });
-
-    this.bus.on('mongosh:exit', (code: number) => options.onExit(code));
   }
 
   /**
@@ -90,7 +101,7 @@ class CliRepl {
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
   async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
-    this.verifyNodeVersion();
+    await this.verifyNodeVersion();
     if (this.isPasswordMissing(driverOptions)) {
       await this.requirePassword(driverUri, driverOptions);
     }
@@ -100,27 +111,67 @@ class CliRepl {
     try {
       await this.shellHomeDirectory.ensureExists();
     } catch (err) {
-      this._fatalError(err);
+      this.warnAboutInaccessibleFile(err);
     }
 
+    const logStream = await this.openLogStream();
     setupLoggerAndTelemetry(
       this.logId,
       this.bus,
-      () => pino(
-        { name: 'mongosh' },
-        pino.destination(
-          this.shellHomeDirectory.localPath(`${this.logId}_log`))),
-      // analytics-config.js gets written as a part of a release
-      () => new Analytics(require('./analytics-config.js').SEGMENT_API_KEY));
+      () => pino({ name: 'mongosh' }, logStream),
+      () => {
+        this.analytics = new Analytics(
+          // analytics-config.js gets written as a part of a release
+          this.analyticsOptions?.apiKey ?? require('./analytics-config.js').SEGMENT_API_KEY,
+          this.analyticsOptions);
+        return this.analytics;
+      });
 
-    this.config = await this.configDirectory.generateOrReadConfig({
-      userId: new bson.ObjectId().toString(),
-      enableTelemetry: true,
-      disableGreetingMessage: false
-    });
+    try {
+      this.config = await this.configDirectory.generateOrReadConfig({
+        userId: new bson.ObjectId().toString(),
+        enableTelemetry: true,
+        disableGreetingMessage: false
+      });
+    } catch (err) {
+      this.warnAboutInaccessibleFile(err);
+    }
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     await this.mongoshRepl.start(initialServiceProvider);
+  }
+
+  /**
+   * Open a writable stream for the current log file.
+   */
+  async openLogStream(): Promise<Writable> {
+    const path = this.shellHomeDirectory.localPath(`${this.logId}_log`);
+    try {
+      const stream = createWriteStream(path, { mode: 0o600 });
+      await once(stream, 'ready');
+      return stream;
+    } catch (err) {
+      this.warnAboutInaccessibleFile(err, path);
+      return new Writable({
+        write(chunk, enc, cb) {
+          // Just ignore log data if there was an error.
+          cb();
+        }
+      });
+    }
+  }
+
+  warnAboutInaccessibleFile(err: Error, path?: string): void {
+    this.bus.emit('mongosh:error', err);
+    if (this.warnedAboutInaccessibleFiles) {
+      // If one of the files mongosh tries to access, it's also likely that
+      // the others are as well. In that case, there is no point in spamming the
+      // user with repeated warnings.
+      return;
+    }
+    this.warnedAboutInaccessibleFiles = true;
+    const msg = `Warning: Could not access file${path ? 'at ' + path : ''}: ${err.message}\n`;
+    this.output.write(this.clr(msg, ['bold', 'yellow']));
   }
 
   /**
@@ -152,10 +203,14 @@ class CliRepl {
       this.config.disableGreetingMessage = true;
       this.bus.emit('mongosh:update-user', this.config.userId, this.config.enableTelemetry);
     }
-    await this.configDirectory.writeConfigFile(this.config);
+    try {
+      await this.configDirectory.writeConfigFile(this.config);
+    } catch (err) {
+      this.warnAboutInaccessibleFile(err, this.configDirectory.path());
+    }
   }
 
-  verifyNodeVersion(): void {
+  async verifyNodeVersion(): Promise<void> {
     if (process.env.MONGOSH_SKIP_NODE_VERSION_CHECK) {
       return;
     }
@@ -164,7 +219,7 @@ class CliRepl {
     const baseNodeVersion = process.version.replace(/-.*$/, '');
     if (!semver.satisfies(baseNodeVersion, engines.node)) {
       const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`, CliReplErrors.NodeVersionMismatch);
-      this._fatalError(warning);
+      await this._fatalError(warning);
     }
   }
 
@@ -197,22 +252,36 @@ class CliRepl {
     try {
       (driverOptions.auth as any).password = (await passwordPromise).toString();
     } catch (error) {
-      this.bus.emit('mongosh:error', error);
-      return this._fatalError(error);
+      await this._fatalError(error);
     }
   }
 
-  private _fatalError(error: any): never {
+  private async _fatalError(error: any): Promise<never> {
     this.bus.emit('mongosh:error', error);
 
     this.output.write(this.mongoshRepl.formatError(error) + '\n');
-    this.exit(1);
+    return this.exit(1);
   }
 
-  exit(code: number): never {
-    this.bus.emit('mongosh:exit', code);
-    // Emitting mongosh:exit never returns. If it does, that's a bug.
-    const error = new MongoshInternalError('mongosh:exit unexpectedly returned');
+  async close(): Promise<void> {
+    if (this.closing) {
+      return;
+    }
+    this.closing = true;
+    const analytics = this.analytics;
+    if (analytics) {
+      try {
+        await promisify(analytics.flush.bind(analytics))();
+      } catch { /* ignore */ }
+    }
+    this.bus.emit('mongosh:closed');
+  }
+
+  async exit(code: number): Promise<never> {
+    await this.close();
+    await this.onExit(code);
+    // onExit never returns. If it does, that's a bug.
+    const error = new MongoshInternalError('onExit() unexpectedly returned');
     this.bus.emit('mongosh:error', error);
     throw error;
   }

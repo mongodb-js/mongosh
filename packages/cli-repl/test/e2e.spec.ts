@@ -460,25 +460,28 @@ describe('e2e', function() {
     let shell: TestShell;
     let homedir: string;
     let configPath: string;
+    let logBasePath: string;
     let logPath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
     let readLogfile: () => Promise<any[]>;
     let startTestShell: () => Promise<TestShell>;
+    let env: Record<string, string>;
 
-    beforeEach(async() => {
+    beforeEach(() => {
       homedir = path.resolve(
         __dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
-      await fs.mkdir(homedir, { recursive: true });
-      const env: Record<string, string> = {
+      env = {
         ...process.env, HOME: homedir, USERPROFILE: homedir
       };
       if (process.platform === 'win32') {
         env.LOCALAPPDATA = path.join(homedir, 'local');
         env.APPDATA = path.join(homedir, 'roaming');
+        logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
         configPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'config');
         historyPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'mongosh_repl_history');
       } else {
+        logBasePath = path.resolve(homedir, '.mongodb', 'mongosh');
         configPath = path.resolve(homedir, '.mongodb', 'mongosh', 'config');
         historyPath = path.resolve(homedir, '.mongodb', 'mongosh', 'mongosh_repl_history');
       }
@@ -494,12 +497,6 @@ describe('e2e', function() {
         shell.assertNoErrors();
         return shell;
       };
-      shell = await startTestShell();
-      if (process.platform === 'win32') {
-        logPath = path.join(homedir, 'local', 'mongodb', 'mongosh', `${shell.logId}_log`);
-      } else {
-        logPath = path.join(homedir, '.mongodb', 'mongosh', `${shell.logId}_log`);
-      }
     });
 
     afterEach(async() => {
@@ -513,75 +510,128 @@ describe('e2e', function() {
       }
     });
 
-    describe('config file', async() => {
-      it('sets up a config file', async() => {
-        const config = await readConfig();
-        expect(config.userId).to.match(/^[a-f0-9]{24}$/);
-        expect(config.enableTelemetry).to.be.true;
-        expect(config.disableGreetingMessage).to.be.false;
+    context('in fully accessible environment', () => {
+      beforeEach(async() => {
+        await fs.mkdir(homedir, { recursive: true });
+        shell = await startTestShell();
+        logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
-      it('persists between sessions', async() => {
-        const config1 = await readConfig();
-        await startTestShell();
-        const config2 = await readConfig();
-        expect(config1.userId).to.equal(config2.userId);
+      describe('config file', async() => {
+        it('sets up a config file', async() => {
+          const config = await readConfig();
+          expect(config.userId).to.match(/^[a-f0-9]{24}$/);
+          expect(config.enableTelemetry).to.be.true;
+          expect(config.disableGreetingMessage).to.be.false;
+        });
+
+        it('persists between sessions', async() => {
+          const config1 = await readConfig();
+          await startTestShell();
+          const config2 = await readConfig();
+          expect(config1.userId).to.equal(config2.userId);
+        });
+      });
+
+      describe('telemetry toggling', () => {
+        it('enableTelemetry() yields a success response', async() => {
+          await shell.executeLine('enableTelemetry()');
+          await eventually(() => {
+            expect(shell.output).to.include('Telemetry is now enabled');
+          });
+          expect((await readConfig()).enableTelemetry).to.equal(true);
+        });
+        it('disableTelemetry() yields a success response', async() => {
+          await shell.executeLine('disableTelemetry();');
+          await eventually(() => {
+            expect(shell.output).to.include('Telemetry is now disabled');
+          });
+          expect((await readConfig()).enableTelemetry).to.equal(false);
+        });
+      });
+
+      describe('log file', () => {
+        it('creates a log file that keeps track of session events', async() => {
+          await shell.executeLine('print(123 + 456)');
+          await eventually(async() => {
+            expect(shell.output).to.include('579');
+            const log = await readLogfile();
+            expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
+              .to.have.lengthOf(1);
+          });
+        });
+
+        it('includes information about the driver version', async() => {
+          await eventually(async() => {
+            const log = await readLogfile();
+            expect(log.filter(logEntry => /driver-initialized/.test(logEntry.msg)))
+              .to.have.lengthOf(1);
+          });
+        });
+      });
+
+      describe('history file', () => {
+        it('persists between sessions', async() => {
+          await shell.executeLine('a = 42');
+          shell.writeInput('.exit\n');
+          await shell.waitForExit();
+
+          shell = await startTestShell();
+          // Arrow up twice to skip the .exit line
+          shell.writeInput('\u001b[A\u001b[A');
+          await eventually(() => {
+            expect(shell.output).to.include('a = 42');
+          });
+          shell.writeInput('\n.exit\n');
+          await shell.waitForExit();
+
+          expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
+        });
       });
     });
 
-    describe('telemetry toggling', () => {
-      it('enableTelemetry() yields a success response', async() => {
+    context('in a restricted environment', () => {
+      it('keeps working when the home directory cannot be created at all', async() => {
+        await fs.writeFile(homedir, 'this is a file and not a directory');
+        const shell = await startTestShell();
+        await eventually(() => {
+          expect(shell.output).to.include('Warning: Could not access file:');
+        });
+        await shell.executeLine('print(123 + 456)');
+        await eventually(() => {
+          expect(shell.output).to.include('579');
+        });
+      });
+
+      it('keeps working when the log files cannot be created', async() => {
+        await fs.mkdir(path.dirname(logBasePath), { recursive: true });
+        await fs.writeFile(logBasePath, 'also not a directory');
+        const shell = await startTestShell();
+        await eventually(() => {
+          expect(shell.output).to.include('Warning: Could not access file:');
+        });
+        await shell.executeLine('print(123 + 456)');
+        await eventually(() => {
+          expect(shell.output).to.include('579');
+        });
         await shell.executeLine('enableTelemetry()');
         await eventually(() => {
           expect(shell.output).to.include('Telemetry is now enabled');
         });
-        expect((await readConfig()).enableTelemetry).to.equal(true);
       });
-      it('disableTelemetry() yields a success response', async() => {
-        await shell.executeLine('disableTelemetry();');
-        await eventually(() => {
-          expect(shell.output).to.include('Telemetry is now disabled');
-        });
-        expect((await readConfig()).enableTelemetry).to.equal(false);
-      });
-    });
 
-    describe('log file', () => {
-      it('creates a log file that keeps track of session events', async() => {
+      it('keeps working when the config file is present but not writable', async() => {
+        await fs.mkdir(path.dirname(configPath), { recursive: true });
+        await fs.writeFile(configPath, '{}');
+        await fs.chmod(configPath, 0); // Remove all permissions
+        const shell = await startTestShell();
+        await eventually(() => {
+          expect(shell.output).to.include('Warning: Could not access file:');
+        });
         await shell.executeLine('print(123 + 456)');
-        await eventually(async() => {
-          expect(shell.output).to.include('579');
-          const log = await readLogfile();
-          expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
-            .to.have.lengthOf(1);
-        });
-      });
-
-      it('includes information about the driver version', async() => {
-        await eventually(async() => {
-          const log = await readLogfile();
-          expect(log.filter(logEntry => /driver-initialized/.test(logEntry.msg)))
-            .to.have.lengthOf(1);
-        });
-      });
-    });
-
-    describe('history file', () => {
-      it('persists between sessions', async() => {
-        await shell.executeLine('a = 42');
-        shell.writeInput('.exit\n');
-        await shell.waitForExit();
-
-        shell = await startTestShell();
-        // Arrow up twice to skip the .exit line
-        shell.writeInput('\u001b[A\u001b[A');
         await eventually(() => {
-          expect(shell.output).to.include('a = 42');
+          expect(shell.output).to.include('579');
         });
-        shell.writeInput('\n.exit\n');
-        await shell.waitForExit();
-
-        expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
       });
     });
   });

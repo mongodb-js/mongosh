@@ -7,7 +7,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson } from '@mongosh/service-provider-core';
-import { EventEmitter, once } from 'events';
+import { EventEmitter } from 'events';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 
 describe('ShellApi', () => {
@@ -320,7 +320,7 @@ describe('ShellApi', () => {
     });
     describe('exit', () => {
       it('instructs the shell to exit', async() => {
-        const onExit = once(bus, 'mongosh:exit');
+        evaluationListener.onExit.resolves();
         try {
           await internalState.context.exit();
           expect.fail('missed exception');
@@ -328,9 +328,7 @@ describe('ShellApi', () => {
           // We should be getting an exception because we’re not actually exiting.
           expect(e.message).to.contain('exit not supported for current platform');
         }
-        const [ exitCode ] = await onExit;
-        expect(exitCode).to.equal(0);
-        expect(mongo.close).to.have.been.calledWith(true);
+        expect(evaluationListener.onExit).to.have.been.calledWith();
       });
     });
     describe('enableTelemetry', () => {

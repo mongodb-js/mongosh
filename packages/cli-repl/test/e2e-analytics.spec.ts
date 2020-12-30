@@ -12,8 +12,8 @@ describe('e2e Analytics', () => {
     [ '--single', '--replSet', replSetName ]
   );
 
-  after(() => {
-    TestShell.killall();
+  after(async() => {
+    await TestShell.killall();
   });
 
   context('setting up the replica set', () => {

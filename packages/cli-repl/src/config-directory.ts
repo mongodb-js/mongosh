@@ -10,14 +10,18 @@ export type ShellHomePaths = {
 
 export class ShellHomeDirectory {
   paths: ShellHomePaths;
+  ensureExistsPromise: Promise<void> | null = null;
 
   constructor(paths: ShellHomePaths) {
     this.paths = paths;
   }
 
   async ensureExists(): Promise<void> {
-    await fs.mkdir(this.paths.shellRoamingDataPath, { recursive: true });
-    await fs.mkdir(this.paths.shellLocalDataPath, { recursive: true });
+    this.ensureExistsPromise ??= (async() => {
+      await fs.mkdir(this.paths.shellRoamingDataPath, { recursive: true, mode: 0o700 });
+      await fs.mkdir(this.paths.shellLocalDataPath, { recursive: true, mode: 0o700 });
+    })();
+    return this.ensureExistsPromise;
   }
 
   roamingPath(subpath: string): string {
@@ -90,7 +94,7 @@ export class ConfigManager<Config> extends EventEmitter {
   async writeConfigFile(config: Config): Promise<void> {
     await this.shellHomeDirectory.ensureExists();
     try {
-      await fs.writeFile(this.path(), JSON.stringify(config));
+      await fs.writeFile(this.path(), JSON.stringify(config), { mode: 0o600 });
     } catch (err) {
       this.emit('error', err);
       throw err;

@@ -41,6 +41,7 @@ describe('MongoshNodeRepl', () => {
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
     cp.getConfig.callsFake(async(key: string) => config[key]);
     cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; });
+    cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
     configProvider = cp;
 
@@ -81,7 +82,7 @@ describe('MongoshNodeRepl', () => {
   });
 
   it('throws an error if internal methods are used too early', async() => {
-    expect(() => mongoshRepl.writer(new Error())).to.throw('Mongosh not started yet');
+    expect(() => mongoshRepl.runtimeState()).to.throw('Mongosh not started yet');
   });
 
   context('with default options', () => {
@@ -110,7 +111,7 @@ describe('MongoshNodeRepl', () => {
 
     it('emits exit events on exit', async() => {
       input.write('.exit\n');
-      const [ code ] = await once(bus, 'mongosh:exit');
+      const [ code ] = await once(bus, 'test-exit-event');
       expect(code).to.equal(0);
     });
 
@@ -257,13 +258,13 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output).to.match(/To exit, press (Ctrl\+C|\^C) again/);
       input.write('\u0003');
-      const [ code ] = await once(bus, 'mongosh:exit');
+      const [ code ] = await once(bus, 'test-exit-event');
       expect(code).to.equal(0);
     });
 
     it('pressing Ctrl+D exits the shell', async() => {
       input.write('\u0004');
-      const [ code ] = await once(bus, 'mongosh:exit');
+      const [ code ] = await once(bus, 'test-exit-event');
       expect(code).to.equal(0);
     });
 
