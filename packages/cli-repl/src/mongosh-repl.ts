@@ -91,7 +91,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: await this.getPrompt(internalState),
+      prompt: await this.getShellPrompt(internalState),
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -288,7 +288,7 @@ class MongoshNodeRepl implements EvaluationListener {
     try {
       return await shellEvaluator.customEval(originalEval, input, context, filename);
     } finally {
-      repl.setPrompt(await this.getPrompt(internalState));
+      repl.setPrompt(await this.getShellPrompt(internalState));
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
   }
@@ -390,7 +390,7 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.configProvider.exit(0);
   }
 
-  private async getPrompt(internalState: ShellInternalState): Promise<string> {
+  private async getShellPrompt(internalState: ShellInternalState): Promise<string> {
     let prompt = '> ';
     try {
       prompt = await internalState.getDefaultPrompt();
