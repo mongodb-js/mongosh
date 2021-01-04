@@ -4,7 +4,7 @@ export BASEDIR="$PWD/.evergreen"
 export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/python/3.6/bin/:/cygdrive/c/Python39/Scripts:/cygdrive/c/Python39:/cygdrive/c/cmake/bin:$PATH"
 
 if [ "$OS" != "Windows_NT" ]; then
-  export NVM_DIR="$(realpath $(dirname $0)/../.nvm)"
+  export NVM_DIR="$HOME/.nvm"
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 fi
