@@ -13,7 +13,7 @@ import type {
   Document
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
-import { asPrintable } from './enums';
+import { asPrintable, DEFAULT_BATCH_SIZE } from './enums';
 import { iterate, validateExplainableVerbosity } from './helpers';
 
 @shellApiClassDefault
@@ -22,6 +22,8 @@ export default class AggregationCursor extends ShellApiClass {
   _mongo: Mongo;
   _cursor: ServiceProviderAggregationCursor;
   _currentIterationResult: CursorIterationResult | null = null;
+  _batchSize = DEFAULT_BATCH_SIZE;
+
   constructor(mongo: Mongo, cursor: ServiceProviderAggregationCursor) {
     super();
     this._cursor = cursor;
@@ -30,7 +32,9 @@ export default class AggregationCursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-    return iterate(results, this._cursor);
+    await iterate(results, this._cursor, this._batchSize);
+    results.hasMore = !this.isExhausted();
+    return results;
   }
 
   /**
@@ -114,6 +118,12 @@ export default class AggregationCursor extends ShellApiClass {
 
   @returnType('AggregationCursor')
   pretty(): AggregationCursor {
+    return this;
+  }
+
+  @returnType('AggregationCursor')
+  batchSize(size: number): AggregationCursor {
+    this._batchSize = size;
     return this;
   }
 }

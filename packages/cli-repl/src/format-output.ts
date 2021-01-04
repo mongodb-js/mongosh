@@ -6,7 +6,7 @@ import i18n from '@mongosh/i18n';
 import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
-import type { HelpProperties } from '@mongosh/shell-api';
+import { HelpProperties } from '@mongosh/shell-api';
 
 type EvaluationResult = {
   value: any;
@@ -172,7 +172,7 @@ function formatCursor(value: any, options: FormatOptions): any {
     return '';
   }
 
-  return inspect(value, options);
+  return formatCursorIterationResult(value, options);
 }
 
 function formatCursorIterationResult(value: any, options: FormatOptions): any {
@@ -180,7 +180,11 @@ function formatCursorIterationResult(value: any, options: FormatOptions): any {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
 
-  return inspect(value, options);
+  let ret = inspect(value, options);
+  if (value.cursorHasMore) {
+    ret += '\n' + i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more');
+  }
+  return ret;
 }
 
 function formatHelp(value: HelpProperties, options: FormatOptions): string {

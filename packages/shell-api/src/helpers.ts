@@ -504,14 +504,18 @@ export function addHiddenDataProperty(target: object, key: string|symbol, value:
   });
 }
 
-export async function iterate(results: CursorIterationResult, cursor: FindCursor | SPAggregationCursor | ChangeStream ): Promise<CursorIterationResult> {
+export async function iterate(
+  results: CursorIterationResult,
+  cursor: FindCursor | SPAggregationCursor | ChangeStream,
+  batchSize: number): Promise<CursorIterationResult> {
   if (cursor.closed) {
     return results;
   }
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < batchSize; i++) {
     const doc = await cursor.tryNext();
     if (doc === null) {
+      results.hasMore = false;
       break;
     }
 

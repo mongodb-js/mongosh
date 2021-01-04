@@ -31,7 +31,7 @@ for (const colors of [ false, true ]) {
       context('when the Cursor is not empty', () => {
         it('returns the inspection', () => {
           const output = stripAnsiColors(format({
-            value: [{ doc: 1 }, { doc: 2 }],
+            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: true }),
             type: 'Cursor'
           }));
 
@@ -43,7 +43,7 @@ for (const colors of [ false, true ]) {
       context('when the Cursor is empty', () => {
         it('returns an empty string', () => {
           const output = stripAnsiColors(format({
-            value: [],
+            value: Object.assign([], { cursorHasMore: false }),
             type: 'Cursor'
           }));
 
@@ -56,19 +56,33 @@ for (const colors of [ false, true ]) {
       context('when the CursorIterationResult is not empty', () => {
         it('returns the inspection', () => {
           const output = stripAnsiColors(format({
-            value: [{ doc: 1 }, { doc: 2 }],
+            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: true }),
             type: 'CursorIterationResult'
           }));
 
           expect(output).to.include('doc: 1');
           expect(output).to.include('doc: 2');
+          expect(output).to.include('Type "it" for more');
+        });
+      });
+
+      context('when the CursorIterationResult is not empty but exhausted', () => {
+        it('returns the inspection', () => {
+          const output = stripAnsiColors(format({
+            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: false }),
+            type: 'CursorIterationResult'
+          }));
+
+          expect(output).to.include('doc: 1');
+          expect(output).to.include('doc: 2');
+          expect(output).not.to.include('Type "it" for more');
         });
       });
 
       context('when the CursorIterationResult is empty', () => {
         it('returns "no cursor"', () => {
           const output = stripAnsiColors(format({
-            value: [],
+            value: Object.assign([], { cursorHasMore: false }),
             type: 'CursorIterationResult'
           }));
 
