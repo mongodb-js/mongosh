@@ -1,6 +1,6 @@
 set -e
 set -x
-export BASEDIR="$(realpath -s .)/.evergreen"
+export BASEDIR="$PWD/.evergreen"
 
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
