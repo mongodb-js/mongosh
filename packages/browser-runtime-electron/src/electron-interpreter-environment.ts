@@ -14,7 +14,7 @@ export class ElectronInterpreterEnvironment implements InterpreterEnvironment {
   }
 
   sloppyEval(code: string): ContextValue {
-    return vm.runInContext(code, this.context);
+    return vm.runInContext(code, this.context, { breakOnSigint: true });
   }
 
   getContextObject(): ContextValue {
