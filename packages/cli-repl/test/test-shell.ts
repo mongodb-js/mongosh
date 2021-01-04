@@ -1,14 +1,14 @@
-import { eventually } from './helpers';
+import assert from 'assert';
+import { ChildProcess, spawn } from 'child_process';
 import { once } from 'events';
-import { spawn, ChildProcess } from 'child_process';
-
 import path from 'path';
 import stripAnsi from 'strip-ansi';
-import assert from 'assert';
+import { eventually } from './helpers';
+
 
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
-const PROMPT_PATTERN = /^[^>]*> /m;
+const PROMPT_PATTERN = /^([^>]*> )+$/m;
 const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/mg; // node <= 12.14
 const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
 
@@ -113,7 +113,23 @@ export class TestShell {
 
   async waitForPrompt(start = 0): Promise<void> {
     await eventually(() => {
-      if (!this._output.slice(start).match(PROMPT_PATTERN)) {
+      const output = this._output.slice(start);
+      const lines = output.split('\n');
+      const found = !!lines.filter(l => l.match(PROMPT_PATTERN)) // a line that is the prompt must at least match the pattern
+        .find(l => {
+          // in some situations the prompt occurs multiple times in the line (but only in tests!)
+          const prompts = l.split('> ').filter(p => !!p); // lets grab all parts in front of a prompt
+          // if there are multiple prompt parts they must all equal
+          if (prompts.length > 1) {
+            for (const p in prompts) {
+              if (p !== prompts[0]) {
+                return false;
+              }
+            }
+          }
+          return true;
+        });
+      if (!found) {
         throw new assert.AssertionError({
           message: 'expected prompt',
           expected: PROMPT_PATTERN.toString(),

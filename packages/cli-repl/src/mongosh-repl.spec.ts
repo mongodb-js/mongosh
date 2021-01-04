@@ -3,6 +3,7 @@ import { MongoshCommandFailed } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { EventEmitter, once } from 'events';
+import { MongoNetworkError, MongoServerSelectionError } from 'mongodb';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
@@ -579,6 +580,48 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.not.contain('Error');
         expect(error).to.be.instanceof(MongoshCommandFailed);
       });
+    });
+  });
+
+  context('prompt', () => {
+    beforeEach(() => {
+      sp.getConnectionInfo.resolves({
+        extraInfo: {
+          uri: 'mongodb://localhost:27017/test',
+          is_localhost: true
+        },
+        buildInfo: {
+          version: '4.4.1',
+          modules: ['enterprise']
+        }
+      });
+    });
+
+    it('shows the enterprise info from the default prompt', async() => {
+      await mongoshRepl.start(serviceProvider);
+      expect(output).to.contain('MongoDB Enterprise > ');
+    });
+
+    it('just shows > when a network error occurs', async() => {
+      await mongoshRepl.start(serviceProvider);
+      expect(output).to.contain('MongoDB Enterprise > ');
+      sp.runCommandWithCheck
+        .withArgs('test', { isMaster: 1 }, {})
+        .rejects(new MongoNetworkError('ups'));
+      input.write('db.runCommand({isMaster: 1})\n');
+      await waitEval(bus);
+      expect(output).to.match(/\n(> )+$/);
+    });
+
+    it('just shows > when a server selection error occurs', async() => {
+      await mongoshRepl.start(serviceProvider);
+      expect(output).to.contain('MongoDB Enterprise > ');
+      sp.runCommandWithCheck
+        .withArgs('test', { isMaster: 1 }, {})
+        .rejects(new MongoServerSelectionError('ups', null));
+      input.write('db.runCommand({isMaster: 1})\n');
+      await waitEval(bus);
+      expect(output).to.match(/\n(> )+$/);
     });
   });
 });
