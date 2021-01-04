@@ -620,7 +620,11 @@ describe('e2e', function() {
         });
       });
 
-      it('keeps working when the config file is present but not writable', async() => {
+      it('keeps working when the config file is present but not writable', async function() {
+        if (process.platform === 'win32') {
+          this.skip(); // There is no meaningful chmod on Windows.
+          return;
+        }
         await fs.mkdir(path.dirname(configPath), { recursive: true });
         await fs.writeFile(configPath, '{}');
         await fs.chmod(configPath, 0); // Remove all permissions
