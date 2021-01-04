@@ -1,5 +1,6 @@
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
+import { EventEmitter } from 'events';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { Context, createContext, runInContext } from 'vm';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
@@ -55,6 +56,25 @@ describe('ShellInternalState', () => {
   });
 
   describe('default prompt', () => {
+    describe('with --nodb', () => {
+      beforeEach(() => {
+        serviceProvider = stubInterface<ServiceProvider>();
+        serviceProvider.bsonLibrary = bson;
+        serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
+        internalState = new ShellInternalState(serviceProvider, new EventEmitter(), {
+          nodb: true
+        });
+        internalState.setEvaluationListener(evaluationListener);
+        internalState.setCtx(context);
+        run = (source: string) => runInContext(source, context);
+      });
+
+      it('just resolves the default prompt', async() => {
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('> ');
+      });
+    });
+
     describe('computes a prefix', () => {
       it('silently delivers a prompt if all fails', async() => {
         internalState.connectionInfo.buildInfo = {

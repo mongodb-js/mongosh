@@ -280,6 +280,10 @@ export default class ShellInternalState {
   }
 
   async getDefaultPrompt(): Promise<string> {
+    if (this.cliOptions.nodb) {
+      return '> ';
+    }
+
     if (typeof this.promptState.prefix === 'undefined') {
       // since the connectionInfo is stable (unless we reconnect) we only compute it when missing
       this.promptState.prefix = '';

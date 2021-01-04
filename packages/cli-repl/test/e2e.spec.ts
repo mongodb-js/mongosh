@@ -29,7 +29,7 @@ describe('e2e', function() {
   });
 
   describe('--nodb', () => {
-    let shell;
+    let shell: TestShell;
     beforeEach(async() => {
       shell = TestShell.start({
         args: [ '--nodb' ]

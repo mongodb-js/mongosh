@@ -275,7 +275,7 @@ describe('MongoshNodeRepl', () => {
         // first tab
         await waitEval(bus);
         // second tab
-        await waitEval(bus);
+        await tick();
         expect(output).to.include('db.coll.updateOne');
       });
       it('autocompletes shell-api methods (once)', async() => {
