@@ -1,6 +1,6 @@
 set -e
 set -x
-export BASEDIR="$(realpath -s .)/.evergreen"
+export BASEDIR="$PWD/.evergreen"
 export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/python/3.6/bin/:/cygdrive/c/Python39/Scripts:/cygdrive/c/Python39:/cygdrive/c/cmake/bin:$PATH"
 
 if [ "$OS" != "Windows_NT" ]; then
