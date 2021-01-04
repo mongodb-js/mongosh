@@ -1,0 +1,31 @@
+{
+  "name": "@mongosh/node-runtime-worker-thread",
+  "version": "0.6.1",
+  "description": "MongoDB shell runtime that lives in a worker thread",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh"
+  },
+  "engines": {
+    "node": "^12.4.0"
+  },
+  "scripts": {
+    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "lint": "eslint \"./src/**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2"
+  },
+  "dependencies": {}
+}
