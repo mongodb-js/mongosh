@@ -127,12 +127,13 @@ class CliRepl {
         return this.analytics;
       });
 
+    this.config = {
+      userId: new bson.ObjectId().toString(),
+      enableTelemetry: true,
+      disableGreetingMessage: false
+    };
     try {
-      this.config = await this.configDirectory.generateOrReadConfig({
-        userId: new bson.ObjectId().toString(),
-        enableTelemetry: true,
-        disableGreetingMessage: false
-      });
+      this.config = await this.configDirectory.generateOrReadConfig(this.config);
     } catch (err) {
       this.warnAboutInaccessibleFile(err);
     }
