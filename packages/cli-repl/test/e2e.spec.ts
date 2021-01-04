@@ -621,8 +621,8 @@ describe('e2e', function() {
       });
 
       it('keeps working when the config file is present but not writable', async function() {
-        if (process.platform === 'win32') {
-          this.skip(); // There is no meaningful chmod on Windows.
+        if (process.platform === 'win32' || process.getuid() === 0 || process.geteuid() === 0) {
+          this.skip(); // There is no meaningful chmod on Windows, and root can ignore permissions.
           return;
         }
         await fs.mkdir(path.dirname(configPath), { recursive: true });
