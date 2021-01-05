@@ -53,6 +53,11 @@ export interface EvaluationListener {
    * Called when cls is entered in the shell.
    */
   onClearCommand?: () => Promise<void> | void;
+
+  /**
+   * Called when exit/quit is entered in the shell.
+   */
+  onExit?: () => Promise<never>;
 }
 
 /**

@@ -47,7 +47,8 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async exit(): Promise<void> {
     await this.internalState.close(true);
-    this.internalState.messageBus.emit('mongosh:exit', 0);
+    // This should never actually return.
+    await this.internalState.evaluationListener.onExit?.();
     throw new MongoshUnimplementedError(
       `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
       CommonErrors.NotImplemented

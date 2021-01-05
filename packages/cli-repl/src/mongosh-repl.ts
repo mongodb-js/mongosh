@@ -28,6 +28,7 @@ export type MongoshConfigProvider = {
   getHistoryFilePath(): string;
   getConfig<K extends keyof UserConfig>(key: K): Promise<UserConfig[K]>;
   setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void>;
+  exit(code: number): Promise<never>;
 };
 
 export type MongoshNodeReplOptions = {
@@ -155,6 +156,11 @@ class MongoshNodeRepl implements EvaluationListener {
       }
     });
 
+    // Work around a weird Node.js REPL bug where .line is expected to be
+    // defined but not necessarily present during the .setupHistory() call.
+    // https://github.com/nodejs/node/issues/36773
+    (repl as Mutable<typeof repl>).line = '';
+
     const historyFile = this.configProvider.getHistoryFilePath();
     const { redactInfo } = this.shellCliOptions;
     try {
@@ -210,8 +216,9 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     repl.on('exit', async() => {
-      await this.close();
-      this.bus.emit('mongosh:exit', 0);
+      try {
+        await this.onExit();
+      } catch { /* ... */ }
     });
 
     internalState.setCtx(repl.context);
@@ -294,7 +301,8 @@ class MongoshNodeRepl implements EvaluationListener {
       (result.message !== undefined && typeof result.stack === 'string') ||
       (result.code !== undefined && result.errmsg !== undefined)
     )) {
-      this.runtimeState().shellEvaluator.revertState();
+      // eslint-disable-next-line chai-friendly/no-unused-expressions
+      this._runtimeState?.shellEvaluator.revertState();
 
       const output = {
         ...result,
@@ -372,6 +380,11 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(this.output, 'drain');
       }
     }
+  }
+
+  async onExit(): Promise<never> {
+    await this.close();
+    return this.configProvider.exit(0);
   }
 }
 
