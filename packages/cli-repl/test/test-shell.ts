@@ -8,7 +8,7 @@ import { eventually } from './helpers';
 
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
-const PROMPT_PATTERN = /^([^>]*> )+$/m;
+const PROMPT_PATTERN = /^([^>]*> ?)+$/m;
 const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/mg; // node <= 12.14
 const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
 
@@ -118,10 +118,10 @@ export class TestShell {
       const found = !!lines.filter(l => l.match(PROMPT_PATTERN)) // a line that is the prompt must at least match the pattern
         .find(l => {
           // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l.split('> ').filter(p => !!p); // lets grab all parts in front of a prompt
+          const prompts = l.trim().replace(/>$/g, '').split('>').map(m => m.trim().replace(/>$/g, ''));
           // if there are multiple prompt parts they must all equal
           if (prompts.length > 1) {
-            for (const p in prompts) {
+            for (const p of prompts) {
               if (p !== prompts[0]) {
                 return false;
               }
