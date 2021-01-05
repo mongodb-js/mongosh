@@ -64,6 +64,7 @@ interface ShellState {
   output: readonly ShellOutputEntry[];
   history: readonly string[];
   passwordPrompt: string;
+  shellPrompt: string;
 }
 
 const noop = (): void => {
@@ -95,11 +96,13 @@ export class Shell extends Component<ShellProps, ShellState> {
     operationInProgress: false,
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
     history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
-    passwordPrompt: ''
+    passwordPrompt: '',
+    shellPrompt: '>'
   };
 
   componentDidMount(): void {
     this.scrollToBottom();
+    this.updateShellPrompt();
   }
 
   componentDidUpdate(): void {
@@ -122,10 +125,22 @@ export class Shell extends Component<ShellProps, ShellState> {
         format: 'error',
         value: error
       };
+    } finally {
+      await this.updateShellPrompt();
     }
 
     return outputLine;
   };
+
+  private async updateShellPrompt(): Promise<void> {
+    let shellPrompt = '>';
+    try {
+      shellPrompt = await this.props.runtime.getShellPrompt() ?? '>';
+    } catch (e) {
+      // Just ignore errors when getting the prompt...
+    }
+    this.setState({ shellPrompt });
+  }
 
   private addEntryToHistory(code: string): readonly string[] {
     const history = [
@@ -270,6 +285,7 @@ export class Shell extends Component<ShellProps, ShellState> {
       />);
     }
     return (<ShellInput
+      prompt={this.state.shellPrompt}
       autocompleter={this.props.runtime}
       history={this.state.history}
       onClearCommand={this.onClearCommand}

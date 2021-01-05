@@ -42,6 +42,11 @@ export class IframeRuntime implements Runtime {
     return await runtime.getCompletions(code);
   }
 
+  async getShellPrompt(): Promise<string> {
+    const runtime = await this.initialize();
+    return await runtime.getShellPrompt();
+  }
+
   async initialize(): Promise<OpenContextRuntime> {
     if (this.readyPromise !== null) {
       await this.readyPromise;

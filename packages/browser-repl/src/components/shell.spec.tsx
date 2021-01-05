@@ -1,9 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
-
 import { expect } from '../../testing/chai';
-import { shallow, mount, ShallowWrapper, ReactWrapper } from '../../testing/enzyme';
-
+import { mount, ReactWrapper, shallow, ShallowWrapper } from '../../testing/enzyme';
 import { PasswordPrompt } from './password-prompt';
 import { Shell } from './shell';
 import { ShellInput } from './shell-input';
@@ -330,7 +328,7 @@ describe('<Shell />', () => {
 
     wrapper.update();
 
-    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+    expect(Element.prototype.scrollIntoView).to.have.been.calledThrice;
   });
 
   it('focuses on the input when the background container is clicked', () => {
@@ -419,6 +417,43 @@ describe('<Shell />', () => {
         return;
       }
       expect.fail('should have been rejected');
+    });
+  });
+
+  context('shows a shell prompt', () => {
+    it('defaults to >', async() => {
+      wrapper = mount(<Shell runtime={fakeRuntime} />);
+      await wait();
+      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('>');
+    });
+
+    it('initializes with the value of getShellPrompt', async() => {
+      fakeRuntime.getShellPrompt = async() => {
+        return 'mongos>';
+      };
+      wrapper = mount(<Shell runtime={fakeRuntime} />);
+      await wait();
+      wrapper.update();
+      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('mongos>');
+    });
+
+    it('updates after evaluation', async() => {
+      let called = false;
+      fakeRuntime.getShellPrompt = async() => {
+        if (!called) {
+          called = true;
+          return 'mongos>';
+        }
+        return 'rs0:primary>';
+      };
+
+      wrapper = mount(<Shell runtime={fakeRuntime} />);
+      await wait();
+      wrapper.update();
+      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('mongos>');
+
+      await onInput('some code');
+      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('rs0:primary>');
     });
   });
 });

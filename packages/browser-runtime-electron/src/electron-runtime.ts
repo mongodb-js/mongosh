@@ -53,4 +53,8 @@ export class ElectronRuntime implements Runtime {
   async getCompletions(code: string): Promise<Completion[]> {
     return await this.openContextRuntime.getCompletions(code);
   }
+
+  async getShellPrompt(): Promise<string> {
+    return await this.openContextRuntime.getShellPrompt();
+  }
 }

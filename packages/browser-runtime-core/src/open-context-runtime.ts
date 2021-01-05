@@ -62,4 +62,8 @@ export class OpenContextRuntime implements Runtime {
     this.internalState.setEvaluationListener(listener);
     return prev;
   }
+
+  async getShellPrompt(): Promise<string> {
+    return await this.internalState.getDefaultPrompt();
+  }
 }

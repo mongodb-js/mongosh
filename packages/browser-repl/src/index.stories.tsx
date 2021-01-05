@@ -1,8 +1,8 @@
+import { boolean, number, withKnobs } from '@storybook/addon-knobs';
 import React, { useEffect } from 'react';
-import { Shell } from './index';
 import { IframeRuntime } from './iframe-runtime';
+import { Shell } from './index';
 
-import { withKnobs, boolean, number } from '@storybook/addon-knobs';
 
 export default {
   title: 'Shell',
@@ -37,6 +37,17 @@ class DemoServiceProvider {
 
   async stats(): Promise<any> {
     return { size: 1000 };
+  }
+
+  async runCommandWithCheck(table: string, command: any): Promise<Object> {
+    if (table === 'test' && command.isMaster && command.forShell) {
+      return {
+        ok: 1,
+        setName: 'rs0',
+        isMaster: true
+      };
+    }
+    return {};
   }
 }
 

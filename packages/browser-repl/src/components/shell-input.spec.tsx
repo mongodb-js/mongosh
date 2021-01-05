@@ -120,7 +120,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.find(Loader).exists()).to.equal(true);
     });
 
-    it('does not show a loader when operationInProgress is fase ', () => {
+    it('does not show a loader when operationInProgress is false', () => {
       const wrapper = shallow(<ShellInput
         history={['value2', 'value1']}
         operationInProgress={false}
@@ -135,6 +135,26 @@ describe('<ShellInput />', () => {
       const autocompleter = { getCompletions: (): Promise<any[]> => Promise.resolve([]) };
       const wrapper = shallow(<ShellInput autocompleter={autocompleter} />);
       expect(wrapper.find('Editor').prop('autocompleter')).to.equal(autocompleter);
+    });
+  });
+
+  describe('prompt', () => {
+    it('just shows the chevron if no prompt is specified', () => {
+      const wrapper = mount(<ShellInput />);
+      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(true);
+    });
+
+    it('shows the prompt as specified', () => {
+      const wrapper = mount(<ShellInput prompt={'le prompt'} />);
+      expect(wrapper.find('LineWithIcon').text()).to.contain('le prompt');
+      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(false);
+    });
+
+    it('replaces > with a nice icon', () => {
+      const wrapper = mount(<ShellInput prompt={'mongos> '} />);
+      expect(wrapper.find('LineWithIcon').text()).to.contain('mongos');
+      expect(wrapper.find('LineWithIcon').text()).to.not.contain('mongos>');
+      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(true);
     });
   });
 });
