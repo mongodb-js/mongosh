@@ -48,7 +48,7 @@ export interface ConnectEvent {
   uri: string;
 }
 
-interface MongoshBusEventsMap {
+export interface MongoshBusEventsMap {
   'mongosh:connect': (ev: ConnectEvent) => void;
   'mongosh:driver-initialized': (driverMetadata: any) => void;
   'mongosh:new-user': (id: string, enableTelemetry: boolean) => void;
