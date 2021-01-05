@@ -39,5 +39,8 @@
     "@mongosh/i18n": "^0.6.1",
     "@mongosh/service-provider-core": "^0.6.1",
     "mongodb-redact": "^0.2.2"
+  },
+  "devDependencies": {
+    "@mongosh/types": "^0.6.1"
   }
 }

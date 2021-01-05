@@ -1,52 +1,14 @@
-/* eslint camelcase: 0 */
 import redactInfo from 'mongodb-redact';
 import { redactPassword } from '@mongosh/history';
 import type { Logger } from 'pino';
-import type { Bus } from './types';
-
-interface ApiEventArguments {
-  pipeline?: any[];
-  query?: object;
-  options?: object;
-  filter?: object;
-}
-
-interface ApiEvent {
-  method?: string;
-  class?: string;
-  db?: string;
-  coll?: string;
-  arguments?: ApiEventArguments;
-}
-
-interface UseEvent {
-  db: string;
-}
-
-interface AsyncRewriterEvent {
-  original: string;
-  rewritten: string;
-}
-
-interface ShowEvent {
-  method: string;
-}
-
-interface ConnectEvent {
-  is_atlas: boolean;
-  is_localhost: boolean;
-  server_version: string;
-  server_os?: string;
-  server_arch?: string;
-  is_enterprise: boolean;
-  auth_type?: string;
-  is_data_lake: boolean;
-  dl_version?: string;
-  is_genuine: boolean;
-  non_genuine_server_name: string;
-  node_version: string;
-  uri: string;
-}
+import type {
+  MongoshBus,
+  ApiEvent,
+  UseEvent,
+  AsyncRewriterEvent,
+  ShowEvent,
+  ConnectEvent
+} from '@mongosh/types';
 
 interface MongoshAnalytics {
   identify: (info: any) => void;
@@ -61,7 +23,7 @@ class NoopAnalytics implements MongoshAnalytics {
 
 export default function setupLoggerAndTelemetry(
   logId: string,
-  bus: Bus,
+  bus: MongoshBus,
   makeLogger: () => Logger,
   makeAnalytics: () => MongoshAnalytics): void {
   const log = makeLogger();

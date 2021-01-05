@@ -1,0 +1,28 @@
+{
+  "name": "@mongosh/types",
+  "version": "0.6.1",
+  "description": "Types for mongosh internals",
+  "author": "Anna Henningsen <anna.henningsen@mongodb.com>",
+  "homepage": "https://github.com/mongodb-js/mongosh/tree/master/packages/types#readme",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^12.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "lint": "eslint \"**/*.{js,ts,tsx}\""
+  },
+  "bugs": {
+    "url": "https://github.com/mongodb-js/mongosh/issues"
+  }
+}

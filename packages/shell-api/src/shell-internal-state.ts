@@ -13,7 +13,7 @@ import {
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
-import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
@@ -21,6 +21,7 @@ import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
 import { Topologies } from './enums';
+import type { MongoshBus, ApiEvent } from '@mongosh/types';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -66,7 +67,7 @@ export interface EvaluationListener {
 export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
-  public messageBus: EventEmitter;
+  public messageBus: MongoshBus;
   public asyncWriter: AsyncWriter;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public uri: string | null;
@@ -197,12 +198,7 @@ export default class ShellInternalState {
     );
   }
 
-  public emitApiCall(event: {
-    method: string;
-    class: string;
-    arguments: Document;
-    [otherProps: string]: any;
-  }): void {
+  public emitApiCall(event: ApiEvent): void {
     this.messageBus.emit('mongosh:api-call', event);
   }
 
