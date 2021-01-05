@@ -8,7 +8,7 @@
     "allowJs": true
   },
   "files": [
-    "./src/**/*.d.ts"
+    "./src/postmsg-rpc.d.ts"
   ],
   "include": [
     "./src/**/*"

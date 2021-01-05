@@ -1,12 +1,28 @@
-import { serialize, deserialize } from 'v8';
-import { expose, caller, MessageData, PostmsgRpcOptions } from 'postmsg-rpc';
-import { Worker } from 'worker_threads';
-import { ChildProcess } from 'child_process';
+import v8 from 'v8';
+import {
+  expose,
+  caller,
+  MessageData,
+  PostmsgRpcOptions,
+  ServerMessageData,
+  ClientMessageData
+} from 'postmsg-rpc';
 
-type AnyProcess = NodeJS.Process | ChildProcess | Worker;
+type RPCMessageBus = { on: Function; off: Function } & (
+  | { postMessage: Function; send?: never }
+  | { postMessage?: never; send: Function }
+);
 
-function isRPCMessage(data: any): data is MessageData {
-  return data.sender && data.id && data.func;
+function isMessageData(data: any): data is MessageData {
+  return data && typeof data === 'object' && 'id' in data && 'sender' in data;
+}
+
+function isServerMessageData(data: any): data is ServerMessageData {
+  return isMessageData(data) && data.sender === 'postmsg-rpc/server';
+}
+
+function isClientMessageData(data: any): data is ClientMessageData {
+  return isMessageData(data) && data.sender === 'postmsg-rpc/client';
 }
 
 function removeTrailingUndefined(arr: unknown[]): unknown[] {
@@ -19,34 +35,58 @@ function removeTrailingUndefined(arr: unknown[]): unknown[] {
   return arr;
 }
 
-function send(process: AnyProcess, data: any): void {
-  if ('postMessage' in process) {
-    process.postMessage(data);
+function send(messageBus: RPCMessageBus, data: any): void {
+  if (
+    'postMessage' in messageBus &&
+    typeof messageBus.postMessage === 'function'
+  ) {
+    messageBus.postMessage(data);
   }
 
-  if ('send' in process && process.send !== undefined) {
-    process.send(data);
+  if ('send' in messageBus && typeof messageBus.send === 'function') {
+    messageBus.send(data);
   }
 }
 
-function getRPCOptions(
-  process: NodeJS.Process | ChildProcess | Worker
-): PostmsgRpcOptions {
+function serialize(data: unknown): string {
+  return `data:;base64,${v8.serialize(data).toString('base64')}`;
+}
+
+function deserialize<T = unknown>(str: string): T | string {
+  if (/^data:;base64,.+/.test(str)) {
+    return v8.deserialize(
+      Buffer.from(str.replace('data:;base64,', ''), 'base64')
+    );
+  }
+  return str;
+}
+
+function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   return {
-    addListener: process.on.bind(process),
-    removeListener: process.off.bind(process),
+    addListener: messageBus.on.bind(messageBus),
+    removeListener: messageBus.off.bind(messageBus),
     postMessage(data) {
-      if (isRPCMessage(data) && Array.isArray(data.args)) {
-        data.args = serialize(removeTrailingUndefined(data.args)).toString(
-          'base64'
-        );
+      if (isClientMessageData(data) && Array.isArray(data.args)) {
+        data.args = serialize(removeTrailingUndefined(data.args));
       }
 
-      return send(process, data);
+      if (isServerMessageData(data)) {
+        data.res = serialize(data.res);
+      }
+
+      return send(messageBus, data);
     },
     getMessageData(data) {
-      if (isRPCMessage(data) && data.args && typeof data.args === 'string') {
-        data.args = deserialize(Buffer.from(data.args, 'base64'));
+      if (
+        isClientMessageData(data) &&
+        data.args &&
+        typeof data.args === 'string'
+      ) {
+        data.args = deserialize(data.args);
+      }
+
+      if (isServerMessageData(data) && typeof data.res === 'string') {
+        data.res = deserialize(data.res);
       }
 
       return data;
@@ -54,24 +94,26 @@ function getRPCOptions(
   };
 }
 
-export function exposeAll(
-  obj: Record<string, Function>,
-  process: AnyProcess
-): { [key in keyof typeof obj]: typeof obj[key] & { close(): void } } {
+type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
+
+export function exposeAll<O extends Record<string, Function>>(
+  obj: O,
+  messageBus: RPCMessageBus
+): WithClose<O> {
   Object.entries(obj).forEach(([key, val]) => {
-    const { close } = expose(key, val, getRPCOptions(process));
+    const { close } = expose(key, val, getRPCOptions(messageBus));
     (val as any).close = close;
   });
-  return obj as any;
+  return obj as WithClose<O>;
 }
 
 export function createCaller<M extends ReadonlyArray<string>>(
   methodNames: M,
-  process: AnyProcess
+  messageBus: RPCMessageBus
 ): Record<M[number], Function> {
   const obj: Record<string, Function> = {};
   methodNames.forEach((name) => {
-    obj[name] = caller(name, getRPCOptions(process));
+    obj[name] = caller(name, getRPCOptions(messageBus));
   });
   return obj;
 }

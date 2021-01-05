@@ -1,10 +1,18 @@
 declare module 'postmsg-rpc' {
-  export type MessageData = {
-    sender: 'postmsg-rpc/client' | 'postmsg-rpc/server';
+  export type ClientMessageData = {
+    sender: 'postmsg-rpc/client';
     id: string;
     func: string;
     args?: unknown[] | string;
   };
+
+  export type ServerMessageData = {
+    sender: 'postmsg-rpc/server';
+    id: string;
+    res: unknown | string;
+  };
+
+  export type MessageData = ClientMessageData | ServerMessageData;
 
   export type PostmsgRpcOptions = {
     addListener(name: 'message', fn: Function): void;
@@ -20,6 +28,8 @@ declare module 'postmsg-rpc' {
   ): { close: () => void };
 
   export function caller<
-    T extends (...args: unknown[]) => Promise<unknown> = () => Promise<void>
+    T extends (...args: unknown[]) => Promise<unknown> = (
+      ...args: unknown[]
+    ) => Promise<unknown>
   >(funcName: string, opts: PostmsgRpcOptions): T;
 }
