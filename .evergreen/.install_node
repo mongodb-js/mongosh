@@ -1,20 +1,23 @@
 set -e
-export NVM_DIR="$HOME/.nvm"
+set -x
+export BASEDIR="$PWD/.evergreen"
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+if [ "$OS" == "Windows_NT" ]; then
+  powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
+else
+  export NVM_DIR="$HOME/.nvm"
 
-echo "Setting NVM environment home: $NVM_DIR"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 
-nvm install $NODE_JS_VERSION
-nvm alias default $NODE_JS_VERSION
-npm install -g npm@latest
+  echo "Setting NVM environment home: $NVM_DIR"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-echo "Using node version:"
-node --version
+  nvm install $NODE_JS_VERSION
+  nvm alias default $NODE_JS_VERSION
+  npm install -g npm@latest
+fi
 
-echo "Using npm version:"
-npm --version
+. "$BASEDIR/.setup_env"
 
 npm --unsafe-perm=true run bootstrap-ci
