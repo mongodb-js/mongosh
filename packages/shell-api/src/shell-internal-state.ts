@@ -322,12 +322,12 @@ export default class ShellInternalState {
     const stateInfo = await this.currentDb.getSiblingDB('admin').runCommand({ replSetGetStatus: 1, forShell: 1 });
     if (stateInfo.ok) {
       // Report the self member's stateStr if it's present.
-      let state = stateInfo.members.find((m: any) => !!m.self)?.stateStr;
+      let state: string = stateInfo.members.find((m: any) => !!m.self)?.stateStr;
       // Otherwise fall back to reporting the numeric myState field (mongodb 1.6).
       if (!state) {
-        state = stateInfo.myState;
+        state = `${stateInfo.myState}`;
       }
-      prompt = `${stateInfo.set}:${state}`;
+      prompt = `${stateInfo.set}:${state.toLowerCase()}`;
     } else {
       const info = stateInfo.info;
       if (info && info.length < 20) {
@@ -351,13 +351,13 @@ export default class ShellInternalState {
 
       if (isMaster.setName) {
         if (isMaster.ismaster) {
-          role = 'PRIMARY';
+          role = 'primary';
         } else if (isMaster.secondary) {
-          role = 'SECONDARY';
+          role = 'secondary';
         } else if (isMaster.arbiterOnly) {
-          role = 'ARBITER';
+          role = 'arbiter';
         } else {
-          role = 'OTHER';
+          role = 'other';
         }
         prompt = isMaster.setName + ':';
       }

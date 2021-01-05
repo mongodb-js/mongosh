@@ -180,7 +180,7 @@ describe('ShellInternalState', () => {
           });
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('fakeSet:PRIMARY> ');
+        expect(prompt).to.equal('fakeSet:primary> ');
       });
 
       it('shows the value of myState if there is no self member', async() => {
@@ -282,7 +282,7 @@ describe('ShellInternalState', () => {
             });
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal('replSet:PRIMARY> ');
+          expect(prompt).to.equal('replSet:primary> ');
         });
 
         it('shows secondary for secondaries', async() => {
@@ -295,7 +295,7 @@ describe('ShellInternalState', () => {
             });
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal('replSet:SECONDARY> ');
+          expect(prompt).to.equal('replSet:secondary> ');
         });
 
         it('shows arbiter for arbiterOnly', async() => {
@@ -308,7 +308,7 @@ describe('ShellInternalState', () => {
             });
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal('replSet:ARBITER> ');
+          expect(prompt).to.equal('replSet:arbiter> ');
         });
 
         it('shows other else', async() => {
@@ -320,7 +320,7 @@ describe('ShellInternalState', () => {
             });
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal('replSet:OTHER> ');
+          expect(prompt).to.equal('replSet:other> ');
         });
 
         it('reverts to default prompt if not ok', async() => {
