@@ -11,6 +11,7 @@ import {
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
+import type { MongoshBus } from '@mongosh/types';
 
 declare const __webpack_require__: any;
 declare const __non_webpack_require__: any;
@@ -18,9 +19,7 @@ declare const __non_webpack_require__: any;
 export class ElectronRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime;
 
-  constructor(serviceProvider: ServiceProvider, messageBus?: {
-    emit: (eventName: string, ...args: any[]) => void;
-  }) {
+  constructor(serviceProvider: ServiceProvider, messageBus?: MongoshBus) {
     // NOTE:
     //
     // This is necessary for client code bundling this library with
