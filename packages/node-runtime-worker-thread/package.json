@@ -17,8 +17,10 @@
     "node": "^12.4.0"
   },
   "scripts": {
-    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "pretest": "npm run compile-ts",
+    "test": "TS_NODE_PROJECT=./tsconfig.test.json mocha --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
+    "pretest-ci": "npm run compile-ts",
+    "test-ci": "TS_NODE_PROJECT=./tsconfig.test.json mocha --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "lint": "eslint \"./src/**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
@@ -30,6 +32,11 @@
     "mocha": "^7.1.2"
   },
   "dependencies": {
+    "@mongosh/browser-runtime-core": "^0.6.1",
+    "@mongosh/browser-runtime-electron": "^0.6.1",
+    "@mongosh/service-provider-core": "^0.6.1",
+    "@mongosh/service-provider-server": "^0.6.1",
+    "@mongosh/shell-evaluator": "^0.6.1",
     "postmsg-rpc": "^2.4.0"
   }
 }
