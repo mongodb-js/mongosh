@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 const workerThreadModulePath = path.resolve(
   __dirname,
   '..',
-  'lib',
+  'dist',
   'worker-runtime.js'
 );
 

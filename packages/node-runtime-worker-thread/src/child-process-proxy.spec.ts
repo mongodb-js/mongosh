@@ -3,7 +3,7 @@ import { fork } from 'child_process';
 import { createCaller } from './rpc';
 import { expect } from 'chai';
 
-const childProcessModulePath = path.resolve(__dirname, '..', 'lib', 'child-process-proxy.js');
+const childProcessModulePath = path.resolve(__dirname, '..', 'dist', 'child-process-proxy.js');
 
 describe('child process worker proxy', () => {
   it('should start worker runtime and proxy calls', async() => {

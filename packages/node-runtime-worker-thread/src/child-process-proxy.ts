@@ -15,7 +15,7 @@ import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
 import { exposeAll, createCaller } from './rpc';
 
-const workerRuntimeModulePath = path.resolve(__dirname, '..', 'lib', 'worker-runtime.js');
+const workerRuntimeModulePath = path.resolve(__dirname, 'worker-runtime.js');
 
 const workerProcess = new Worker(workerRuntimeModulePath, { env: SHARE_ENV });
 
