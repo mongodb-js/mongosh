@@ -12,17 +12,29 @@ const config = {
   },
 
   module: {
-    rules: [{ test: /\.ts$/, loader: 'ts-loader', exclude: /node_modules/ }]
+    rules: [
+      {
+        test: /\.ts$/,
+        use: [{ loader: 'ts-loader' }],
+        exclude: [/node_modules/]
+      }
+    ]
   },
 
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js']
   },
+
+  resolveLoader: {
+    modules: ['node_modules', path.resolve(__dirname, 'loaders')]
+  }
 };
 
-module.exports = ['index', 'child-process-proxy', 'worker-runtime'].map(
-  (entry) => ({
-    entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
-    ...config
-  })
-);
+module.exports = [
+  'index',
+  'child-process-proxy',
+  'worker-runtime'
+].map((entry) => ({
+  entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
+  ...config
+}));

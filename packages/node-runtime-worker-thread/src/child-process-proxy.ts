@@ -10,16 +10,22 @@
  * @see {@link https://github.com/nodejs/node/pull/36344}
  */
 
-import path from 'path';
 import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
 import { exposeAll, createCaller } from './rpc';
 
-const workerRuntimeModulePath = path.resolve(__dirname, 'worker-runtime.js');
+/**
+ * The source has to be inlined to allow the runtime to be bundled in a single
+ * file when used by compass shell
+ */
+import workerRuntimeSrc from 'inline-entry-loader!./worker-runtime';
 
-const workerProcess = new Worker(workerRuntimeModulePath, { env: SHARE_ENV });
+const workerProcess = new Worker(workerRuntimeSrc, {
+  eval: true,
+  env: SHARE_ENV
+});
 
-const workerReadyPromise = new Promise(async resolve => {
+const workerReadyPromise = new Promise(async(resolve) => {
   const [message] = await once(workerProcess, 'message');
   if (message === 'ready') {
     resolve(true);
@@ -30,7 +36,6 @@ const worker = createCaller(
   ['init', 'evaluate', 'getCompletions', 'ping'] as const,
   workerProcess
 );
-
 
 function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
   return new Proxy(fn, {

@@ -33,3 +33,8 @@ declare module 'postmsg-rpc' {
     ) => Promise<unknown>
   >(funcName: string, opts: PostmsgRpcOptions): T;
 }
+
+declare module 'inline-entry-loader!*' {
+  const entry: string;
+  export default entry;
+}

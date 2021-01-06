@@ -4,6 +4,9 @@
     "outDir": "./dist",
     "allowJs": true
   },
+  "files": [
+    "./src/index.d.ts"
+  ],
   "include": [
     "./src/**/*"
   ],
