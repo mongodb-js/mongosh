@@ -10,7 +10,7 @@ import {
 
 type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage: Function; send?: never }
-  | { postMessage?: never; send: Function }
+  | { postMessage?: never; send?: Function }
 );
 
 function isMessageData(data: any): data is MessageData {
