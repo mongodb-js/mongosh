@@ -1,5 +1,5 @@
 import cliReplCompleter, { AutocompleteParameters } from '@mongosh/autocomplete';
-import { Autocompleter, Completion } from './autocompleter';
+import type { Autocompleter, Completion } from './autocompleter';
 
 export class ShellApiAutocompleter implements Autocompleter {
   private parameters: AutocompleteParameters;
@@ -13,7 +13,7 @@ export class ShellApiAutocompleter implements Autocompleter {
       return [];
     }
 
-    const completions = cliReplCompleter(this.parameters, code);
+    const completions = await cliReplCompleter(this.parameters, code);
 
     if (!completions || !completions.length) {
       return [];

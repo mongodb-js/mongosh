@@ -47,7 +47,7 @@ const GROUP = '$group';
  *
  * @returns {array} Matching Completions, Current User Input.
  */
-function completer(params: AutocompleteParameters, line: string): [string[], string] {
+async function completer(params: AutocompleteParameters, line: string): Promise<[string[], string]> {
   const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
   const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
   const DB_COMPLETIONS = shellSignatures.Database.attributes;
