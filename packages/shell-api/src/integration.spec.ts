@@ -1708,12 +1708,22 @@ describe('Shell API (integration)', function() {
     });
 
     describe('getAutocompleteParameters', () => {
+      beforeEach(async() => {
+        // Make sure the collection is present so it is included in autocompletion.
+        await collection.insertOne({});
+        // Make sure 'database' is the current db in the eyes of the internal state object.
+        internalState.setDbFunc(database);
+      });
+
       it('returns information that is meaningful for autocompletion', async() => {
         const params = await internalState.getAutocompleteParameters();
         expect(params.topology()).to.equal(Topologies.Standalone);
         expect(params.connectionInfo().uri).to.equal(await testServer.connectionString());
         expect(params.connectionInfo().is_atlas).to.equal(false);
         expect(params.connectionInfo().is_localhost).to.equal(true);
+        expect(await database._getCollectionNames()).to.deep.equal(['docs']);
+        expect(await params.getCollectionCompletionsForCurrentDb('d')).to.deep.equal(['docs']);
+        expect(await params.getCollectionCompletionsForCurrentDb('e')).to.deep.equal([]);
       });
     });
   });

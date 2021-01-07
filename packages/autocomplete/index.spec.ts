@@ -3,13 +3,15 @@ import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
 
+let collections: string[];
 const standalone440 = {
   topology: () => Topologies.Standalone,
   connectionInfo: () => ({
     is_atlas: false,
     is_data_lake: false,
     server_version: '4.4.0'
-  })
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections
 };
 const sharded440 = {
   topology: () => Topologies.Sharded,
@@ -17,7 +19,8 @@ const sharded440 = {
     is_atlas: false,
     is_data_lake: false,
     server_version: '4.4.0'
-  })
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections
 };
 
 const standalone300 = {
@@ -26,7 +29,8 @@ const standalone300 = {
     is_atlas: false,
     is_data_lake: false,
     server_version: '3.0.0'
-  })
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections
 };
 const datalake440 = {
   topology: () => Topologies.Sharded,
@@ -34,15 +38,21 @@ const datalake440 = {
     is_atlas: true,
     is_data_lake: true,
     server_version: '4.4.0'
-  })
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections
 };
 
 const noParams = {
   topology: () => Topologies.Standalone,
-  connectionInfo: () => undefined
+  connectionInfo: () => undefined,
+  getCollectionCompletionsForCurrentDb: () => collections
 };
 
 describe('completer.completer', () => {
+  beforeEach(() => {
+    collections = [];
+  });
+
   context('when context is top level shell api', () => {
     it('matches shell completions', async() => {
       const i = 'u';
@@ -188,6 +198,12 @@ describe('completer.completer', () => {
     it('returns current input and no suggestions', async() => {
       const i = 'db.shipw';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
+    });
+
+    it('includes collection names', async() => {
+      collections = ['shipwrecks'];
+      const i = 'db.shipw';
+      expect(await completer(standalone440, i)).to.deep.equal([['db.shipwrecks'], i]);
     });
   });
 

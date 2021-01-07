@@ -53,6 +53,7 @@ export default class Database extends ShellApiClass {
   _collections: Record<string, Collection>;
   _baseOptions: CommandOperationOptions;
   _session: Session | undefined;
+  _cachedCollectionNames: string[] = [];
 
   constructor(mongo: Mongo, name: string, session?: Session) {
     super();
@@ -138,6 +139,30 @@ export default class Database extends ShellApiClass {
     );
   }
 
+  async _getCollectionNames(): Promise<string[]> {
+    const infos = await this._listCollections({}, { nameOnly: true });
+    this._cachedCollectionNames = infos.map((collection: any) => collection.name);
+    return this._cachedCollectionNames;
+  }
+
+  async _getCollectionNamesForCompletion(): Promise<string[]> {
+    return await Promise.race([
+      (async() => {
+        return await this._getCollectionNames();
+      })(),
+      (async() => {
+        // 200ms should be a good compromise between giving the server a chance
+        // to reply and responsiveness for human perception. It's not the end
+        // of the world if we end up using the cached results; usually, they
+        // are not going to differ from fresh ones, and even if they do, a
+        // subsequent autocompletion request will almost certainly have at least
+        // the new cached results.
+        await new Promise(resolve => setTimeout(resolve, 200).unref());
+        return this._cachedCollectionNames;
+      })()
+    ]);
+  }
+
   async _getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
     const cmd = { getlasterror: 1 } as any;
     if (w) {
@@ -177,8 +202,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async getCollectionNames(): Promise<string[]> {
     this._emitDatabaseApiCall('getCollectionNames');
-    const infos = await this._listCollections({}, { nameOnly: true });
-    return infos.map((collection: any) => collection.name);
+    return this._getCollectionNames();
   }
 
   /**

@@ -127,6 +127,7 @@ class MongoshNodeRepl implements EvaluationListener {
           (async() => await origReplCompleter(text) || [[]])(),
           (async() => await mongoshCompleter(text))()
         ]);
+        this.bus.emit('mongosh:autocompletion-complete'); // For testing.
         // Remove duplicates, because shell API methods might otherwise show
         // up in both completions.
         const deduped = [...new Set([...replResults, ...mongoshResults])];

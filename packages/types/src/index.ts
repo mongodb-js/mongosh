@@ -64,6 +64,7 @@ export interface MongoshBusEventsMap {
   'mongosh:warn': (ev: ApiWarning) => void;
   'mongosh:closed': () => void; // For testing.
   'mongosh:eval-complete': () => void; // For testing.
+  'mongosh:autocompletion-complete': () => void; // For testing.
 }
 
 export interface MongoshBus {

@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer, MongodSetup } from '../../../testing/integration-testing-hooks';
-import { expect, useTmpdir, waitEval, waitBus, fakeTTYProps, readReplLogfile, tick } from '../test/repl-helpers';
+import { expect, useTmpdir, waitEval, waitBus, waitCompletion, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
 import { CliReplErrors } from './error-codes';
 import { MongoshInternalError } from '@mongosh/errors';
 import http from 'http';
@@ -208,7 +208,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: null,
       wantWatch: true,
-      wantShardDistribution: true
+      wantShardDistribution: true,
+      hasCollectionNames: false
     });
   });
 
@@ -353,7 +354,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: testServer,
       wantWatch: false,
-      wantShardDistribution: false
+      wantShardDistribution: false,
+      hasCollectionNames: true
     });
 
     context('analytics integration', () => {
@@ -439,7 +441,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
       wantWatch: true,
-      wantShardDistribution: false
+      wantShardDistribution: false,
+      hasCollectionNames: true
     });
   });
 
@@ -447,14 +450,16 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
       wantWatch: true,
-      wantShardDistribution: true
+      wantShardDistribution: true,
+      hasCollectionNames: false // We're only spinning up a mongos here
     });
   });
 
-  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution }: {
+  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames }: {
     testServer: MongodSetup | null,
     wantWatch: boolean,
-    wantShardDistribution: boolean
+    wantShardDistribution: boolean,
+    hasCollectionNames: boolean
   }): void {
     describe('autocompletion', () => {
       let cliRepl: CliRepl;
@@ -475,7 +480,7 @@ describe('CliRepl', () => {
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
         output = '';
         input.write('db.wat\u0009\u0009');
-        await tick();
+        await waitCompletion(cliRepl.bus);
         if (wantWatch) {
           expect(output).to.include('db.watch');
         } else {
@@ -486,12 +491,27 @@ describe('CliRepl', () => {
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
         output = '';
         input.write('db.coll.getShardDis\u0009\u0009');
-        await tick();
+        await waitCompletion(cliRepl.bus);
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
         } else {
           expect(output).not.to.include('db.coll.getShardDistribution');
         }
+      });
+
+      it('includes collection names', async() => {
+        if (!hasCollectionNames) return;
+        const collname = `testcollection${Date.now()}${(Math.random() * 1000) | 0}`;
+        input.write(`db.${collname}.insertOne({});\n`);
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write('db.testcoll\u0009\u0009');
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include(collname);
+
+        input.write(`db.${collname}.drop()\n`);
+        await waitEval(cliRepl.bus);
       });
     });
   }
