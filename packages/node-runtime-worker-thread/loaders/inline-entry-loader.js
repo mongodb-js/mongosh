@@ -49,7 +49,11 @@ inlineEntryLoader.pitch = function pitch(request) {
     ...parentCompilation.compiler.options.optimization
   };
 
-  if (inlineEntryCompiler.options?.optimization?.splitChunks) {
+  if (
+    inlineEntryCompiler.options &&
+    inlineEntryCompiler.options.optimization &&
+    inlineEntryCompiler.options.optimization.splitChunks
+  ) {
     inlineEntryCompiler.options.optimization.splitChunks = false;
   }
 
