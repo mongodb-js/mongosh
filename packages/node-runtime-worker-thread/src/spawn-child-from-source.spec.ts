@@ -33,16 +33,16 @@ describe('spawnChildFromSource', () => {
         'ignore',
         'ignore'
       )
-    ).to.eventually.be.rejected;
+    ).to.eventually.be.rejectedWith(
+      /Child process exited with error before starting/
+    );
   });
 
   it('should fail if a timeout exceeded before the process is "ready"', () => {
     return expect(
-      spawnChildFromSource(
-        'while(true){}',
-        {},
-        200
-      )
-    ).to.eventually.be.rejected;
+      spawnChildFromSource('while(true){}', {}, 200)
+    ).to.eventually.be.rejectedWith(
+      /Timed out while waiting for child process to start/
+    );
   });
 });
