@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 /** @type import('webpack').Configuration */
 const config = {
@@ -27,6 +28,17 @@ const config = {
 
   resolveLoader: {
     modules: ['node_modules', path.resolve(__dirname, 'loaders')]
+  },
+
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          // Not keeping classnames breaks shell-api during minification
+          keep_classnames: true
+        }
+      })
+    ]
   }
 };
 
