@@ -1,8 +1,9 @@
 /**
  * This proxy is needed as a workaround for the old electron verison "bug" where
- * due to the electron runtime being a chromium, not real vm, SIGINT doesn't
- * break code execution. This is fixed in the later versions of electron/node
- * but we are still on the older one, we have to have this proxy in place
+ * due to the electron runtime being a chromium, not just node (even with
+ * `ELECTRON_RUN_AS_NODE` enabled), SIGINT doesn't break code execution. This is
+ * fixed in the later versions of electron/node but we are still on the older
+ * one, we have to have this proxy in place
  *
  * @todo as soon as we update electron version in compass, we can get rid of
  * this part of the worker runtime as it becomes redundant
