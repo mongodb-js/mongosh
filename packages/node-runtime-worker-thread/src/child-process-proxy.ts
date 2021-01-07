@@ -33,7 +33,7 @@ const workerReadyPromise = new Promise(async(resolve) => {
 });
 
 const worker = createCaller(
-  ['init', 'evaluate', 'getCompletions', 'ping'] as const,
+  ['init', 'evaluate', 'getCompletions'],
   workerProcess
 );
 
@@ -55,7 +55,7 @@ function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
 exposeAll(worker, process);
 
 const evaluationListener = createCaller(
-  ['onPrint', 'onPrompt', 'toggleTelemetry'] as const,
+  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
   process
 );
 

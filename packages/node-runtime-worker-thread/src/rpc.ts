@@ -94,12 +94,9 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   };
 }
 
-type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
+export type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
 
-export function exposeAll<O extends Record<string, Function>>(
-  obj: O,
-  messageBus: RPCMessageBus
-): WithClose<O> {
+export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
   Object.entries(obj).forEach(([key, val]) => {
     const { close } = expose(key, val, getRPCOptions(messageBus));
     (val as any).close = close;
@@ -107,13 +104,17 @@ export function exposeAll<O extends Record<string, Function>>(
   return obj as WithClose<O>;
 }
 
-export function createCaller<M extends ReadonlyArray<string>>(
-  methodNames: M,
+export type Caller<Impl, Keys extends keyof Impl = keyof Impl> = Promisified<
+  Pick<Impl, Keys>
+>;
+
+export function createCaller<Impl extends {}>(
+  methodNames: Extract<keyof Impl, string>[],
   messageBus: RPCMessageBus
-): Record<M[number], Function> {
-  const obj: Record<string, Function> = {};
+): Caller<Impl, typeof methodNames[number]> {
+  const obj = {};
   methodNames.forEach((name) => {
-    obj[name] = caller(name, getRPCOptions(messageBus));
+    (obj as any)[name] = caller(name as string, getRPCOptions(messageBus));
   });
-  return obj;
+  return obj as Caller<Impl, typeof methodNames[number]>;
 }

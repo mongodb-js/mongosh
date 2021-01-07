@@ -15,7 +15,7 @@ function createMockRpcMesageBus() {
 describe('rpc', () => {
   it('exposes functions and allows to call them', async() => {
     const rpcProcess = createMockRpcMesageBus();
-    const caller = createCaller(['meow'] as const, rpcProcess);
+    const caller = createCaller(['meow'], rpcProcess);
 
     exposeAll(
       {
@@ -33,7 +33,7 @@ describe('rpc', () => {
 describe('createCaller', () => {
   it('creates a caller with provided method names', () => {
     const rpcProcess = createMockRpcMesageBus();
-    const caller = createCaller(['meow', 'woof'] as const, rpcProcess);
+    const caller = createCaller(['meow', 'woof'], rpcProcess);
     expect(caller).to.have.property('meow');
     expect(caller).to.have.property('woof');
     rpcProcess.removeAllListeners();
@@ -41,7 +41,7 @@ describe('createCaller', () => {
 
   it('attaches caller listener to provided process', (done) => {
     const rpcProcess = createMockRpcMesageBus();
-    const caller = createCaller(['meow'] as const, rpcProcess);
+    const caller = createCaller(['meow'], rpcProcess);
 
     rpcProcess.on('message', (data) => {
       expect(data).to.have.property('func');

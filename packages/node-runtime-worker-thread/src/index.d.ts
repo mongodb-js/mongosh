@@ -38,3 +38,19 @@ declare module 'inline-entry-loader!*' {
   const entry: string;
   export default entry;
 }
+
+declare type Params<T extends (...args: any) => any> = T extends (
+  ...args: infer P
+) => any
+  ? P
+  : never;
+
+declare type Promisified<T> = {
+  [k in keyof T]: T[k] extends (...args: any) => any
+    ? (
+        ...args: Params<T[k]>
+      ) => ReturnType<T[k]> extends Promise<any>
+        ? ReturnType<T[k]>
+        : Promise<ReturnType<T[k]>>
+    : T[k];
+};

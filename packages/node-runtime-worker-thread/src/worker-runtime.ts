@@ -26,12 +26,12 @@ function ensureRuntime(methodName: string): Runtime {
   return runtime;
 }
 
-const evaluationListener: EvaluationListener = createCaller(
-  ['onPrint', 'onPrompt', 'toggleTelemetry'],
+const evaluationListener = createCaller<EvaluationListener>(
+  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
   parentPort
 );
 
-type WorkerRuntime = Runtime & {
+export type WorkerRuntime = Runtime & {
   init(
     uri: string,
     driverOptions: MongoClientOptions,
@@ -39,9 +39,7 @@ type WorkerRuntime = Runtime & {
   ): Promise<void>;
 };
 
-type IndexableClass<T> = { [k in keyof T]: T[k] };
-
-const workerRuntime: IndexableClass<WorkerRuntime> = {
+const workerRuntime: WorkerRuntime = {
   async init(uri, driverOptions = {}, cliOptions = {}) {
     provider = await CliServiceProvider.connect(uri, driverOptions, cliOptions);
     runtime = new ElectronRuntime(
