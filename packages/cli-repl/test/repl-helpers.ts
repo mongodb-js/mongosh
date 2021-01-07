@@ -53,6 +53,11 @@ async function waitEval(bus: MongoshBus) {
   await tick();
 }
 
+async function waitCompletion(bus: MongoshBus) {
+  await waitBus(bus, 'mongosh:autocompletion-complete');
+  await tick();
+}
+
 const fakeTTYProps = {
   isTTY: true,
   isRaw: true,
@@ -74,6 +79,7 @@ export {
   tick,
   waitBus,
   waitEval,
+  waitCompletion,
   fakeTTYProps,
   readReplLogfile
 };

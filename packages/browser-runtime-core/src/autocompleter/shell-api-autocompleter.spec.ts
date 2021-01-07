@@ -8,7 +8,8 @@ const standalone440 = {
     is_atlas: false,
     is_data_lake: false,
     server_version: '4.4.0'
-  })
+  }),
+  getCollectionCompletionsForCurrentDb: () => ['bananas']
 };
 
 describe('Autocompleter', () => {
@@ -32,6 +33,14 @@ describe('Autocompleter', () => {
 
       expect(completions).to.deep.contain({
         completion: 'db.coll1.find'
+      });
+    });
+
+    it('returns collection names value with text after dot', async() => {
+      const completions = await autocompleter.getCompletions('db.b');
+
+      expect(completions).to.deep.contain({
+        completion: 'db.bananas'
       });
     });
   });
