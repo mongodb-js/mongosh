@@ -41,6 +41,7 @@ export type MongoshNodeReplOptions = {
 };
 
 type MongoshRuntimeState = {
+  serviceProvider: ServiceProvider,
   shellEvaluator: ShellEvaluator;
   internalState: ShellInternalState;
   repl: REPLServer;
@@ -91,7 +92,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: await this.getShellPrompt(internalState),
+      prompt: await this.getShellPrompt(serviceProvider),
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -110,6 +111,7 @@ class MongoshNodeRepl implements EvaluationListener {
     repl.context.console = console;
 
     this._runtimeState = {
+      serviceProvider,
       shellEvaluator,
       internalState,
       repl,
@@ -283,7 +285,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     this.lineByLineInput.enableBlockOnNewLine();
-    const { internalState, repl, shellEvaluator } = this.runtimeState();
+    const { serviceProvider, repl, shellEvaluator } = this.runtimeState();
 
     let connectionIssues = false;
     try {
@@ -300,7 +302,7 @@ class MongoshNodeRepl implements EvaluationListener {
       if (connectionIssues) {
         repl.setPrompt('> ');
       } else {
-        repl.setPrompt(await this.getShellPrompt(internalState));
+        repl.setPrompt(await this.getShellPrompt(serviceProvider));
       }
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
@@ -403,10 +405,10 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.configProvider.exit(0);
   }
 
-  private async getShellPrompt(internalState: ShellInternalState): Promise<string> {
+  private async getShellPrompt(serviceProvider: ServiceProvider): Promise<string> {
     let prompt = '> ';
     try {
-      prompt = await internalState.getDefaultPrompt();
+      prompt = await serviceProvider.getDefaultPrompt();
     } catch (e) {
       // ignore - we will use the default prompt
     }

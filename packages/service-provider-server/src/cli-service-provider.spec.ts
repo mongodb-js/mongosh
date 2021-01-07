@@ -1,6 +1,6 @@
-import { MongoClient, Db, Collection } from 'mongodb';
 import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
+import { Collection, Db, MongoClient, Topology } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import CliServiceProvider from './cli-service-provider';
@@ -707,6 +707,183 @@ describe('CliServiceProvider', () => {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
       expect(result).to.deep.equal(expectedResult);
       (watchMock3 as any).verify();
+    });
+  });
+
+  describe('#getDefaultPromp', () => {
+    const createTopologyClientStub = (topology?: Topology) => {
+      const stub = sinon.createStubInstance(MongoClient) as unknown as MongoClient;
+      stub.topology = topology;
+      return stub;
+    };
+
+    it('returns the default if nodb', async() => {
+      serviceProvider = new CliServiceProvider(createTopologyClientStub());
+      const prompt = await serviceProvider.getDefaultPrompt();
+      expect(prompt).to.equal('> ');
+    });
+
+    it('includes the MongoDB Enteprise prefix when connected to enterprise', async() => {
+      const stub = stubInterface<MongoClient>();
+      const adminDb = stubInterface<Db>();
+
+      adminDb.command.withArgs({
+        buildInfo: 1
+      }, sinon.match.object, sinon.match.any).resolves({
+        modules: ['enterprise']
+      });
+      stub.db.withArgs('admin', sinon.match.object).returns(adminDb);
+
+      serviceProvider = new CliServiceProvider(stub);
+
+      const prompt = await serviceProvider.getDefaultPrompt();
+      expect(prompt).to.equal('> ');
+    });
+
+    context('direct connection = Single Topology', () => {
+      // TODO: replace with proper ServerType.xxx - NODE-2973
+      [
+        { t: 'Mongos', p: 'mongos' },
+        { t: 'RSArbiter', p: 'arbiter' },
+        { t: 'RSOther', p: 'other' },
+        { t: 'RSPrimary', p: 'primary' },
+      ].forEach(({ t, p }) => {
+        it(`takes the info from the single server [Server Type: ${t}]`, async() => {
+          const servers = new Map();
+          servers.set('localhost:30001', {
+            address: 'localhost:30001',
+            type: t,
+            me: 'localhost:30001',
+            hosts: [ 'localhost:30001' ],
+            setName: 'configset'
+          });
+          const topology = {
+            description: {
+              // TODO: replace with TopologyType.Single - NODE-2973
+              type: 'Single',
+              setName: null, // This was observed behavior - the set was not updated even the single server had the set
+              servers: servers
+            }
+          } as Topology;
+          serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+          const prompt = await serviceProvider.getDefaultPrompt();
+          expect(prompt).to.equal(`configset [direct: ${p}]> `);
+        });
+      });
+
+      // TODO: replace with proper ServerType.xxx - NODE-2973
+      [
+        'RSGhost',
+        'Standalone',
+        'Unknown',
+        'PossiblePrimary'
+      ].forEach(t => {
+        it(`defaults for server type [Server Type: ${t}]`, async() => {
+          const servers = new Map();
+          servers.set('localhost:30001', {
+            address: 'localhost:30001',
+            type: t,
+            me: 'localhost:30001',
+            hosts: [ 'localhost:30001' ]
+          });
+          const topology = {
+            description: {
+              // TODO: replace with TopologyType.Single - NODE-2973
+              type: 'Single',
+              setName: null,
+              servers: servers
+            }
+          } as Topology;
+          serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+          const prompt = await serviceProvider.getDefaultPrompt();
+          expect(prompt).to.equal('> ');
+        });
+      });
+    });
+
+    context('topology ReplicaSet...', () => {
+      it('shows the setName and lacking primary hint for ReplicaSetNoPrimary', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.ReplicaSetNoPrimary - NODE-2973
+            type: 'ReplicaSetNoPrimary',
+            setName: 'leSet'
+          }
+        } as Topology;
+        serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+        const prompt = await serviceProvider.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [without primary]> ');
+      });
+
+      it('shows the setName and primary hint for ReplicaSetWithPrimary', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.ReplicaSetWithPrimary - NODE-2973
+            type: 'ReplicaSetWithPrimary',
+            setName: 'leSet'
+          }
+        } as Topology;
+        serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+        const prompt = await serviceProvider.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [with primary]> ');
+      });
+    });
+
+    context('topology Sharded', () => {
+      it('shows mongos without setName', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Sharded - NODE-2973
+            type: 'Sharded'
+          }
+        } as Topology;
+        serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+        const prompt = await serviceProvider.getDefaultPrompt();
+        expect(prompt).to.equal('[mongos]> ');
+      });
+      it('shows mongos and a setName', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Sharded - NODE-2973
+            type: 'Sharded',
+            setName: 'leSet'
+          }
+        } as Topology;
+        serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+        const prompt = await serviceProvider.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [mongos]> ');
+      });
+    });
+
+    context('topology Unknown', () => {
+      it('just shows the default prompt', async() => {
+        const servers = new Map();
+        servers.set('localhost:30001', {
+          address: 'localhost:30001',
+          // TODO: replace with ServerType.Unknown - NODE-2973
+          type: 'Unknown',
+          me: 'localhost:30001',
+          hosts: [ 'localhost:30001' ]
+        });
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Unknown - NODE-2973
+            type: 'Unknown',
+            setName: 'unknown',
+            servers: servers
+          }
+        } as Topology;
+        serviceProvider = new CliServiceProvider(createTopologyClientStub(topology));
+
+        const prompt = await serviceProvider.getDefaultPrompt();
+        expect(prompt).to.equal('> ');
+      });
     });
   });
 });

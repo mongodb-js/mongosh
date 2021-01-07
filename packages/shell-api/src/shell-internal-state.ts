@@ -1,5 +1,5 @@
 import AsyncWriter from '@mongosh/async-rewriter';
-import { CommonErrors, MongoshCommandFailed, MongoshInvalidInputError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyType } from '@mongosh/service-provider-core';
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import { EventEmitter } from 'events';
@@ -63,11 +63,6 @@ export interface EvaluationListener {
   onExit?: () => Promise<never>;
 }
 
-interface PromptState {
-  prefix?: string;
-  infoSource?: 'replSet' | 'master' | 'unavailable';
-}
-
 /**
  * Anything to do with the internal shell state is stored here.
  */
@@ -85,8 +80,6 @@ export default class ShellInternalState {
   public shellBson: any;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
-
-  private promptState: PromptState = {};
 
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
@@ -130,7 +123,6 @@ export default class ShellInternalState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
-    this.promptState = {};
     this.fetchConnectionInfo();
     this.currentDb._getCollectionNames(); // Pre-fetch for autocompletion.
     return newDb;
@@ -280,92 +272,10 @@ export default class ShellInternalState {
   }
 
   async getDefaultPrompt(): Promise<string> {
-    if (this.cliOptions.nodb) {
+    try {
+      return await this.initialServiceProvider.getDefaultPrompt();
+    } catch (e) {
       return '> ';
     }
-
-    if (typeof this.promptState.prefix === 'undefined') {
-      // since the connectionInfo is stable (unless we reconnect) we only compute it when missing
-      this.promptState.prefix = '';
-      try {
-        if (this.connectionInfo.buildInfo?.modules?.indexOf('enterprise') > -1) {
-          this.promptState.prefix += 'MongoDB Enterprise ';
-        }
-      } catch (e) {
-        // Shhhh... Did you see an error? I didn't...
-      }
-    }
-
-    let prompt = this.promptState.prefix;
-    if (!this.promptState.infoSource || this.promptState.infoSource === 'replSet') {
-      try {
-        prompt += await this.getPromptFromReplSet();
-        this.promptState.infoSource = 'replSet';
-      } catch (e) {
-        this.promptState.infoSource = 'master';
-      }
-    }
-    if (this.promptState.infoSource === 'master') {
-      try {
-        prompt += await this.getPromptFromIsMaster();
-      } catch (e) {
-        // out of options... we're not going to try again...
-        this.promptState.infoSource = 'unavailable';
-      }
-    }
-    return prompt + '> ';
-  }
-
-  private async getPromptFromReplSet(): Promise<string> {
-    let prompt = '';
-    // forShell suppresses error logging for theses commands on the server
-    const stateInfo = await this.currentDb.getSiblingDB('admin').runCommand({ replSetGetStatus: 1, forShell: 1 });
-    if (stateInfo.ok) {
-      // Report the self member's stateStr if it's present.
-      let state: string = stateInfo.members.find((m: any) => !!m.self)?.stateStr;
-      // Otherwise fall back to reporting the numeric myState field (mongodb 1.6).
-      if (!state) {
-        state = `${stateInfo.myState}`;
-      }
-      prompt = `${stateInfo.set}:${state.toLowerCase()}`;
-    } else {
-      const info = stateInfo.info;
-      if (info && info.length < 20) {
-        prompt = info; // "mongos", "configsvr"
-      } else {
-        throw new MongoshCommandFailed('replSetGetStatus failed');
-      }
-    }
-    return prompt;
-  }
-
-  private async getPromptFromIsMaster(): Promise<string> {
-    let prompt = '';
-    // forShell suppresses error logging for theses commands on the server
-    const isMaster = await this.currentDb.runCommand({ isMaster: 1, forShell: 1 });
-    if (isMaster.ok) {
-      let role = '';
-      if (isMaster.msg === 'isdbgrid') {
-        role = 'mongos';
-      }
-
-      if (isMaster.setName) {
-        if (isMaster.ismaster) {
-          role = 'primary';
-        } else if (isMaster.secondary) {
-          role = 'secondary';
-        } else if (isMaster.arbiterOnly) {
-          role = 'arbiter';
-        } else {
-          role = 'other';
-        }
-        prompt = isMaster.setName + ':';
-      }
-
-      prompt += role;
-    } else {
-      throw new MongoshCommandFailed('isMaster failed');
-    }
-    return prompt;
   }
 }
