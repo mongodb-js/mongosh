@@ -22,7 +22,9 @@ import type Database from './database';
 import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
+import { AutoEncryptionOptions } from 'mongodb';
 
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
@@ -607,4 +609,40 @@ export function assertCLI(platform: ReplPlatform): void {
       CommonErrors.NotImplemented
     );
   }
+}
+
+export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions, serviceProvider: ServiceProvider): AutoEncryptionOptions {
+  assertArgsDefined(fleOptions.keyVaultNamespace, fleOptions.kmsProvider);
+  Object.keys(fleOptions).forEach(k => {
+    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProvider', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
+      throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
+    }
+  });
+  const autoEncryption = {
+    keyVaultClient: fleOptions.keyVaultClient ?
+      fleOptions.keyVaultClient._serviceProvider.getRawClient() :
+      serviceProvider.getRawClient(),
+    keyVaultNamespace: fleOptions.keyVaultNamespace,
+    kmsProviders: fleOptions.kmsProvider,
+  } as any;
+
+  if ('local' in autoEncryption.kmsProviders) {
+    if (autoEncryption.kmsProviders.local.key._bsontype !== 'Binary') {
+      throw new MongoshInvalidInputError('The key attribute of the local kms provider must be a BSON BinData or Binary type');
+    }
+    const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
+    if (Buffer.isBuffer(rawBuff)) {
+      autoEncryption.kmsProviders.local.key = rawBuff;
+    } else {
+      // Future TODO: allow binary types that are not from a string
+      throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
+    }
+  }
+  if (fleOptions.schemaMap) {
+    autoEncryption.schemaMap = fleOptions.schemaMap;
+  }
+  if (fleOptions.bypassAutoEncryption !== undefined) {
+    autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
+  }
+  return autoEncryption;
 }

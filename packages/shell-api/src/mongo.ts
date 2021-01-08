@@ -10,7 +10,7 @@ import {
 import {
   classPlatforms,
   classReturnsPromise,
-  hasAsyncChild,
+  hasAsyncChild, platforms,
   returnsPromise,
   returnType,
   serverVersions,
@@ -36,10 +36,12 @@ import { CommandResult } from './result';
 import { redactPassword } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefined, assertArgsType, processFLEOptions } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
 import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
+import KeyVault from './key-vault';
+import ClientEncryption from './client-encryption';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -50,7 +52,9 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _fleOptions: ClientSideFieldLevelEncryptionOptions | undefined;
+  private _fleOptions: SPAutoEncryption | undefined;
+  private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
+  private _clientEncryption: ClientEncryption | undefined;
 
   constructor(
     internalState: ShellInternalState,
@@ -61,8 +65,10 @@ export default class Mongo extends ShellApiClass {
     this._internalState = internalState;
     this._databases = {};
     this._uri = generateUri({ _: [uri] });
-    this._fleOptions = fleOptions;
     this._serviceProvider = this._internalState.initialServiceProvider;
+    if (fleOptions) {
+      this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
+    }
   }
 
   /**
@@ -92,41 +98,8 @@ export default class Mongo extends ShellApiClass {
     const mongoClientOptions: MongoClientOptions = user || pwd ? {
       auth: { username: user, password: pwd }
     } : {};
-    let autoEncryption;
     if (this._fleOptions) {
-      assertArgsDefined(this._fleOptions.keyVaultNamespace, this._fleOptions.kmsProvider);
-      Object.keys(this._fleOptions).forEach(k => {
-        if (['keyVaultClient', 'keyVaultNamespace', 'kmsProvider', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
-          throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
-        }
-      });
-      autoEncryption = {
-        keyVaultClient: this._fleOptions.keyVaultClient ?
-          this._fleOptions.keyVaultClient._serviceProvider.getRawClient() :
-          this._serviceProvider.getRawClient(),
-        keyVaultNamespace: this._fleOptions.keyVaultNamespace,
-        kmsProviders: this._fleOptions.kmsProvider,
-      } as any;
-
-      if ('local' in autoEncryption.kmsProviders) {
-        if (autoEncryption.kmsProviders.local.key._bsontype !== 'Binary') {
-          throw new MongoshInvalidInputError('The key attribute of the local kms provider must be a BSON BinData or Binary type');
-        }
-        const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
-        if (Buffer.isBuffer(rawBuff)) {
-          autoEncryption.kmsProviders.local.key = rawBuff;
-        } else {
-          // Future TODO: allow binary types that are not from a string
-          throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
-        }
-      }
-      if (this._fleOptions.schemaMap) {
-        autoEncryption.schemaMap = this._fleOptions.schemaMap;
-      }
-      if (this._fleOptions.bypassAutoEncryption !== undefined) {
-        autoEncryption.bypassAutoEncryption = this._fleOptions.bypassAutoEncryption;
-      }
-      mongoClientOptions.autoEncryption = autoEncryption as SPAutoEncryption;
+      mongoClientOptions.autoEncryption = this._fleOptions;
     }
     this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, mongoClientOptions);
   }
@@ -299,5 +272,21 @@ export default class Mongo extends ShellApiClass {
     );
     this._internalState.currentCursor = cursor;
     return cursor;
+  }
+
+  @platforms([ReplPlatform.CLI])
+  @serverVersions(['4.2.0', ServerVersions.latest])
+  getClientEncryption(): ClientEncryption {
+    if (!this._clientEncryption) {
+      this._clientEncryption = new ClientEncryption(this);
+    }
+    return this._clientEncryption;
+  }
+
+  @platforms([ReplPlatform.CLI])
+  @serverVersions(['4.2.0', ServerVersions.latest])
+  getKeyVault(): KeyVault {
+    this._keyVault = new KeyVault(this, this.getClientEncryption());
+    return this._keyVault;
   }
 }
