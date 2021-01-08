@@ -62,6 +62,16 @@ describe('GithubRepo', () => {
   });
 
   describe('getTagByCommitSha', () => {
+    it('returns undefined if the commit sha is undefined or empty', async() => {
+      expect(
+        await githubRepo.getTagByCommitSha('')
+      ).to.be.undefined;
+
+      expect(
+        await githubRepo.getTagByCommitSha(undefined)
+      ).to.be.undefined;
+    });
+
     it('returns tag info for a commit that has a tag', async() => {
       githubRepo = getTestGithubRepo({
         paginate: sinon.stub().resolves([{ name: 'v0.0.6', commit: { sha: 'sha' } }])

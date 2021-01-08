@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "0.6.1",
+  "version": "0.0.0-dev.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=12.4.0"

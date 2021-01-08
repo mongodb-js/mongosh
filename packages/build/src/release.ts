@@ -15,6 +15,7 @@ import { Barque } from './barque';
 import publish from './publish';
 import { redactConfig } from './redact-config';
 import Config from './config';
+import getReleaseVersionFromTag from './get-release-version-from-tag';
 
 /**
  * Run the release process.
@@ -31,6 +32,13 @@ export default async function release(
   });
 
   const githubRepo = new GithubRepo(config.repo, octokit);
+  const commitTag = await githubRepo.getTagByCommitSha(config.revision);
+
+  config = {
+    ...config,
+    version: await getReleaseVersionFromTag(commitTag?.name) || config.version
+  };
+
   const barque = new Barque(config);
   let tarballFile: TarballFile;
 
@@ -86,3 +94,5 @@ export default async function release(
     throw new Error(`Unknown command: ${command}`);
   }
 }
+
+
