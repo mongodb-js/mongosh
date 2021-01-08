@@ -51,7 +51,7 @@ variables:
         set -e
         cd $(pwd)
         export NODE_JS_VERSION=${node_js_version}
-        source .evergreen/.
+        source .evergreen/.setup_env
         tar xvzf dist.tgz
         dist/mongosh --version
         if [ `uname` == Linux ]; then
@@ -182,7 +182,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -196,7 +196,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
         bucket: mciuploads
     - <<: *package_and_upload_artifact
   test_linux_artifact:
