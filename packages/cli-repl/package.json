@@ -43,6 +43,7 @@
     "@mongosh/service-provider-server": "^0.6.1",
     "@mongosh/shell-api": "^0.6.1",
     "@mongosh/shell-evaluator": "^0.6.1",
+    "@mongosh/types": "^0.6.1",
     "analytics-node": "^3.4.0-beta.1",
     "ansi-escape-sequences": "^5.1.2",
     "askpassword": "^1.2.1",

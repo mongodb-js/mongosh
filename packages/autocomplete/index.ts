@@ -20,7 +20,8 @@ export interface AutocompleteParameters {
     is_atlas: boolean;
     is_data_lake: boolean;
     server_version: string;
-  };
+  },
+  getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
 }
 
 export const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
@@ -47,7 +48,7 @@ const GROUP = '$group';
  *
  * @returns {array} Matching Completions, Current User Input.
  */
-function completer(params: AutocompleteParameters, line: string): [string[], string] {
+async function completer(params: AutocompleteParameters, line: string): Promise<[string[], string]> {
   const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
   const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
   const DB_COMPLETIONS = shellSignatures.Database.attributes;
@@ -67,6 +68,8 @@ function completer(params: AutocompleteParameters, line: string): [string[], str
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length === 2) {
     const hits = filterShellAPI(params, DB_COMPLETIONS, elToComplete, splitLine);
+    const colls = await params.getCollectionCompletionsForCurrentDb(elToComplete.trim());
+    hits.push(...colls.map(coll => `${splitLine[0]}.${coll}`));
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.includes('db') && splitLine.length > 2) {
     if (splitLine.length > 3) {

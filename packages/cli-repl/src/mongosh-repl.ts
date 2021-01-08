@@ -10,7 +10,7 @@ import * as asyncRepl from './async-repl';
 import { REPLServer, ReplOptions } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
-import type { UserConfig, Bus } from './types';
+import type { UserConfig, MongoshBus } from '@mongosh/types';
 import { LineByLineInput } from './line-by-line-input';
 import formatOutput, { formatError } from './format-output';
 import clr, { StyleDefinition } from './clr';
@@ -34,7 +34,7 @@ export type MongoshConfigProvider = {
 export type MongoshNodeReplOptions = {
   input: Readable;
   output: Writable;
-  bus: Bus;
+  bus: MongoshBus;
   configProvider: MongoshConfigProvider;
   shellCliOptions?: Partial<MongoshCliOptions>;
   nodeReplOptions?: Partial<ReplOptions>;
@@ -60,7 +60,7 @@ class MongoshNodeRepl implements EvaluationListener {
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
-  bus: Bus;
+  bus: MongoshBus;
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
   configProvider: MongoshConfigProvider;
@@ -127,6 +127,7 @@ class MongoshNodeRepl implements EvaluationListener {
           (async() => await origReplCompleter(text) || [[]])(),
           (async() => await mongoshCompleter(text))()
         ]);
+        this.bus.emit('mongosh:autocompletion-complete'); // For testing.
         // Remove duplicates, because shell API methods might otherwise show
         // up in both completions.
         const deduped = [...new Set([...replResults, ...mongoshResults])];

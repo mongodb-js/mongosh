@@ -29,6 +29,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@mongosh/types": "^0.6.1",
     "@mongosh/browser-runtime-core": "^0.6.1",
     "@mongosh/service-provider-core": "^0.6.1",
     "@mongosh/shell-evaluator": "^0.6.1"

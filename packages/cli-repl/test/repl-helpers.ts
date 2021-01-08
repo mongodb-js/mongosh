@@ -7,6 +7,7 @@ import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
+import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -39,10 +40,21 @@ function useTmpdir(): { readonly path: string } {
   };
 }
 
-async function waitEval(bus: any) {
+async function waitBus<K extends keyof MongoshBusEventsMap>(
+  bus: MongoshBus,
+  event: K): Promise<MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never> {
+  return await once(bus as any, event) as any;
+}
+
+async function waitEval(bus: MongoshBus) {
   // Wait for the (possibly I/O-performing) evaluation to complete and then
   // wait another tick for the result to be flushed to the output stream.
-  await once(bus, 'mongosh:eval-complete');
+  await waitBus(bus, 'mongosh:eval-complete');
+  await tick();
+}
+
+async function waitCompletion(bus: MongoshBus) {
+  await waitBus(bus, 'mongosh:autocompletion-complete');
   await tick();
 }
 
@@ -65,7 +77,9 @@ export {
   sinon,
   useTmpdir,
   tick,
+  waitBus,
   waitEval,
+  waitCompletion,
   fakeTTYProps,
   readReplLogfile
 };

@@ -14,7 +14,7 @@ import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-dire
 import { CliReplErrors } from './error-codes';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
-import { UserConfig } from './types';
+import { MongoshBus, UserConfig } from '@mongosh/types';
 import { once } from 'events';
 import { createWriteStream } from 'fs';
 import { promisify } from 'util';
@@ -40,7 +40,7 @@ export type CliReplOptions = {
  */
 class CliRepl {
   mongoshRepl: MongoshNodeRepl;
-  bus: Nanobus;
+  bus: MongoshBus;
   cliOptions: CliOptions;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<UserConfig>;

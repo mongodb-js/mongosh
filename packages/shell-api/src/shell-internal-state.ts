@@ -13,7 +13,7 @@ import {
 } from './index';
 import constructShellBson from './shell-bson';
 import { EventEmitter } from 'events';
-import { DEFAULT_DB, Document, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import AsyncWriter from '@mongosh/async-rewriter';
 import { toIgnore } from './decorators';
@@ -21,6 +21,8 @@ import NoDatabase from './no-db';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
 import { Topologies } from './enums';
+import type { MongoshBus, ApiEvent } from '@mongosh/types';
+import { ShellApiErrors } from './error-codes';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -29,6 +31,7 @@ export interface ShellCliOptions {
 export interface AutocompleteParameters {
   topology: () => Topologies;
   connectionInfo: () => ConnectInfo | undefined;
+  getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
 }
 
 export interface EvaluationListener {
@@ -66,7 +69,7 @@ export interface EvaluationListener {
 export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
-  public messageBus: EventEmitter;
+  public messageBus: MongoshBus;
   public asyncWriter: AsyncWriter;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public uri: string | null;
@@ -120,6 +123,7 @@ export default class ShellInternalState {
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
     this.fetchConnectionInfo();
+    this.currentDb._getCollectionNames(); // Pre-fetch for autocompletion.
     return newDb;
   }
 
@@ -197,12 +201,7 @@ export default class ShellInternalState {
     );
   }
 
-  public emitApiCall(event: {
-    method: string;
-    class: string;
-    arguments: Document;
-    [otherProps: string]: any;
-  }): void {
+  public emitApiCall(event: ApiEvent): void {
     this.messageBus.emit('mongosh:api-call', event);
   }
 
@@ -212,9 +211,11 @@ export default class ShellInternalState {
 
   public getAutocompleteParameters(): AutocompleteParameters {
     return {
+      // eslint-disable-next-line complexity
       topology: () => {
         let topology: Topologies;
-        const topologyType: TopologyType | undefined = this.connectionInfo.topology?.description?.type;
+        const topologyDescription = this.connectionInfo.topology?.description;
+        const topologyType: TopologyType | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
@@ -225,12 +226,46 @@ export default class ShellInternalState {
             break;
           default:
             topology = Topologies.Standalone;
+            // We're connected to a single server, but that doesn't necessarily
+            // mean that that server isn't part of a replset or sharding setup
+            // if we're using directConnection=true (which we do by default).
+            if (topologyDescription.servers.size === 1) {
+              const [ server ] = topologyDescription.servers.values();
+              switch (server.type) {
+                case 'Mongos':
+                  topology = Topologies.Sharded;
+                  break;
+                case 'PossiblePrimary':
+                case 'RSPrimary':
+                case 'RSSecondary':
+                case 'RSArbiter':
+                case 'RSOther':
+                case 'RSGhost':
+                  topology = Topologies.ReplSet;
+                  break;
+                default:
+                  // Either Standalone, Unknown, or something so unknown that
+                  // it isn't even listed in the enum right now.
+                  break;
+              }
+            }
             break;
         }
         return topology;
       },
       connectionInfo: () => {
         return this.connectionInfo.extraInfo;
+      },
+      getCollectionCompletionsForCurrentDb: async(collName: string): Promise<string[]> => {
+        try {
+          const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
+          return collectionNames.filter((name) => name.startsWith(collName));
+        } catch (err) {
+          if (err.code === ShellApiErrors.NotConnected) {
+            return [];
+          }
+          throw err;
+        }
       }
     };
   }

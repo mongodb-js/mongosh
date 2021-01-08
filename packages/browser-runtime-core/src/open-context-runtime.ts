@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import { ShellInternalState, ShellResult } from '@mongosh/shell-api';
 
 import { ShellEvaluator, EvaluationListener } from '@mongosh/shell-evaluator';
+import type { MongoshBus } from '@mongosh/types';
 
 /**
  * This class is the core implementation for a runtime which is not isolated
@@ -27,9 +28,7 @@ export class OpenContextRuntime implements Runtime {
   constructor(
     serviceProvider: ServiceProvider,
     interpreterEnvironment: InterpreterEnvironment,
-    messageBus?: {
-      emit: (eventName: string, ...args: any[]) => void;
-    }
+    messageBus?: MongoshBus
   ) {
     this.interpreterEnvironment = interpreterEnvironment;
     this.internalState = new ShellInternalState(serviceProvider, messageBus || new EventEmitter());

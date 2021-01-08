@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { once } from 'events';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { startTestServer, MongodSetup } from '../../../testing/integration-testing-hooks';
-import { expect, useTmpdir, waitEval, fakeTTYProps, readReplLogfile, tick } from '../test/repl-helpers';
+import { expect, useTmpdir, waitEval, waitBus, waitCompletion, fakeTTYProps, readReplLogfile } from '../test/repl-helpers';
 import { CliReplErrors } from './error-codes';
 import { MongoshInternalError } from '@mongosh/errors';
 import http from 'http';
@@ -87,8 +87,8 @@ describe('CliRepl', () => {
       });
 
       it('toggling telemetry changes config', async() => {
-        const updateUser = once(cliRepl.bus, 'mongosh:update-user');
-        const evalComplete = once(cliRepl.bus, 'mongosh:eval-complete');
+        const updateUser = waitBus(cliRepl.bus, 'mongosh:update-user');
+        const evalComplete = waitBus(cliRepl.bus, 'mongosh:eval-complete');
         input.write('disableTelemetry()\n');
         const [ userId, enableTelemetry ] = await updateUser;
         expect(typeof userId).to.equal('string');
@@ -131,7 +131,7 @@ describe('CliRepl', () => {
       });
 
       it('emits the error event when exit() fails', async() => {
-        const onerror = once(cliRepl.bus, 'mongosh:error');
+        const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           // calling exit will not "exit" since we are not stopping the process
           await cliRepl.exit(1);
@@ -161,7 +161,7 @@ describe('CliRepl', () => {
       it('emits error for invalid config', async() => {
         await fs.writeFile(path.join(tmpdir.path, 'config'), 'notjson');
         cliRepl = new CliRepl(cliReplOptions);
-        const onerror = once(cliRepl.bus, 'mongosh:error');
+        const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           await cliRepl.start('', {});
         } catch { /* not empty */ }
@@ -176,7 +176,7 @@ describe('CliRepl', () => {
         cliReplOptions.shellHomePaths.shellRoamingDataPath = '/nonexistent/inaccesible';
         cliReplOptions.shellHomePaths.shellLocalDataPath = '/nonexistent/inaccesible';
         cliRepl = new CliRepl(cliReplOptions);
-        const onerror = once(cliRepl.bus, 'mongosh:error');
+        const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           await cliRepl.start('', {});
         } catch { /* not empty */ }
@@ -191,13 +191,13 @@ describe('CliRepl', () => {
 
         try {
           cliRepl = new CliRepl(cliReplOptions);
-          const onerror = once(cliRepl.bus, 'mongosh:error');
+          const onerror = waitBus(cliRepl.bus, 'mongosh:error');
           try {
             await cliRepl.start('', {});
           } catch { /* not empty */ }
           const [e] = await onerror;
           expect(e.name).to.equal('MongoshWarning');
-          expect(e.code).to.equal(CliReplErrors.NodeVersionMismatch);
+          expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
           process.version = process.versions.node;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';
@@ -208,7 +208,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: null,
       wantWatch: true,
-      wantShardDistribution: true
+      wantShardDistribution: true,
+      hasCollectionNames: false
     });
   });
 
@@ -318,7 +319,7 @@ describe('CliRepl', () => {
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
       const auth = { username: 'foo', password: '' };
-      const errored = once(cliRepl.bus, 'mongosh:error');
+      const errored = waitBus(cliRepl.bus, 'mongosh:error');
       try {
         await cliRepl.start(await testServer.connectionString(), { auth });
       } catch { /* not empty */ }
@@ -336,7 +337,7 @@ describe('CliRepl', () => {
       input.write('let cursor = db.test.find();\n');
       await waitEval(cliRepl.bus);
 
-      const rewrittenPromise = once(cliRepl.bus, 'mongosh:rewritten-async-input');
+      const rewrittenPromise = waitBus(cliRepl.bus, 'mongosh:rewritten-async-input');
       input.write('cursor.forEach(doc => db.test.insertOne({ a: doc.a + 1 }))\n');
       const [{ rewritten }] = await rewrittenPromise;
       expect(rewritten).to.include('toIterator'); // Make sure we're testing the right thing
@@ -353,7 +354,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: testServer,
       wantWatch: false,
-      wantShardDistribution: false
+      wantShardDistribution: false,
+      hasCollectionNames: true
     });
 
     context('analytics integration', () => {
@@ -410,7 +412,7 @@ describe('CliRepl', () => {
           // the REPL too early. That might be worth investigating at some point.
           await delay(100);
           input.write('exit\n');
-          await once(cliRepl.bus, 'mongosh:closed');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
           const useEvents = requests.map(
             req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Use')).flat();
           expect(useEvents).to.have.lengthOf(2);
@@ -428,7 +430,7 @@ describe('CliRepl', () => {
         it('ignores errors', async() => {
           input.write('print(123 + 456);\n');
           input.write('exit\n');
-          await once(cliRepl.bus, 'mongosh:closed');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
           expect(output).not.to.match(/error/i);
         });
       });
@@ -439,7 +441,8 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
       wantWatch: true,
-      wantShardDistribution: false
+      wantShardDistribution: false,
+      hasCollectionNames: true
     });
   });
 
@@ -447,14 +450,16 @@ describe('CliRepl', () => {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
       wantWatch: true,
-      wantShardDistribution: true
+      wantShardDistribution: true,
+      hasCollectionNames: false // We're only spinning up a mongos here
     });
   });
 
-  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution }: {
+  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames }: {
     testServer: MongodSetup | null,
     wantWatch: boolean,
-    wantShardDistribution: boolean
+    wantShardDistribution: boolean,
+    hasCollectionNames: boolean
   }): void {
     describe('autocompletion', () => {
       let cliRepl: CliRepl;
@@ -475,7 +480,7 @@ describe('CliRepl', () => {
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
         output = '';
         input.write('db.wat\u0009\u0009');
-        await tick();
+        await waitCompletion(cliRepl.bus);
         if (wantWatch) {
           expect(output).to.include('db.watch');
         } else {
@@ -486,12 +491,27 @@ describe('CliRepl', () => {
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
         output = '';
         input.write('db.coll.getShardDis\u0009\u0009');
-        await tick();
+        await waitCompletion(cliRepl.bus);
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
         } else {
           expect(output).not.to.include('db.coll.getShardDistribution');
         }
+      });
+
+      it('includes collection names', async() => {
+        if (!hasCollectionNames) return;
+        const collname = `testcollection${Date.now()}${(Math.random() * 1000) | 0}`;
+        input.write(`db.${collname}.insertOne({});\n`);
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write('db.testcoll\u0009\u0009');
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include(collname);
+
+        input.write(`db.${collname}.drop()\n`);
+        await waitEval(cliRepl.bus);
       });
     });
   }
