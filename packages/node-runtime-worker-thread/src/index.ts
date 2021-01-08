@@ -102,6 +102,9 @@ class WorkerRuntime implements Runtime {
   async terminate() {
     await this.initWorkerPromise;
     this.childProcess.kill('SIGTERM');
+    if (this.childProcess.exitCode === null && this.childProcess.signalCode === null) {
+      await once(this.childProcess, 'exit');
+    }
   }
 }
 
