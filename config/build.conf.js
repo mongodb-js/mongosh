@@ -11,22 +11,22 @@ const ROOT = path.join(__dirname, '..');
 /**
  * The mongosh package.
  */
-const MONGOSH = path.join(ROOT, 'packages', 'cli-repl');
+const CLI_REPL_DIR = path.join(ROOT, 'packages', 'cli-repl');
 
 /**
  * The project config.
  */
-const CONFIG = require(path.join(MONGOSH, 'package.json'));
+const CLI_REPL_PACKAGE_JSON = require(path.join(CLI_REPL_DIR, 'package.json'));
 
 /**
  * The input for the build.
  */
-const INPUT = path.join(MONGOSH, 'lib', 'run.js');
+const INPUT = path.join(CLI_REPL_DIR, 'lib', 'run.js');
 
 /**
  * The input for the exec.
  */
-const EXEC_INPUT = path.join(MONGOSH, 'dist', 'mongosh.js');
+const EXEC_INPUT = path.join(CLI_REPL_DIR, 'dist', 'mongosh.js');
 
 /**
  * The output dir for the build.
@@ -36,7 +36,7 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
 /**
  * Analytics configuration file.
  */
-const ANALYTICS_CONFIG = path.join(MONGOSH, 'lib', 'analytics-config.js');
+const ANALYTICS_CONFIG_FILE_PATH = path.join(CLI_REPL_DIR, 'lib', 'analytics-config.js');
 
 /**
  * The bundle id for MacOs.
@@ -56,12 +56,12 @@ const BUILD_VARIANT = (process.env.BUILD_VARIANT || '').split('_')[0];
  * Export the configuration for the build.
  */
 module.exports = {
-  version: CONFIG.version,
+  version: CLI_REPL_PACKAGE_JSON.version,
   rootDir: ROOT,
   input: INPUT,
   execInput: EXEC_INPUT,
   outputDir: OUTPUT_DIR,
-  analyticsConfig: ANALYTICS_CONFIG,
+  analyticsConfigFilePath: ANALYTICS_CONFIG_FILE_PATH,
   project: process.env.PROJECT,
   revision: REVISION,
   branch: process.env.BRANCH_NAME,

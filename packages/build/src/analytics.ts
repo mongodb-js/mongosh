@@ -22,14 +22,25 @@ const createAnalyticsConfig = (segmentKey: string): string => {
 /**
  * Write the analytics config.
  *
- * @param {string} file - The filename.
+ * @param {string} analyticsConfigFilePath - The filename.
  * @param {string} segmentKey - The segment key.
  */
-const writeAnalyticsConfig = (file: string, segmentKey: string): Promise<void> => {
+const writeAnalyticsConfig = (
+  analyticsConfigFilePath?: string,
+  segmentKey?: string
+): Promise<void> => {
+  if (!analyticsConfigFilePath) {
+    throw new Error('Analytics config file path is required');
+  }
+
+  if (!segmentKey) {
+    throw new Error('Segment key is required');
+  }
+
   const template = createAnalyticsConfig(segmentKey);
-  console.info('mongosh: writing analytics template:', file);
+  console.info('mongosh: writing analytics template:', analyticsConfigFilePath);
   // Cannot use fs/promises on Cygwin.
-  return util.promisify(fs.writeFile)(file, template);
+  return util.promisify(fs.writeFile)(analyticsConfigFilePath, template);
 };
 
 export default writeAnalyticsConfig;
