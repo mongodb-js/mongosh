@@ -5,7 +5,7 @@
   },
   "compilerOptions": {
     "outDir": "./lib",
-    "allowJs": true
+    "allowJs": false
   },
   "files": [
     "./src/index.d.ts"
