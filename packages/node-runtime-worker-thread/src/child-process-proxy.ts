@@ -40,9 +40,9 @@ const worker = createCaller(
 
 function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
   return new Proxy(fn, {
-    async apply(target, thisArg, argumetsList) {
+    async apply(target, thisArg, argumentsList) {
       await workerReadyPromise;
-      return target.call(thisArg, ...Array.from(argumetsList));
+      return target.call(thisArg, ...Array.from(argumentsList));
     }
   });
 }

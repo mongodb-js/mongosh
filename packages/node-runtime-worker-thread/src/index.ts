@@ -16,33 +16,22 @@ class WorkerEvaluationListener {
     this.exposedListener = exposeAll<EvaluationListener>(
       {
         onPrompt(question, type) {
-          if (workerRuntime.evaluationListener?.onPrompt) {
-            return workerRuntime.evaluationListener.onPrompt(question, type);
-          }
-
-          return '';
+          return workerRuntime.evaluationListener.onPrompt?.(question, type) ?? '';
         },
-        onPrint(value) {
-          if (workerRuntime.evaluationListener?.onPrint) {
-            workerRuntime.evaluationListener.onPrint(value);
+        onPrint(values) {
+          return workerRuntime.evaluationListener?.onPrint?.(values);
           }
         },
         toggleTelemetry(enabled) {
-          if (workerRuntime.evaluationListener?.toggleTelemetry) {
-            workerRuntime.evaluationListener.toggleTelemetry(enabled);
+          return workerRuntime.evaluationListener?.toggleTelemetry?.(enabled);
           }
         },
         onClearCommand() {
-          if (workerRuntime.evaluationListener?.onClearCommand) {
-            workerRuntime.evaluationListener.onClearCommand();
-          }
+          return workerRuntime.evaluationListener.onClearCommand?.();
         },
         onExit() {
-          if (workerRuntime.evaluationListener?.onExit) {
-            return workerRuntime.evaluationListener.onExit();
-          }
-
-          return Promise.resolve() as Promise<never>;
+          return workerRuntime.evaluationListener?.onExit?.() ??
+            Promise.resolve() as Promise<never>;
         }
       },
       childProcess
