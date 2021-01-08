@@ -1,4 +1,5 @@
 import path from 'path';
+import { promises as fs } from 'fs';
 import { once } from 'events';
 import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
@@ -13,18 +14,16 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 // We need a compiled version so we can import it as a worker
-const workerThreadModulePath = path.resolve(
-  __dirname,
-  '..',
-  'dist',
-  'worker-runtime.js'
+const workerThreadModule = fs.readFile(
+  path.resolve(__dirname, '..', 'dist', 'worker-runtime.js'),
+  'utf8'
 );
 
 describe('worker', () => {
   let worker: Worker;
 
   beforeEach(async() => {
-    worker = new Worker(workerThreadModulePath);
+    worker = new Worker(await workerThreadModule, { eval: true });
     await once(worker, 'message');
   });
 
