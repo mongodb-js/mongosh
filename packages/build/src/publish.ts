@@ -1,6 +1,7 @@
 import { GithubRepo } from './github-repo';
 import Config from './config';
 import { redactConfig } from './redact-config';
+import { publishNpmPackages } from './npm-packages';
 
 export default async function publish(
   config: Config,
@@ -22,6 +23,7 @@ export default async function publish(
 
   await githubRepo.promoteRelease(config);
 
+  publishNpmPackages();
   console.info('mongosh: finished release process.');
 }
 

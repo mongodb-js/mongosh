@@ -16,6 +16,7 @@ import publish from './publish';
 import { redactConfig } from './redact-config';
 import Config from './config';
 import getReleaseVersionFromTag from './get-release-version-from-tag';
+import { bumpNpmPackages } from './npm-packages';
 
 /**
  * Run the release process.
@@ -38,6 +39,9 @@ export default async function release(
     ...config,
     version: await getReleaseVersionFromTag(commitTag?.name) || config.version
   };
+
+  // updates the version of internal packages to reflect the tagged one
+  bumpNpmPackages(config.version);
 
   const barque = new Barque(config);
   let tarballFile: TarballFile;
