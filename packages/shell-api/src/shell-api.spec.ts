@@ -466,8 +466,7 @@ describe('ShellApi', () => {
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
-        expect(db.getMongo()._fleOptions).to.deep.equal({});
-        expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly('mongodb://127.0.0.1:27017', { auth: { username: 'username', password: 'pwd' } });
+        expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly('mongodb://127.0.0.1:27017/?directConnection=true', { auth: { username: 'username', password: 'pwd' } });
       });
     });
     describe('version', () => {
