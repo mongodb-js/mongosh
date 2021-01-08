@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-evaluator",
-  "version": "0.0.0-dev.0",
+  "version": "0.6.1",
   "description": "MongoDB Top Level API Package",
   "main": "./lib/index.js",
   "scripts": {
