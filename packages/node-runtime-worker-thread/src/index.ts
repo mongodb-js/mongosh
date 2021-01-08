@@ -1,3 +1,4 @@
+import { once } from 'events';
 import { ChildProcess } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import { Runtime } from '@mongosh/browser-runtime-core';
@@ -16,22 +17,24 @@ class WorkerEvaluationListener {
     this.exposedListener = exposeAll<EvaluationListener>(
       {
         onPrompt(question, type) {
-          return workerRuntime.evaluationListener.onPrompt?.(question, type) ?? '';
+          return (
+            workerRuntime.evaluationListener?.onPrompt?.(question, type) ?? ''
+          );
         },
         onPrint(values) {
           return workerRuntime.evaluationListener?.onPrint?.(values);
-          }
         },
         toggleTelemetry(enabled) {
           return workerRuntime.evaluationListener?.toggleTelemetry?.(enabled);
-          }
         },
         onClearCommand() {
-          return workerRuntime.evaluationListener.onClearCommand?.();
+          return workerRuntime.evaluationListener?.onClearCommand?.();
         },
         onExit() {
-          return workerRuntime.evaluationListener?.onExit?.() ??
-            Promise.resolve() as Promise<never>;
+          return (
+            workerRuntime.evaluationListener?.onExit?.() ??
+            (Promise.resolve() as Promise<never>)
+          );
         }
       },
       childProcess
@@ -102,7 +105,10 @@ class WorkerRuntime implements Runtime {
   async terminate() {
     await this.initWorkerPromise;
     this.childProcess.kill('SIGTERM');
-    if (this.childProcess.exitCode === null && this.childProcess.signalCode === null) {
+    if (
+      this.childProcess.exitCode === null &&
+      this.childProcess.signalCode === null
+    ) {
       await once(this.childProcess, 'exit');
     }
   }
