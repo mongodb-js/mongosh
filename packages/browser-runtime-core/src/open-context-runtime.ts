@@ -24,6 +24,7 @@ export class OpenContextRuntime implements Runtime {
   private shellEvaluator: ShellEvaluator;
   private internalState: ShellInternalState;
   private evaluationListener: EvaluationListener | null = null;
+  private updatedConnectionInfo = false;
 
   constructor(
     serviceProvider: ServiceProvider,
@@ -40,6 +41,7 @@ export class OpenContextRuntime implements Runtime {
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
       await this.internalState.fetchConnectionInfo();
+      this.updatedConnectionInfo = true;
       this.autocompleter = new ShellApiAutocompleter(this.internalState.getAutocompleteParameters());
     }
 
@@ -64,6 +66,10 @@ export class OpenContextRuntime implements Runtime {
   }
 
   async getShellPrompt(): Promise<string> {
+    if (!this.updatedConnectionInfo) {
+      await this.internalState.fetchConnectionInfo();
+      this.updatedConnectionInfo = true;
+    }
     return await this.internalState.getDefaultPrompt();
   }
 }
