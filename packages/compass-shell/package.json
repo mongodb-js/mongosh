@@ -56,6 +56,7 @@
     "@leafygreen-ui/icon-button": "^5.0.2",
     "@mongosh/browser-repl": "0.0.0-dev.0",
     "@mongosh/browser-runtime-electron": "0.0.0-dev.0",
+    "@mongosh/node-runtime-worker-thread": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "hadron-react-buttons": "^4.0.4",
     "mongodb-redux-common": "0.0.2"

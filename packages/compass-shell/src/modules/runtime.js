@@ -1,5 +1,6 @@
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
+import { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 
 /**
  * The prefix.
@@ -38,17 +39,29 @@ export default function reducer(state = INITIAL_STATE, action) {
 
 function reduceSetupRuntime(state, action) {
   if (action.error || !action.dataService) {
-    return {error: action.error, dataService: null, runtime: null};
+    return { error: action.error, dataService: null, runtime: null };
   }
 
   if (state.dataService === action.dataService) {
     return state;
   }
 
-  const runtime = new ElectronRuntime(
-    CompassServiceProvider.fromDataService(action.dataService),
-    action.appRegistry
-  );
+  const { url, options } = action.dataService.getConnectionOptions();
+
+  const runtime = !!process.env.COMPASS_SHELL_EXPERIMENTAL_WORKER_RUNTIME
+    ? new WorkerRuntime(
+      url,
+      options,
+      {},
+      {
+        env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
+        serialization: 'advanced',
+      }
+    )
+    : new ElectronRuntime(
+      CompassServiceProvider.fromDataService(action.dataService),
+      action.appRegistry
+    );
 
   return {
     error: action.error,
