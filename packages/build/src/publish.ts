@@ -23,7 +23,7 @@ export default async function publish(
 
   await githubRepo.promoteRelease(config);
 
-  publishNpmPackages();
+  // publishNpmPackages();
   console.info('mongosh: finished release process.');
 }
 

@@ -132,37 +132,37 @@ async function publish() {
     console.info('already bootstrapped .. skipping');
   }
 
-  // if (!isTaskDone('write-segment-api-key', releaseDirPath)) {
-  //   writeSegmentApiKey(segmentApiKey, cloneDirPath);
-  //   markTaskAsDone('write-segment-api-key', releaseDirPath);
-  // } else {
-  //   console.info('already written segment api key .. skipping');
-  // }
+  if (!isTaskDone('write-segment-api-key', releaseDirPath)) {
+    writeSegmentApiKey(segmentApiKey, cloneDirPath);
+    markTaskAsDone('write-segment-api-key', releaseDirPath);
+  } else {
+    console.info('already written segment api key .. skipping');
+  }
 
-  // if (!isTaskDone('lerna-publish', releaseDirPath)) {
-  //   const versionBefore = getLatestVersion();
-  //   const lerna = path.resolve(cloneDirPath, 'node_modules', '.bin', 'lerna');
-  //   execFileSync(
-  //     lerna,
-  //     ['publish', '--force-publish'],
-  //     { cwd: cloneDirPath, stdio: 'inherit' }
-  //   );
+  if (!isTaskDone('lerna-publish', releaseDirPath)) {
+    const versionBefore = getLatestVersion();
+    const lerna = path.resolve(cloneDirPath, 'node_modules', '.bin', 'lerna');
+    execFileSync(
+      lerna,
+      ['publish', '--force-publish'],
+      { cwd: cloneDirPath, stdio: 'inherit' }
+    );
 
-  //   // Wait 10s to ensure the npm tags are updated after the publish.
-  //   await wait(10000);
+    // Wait 10s to ensure the npm tags are updated after the publish.
+    await wait(10000);
 
-  //   const versionAfter = getLatestVersion();
+    const versionAfter = getLatestVersion();
 
-  //   assert.notEqual(
-  //     versionBefore,
-  //     versionAfter,
-  //     `The published version should have been changed: before ${versionBefore}, after: ${versionAfter}`
-  //   );
+    assert.notEqual(
+      versionBefore,
+      versionAfter,
+      `The published version should have been changed: before ${versionBefore}, after: ${versionAfter}`
+    );
 
-  //   markTaskAsDone('lerna-publish', releaseDirPath);
-  // } else {
-  //   console.info('already published to npm .. skipping');
-  // }
+    markTaskAsDone('lerna-publish', releaseDirPath);
+  } else {
+    console.info('already published to npm .. skipping');
+  }
 
   if (!isTaskDone('homebrew-formula', releaseDirPath)) {
     await generateHomebrewFormula(
