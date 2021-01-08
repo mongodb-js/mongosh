@@ -1,4 +1,3 @@
-import { ReplPlatform } from './platform';
 import ShellAuthOptions from './shell-auth-options';
 import type {
   MongoClientOptions,
@@ -12,6 +11,8 @@ import type {
   ClientSessionOptions
 } from './all-transport-types';
 import type { bson as BSON } from './index';
+import { ReplPlatform } from './platform';
+
 
 export default interface Admin {
   /**

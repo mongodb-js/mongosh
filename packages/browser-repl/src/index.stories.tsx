@@ -1,8 +1,8 @@
+import { boolean, number, withKnobs } from '@storybook/addon-knobs';
 import React, { useEffect } from 'react';
-import { Shell } from './index';
 import { IframeRuntime } from './iframe-runtime';
+import { Shell } from './index';
 
-import { withKnobs, boolean, number } from '@storybook/addon-knobs';
 
 export default {
   title: 'Shell',
@@ -17,7 +17,25 @@ const delay = (msecs: number): Promise<void> => new Promise((resolve) => {
 
 class DemoServiceProvider {
   async buildInfo(): Promise<object> {
-    return { version: '4.0.0' };
+    return { version: '4.0.0', modules: ['other', 'enterprise'] };
+  }
+
+  async getConnectionInfo(): Promise<object> {
+    return {
+      buildInfo: await this.buildInfo(),
+      extraInfo: {
+        uri: 'mongodb://localhost/'
+      }
+    };
+  }
+
+  getTopology(): object {
+    return {
+      description: {
+        type: 'ReplicaSetWithPrimary',
+        setName: 'replset'
+      }
+    };
   }
 
   async listDatabases(): Promise<any> {

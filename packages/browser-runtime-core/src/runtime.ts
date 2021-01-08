@@ -27,4 +27,9 @@ export interface Runtime {
    * @param {string} code - The code to be completed
    */
   getCompletions(code: string): Promise<Completion[]>;
+
+  /**
+   * Get the prompt to display for the shell.
+   */
+  getShellPrompt(): Promise<string>;
 }

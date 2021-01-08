@@ -1,6 +1,6 @@
-import { MongoClient, Db, Collection } from 'mongodb';
 import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
+import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import CliServiceProvider from './cli-service-provider';

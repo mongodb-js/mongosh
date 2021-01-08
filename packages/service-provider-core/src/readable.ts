@@ -148,9 +148,7 @@ export default interface Readable {
     dbOptions?: DbOptions): FindCursor;
 
   /**
-   * Returns the server version.
-   *
-   * @returns {Promise} The server version.
+   * Get currently known topology information.
    */
   getTopology(): any;
 

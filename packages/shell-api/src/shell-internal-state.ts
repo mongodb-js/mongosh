@@ -1,28 +1,28 @@
+import AsyncWriter from '@mongosh/async-rewriter';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
+import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyDescription, TopologyType } from '@mongosh/service-provider-core';
+import type { ApiEvent, MongoshBus } from '@mongosh/types';
+import { EventEmitter } from 'events';
+import redactInfo from 'mongodb-redact';
+import ChangeStreamCursor from './change-stream-cursor';
+import { toIgnore } from './decorators';
+import { Topologies } from './enums';
+import { ShellApiErrors } from './error-codes';
 import {
   AggregationCursor,
   Cursor,
   Database,
+  getShellApiType,
   Mongo,
   ReplicaSet,
   Shard,
-  signatures,
-  toIterator,
   ShellApi,
-  getShellApiType,
-  ShellResult
+  ShellResult,
+  signatures,
+  toIterator
 } from './index';
-import constructShellBson from './shell-bson';
-import { EventEmitter } from 'events';
-import { DEFAULT_DB, ReplPlatform, ServiceProvider, ConnectInfo, TopologyType } from '@mongosh/service-provider-core';
-import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import AsyncWriter from '@mongosh/async-rewriter';
-import { toIgnore } from './decorators';
 import NoDatabase from './no-db';
-import redactInfo from 'mongodb-redact';
-import ChangeStreamCursor from './change-stream-cursor';
-import { Topologies } from './enums';
-import type { MongoshBus, ApiEvent } from '@mongosh/types';
-import { ShellApiErrors } from './error-codes';
+import constructShellBson from './shell-bson';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -80,6 +80,7 @@ export default class ShellInternalState {
   public shellBson: any;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
+
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
@@ -132,7 +133,7 @@ export default class ShellInternalState {
    * Add each attribute to the AsyncWriter also.
    *
    * The `contextObject` is prepared so that it can be used as global object
-   * for the repl evaluationi.
+   * for the repl evaluation.
    *
    * @note The `contextObject` is mutated, it will retain all of its existing
    * properties but also have the global shell api objects and functions.
@@ -214,7 +215,7 @@ export default class ShellInternalState {
       // eslint-disable-next-line complexity
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.connectionInfo.topology?.description;
+        const topologyDescription = this.initialServiceProvider.getTopology()?.description as TopologyDescription;
         const topologyType: TopologyType | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
@@ -267,6 +268,90 @@ export default class ShellInternalState {
           throw err;
         }
       }
+    };
+  }
+
+  async getDefaultPrompt(): Promise<string> {
+    return `${this.getDefaultPromptPrefix()}${this.getTopologySpecificPrompt()}> `;
+  }
+
+  private getDefaultPromptPrefix(): string {
+    if (this.connectionInfo?.extraInfo?.is_enterprise
+      || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
+      return 'Enterprise ';
+    }
+    return '';
+  }
+
+  private getTopologySpecificPrompt(): string {
+    const description = this.initialServiceProvider.getTopology()?.description;
+    if (!description) {
+      return '';
+    }
+
+
+    let replicaSet = description.setName;
+    let serverTypePrompt = '';
+    // TODO: replace with proper TopologyType constants - NODE-2973
+    switch (description.type) {
+      case 'Single':
+        const singleDetails = this.getTopologySinglePrompt(description);
+        replicaSet = singleDetails?.replicaSet ?? replicaSet;
+        serverTypePrompt = singleDetails?.serverType ? `[direct: ${singleDetails.serverType}]` : '';
+        break;
+      case 'ReplicaSetNoPrimary':
+        serverTypePrompt = '[secondary]';
+        break;
+      case 'ReplicaSetWithPrimary':
+        serverTypePrompt = '[primary]';
+        break;
+      case 'Sharded':
+        serverTypePrompt = '[mongos]';
+        break;
+      default:
+        return '';
+    }
+
+    const setNamePrefix = replicaSet ? `${replicaSet} ` : '';
+    return `${setNamePrefix}${serverTypePrompt}`;
+  }
+
+  // eslint-disable-next-line complexity
+  private getTopologySinglePrompt(description: TopologyDescription): {replicaSet: string | undefined, serverType: string} | undefined {
+    if (description.servers?.size !== 1) {
+      return undefined;
+    }
+    const [server] = description.servers.values();
+
+    // TODO: replace with proper ServerType constants - NODE-2973
+    let serverType: string;
+    switch (server.type) {
+      case 'Mongos':
+        serverType = 'mongos';
+        break;
+      case 'RSPrimary':
+        serverType = 'primary';
+        break;
+      case 'RSSecondary':
+        serverType = 'secondary';
+        break;
+      case 'RSArbiter':
+        serverType = 'arbiter';
+        break;
+      case 'RSOther':
+        serverType = 'other';
+        break;
+      case 'Standalone':
+      case 'PossiblePrimary':
+      case 'RSGhost':
+      case 'Unknown':
+      default:
+        serverType = '';
+    }
+
+    return {
+      replicaSet: server.setName,
+      serverType
     };
   }
 }

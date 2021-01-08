@@ -97,7 +97,12 @@ type DropDatabaseResult = {
   dropped?: string;
 };
 
-type ConnectionInfo = ReturnType<typeof getConnectInfo>;
+type ConnectionInfo = {
+  buildInfo: any;
+  topology: Topology;
+  extraInfo: ExtraConnectionInfo;
+};
+type ExtraConnectionInfo = ReturnType<typeof getConnectInfo>;
 
 /**
  * Default driver options we always use.
@@ -194,15 +199,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return new CliServiceProvider(mongoClient, uri);
   }
 
-  async getConnectionInfo(): Promise<{
-    buildInfo: any;
-    topology: Topology;
-    extraInfo: ConnectionInfo;
-  }> {
+  async getConnectionInfo(): Promise<ConnectionInfo> {
     const buildInfo = await this.runCommandWithCheck('admin', {
       buildInfo: 1
     }, this.baseCmdOptions);
-    const topology = await this.getTopology() as Topology;
+    const topology = this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
@@ -213,7 +214,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     } catch (e) {
     }
 
-    const connectInfo = getConnectInfo(
+    const extraConnectionInfo = getConnectInfo(
       this.uri ? this.uri : '',
       version,
       buildInfo,
@@ -224,7 +225,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return {
       buildInfo: buildInfo,
       topology: topology,
-      extraInfo: connectInfo
+      extraInfo: extraConnectionInfo
     };
   }
 
@@ -867,9 +868,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Return current topology.
-   *
-   * @returns {Promise} topology.
+   * Get currently known topology information.
    */
   getTopology(): Topology | undefined {
     return this.mongoClient.topology;

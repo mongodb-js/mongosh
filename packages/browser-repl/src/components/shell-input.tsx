@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
-import classnames from 'classnames';
-import { Autocompleter } from '@mongosh/browser-runtime-core';
 import Icon from '@leafygreen-ui/icon';
-
+import { Autocompleter } from '@mongosh/browser-runtime-core';
+import classnames from 'classnames';
+import React, { Component } from 'react';
 import { Editor } from './editor';
-import { LineWithIcon } from './utils/line-with-icon';
 import Loader from './shell-loader';
+import { LineWithIcon } from './utils/line-with-icon';
 
 const styles = require('./shell-input.less');
 
@@ -15,6 +14,7 @@ interface ShellInputProps {
   onClearCommand?(): void | Promise<void>;
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
+  prompt?: string;
   setInputRef?(ref: { editor?: HTMLElement }): void;
 }
 
@@ -106,14 +106,30 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   render(): JSX.Element {
-    const icon = this.props.operationInProgress ? (
-      <Loader
+    let prompt: JSX.Element;
+    if (this.props.operationInProgress) {
+      prompt = (<Loader
         size={12}
-      />
-    ) : (<Icon
-      size={12}
-      glyph={'ChevronRight'}
-    />);
+      />);
+    } else if (this.props.prompt) {
+      const trimmed = this.props.prompt.trim();
+      if (trimmed.endsWith('>')) {
+        prompt = (<>
+          <span>{trimmed.replace(/>$/g, '')}</span>
+          <Icon
+            size={12}
+            glyph={'ChevronRight'}
+          />
+        </>);
+      } else {
+        prompt = (<span>{trimmed}</span>);
+      }
+    } else {
+      prompt = (<Icon
+        size={12}
+        glyph={'ChevronRight'}
+      />);
+    }
 
     const editor = (<Editor
       autocompleter={this.props.autocompleter}
@@ -130,6 +146,6 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
 
     const className = classnames(styles['shell-input']);
 
-    return <LineWithIcon className={className} icon={icon}>{editor}</LineWithIcon>;
+    return <LineWithIcon className={className} icon={prompt}>{editor}</LineWithIcon>;
   }
 }
