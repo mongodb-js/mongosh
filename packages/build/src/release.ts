@@ -1,13 +1,19 @@
-/* eslint-disable no-shadow */
+import compileExec, { executablePath } from './compile-exec';
+import { createTarball, TarballFile } from './tarball';
+import Platform from './platform';
+import os from 'os';
+import path from 'path';
+import { promises as fs } from 'fs';
+import macOSSignAndNotarize from './macos-sign';
 import uploadToDownloadCenter from './upload-to-download-center';
-import compileAndZipExecutable from './compile-and-zip-executable';
 import uploadDownloadCenterConfig from './download-center';
 import uploadArtifactToEvergreen from './evergreen';
-import buildAndUpload from './build-and-upload';
+import doUpload from './do-upload';
 import { GithubRepo } from './github-repo';
 import { Octokit } from '@octokit/rest';
 import { Barque } from './barque';
 import publish from './publish';
+import { redactConfig } from './redact-config';
 import Config from './config';
 
 /**
@@ -17,7 +23,7 @@ import Config from './config';
  * @param {Config} config - the configuration, usually config/build.config.js.
  */
 export default async function release(
-  command: 'package' | 'publish',
+  command: 'compile' | 'package' | 'upload' | 'publish',
   config: Config
 ): Promise<void> {
   const octokit = new Octokit({
@@ -26,16 +32,50 @@ export default async function release(
 
   const githubRepo = new GithubRepo(config.repo, octokit);
   const barque = new Barque(config);
+  let tarballFile: TarballFile;
 
-  if (command === 'package') {
-    await buildAndUpload(
+  console.info(
+    `mongosh: running command '${command}' with config:`,
+    redactConfig(config)
+  );
+
+  if (command === 'compile') {
+    await compileExec(
+      config.input,
+      config.execInput,
+      config.outputDir,
+      config.execNodeVersion,
+      config.analyticsConfig ?? '',
+      config.segmentKey ?? '');
+  } else if (command === 'package') {
+    const executable = executablePath(config.outputDir, os.platform());
+    const runCreateTarball = async(): Promise<TarballFile> => {
+      return await createTarball(
+        executable,
+        config.outputDir,
+        config.buildVariant ?? '',
+        config.version,
+        config.rootDir
+      );
+    };
+
+    // Zip the executable, or, on macOS, do it as part of the
+    // notarization/signing step.
+    if (os.platform() === Platform.MacOs) {
+      tarballFile = await macOSSignAndNotarize(executable, config, runCreateTarball);
+    } else {
+      tarballFile = await runCreateTarball();
+    }
+    await fs.writeFile(path.join(config.outputDir, '.artifact_metadata'), JSON.stringify(tarballFile));
+  } else if (command === 'upload') {
+    tarballFile = JSON.parse(await fs.readFile(path.join(config.outputDir, '.artifact_metadata'), 'utf8'));
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadArtifactToEvergreen,
-      uploadToDownloadCenter
-    );
+      uploadToDownloadCenter);
   } else if (command === 'publish') {
     await publish(
       config,

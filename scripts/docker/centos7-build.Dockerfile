@@ -2,7 +2,7 @@ FROM centos:7
 
 RUN yum install -y centos-release-scl epel-release
 RUN yum repolist
-RUN yum install -y python3 devtoolset-8 rpm-build dpkg-devel dpkg-dev git cmake
+RUN yum install -y python3 devtoolset-8 git cmake
 RUN scl enable devtoolset-8 bash
 
 # Add Node.js

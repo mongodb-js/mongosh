@@ -2,16 +2,15 @@ exec_timeout_secs: 7200
 
 # Variables for common functions.
 #
-# compile_and_upload_artifact: Runs the exec compile and release process.
+# compile_artifact: Compile the mongosh executable.
+# package_and_upload_artifact: Package the executable and upload the artifacts.
 variables:
-  - &compile_and_upload_artifact
+  - &compile_artifact
     command: shell.exec
     params:
       working_dir: src
       shell: bash
       script: |
-        set -e
-        cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         set -e
         cd $(pwd)
         export NODE_JS_VERSION=${node_js_version}
@@ -27,23 +26,15 @@ variables:
             -e NODE_JS_VERSION \
             -e BUILD_VARIANT \
             --rm -v $PWD:/tmp/build --network host centos7-build \
-            -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release package && dist/mongosh --version'
+            -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release compile && dist/mongosh --version'
         else
-          npm run evergreen-release package
+          npm run evergreen-release compile
           if [ `uname` == Darwin ]; then
             # Verify signing
             spctl -a -vvv -t install dist/mongosh
           fi
         fi
-        RELEASE_MONGOSH
-
-        if [ `uname` == Darwin ]; then
-          ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
-        else
-          bash ~/release_mongosh.sh
-        fi
-
-        export NODE_JS_VERSION=${node_js_version}
+        dist/mongosh --version
         source .evergreen/.setup_env
         export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
         if [ x"$OS" == x"Windows_NT" ]; then
@@ -51,6 +42,47 @@ variables:
         fi
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
+        tar cvzf dist.tgz dist
+
+  - &package_and_upload_artifact
+    command: shell.exec
+    params:
+      working_dir: src
+      shell: bash
+      script: |
+        set -e
+        cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
+        set -e
+        cd $(pwd)
+        export NODE_JS_VERSION=${node_js_version}
+        source .evergreen/.
+        tar xvzf dist.tgz
+        dist/mongosh --version
+        if [ `uname` == Linux ]; then
+          mkdir -p tmp
+          cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
+          (cd scripts/docker && docker build -t centos7-package -f centos7-package.Dockerfile .)
+          echo Starting Docker container packaging
+          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
+            -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
+            -e NODE_JS_VERSION \
+            -e BUILD_VARIANT \
+            --rm -v $PWD:/tmp/build --network host centos7-package \
+            -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
+        else
+          npm run evergreen-release package
+          if [ `uname` == Darwin ]; then
+            # Verify signing
+            spctl -a -vvv -t install dist/mongosh
+          fi
+          npm run evergreen-release upload
+        fi
+        RELEASE_MONGOSH
+        if [ `uname` == Darwin ]; then
+          ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
+        else
+          bash ~/release_mongosh.sh
+        fi
 
   - &test_linux_artifact
     command: shell.exec
@@ -76,7 +108,8 @@ variables:
 #   test - Runs all tests.
 #   test_vscode - Clones the vscode extension repository and runs its tests.
 #   test_connectivity - Runs extra connectivity tests.
-#   compile_and_upload_artifact - Compile the release binary and upload it to S3.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
@@ -142,12 +175,34 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           npm run test-connectivity
-  compile_and_upload_artifact:
+  compile_artifact:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
         redacted: true
-    - <<: *compile_and_upload_artifact
+    - <<: *compile_artifact
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: dist.tgz
+        remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  package_and_upload_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: dist.tgz
+        remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+    - <<: *package_and_upload_artifact
   test_linux_artifact:
     - command: expansions.write
       params:
@@ -178,7 +233,8 @@ functions:
 #   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
 #   test_connectivity - Runs extra connectivity tests.
-#   compile_and_upload_artifact - Compile the release binary and upload it to S3.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 tasks:
@@ -289,7 +345,16 @@ tasks:
         vars:
           node_js_version: "14.15.1"
       - func: test_connectivity
-  - name: compile_and_upload_artifact_macos
+  - name: compile_artifact
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: compile_artifact
+        vars:
+          node_js_version: "14.15.1"
+  - name: package_and_upload_artifact_macos
     depends_on:
       - name: check
         variant: darwin
@@ -309,17 +374,20 @@ tasks:
         variant: darwin
       - name: test_mlatest_n14
         variant: darwin
+      - name: compile_artifact
+        variant: darwin
     commands:
       - func: checkout
       - func: install
         vars:
           node_js_version: "14.15.1"
-      - func: compile_and_upload_artifact
+      - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
-  - name: compile_and_upload_artifact_linux
+  - name: package_and_upload_artifact_linux
     depends_on:
       - name: check
+        variant: linux
       - name: test_m40x_n12
         variant: linux
       - name: test_m42x_n12
@@ -336,36 +404,49 @@ tasks:
         variant: linux
       - name: test_mlatest_n14
         variant: linux
+      - name: compile_artifact
+        variant: linux_build
     commands:
       - func: checkout
       - func: install
         vars:
           node_js_version: "14.15.1"
-      - func: compile_and_upload_artifact
+      - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
-  - name: compile_and_upload_artifact_win
+  - name: package_and_upload_artifact_win
     depends_on:
       - name: check
+        variant: win32
       - name: test_m40x_n12
+        variant: win32
       - name: test_m42x_n12
+        variant: win32
       - name: test_m44x_n12
+        variant: win32
       - name: test_mlatest_n12
+        variant: win32
       - name: test_m40x_n14
+        variant: win32
       - name: test_m42x_n14
+        variant: win32
       - name: test_m44x_n14
+        variant: win32
       - name: test_mlatest_n14
+        variant: win32
+      - name: compile_artifact
+        variant: win32_build
     commands:
       - func: checkout
       - func: install
         vars:
           node_js_version: "14.15.1"
-      - func: compile_and_upload_artifact
+      - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
   - name: test_linux_artifact
     depends_on:
-      - name: compile_and_upload_artifact_linux
+      - name: package_and_upload_artifact_linux
         variant: linux
     commands:
       - func: checkout
@@ -377,10 +458,12 @@ tasks:
           node_js_version: "14.15.1"
   - name: release_publish
     depends_on:
-      - name: compile_and_upload_artifact_win
+      - name: package_and_upload_artifact_win
         variant: win32
-      - name: compile_and_upload_artifact_linux
+      - name: package_and_upload_artifact_linux
         variant: linux
+      - name: package_and_upload_artifact_macos
+        variant: darwin_codesign
       - name: test_linux_artifact
         variant: rhel70
       - name: test_linux_artifact
@@ -391,8 +474,6 @@ tasks:
         variant: ubuntu1604
       - name: test_linux_artifact
         variant: ubuntu2004
-      - name: compile_and_upload_artifact_macos
-        variant: darwin_codesign
       - name: test_vscode
         variant: linux
     commands:
@@ -409,11 +490,15 @@ buildvariants:
   - name: darwin_codesign
     display_name: "MacOS Mojave (codesign)"
     run_on: macos-1014-codesign
+    expansions:
+      executable_os_id: darwin
     tasks:
-      - name: compile_and_upload_artifact_macos
+      - name: package_and_upload_artifact_macos
   - name: darwin
     display_name: "MacOS Mojave"
     run_on: macos-1014
+    expansions:
+      executable_os_id: darwin
     tasks:
       - name: check
       - name: test_m40x_n12
@@ -424,9 +509,12 @@ buildvariants:
       - name: test_m42x_n14
       - name: test_m44x_n14
       - name: test_mlatest_n14
+      - name: compile_artifact
   - name: linux
     display_name: "Ubuntu 18.04"
-    run_on: ubuntu1804-test
+    run_on: ubuntu1804-small
+    expansions:
+      executable_os_id: linux
     tasks:
       - name: check
       - name: test_m40x_n12
@@ -439,19 +527,28 @@ buildvariants:
       - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
-      - name: compile_and_upload_artifact_linux
+      - name: package_and_upload_artifact_linux
+  - name: linux_build
+    display_name: "Ubuntu 18.04 (build)"
+    run_on: ubuntu1804-build
+    expansions:
+      executable_os_id: linux
+    tasks:
+      - name: compile_artifact
   - name: rhel
     display_name: "Ubuntu 18.04 (rpm target)"
-    run_on: ubuntu1804-test
+    run_on: ubuntu1804-small
+    expansions:
+      executable_os_id: linux
     tasks:
-      - name: check
-      - name: compile_and_upload_artifact_linux
+      - name: package_and_upload_artifact_linux
   - name: debian
     display_name: "Ubuntu 18.04 (deb target)"
-    run_on: ubuntu1804-test
+    run_on: ubuntu1804-small
+    expansions:
+      executable_os_id: linux
     tasks:
-      - name: check
-      - name: compile_and_upload_artifact_linux
+      - name: package_and_upload_artifact_linux
   - name: rhel70
     display_name: "RHEL 7.0"
     run_on: rhel70-small
@@ -479,7 +576,9 @@ buildvariants:
       - name: test_linux_artifact
   - name: win32
     display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-test
+    run_on: windows-64-vs2019-small
+    expansions:
+      executable_os_id: win32
     tasks:
       - name: check
       - name: test_m40x_n12
@@ -490,7 +589,14 @@ buildvariants:
       - name: test_m42x_n14
       - name: test_m44x_n14
       - name: test_mlatest_n14
-      - name: compile_and_upload_artifact_win
+      - name: package_and_upload_artifact_win
+  - name: win32_build
+    display_name: "Windows VS 2019 (build)"
+    run_on: windows-64-vs2019-build
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: compile_artifact
   - name: darwin_release_publish
     display_name: "Publish Release"
     run_on: macos-1014-codesign

@@ -19,3 +19,4 @@ expansions.yaml
 tmp/expansions.yaml
 .evergreen/mongodb
 tmp/
+dist.tgz
