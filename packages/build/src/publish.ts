@@ -1,7 +1,7 @@
 import { GithubRepo } from './github-repo';
 import Config from './config';
 import { redactConfig } from './redact-config';
-import { publishNpmPackages } from './npm-packages';
+// import { publishNpmPackages } from './npm-packages';
 
 export default async function publish(
   config: Config,

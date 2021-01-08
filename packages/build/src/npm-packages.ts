@@ -12,7 +12,7 @@ export function bumpNpmPackages(version: string): void {
 
   spawnSync(LERNA_BIN, [
     'version',
-    '--bump', version,
+    version,
     '--no-changelog',
     '--no-push',
     '--exact',
@@ -40,7 +40,7 @@ export function publishNpmPackages(): void {
 
   spawnSync(LERNA_BIN, [
     'publish',
-    '--bump', 'from-package',
+    'from-package',
     '--no-changelog',
     '--no-push',
     '--exact',
