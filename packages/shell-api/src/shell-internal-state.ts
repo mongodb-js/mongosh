@@ -1,6 +1,6 @@
 import AsyncWriter from '@mongosh/async-rewriter';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyType } from '@mongosh/service-provider-core';
+import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyDescription, TopologyType } from '@mongosh/service-provider-core';
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
@@ -215,7 +215,7 @@ export default class ShellInternalState {
       // eslint-disable-next-line complexity
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.connectionInfo.topology?.description;
+        const topologyDescription = this.initialServiceProvider.getTopology()?.description as TopologyDescription;
         const topologyType: TopologyType | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
@@ -272,10 +272,86 @@ export default class ShellInternalState {
   }
 
   async getDefaultPrompt(): Promise<string> {
-    try {
-      return await this.initialServiceProvider.getDefaultPrompt();
-    } catch (e) {
-      return '> ';
+    return `${this.getDefaultPromptPrefix()}${this.getTopologySpecificPrompt()}> `;
+  }
+
+  private getDefaultPromptPrefix(): string {
+    if (this.connectionInfo?.extraInfo?.is_enterprise
+      || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
+      return 'Enterprise ';
     }
+    return '';
+  }
+
+  private getTopologySpecificPrompt(): string {
+    const description = this.initialServiceProvider.getTopology()?.description;
+    if (!description) {
+      return '';
+    }
+
+
+    let replicaSet = description.setName;
+    let serverTypePrompt = '';
+    // TODO: replace with proper TopologyType constants - NODE-2973
+    switch (description.type) {
+      case 'Single':
+        const singleDetails = this.getTopologySinglePrompt(description);
+        replicaSet = singleDetails?.replicaSet ?? replicaSet;
+        serverTypePrompt = singleDetails?.serverType ? `[direct: ${singleDetails.serverType}]` : '';
+        break;
+      case 'ReplicaSetNoPrimary':
+        serverTypePrompt = '[secondary]';
+        break;
+      case 'ReplicaSetWithPrimary':
+        serverTypePrompt = '[primary]';
+        break;
+      case 'Sharded':
+        serverTypePrompt = '[mongos]';
+        break;
+      default:
+        return '';
+    }
+
+    const setNamePrefix = replicaSet ? `${replicaSet} ` : '';
+    return `${setNamePrefix}${serverTypePrompt}`;
+  }
+
+  // eslint-disable-next-line complexity
+  private getTopologySinglePrompt(description: TopologyDescription): {replicaSet: string | undefined, serverType: string} | undefined {
+    if (description.servers?.size !== 1) {
+      return undefined;
+    }
+    const [server] = description.servers.values();
+
+    // TODO: replace with proper ServerType constants - NODE-2973
+    let serverType: string;
+    switch (server.type) {
+      case 'Mongos':
+        serverType = 'mongos';
+        break;
+      case 'RSPrimary':
+        serverType = 'primary';
+        break;
+      case 'RSSecondary':
+        serverType = 'secondary';
+        break;
+      case 'RSArbiter':
+        serverType = 'arbiter';
+        break;
+      case 'RSOther':
+        serverType = 'other';
+        break;
+      case 'Standalone':
+      case 'PossiblePrimary':
+      case 'RSGhost':
+      case 'Unknown':
+      default:
+        serverType = '';
+    }
+
+    return {
+      replicaSet: server.setName,
+      serverType
+    };
   }
 }

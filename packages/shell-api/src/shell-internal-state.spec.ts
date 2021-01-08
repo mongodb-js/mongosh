@@ -1,5 +1,6 @@
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, Topology } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
+import { EventEmitter } from 'events';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { Context, createContext, runInContext } from 'vm';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
@@ -55,34 +56,211 @@ describe('ShellInternalState', () => {
   });
 
   describe('default prompt', () => {
-    it('shows the prompt provided by the service provider', async() => {
+    const setupServiceProviderWithTopology = (topology: Topology) => {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      serviceProvider.getDefaultPrompt.resolves('le prompt> ');
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
+      serviceProvider.getTopology.returns(topology);
       internalState = new ShellInternalState(serviceProvider);
       internalState.setEvaluationListener(evaluationListener);
       internalState.setCtx(context);
       run = (source: string) => runInContext(source, context);
+    };
 
-      const prompt = await internalState.getDefaultPrompt();
-      expect(prompt).to.equal('le prompt> ');
-    });
-
-    it('falls back to > when an error occurs', async() => {
+    it('returns the default if nodb', async() => {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      serviceProvider.getDefaultPrompt.rejects();
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
-      internalState = new ShellInternalState(serviceProvider);
+      internalState = new ShellInternalState(serviceProvider, new EventEmitter(), { nodb: true });
       internalState.setEvaluationListener(evaluationListener);
       internalState.setCtx(context);
       run = (source: string) => runInContext(source, context);
 
       const prompt = await internalState.getDefaultPrompt();
       expect(prompt).to.equal('> ');
+    });
+
+    describe('MongoDB Enterprise prefix', () => {
+      it('inferred from extraInfo', async() => {
+        serviceProvider = stubInterface<ServiceProvider>();
+        serviceProvider.initialDb = 'test';
+        serviceProvider.bsonLibrary = bson;
+        serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/', is_enterprise: true } });
+        internalState = new ShellInternalState(serviceProvider);
+        internalState.setEvaluationListener(evaluationListener);
+        internalState.setCtx(context);
+        run = (source: string) => runInContext(source, context);
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Enterprise > ');
+      });
+
+      it('inferred from buildInfo modules', async() => {
+        serviceProvider = stubInterface<ServiceProvider>();
+        serviceProvider.initialDb = 'test';
+        serviceProvider.bsonLibrary = bson;
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: { uri: 'mongodb://localhost/' },
+          buildInfo: { modules: ['other', 'enterprise'] }
+        });
+        internalState = new ShellInternalState(serviceProvider);
+        internalState.setEvaluationListener(evaluationListener);
+        internalState.setCtx(context);
+        run = (source: string) => runInContext(source, context);
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Enterprise > ');
+      });
+    });
+
+    describe('direct connection = Single Topology', () => {
+      // TODO: replace with proper ServerType.xxx - NODE-2973
+      [
+        { t: 'Mongos', p: 'mongos' },
+        { t: 'RSArbiter', p: 'arbiter' },
+        { t: 'RSOther', p: 'other' },
+        { t: 'RSPrimary', p: 'primary' },
+      ].forEach(({ t, p }) => {
+        it(`takes the info from the single server [Server Type: ${t}]`, async() => {
+          const servers = new Map();
+          servers.set('localhost:30001', {
+            address: 'localhost:30001',
+            type: t,
+            me: 'localhost:30001',
+            hosts: [ 'localhost:30001' ],
+            setName: 'configset'
+          });
+          const topology = {
+            description: {
+              // TODO: replace with TopologyType.Single - NODE-2973
+              type: 'Single',
+              setName: null, // This was observed behavior - the set was not updated even the single server had the set
+              servers: servers
+            }
+          } as Topology;
+          setupServiceProviderWithTopology(topology);
+
+          const prompt = await internalState.getDefaultPrompt();
+          expect(prompt).to.equal(`configset [direct: ${p}]> `);
+        });
+      });
+
+      // TODO: replace with proper ServerType.xxx - NODE-2973
+      [
+        'RSGhost',
+        'Standalone',
+        'Unknown',
+        'PossiblePrimary'
+      ].forEach(t => {
+        it(`defaults for server type [Server Type: ${t}]`, async() => {
+          const servers = new Map();
+          servers.set('localhost:30001', {
+            address: 'localhost:30001',
+            type: t,
+            me: 'localhost:30001',
+            hosts: [ 'localhost:30001' ]
+          });
+          const topology = {
+            description: {
+              // TODO: replace with TopologyType.Single - NODE-2973
+              type: 'Single',
+              setName: null,
+              servers: servers
+            }
+          } as Topology;
+          setupServiceProviderWithTopology(topology);
+
+          const prompt = await internalState.getDefaultPrompt();
+          expect(prompt).to.equal('> ');
+        });
+      });
+    });
+
+    describe('topology ReplicaSet...', () => {
+      it('shows the setName and lacking primary hint for ReplicaSetNoPrimary', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.ReplicaSetNoPrimary - NODE-2973
+            type: 'ReplicaSetNoPrimary',
+            setName: 'leSet'
+          }
+        } as Topology;
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [secondary]> ');
+      });
+
+      it('shows the setName and primary hint for ReplicaSetWithPrimary', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.ReplicaSetWithPrimary - NODE-2973
+            type: 'ReplicaSetWithPrimary',
+            setName: 'leSet'
+          }
+        } as Topology;
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [primary]> ');
+      });
+    });
+
+    describe('topology Sharded', () => {
+      it('shows mongos without setName', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Sharded - NODE-2973
+            type: 'Sharded'
+          }
+        } as Topology;
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('[mongos]> ');
+      });
+      it('shows mongos and a setName', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Sharded - NODE-2973
+            type: 'Sharded',
+            setName: 'leSet'
+          }
+        } as Topology;
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('leSet [mongos]> ');
+      });
+    });
+
+    describe('topology Unknown', () => {
+      it('just shows the default prompt', async() => {
+        const servers = new Map();
+        servers.set('localhost:30001', {
+          address: 'localhost:30001',
+          // TODO: replace with ServerType.Unknown - NODE-2973
+          type: 'Unknown',
+          me: 'localhost:30001',
+          hosts: [ 'localhost:30001' ]
+        });
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.Unknown - NODE-2973
+            type: 'Unknown',
+            setName: 'unknown',
+            servers: servers
+          }
+        } as Topology;
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('> ');
+      });
     });
   });
 });

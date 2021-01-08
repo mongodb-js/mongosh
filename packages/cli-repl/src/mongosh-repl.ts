@@ -41,7 +41,6 @@ export type MongoshNodeReplOptions = {
 };
 
 type MongoshRuntimeState = {
-  serviceProvider: ServiceProvider,
   shellEvaluator: ShellEvaluator;
   internalState: ShellInternalState;
   repl: REPLServer;
@@ -92,7 +91,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: await this.getShellPrompt(serviceProvider),
+      prompt: await this.getShellPrompt(internalState),
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -111,7 +110,6 @@ class MongoshNodeRepl implements EvaluationListener {
     repl.context.console = console;
 
     this._runtimeState = {
-      serviceProvider,
       shellEvaluator,
       internalState,
       repl,
@@ -285,7 +283,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     this.lineByLineInput.enableBlockOnNewLine();
-    const { serviceProvider, repl, shellEvaluator } = this.runtimeState();
+    const { internalState, repl, shellEvaluator } = this.runtimeState();
 
     let connectionIssues = false;
     try {
@@ -302,7 +300,7 @@ class MongoshNodeRepl implements EvaluationListener {
       if (connectionIssues) {
         repl.setPrompt('> ');
       } else {
-        repl.setPrompt(await this.getShellPrompt(serviceProvider));
+        repl.setPrompt(await this.getShellPrompt(internalState));
       }
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
@@ -405,10 +403,10 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.configProvider.exit(0);
   }
 
-  private async getShellPrompt(serviceProvider: ServiceProvider): Promise<string> {
+  private async getShellPrompt(internalState: ShellInternalState): Promise<string> {
     let prompt = '> ';
     try {
-      prompt = await serviceProvider.getDefaultPrompt();
+      prompt = await internalState.getDefaultPrompt();
     } catch (e) {
       // ignore - we will use the default prompt
     }

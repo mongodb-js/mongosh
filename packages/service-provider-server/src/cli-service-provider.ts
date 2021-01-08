@@ -17,8 +17,7 @@ import {
   Map,
   BSONSymbol,
   ClientMetadata,
-  Topology,
-  TopologyDescription
+  Topology
 } from 'mongodb';
 
 import {
@@ -160,7 +159,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
   public fle: any;
-  private lastConnectionInfo?: ConnectionInfo | null = undefined;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -205,7 +203,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const buildInfo = await this.runCommandWithCheck('admin', {
       buildInfo: 1
     }, this.baseCmdOptions);
-    const topology = await this.getTopology() as Topology;
+    const topology = this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
     try {
@@ -224,94 +222,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       topology
     );
 
-    this.lastConnectionInfo = {
+    return {
       buildInfo: buildInfo,
       topology: topology,
       extraInfo: extraConnectionInfo
     };
-    return this.lastConnectionInfo;
-  }
-
-  async getDefaultPrompt(): Promise<string> {
-    return `${await this.getDefaultPromptPrefix()}${this.getTopologySpecificPrompt()}> `;
-  }
-
-  private async getDefaultPromptPrefix(): Promise<string> {
-    if (this.lastConnectionInfo === undefined) {
-      try {
-        await this.getConnectionInfo();
-      } catch (e) {
-        this.lastConnectionInfo = null;
-      }
-    }
-
-    if (this.lastConnectionInfo && this.lastConnectionInfo.extraInfo && this.lastConnectionInfo.extraInfo.is_enterprise) {
-      return 'MongoDB Enterprise ';
-    }
-    return '';
-  }
-
-  private getTopologySpecificPrompt(): string {
-    const description = this.mongoClient.topology?.description;
-    if (!description) {
-      return '';
-    }
-
-    // TODO: replace with proper TopologyType constants - NODE-2973
-    switch (description.type) {
-      case 'Single':
-        return this.getTopologySinglePrompt(description);
-      case 'ReplicaSetNoPrimary':
-        return `${description.setName} [without primary]`;
-      case 'ReplicaSetWithPrimary':
-        return `${description.setName} [with primary]`;
-      case 'Sharded':
-        const setNamePrefix = description.setName ? `${description.setName} ` : '';
-        return `${setNamePrefix}[mongos]`;
-      default:
-        return '';
-    }
-  }
-
-  // eslint-disable-next-line complexity
-  private getTopologySinglePrompt(description: TopologyDescription): string {
-    if (description.servers?.size !== 1) {
-      return '';
-    }
-    const server = [...description.servers.values()].shift();
-    if (!server) {
-      return '';
-    }
-
-    let serverType = '';
-    // TODO: replace with proper ServerType constants - NODE-2973
-    switch (server.type) {
-      case 'Mongos':
-        serverType = 'mongos';
-        break;
-      case 'RSPrimary':
-        serverType = 'primary';
-        break;
-      case 'RSSecondary':
-        serverType = 'secondary';
-        break;
-      case 'RSArbiter':
-        serverType = 'arbiter';
-        break;
-      case 'RSOther':
-        serverType = 'other';
-        break;
-      case 'Standalone':
-      case 'PossiblePrimary':
-      case 'RSGhost':
-      case 'Unknown':
-      default:
-        break;
-    }
-
-    const setNamePrefix = server.setName ? `${server.setName} ` : '';
-    const directServerDetails = serverType ? `[direct: ${serverType}]` : '';
-    return `${setNamePrefix}${directServerDetails}`;
   }
 
   async renameCollection(
@@ -953,9 +868,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Return current topology.
-   *
-   * @returns {Promise} topology.
+   * Get currently known topology information.
    */
   getTopology(): Topology | undefined {
     return this.mongoClient.topology;

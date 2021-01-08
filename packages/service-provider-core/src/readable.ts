@@ -11,7 +11,8 @@ import type {
   ListIndexesOptions,
   AggregationCursor,
   FindCursor,
-  DbOptions
+  DbOptions,
+  Topology
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
@@ -148,11 +149,9 @@ export default interface Readable {
     dbOptions?: DbOptions): FindCursor;
 
   /**
-   * Returns the server version.
-   *
-   * @returns {Promise} The server version.
+   * Get currently known topology information.
    */
-  getTopology(): any;
+  getTopology(): Topology | undefined;
 
   /**
    * Is the collection capped?

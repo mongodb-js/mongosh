@@ -3,7 +3,6 @@ import { MongoshCommandFailed } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { EventEmitter, once } from 'events';
-import { MongoNetworkError, MongoServerSelectionError } from 'mongodb';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
@@ -584,7 +583,7 @@ describe('MongoshNodeRepl', () => {
   });
 
   context('prompt', () => {
-    beforeEach(() => {
+    it('shows the enterprise info from the default prompt', async() => {
       sp.getConnectionInfo.resolves({
         extraInfo: {
           uri: 'mongodb://localhost:27017/test',
@@ -595,33 +594,20 @@ describe('MongoshNodeRepl', () => {
           modules: ['enterprise']
         }
       });
+
+      await mongoshRepl.start(serviceProvider);
+      expect(output).to.contain('Enterprise > ');
     });
 
-    it('shows the enterprise info from the default prompt', async() => {
+    it('defaults if an error occurs', async() => {
       await mongoshRepl.start(serviceProvider);
-      expect(output).to.contain('MongoDB Enterprise > ');
-    });
+      expect(output).to.contain('> ');
+      mongoshRepl.runtimeState().internalState.getDefaultPrompt = () => { throw new Error('no prompt'); };
 
-    it('just shows > when a network error occurs', async() => {
-      await mongoshRepl.start(serviceProvider);
-      expect(output).to.contain('MongoDB Enterprise > ');
-      sp.runCommandWithCheck
-        .withArgs('test', { isMaster: 1 }, {})
-        .rejects(new MongoNetworkError('ups'));
-      input.write('db.runCommand({isMaster: 1})\n');
+      input.write('21 + 21\n');
       await waitEval(bus);
-      expect(output).to.match(/\n(> )+$/);
-    });
-
-    it('just shows > when a server selection error occurs', async() => {
-      await mongoshRepl.start(serviceProvider);
-      expect(output).to.contain('MongoDB Enterprise > ');
-      sp.runCommandWithCheck
-        .withArgs('test', { isMaster: 1 }, {})
-        .rejects(new MongoServerSelectionError('ups', null));
-      input.write('db.runCommand({isMaster: 1})\n');
-      await waitEval(bus);
-      expect(output).to.match(/\n(> )+$/);
+      expect(output).to.contain('> ');
+      expect(output).to.not.contain('error');
     });
   });
 });

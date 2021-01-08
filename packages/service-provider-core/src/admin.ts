@@ -31,11 +31,6 @@ export default interface Admin {
   bsonLibrary: typeof BSON;
 
   /**
-   * The default prompt to show in a shell for this service provider.
-   */
-  getDefaultPrompt(): Promise<string>;
-
-  /**
    * list databases.
    *
    * @param {String} database - The database name.

@@ -64,5 +64,9 @@ export type {
   ObjectId as ObjectIdType,
   Timestamp as TimestampType,
   Binary as BinaryType,
-  TopologyType
+  Topology,
+  TopologyDescription,
+  TopologyType,
+  ServerType,
+  ClientMetadata
 } from 'mongodb';
