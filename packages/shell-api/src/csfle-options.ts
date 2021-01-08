@@ -1,4 +1,4 @@
-import { Document, BinaryType } from '@mongosh/service-provider-core';
+import type { Document, BinaryType } from '@mongosh/service-provider-core';
 
 /** Configuration options for using 'aws' as your KMS provider */
 declare interface awsKms {
