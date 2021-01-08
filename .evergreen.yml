@@ -29,10 +29,6 @@ variables:
             -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release compile && dist/mongosh --version'
         else
           npm run evergreen-release compile
-          if [ `uname` == Darwin ]; then
-            # Verify signing
-            spctl -a -vvv -t install dist/mongosh
-          fi
         fi
         dist/mongosh --version
         source .evergreen/.setup_env
@@ -185,7 +181,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: dist.tgz
+        local_file: src/dist.tgz
         remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
         bucket: mciuploads
         permissions: public-read
@@ -199,7 +195,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: dist.tgz
+        local_file: src/dist.tgz
         remote_file: mongosh/binaries/${build_id}/mongosh-${executable_os_id}.tgz
         bucket: mciuploads
     - <<: *package_and_upload_artifact
