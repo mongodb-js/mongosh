@@ -14,11 +14,12 @@ import Mongo from './mongo';
 import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
 import ShellInternalState from './shell-internal-state';
-import { assertArgsDefined } from './helpers';
+import { assertArgsDefined, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
 import { promisify } from 'util';
+import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -64,17 +65,8 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @returnType('Mongo')
   @platforms([ ReplPlatform.CLI ] )
-  public async Mongo(uri?: string, options?: any): Promise<Mongo> {
-    if (
-      this.internalState.initialServiceProvider.platform !== ReplPlatform.CLI
-    ) {
-      throw new MongoshUnimplementedError(
-        `new Mongo connection are not supported for current platform: ${
-          ReplPlatform[this.internalState.initialServiceProvider.platform]
-        }`,
-        CommonErrors.NotImplemented
-      );
-    }
+  public async Mongo(uri?: string, options?: ClientSideFieldLevelEncryptionOptions): Promise<Mongo> {
+    assertCLI(this.internalState.initialServiceProvider.platform);
     const mongo = new Mongo(this.internalState, uri, options);
     await mongo.connect();
     this.internalState.mongos.push(mongo);
@@ -86,10 +78,10 @@ export default class ShellApi extends ShellApiClass {
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefined(uri);
-    const options = user || pwd ? {
-      auth: { username: user, password: pwd }
-    } : {};
-    const mongo = await this.Mongo(uri, options);
+    assertCLI(this.internalState.initialServiceProvider.platform);
+    const mongo = new Mongo(this.internalState, uri);
+    await mongo.connect(user, pwd);
+    this.internalState.mongos.push(mongo);
     const db = mongo._serviceProvider.initialDb || DEFAULT_DB;
     return mongo.getDB(db);
   }

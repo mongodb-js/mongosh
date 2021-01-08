@@ -1,5 +1,12 @@
 /* eslint-disable complexity */
-import { CommonErrors, MongoshDeprecatedError, MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInternalError,
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+  MongoshUnimplementedError
+} from '@mongosh/errors';
 import {
   classPlatforms,
   classReturnsPromise,
@@ -12,7 +19,6 @@ import {
   topologies
 } from './decorators';
 import {
-  MongoClientOptions,
   ChangeStreamOptions,
   Document,
   generateUri,
@@ -20,7 +26,9 @@ import {
   ReadPreferenceModeId,
   ReplPlatform,
   ServiceProvider,
-  TransactionOptions
+  TransactionOptions,
+  MongoClientOptions,
+  AutoEncryptionOptions as SPAutoEncryption
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -31,6 +39,7 @@ import Session from './session';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
+import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -41,18 +50,18 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _options: MongoClientOptions;
+  private _fleOptions: ClientSideFieldLevelEncryptionOptions | undefined;
 
   constructor(
     internalState: ShellInternalState,
     uri = 'mongodb://localhost/',
-    mongoClientOptions?: MongoClientOptions
+    fleOptions?: ClientSideFieldLevelEncryptionOptions
   ) {
     super();
     this._internalState = internalState;
     this._databases = {};
     this._uri = generateUri({ _: [uri] });
-    this._options = mongoClientOptions ?? {};
+    this._fleOptions = fleOptions;
     this._serviceProvider = this._internalState.initialServiceProvider;
   }
 
@@ -79,8 +88,47 @@ export default class Mongo extends ShellApiClass {
     });
   }
 
-  async connect(): Promise<void> {
-    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, this._options);
+  async connect(user?: string, pwd?: string): Promise<void> {
+    const mongoClientOptions: MongoClientOptions = user || pwd ? {
+      auth: { username: user, password: pwd }
+    } : {};
+    let autoEncryption;
+    if (this._fleOptions) {
+      assertArgsDefined(this._fleOptions.keyVaultNamespace, this._fleOptions.kmsProvider);
+      Object.keys(this._fleOptions).forEach(k => {
+        if (['keyVaultClient', 'keyVaultNamespace', 'kmsProvider', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
+          throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
+        }
+      });
+      autoEncryption = {
+        keyVaultClient: this._fleOptions.keyVaultClient ?
+          this._fleOptions.keyVaultClient._serviceProvider.getRawClient() :
+          this._serviceProvider.getRawClient(),
+        keyVaultNamespace: this._fleOptions.keyVaultNamespace,
+        kmsProviders: this._fleOptions.kmsProvider,
+      } as any;
+
+      if ('local' in autoEncryption.kmsProviders) {
+        if (autoEncryption.kmsProviders.local.key._bsontype !== 'Binary') {
+          throw new MongoshInvalidInputError('The key attribute of the local kms provider must be a BSON BinData or Binary type');
+        }
+        const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
+        if (Buffer.isBuffer(rawBuff)) {
+          autoEncryption.kmsProviders.local.key = rawBuff;
+        } else {
+          // Future TODO: allow binary types that are not from a string
+          throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
+        }
+      }
+      if (this._fleOptions.schemaMap) {
+        autoEncryption.schemaMap = this._fleOptions.schemaMap;
+      }
+      if (this._fleOptions.bypassAutoEncryption !== undefined) {
+        autoEncryption.bypassAutoEncryption = this._fleOptions.bypassAutoEncryption;
+      }
+      mongoClientOptions.autoEncryption = autoEncryption as SPAutoEncryption;
+    }
+    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, mongoClientOptions);
   }
 
   _getDb(name: string): Database {

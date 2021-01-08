@@ -16,12 +16,13 @@ import type {
   MapReduceOptions,
   ChangeStream
 } from '@mongosh/service-provider-core';
-import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import crypto from 'crypto';
 import type Database from './database';
 import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
@@ -593,4 +594,17 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
     },
     coll._database._baseOptions
   );
+}
+
+export function assertCLI(platform: ReplPlatform): void {
+  if (
+    platform !== ReplPlatform.CLI
+  ) {
+    throw new MongoshUnimplementedError(
+      `new Mongo connection are not supported for current platform: ${
+        ReplPlatform[platform]
+      }`,
+      CommonErrors.NotImplemented
+    );
+  }
 }

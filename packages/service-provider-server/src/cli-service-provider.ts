@@ -1121,6 +1121,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   get driverMetadata(): ClientMetadata | undefined {
     return this.getTopology()?.clientMetadata;
   }
+
+  getRawClient(): MongoClient {
+    return this.mongoClient;
+  }
 }
 
 export default CliServiceProvider;
