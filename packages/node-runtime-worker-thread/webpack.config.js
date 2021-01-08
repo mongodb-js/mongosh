@@ -8,6 +8,7 @@ const config = {
   devtool: false,
 
   output: {
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd'
   },
@@ -42,11 +43,9 @@ const config = {
   }
 };
 
-module.exports = [
-  'index',
-  'child-process-proxy',
-  'worker-runtime'
-].map((entry) => ({
-  entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
-  ...config
-}));
+module.exports = ['index', 'child-process-proxy', 'worker-runtime'].map(
+  (entry) => ({
+    entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
+    ...config
+  })
+);
