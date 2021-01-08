@@ -285,23 +285,10 @@ class MongoshNodeRepl implements EvaluationListener {
     this.lineByLineInput.enableBlockOnNewLine();
     const { internalState, repl, shellEvaluator } = this.runtimeState();
 
-    let connectionIssues = false;
     try {
       return await shellEvaluator.customEval(originalEval, input, context, filename);
-    } catch (e) {
-      if (e.name === 'MongoNetworkError' || e.name === 'MongoServerSelectionError') {
-        // we track these errors to prevent getting the default prompt which would
-        // otherwise cause the driver to try and reconnect which will timeout after 30s
-        // - right now we don't have any other way of detecting "disconnection"
-        connectionIssues = true;
-      }
-      throw e;
     } finally {
-      if (connectionIssues) {
-        repl.setPrompt('> ');
-      } else {
-        repl.setPrompt(await this.getShellPrompt(internalState));
-      }
+      repl.setPrompt(await this.getShellPrompt(internalState));
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
   }

@@ -67,6 +67,5 @@ export type {
   Topology,
   TopologyDescription,
   TopologyType,
-  ServerType,
-  ClientMetadata
+  ServerType
 } from 'mongodb';

@@ -118,7 +118,7 @@ export class TestShell {
       const found = !!lines.filter(l => l.match(PROMPT_PATTERN)) // a line that is the prompt must at least match the pattern
         .find(l => {
           // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l.trim().replace(/>$/g, '').split('>').map(m => m.trim().replace(/>$/g, ''));
+          const prompts = l.trim().replace(/>$/g, '').split('>').map(m => m.trim());
           // if there are multiple prompt parts they must all equal
           if (prompts.length > 1) {
             for (const p of prompts) {

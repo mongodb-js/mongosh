@@ -20,6 +20,15 @@ class DemoServiceProvider {
     return { version: '4.0.0' };
   }
 
+  getTopology(): object {
+    return {
+      description: {
+        type: 'ReplicaSetWithPrimary',
+        setName: 'replset'
+      }
+    };
+  }
+
   async listDatabases(): Promise<any> {
     await delay(2000);
 
@@ -37,17 +46,6 @@ class DemoServiceProvider {
 
   async stats(): Promise<any> {
     return { size: 1000 };
-  }
-
-  async runCommandWithCheck(table: string, command: any): Promise<Object> {
-    if (table === 'test' && command.isMaster && command.forShell) {
-      return {
-        ok: 1,
-        setName: 'rs0',
-        isMaster: true
-      };
-    }
-    return {};
   }
 }
 

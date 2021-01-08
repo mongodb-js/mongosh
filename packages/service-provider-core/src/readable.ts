@@ -11,8 +11,7 @@ import type {
   ListIndexesOptions,
   AggregationCursor,
   FindCursor,
-  DbOptions,
-  Topology
+  DbOptions
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
@@ -151,7 +150,7 @@ export default interface Readable {
   /**
    * Get currently known topology information.
    */
-  getTopology(): Topology | undefined;
+  getTopology(): any;
 
   /**
    * Is the collection capped?
