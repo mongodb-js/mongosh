@@ -17,11 +17,15 @@ chai.use(chaiAsPromised);
 // to wait for these to finish.
 const tick = promisify(setImmediate);
 
+// We keep an additional index as we might create two temp directories
+// at the same time stamp leading to conflicts
+let tmpDirsIndex = 1;
+
 function useTmpdir(): { readonly path: string } {
   let tmpdir: string;
 
   beforeEach(async() => {
-    tmpdir = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `repltest-${Date.now()}`);
+    tmpdir = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `repltest-${Date.now()}-${tmpDirsIndex++}`);
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
