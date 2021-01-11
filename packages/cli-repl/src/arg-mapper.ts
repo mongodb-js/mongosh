@@ -1,6 +1,4 @@
-import { MongoshInvalidInputError } from '@mongosh/errors';
 import { CliOptions, MongoClientOptions } from '@mongosh/service-provider-server';
-import { promises as fs } from 'fs';
 import setValue from 'lodash.set';
 
 /**
@@ -19,22 +17,12 @@ const MAPPINGS = {
   tlsAllowInvalidCertificates: 'tlsAllowInvalidCertificates',
   tlsAllowInvalidHostnames: 'tlsAllowInvalidHostnames',
   tlsCAFile: 'tlsCAFile',
-  tlsCRLFile: { opt: 'sslCRL', val: readCrlFileContent },
+  tlsCRLFile: 'sslCRL',
   tlsCertificateKeyFile: 'tlsCertificateKeyFile',
   tlsCertificateKeyFilePassword: 'tlsCertificateKeyFilePassword',
   username: 'auth.username',
   verbose: { opt: 'loggerLevel', val: 'debug' }
 };
-
-async function readCrlFileContent(crlFilePath: string): Promise<string | Buffer> {
-  try {
-    return await fs.readFile(crlFilePath, { encoding: 'utf-8' });
-  } catch (error) {
-    throw new MongoshInvalidInputError(
-      `The file specified by --tlsCRLFile does not exist or cannot be read${error ? ': ' + error.message : ''}`
-    );
-  }
-}
 
 function isExistingMappingKey(key: string, options: CliOptions): key is keyof typeof MAPPINGS {
   return MAPPINGS.hasOwnProperty(key) && options.hasOwnProperty(key);
@@ -59,11 +47,7 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
         const cliValue = (options as any)[cliOption];
         if (cliValue) {
           const { opt, val } = mapping;
-          if (typeof val === 'function') {
-            setValue(nodeOptions, opt, await val(cliValue));
-          } else {
-            setValue(nodeOptions, opt, val);
-          }
+          setValue(nodeOptions, opt, val);
         }
       } else {
         setValue(nodeOptions, mapping, (options as any)[cliOption]);

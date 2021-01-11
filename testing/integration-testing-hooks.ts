@@ -239,9 +239,7 @@ export class MongodSetup {
 
     let client;
     try {
-      client = await MongoClient.connect(await this.connectionString(), {
-        useNewUrlParser: true
-      } as MongoClientOptions);
+      client = await MongoClient.connect(await this.connectionString(), {});
 
       const { version } = await client.db('db1').admin().serverStatus();
       this._serverVersion = version;
@@ -455,7 +453,7 @@ export function skipIfServerVersion(server: MongodSetup, semverCondition: string
  *
  * IMPORTANT: As the environment variable might be `4.0.x` it will be converted
  * to `4.0.0` to be able to do a semver comparison!
- * 
+ *
  * @param semverCondition Semver condition
  */
 export function skipIfEnvServerVersion(semverCondition: string): void {

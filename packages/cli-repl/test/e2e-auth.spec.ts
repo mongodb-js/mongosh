@@ -48,8 +48,8 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
       const c = await MongoClient.connect(
         connectionString,
         {
-          useNewUrlParser: true,
-          auth: { username: username, password: pwd, authSource: dbName },
+          auth: { username: username, password: pwd },
+          authSource: dbName,
           connectTimeoutMS: 1000
         } as MongoClientOptions
       );
@@ -82,9 +82,9 @@ describe('Auth e2e', function() {
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [connectionString] });
 
-      client = await (MongoClient as any).connect(
+      client = await MongoClient.connect(
         connectionString,
-        { useNewUrlParser: true }
+        {}
       );
 
       db = client.db(dbName);
@@ -773,7 +773,7 @@ describe('Auth e2e', function() {
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
           );
           await eventually(async() => {
-            shell.assertContainsError('TypeError: authMechanism one of MONGODB-AWS,MONGODB-CR,DEFAULT,GSSAPI,PLAIN,SCRAM-SHA-1,SCRAM-SHA-256,MONGODB-X509, got not a mechanism');
+            shell.assertContainsError('MongoParseError: authMechanism one of MONGODB-AWS,MONGODB-CR,DEFAULT,GSSAPI,PLAIN,SCRAM-SHA-1,SCRAM-SHA-256,MONGODB-X509, got not a mechanism');
           }, { timeout: 40000 });
           await shell.writeInputLine(
             'db.runCommand({connectionStatus: 1})'
@@ -820,9 +820,9 @@ describe('Auth e2e', function() {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
 
-      client = await (MongoClient as any).connect(
+      client = await MongoClient.connect(
         connectionString,
-        { useNewUrlParser: true }
+        {}
       );
 
       db = client.db(dbName);

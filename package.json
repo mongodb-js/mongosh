@@ -122,7 +122,7 @@
     "karma-typescript": "^4.1.1",
     "lerna": "^3.10.7",
     "mocha": "^7.1.2",
-    "mongodb": "github:mongodb/node-mongodb-native#16c15749",
+    "mongodb": "github:mongodb/node-mongodb-native#b1bdb06c",
     "mongodb-download-url": "^0.6.1",
     "mongodb-js-precommit": "^2.0.0",
     "node-codesign": "^0.3.2",

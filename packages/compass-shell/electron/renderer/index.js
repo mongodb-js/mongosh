@@ -61,7 +61,6 @@ render(CompassShellPlugin);
 const connectionOptions = {
   url: 'mongodb://localhost:27020/test?readPreference=primary&ssl=false',
   options: {
-    useNewUrlParser: true,
     useUnifiedTopology: true,
     connectWithNoPrimary: true,
     sslValidate: false,
