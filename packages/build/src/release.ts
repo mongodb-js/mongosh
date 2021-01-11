@@ -17,6 +17,7 @@ import { redactConfig } from './redact-config';
 import Config from './config';
 import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import writeAnalyticsConfig from './analytics';
 
 /**
  * Run the release process.
@@ -93,7 +94,8 @@ export default async function release(
       config,
       githubRepo,
       uploadDownloadCenterConfig,
-      publishNpmPackages
+      publishNpmPackages,
+      writeAnalyticsConfig
     );
   } else {
     throw new Error(`Unknown command: ${command}`);
