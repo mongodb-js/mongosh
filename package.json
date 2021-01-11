@@ -48,7 +48,6 @@
     "compile-all": "npm run compile-compass && npm run compile-exec",
     "preevergreen-release": "npm run compile-ts",
     "evergreen-release": "node scripts/evergreen-release.js",
-    "publish-npm": "node scripts/publish-npm.js",
     "report-missing-help": "lerna run --stream --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "generate-homebrew-formula": "node scripts/generate-homebrew-formula",
