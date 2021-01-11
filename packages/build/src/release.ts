@@ -58,7 +58,7 @@ export default async function release(
       config.execInput,
       config.outputDir,
       config.execNodeVersion,
-      config.analyticsConfig ?? '',
+      config.analyticsConfigFilePath ?? '',
       config.segmentKey ?? '');
   } else if (command === 'package') {
     const executable = executablePath(config.outputDir, os.platform());
