@@ -102,7 +102,10 @@ describe('publish', () => {
         writeAnalyticsConfig
       );
 
-      expect(writeAnalyticsConfig).to.have.been.calledOnce;
+      expect(writeAnalyticsConfig).to.have.been.calledOnceWith(
+        config.analyticsConfigFilePath,
+        config.segmentKey
+      );
       expect(publishNpmPackages).to.have.been.calledWith();
       expect(publishNpmPackages).to.have.been.calledAfter(writeAnalyticsConfig as any);
     });
