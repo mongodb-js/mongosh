@@ -6,6 +6,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 const replacement = process.env.REPLACE_PACKAGE;
 if (!replacement) {
@@ -18,11 +19,20 @@ if (!parsed || !parsed.groups.from || !parsed.groups.to) {
 
 const { from, to } = parsed.groups;
 for (const dir of ['.', ...fs.readdirSync('packages').map(dir => path.join('packages', dir))]) {
-  const moduledir = path.join(dir, 'node_modules', from);
-  if (fs.existsSync(moduledir)) {
-    const target = path.resolve(to);
-    console.info('Replacing', moduledir, 'with symlink to', target);
-    fs.renameSync(moduledir, moduledir + '~');
-    fs.symlinkSync(target, moduledir);
+  const packageJson = path.join(dir, 'package.json');
+  if (fs.existsSync(packageJson)) {
+    const target = pathToFileURL(path.resolve(to)).href;
+    const contents = JSON.parse(fs.readFileSync(packageJson));
+    for (const deps of [
+      contents.dependencies,
+      contents.devDependencies,
+      contents.optionalDependencies
+    ]) {
+      if (deps && deps[from]) {
+        console.info('Replacing', from, 'in', dir, 'with', target);
+        deps[from] = to;
+      }
+    }
+    fs.writeFileSync(packageJson, JSON.stringify(contents, null, '  ') + '\n');
   }
 }
