@@ -276,8 +276,10 @@ export default class ShellInternalState {
   }
 
   private getDefaultPromptPrefix(): string {
-    if (this.connectionInfo?.extraInfo?.is_enterprise
-      || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
+    const extraConnectionInfo = this.connectionInfo?.extraInfo;
+    if (extraConnectionInfo?.is_data_lake) {
+      return 'Atlas Data Lake ';
+    } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
       return 'Enterprise ';
     }
     return '';

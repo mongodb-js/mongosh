@@ -57,15 +57,8 @@ describe('ShellInternalState', () => {
 
   describe('default prompt', () => {
     const setupServiceProviderWithTopology = (topology: Topology) => {
-      serviceProvider = stubInterface<ServiceProvider>();
-      serviceProvider.initialDb = 'test';
-      serviceProvider.bsonLibrary = bson;
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
       serviceProvider.getTopology.returns(topology);
-      internalState = new ShellInternalState(serviceProvider);
-      internalState.setEvaluationListener(evaluationListener);
-      internalState.setCtx(context);
-      run = (source: string) => runInContext(source, context);
     };
 
     it('returns the default if nodb', async() => {
@@ -82,16 +75,38 @@ describe('ShellInternalState', () => {
       expect(prompt).to.equal('> ');
     });
 
+    describe('Atlas Data Lake prefix', () => {
+      it('inferred from extraInfo', async() => {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_data_lake: true
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Atlas Data Lake > ');
+      });
+
+      it('wins against enterprise', async() => {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_enterprise: true,
+            is_data_lake: true
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Atlas Data Lake > ');
+      });
+    });
+
     describe('MongoDB Enterprise prefix', () => {
       it('inferred from extraInfo', async() => {
-        serviceProvider = stubInterface<ServiceProvider>();
-        serviceProvider.initialDb = 'test';
-        serviceProvider.bsonLibrary = bson;
         serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/', is_enterprise: true } });
-        internalState = new ShellInternalState(serviceProvider);
-        internalState.setEvaluationListener(evaluationListener);
-        internalState.setCtx(context);
-        run = (source: string) => runInContext(source, context);
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
@@ -99,17 +114,10 @@ describe('ShellInternalState', () => {
       });
 
       it('inferred from buildInfo modules', async() => {
-        serviceProvider = stubInterface<ServiceProvider>();
-        serviceProvider.initialDb = 'test';
-        serviceProvider.bsonLibrary = bson;
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: 'mongodb://localhost/' },
           buildInfo: { modules: ['other', 'enterprise'] }
         });
-        internalState = new ShellInternalState(serviceProvider);
-        internalState.setEvaluationListener(evaluationListener);
-        internalState.setCtx(context);
-        run = (source: string) => runInContext(source, context);
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
