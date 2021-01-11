@@ -33,7 +33,7 @@
     "test-e2e": "lerna run --stream test-e2e",
     "test-e2e-ci": "lerna run --stream test-e2e-ci",
     "test-connectivity": "lerna run --stream test-connectivity",
-    "test-nodedriver": "node scripts/replace-package.js && npm run bootstrap && npm run compile-ts && npm run test-ci-nocoverage",
+    "test-nodedriver": "node scripts/replace-package.js && npm run bootstrap -- --no-ci && npm run compile-ts && npm run test-ci-nocoverage",
     "compile-ts": "lerna run compile-ts",
     "compile-cli": "lerna run compile-ts --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
