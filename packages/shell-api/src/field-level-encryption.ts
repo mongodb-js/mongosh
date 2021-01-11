@@ -1,16 +1,84 @@
 import { classPlatforms, hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
 import { Document, ReplPlatform, BinaryType } from '@mongosh/service-provider-core';
-import ClientEncryption from './client-encryption';
 import Collection from './collection';
 import Cursor from './cursor';
 import { DeleteResult } from './result';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 
+/** Configuration options for using 'aws' as your KMS provider */
+declare interface awsKms {
+  aws: {
+    /** The access key used for the AWS KMS provider */
+    accessKeyId?: string;
+    /** The secret access key used for the AWS KMS provider */
+    secretAccessKey?: string;
+  };
+}
+
+/** Configuration options for using 'local' as your KMS provider */
+declare interface localKms {
+  local: {
+    /** The master key used to encrypt/decrypt data keys. A 96-byte long Buffer. */
+    key: BinaryType;
+  };
+}
+
+export interface ClientSideFieldLevelEncryptionOptions {
+  keyVaultClient?: any, /** This should be a Mongo class instance, but to avoid circular ref use any **/
+  keyVaultNamespace: string,
+  kmsProvider: awsKms | localKms,
+  schemaMap?: Document,
+  bypassAutoEncryption?: boolean;
+}
+
 @shellApiClassDefault
 @hasAsyncChild
 @classPlatforms([ ReplPlatform.CLI ] )
-export default class KeyVault extends ShellApiClass {
+export class ClientEncryption extends ShellApiClass {
+  public _mongo: any; // Mongo but any to avoid circular ref
+  public _libmongocrypt: any;
+
+  constructor(mongo: any) {
+    super();
+    this._mongo = mongo;
+    this._libmongocrypt = new mongo._serviceProvider.fle.ClientEncryption(
+      mongo._serviceProvider.getRawClient(),
+      {
+        options: this._mongo._fleOptions
+      }
+    );
+  }
+
+  @returnsPromise
+  encrypt(
+    encryptionId: BinaryType,
+    value: any,
+    encryptionAlgorithm: string
+  ): BinaryType {
+    assertArgsDefined(encryptionId, value, encryptionAlgorithm);
+    return this._libmongocrypt.encrypt(
+      value,
+      {
+        keyId: encryptionId,
+        algorithm: encryptionAlgorithm
+      }
+    );
+  }
+
+  @returnsPromise
+  decrypt(
+    encryptedValue: any
+  ): BinaryType {
+    assertArgsDefined(encryptedValue);
+    return this._libmongocrypt.decrypt(encryptedValue);
+  }
+}
+
+@shellApiClassDefault
+@hasAsyncChild
+@classPlatforms([ ReplPlatform.CLI ] )
+export class KeyVault extends ShellApiClass {
   public _mongo: any; // Mongo but any to avoid circular ref
   public _clientEncryption: ClientEncryption;
   private _keyColl: Collection;
@@ -42,7 +110,7 @@ export default class KeyVault extends ShellApiClass {
     if (keyAltName) {
       options.keyAltNames = keyAltName;
     }
-    return this._clientEncryption._innerCE.createDataKey(kms, options);
+    return this._clientEncryption._libmongocrypt.createDataKey(kms, options);
   }
 
   getKey(keyId: BinaryType): Cursor {

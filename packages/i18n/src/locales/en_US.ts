@@ -1634,6 +1634,14 @@ const translations: Catalog = {
             },
             isCausalConsistency: {
               description: 'This method is deprecated. Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true'
+            },
+            getKeyVault: {
+              description: 'Returns the KeyVault object for the current database connection. The KeyVault object supports data encryption key management for Client-side field level encryption.',
+              link: 'https://docs.mongodb.com/manual/reference/method/getKeyVault/#getKeyVault'
+            },
+            getClientEncryption: {
+              description: 'Returns the ClientEncryption object for the current database collection. The ClientEncryption object supports explicit (manual) encryption and decryption of field values for Client-Side field level encryption.',
+              link: 'https://docs.mongodb.com/manual/reference/method/getClientEncryption/#getClientEncryption'
             }
           }
         },
@@ -1954,6 +1962,58 @@ const translations: Catalog = {
           link: 'https://docs.mongodb.com/manual/core/document/',
           description: 'A generic MongoDB document, without any methods.',
           attributes: {}
+        }
+      },
+      KeyVault: {
+        help: {
+          link: 'https://docs.mongodb.com/manual/core/security-client-side-encryption/',
+          description: 'The key vault object for the current MongoDB connection',
+          attributes: {
+            createKey: {
+              description: 'Creates a data encryption key for use with client-side field level encryption.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/#KeyVault.createKey'
+            },
+            deleteKey: {
+              description: 'Deletes the specified data encryption key from the key vault.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.deleteKey/#KeyVault.deleteKey'
+            },
+            getKey: {
+              description: 'Retreives the specified data encryption key from the key vault.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.getKey/#KeyVault.getKey'
+            },
+            getKeys: {
+              description: 'Retrieves all keys in the key vault.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.getKeys/#KeyVault.getKeys'
+            },
+            addKeyAlternateName: {
+              description: 'Associates a key alternative name to the specified data encryption key.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.addKeyAlternateName/#KeyVault.addKeyAlternateName'
+            },
+            removeKeyAlternateName: {
+              description: 'Removes a key alternative name from the specified data encryption key.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.removeKeyAlternateName/#KeyVault.removeKeyAlternateName'
+            },
+            getKeyByAltName: {
+              description: 'Retrieves keys with the specified key alternative name.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.getKeyByAltName/#KeyVault.getKeyByAltName'
+            }
+          }
+        }
+      },
+      ClientEncryption: {
+        help: {
+          link: 'https://docs.mongodb.com/manual/core/security-client-side-encryption/',
+          description: 'The ClientEncryption object for the current database collection.',
+          attributes: {
+            encrypt: {
+              link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.encrypt/#ClientEncryption.encrypt',
+              description: 'Encrypts the value using the specified encryptionKeyId and encryptionAlgorithm. encrypt supports explicit (manual) encryption of field values.'
+            },
+            decrypt: {
+              link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.decrypt/#ClientEncryption.decrypt',
+              description: 'decrypts the encryptionValue if the current database connection was configured with access to the Key Management Service (KMS) and key vault used to encrypt encryptionValue.'
+            }
+          }
         }
       }
     }

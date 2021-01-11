@@ -39,9 +39,11 @@ import Session from './session';
 import { assertArgsDefined, assertArgsType, processFLEOptions } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
-import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
-import KeyVault from './key-vault';
-import ClientEncryption from './client-encryption';
+import {
+  ClientSideFieldLevelEncryptionOptions,
+  KeyVault,
+  ClientEncryption
+} from './field-level-encryption';
 
 @shellApiClassDefault
 @hasAsyncChild

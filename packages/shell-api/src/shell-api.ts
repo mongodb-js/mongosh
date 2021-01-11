@@ -19,7 +19,7 @@ import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
 import { promisify } from 'util';
-import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
+import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 
 @shellApiClassDefault
 @hasAsyncChild

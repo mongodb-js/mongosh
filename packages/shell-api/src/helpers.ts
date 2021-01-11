@@ -23,7 +23,7 @@ import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
-import { ClientSideFieldLevelEncryptionOptions } from './csfle-options';
+import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
 
 export function adaptAggregateOptions(options: any = {}): {
