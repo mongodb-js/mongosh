@@ -115,8 +115,9 @@ export class GithubRepo {
       .catch(this._ignoreAlreadyExistsError);
   }
 
-  // Creates release notes and uploads assets if they are not yet uploaded to
-  // Github.
+  /**
+   * Creates release notes and uploads assets if they are not yet uploaded to Github.
+   */
   async releaseToGithub(artifact: TarballFile, config: Config): Promise<void> {
     const tag = `v${config.version}`;
 
@@ -206,6 +207,27 @@ export class GithubRepo {
 
   jiraReleaseNotesLink(version: string): string {
     return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
+  }
+
+  async createPullRequest(title: string, fromBranch: string, toBaseBranch: string): Promise<{prNumber: number, url: string}> {
+    const response = await this.octokit.pulls.create({
+      ...this.repo,
+      base: toBaseBranch,
+      head: fromBranch,
+      title
+    });
+
+    return {
+      prNumber: response.data.number,
+      url: response.data.html_url
+    };
+  }
+
+  async mergePullRequest(prNumber: number): Promise<void> {
+    await this.octokit.pulls.merge({
+      ...this.repo,
+      pull_number: prNumber
+    });
   }
 
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {

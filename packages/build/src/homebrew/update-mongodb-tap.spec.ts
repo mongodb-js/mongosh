@@ -30,7 +30,7 @@ describe('Homebrew update-mongodb-tap', () => {
       homebrewFormula: 'updated formula',
       mongoHomebrewRepoUrl: `file://${repoDir.path}`
     });
-    expect(updated).to.equal(true);
+    expect(updated).to.equal('mongosh-1.0.0-sha');
 
     execSync('git checkout mongosh-1.0.0-sha', { cwd: repoDir.path });
     expect(readFileSync(mongoshFormulaFile, 'utf-8')).to.equal('updated formula');
@@ -44,7 +44,7 @@ describe('Homebrew update-mongodb-tap', () => {
       homebrewFormula: 'formula',
       mongoHomebrewRepoUrl: `file://${repoDir.path}`
     });
-    expect(updated).to.equal(false);
+    expect(updated).to.equal(undefined);
 
     const branches = execSync('git branch -a', { cwd: repoDir.path }).toString().trim();
     expect(branches).to.equal('* master');

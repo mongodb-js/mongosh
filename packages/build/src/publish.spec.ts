@@ -1,12 +1,13 @@
-import { GithubRepo } from './github-repo';
-import publish from './publish';
 import chai, { expect } from 'chai';
-import Config from './config';
 import path from 'path';
 import sinon from 'ts-sinon';
 import type writeAnalyticsConfigType from './analytics';
-import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import Config from './config';
 import type uploadDownloadCenterConfigType from './download-center';
+import { GithubRepo } from './github-repo';
+import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
+import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import publish from './publish';
 
 chai.use(require('sinon-chai'));
 
@@ -19,7 +20,9 @@ describe('publish', () => {
   let uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType;
   let publishNpmPackages: typeof publishNpmPackagesType;
   let writeAnalyticsConfig: typeof writeAnalyticsConfigType;
+  let publishToHomebrew: typeof publishToHomebrewType;
   let githubRepo: GithubRepo;
+  let mongoHomebrewRepo: GithubRepo;
 
   beforeEach(() => {
     config = {
@@ -55,7 +58,9 @@ describe('publish', () => {
     uploadDownloadCenterConfig = sinon.spy();
     publishNpmPackages = sinon.spy();
     writeAnalyticsConfig = sinon.spy();
+    publishToHomebrew = sinon.spy();
     githubRepo = createStubRepo();
+    mongoHomebrewRepo = createStubRepo();
   });
 
   context('if is a public release', () => {
@@ -69,9 +74,11 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(uploadDownloadCenterConfig).to.have.been.calledWith(
@@ -85,9 +92,11 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(githubRepo.promoteRelease).to.have.been.calledWith(config);
@@ -97,9 +106,11 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(writeAnalyticsConfig).to.have.been.calledOnceWith(
@@ -108,6 +119,24 @@ describe('publish', () => {
       );
       expect(publishNpmPackages).to.have.been.calledWith();
       expect(publishNpmPackages).to.have.been.calledAfter(writeAnalyticsConfig as any);
+    });
+    it('publishes to homebrew', async() => {
+      await publish(
+        config,
+        githubRepo,
+        mongoHomebrewRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig,
+        publishToHomebrew
+      );
+
+      expect(publishToHomebrew).to.have.been.calledWith(
+        path.resolve(config.rootDir, 'tmp'),
+        mongoHomebrewRepo,
+        config.version
+      );
+      expect(publishToHomebrew).to.have.been.calledAfter(githubRepo.promoteRelease as any);
     });
   });
 
@@ -122,9 +151,11 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(uploadDownloadCenterConfig).not.to.have.been.called;
@@ -134,9 +165,11 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(githubRepo.promoteRelease).not.to.have.been.called;
@@ -146,12 +179,28 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
+        mongoHomebrewRepo,
         uploadDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig
+        writeAnalyticsConfig,
+        publishToHomebrew
       );
 
       expect(publishNpmPackages).not.to.have.been.called;
+    });
+
+    it('does not publish to homebrew', async() => {
+      await publish(
+        config,
+        githubRepo,
+        mongoHomebrewRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig,
+        publishToHomebrew
+      );
+
+      expect(publishToHomebrew).not.to.have.been.called;
     });
   });
 });

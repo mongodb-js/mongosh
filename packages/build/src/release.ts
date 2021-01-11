@@ -1,23 +1,25 @@
-import compileExec, { executablePath } from './compile-exec';
-import { createTarball, TarballFile } from './tarball';
-import Platform from './platform';
+/* eslint-disable no-shadow */
+import { Octokit } from '@octokit/rest';
+import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
-import { promises as fs } from 'fs';
-import macOSSignAndNotarize from './macos-sign';
-import uploadToDownloadCenter from './upload-to-download-center';
+import writeAnalyticsConfig from './analytics';
+import { Barque } from './barque';
+import compileExec, { executablePath } from './compile-exec';
+import Config from './config';
+import doUpload from './do-upload';
 import uploadDownloadCenterConfig from './download-center';
 import uploadArtifactToEvergreen from './evergreen';
-import doUpload from './do-upload';
+import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
-import { Octokit } from '@octokit/rest';
-import { Barque } from './barque';
+import { publishToHomebrew } from './homebrew';
+import macOSSignAndNotarize from './macos-sign';
+import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import Platform from './platform';
 import publish from './publish';
 import { redactConfig } from './redact-config';
-import Config from './config';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
-import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
-import writeAnalyticsConfig from './analytics';
+import { createTarball, TarballFile } from './tarball';
+import uploadToDownloadCenter from './upload-to-download-center';
 
 /**
  * Run the release process.
@@ -34,6 +36,7 @@ export default async function release(
   });
 
   const githubRepo = new GithubRepo(config.repo, octokit);
+  const mongoHomebrewRepo = new GithubRepo({ owner: 'mongodb', repo: 'homebrew-brew' }, octokit);
   const commitTag = await githubRepo.getTagByCommitSha(config.revision);
 
   config = {
@@ -44,7 +47,6 @@ export default async function release(
   // updates the version of internal packages to reflect the tagged one
   bumpNpmPackages(config.version);
 
-  const barque = new Barque(config);
   let tarballFile: TarballFile;
 
   console.info(
@@ -81,6 +83,7 @@ export default async function release(
     }
     await fs.writeFile(path.join(config.outputDir, '.artifact_metadata'), JSON.stringify(tarballFile));
   } else if (command === 'upload') {
+    const barque = new Barque(config);
     tarballFile = JSON.parse(await fs.readFile(path.join(config.outputDir, '.artifact_metadata'), 'utf8'));
     await doUpload(
       config,
@@ -93,9 +96,11 @@ export default async function release(
     await publish(
       config,
       githubRepo,
+      mongoHomebrewRepo,
       uploadDownloadCenterConfig,
       publishNpmPackages,
-      writeAnalyticsConfig
+      writeAnalyticsConfig,
+      publishToHomebrew
     );
   } else {
     throw new Error(`Unknown command: ${command}`);

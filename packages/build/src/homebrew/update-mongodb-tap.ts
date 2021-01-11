@@ -9,11 +9,15 @@ export interface UpdateMongoDBTapParameters {
     packageSha: string;
     homebrewFormula: string;
     tmpDir: string;
-    mongoHomebrewRepoUrl?: string;
+    mongoHomebrewRepoUrl: string;
 }
 
-export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Promise<boolean> {
-  const repoUrl = params.mongoHomebrewRepoUrl || 'git@github.com:mongodb/homebrew-brew.git';
+/**
+ * Updates the mongosh formula in the given homebrew tap repository and returns the
+ * name of the branch pushed to the repository.
+ */
+export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Promise<string | undefined> {
+  const repoUrl = params.mongoHomebrewRepoUrl;
   const cloneDir = path.resolve(params.tmpDir, 'homebrew-brew');
   cloneRepository(cloneDir, repoUrl);
 
@@ -24,8 +28,7 @@ export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Prom
 
   const currentContent = await fs.readFile(formulaPath, 'utf-8');
   if (currentContent === params.homebrewFormula) {
-    console.warn('There are no changes to the homebrew formula');
-    return false;
+    return undefined;
   }
 
   await fs.writeFile( formulaPath, params.homebrewFormula, 'utf-8');
@@ -33,5 +36,5 @@ export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Prom
   execSync('git add .', { cwd: cloneDir, stdio: 'inherit' });
   execSync(`git commit -m "mongosh ${version}"`, { cwd: cloneDir, stdio: 'inherit' });
   execSync(`git push origin ${branchName}`, { cwd: cloneDir, stdio: 'inherit' });
-  return true;
+  return branchName;
 }

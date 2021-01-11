@@ -1,12 +1,5 @@
-import { httpsSha256 } from './utils';
 
-export async function generateHomebrewFormula(version: string): Promise<string> {
-  const url = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${version}.tgz`;
-  const sha = await httpsSha256(url);
-  return renderFormula({ version, sha });
-}
-
-function renderFormula(context: { version: string, sha: string }): string {
+export function generateFormula(context: { version: string, sha: string }): string {
   return `require "language/node"
 
 class Mongosh < Formula
