@@ -91,9 +91,7 @@ describe('e2e TLS', () => {
         expect(result.state).to.equal('prompt');
       });
 
-      // TODO: enable when NODE-2977 is solved
-      // eslint-disable-next-line mocha/no-skipped-tests
-      it.skip('works with matching CA (connection string)', async() => {
+      it('works with matching CA (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}`
@@ -114,9 +112,7 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      // TODO: enable when NODE-2977 is solved
-      // eslint-disable-next-line mocha/no-skipped-tests
-      it.skip('fails when not using --tls (connection string)', async() => {
+      it('fails when not using --tls (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=false`
@@ -139,9 +135,7 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('unable to verify the first certificate');
       });
 
-      // TODO: enable when NODE-2977 is solved
-      // eslint-disable-next-line mocha/no-skipped-tests
-      it.skip('fails with invalid CA (connection string)', async() => {
+      it('fails with invalid CA (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=true&tlsCAFile=${encodeURIComponent(NON_CA_CERT)}`
@@ -221,14 +215,12 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput(`user: '${certUser}'`);
       });
 
-      // TODO: enable when NODE-2977 is solved
-      // eslint-disable-next-line mocha/no-skipped-tests
-      it.skip('works with valid cert (connection string)', async() => {
+      it('works with valid cert (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
             + '&authMechanism=MONGODB-X509'
-            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}`
+            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}&tlsCertificateFile=${encodeURIComponent(CLIENT_CERT)}`
           ]
         });
         const prompt = await waitForPromptOrExit(shell);
@@ -251,9 +243,7 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      // TODO: enable when NODE-2977 is solved
-      // eslint-disable-next-line mocha/no-skipped-tests
-      it.skip('fails with invalid cert (connection string)', async() => {
+      it('fails with invalid cert (connection string)', async() => {
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`

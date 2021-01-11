@@ -21,10 +21,7 @@ describe('BSON e2e', function() {
     dbName = `test-${Date.now()}`;
     shell = TestShell.start({ args: [connectionString] });
 
-    client = await (MongoClient as any).connect(
-      connectionString,
-      { useNewUrlParser: true }
-    );
+    client = await MongoClient.connect(connectionString, {});
 
     db = client.db(dbName);
 

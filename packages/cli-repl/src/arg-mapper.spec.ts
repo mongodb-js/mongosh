@@ -1,7 +1,6 @@
 import mapCliToDriver from './arg-mapper';
 import { CliOptions } from '@mongosh/service-provider-server';
 import { expect } from 'chai';
-import { MongoshInvalidInputError } from '@mongosh/errors';
 
 describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
@@ -132,18 +131,12 @@ describe('arg-mapper.mapCliToDriver', () => {
   });
 
   context('when cli args have tlsCRLFile', () => {
-    it('the file content is extracted', async() => {
-      // using the lazy fixture trick: FANCY CRL FIXTURE
-      const opts = await mapCliToDriver({ tlsCRLFile: __filename });
-      expect(opts.sslCRL).to.contain('FANCY CRL FIXTURE');
-    });
+    const cliOptions: CliOptions = { tlsCRLFile: 'key' };
 
-    it('throws an error when the file does not exist', async() => {
-      const err = await mapCliToDriver({
-        tlsCRLFile: '/THERE_IS_NO_ROOT'
-      }).catch(e => e);
-      expect(err).to.be.instanceOf(MongoshInvalidInputError);
-      expect(err.message).to.contain('The file specified by --tlsCRLFile does not exist or cannot be read');
+    it('maps to sslCRL', async() => {
+      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+        sslCRL: 'key'
+      });
     });
   });
 

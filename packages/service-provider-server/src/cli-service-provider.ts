@@ -74,6 +74,7 @@ import {
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
+import { URL } from 'url';
 
 const bsonlib = {
   Binary,
@@ -108,8 +109,15 @@ type ExtraConnectionInfo = ReturnType<typeof getConnectInfo>;
  * Default driver options we always use.
  */
 const DEFAULT_DRIVER_OPTIONS = Object.freeze({
-  useNewUrlParser: true
 });
+
+function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
+  const ret = { ...DEFAULT_DRIVER_OPTIONS, ...opts };
+  if (ret.tlsCertificateKeyFile && !ret.tlsCertificateFile) {
+    ret.tlsCertificateFile = ret.tlsCertificateKeyFile;
+  }
+  return ret;
+}
 
 /**
  * Default driver method options we always use.
@@ -136,10 +144,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {}
   ): Promise<CliServiceProvider> {
-    const clientOptions: MongoClientOptions = {
-      ...DEFAULT_DRIVER_OPTIONS,
-      ...driverOptions
-    };
+    const clientOptions = processDriverOptions(driverOptions);
 
     const mongoClient = !cliOptions.nodb ?
       await MongoClient.connect(
@@ -187,10 +192,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getNewConnection(uri: string, options: MongoClientOptions = {}): Promise<CliServiceProvider> {
-    const clientOptions: MongoClientOptions = {
-      ...DEFAULT_DRIVER_OPTIONS,
-      ...options
-    };
+    const clientOptions = processDriverOptions(options);
 
     const mongoClient = await MongoClient.connect(
       uri,
@@ -1016,15 +1018,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<{ ok: number }> {
     const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
     // NOTE: we keep all the original options and just overwrite the auth ones.
-    const clientOptions: MongoClientOptions = {
-      ...DEFAULT_DRIVER_OPTIONS,
+    const clientOptions = processDriverOptions({
       ...this.initialOptions,
-      auth: auth
-    };
+      auth
+    });
     if (authDoc.mechanism) clientOptions.authMechanism = authDoc.mechanism as AuthMechanismId;
     if (authDoc.authDb) clientOptions.authSource = authDoc.authDb;
     const mc = await MongoClient.connect(
-      this.uri as string,
+      Object.assign(new URL(this.uri as string), { username: '', password: '' }).href,
       clientOptions
     );
     try {
@@ -1087,11 +1088,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       );
       options.readPreference = pr;
     }
-    const clientOptions: MongoClientOptions = {
-      ...DEFAULT_DRIVER_OPTIONS,
+    const clientOptions = processDriverOptions({
       ...this.initialOptions,
       ...options
-    };
+    });
     const mc = await MongoClient.connect(
       this.uri as string,
       clientOptions
