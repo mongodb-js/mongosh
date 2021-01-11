@@ -1,28 +1,16 @@
-import { redactConfig } from './redact-config';
 import { getArtifactUrl } from './evergreen';
 import { GithubRepo } from './github-repo';
 import { TarballFile } from './tarball';
 import { Barque } from './barque';
 import Config from './config';
 
-export default async function buildAndUpload(
+export default async function doUpload(
   config: Config,
   githubRepo: GithubRepo,
   barque: Barque,
-  compileAndZipExecutable: (config: Config) => Promise<TarballFile>,
+  tarballFile: TarballFile,
   uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>,
   uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
-  console.info(
-    'mongosh: beginning release with config:',
-    redactConfig(config)
-  );
-
-  // Build the executable.
-  const tarballFile = await compileAndZipExecutable(config);
-  console.info('mongosh: created tarball:', tarballFile);
-
-  if (config.dryRun) return;
-
   for (const key of [
     'evgAwsKey', 'evgAwsSecret', 'project', 'revision', 'downloadCenterAwsKey', 'downloadCenterAwsSecret'
   ]) {

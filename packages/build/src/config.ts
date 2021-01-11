@@ -30,6 +30,5 @@ export default interface Config {
     owner: string;
     repo: string;
   };
-  dryRun?: boolean;
   isPatch?: boolean;
 }

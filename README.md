@@ -167,11 +167,12 @@ npm run compile-exec
 Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
-npm run evergreen-release package -- --dry --build-variant=Debian
+npm run compile-exec
+npm run evergreen-release package -- --build-variant=Debian
 ```
 
 ## Contributing
-For issues, please create a ticket in our 
+For issues, please create a ticket in our
 [JIRA Project](https://jira.mongodb.org/browse/MONGOSH).
 
 For contributing, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).

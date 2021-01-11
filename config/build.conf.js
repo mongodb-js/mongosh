@@ -84,6 +84,5 @@ module.exports = {
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'
-  },
-  dryRun: false
+  }
 };

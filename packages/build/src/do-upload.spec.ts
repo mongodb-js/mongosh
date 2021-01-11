@@ -1,4 +1,4 @@
-import buildAndUpload from './build-and-upload';
+import doUpload from './do-upload';
 import { GithubRepo } from './github-repo';
 import { TarballFile } from './tarball';
 import chai, { expect } from 'chai';
@@ -20,7 +20,6 @@ function createStubBarque(overrides?: any): Barque {
 describe('buildAndRelease', () => {
   let config: Config;
   let tarballFile: TarballFile;
-  let compileAndZipExecutable: (config: Config) => Promise<TarballFile>;
   let uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>;
   let uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>;
   let barque: Barque;
@@ -58,7 +57,6 @@ describe('buildAndRelease', () => {
     };
 
     tarballFile = { path: 'path', contentType: 'application/gzip' };
-    compileAndZipExecutable = sinon.stub().resolves(tarballFile);
     barque = createStubBarque();
     uploadToEvergreen = sinon.spy();
     uploadToDownloadCenter = sinon.spy();
@@ -75,11 +73,11 @@ describe('buildAndRelease', () => {
         releaseToBarque: sinon.stub().returns(Promise.resolve(true))
       });
 
-      await buildAndUpload(
+      await doUpload(
         config,
         githubRepo,
         barque,
-        compileAndZipExecutable,
+        tarballFile,
         uploadToEvergreen,
         uploadToDownloadCenter
       );
@@ -103,11 +101,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().resolves(true)
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );
@@ -128,11 +126,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().resolves(true)
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );
@@ -149,11 +147,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().returns(Promise.resolve(true))
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );
@@ -170,11 +168,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().resolves(true)
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );
@@ -192,11 +190,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().resolves(true)
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );
@@ -214,11 +212,11 @@ describe('buildAndRelease', () => {
       releaseToBarque: sinon.stub().resolves(true)
     });
 
-    await buildAndUpload(
+    await doUpload(
       config,
       githubRepo,
       barque,
-      compileAndZipExecutable,
+      tarballFile,
       uploadToEvergreen,
       uploadToDownloadCenter
     );

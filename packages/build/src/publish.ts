@@ -7,8 +7,6 @@ export default async function publish(
   githubRepo: GithubRepo,
   uploadDownloadCenterConfig: (version: string, awsKey: string, awsSecret: string) => Promise<any>
 ): Promise<void> {
-  if (config.dryRun) return;
-
   console.info(
     'mongosh: beginning publish release with config:',
     redactConfig(config)

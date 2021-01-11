@@ -1,3 +1,4 @@
+'use strict';
 require('./import-expansions');
 
 const path = require('path');
@@ -10,13 +11,10 @@ const config = require(path.join(__dirname, '..', 'config', 'build.conf.js'));
 const runRelease = async() => {
   const command = process.argv[2];
 
-  if (!['package', 'publish'].includes(command)) {
-    throw new Error('USAGE: npm run evergreen-release -- <package|publish> [--dry]');
+  if (!['compile', 'package', 'upload', 'publish'].includes(command)) {
+    throw new Error('USAGE: npm run evergreen-release -- <compile|package|upload|publish>');
   }
 
-  if (process.argv.includes('--dry')) {
-    config.dryRun = true;
-  }
   const cliBuildVariant =
     process.argv.map((arg) => arg.match(/^--build-variant=(.+)$/)).filter(Boolean)[0];
   if (cliBuildVariant !== undefined) {
