@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import { Octokit } from '@octokit/rest';
 import { promises as fs } from 'fs';
 import os from 'os';
