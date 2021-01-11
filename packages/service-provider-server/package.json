@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-server",
-  "version": "0.6.1",
+  "version": "0.0.0-dev.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -38,8 +38,8 @@
     ]
   },
   "dependencies": {
-    "@mongosh/errors": "^0.6.1",
-    "@mongosh/service-provider-core": "^0.6.1",
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
     "mongodb": "github:mongodb/node-mongodb-native#16c15749",

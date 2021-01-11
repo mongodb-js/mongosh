@@ -14,6 +14,7 @@ function createStubRepo(overrides?: any): GithubRepo {
 describe('publish', () => {
   let config: Config;
   let uploadDownloadCenterConfig: (version: string, awsKey: string, awsSecret: string) => Promise<any>;
+  let publishNpmPackages: (config: Config) => Promise<void>;
   let githubRepo: GithubRepo;
 
   beforeEach(() => {
@@ -23,7 +24,7 @@ describe('publish', () => {
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',
-      analyticsConfig: 'analyticsConfig',
+      analyticsConfigFilePath: 'analyticsConfigFilePath',
       project: 'project',
       revision: 'revision',
       branch: 'branch',
@@ -48,6 +49,7 @@ describe('publish', () => {
     };
 
     uploadDownloadCenterConfig = sinon.spy();
+    publishNpmPackages = sinon.spy();
     githubRepo = createStubRepo();
   });
 
@@ -62,7 +64,8 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages
       );
 
       expect(uploadDownloadCenterConfig).to.have.been.calledWith(
@@ -76,10 +79,22 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages
       );
 
       expect(githubRepo.promoteRelease).to.have.been.calledWith(config);
+    });
+
+    it('publishes NPM packages', async() => {
+      await publish(
+        config,
+        githubRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages
+      );
+
+      expect(publishNpmPackages).to.have.been.calledWith();
     });
   });
 
@@ -94,7 +109,8 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages
       );
 
       expect(uploadDownloadCenterConfig).not.to.have.been.called;
@@ -104,10 +120,22 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages
       );
 
       expect(githubRepo.promoteRelease).not.to.have.been.called;
+    });
+
+    it('does not publish npm packages', async() => {
+      await publish(
+        config,
+        githubRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages
+      );
+
+      expect(publishNpmPackages).not.to.have.been.called;
     });
   });
 });

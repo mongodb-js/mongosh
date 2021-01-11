@@ -1,12 +1,12 @@
 import { GithubRepo } from './github-repo';
 import Config from './config';
 import { redactConfig } from './redact-config';
-// import { publishNpmPackages } from './npm-packages';
 
 export default async function publish(
   config: Config,
   githubRepo: GithubRepo,
-  uploadDownloadCenterConfig: (version: string, awsKey: string, awsSecret: string) => Promise<any>
+  uploadDownloadCenterConfig: (version: string, awsKey: string, awsSecret: string) => Promise<any>,
+  publishNpmPackages: (config: Config) => Promise<void>,
 ): Promise<void> {
   console.info(
     'mongosh: beginning publish release with config:',
@@ -23,8 +23,6 @@ export default async function publish(
 
   await githubRepo.promoteRelease(config);
 
-  // publishNpmPackages();
+  await publishNpmPackages(config);
   console.info('mongosh: finished release process.');
 }
-
-
