@@ -20,7 +20,8 @@ export function bumpNpmPackages(version: string): void {
     '--force-publish',
     '--yes'
   ], {
-    stdio: 'inherit'
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT
   });
 }
 
@@ -47,7 +48,8 @@ export function publishNpmPackages(): void {
     '--force-publish',
     '--yes'
   ], {
-    stdio: 'inherit'
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT
   });
 }
 
@@ -56,7 +58,10 @@ function listNpmPackages(): {version: string}[] {
     LERNA_BIN, [
       'list',
       '--json',
-    ]
+    ],
+    {
+      cwd: PROJECT_ROOT
+    }
   ).toString();
 
   const packages = JSON.parse(lernaListOutput);
