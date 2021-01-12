@@ -31,12 +31,6 @@ export default async function publish(
 
   await mongoshGithubRepo.promoteRelease(config);
 
-  await publishToHomebrew(
-    path.resolve(config.rootDir, 'tmp'),
-    mongoHomebrewGithubRepo,
-    config.version
-  );
-
   // ensures the segment api key to be present in the published packages
   await writeAnalyticsConfig(
     config.analyticsConfigFilePath,
@@ -44,5 +38,12 @@ export default async function publish(
   );
 
   publishNpmPackages();
+
+  await publishToHomebrew(
+    path.resolve(config.rootDir, 'tmp'),
+    mongoHomebrewGithubRepo,
+    config.version
+  );
+
   console.info('mongosh: finished release process.');
 }
