@@ -8,6 +8,7 @@
     "**/test/**/*.{ts,js,tsx,jsx,cjs,mjs}",
     "**/tmp/**/*.{ts,js,tsx,jsx,cjs,mjs}",
     "**/*.config.{ts,js,tsx,jsx,cjs,mjs}",
-    "**/lib/*.js"
+    "**/lib/*.js",
+    "**/dist/**/*.js"
   ]
 }

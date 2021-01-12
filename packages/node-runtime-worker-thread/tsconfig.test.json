@@ -1,0 +1,19 @@
+{
+  "extends": "../../config/tsconfig.test.json",
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "outDir": "./lib",
+    "allowJs": false
+  },
+  "files": [
+    "./src/index.d.ts"
+  ],
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./src/**/*.spec.*"
+  ]
+}
