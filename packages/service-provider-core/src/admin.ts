@@ -98,4 +98,6 @@ export default interface Admin {
    * Return the raw client for use in keyVaultClient.
    */
   getRawClient(): any;
+
+  fle: any; // TODO: NODE-2989 Types for libmongoc
 }

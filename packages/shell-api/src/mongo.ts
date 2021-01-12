@@ -54,7 +54,7 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _fleOptions: SPAutoEncryption | undefined;
+  public _fleOptions: SPAutoEncryption | undefined;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
 
@@ -288,7 +288,7 @@ export default class Mongo extends ShellApiClass {
   @platforms([ReplPlatform.CLI])
   @serverVersions(['4.2.0', ServerVersions.latest])
   getKeyVault(): KeyVault {
-    this._keyVault = new KeyVault(this, this.getClientEncryption());
+    this._keyVault = new KeyVault(this.getClientEncryption());
     return this._keyVault;
   }
 }

@@ -1,9 +1,19 @@
-import { classPlatforms, hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault } from './decorators';
-import { Document, ReplPlatform, BinaryType } from '@mongosh/service-provider-core';
+import {
+  classPlatforms,
+  hasAsyncChild,
+  returnsPromise,
+  ShellApiClass,
+  shellApiClassDefault
+} from './decorators';
+import { ReplPlatform } from '@mongosh/service-provider-core';
+import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
 import { DeleteResult } from './result';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { asPrintable } from './enums';
+import { redactPassword } from '@mongosh/history';
+import type Mongo from './mongo';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 
 /** Configuration options for using 'aws' as your KMS provider */
@@ -36,7 +46,7 @@ export interface ClientSideFieldLevelEncryptionOptions {
 @hasAsyncChild
 @classPlatforms([ ReplPlatform.CLI ] )
 export class ClientEncryption extends ShellApiClass {
-  public _mongo: any; // Mongo but any to avoid circular ref
+  public _mongo: Mongo;
   public _libmongocrypt: any;
 
   constructor(mongo: any) {
@@ -50,14 +60,18 @@ export class ClientEncryption extends ShellApiClass {
     );
   }
 
+  [asPrintable](): string {
+    return `ClientEncryption class for ${redactPassword(this._mongo._uri)}`;
+  }
+
   @returnsPromise
-  encrypt(
+  async encrypt(
     encryptionId: BinaryType,
     value: any,
     encryptionAlgorithm: string
-  ): BinaryType {
+  ): Promise<BinaryType> {
     assertArgsDefined(encryptionId, value, encryptionAlgorithm);
-    return this._libmongocrypt.encrypt(
+    return await this._libmongocrypt.encrypt(
       value,
       {
         keyId: encryptionId,
@@ -69,7 +83,7 @@ export class ClientEncryption extends ShellApiClass {
   @returnsPromise
   decrypt(
     encryptedValue: any
-  ): BinaryType {
+  ): Promise<BinaryType> {
     assertArgsDefined(encryptedValue);
     return this._libmongocrypt.decrypt(encryptedValue);
   }
@@ -79,18 +93,22 @@ export class ClientEncryption extends ShellApiClass {
 @hasAsyncChild
 @classPlatforms([ ReplPlatform.CLI ] )
 export class KeyVault extends ShellApiClass {
-  public _mongo: any; // Mongo but any to avoid circular ref
+  public _mongo: Mongo;
   public _clientEncryption: ClientEncryption;
   private _keyColl: Collection;
-  constructor(mongo: any, clientEncryption: ClientEncryption) {
+  constructor(clientEncryption: ClientEncryption) {
     super();
-    this._mongo = mongo;
+    this._mongo = clientEncryption._mongo;
     this._clientEncryption = clientEncryption;
-    const [ db, coll ] = mongo._fleOptions.keyVaultNamespace.split('.');
-    if (coll.includes('.')) {
-      throw new MongoshInvalidInputError('keyVaultNamespace must be <db>.<coll>');
+    if (!this._mongo._fleOptions || !this._mongo._fleOptions.keyVaultNamespace) {
+      throw new MongoshInvalidInputError('FLE options must be passed to the Mongo object');
     }
-    this._keyColl = mongo.getDB(db).getCollection(coll);
+    const [ db, coll ] = this._mongo._fleOptions.keyVaultNamespace.split('.');
+    this._keyColl = this._mongo.getDB(db).getCollection(coll);
+  }
+
+  [asPrintable](): string {
+    return `KeyVault class for ${redactPassword(this._mongo._uri)}`;
   }
 
   @returnsPromise
@@ -98,12 +116,12 @@ export class KeyVault extends ShellApiClass {
     kms: string | Document,
     customMasterKey: string | Document, // doc defined here: https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/client-side-encryption.rst#masterkey
     keyAltName?: string[]
-  ): Document {
+  ): Promise<Document> {
     assertArgsDefined(kms, customMasterKey);
     const options = {} as any;
 
     if (typeof customMasterKey === 'string') {
-      options.masterKey.key = customMasterKey;
+      options.masterKey = { key: customMasterKey };
     } else {
       options.masterKey = customMasterKey;
     }
@@ -125,7 +143,7 @@ export class KeyVault extends ShellApiClass {
   }
 
   getKeys(): Cursor {
-    return this._keyColl.find();
+    return this._keyColl.find({});
   }
 
   @returnsPromise
@@ -153,7 +171,7 @@ export class KeyVault extends ShellApiClass {
       update: { $pull: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } }
     });
 
-    if (ret !== null && ret.keyAltNames.length === 1 && ret.keyAltNames[0] === keyAltName) {
+    if (ret !== null && ret.keyAltNames !== undefined && ret.keyAltNames.length === 1 && ret.keyAltNames[0] === keyAltName) {
       // Remove the empty array to prevent duplicate key violations
       return this._keyColl.findAndModify({
         query: { '_id': keyId, 'keyAltNames': undefined },
