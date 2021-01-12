@@ -6,9 +6,27 @@ import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ReplPlatform, ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
+import constructShellBson from './shell-bson';
+const shellBson = constructShellBson(bson);
+
+const b641234 = 'MTIzNA==';
+const schemaMap = {
+  'fle-example.people': {
+    'properties': {
+      'ssn': {
+        'encrypt': {
+          'keyId': '/keyAltName',
+          'bsonType': 'string',
+          'algorithm': 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
+        }
+      }
+    },
+    'bsonType': 'object'
+  }
+};
 
 describe('ShellApi', () => {
   describe('signatures', () => {
@@ -107,17 +125,23 @@ describe('ShellApi', () => {
   });
   describe('commands', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
+    let newSP: StubbedInstance<ServiceProvider>;
+    let rawClientStub: StubbedInstance<MongoClient>;
     let bus: StubbedInstance<EventEmitter>;
     let internalState: ShellInternalState;
     let mongo: Mongo;
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
-      const newSP = stubInterface<ServiceProvider>();
+      rawClientStub = stubInterface<MongoClient>();
+      newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
-      serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
+      newSP.bsonLibrary = bson;
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.getNewConnection.resolves(newSP);
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
+      serviceProvider.getRawClient.returns(rawClientStub);
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       internalState = new ShellInternalState(serviceProvider, bus);
@@ -177,6 +201,156 @@ describe('ShellApi', () => {
       it('parses URI with just db', async() => {
         const m = await internalState.shellApi.Mongo('dbname');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true');
+      });
+      context('FLE', () => {
+        it('local kms provider', async() => {
+          await internalState.shellApi.Mongo('dbname', {
+            keyVaultNamespace: 'encryption.dataKeys',
+            kmsProvider: {
+              local: {
+                key: shellBson.BinData(128, b641234)
+              }
+            }
+          });
+          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            {
+              autoEncryption: {
+                keyVaultClient: rawClientStub,
+                keyVaultNamespace: 'encryption.dataKeys',
+                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
+              }
+            });
+        });
+        it('aws kms provider', async() => {
+          await internalState.shellApi.Mongo('dbname', {
+            keyVaultNamespace: 'encryption.dataKeys',
+            kmsProvider: {
+              aws: {
+                accessKeyId: 'abc',
+                secretAccessKey: '123'
+              }
+            }
+          });
+          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            {
+              autoEncryption: {
+                keyVaultClient: rawClientStub,
+                keyVaultNamespace: 'encryption.dataKeys',
+                kmsProviders: { aws: { accessKeyId: 'abc', secretAccessKey: '123' } }
+              }
+            });
+        });
+        it('local kms provider with current as Mongo', async() => {
+          await internalState.shellApi.Mongo('dbname', {
+            keyVaultNamespace: 'encryption.dataKeys',
+            kmsProvider: {
+              local: {
+                key: shellBson.BinData(128, b641234)
+              }
+            },
+            keyVaultClient: mongo
+          });
+          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            {
+              autoEncryption: {
+                keyVaultClient: rawClientStub,
+                keyVaultNamespace: 'encryption.dataKeys',
+                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
+              }
+            });
+        });
+        it('local kms provider with different Mongo', async() => {
+          const sp = stubInterface<ServiceProvider>();
+          const rc = stubInterface<MongoClient>();
+          sp.getRawClient.returns(rc);
+          const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName');
+          await internalState.shellApi.Mongo('dbname', {
+            keyVaultNamespace: 'encryption.dataKeys',
+            kmsProvider: {
+              local: {
+                key: shellBson.BinData(128, b641234)
+              }
+            },
+            keyVaultClient: m
+          });
+          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            {
+              autoEncryption: {
+                keyVaultClient: rc,
+                keyVaultNamespace: 'encryption.dataKeys',
+                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
+              }
+            });
+        });
+        it('throws if missing namespace', async() => {
+          try {
+            await internalState.shellApi.Mongo('dbname', {
+              kmsProvider: {
+                aws: {
+                  accessKeyId: 'abc',
+                  secretAccessKey: '123'
+                }
+              }
+            } as any);
+          } catch (e) {
+            return expect(e.message).to.contain('argument');
+          }
+          expect.fail('failed to throw expected error');
+        });
+        it('throws if missing kmsProvider', async() => {
+          try {
+            await internalState.shellApi.Mongo('dbname', {
+              keyVaultNamespace: 'encryption.dataKeys'
+            } as any);
+          } catch (e) {
+            return expect(e.message).to.contain('argument');
+          }
+          expect.fail('failed to throw expected error');
+        });
+        it('throws for unknown args', async() => {
+          try {
+            await internalState.shellApi.Mongo('dbname', {
+              keyVaultNamespace: 'encryption.dataKeys',
+              kmsProvider: {
+                aws: {
+                  accessKeyId: 'abc',
+                  secretAccessKey: '123'
+                }
+              },
+              unknownKey: 1
+            } as any);
+          } catch (e) {
+            return expect(e.message).to.contain('unknownKey');
+          }
+          expect.fail('failed to throw expected error');
+        });
+        it('passes along optional arguments', async() => {
+          await internalState.shellApi.Mongo('dbname', {
+            keyVaultNamespace: 'encryption.dataKeys',
+            kmsProvider: {
+              local: {
+                key: shellBson.BinData(128, b641234)
+              }
+            },
+            schemaMap: schemaMap,
+            bypassAutoEncryption: true
+          });
+          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            {
+              autoEncryption: {
+                keyVaultClient: rawClientStub,
+                keyVaultNamespace: 'encryption.dataKeys',
+                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } },
+                schemaMap: schemaMap,
+                bypassAutoEncryption: true
+              }
+            });
+        });
       });
     });
     describe('connect', () => {
@@ -292,7 +466,7 @@ describe('ShellApi', () => {
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
-        expect(db.getMongo()._options).to.deep.equal({ auth: { username: 'username', password: 'pwd' } });
+        expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly('mongodb://127.0.0.1:27017/?directConnection=true', { auth: { username: 'username', password: 'pwd' } });
       });
     });
     describe('version', () => {

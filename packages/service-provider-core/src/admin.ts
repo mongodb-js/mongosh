@@ -93,4 +93,11 @@ export default interface Admin {
    * @param options
    */
   startSession(options: ClientSessionOptions): ClientSession;
+
+  /**
+   * Return the raw client for use in keyVaultClient.
+   */
+  getRawClient(): any;
+
+  fle: any; // TODO: NODE-2989 Types for libmongoc
 }

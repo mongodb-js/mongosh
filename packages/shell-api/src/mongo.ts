@@ -1,9 +1,16 @@
 /* eslint-disable complexity */
-import { CommonErrors, MongoshDeprecatedError, MongoshInternalError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInternalError,
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+  MongoshUnimplementedError
+} from '@mongosh/errors';
 import {
   classPlatforms,
   classReturnsPromise,
-  hasAsyncChild,
+  hasAsyncChild, platforms,
   returnsPromise,
   returnType,
   serverVersions,
@@ -12,7 +19,6 @@ import {
   topologies
 } from './decorators';
 import {
-  MongoClientOptions,
   ChangeStreamOptions,
   Document,
   generateUri,
@@ -20,7 +26,9 @@ import {
   ReadPreferenceModeId,
   ReplPlatform,
   ServiceProvider,
-  TransactionOptions
+  TransactionOptions,
+  MongoClientOptions,
+  AutoEncryptionOptions as SPAutoEncryption
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -28,9 +36,14 @@ import { CommandResult } from './result';
 import { redactPassword } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefined, assertArgsType, processFLEOptions } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
+import {
+  ClientSideFieldLevelEncryptionOptions,
+  KeyVault,
+  ClientEncryption
+} from './field-level-encryption';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -41,19 +54,23 @@ export default class Mongo extends ShellApiClass {
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
-  private _options: MongoClientOptions;
+  public _fleOptions: SPAutoEncryption | undefined;
+  private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
+  private _clientEncryption: ClientEncryption | undefined;
 
   constructor(
     internalState: ShellInternalState,
     uri = 'mongodb://localhost/',
-    mongoClientOptions?: MongoClientOptions
+    fleOptions?: ClientSideFieldLevelEncryptionOptions
   ) {
     super();
     this._internalState = internalState;
     this._databases = {};
     this._uri = generateUri({ _: [uri] });
-    this._options = mongoClientOptions ?? {};
     this._serviceProvider = this._internalState.initialServiceProvider;
+    if (fleOptions) {
+      this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
+    }
   }
 
   /**
@@ -79,8 +96,14 @@ export default class Mongo extends ShellApiClass {
     });
   }
 
-  async connect(): Promise<void> {
-    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, this._options);
+  async connect(user?: string, pwd?: string): Promise<void> {
+    const mongoClientOptions: MongoClientOptions = user || pwd ? {
+      auth: { username: user, password: pwd }
+    } : {};
+    if (this._fleOptions) {
+      mongoClientOptions.autoEncryption = this._fleOptions;
+    }
+    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, mongoClientOptions);
   }
 
   _getDb(name: string): Database {
@@ -251,5 +274,21 @@ export default class Mongo extends ShellApiClass {
     );
     this._internalState.currentCursor = cursor;
     return cursor;
+  }
+
+  @platforms([ReplPlatform.CLI])
+  @serverVersions(['4.2.0', ServerVersions.latest])
+  getClientEncryption(): ClientEncryption {
+    if (!this._clientEncryption) {
+      this._clientEncryption = new ClientEncryption(this);
+    }
+    return this._clientEncryption;
+  }
+
+  @platforms([ReplPlatform.CLI])
+  @serverVersions(['4.2.0', ServerVersions.latest])
+  getKeyVault(): KeyVault {
+    this._keyVault = new KeyVault(this.getClientEncryption());
+    return this._keyVault;
   }
 }
