@@ -1,9 +1,11 @@
 import tar from 'tar';
 import path from 'path';
-import AdmZip from 'adm-zip';
 import pkgDeb from 'pkg-deb';
 import pkgRpm from 'pkg-rpm';
 import BuildVariant from './build-variant';
+import childProcess from 'child_process';
+import { promisify } from 'util';
+const execFile = promisify(childProcess.execFile);
 
 /**
  * Get the path to the tarball.
@@ -113,10 +115,20 @@ export const tarballRedhat = async(
  * @param {string} input - The file to tarball.
  * @param {string} filename - the tarball filename.
  */
-export const tarballWindows = (input: string, filename: string): void => {
-  const admZip = new AdmZip();
-  admZip.addLocalFile(input);
-  admZip.writeZip(filename);
+export const tarballWindows = async(input: string, filename: string): Promise<void> => {
+  // Let's assume that either zip or 7z are installed. That's true for the
+  // evergreen macOS and Windows machines, respectively, at this point.
+  // In either case, using these has the advantage of preserving executable permissions
+  // as opposed to using libraries like adm-zip.
+  try {
+    await execFile('zip', [filename, path.basename(input)], { cwd: path.dirname(input) });
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      await execFile('7z', ['a', filename, path.basename(input)], { cwd: path.dirname(input) });
+    } else {
+      throw err;
+    }
+  }
 };
 
 export type TarballFile = { path: string; contentType: string };
@@ -164,7 +176,7 @@ export async function createTarball(
       contentType: 'application/vnd.debian.binary-package'
     };
   }
-  tarballWindows(input, filename);
+  await tarballWindows(input, filename);
 
   return {
     path: filename,

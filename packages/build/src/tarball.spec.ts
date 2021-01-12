@@ -142,7 +142,7 @@ describe('tarball module', () => {
     const expectedTarball = tarballPath(__dirname, BuildVariant.Windows, version);
     const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
 
-    after(async() => {
+    afterEach(async() => {
       await fs.unlink(expectedTarball);
     });
 
