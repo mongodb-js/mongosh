@@ -3,7 +3,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { KeyVault, ClientEncryption } from './field-level-encryption';
 import Mongo from './mongo';
 import { expect } from 'chai';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { ServiceProvider, bson, BinaryType } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
@@ -48,6 +48,8 @@ interface lmc {
   createDataKey(): Promise<any>;
 }
 
+const RAW_CLIENT = { client: 1 } as any;
+
 describe('Field Level Encryption', () => {
   let sp: StubbedInstance<ServiceProvider>;
   let mongo: Mongo;
@@ -55,6 +57,7 @@ describe('Field Level Encryption', () => {
   let libmongoc: StubbedInstance<lmc>;
   let clientEncryption: ClientEncryption;
   let keyVault: KeyVault;
+  let clientEncryptionSpy;
   describe('Metadata', () => {
     before(() => {
       libmongoc = stubInterface<lmc>();
@@ -113,16 +116,38 @@ describe('Field Level Encryption', () => {
   });
   describe('commands', () => {
     beforeEach(() => {
+      clientEncryptionSpy = sinon.spy();
       libmongoc = stubInterface<lmc>();
       sp = stubInterface<ServiceProvider>();
+      sp.getRawClient.returns(RAW_CLIENT);
       sp.bsonLibrary = bson;
-      sp.fle = { ClientEncryption: function() { return libmongoc; } };
+      sp.fle = {
+        ClientEncryption: function(...args) {
+          clientEncryptionSpy(...args);
+          return libmongoc;
+        }
+      };
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
       mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS);
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
+    });
+    describe('constructor', () => {
+      it('constructs ClientEncryption with correct options', () => {
+        expect(sp.getRawClient.getCalls().length).to.equal(2); // once for MongoClient construction, once for ClientEncryption construction
+        expect(clientEncryptionSpy).to.have.been.calledOnceWithExactly(
+          RAW_CLIENT,
+          {
+            keyVaultClient: RAW_CLIENT,
+            keyVaultNamespace: AWS_KMS.keyVaultNamespace,
+            kmsProviders: AWS_KMS.kmsProvider,
+            bypassAutoEncryption: AWS_KMS.bypassAutoEncryption,
+            schemaMap: AWS_KMS.schemaMap
+          }
+        );
+      });
     });
     describe('encrypt', () => {
       it('calls encrypt on libmongoc', async() => {

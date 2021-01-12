@@ -55,7 +55,7 @@ export class ClientEncryption extends ShellApiClass {
     this._libmongocrypt = new mongo._serviceProvider.fle.ClientEncryption(
       mongo._serviceProvider.getRawClient(),
       {
-        options: this._mongo._fleOptions
+        ...this._mongo._fleOptions
       }
     );
   }
