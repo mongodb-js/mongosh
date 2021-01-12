@@ -106,7 +106,7 @@ describe('uri-generator.generate-uri', () => {
     });
 
     context('when providing a URI with SRV record', () => {
-      const uri = 'mongodb+srv://192.0.0.1:27018?readPreference=primary';
+      const uri = 'mongodb+srv://somehost/?readPreference=primary';
       const options = { _: [uri] };
       it('no directConnection is added', () => {
         expect(generateUri(options)).to.equal(uri);
