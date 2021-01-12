@@ -70,11 +70,11 @@ import {
   WriteConcern,
   ChangeStreamOptions,
   ChangeStream,
-  bson as BSON
+  bson as BSON,
+  ConnectionString
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
-import { URL } from 'url';
 
 const bsonlib = {
   Binary,
@@ -144,22 +144,23 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {}
   ): Promise<CliServiceProvider> {
+    const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = processDriverOptions(driverOptions);
 
     const mongoClient = !cliOptions.nodb ?
       await MongoClient.connect(
-        uri,
+        connectionString.toString(),
         clientOptions
       ) :
-      new MongoClient(uri || 'mongodb://nodb/', clientOptions);
+      new MongoClient(connectionString.toString(), clientOptions);
 
-    return new CliServiceProvider(mongoClient, clientOptions, uri);
+    return new CliServiceProvider(mongoClient, clientOptions, connectionString);
   }
 
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
-  private readonly uri?: string;
+  private readonly uri?: ConnectionString;
   private initialOptions: MongoClientOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
@@ -173,7 +174,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param clientOptions
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, clientOptions = {}, uri?: string) {
+  constructor(mongoClient: MongoClient, clientOptions = {}, uri?: ConnectionString) {
     super(bsonlib);
     this.mongoClient = mongoClient;
     this.uri = uri;
@@ -192,13 +193,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getNewConnection(uri: string, options: MongoClientOptions = {}): Promise<CliServiceProvider> {
+    const connectionString = new ConnectionString(uri);
     const clientOptions = processDriverOptions(options);
 
     const mongoClient = await MongoClient.connect(
-      uri,
+      connectionString.toString(),
       clientOptions
     );
-    return new CliServiceProvider(mongoClient, uri);
+    return new CliServiceProvider(mongoClient, connectionString);
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
@@ -217,7 +219,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     }
 
     const extraConnectionInfo = getConnectInfo(
-      this.uri ? this.uri : '',
+      this.uri?.toString() ?? '',
       version,
       buildInfo,
       cmdLineOpts,
@@ -1025,7 +1027,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     if (authDoc.mechanism) clientOptions.authMechanism = authDoc.mechanism as AuthMechanismId;
     if (authDoc.authDb) clientOptions.authSource = authDoc.authDb;
     const mc = await MongoClient.connect(
-      Object.assign(new URL(this.uri as string), { username: '', password: '' }).href,
+      Object.assign((this.uri as ConnectionString).clone(), {
+        username: '', password: ''
+      }).toString(),
       clientOptions
     );
     try {
@@ -1093,7 +1097,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ...options
     });
     const mc = await MongoClient.connect(
-      this.uri as string,
+      // TODO This seems to potentially undo a previous db.auth(), MONGOSH-529
+      (this.uri as ConnectionString).toString(),
       clientOptions
     );
     try {

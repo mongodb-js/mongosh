@@ -2,7 +2,7 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
+import { DbOptions, MongoClientOptions, ConnectionString } from '@mongosh/service-provider-core';
 
 describe('CliServiceProvider [integration]', function() {
   const testServer = startTestServer('shared');
@@ -22,7 +22,7 @@ describe('CliServiceProvider [integration]', function() {
 
     dbName = `test-db-${Date.now()}`;
     db = client.db(dbName);
-    serviceProvider = new CliServiceProvider(client, {}, connectionString);
+    serviceProvider = new CliServiceProvider(client, {}, new ConnectionString(connectionString));
   });
 
   afterEach(() => {

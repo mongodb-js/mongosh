@@ -220,7 +220,7 @@ describe('e2e TLS', () => {
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
             + '&authMechanism=MONGODB-X509'
-            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}&tlsCertificateFile=${encodeURIComponent(CLIENT_CERT)}`
+            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}`
           ]
         });
         const prompt = await waitForPromptOrExit(shell);

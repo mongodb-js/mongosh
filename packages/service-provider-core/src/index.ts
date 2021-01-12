@@ -2,7 +2,7 @@ import ServiceProvider, { ServiceProviderCore } from './service-provider';
 import getConnectInfo, { ConnectInfo } from './connect-info';
 import { ReplPlatform } from './platform';
 import CliOptions from './cli-options';
-import generateUri, { Scheme } from './uri-generator';
+import generateUri from './uri-generator';
 const DEFAULT_DB = 'test';
 import {
   ObjectId,
@@ -22,6 +22,7 @@ import {
 } from 'bson';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
+import { ConnectionString } from './connection-string';
 export * from './all-transport-types';
 
 const bson = {
@@ -48,10 +49,10 @@ export {
   ReplPlatform,
   CliOptions,
   generateUri,
-  Scheme,
   DEFAULT_DB,
   ServiceProviderCore,
   bson,
   bsonStringifiers,
-  ConnectInfo
+  ConnectInfo,
+  ConnectionString
 };
