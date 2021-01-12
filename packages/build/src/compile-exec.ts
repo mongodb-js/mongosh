@@ -52,12 +52,12 @@ const compileExec = async(
   execInput: string,
   outputDir: string,
   execNodeVersion: string,
-  analyticsConfig: string,
+  analyticsConfigFilePath: string,
   segmentKey: string): Promise<string> => {
   // We use Parcel to bundle up everything into a single JS under
   // cli-repl/dist/mongosh.js that the executable generator can use as input.
   // This JS also takes care of the analytics config file being written.
-  await generateInput(input, execInput, analyticsConfig, segmentKey);
+  await generateInput(input, execInput, analyticsConfigFilePath, segmentKey);
 
   const executable = executablePath(outputDir, os.platform());
   console.info('mongosh: creating binary:', executable);

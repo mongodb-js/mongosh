@@ -8,13 +8,13 @@ import writeAnalyticsConfig from './analytics';
  *
  * @param {string} input - The input file to the cli.
  * @param {string} execInput - The input file that the exec will compile from.
- * @param {string} analyticsConfig - The path to the analytics config file.
+ * @param {string} analyticsConfigFilePath - The path to the analytics config file.
  * @param {string} segmentKey - The segment API key.
  */
-async function generateInput(input: string, execInput: string, analyticsConfig: string, segmentKey: string): Promise<void> {
+async function generateInput(input: string, execInput: string, analyticsConfigFilePath: string, segmentKey: string): Promise<void> {
   // This takes the segment api key and writes it to the
   // cli-repl's analytics-config file.
-  await writeAnalyticsConfig(analyticsConfig, segmentKey);
+  await writeAnalyticsConfig(analyticsConfigFilePath, segmentKey);
 
   console.info('mongosh: creating bundle:', execInput);
 

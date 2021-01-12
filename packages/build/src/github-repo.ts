@@ -50,7 +50,11 @@ export class GithubRepo {
    * @returns {Promise<Tag>}
    * @memberof GithubRepo
    */
-  async getTagByCommitSha(sha: string): Promise<Tag | undefined> {
+  async getTagByCommitSha(sha?: string): Promise<Tag | undefined> {
+    if (!sha) {
+      return undefined;
+    }
+
     const tags = await this.octokit
       .paginate(
         'GET /repos/:owner/:repo/tags',

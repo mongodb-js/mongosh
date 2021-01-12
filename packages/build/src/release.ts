@@ -15,6 +15,9 @@ import { Barque } from './barque';
 import publish from './publish';
 import { redactConfig } from './redact-config';
 import Config from './config';
+import getReleaseVersionFromTag from './get-release-version-from-tag';
+import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import writeAnalyticsConfig from './analytics';
 
 /**
  * Run the release process.
@@ -31,6 +34,16 @@ export default async function release(
   });
 
   const githubRepo = new GithubRepo(config.repo, octokit);
+  const commitTag = await githubRepo.getTagByCommitSha(config.revision);
+
+  config = {
+    ...config,
+    version: await getReleaseVersionFromTag(commitTag?.name) || config.version
+  };
+
+  // updates the version of internal packages to reflect the tagged one
+  bumpNpmPackages(config.version);
+
   const barque = new Barque(config);
   let tarballFile: TarballFile;
 
@@ -45,7 +58,7 @@ export default async function release(
       config.execInput,
       config.outputDir,
       config.execNodeVersion,
-      config.analyticsConfig ?? '',
+      config.analyticsConfigFilePath ?? '',
       config.segmentKey ?? '');
   } else if (command === 'package') {
     const executable = executablePath(config.outputDir, os.platform());
@@ -80,9 +93,13 @@ export default async function release(
     await publish(
       config,
       githubRepo,
-      uploadDownloadCenterConfig
+      uploadDownloadCenterConfig,
+      publishNpmPackages,
+      writeAnalyticsConfig
     );
   } else {
     throw new Error(`Unknown command: ${command}`);
   }
 }
+
+

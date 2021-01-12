@@ -51,7 +51,7 @@ const config = {
   input: 'input',
   execInput: 'execInput',
   outputDir: 'outputDir',
-  analyticsConfig: 'analyticsConfig',
+  analyticsConfigFilePath: 'analyticsConfigFilePath',
   project: 'project',
   revision: 'revision',
   branch: 'branch',
@@ -123,7 +123,7 @@ const config = {
   input: 'path/to/input',
   execInput: 'path/to/exec/input',
   outputDir: 'path/to/output/directory',
-  analyticsConfig: 'path/to/analytics/config',
+  analyticsConfigFilePath: 'path/to/analytics/config',
   segmentKey: 'SEGMENT_API_KEY_23481k',
 }
 await compileExec(
@@ -131,7 +131,7 @@ await compileExec(
   config.execInput,
   config.outputDir,
   os.platform(),
-  config.analyticsConfig,
+  config.analyticsConfigFilePath,
   config.segmentKey
 );
 ```

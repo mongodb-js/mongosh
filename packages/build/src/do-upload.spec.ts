@@ -32,7 +32,7 @@ describe('buildAndRelease', () => {
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',
-      analyticsConfig: 'analyticsConfig',
+      analyticsConfigFilePath: 'analyticsConfigFilePath',
       project: 'project',
       revision: 'revision',
       branch: 'branch',

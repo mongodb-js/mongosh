@@ -4,6 +4,9 @@ import chai, { expect } from 'chai';
 import Config from './config';
 import path from 'path';
 import sinon from 'ts-sinon';
+import type writeAnalyticsConfigType from './analytics';
+import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import type uploadDownloadCenterConfigType from './download-center';
 
 chai.use(require('sinon-chai'));
 
@@ -13,7 +16,9 @@ function createStubRepo(overrides?: any): GithubRepo {
 
 describe('publish', () => {
   let config: Config;
-  let uploadDownloadCenterConfig: (version: string, awsKey: string, awsSecret: string) => Promise<any>;
+  let uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType;
+  let publishNpmPackages: typeof publishNpmPackagesType;
+  let writeAnalyticsConfig: typeof writeAnalyticsConfigType;
   let githubRepo: GithubRepo;
 
   beforeEach(() => {
@@ -23,7 +28,7 @@ describe('publish', () => {
       input: 'input',
       execInput: 'execInput',
       outputDir: 'outputDir',
-      analyticsConfig: 'analyticsConfig',
+      analyticsConfigFilePath: 'analyticsConfigFilePath',
       project: 'project',
       revision: 'revision',
       branch: 'branch',
@@ -48,6 +53,8 @@ describe('publish', () => {
     };
 
     uploadDownloadCenterConfig = sinon.spy();
+    publishNpmPackages = sinon.spy();
+    writeAnalyticsConfig = sinon.spy();
     githubRepo = createStubRepo();
   });
 
@@ -62,7 +69,9 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
       );
 
       expect(uploadDownloadCenterConfig).to.have.been.calledWith(
@@ -76,10 +85,29 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
       );
 
       expect(githubRepo.promoteRelease).to.have.been.calledWith(config);
+    });
+
+    it('writes analytics config and then publishes NPM packages', async() => {
+      await publish(
+        config,
+        githubRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
+      );
+
+      expect(writeAnalyticsConfig).to.have.been.calledOnceWith(
+        config.analyticsConfigFilePath,
+        config.segmentKey
+      );
+      expect(publishNpmPackages).to.have.been.calledWith();
+      expect(publishNpmPackages).to.have.been.calledAfter(writeAnalyticsConfig as any);
     });
   });
 
@@ -94,7 +122,9 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
       );
 
       expect(uploadDownloadCenterConfig).not.to.have.been.called;
@@ -104,10 +134,24 @@ describe('publish', () => {
       await publish(
         config,
         githubRepo,
-        uploadDownloadCenterConfig
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
       );
 
       expect(githubRepo.promoteRelease).not.to.have.been.called;
+    });
+
+    it('does not publish npm packages', async() => {
+      await publish(
+        config,
+        githubRepo,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig
+      );
+
+      expect(publishNpmPackages).not.to.have.been.called;
     });
   });
 });

@@ -7,7 +7,7 @@ export default interface Config {
   input: string;
   execInput: string;
   outputDir: string;
-  analyticsConfig?: string;
+  analyticsConfigFilePath?: string;
   rootDir: string;
   project?: string;
   revision?: string;

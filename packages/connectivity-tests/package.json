@@ -1,6 +1,6 @@
 {
   "name": "connectivity-tests",
-  "version": "0.6.1",
+  "version": "0.0.0-dev.0",
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
@@ -8,6 +8,6 @@
     "test-ci": "npm run test"
   },
   "devDependencies": {
-    "mongosh": "^0.6.1"
+    "mongosh": "0.0.0-dev.0"
   }
 }
