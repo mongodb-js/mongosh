@@ -1,52 +1,73 @@
-import { execSync } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs-extra';
-import path from 'path';
-import { expect, useTmpdir } from '../../../cli-repl/test/repl-helpers';
+import chai, { expect } from 'chai';
+import sinon from 'ts-sinon';
+import { GithubRepo } from '../github-repo';
 import { updateMongoDBTap } from './update-mongodb-tap';
 
-describe('Homebrew update-mongodb-tap', () => {
-  const repoDir = useTmpdir();
-  const tmpDir = useTmpdir();
+chai.use(require('sinon-chai'));
 
-  let mongoBrewFormulaDir: string;
-  let mongoshFormulaFile: string;
+describe('Homebrew update-mongodb-tap', () => {
+  let getFileContent: sinon.SinonStub;
+  let commitFileUpdate: sinon.SinonStub;
+  let githubRepo: GithubRepo;
 
   beforeEach(() => {
-    execSync('git init', { cwd: repoDir.path });
-
-    mongoBrewFormulaDir = path.resolve(repoDir.path, 'Formula');
-    mongoshFormulaFile = path.resolve(mongoBrewFormulaDir, 'mongosh.rb');
-
-    execSync(`mkdir -p ${mongoBrewFormulaDir}`);
-    writeFileSync(mongoshFormulaFile, 'formula', 'utf-8');
-    execSync('git add . && git commit -m "add mongosh formula"', { cwd: repoDir.path });
+    getFileContent = sinon.stub();
+    commitFileUpdate = sinon.stub();
+    githubRepo = sinon.createStubInstance(GithubRepo, {
+      getFileContent: getFileContent as any,
+      commitFileUpdate: commitFileUpdate as any
+    }) as unknown as GithubRepo;
   });
 
   it('writes updated formula and pushes changes', async() => {
+    getFileContent
+      .withArgs('Formula/mongosh.rb')
+      .resolves({
+        blobSha: 'sha1',
+        content: 'old formula'
+      });
+    commitFileUpdate
+      .rejects(new Error('that went wrong'))
+      .withArgs(
+        'mongosh 1.0.0',
+        'sha1',
+        'Formula/mongosh.rb',
+        'updated formula',
+        'mongosh-1.0.0-sha'
+      )
+      .resolves({
+        commitSha: 'commitsha'
+      });
+
     const updated = await updateMongoDBTap({
-      tmpDir: tmpDir.path,
       packageVersion: '1.0.0',
       packageSha: 'sha',
       homebrewFormula: 'updated formula',
-      mongoHomebrewRepoUrl: `file://${repoDir.path}`
+      mongoHomebrewGithubRepo: githubRepo
     });
-    expect(updated).to.equal('mongosh-1.0.0-sha');
 
-    execSync('git checkout mongosh-1.0.0-sha', { cwd: repoDir.path });
-    expect(readFileSync(mongoshFormulaFile, 'utf-8')).to.equal('updated formula');
+    expect(updated).to.equal('mongosh-1.0.0-sha');
+    expect(getFileContent).to.have.been.calledOnce;
+    expect(commitFileUpdate).to.have.been.calledOnce;
   });
 
   it('does not push changes if formula is same', async() => {
+    getFileContent
+      .withArgs('Formula/mongosh.rb')
+      .resolves({
+        blobSha: 'sha1',
+        content: 'formula'
+      });
+
     const updated = await updateMongoDBTap({
-      tmpDir: tmpDir.path,
       packageVersion: '1.0.0',
       packageSha: 'sha',
       homebrewFormula: 'formula',
-      mongoHomebrewRepoUrl: `file://${repoDir.path}`
+      mongoHomebrewGithubRepo: githubRepo
     });
-    expect(updated).to.equal(undefined);
 
-    const branches = execSync('git branch -a', { cwd: repoDir.path }).toString().trim();
-    expect(branches).to.equal('* master');
+    expect(updated).to.equal(undefined);
+    expect(getFileContent).to.have.been.calledOnce;
+    expect(commitFileUpdate).to.not.have.been.called;
   });
 });

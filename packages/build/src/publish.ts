@@ -1,4 +1,3 @@
-import path from 'path';
 import type writeAnalyticsConfigType from './analytics';
 import Config from './config';
 import type uploadDownloadCenterConfigType from './download-center';
@@ -40,7 +39,6 @@ export default async function publish(
   publishNpmPackages();
 
   await publishToHomebrew(
-    path.resolve(config.rootDir, 'tmp'),
     mongoHomebrewGithubRepo,
     config.version
   );

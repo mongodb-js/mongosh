@@ -1,15 +1,10 @@
-import { execSync } from 'child_process';
-import { version } from 'os';
-import path from 'path';
-import { promises as fs } from 'fs';
-import { cloneRepository } from './utils';
+import { GithubRepo } from '../github-repo';
 
 export interface UpdateMongoDBTapParameters {
     packageVersion: string;
     packageSha: string;
     homebrewFormula: string;
-    tmpDir: string;
-    mongoHomebrewRepoUrl: string;
+    mongoHomebrewGithubRepo: GithubRepo
 }
 
 /**
@@ -17,24 +12,21 @@ export interface UpdateMongoDBTapParameters {
  * name of the branch pushed to the repository.
  */
 export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Promise<string | undefined> {
-  const repoUrl = params.mongoHomebrewRepoUrl;
-  const cloneDir = path.resolve(params.tmpDir, 'homebrew-brew');
-  cloneRepository(cloneDir, repoUrl);
-
   const branchName = `mongosh-${params.packageVersion}-${params.packageSha}`;
-  execSync(`git checkout -b ${branchName}`, { cwd: cloneDir, stdio: 'inherit' });
+  const formulaPath = 'Formula/mongosh.rb';
 
-  const formulaPath = path.resolve(cloneDir, 'Formula', 'mongosh.rb');
-
-  const currentContent = await fs.readFile(formulaPath, 'utf-8');
+  const { content: currentContent, blobSha } = await params.mongoHomebrewGithubRepo.getFileContent(formulaPath);
   if (currentContent === params.homebrewFormula) {
     return undefined;
   }
 
-  await fs.writeFile( formulaPath, params.homebrewFormula, 'utf-8');
-
-  execSync('git add .', { cwd: cloneDir, stdio: 'inherit' });
-  execSync(`git commit -m "mongosh ${version}"`, { cwd: cloneDir, stdio: 'inherit' });
-  execSync(`git push origin ${branchName}`, { cwd: cloneDir, stdio: 'inherit' });
+  const committedUpate = await params.mongoHomebrewGithubRepo.commitFileUpdate(
+    `mongosh ${params.packageVersion}`,
+    blobSha,
+    formulaPath,
+    params.homebrewFormula,
+    branchName
+  );
+  console.info(`Committed Formula update to homebrew - commit SHA: ${committedUpate.commitSha}`);
   return branchName;
 }

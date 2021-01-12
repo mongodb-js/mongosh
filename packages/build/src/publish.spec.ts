@@ -132,7 +132,6 @@ describe('publish', () => {
       );
 
       expect(publishToHomebrew).to.have.been.calledWith(
-        path.resolve(config.rootDir, 'tmp'),
         mongoHomebrewRepo,
         config.version
       );
