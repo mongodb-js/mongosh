@@ -1,3 +1,6 @@
+/* istanbul ignore file */
+/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
+
 /**
  * This proxy is needed as a workaround for the old electron verison "bug" where
  * due to the electron runtime being a chromium, not just node (even with

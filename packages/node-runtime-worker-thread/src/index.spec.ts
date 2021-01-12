@@ -1,12 +1,10 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import chaiAsPromised from 'chai-as-promised';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { WorkerRuntime } from '../dist/index';
 
 chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 describe('WorkerRuntime', () => {
   describe('evaluate', () => {

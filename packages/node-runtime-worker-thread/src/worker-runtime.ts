@@ -1,3 +1,6 @@
+/* istanbul ignore file */
+/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
+
 import { parentPort, isMainThread } from 'worker_threads';
 import { Runtime } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';

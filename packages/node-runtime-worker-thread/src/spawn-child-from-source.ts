@@ -6,15 +6,26 @@ import {
   StdioNull,
   StdioPipe
 } from 'child_process';
+import { once } from 'events';
+
+export async function kill(
+  childProcess: ChildProcess,
+  code: NodeJS.Signals | number = 'SIGTERM'
+) {
+  childProcess.kill(code);
+  if (childProcess.exitCode === null && childProcess.signalCode === null) {
+    await once(childProcess, 'exit');
+  }
+}
 
 export default function spawnChildFromSource(
   src: string,
   spawnOptions: SpawnOptionsWithoutStdio = {},
   timeoutMs?: number,
   _stdout: StdioNull | StdioPipe = 'inherit',
-  _stderr: StdioNull | StdioPipe = 'inherit',
+  _stderr: StdioNull | StdioPipe = 'inherit'
 ): Promise<ChildProcess> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async(resolve, reject) => {
     const readyToken = Date.now().toString(32);
 
     const childProcess = spawn(process.execPath, {
@@ -23,6 +34,8 @@ export default function spawnChildFromSource(
     });
 
     if (!childProcess.stdin) {
+      await kill(childProcess);
+
       return reject(
         new Error("Can't write src to the spawned process, missing stdin")
       );
@@ -31,25 +44,48 @@ export default function spawnChildFromSource(
     // eslint-disable-next-line prefer-const
     let timeoutId: NodeJS.Timeout | null;
 
-    const onExit = (exitCode: number | null) => {
+    function cleanupListeners() {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (childProcess.stdin) {
+        childProcess.stdin.off('error', onWriteError);
+      }
+      childProcess.off('message', onMessage);
+      childProcess.off('exit', onExit);
+    }
+
+    async function onExit(exitCode: number | null) {
       if (exitCode && exitCode > 0) {
+        cleanupListeners();
         reject(new Error('Child process exited with error before starting'));
       }
-    };
+    }
 
-    const onMessage = (data: Serializable) => {
+    async function onWriteError(error: Error) {
+      cleanupListeners();
+      await kill(childProcess);
+      reject(error);
+    }
+
+    async function onTimeout() {
+      cleanupListeners();
+      await kill(childProcess);
+      reject(
+        new Error('Timed out while waiting for child process to start')
+      );
+    }
+
+    function onMessage(data: Serializable) {
       if (data === readyToken) {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        childProcess.off('exit', onExit);
+        cleanupListeners();
         resolve(childProcess);
       }
-    };
+    }
 
     childProcess.on('message', onMessage);
-
     childProcess.on('exit', onExit);
+    childProcess.stdin.on('error', onWriteError);
 
     childProcess.stdin.write(src);
     childProcess.stdin.write(`;process.send(${JSON.stringify(readyToken)})`);
@@ -57,12 +93,7 @@ export default function spawnChildFromSource(
 
     timeoutId =
       timeoutMs !== undefined
-        ? setTimeout(() => {
-          reject(
-            new Error('Timed out while waiting for child process to start')
-          );
-          childProcess.kill('SIGTERM');
-        }, timeoutMs)
+        ? setTimeout(onTimeout, timeoutMs)
         : null;
   });
 }

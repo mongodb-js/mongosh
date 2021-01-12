@@ -1,9 +1,11 @@
-import { once } from 'events';
+/* istanbul ignore file */
+/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
+
 import { ChildProcess } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import { Runtime } from '@mongosh/browser-runtime-core';
 import { EvaluationListener } from '@mongosh/shell-evaluator';
-import spawnChildFromSource from './spawn-child-from-source';
+import spawnChildFromSource, { kill } from './spawn-child-from-source';
 import { Caller, createCaller, exposeAll, WithClose } from './rpc';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import childProcessProxySrc from 'inline-entry-loader!./child-process-proxy';
@@ -104,13 +106,7 @@ class WorkerRuntime implements Runtime {
 
   async terminate() {
     await this.initWorkerPromise;
-    this.childProcess.kill('SIGTERM');
-    if (
-      this.childProcess.exitCode === null &&
-      this.childProcess.signalCode === null
-    ) {
-      await once(this.childProcess, 'exit');
-    }
+    await kill(this.childProcess);
   }
 }
 
