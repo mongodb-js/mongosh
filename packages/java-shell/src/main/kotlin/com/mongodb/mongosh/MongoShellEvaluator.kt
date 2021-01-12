@@ -8,7 +8,6 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAccessor
@@ -142,17 +141,27 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     }
 }
 
+private val COLON = DateTimeFormatterBuilder().appendLiteral(":").toFormatter()
+private val HYPHEN = DateTimeFormatterBuilder().appendLiteral("-").toFormatter()
+
 /**
  * yyyy-MM-dd['T'HH:mm:ss.SSS['Z'|+HH:MM:ss]]
  */
 private val DATE_FORMATTER = DateTimeFormatterBuilder()
-        .parseCaseInsensitive()
-        .append(DateTimeFormatter.ISO_LOCAL_DATE)
+        .appendValue(ChronoField.YEAR, 4)
+        .appendOptional(HYPHEN)
+        .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+        .appendOptional(HYPHEN)
+        .appendValue(ChronoField.DAY_OF_MONTH, 2)
         .optionalStart()
         .appendLiteral('T')
-        .append(DateTimeFormatter.ISO_LOCAL_TIME)
+        .appendValue(ChronoField.HOUR_OF_DAY, 2)
+        .appendOptional(COLON)
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
         .optionalStart()
+        .appendOptional(COLON)
+        .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+        .optionalStart()
+        .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
         .appendOffset("+HH:MM:ss", "Z")
-        .optionalEnd()
-        .optionalEnd()
         .toFormatter()
