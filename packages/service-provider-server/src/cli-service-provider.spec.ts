@@ -3,7 +3,7 @@ import chai, { expect } from 'chai';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import CliServiceProvider from './cli-service-provider';
+import CliServiceProvider, { connectMongoClient } from './cli-service-provider';
 
 chai.use(sinonChai);
 
@@ -33,6 +33,98 @@ const createClientStub = (collectionStub): StubbedInstance<MongoClient> => {
 describe('CliServiceProvider', () => {
   let serviceProvider: CliServiceProvider;
   let collectionStub: StubbedInstance<Collection>;
+
+  describe('connectMongoClient', () => {
+    it('connects once when no AutoEncryption set', async() => {
+      const uri = 'localhost:27017';
+      const mClientType = stubInterface<typeof MongoClient>();
+      const mClient = stubInterface<MongoClient>();
+      mClientType.connect.onFirstCall().resolves(mClient);
+      const result = await connectMongoClient(uri, {}, mClientType);
+      const calls = mClientType.connect.getCalls();
+      expect(calls.length).to.equal(1);
+      expect(calls[0].args).to.deep.equal([
+        uri, {}
+      ]);
+      expect(result).to.equal(mClient);
+    });
+    it('connects once when bypassAutoEncryption is true', async() => {
+      const uri = 'localhost:27017';
+      const opts = { autoEncryption: { bypassAutoEncryption: true } };
+      const mClientType = stubInterface<typeof MongoClient>();
+      const mClient = stubInterface<MongoClient>();
+      mClientType.connect.onFirstCall().resolves(mClient);
+      const result = await connectMongoClient(uri, opts, mClientType);
+      const calls = mClientType.connect.getCalls();
+      expect(calls.length).to.equal(1);
+      expect(calls[0].args).to.deep.equal([
+        uri, opts
+      ]);
+      expect(result).to.equal(mClient);
+    });
+    it('connects twice when bypassAutoEncryption is false and enterprise via modules', async() => {
+      const uri = 'localhost:27017';
+      const opts = { autoEncryption: { bypassAutoEncryption: false } };
+      const mClientType = stubInterface<typeof MongoClient>();
+      const mClientFirst = stubInterface<MongoClient>();
+      const commandSpy = sinon.spy();
+      mClientFirst.db.returns({ admin: () => ({ command: (...args) => {
+        commandSpy(...args);
+        return { modules: [ 'enterprise' ] };
+      } } as any) } as any);
+      const mClientSecond = stubInterface<MongoClient>();
+      mClientType.connect.onFirstCall().resolves(mClientFirst);
+      mClientType.connect.onSecondCall().resolves(mClientSecond);
+      const result = await connectMongoClient(uri, opts, mClientType);
+      const calls = mClientType.connect.getCalls();
+      expect(calls.length).to.equal(2);
+      expect(calls[0].args).to.deep.equal([
+        uri, {}
+      ]);
+      expect(commandSpy).to.have.been.calledOnceWithExactly({ buildInfo: 1 });
+      expect(result).to.equal(mClientSecond);
+    });
+    it('errors when bypassAutoEncryption is falsy and not enterprise', async() => {
+      const uri = 'localhost:27017';
+      const opts = { autoEncryption: {} };
+      const mClientType = stubInterface<typeof MongoClient>();
+      const mClientFirst = stubInterface<MongoClient>();
+      const commandSpy = sinon.spy();
+      mClientFirst.db.returns({ admin: () => ({ command: (...args) => {
+        commandSpy(...args);
+        return { modules: [] };
+      } } as any) } as any);
+      const mClientSecond = stubInterface<MongoClient>();
+      mClientType.connect.onFirstCall().resolves(mClientFirst);
+      mClientType.connect.onSecondCall().resolves(mClientSecond);
+      try {
+        await connectMongoClient(uri, opts, mClientType);
+      } catch (e) {
+        return expect(e.message.toLowerCase()).to.include('automatic encryption');
+      }
+      expect.fail('Failed to throw expected error');
+    });
+    it('errors when bypassAutoEncryption is falsy, missing modules', async() => {
+      const uri = 'localhost:27017';
+      const opts = { autoEncryption: {} };
+      const mClientType = stubInterface<typeof MongoClient>();
+      const mClientFirst = stubInterface<MongoClient>();
+      const commandSpy = sinon.spy();
+      mClientFirst.db.returns({ admin: () => ({ command: (...args) => {
+        commandSpy(...args);
+        return {};
+      } } as any) } as any);
+      const mClientSecond = stubInterface<MongoClient>();
+      mClientType.connect.onFirstCall().resolves(mClientFirst);
+      mClientType.connect.onSecondCall().resolves(mClientSecond);
+      try {
+        await connectMongoClient(uri, opts, mClientType);
+      } catch (e) {
+        return expect(e.message.toLowerCase()).to.include('automatic encryption');
+      }
+      expect.fail('Failed to throw expected error');
+    });
+  });
 
   describe('#constructor', () => {
     const mongoClient: any = sinon.spy();
