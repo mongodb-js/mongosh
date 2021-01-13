@@ -1,13 +1,12 @@
-/* eslint-disable camelcase */
-import { GithubRepo } from './github-repo';
 import { expect } from 'chai';
-import sinon from 'ts-sinon';
-import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
+import sinon from 'ts-sinon';
+import { GithubRepo } from './github-repo';
 import {
   createTarball,
-  tarballPath,
+  tarballPath
 } from './tarball';
 
 function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
@@ -181,6 +180,248 @@ describe('GithubRepo', () => {
 
         expect(octokit.repos.updateRelease).not.to.have.been.called;
       });
+    });
+  });
+
+  describe('createBranch', () => {
+    let octokit: any;
+    let getRef: sinon.SinonStub;
+    let createRef: sinon.SinonStub;
+
+    beforeEach(() => {
+      getRef = sinon.stub().rejects();
+      createRef = sinon.stub().rejects();
+      octokit = {
+        git: {
+          getRef, createRef
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('creates the branch based on the given base', async() => {
+      getRef.withArgs({
+        ...githubRepo.repo,
+        ref: 'heads/base'
+      }).resolves({
+        data: {
+          object: {
+            sha: 'sha'
+          }
+        }
+      });
+
+      createRef.withArgs({
+        ...githubRepo.repo,
+        ref: 'refs/heads/newBranch',
+        sha: 'sha'
+      }).resolves();
+
+      await githubRepo.createBranch('newBranch', 'base');
+      expect(getRef).to.have.been.called;
+      expect(createRef).to.have.been.called;
+    });
+  });
+
+  describe('deleteBranch', () => {
+    let octokit: any;
+    let deleteRef: sinon.SinonStub;
+
+    beforeEach(() => {
+      deleteRef = sinon.stub().rejects();
+      octokit = {
+        git: {
+          deleteRef
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('deletes the branch', async() => {
+      deleteRef.withArgs({
+        ...githubRepo.repo,
+        ref: 'heads/branch'
+      }).resolves();
+
+      await githubRepo.deleteBranch('branch');
+      expect(deleteRef).to.have.been.called;
+    });
+  });
+
+  describe('getFileContent', () => {
+    let octokit: any;
+    let getContents: sinon.SinonStub;
+
+    beforeEach(() => {
+      getContents = sinon.stub();
+      getContents.rejects();
+
+      octokit = {
+        repos: {
+          getContents
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('loads the file content and decodes it', async() => {
+      getContents.withArgs({
+        ...githubRepo.repo,
+        path: 'file/path',
+        ref: 'branch'
+      }).resolves({
+        data: {
+          type: 'file',
+          encoding: 'base64',
+          content: Buffer.from('🎉', 'utf-8').toString('base64'),
+          sha: 'sha'
+        }
+      });
+
+      const result = await githubRepo.getFileContent('file/path', 'branch');
+      expect(result.content).to.equal('🎉');
+      expect(result.blobSha).to.equal('sha');
+    });
+
+    it('fails when data type is not file', async() => {
+      getContents.withArgs({
+        ...githubRepo.repo,
+        path: 'file/path',
+        ref: 'branch'
+      }).resolves({
+        data: {
+          type: 'directory'
+        }
+      });
+
+      try {
+        await githubRepo.getFileContent('file/path', 'branch');
+      } catch (e) {
+        return expect(e.message).to.equal('file/path does not reference a file');
+      }
+      expect.fail('expected error');
+    });
+
+    it('fails when data encoding is not base64', async() => {
+      getContents.withArgs({
+        ...githubRepo.repo,
+        path: 'file/path',
+        ref: 'branch'
+      }).resolves({
+        data: {
+          type: 'file',
+          encoding: 'whatever'
+        }
+      });
+
+      try {
+        await githubRepo.getFileContent('file/path', 'branch');
+      } catch (e) {
+        return expect(e.message).to.equal('Octokit returned unexpected encoding: whatever');
+      }
+      expect.fail('expected error');
+    });
+  });
+
+  describe('commitFileUpdate', () => {
+    let octokit: any;
+    let createOrUpdateFile: sinon.SinonStub;
+
+    beforeEach(() => {
+      createOrUpdateFile = sinon.stub();
+      createOrUpdateFile.rejects();
+
+      octokit = {
+        repos: {
+          createOrUpdateFile
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('commits the file with new content', async() => {
+      createOrUpdateFile.withArgs({
+        ...githubRepo.repo,
+        message: 'Commit Message',
+        content: Buffer.from('🎉', 'utf-8').toString('base64'),
+        path: 'file/path',
+        sha: 'base',
+        branch: 'branch'
+      }).resolves({
+        data: {
+          content: {
+            sha: 'contentSha'
+          },
+          commit: {
+            sha: 'commitSha'
+          }
+        }
+      });
+
+      const result = await githubRepo.commitFileUpdate('Commit Message', 'base', 'file/path', '🎉', 'branch');
+      expect(result.blobSha).to.equal('contentSha');
+      expect(result.commitSha).to.equal('commitSha');
+    });
+  });
+
+  describe('createPullRequest', () => {
+    let octokit: any;
+    let createPullRequest: sinon.SinonStub;
+
+    beforeEach(() => {
+      createPullRequest = sinon.stub();
+      createPullRequest.rejects();
+
+      octokit = {
+        pulls: {
+          create: createPullRequest
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('creates a proper PR', async() => {
+      createPullRequest.withArgs({
+        ...githubRepo.repo,
+        base: 'toBase',
+        head: 'fromBranch',
+        title: 'PR'
+      }).resolves({
+        data: {
+          number: 42,
+          html_url: 'url'
+        }
+      });
+
+      const result = await githubRepo.createPullRequest('PR', 'fromBranch', 'toBase');
+      expect(result.prNumber).to.equal(42);
+      expect(result.url).to.equal('url');
+    });
+  });
+
+  describe('mergePullRequest', () => {
+    let octokit: any;
+    let mergePullRequest: sinon.SinonStub;
+
+    beforeEach(() => {
+      mergePullRequest = sinon.stub();
+      mergePullRequest.rejects();
+
+      octokit = {
+        pulls: {
+          merge: mergePullRequest
+        }
+      };
+      githubRepo = getTestGithubRepo(octokit);
+    });
+
+    it('creates a proper PR', async() => {
+      mergePullRequest.withArgs({
+        ...githubRepo.repo,
+        pull_number: 42
+      }).resolves();
+
+      await githubRepo.mergePullRequest(42);
     });
   });
 });

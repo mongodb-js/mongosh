@@ -36,7 +36,7 @@ type ReleaseDetails = {
 
 export class GithubRepo {
   private octokit: Octokit;
-  private repo: Repo;
+  readonly repo: Readonly<Repo>;
 
   constructor(repo: Repo, octokit: Octokit) {
     this.octokit = octokit;
@@ -227,6 +227,10 @@ export class GithubRepo {
     });
   }
 
+  /**
+   * Removes the given branch by deleting the corresponding ref.
+   * @param branchName The branch name to remove (not including refs/heads/)
+   */
   async deleteBranch(branchName: string): Promise<void> {
     await this.octokit.git.deleteRef({
       ...this.repo,
@@ -239,17 +243,14 @@ export class GithubRepo {
    * Assumes the loaded file is a utf-8 encoded text file.
    *
    * @param pathInRepo Path to the file from the repository root
-   * @param branchOrTag Optional branch/tag name to load content from
+   * @param branchOrTag Branch/tag name to load content from
    */
-  async getFileContent(pathInRepo: string, branchOrTag?: string): Promise<{blobSha: string; content: string;}> {
-    const params = {
+  async getFileContent(pathInRepo: string, branchOrTag: string): Promise<{blobSha: string; content: string;}> {
+    const response = await this.octokit.repos.getContents({
       ...this.repo,
-      path: pathInRepo
-    } as any;
-    if (branchOrTag) {
-      params.ref = branchOrTag;
-    }
-    const response = await this.octokit.repos.getContents(params);
+      path: pathInRepo,
+      ref: branchOrTag
+    });
 
     if (response.data.type !== 'file') {
       throw new Error(`${pathInRepo} does not reference a file`);
@@ -272,20 +273,17 @@ export class GithubRepo {
    * @param baseSha The blob SHA of the file to update
    * @param pathInRepo Path to the file from the repository root
    * @param newContent New file content
-   * @param branch Optional branch name to commit to
+   * @param branch Branch name to commit to
    */
-  async commitFileUpdate(message: string, baseSha: string, pathInRepo: string, newContent: string, branch?: string): Promise<{blobSha: string; commitSha: string;}> {
-    const params = {
+  async commitFileUpdate(message: string, baseSha: string, pathInRepo: string, newContent: string, branch: string): Promise<{blobSha: string; commitSha: string;}> {
+    const response = await this.octokit.repos.createOrUpdateFile({
       ...this.repo,
       message,
       content: Buffer.from(newContent, 'utf-8').toString('base64'),
       path: pathInRepo,
-      sha: baseSha
-    } as any;
-    if (branch) {
-      params.branch = branch;
-    }
-    const response = await this.octokit.repos.createOrUpdateFile(params);
+      sha: baseSha,
+      branch
+    });
 
     return {
       blobSha: response.data.content.sha,
