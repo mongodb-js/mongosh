@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
-import { ChildProcess } from 'child_process';
+import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import { Runtime } from '@mongosh/browser-runtime-core';
 import { EvaluationListener } from '@mongosh/shell-evaluator';
