@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 import { Octokit } from '@octokit/rest';
-import { TarballFile } from './tarball';
-import Config from './config';
-import semver from 'semver';
-import path from 'path';
-import util from 'util';
 import fs from 'fs';
+import path from 'path';
+import semver from 'semver';
+import util from 'util';
+import Config from './config';
+import { TarballFile } from './tarball';
 const readFile = util.promisify(fs.readFile);
 
 type Repo = {
@@ -36,7 +36,7 @@ type ReleaseDetails = {
 
 export class GithubRepo {
   private octokit: Octokit;
-  private repo: Repo;
+  readonly repo: Readonly<Repo>;
 
   constructor(repo: Repo, octokit: Octokit) {
     this.octokit = octokit;
@@ -115,8 +115,9 @@ export class GithubRepo {
       .catch(this._ignoreAlreadyExistsError);
   }
 
-  // Creates release notes and uploads assets if they are not yet uploaded to
-  // Github.
+  /**
+   * Creates release notes and uploads assets if they are not yet uploaded to Github.
+   */
   async releaseToGithub(artifact: TarballFile, config: Config): Promise<void> {
     const tag = `v${config.version}`;
 
@@ -206,6 +207,109 @@ export class GithubRepo {
 
   jiraReleaseNotesLink(version: string): string {
     return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
+  }
+
+  /**
+   * Creates a new branch pointing to the latest commit of the given source branch.
+   * @param branchName The name of the branch (not including refs/heads/)
+   * @param sourceBranch The name of the branch to branch off from (not including refs/heads/)
+   */
+  async createBranch(branchName: string, sourceBranch: string): Promise<void> {
+    const result = await this.octokit.git.getRef({
+      ...this.repo,
+      ref: `heads/${sourceBranch}`
+    });
+
+    await this.octokit.git.createRef({
+      ...this.repo,
+      ref: `refs/heads/${branchName}`,
+      sha: result.data.object.sha
+    });
+  }
+
+  /**
+   * Removes the given branch by deleting the corresponding ref.
+   * @param branchName The branch name to remove (not including refs/heads/)
+   */
+  async deleteBranch(branchName: string): Promise<void> {
+    await this.octokit.git.deleteRef({
+      ...this.repo,
+      ref: `heads/${branchName}`
+    });
+  }
+
+  /**
+   * Gets the content of the given file from the repository.
+   * Assumes the loaded file is a utf-8 encoded text file.
+   *
+   * @param pathInRepo Path to the file from the repository root
+   * @param branchOrTag Branch/tag name to load content from
+   */
+  async getFileContent(pathInRepo: string, branchOrTag: string): Promise<{blobSha: string; content: string;}> {
+    const response = await this.octokit.repos.getContents({
+      ...this.repo,
+      path: pathInRepo,
+      ref: branchOrTag
+    });
+
+    if (response.data.type !== 'file') {
+      throw new Error(`${pathInRepo} does not reference a file`);
+    } else if (response.data.encoding !== 'base64') {
+      throw new Error(`Octokit returned unexpected encoding: ${response.data.encoding}`);
+    }
+
+    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+    return {
+      blobSha: response.data.sha,
+      content
+    };
+  }
+
+  /**
+   * Updates the content of a given file in the repository.
+   * Assumes the given file content is utf-8 encoded text.
+   *
+   * @param message The commit message
+   * @param baseSha The blob SHA of the file to update
+   * @param pathInRepo Path to the file from the repository root
+   * @param newContent New file content
+   * @param branch Branch name to commit to
+   */
+  async commitFileUpdate(message: string, baseSha: string, pathInRepo: string, newContent: string, branch: string): Promise<{blobSha: string; commitSha: string;}> {
+    const response = await this.octokit.repos.createOrUpdateFile({
+      ...this.repo,
+      message,
+      content: Buffer.from(newContent, 'utf-8').toString('base64'),
+      path: pathInRepo,
+      sha: baseSha,
+      branch
+    });
+
+    return {
+      blobSha: response.data.content.sha,
+      commitSha: response.data.commit.sha
+    };
+  }
+
+  async createPullRequest(title: string, fromBranch: string, toBaseBranch: string): Promise<{prNumber: number, url: string}> {
+    const response = await this.octokit.pulls.create({
+      ...this.repo,
+      base: toBaseBranch,
+      head: fromBranch,
+      title
+    });
+
+    return {
+      prNumber: response.data.number,
+      url: response.data.html_url
+    };
+  }
+
+  async mergePullRequest(prNumber: number): Promise<void> {
+    await this.octokit.pulls.merge({
+      ...this.repo,
+      pull_number: prNumber
+    });
   }
 
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {

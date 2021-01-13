@@ -1,23 +1,26 @@
-import { GithubRepo } from './github-repo';
-import Config from './config';
-import { redactConfig } from './redact-config';
 import type writeAnalyticsConfigType from './analytics';
-import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import Config from './config';
 import type uploadDownloadCenterConfigType from './download-center';
+import { GithubRepo } from './github-repo';
+import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
+import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import { redactConfig } from './redact-config';
 
 export default async function publish(
   config: Config,
-  githubRepo: GithubRepo,
+  mongoshGithubRepo: GithubRepo,
+  mongoHomebrewGithubRepo: GithubRepo,
   uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType,
   publishNpmPackages: typeof publishNpmPackagesType,
-  writeAnalyticsConfig: typeof writeAnalyticsConfigType
+  writeAnalyticsConfig: typeof writeAnalyticsConfigType,
+  publishToHomebrew: typeof publishToHomebrewType
 ): Promise<void> {
   console.info(
     'mongosh: beginning publish release with config:',
     redactConfig(config)
   );
 
-  if (!await githubRepo.shouldDoPublicRelease(config)) return;
+  if (!await mongoshGithubRepo.shouldDoPublicRelease(config)) return;
 
   await uploadDownloadCenterConfig(
     config.version,
@@ -25,7 +28,7 @@ export default async function publish(
     config.downloadCenterAwsSecret || ''
   );
 
-  await githubRepo.promoteRelease(config);
+  await mongoshGithubRepo.promoteRelease(config);
 
   // ensures the segment api key to be present in the published packages
   await writeAnalyticsConfig(
@@ -34,5 +37,11 @@ export default async function publish(
   );
 
   publishNpmPackages();
+
+  await publishToHomebrew(
+    mongoHomebrewGithubRepo,
+    config.version
+  );
+
   console.info('mongosh: finished release process.');
 }
