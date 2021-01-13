@@ -52,6 +52,20 @@ describe('worker', () => {
     });
   });
 
+  describe('getShellPrompt', () => {
+    const testServer = startTestServer('shared');
+
+    it('should return prompt when connected to the server', async() => {
+      const { init, getShellPrompt } = createCaller(['init', 'getShellPrompt'], worker);
+
+      await init(await testServer.connectionString());
+
+      const result = await getShellPrompt();
+
+      expect(result).to.match(/>/);
+    });
+  });
+
   describe('getCompletions', () => {
     const testServer = startTestServer('shared');
 

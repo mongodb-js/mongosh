@@ -60,6 +60,10 @@ const workerRuntime: WorkerRuntime = {
     return ensureRuntime('getCompletions').getCompletions(code);
   },
 
+  async getShellPrompt() {
+    return ensureRuntime('getShellPrompt').getShellPrompt();
+  },
+
   setEvaluationListener() {
     throw new Error(
       'Evaluation listener can not be directly set on the worker runtime'

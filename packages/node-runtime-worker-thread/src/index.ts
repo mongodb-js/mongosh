@@ -98,6 +98,11 @@ class WorkerRuntime implements Runtime {
     return await this.childProcessRuntime.getCompletions(code);
   }
 
+  async getShellPrompt() {
+    await this.initWorkerPromise;
+    return await this.childProcessRuntime.getShellPrompt();
+  }
+
   setEvaluationListener(listener: EvaluationListener | null) {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
