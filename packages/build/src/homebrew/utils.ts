@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import crypto from 'crypto';
 import https from 'https';
 
@@ -12,8 +11,3 @@ export function httpsSha256(url: string): Promise<string> {
     });
   });
 }
-
-export function cloneRepository(cloneDir: string, repositoryUrl: string): void {
-  execSync(`git clone "${repositoryUrl}" "${cloneDir}" --depth 1`, { stdio: 'inherit' });
-}
-

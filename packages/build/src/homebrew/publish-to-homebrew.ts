@@ -21,4 +21,10 @@ export async function publishToHomebrew(mongoHomebrewGithubRepo: GithubRepo, pac
   console.info(`Created PR #${pr.prNumber} in mongodb/homebrew-brew: ${pr.url}`);
   await mongoHomebrewGithubRepo.mergePullRequest(pr.prNumber);
   console.info('-> Merged, homebrew formula is released');
+
+  try {
+    await mongoHomebrewGithubRepo.deleteBranch(tapBranch);
+  } catch (e) {
+    console.warn(`!! Failed to automatically clean up branch ${tapBranch}, please do so manually`);
+  }
 }

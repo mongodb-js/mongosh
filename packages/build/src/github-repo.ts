@@ -210,6 +210,31 @@ export class GithubRepo {
   }
 
   /**
+   * Creates a new branch pointing to the latest commit of the given source branch.
+   * @param branchName The name of the branch (not including refs/heads/)
+   * @param sourceBranch The name of the branch to branch off from (not including refs/heads/)
+   */
+  async createBranch(branchName: string, sourceBranch: string): Promise<void> {
+    const result = await this.octokit.git.getRef({
+      ...this.repo,
+      ref: `heads/${sourceBranch}`
+    });
+
+    await this.octokit.git.createRef({
+      ...this.repo,
+      ref: `refs/heads/${branchName}`,
+      sha: result.data.object.sha
+    });
+  }
+
+  async deleteBranch(branchName: string): Promise<void> {
+    await this.octokit.git.deleteRef({
+      ...this.repo,
+      ref: `heads/${branchName}`
+    });
+  }
+
+  /**
    * Gets the content of the given file from the repository.
    * Assumes the loaded file is a utf-8 encoded text file.
    *
@@ -217,15 +242,14 @@ export class GithubRepo {
    * @param branchOrTag Optional branch/tag name to load content from
    */
   async getFileContent(pathInRepo: string, branchOrTag?: string): Promise<{blobSha: string; content: string;}> {
-    const response = await this.octokit.repos.getContents({
+    const params = {
       ...this.repo,
-      path: pathInRepo,
-      ref: branchOrTag
-    });
-
-    if (response.status !== 200) {
-      throw new Error(`Octokit getContents failed, status ${response.status}`);
+      path: pathInRepo
+    } as any;
+    if (branchOrTag) {
+      params.ref = branchOrTag;
     }
+    const response = await this.octokit.repos.getContents(params);
 
     if (response.data.type !== 'file') {
       throw new Error(`${pathInRepo} does not reference a file`);
@@ -251,14 +275,17 @@ export class GithubRepo {
    * @param branch Optional branch name to commit to
    */
   async commitFileUpdate(message: string, baseSha: string, pathInRepo: string, newContent: string, branch?: string): Promise<{blobSha: string; commitSha: string;}> {
-    const response = await this.octokit.repos.createOrUpdateFile({
+    const params = {
       ...this.repo,
       message,
       content: Buffer.from(newContent, 'utf-8').toString('base64'),
       path: pathInRepo,
-      branch,
       sha: baseSha
-    });
+    } as any;
+    if (branch) {
+      params.branch = branch;
+    }
+    const response = await this.octokit.repos.createOrUpdateFile(params);
 
     return {
       blobSha: response.data.content.sha,
