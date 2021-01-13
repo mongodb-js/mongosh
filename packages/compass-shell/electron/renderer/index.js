@@ -58,22 +58,41 @@ render(CompassShellPlugin);
 // mongoclient is. For that reason we can use a mocked one, this avoid
 // the dependency to keytar:
 //
-const localUri = 'mongodb://localhost:27017/test';
-MongoClient.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true }, (error, client) => {
-  const dataService = { client: { client } };
-  appRegistry.emit('data-service-initialized', dataService);
-  appRegistry.emit('data-service-connected', error, dataService);
+const connectionOptions = {
+  url: 'mongodb://localhost:27020/test?readPreference=primary&ssl=false',
+  options: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    connectWithNoPrimary: true,
+    sslValidate: false,
+  },
+};
 
-  if (error) {
-    console.error('Unable to connect to', localUri, error);
-    return;
+MongoClient.connect(
+  connectionOptions.url,
+  connectionOptions.options,
+  (error, client) => {
+    const dataService = {
+      client: { client },
+      getConnectionOptions() {
+        return connectionOptions;
+      },
+    };
+
+    appRegistry.emit('data-service-initialized', dataService);
+    appRegistry.emit('data-service-connected', error, dataService);
+
+    if (error) {
+      console.error('Unable to connect to', connectionOptions.url, error);
+      return;
+    }
+
+    console.info('Connected to', connectionOptions.url);
+
+    appRegistry.emit('data-service-initialized', dataService);
+    appRegistry.emit('data-service-connected', error, dataService);
   }
-
-  console.info('Connected to', localUri);
-
-  appRegistry.emit('data-service-initialized', dataService);
-  appRegistry.emit('data-service-connected', error, dataService);
-});
+);
 
 if (module.hot) {
   module.hot.accept('plugin', () => render(CompassShellPlugin));
