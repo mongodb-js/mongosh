@@ -143,9 +143,22 @@ functions:
         shell: bash
         script: |
           set -e
+          {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           npm run test-ci
+          echo "Creating coverage tarball..."
+          tar cvzf coverage.tgz coverage
+          }
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/coverage.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage-${build_variant}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
   test_vscode:
     - command: shell.exec
       params:
