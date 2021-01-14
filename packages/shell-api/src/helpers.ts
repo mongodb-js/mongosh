@@ -618,29 +618,13 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
-  const autoEncryption = {
+  const autoEncryption: AutoEncryptionOptions = {
     keyVaultClient: fleOptions.keyVaultClient ?
       fleOptions.keyVaultClient._serviceProvider.getRawClient() :
       serviceProvider.getRawClient(),
     keyVaultNamespace: fleOptions.keyVaultNamespace,
     kmsProviders: { ...fleOptions.kmsProvider },
-  } as any;
-
-  if ('local' in autoEncryption.kmsProviders) {
-    if (autoEncryption.kmsProviders.local.key._bsontype !== 'Binary') {
-      throw new MongoshInvalidInputError('The key attribute of the local kms provider must be a BSON BinData or Binary type');
-    }
-    const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
-    if (Buffer.isBuffer(rawBuff)) {
-      autoEncryption.kmsProviders.local = {
-        ...autoEncryption.kmsProviders.local,
-        key: rawBuff
-      };
-    } else {
-      // Future TODO: allow binary types that are not from a string
-      throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
-    }
-  }
+  };
   if (fleOptions.schemaMap) {
     autoEncryption.schemaMap = fleOptions.schemaMap;
   }

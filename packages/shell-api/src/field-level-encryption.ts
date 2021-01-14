@@ -5,7 +5,15 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import {
+  ClientEncryption as MongoCryptClientEncryption,
+  ClientEncryptionCreateDataKeyProviderOptions,
+  ClientEncryptionDataKeyProvider,
+  ClientEncryptionOptions,
+  ClientEncryptionEncryptOptions,
+  KMSProviders,
+  ReplPlatform
+} from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
@@ -16,28 +24,10 @@ import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
 import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
-/** Configuration options for using 'aws' as your KMS provider */
-declare interface awsKms {
-  aws: {
-    /** The access key used for the AWS KMS provider */
-    accessKeyId?: string;
-    /** The secret access key used for the AWS KMS provider */
-    secretAccessKey?: string;
-  };
-}
-
-/** Configuration options for using 'local' as your KMS provider */
-declare interface localKms {
-  local: {
-    /** The master key used to encrypt/decrypt data keys. A 96-byte long Buffer. */
-    key: BinaryType;
-  };
-}
-
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
   keyVaultNamespace: string,
-  kmsProvider: awsKms | localKms,
+  kmsProvider: KMSProviders,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
 }
@@ -47,9 +37,9 @@ export interface ClientSideFieldLevelEncryptionOptions {
 @classPlatforms([ ReplPlatform.CLI ] )
 export class ClientEncryption extends ShellApiClass {
   public _mongo: Mongo;
-  public _libmongocrypt: any;
+  public _libmongocrypt: MongoCryptClientEncryption;
 
-  constructor(mongo: any) {
+  constructor(mongo: Mongo) {
     super();
     this._mongo = mongo;
 
@@ -62,7 +52,7 @@ export class ClientEncryption extends ShellApiClass {
       mongo._serviceProvider.getRawClient(),
       {
         ...this._mongo._fleOptions
-      }
+      } as ClientEncryptionOptions
     );
   }
 
@@ -74,7 +64,7 @@ export class ClientEncryption extends ShellApiClass {
   async encrypt(
     encryptionId: BinaryType,
     value: any,
-    encryptionAlgorithm: string
+    encryptionAlgorithm: ClientEncryptionEncryptOptions['algorithm']
   ): Promise<BinaryType> {
     assertArgsDefined(encryptionId, value, encryptionAlgorithm);
     return await this._libmongocrypt.encrypt(
@@ -87,11 +77,11 @@ export class ClientEncryption extends ShellApiClass {
   }
 
   @returnsPromise
-  decrypt(
+  async decrypt(
     encryptedValue: any
-  ): Promise<BinaryType> {
+  ): Promise<any> {
     assertArgsDefined(encryptedValue);
-    return this._libmongocrypt.decrypt(encryptedValue);
+    return await this._libmongocrypt.decrypt(encryptedValue);
   }
 }
 
@@ -119,18 +109,11 @@ export class KeyVault extends ShellApiClass {
 
   @returnsPromise
   createKey(
-    kms: string | Document,
-    customMasterKey?: Document, // doc defined here: https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/client-side-encryption.rst#masterkey
-    keyAltName?: string[]
+    kms: ClientEncryptionDataKeyProvider,
+    options?: ClientEncryptionCreateDataKeyProviderOptions
   ): Promise<Document> {
     assertArgsDefined(kms);
-    const options = {} as any;
-
-    options.masterKey = customMasterKey;
-    if (keyAltName) {
-      options.keyAltNames = keyAltName;
-    }
-    return this._clientEncryption._libmongocrypt.createDataKey(kms, options);
+    return this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 
   getKey(keyId: BinaryType): Cursor {

@@ -9,8 +9,6 @@ import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
-import constructShellBson from './shell-bson';
-const shellBson = constructShellBson(bson);
 
 const b641234 = 'MTIzNA==';
 const schemaMap = {
@@ -218,7 +216,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             }
           });
@@ -257,7 +255,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             keyVaultClient: mongo
@@ -281,7 +279,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             keyVaultClient: m
@@ -343,7 +341,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             schemaMap: schemaMap,
