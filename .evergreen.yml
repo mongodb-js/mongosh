@@ -12,6 +12,7 @@ variables:
       shell: bash
       script: |
         set -e
+        { # curly brackets to work around EVG-13667
         cd $(pwd)
         export NODE_JS_VERSION=${node_js_version}
         source .evergreen/.setup_env
@@ -39,6 +40,7 @@ variables:
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
         tar cvzf dist.tgz dist
+        }
 
   - &package_and_upload_artifact
     command: shell.exec
@@ -47,6 +49,7 @@ variables:
       shell: bash
       script: |
         set -e
+        {
         cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
         set -e
         cd $(pwd)
@@ -79,6 +82,7 @@ variables:
         else
           bash ~/release_mongosh.sh
         fi
+        }
 
   - &test_linux_artifact
     command: shell.exec
@@ -87,6 +91,7 @@ variables:
       shell: bash
       script: |
         set -e
+        {
         export NODE_JS_VERSION=${node_js_version}
         source .evergreen/.setup_env
         node scripts/download-linux-artifact
@@ -94,6 +99,7 @@ variables:
         export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
         echo "$MONGOSH_TEST_EXECUTABLE_PATH"
         npm run test-e2e-ci
+        }
 
 # Functions are any command that can be run.
 #
@@ -129,9 +135,12 @@ functions:
         working_dir: src
         shell: bash
         script: |
+          set -e
+          {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           npm run check-ci
+          }
   test:
     - command: expansions.write
       params:
@@ -166,10 +175,12 @@ functions:
         shell: bash
         script: |
           set -e
+          {
           (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
+          }
   test_connectivity:
     - command: expansions.write
       params:
@@ -181,9 +192,11 @@ functions:
         shell: bash
         script: |
           set -e
+          {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           npm run test-connectivity
+          }
   compile_artifact:
     - command: expansions.write
       params:
@@ -229,11 +242,13 @@ functions:
         shell: bash
         script: |
           set -e
+          {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "//registry.npmjs.org/:_authToken=${DEVTOOLSBOT_NPM_TOKEN}" > .npmrc
           npm run evergreen-release publish
+          }
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
