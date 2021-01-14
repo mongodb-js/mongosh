@@ -74,7 +74,7 @@ import {
   ConnectionString
 } from '@mongosh/service-provider-core';
 
-import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
+import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
 
 const bsonlib = {
   Binary,
@@ -127,7 +127,35 @@ const DEFAULT_BASE_OPTIONS = Object.freeze({
 });
 
 /**
- * Encapsulates logic for the service provider for the mongosh CLI.
+ * Connect a MongoClient. If AutoEncryption is requested, first connect without the encryption options and verify that
+ * the connection is to an enterprise cluster. If not, then error, otherwise close the connection and reconnect with the
+ * options the user initially specified. Provide the client class as an additional argument in order to test.
+ * @param uri {String}
+ * @param clientOptions {MongoClientOptions}
+ * @param mClient {MongoClient}
+ */
+export async function connectMongoClient(uri: string, clientOptions: MongoClientOptions, mClient = MongoClient): Promise<MongoClient> {
+  if (clientOptions.autoEncryption !== undefined &&
+    !clientOptions.autoEncryption.bypassAutoEncryption) {
+    // connect first without autoEncryptionOptions
+    const optionsWithoutFLE = { ...clientOptions };
+    delete optionsWithoutFLE.autoEncryption;
+    const client = await mClient.connect(uri, optionsWithoutFLE);
+    const buildInfo = await client.db('admin').admin().command({ buildInfo: 1 });
+    if (
+      !(buildInfo.modules?.includes('enterprise')) &&
+      !(buildInfo.gitVersion?.match(/enterprise/))
+    ) {
+      await client.close();
+      throw new MongoshRuntimeError('Automatic encryption is only available with Atlas and MongoDB Enterprise');
+    }
+    await client.close();
+  }
+  return mClient.connect(uri, clientOptions);
+}
+
+/**
+   * Encapsulates logic for the service provider for the mongosh CLI.
  */
 class CliServiceProvider extends ServiceProviderCore implements ServiceProvider {
   /**
@@ -148,7 +176,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const clientOptions = processDriverOptions(driverOptions);
 
     const mongoClient = !cliOptions.nodb ?
-      await MongoClient.connect(
+      await connectMongoClient(
         connectionString.toString(),
         clientOptions
       ) :
@@ -196,7 +224,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const connectionString = new ConnectionString(uri);
     const clientOptions = processDriverOptions(options);
 
-    const mongoClient = await MongoClient.connect(
+    const mongoClient = await connectMongoClient(
       connectionString.toString(),
       clientOptions
     );
@@ -1026,7 +1054,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     });
     if (authDoc.mechanism) clientOptions.authMechanism = authDoc.mechanism as AuthMechanismId;
     if (authDoc.authDb) clientOptions.authSource = authDoc.authDb;
-    const mc = await MongoClient.connect(
+    const mc = await connectMongoClient(
       Object.assign((this.uri as ConnectionString).clone(), {
         username: '', password: ''
       }).toString(),
@@ -1096,7 +1124,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ...this.initialOptions,
       ...options
     });
-    const mc = await MongoClient.connect(
+    const mc = await connectMongoClient(
       // TODO This seems to potentially undo a previous db.auth(), MONGOSH-529
       (this.uri as ConnectionString).toString(),
       clientOptions
