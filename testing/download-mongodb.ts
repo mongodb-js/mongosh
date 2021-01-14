@@ -57,27 +57,29 @@ type FullJSON = {
 // On Linux, getting the exact download variant to pick is hard, so we still
 // use mongodb-download-url for that. For macOS, either would probably be fine.
 // TODO: upstream all of this into mongodb-download-url :(
-async function lookupDownloadUrl(versionInfo: VersionInfo): Promise<string> {
-  const knownDistroRegex = /^(?<name>rhel80|rhel7[0-9]|debian10)/;
+async function lookupDownloadUrl(versionInfo: VersionInfo, enterprise: boolean): Promise<string> {
+  const knownDistroRegex = /^(?<name>rhel80|rhel7[0-9]|debian10|ubuntu(?:\d+))/;
   const { version } = versionInfo;
   const distroId = process.env.DISTRO_ID || '';
   if ((process.platform === 'win32' && semver.lt(version, '4.4.0')) ||
       (process.platform === 'linux' && semver.lt(version, '4.2.0')) ||
       (process.platform !== 'win32' && !knownDistroRegex.test(distroId))) {
-    return (await promisify(getDownloadURL)({ version })).url;
+    return (await promisify(getDownloadURL)({ version, enterprise })).url;
   }
 
   let downloadInfo: DownloadInfo;
   if (process.platform === 'win32') {
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
-        downloadInfo.target === 'windows' && downloadInfo.edition === 'base') as DownloadInfo;
+        downloadInfo.target === 'windows' &&
+        downloadInfo.edition === (enterprise ? 'enterprise' : 'base')) as DownloadInfo;
   } else {
     let distro = distroId.match(knownDistroRegex)!.groups!.name;
     if (distro.match(/rhel7[0-9]/)) distro = 'rhel70';
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
-        downloadInfo.target === distro && downloadInfo.edition === 'targeted') as DownloadInfo;
+        downloadInfo.target === distro &&
+        downloadInfo.edition === (enterprise ? 'targeted' : 'enterprise')) as DownloadInfo;
   }
   return downloadInfo.archive.url;
 }
@@ -116,7 +118,7 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
     .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
-  return await doDownload(versionInfo.version, () => lookupDownloadUrl(versionInfo));
+  return await doDownload(versionInfo.version, () => lookupDownloadUrl(versionInfo, true));
 }
 
 const downloadPromises: Record<string, Promise<string>> = {};
