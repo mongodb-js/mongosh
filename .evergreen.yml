@@ -142,7 +142,6 @@ functions:
         working_dir: src
         shell: bash
         script: |
-          set -e
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           (npm run test-ci && echo "success" && true) || (echo "failure" && false)
