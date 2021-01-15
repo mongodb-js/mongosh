@@ -1,3 +1,4 @@
+/* eslint-disable camelcase, complexity, @typescript-eslint/no-non-null-assertion, no-return-assign, no-empty */
 import fetch from 'node-fetch';
 import semver from 'semver';
 import { promisify } from 'util';
@@ -108,13 +109,14 @@ async function lookupAlphaDownloadUrl(): Promise<string> {
 }
 
 // Download mongod + mongos and return the path to a directory containing them.
-export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promise<string> {
+export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifier = '*'): Promise<string> {
+  await fs.mkdir(tmpdir, { recursive: true });
   if (targetVersionSemverSpecifier === 'latest-alpha') {
-    return await doDownload('latest-alpha', () => lookupAlphaDownloadUrl());
+    return await doDownload(tmpdir, 'latest-alpha', () => lookupAlphaDownloadUrl());
   }
 
   let fullJson: FullJSON;
-  const fullJSONCachePath = path.resolve(__dirname, '..', 'tmp', 'full.json.gz');
+  const fullJSONCachePath = path.resolve(tmpdir, 'full.json.gz');
   try {
     fullJson = JSON.parse((await gunzip(await fs.readFile(fullJSONCachePath))).toString());
   } catch {
@@ -128,15 +130,13 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
     .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
-  return await doDownload(versionInfo.version, () => lookupDownloadUrl(versionInfo, true));
+  return await doDownload(tmpdir, versionInfo.version, () => lookupDownloadUrl(versionInfo, true));
 }
 
 const downloadPromises: Record<string, Promise<string>> = {};
-async function doDownload(version: string, lookupDownloadUrl: () => Promise<string>) {
+async function doDownload(tmpdir: string, version: string, lookupDownloadUrl: () => Promise<string>) {
   const downloadTarget = path.resolve(
-    __dirname,
-    '..',
-    'tmp',
+    tmpdir,
     `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${version}`);
   return downloadPromises[downloadTarget] ??= (async() => {
     const bindir = path.resolve(downloadTarget, 'bin');

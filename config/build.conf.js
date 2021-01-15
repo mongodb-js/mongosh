@@ -34,6 +34,18 @@ const EXEC_INPUT = path.join(CLI_REPL_DIR, 'dist', 'mongosh.js');
 const OUTPUT_DIR = path.join(ROOT, 'dist');
 
 /**
+ * The name of the generated mongosh executable.
+ */
+const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mongosh.exe' : 'mongosh');
+
+/**
+ * The name of the downloaded mongocryptd executable.
+ * We use the name mongocryptd-mongosh to avoid conflicts with users
+ * potentially installing the 'proper' mongocryptd package.
+ */
+const MONGOCRYPTD_PATH = path.resolve(__dirname, '..', 'tmp', 'mongocryptd-mongosh' + (process.platform === 'win32' ? '.exe' : ''));
+
+/**
  * Analytics configuration file.
  */
 const ANALYTICS_CONFIG_FILE_PATH = path.join(CLI_REPL_DIR, 'lib', 'analytics-config.js');
@@ -60,6 +72,7 @@ module.exports = {
   rootDir: ROOT,
   input: INPUT,
   execInput: EXEC_INPUT,
+  executablePath: EXECUTABLE_PATH,
   outputDir: OUTPUT_DIR,
   analyticsConfigFilePath: ANALYTICS_CONFIG_FILE_PATH,
   project: process.env.PROJECT,
@@ -84,5 +97,51 @@ module.exports = {
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'
+  },
+  mongocryptdPath: MONGOCRYPTD_PATH,
+  packageInformation: {
+    binaries: [
+      {
+        sourceFilePath: EXECUTABLE_PATH,
+        category: 'bin',
+        license: {
+          sourceFilePath: path.resolve(__dirname, '..', 'LICENSE'),
+          packagedFilePath: 'LICENSE-mongosh',
+          debCopyright: `${new Date().getYear() + 1900} MongoDB, Inc.`,
+          debIdentifier: 'Apache-2',
+          rpmIdentifier: 'ASL 2.0'
+        }
+      },
+      {
+        sourceFilePath: MONGOCRYPTD_PATH,
+        category: 'libexec',
+        license: {
+          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-mongocryptd'),
+          packagedFilePath: 'LICENSE-mongocryptd',
+          debCopyright: `${new Date().getYear() + 1900} MongoDB, Inc.`,
+          debIdentifier: 'Proprietary',
+          rpmIdentifier: 'Proprietary'
+        }
+      }
+    ],
+    otherDocFilePaths: [
+      {
+        sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),
+        packagedFilePath: 'README'
+      },
+      {
+        sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
+        packagedFilePath: 'THIRD_PARTY_NOTICES'
+      }
+    ],
+    metadata: {
+      name: 'mongosh',
+      version: CLI_REPL_PACKAGE_JSON.version,
+      description: CLI_REPL_PACKAGE_JSON.description,
+      homepage: CLI_REPL_PACKAGE_JSON.homepage,
+      maintainer: CLI_REPL_PACKAGE_JSON.author
+    },
+    debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
+    rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template')
   }
 };

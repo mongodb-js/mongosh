@@ -37,13 +37,15 @@ function sign(executable: string, identity: string, entitlementsFile: string): P
 }
 
 const macOSSignAndNotarize = async(
-  executable: string,
+  executables: string[],
   config: Config,
   runCreateTarball: () => Promise<TarballFile>): Promise<TarballFile> => {
-  console.info('mongosh: signing:', executable);
-  await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
-  console.info('mongosh: notarizing and creating tarball:', executable);
+  for (const executable of executables) {
+    console.info('mongosh: signing:', executable);
+    await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
+  }
   const artifact = await runCreateTarball();
+  console.info('mongosh: notarizing and creating tarball:', artifact.path);
   await notarize(
     config.appleNotarizationBundleId || '',
     artifact.path,

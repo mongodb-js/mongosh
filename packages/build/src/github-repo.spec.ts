@@ -1,13 +1,9 @@
 import { expect } from 'chai';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import os from 'os';
-import path from 'path';
 import sinon from 'ts-sinon';
 import { GithubRepo } from './github-repo';
-import {
-  createTarball,
-  tarballPath
-} from './tarball';
+import { tarballPath } from './tarball';
 
 function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
   const repo = {
@@ -95,20 +91,21 @@ describe('GithubRepo', () => {
   describe('releaseToGithub', () => {
     const platform = os.platform();
     const version = '1.0.0';
-    const expectedTarball = tarballPath(__dirname, platform, version);
-    const inputFile = path.join(__dirname, '..', 'examples', 'input.js');
-    const rootDir = path.join(__dirname, '../../..');
+    const expectedTarball = tarballPath(__dirname, platform, version, 'mongosh');
+    const tarballFile = { path: expectedTarball, contentType: 'application/zip' };
 
-    after((done) => {
-      fs.unlink(expectedTarball, done);
+    before(async() => {
+      await fs.writeFile(expectedTarball, 'not a real tarball but 🤷‍♀️');
+    });
+
+    after(async() => {
+      await fs.unlink(expectedTarball);
     });
 
     it('calls createDraftRelease when running releaseToGithub', async() => {
       githubRepo.getReleaseByTag = sinon.stub().resolves();
       githubRepo.createDraftRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
-
-      const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
       await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
       expect(githubRepo.createDraftRelease).to.have.been.calledWith({
@@ -122,8 +119,6 @@ describe('GithubRepo', () => {
       githubRepo.getReleaseByTag = sinon.stub().resolves();
       githubRepo.createDraftRelease = sinon.stub().resolves();
       githubRepo.uploadReleaseAsset = sinon.stub().resolves();
-
-      const tarballFile = await createTarball(inputFile, __dirname, platform, version, rootDir);
 
       await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
       expect(githubRepo.createDraftRelease).to.have.been.calledWith({

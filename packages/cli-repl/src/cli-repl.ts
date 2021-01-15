@@ -27,7 +27,7 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
 type AnalyticsOptions = { host?: string, apiKey?: string };
 
 export type CliReplOptions = {
-  shellCliOptions: CliOptions,
+  shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string },
   input: Readable;
   output: Writable;
   shellHomePaths: ShellHomePaths;

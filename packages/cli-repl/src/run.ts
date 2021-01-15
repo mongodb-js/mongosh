@@ -1,4 +1,4 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, USAGE } from './index';
+import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPath, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
 
 (async() => {
@@ -14,10 +14,14 @@ import { generateUri } from '@mongosh/service-provider-server';
       // eslint-disable-next-line no-console
       console.log(version);
     } else {
+      let mongocryptdSpawnPath = null;
       if (process.execPath === process.argv[1]) {
         // Remove the built-in Node.js listener that prints e.g. deprecation
         // warnings in single-binary release mode.
         process.removeAllListeners('warning');
+        // Look for mongocryptd in the locations where our packaging would
+        // have put it.
+        mongocryptdSpawnPath = await getMongocryptdPath();
       }
 
       // This is for testing under coverage, see the the comment in the tests
@@ -31,7 +35,10 @@ import { generateUri } from '@mongosh/service-provider-server';
       const appname = `${process.title} ${version}`;
       const shellHomePaths = getStoragePaths();
       repl = new CliRepl({
-        shellCliOptions: options,
+        shellCliOptions: {
+          ...options,
+          ...(mongocryptdSpawnPath ? { mongocryptdSpawnPath } : {})
+        },
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,

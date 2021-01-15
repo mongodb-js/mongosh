@@ -31,6 +31,8 @@ describe('buildAndRelease', () => {
       appleNotarizationBundleId: 'appleNotarizationBundleId',
       input: 'input',
       execInput: 'execInput',
+      executablePath: 'executablePath',
+      mongocryptdPath: 'mongocryptdPath',
       outputDir: 'outputDir',
       analyticsConfigFilePath: 'analyticsConfigFilePath',
       project: 'project',
