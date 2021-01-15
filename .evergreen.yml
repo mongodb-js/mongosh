@@ -1,4 +1,4 @@
-exec_timeout_secs: 7200
+exec_timeout_secs: 3600
 
 # Variables for common functions.
 #
