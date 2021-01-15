@@ -64,7 +64,14 @@ async function lookupDownloadUrl(versionInfo: VersionInfo, enterprise: boolean):
   if ((process.platform === 'win32' && semver.lt(version, '4.4.0')) ||
       (process.platform === 'linux' && semver.lt(version, '4.2.0')) ||
       (process.platform !== 'win32' && !knownDistroRegex.test(distroId))) {
-    return (await promisify(getDownloadURL)({ version, enterprise })).url;
+    let { url } = (await promisify(getDownloadURL)({ version, enterprise }));
+    if (semver.gte(version, '4.2.0')) {
+      url = url.replace('mongodb-osx', 'mongodb-macos');
+    }
+    if (semver.lt(version, '4.2.0') && distroId) {
+      url = url.replace('enterprise-linux_64', `enterprise-${distroId.split('-')[0]}`);
+    }
+    return url;
   }
 
   let downloadInfo: DownloadInfo;
