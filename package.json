@@ -122,7 +122,7 @@
     "lerna": "^3.10.7",
     "mocha": "^7.1.2",
     "mongodb": "github:mongodb/node-mongodb-native#62717a1d",
-    "mongodb-download-url": "^0.6.1",
+    "mongodb-download-url": "^0.6.3",
     "mongodb-js-precommit": "^2.0.0",
     "node-codesign": "^0.3.2",
     "node-fetch": "^2.6.1",
