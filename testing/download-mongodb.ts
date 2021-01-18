@@ -79,14 +79,16 @@ async function lookupDownloadUrl(versionInfo: VersionInfo, enterprise: boolean):
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
         downloadInfo.target === 'windows' &&
-        downloadInfo.edition === (enterprise ? 'enterprise' : 'base')) as DownloadInfo;
+        downloadInfo.edition === (enterprise ? 'enterprise' : 'base') &&
+        downloadInfo.arch === 'x86_64') as DownloadInfo;
   } else {
     let distro = distroId.match(knownDistroRegex)!.groups!.name;
     if (distro.match(/rhel7[0-9]/)) distro = 'rhel70';
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
         downloadInfo.target === distro &&
-        downloadInfo.edition === (enterprise ? 'targeted' : 'enterprise')) as DownloadInfo;
+        downloadInfo.edition === (enterprise ? 'targeted' : 'enterprise') &&
+        downloadInfo.arch === 'x86_64') as DownloadInfo;
   }
   return downloadInfo.archive.url;
 }
