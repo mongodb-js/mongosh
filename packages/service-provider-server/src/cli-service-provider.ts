@@ -14,7 +14,6 @@ import {
   ObjectId,
   Timestamp,
   Decimal128,
-  Map,
   BSONSymbol,
   ClientMetadata,
   Topology
@@ -88,9 +87,9 @@ const bsonlib = {
   ObjectId,
   Timestamp,
   Decimal128,
-  Map,
   BSONSymbol,
-  calculateObjectSize: BSON.calculateObjectSize
+  Map: BSON.Map,
+  calculateObjectSize: BSON.calculateObjectSize,
 };
 
 type DropDatabaseResult = {
