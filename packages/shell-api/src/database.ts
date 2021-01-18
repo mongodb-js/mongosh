@@ -136,7 +136,7 @@ export default class Database extends ShellApiClass {
       this._name,
       filter,
       { ...this._baseOptions, ...options }
-    );
+    ) || [];
   }
 
   async _getCollectionNames(): Promise<string[]> {
