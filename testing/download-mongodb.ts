@@ -87,7 +87,7 @@ async function lookupDownloadUrl(versionInfo: VersionInfo, enterprise: boolean):
     downloadInfo = versionInfo.downloads
       .find((downloadInfo: DownloadInfo) =>
         downloadInfo.target === distro &&
-        downloadInfo.edition === (enterprise ? 'targeted' : 'enterprise') &&
+        downloadInfo.edition === (enterprise ? 'enterprise' : 'targeted') &&
         downloadInfo.arch === 'x86_64') as DownloadInfo;
   }
   return downloadInfo.archive.url;
