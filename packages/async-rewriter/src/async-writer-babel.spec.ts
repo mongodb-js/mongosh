@@ -969,6 +969,15 @@ return (names.length); })()`);
         });
       });
     });
+    describe('with empty items in array', () => {
+      before(() => {
+        input = '[1,,3]';
+        ast = writer.getTransform(input).ast;
+      });
+      it('compiles correctly', () => {
+        expect(compileCheckScopes(writer, input)).to.equal('[1,, 3];');
+      });
+    });
   });
   describe('CallExpression', () => {
     describe('with unknown callee', () => {
