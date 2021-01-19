@@ -376,6 +376,9 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
       const attributes = {};
       let hasAsyncChild = false;
       path.node.elements.forEach((n, i) => {
+        // skip empty items in array (e.g., [1, ,3])
+        //                                     ^ empty item
+        if (!n) return;
         attributes[i] = n['shellType'];
         if (attributes[i].hasAsyncChild || attributes[i].returnsPromise) {
           hasAsyncChild = true;
