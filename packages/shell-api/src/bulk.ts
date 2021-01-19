@@ -14,6 +14,7 @@ import { asPrintable } from './enums';
 import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefined } from './helpers';
 import { BulkWriteResult } from './result';
+import type Collection from './collection';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiClass {
@@ -122,7 +123,7 @@ export class BulkFindOp extends ShellApiClass {
 @hasAsyncChild
 export default class Bulk extends ShellApiClass {
   _mongo: Mongo;
-  _collection: any; // to avoid circular ref
+  _collection: Collection;
   _batchCounts: any;
   _executed: boolean;
   _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
