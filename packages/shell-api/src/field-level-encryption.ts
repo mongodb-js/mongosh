@@ -35,7 +35,7 @@ declare interface localKms {
 }
 
 export interface ClientSideFieldLevelEncryptionOptions {
-  keyVaultClient?: any, /** This should be a Mongo class instance, but to avoid circular ref use any **/
+  keyVaultClient?: Mongo,
   keyVaultNamespace: string,
   kmsProvider: awsKms | localKms,
   schemaMap?: Document,
