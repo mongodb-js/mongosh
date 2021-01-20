@@ -44,6 +44,7 @@ import {
   KeyVault,
   ClientEncryption
 } from './field-level-encryption';
+import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -279,6 +280,10 @@ export default class Mongo extends ShellApiClass {
   @platforms([ReplPlatform.CLI])
   @serverVersions(['4.2.0', ServerVersions.latest])
   getClientEncryption(): ClientEncryption {
+    if (!this._fleOptions) {
+      throw new MongoshInvalidInputError(
+        'Cannot call getClientEncryption() without field-level encryption options', ShellApiErrors.NotUsingFLE);
+    }
     if (!this._clientEncryption) {
       this._clientEncryption = new ClientEncryption(this);
     }

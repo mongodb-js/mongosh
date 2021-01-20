@@ -573,5 +573,16 @@ describe('Mongo', () => {
         expect.fail('Failed to throw');
       });
     });
+    describe('getClientEncryption()', () => {
+      it('throws an error if no FLE options were provided', () => {
+        try {
+          mongo.getClientEncryption();
+        } catch (e) {
+          expect(e.name).to.equal('MongoshInvalidInputError');
+          return;
+        }
+        expect.fail('Failed to throw');
+      });
+    });
   });
 });
