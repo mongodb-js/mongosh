@@ -30,3 +30,42 @@ export function serializeError({
 export function deserializeError(e: NodeJS.ErrnoException) {
   return Object.assign(new Error(), e);
 }
+
+enum SerializedResultTypes {
+  SerializedError = 'SerializedError'
+}
+
+export function serializeEvaluationResult(result: ShellResult): ShellResult {
+  result = { ...result };
+
+  if (result.type === null && isError(result.rawValue)) {
+    result.type = SerializedResultTypes.SerializedError;
+    result.printable = serializeError(result.rawValue);
+  }
+
+  // `rawValue` can't be serialized "by design", we don't really care about it
+  // for the worker thread runtime so as an easy workaround we will just remove
+  // it completely from the result
+  delete result.rawValue;
+
+  return result;
+}
+
+export function deserializeEvaluationResult(result: ShellResult): ShellResult {
+  result = { ...result };
+
+  if (result.type === SerializedResultTypes.SerializedError) {
+    result.type = null;
+    result.printable = deserializeError(result.printable);
+  }
+
+  Object.defineProperty(result, 'rawValue', {
+    get() {
+      throw new Error(
+        '`rawValue` is not available for evaluation result produced by WorkerRuntime'
+      );
+    }
+  });
+
+  return result;
+}

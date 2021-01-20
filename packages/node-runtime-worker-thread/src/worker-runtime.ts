@@ -11,6 +11,7 @@ import {
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { EvaluationListener } from '@mongosh/shell-evaluator';
 import { exposeAll, createCaller } from './rpc';
+import { serializeEvaluationResult } from './serializer';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -53,7 +54,9 @@ const workerRuntime: WorkerRuntime = {
   },
 
   async evaluate(code) {
-    return ensureRuntime('evaluate').evaluate(code);
+    return serializeEvaluationResult(
+      await ensureRuntime('evaluate').evaluate(code)
+    );
   },
 
   async getCompletions(code) {

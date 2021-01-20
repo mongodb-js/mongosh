@@ -10,6 +10,7 @@ import { Caller, createCaller } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import childProcessProxySrc from 'inline-entry-loader!./child-process-proxy';
+import { deserializeEvaluationResult } from './serializer';
 
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
 class WorkerRuntime implements Runtime {
@@ -63,7 +64,9 @@ class WorkerRuntime implements Runtime {
 
   async evaluate(code: string) {
     await this.initWorkerPromise;
-    return this.childProcessRuntime.evaluate(code);
+    return deserializeEvaluationResult(
+      await this.childProcessRuntime.evaluate(code)
+    );
   }
 
   async getCompletions(code: string) {

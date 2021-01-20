@@ -6,9 +6,10 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
-
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { createCaller, exposeAll } from './rpc';
+import { Caller, createCaller, exposeAll } from './rpc';
+import { deserializeEvaluationResult } from './serializer';
+import type { WorkerRuntime } from './worker-runtime';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -47,8 +48,61 @@ describe('worker', () => {
       const result = await evaluate('1 + 1');
 
       expect(result).to.have.property('type', null);
-      expect(result).to.have.property('rawValue', 2);
       expect(result).to.have.property('printable', 2);
+    });
+
+    describe('errors', () => {
+      let caller: Caller<WorkerRuntime, 'init' | 'evaluate'>;
+
+      beforeEach(() => {
+        const c = createCaller(['init', 'evaluate'], worker);
+        caller = {
+          ...c,
+          async evaluate(code: string) {
+            return deserializeEvaluationResult(await c.evaluate(code));
+          }
+        };
+        (caller.evaluate as any).close = c.evaluate.close;
+      });
+
+      afterEach(() => {
+        caller = null;
+      });
+
+      it("should throw an error if it's thrown during evaluation", async() => {
+        const { init, evaluate } = caller;
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+        try {
+          await evaluate('throw new TypeError("Oh no, types!")');
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err).to.have.property('name', 'TypeError');
+        expect(err).to.have.property('message', 'Oh no, types!');
+        expect(err)
+          .to.have.property('stack')
+          .matches(/TypeError: Oh no, types!/);
+      });
+
+      it("should return an error if it's returned from evaluation", async() => {
+        const { init, evaluate } = caller;
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        const { printable } = await evaluate('new SyntaxError("Syntax!")');
+
+        expect(printable).to.be.instanceof(Error);
+        expect(printable).to.have.property('name', 'SyntaxError');
+        expect(printable).to.have.property('message', 'Syntax!');
+        expect(printable)
+          .to.have.property('stack')
+          .matches(/SyntaxError: Syntax!/);
+      });
     });
   });
 
@@ -56,7 +110,10 @@ describe('worker', () => {
     const testServer = startTestServer('shared');
 
     it('should return prompt when connected to the server', async() => {
-      const { init, getShellPrompt } = createCaller(['init', 'getShellPrompt'], worker);
+      const { init, getShellPrompt } = createCaller(
+        ['init', 'getShellPrompt'],
+        worker
+      );
 
       await init(await testServer.connectionString());
 
@@ -121,7 +178,7 @@ describe('worker', () => {
         const password = await evaluate('passwordPrompt()');
 
         expect(evalListener.onPrompt).to.have.been.called;
-        expect(password.rawValue).to.equal('123');
+        expect(password.printable).to.equal('123');
       });
     });
 
