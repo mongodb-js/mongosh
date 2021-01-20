@@ -309,4 +309,31 @@ describe('Field Level Encryption', () => {
       });
     });
   });
+  describe('Mongo constructor FLE options', () => {
+    before(() => {
+      libmongoc = stubInterface<lmc>();
+      sp = stubInterface<ServiceProvider>();
+      sp.bsonLibrary = bson;
+      sp.fle = { ClientEncryption: function() { return libmongoc; } };
+      sp.initialDb = 'test';
+      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
+      internalState.currentDb = stubInterface<Database>();
+    });
+    it('accepts the same local key twice', () => {
+      const localKmsOptions = {
+        keyVaultNamespace: `${DB}.${COLL}`,
+        kmsProvider: {
+          local: {
+            key: new bson.Binary(Buffer.alloc(96).toString('base64'))
+          }
+        },
+        schemaMap: SCHEMA_MAP,
+        bypassAutoEncryption: true
+      };
+      // eslint-disable-next-line no-new
+      new Mongo(internalState, 'localhost:27017', localKmsOptions);
+      // eslint-disable-next-line no-new
+      new Mongo(internalState, 'localhost:27017', localKmsOptions);
+    });
+  });
 });

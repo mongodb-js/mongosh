@@ -623,7 +623,7 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
       fleOptions.keyVaultClient._serviceProvider.getRawClient() :
       serviceProvider.getRawClient(),
     keyVaultNamespace: fleOptions.keyVaultNamespace,
-    kmsProviders: fleOptions.kmsProvider,
+    kmsProviders: { ...fleOptions.kmsProvider },
   } as any;
 
   if ('local' in autoEncryption.kmsProviders) {
@@ -632,7 +632,10 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
     }
     const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
     if (Buffer.isBuffer(rawBuff)) {
-      autoEncryption.kmsProviders.local.key = rawBuff;
+      autoEncryption.kmsProviders.local = {
+        ...autoEncryption.kmsProviders.local,
+        key: rawBuff
+      };
     } else {
       // Future TODO: allow binary types that are not from a string
       throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
