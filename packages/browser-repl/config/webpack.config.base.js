@@ -1,7 +1,13 @@
+const path = require('path');
+
 module.exports = {
   stats: 'errors-only',
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.less']
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.less'],
+    alias: {
+      // imports in service-provider-core that can break the browser build
+      'whatwg-url': path.resolve(__dirname, 'empty.js'),
+    }
   },
   module: {
     rules: [
