@@ -6,11 +6,21 @@ if (typeof require('util').TextDecoder !== 'function' || typeof require('util').
   Object.assign(require('util'), textEncodingPolyfill());
 }
 
-import { URL as WhatWGURL } from 'whatwg-url';
-import { URL as NodeURL } from 'url';
-export const URL = NodeURL ?? (WhatWGURL as typeof NodeURL);
+let URL: typeof import('url').URL;
 
-export function textEncodingPolyfill(): any {
+// Easiest way to get global `this` in any environment
+// eslint-disable-next-line no-new-func
+const globalThis = new Function('return this')();
+
+// Dynamically requiring URL should allow us to skip imports that potentially
+// can break browser runtimes
+if ('URL' in globalThis) {
+  URL = globalThis.URL;
+} else {
+  URL = require('url').URL ?? require('whatwg-url').URL;
+}
+
+function textEncodingPolyfill(): any {
   class TextEncoder {
     encode(string: string): Uint8Array {
       return Buffer.from(string, 'utf8');
@@ -24,3 +34,5 @@ export function textEncodingPolyfill(): any {
   }
   return { TextDecoder, TextEncoder };
 }
+
+export { textEncodingPolyfill, URL };
