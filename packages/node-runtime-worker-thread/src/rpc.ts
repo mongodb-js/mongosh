@@ -7,6 +7,7 @@ import {
   ServerMessageData,
   ClientMessageData
 } from 'postmsg-rpc';
+import { deserializeError, serializeError } from './serializer';
 
 type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage: Function; send?: never }
@@ -96,9 +97,21 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
 
 export type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
 
+const ERROR = '$$ERROR';
+
 export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
   Object.entries(obj).forEach(([key, val]) => {
-    const { close } = expose(key, val, getRPCOptions(messageBus));
+    const { close } = expose(
+      key,
+      async(...args: unknown[]) => {
+        try {
+          return await val(...args);
+        } catch (e) {
+          return { [ERROR]: serializeError(e) };
+        }
+      },
+      getRPCOptions(messageBus)
+    );
     (val as any).close = close;
   });
   return obj as WithClose<O>;
@@ -114,7 +127,14 @@ export function createCaller<Impl extends {}>(
 ): Caller<Impl, typeof methodNames[number]> {
   const obj = {};
   methodNames.forEach((name) => {
-    (obj as any)[name] = caller(name as string, getRPCOptions(messageBus));
+    const c = caller(name as string, getRPCOptions(messageBus));
+    (obj as any)[name] = async(...args: unknown[]) => {
+      const result = await c(...args);
+      if (typeof result === 'object' && result !== null && ERROR in result) {
+        throw deserializeError((result as any)[ERROR]);
+      }
+      return result;
+    };
   });
   return obj as Caller<Impl, typeof methodNames[number]>;
 }
