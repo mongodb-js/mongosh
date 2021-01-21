@@ -134,6 +134,25 @@ functions:
         binary: bash .evergreen/package-and-upload-artifact.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          BUILD_VARIANT: ${build_variant}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${build_variant}.txt
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  get_artifact_url:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_build_variant}.txt
+        bucket: mciuploads
   test_linux_artifact:
     - command: expansions.write
       params:
@@ -148,7 +167,10 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
-          node scripts/download-linux-artifact
+          export ARTIFACT_URL=$(cat ../artifact-url.txt)
+          echo "Downloading from $ARTIFACT_URL"
+          mkdir dist
+          (cd dist && curl -sSfL "$ARTIFACT_URL" | tar --strip-components=1 -xvzf -)
           dist/mongosh --version
           export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
           echo "$MONGOSH_TEST_EXECUTABLE_PATH"
@@ -175,6 +197,66 @@ functions:
           }
         # TODO: move that back in once verified it works as expected
         # npm run evergreen-release publish
+  spawn_host:
+    - command: host.create
+      params:
+        provider: ec2
+        distro: ${distro}
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: buildhosts.yml # Write the host information to disk.
+        timeout_seconds: 600
+        wait: true
+  run_pkg_tests_through_ssh:
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-on-ssh-host.sh
+        env:
+          ADMIN_USER_NAME: ${admin_user_name}
+          ONHOST_SCRIPT_PATH: ${onhost_script_path}
+          PRELOAD_SCRIPT_PATH: ${preload_script_path}
+  test_artifact_docker:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          export ARTIFACT_URL="$(cat ../artifact-url.txt)"
+          ./scripts/docker/build.sh ${dockerfile}
+          echo 'print ("He" + "llo")' | ./scripts/docker/run.sh ${dockerfile} --nodb | grep -q Hello
+          }
+  test_artifact_macos:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          export ARTIFACT_URL="$(cat ../artifact-url.txt)"
+          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
+          unzip mongosh.zip
+          echo 'print ("He" + "llo")' | ./bin/mongosh  --nodb | grep -q Hello
+          }
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
@@ -400,6 +482,9 @@ tasks:
       - name: package_and_upload_artifact_linux
         variant: linux
     commands:
+      - func: get_artifact_url
+        vars:
+          source_build_variant: linux
       - func: checkout
       - func: install
         vars:
@@ -415,6 +500,10 @@ tasks:
         variant: win32
       - name: package_and_upload_artifact_linux
         variant: linux
+      - name: package_and_upload_artifact_linux
+        variant: rhel
+      - name: package_and_upload_artifact_linux
+        variant: debian
       - name: package_and_upload_artifact_macos
         variant: darwin_codesign
       - name: test_linux_artifact
@@ -429,6 +518,18 @@ tasks:
         variant: ubuntu2004
       - name: test_vscode
         variant: linux
+      - name: pkg_test_docker_centos7
+        variant: pkg_smoke_tests_docker
+      - name: pkg_test_docker_centos8
+        variant: pkg_smoke_tests_docker
+      - name: pkg_test_docker_ubuntu1604
+        variant: pkg_smoke_tests_docker
+      - name: pkg_test_docker_ubuntu2004
+        variant: pkg_smoke_tests_docker
+      - name: pkg_test_macos1014
+        variant: pkg_smoke_tests_macos
+      - name: pkg_test_ssh_win32
+        variant: pkg_smoke_tests_win32
     commands:
       - func: checkout
       - func: install
@@ -437,6 +538,89 @@ tasks:
       - func: release_publish
         vars:
           node_js_version: "14.15.1"
+  - name: pkg_test_ssh_win32
+    depends_on:
+      - name: package_and_upload_artifact_win
+        variant: win32
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: win32
+      - command: shell.exec
+        params:
+          working_dir: src
+          shell: bash
+          script: |
+            set -e
+            set -x
+            echo "export ARTIFACT_URL=$(cat ../artifact-url.txt)" >> preload.sh
+      - func: spawn_host
+        vars:
+          distro: windows-64-vs2019-small
+      - func: run_pkg_tests_through_ssh
+        vars:
+          admin_user_name: Administrator
+          onhost_script_path: .evergreen/test-package-win32.sh
+          preload_script_path: preload.sh
+  - name: pkg_test_docker_ubuntu1604
+    depends_on:
+      - name: package_and_upload_artifact_linux
+        variant: debian
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: debian
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu16.04-deb
+  - name: pkg_test_docker_ubuntu2004
+    depends_on:
+      - name: package_and_upload_artifact_linux
+        variant: debian
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: debian
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu20.04-deb
+  - name: pkg_test_docker_centos7
+    depends_on:
+      - name: package_and_upload_artifact_linux
+        variant: rhel
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: rhel
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos7-rpm
+  - name: pkg_test_docker_centos8
+    depends_on:
+      - name: package_and_upload_artifact_linux
+        variant: rhel
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: rhel
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos8-rpm
+  - name: pkg_test_macos1014
+    depends_on:
+      - name: package_and_upload_artifact_macos
+        variant: darwin_codesign
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: darwin_codesign
+      - func: test_artifact_macos
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -555,3 +739,21 @@ buildvariants:
     run_on: macos-1014-codesign
     tasks:
       - name: release_publish
+  - name: pkg_smoke_tests_docker
+    display_name: "package smoke tests (Docker)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_docker_centos7
+      - name: pkg_test_docker_centos8
+      - name: pkg_test_docker_ubuntu1604
+      - name: pkg_test_docker_ubuntu2004
+  - name: pkg_smoke_tests_win32
+    display_name: "package smoke tests (win32)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_ssh_win32
+  - name: pkg_smoke_tests_macos
+    display_name: "package smoke tests (macos)"
+    run_on: macos-1014
+    tasks:
+      - name: pkg_test_macos1014
