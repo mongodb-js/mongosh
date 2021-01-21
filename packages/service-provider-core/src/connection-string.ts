@@ -63,8 +63,9 @@ export class ConnectionString extends URLWithoutHost {
     let authString = '';
     if (typeof username === 'string') authString += username;
     if (typeof password === 'string') authString += `:${password}`;
+    if (authString) authString += '@';
 
-    super(`${protocol.toLowerCase()}://${authString}@${DUMMY_HOSTNAME}${rest}`);
+    super(`${protocol.toLowerCase()}://${authString}${DUMMY_HOSTNAME}${rest}`);
     this._hosts = hosts.split(',');
 
     if (this.isSRV && this.hosts.length !== 1) {
