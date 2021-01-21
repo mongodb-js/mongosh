@@ -1,4 +1,18 @@
+import v8 from 'v8';
 import { ShellResult } from '@mongosh/shell-evaluator';
+
+export function serialize(data: unknown): string {
+  return `data:;base64,${v8.serialize(data).toString('base64')}`;
+}
+
+export function deserialize<T = unknown>(str: string): T | string {
+  if (/^data:;base64,.+/.test(str)) {
+    return v8.deserialize(
+      Buffer.from(str.replace('data:;base64,', ''), 'base64')
+    );
+  }
+  return str;
+}
 
 function isError(e: any): e is Error {
   return e && e.name && e.message && e.stack;
@@ -32,14 +46,14 @@ export function deserializeError(e: NodeJS.ErrnoException) {
 }
 
 enum SerializedResultTypes {
-  SerializedError = 'SerializedError'
+  SerializedErrorResult = 'SerializedErrorResult'
 }
 
 export function serializeEvaluationResult(result: ShellResult): ShellResult {
   result = { ...result };
 
   if (result.type === null && isError(result.rawValue)) {
-    result.type = SerializedResultTypes.SerializedError;
+    result.type = SerializedResultTypes.SerializedErrorResult;
     result.printable = serializeError(result.rawValue);
   }
 
@@ -54,7 +68,7 @@ export function serializeEvaluationResult(result: ShellResult): ShellResult {
 export function deserializeEvaluationResult(result: ShellResult): ShellResult {
   result = { ...result };
 
-  if (result.type === SerializedResultTypes.SerializedError) {
+  if (result.type === SerializedResultTypes.SerializedErrorResult) {
     result.type = null;
     result.printable = deserializeError(result.printable);
   }

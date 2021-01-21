@@ -1,4 +1,3 @@
-import v8 from 'v8';
 import {
   expose,
   caller,
@@ -7,12 +6,19 @@ import {
   ServerMessageData,
   ClientMessageData
 } from 'postmsg-rpc';
-import { deserializeError, serializeError } from './serializer';
+import {
+  serialize,
+  deserialize,
+  deserializeError,
+  serializeError
+} from './serializer';
 
 type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage: Function; send?: never }
   | { postMessage?: never; send?: Function }
 );
+
+const ERROR = '$$ERROR';
 
 function isMessageData(data: any): data is MessageData {
   return data && typeof data === 'object' && 'id' in data && 'sender' in data;
@@ -49,30 +55,27 @@ function send(messageBus: RPCMessageBus, data: any): void {
   }
 }
 
-function serialize(data: unknown): string {
-  return `data:;base64,${v8.serialize(data).toString('base64')}`;
-}
-
-function deserialize<T = unknown>(str: string): T | string {
-  if (/^data:;base64,.+/.test(str)) {
-    return v8.deserialize(
-      Buffer.from(str.replace('data:;base64,', ''), 'base64')
-    );
-  }
-  return str;
-}
-
 function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   return {
     addListener: messageBus.on.bind(messageBus),
     removeListener: messageBus.off.bind(messageBus),
     postMessage(data) {
       if (isClientMessageData(data) && Array.isArray(data.args)) {
+        // We don't guard against serialization errors on the client, if they
+        // happen, client is responsible for handling them
         data.args = serialize(removeTrailingUndefined(data.args));
       }
 
       if (isServerMessageData(data)) {
-        data.res = serialize(data.res);
+        // If serialization error happened on the server, we use our special
+        // error return value to propagate the error back to the client,
+        // otherwise error can be lost on the server and client call will never
+        // resolve
+        try {
+          data.res = serialize(data.res);
+        } catch (err) {
+          data.res = { [ERROR]: serializeError(err) };
+        }
       }
 
       return send(messageBus, data);
@@ -96,8 +99,6 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
 }
 
 export type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
-
-const ERROR = '$$ERROR';
 
 export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
   Object.entries(obj).forEach(([key, val]) => {

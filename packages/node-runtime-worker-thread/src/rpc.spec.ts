@@ -53,7 +53,63 @@ describe('rpc', () => {
     expect(err).to.be.instanceof(Error);
     expect(err).to.have.property('name', 'TypeError');
     expect(err).to.have.property('message', 'Uh-oh, error!');
-    expect(err).to.have.property('stack').match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
+    expect(err)
+      .to.have.property('stack')
+      .match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
+  });
+
+  it('throws on client if arguments are not serializable', async() => {
+    const rpcProcess = createMockRpcMesageBus();
+    const caller = createCaller(['callMe'], rpcProcess);
+
+    exposeAll(
+      {
+        callMe(fn: any) {
+          fn(1, 2);
+        }
+      },
+      rpcProcess
+    );
+
+    let err: Error;
+
+    try {
+      await caller.callMe((a: number, b: number) => a + b);
+    } catch (e) {
+      err = e;
+    }
+
+    expect(err).to.be.instanceof(Error);
+    expect(err)
+      .to.have.property('message')
+      .match(/could not be cloned/);
+  });
+
+  it('throws on client if retured value from the server is not serializable', async() => {
+    const rpcProcess = createMockRpcMesageBus();
+    const caller = createCaller(['returnsFunction'], rpcProcess);
+
+    exposeAll(
+      {
+        returnsFunction() {
+          return () => {};
+        }
+      },
+      rpcProcess
+    );
+
+    let err: Error;
+
+    try {
+      await caller.returnsFunction();
+    } catch (e) {
+      err = e;
+    }
+
+    expect(err).to.be.instanceof(Error);
+    expect(err)
+      .to.have.property('message')
+      .match(/could not be cloned/);
   });
 
   describe('createCaller', () => {
@@ -93,8 +149,8 @@ describe('rpc', () => {
       );
 
       rpcProcess.on('message', (data: any) => {
-      // Due to how our mocks implemented we have to introduce an if here to
-      // skip our own message being received by the message bus
+        // Due to how our mocks implemented we have to introduce an if here to
+        // skip our own message being received by the message bus
         if (data.sender === 'postmsg-rpc/server') {
           expect(data.id).to.be.equal('123abc');
           expect(data.res).to.be.equal('Meow meow meow meow!');
@@ -110,4 +166,3 @@ describe('rpc', () => {
     });
   });
 });
-
