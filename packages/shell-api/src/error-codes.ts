@@ -43,6 +43,14 @@ enum ShellApiErrors {
    * **Solution: Connect to a database before executing the operation.**
    */
   NotConnected = 'SHAPI-10004',
+
+  /**
+   * Signals calling a method that requires a Mongo object with field-level encryption options
+   * when none were passed.
+   *
+   * **Solution: Create a new Mongo object with the correct field-level encryption options first.**
+   */
+  NotUsingFLE = 'SHAPI-10005',
 }
 
 export {
