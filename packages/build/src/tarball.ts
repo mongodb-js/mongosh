@@ -283,7 +283,12 @@ export const tarballRedhat = async(pkg: PackageInformation, templateDir: string,
     ], {
       cwd: path.dirname(dir)
     });
-    await fs.rename(path.join(dir, 'RPMS', arch, `${pkg.metadata.name}-${version}-1.${arch}.rpm`), filename);
+    const rpmdir = path.join(dir, 'RPMS', arch);
+    const rpmnames = (await fs.readdir(rpmdir)).filter(name => name.endsWith('.rpm'));
+    if (rpmnames.length !== 1) {
+      throw new Error(`Don’t know which RPM from ${rpmdir} to pick: ${rpmnames}`);
+    }
+    await fs.rename(path.join(rpmdir, rpmnames[0]), filename);
   }
   await promisify(rimraf)(dir);
 };
