@@ -71,6 +71,10 @@ export default class Mongo extends ShellApiClass {
     this._serviceProvider = this._internalState.initialServiceProvider;
     if (fleOptions) {
       this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
+      const { mongocryptdSpawnPath } = this._internalState;
+      if (mongocryptdSpawnPath) {
+        (this._fleOptions.extraOptions ??= {}).mongocryptdSpawnPath = mongocryptdSpawnPath;
+      }
     }
   }
 

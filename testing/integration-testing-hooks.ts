@@ -9,7 +9,7 @@ import semver from 'semver';
 import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
-import { downloadMongoDb } from './download-mongodb';
+import { downloadMongoDb } from '../packages/build';
 
 const execFile = promisify(child_process.execFile);
 
@@ -341,7 +341,7 @@ export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_
     }
     return null;
   } catch {
-    return await downloadMongoDb(mongodVersion);
+    return await downloadMongoDb(path.resolve(__dirname, '..', 'tmp'), mongodVersion);
   }
 }
 

@@ -26,6 +26,7 @@ import constructShellBson from './shell-bson';
 
 export interface ShellCliOptions {
   nodb?: boolean;
+  mongocryptdSpawnPath?: string;
 }
 
 export interface AutocompleteParameters {
@@ -80,6 +81,7 @@ export default class ShellInternalState {
   public shellBson: any;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
+  public mongocryptdSpawnPath: string | null;
 
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
@@ -101,6 +103,7 @@ export default class ShellInternalState {
     this.context = {};
     this.cliOptions = cliOptions;
     this.evaluationListener = {};
+    this.mongocryptdSpawnPath = cliOptions.mongocryptdSpawnPath ?? null;
   }
 
   async fetchConnectionInfo(): Promise<void> {

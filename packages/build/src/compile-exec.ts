@@ -1,43 +1,5 @@
-import os from 'os';
-import path from 'path';
 import generateInput from './generate-input';
-import Platform from './platform';
 import SignableCompiler from './signable-compiler';
-
-/**
- * The executable name enum.
- */
-enum ExecName {
-  Windows = 'mongosh.exe',
-  Posix = 'mongosh'
-}
-
-/**
- * Determine the name of the executable based on the
- * provided platform.
- *
- * @param {string} platform - The platform.
- *
- * @returns {string} The name.
- */
-const determineExecName = (platform: string): string => {
-  if (platform === Platform.Windows) {
-    return ExecName.Windows;
-  }
-  return ExecName.Posix;
-};
-
-/**
- * Get the path to the executable itself.
- *
- * @param {string} outputDir - The directory to save in.
- * @param {string} platform - The platform.
- *
- * @returns {string} The path.
- */
-const executablePath = (outputDir: string, platform: string): string => {
-  return path.join(outputDir, determineExecName(platform));
-};
 
 /**
  * Compile the executable. This builds the thing that ends up in dist/
@@ -50,7 +12,7 @@ const executablePath = (outputDir: string, platform: string): string => {
 const compileExec = async(
   input: string,
   execInput: string,
-  outputDir: string,
+  executablePath: string,
   execNodeVersion: string,
   analyticsConfigFilePath: string,
   segmentKey: string): Promise<string> => {
@@ -59,19 +21,13 @@ const compileExec = async(
   // This JS also takes care of the analytics config file being written.
   await generateInput(input, execInput, analyticsConfigFilePath, segmentKey);
 
-  const executable = executablePath(outputDir, os.platform());
-  console.info('mongosh: creating binary:', executable);
+  console.info('mongosh: creating binary:', executablePath);
 
   const { compileJSFileAsBinary } = require('boxednode');
-  await new SignableCompiler(execInput, executable, execNodeVersion)
+  await new SignableCompiler(execInput, executablePath, execNodeVersion)
     .compile(compileJSFileAsBinary);
 
-  return executable;
+  return executablePath;
 };
 
 export default compileExec;
-export {
-  ExecName,
-  determineExecName,
-  executablePath
-};

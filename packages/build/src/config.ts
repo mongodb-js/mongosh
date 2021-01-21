@@ -1,3 +1,5 @@
+import type { PackageInformation } from './tarball';
+
 /**
  * Defines the configuration interface for the build system.
  */
@@ -6,6 +8,7 @@ export default interface Config {
   appleNotarizationBundleId?: string;
   input: string;
   execInput: string;
+  executablePath: string;
   outputDir: string;
   analyticsConfigFilePath?: string;
   rootDir: string;
@@ -31,4 +34,6 @@ export default interface Config {
     repo: string;
   };
   isPatch?: boolean;
+  mongocryptdPath: string;
+  packageInformation?: PackageInformation;
 }

@@ -1,10 +1,10 @@
 import { Octokit } from '@octokit/rest';
-import { promises as fs } from 'fs';
+import { promises as fs, constants as fsConstants } from 'fs';
 import os from 'os';
 import path from 'path';
 import writeAnalyticsConfig from './analytics';
 import { Barque } from './barque';
-import compileExec, { executablePath } from './compile-exec';
+import compileExec from './compile-exec';
 import Config from './config';
 import doUpload from './do-upload';
 import uploadDownloadCenterConfig from './download-center';
@@ -19,6 +19,7 @@ import publish from './publish';
 import { redactConfig } from './redact-config';
 import { createTarball, TarballFile } from './tarball';
 import uploadToDownloadCenter from './upload-to-download-center';
+import { downloadMongocrypt } from './download-mongocryptd';
 
 /**
  * Run the release process.
@@ -57,26 +58,27 @@ export default async function release(
     await compileExec(
       config.input,
       config.execInput,
-      config.outputDir,
+      config.executablePath,
       config.execNodeVersion,
       config.analyticsConfigFilePath ?? '',
       config.segmentKey ?? '');
   } else if (command === 'package') {
-    const executable = executablePath(config.outputDir, os.platform());
+    await fs.copyFile(await downloadMongocrypt(), config.mongocryptdPath, fsConstants.COPYFILE_FICLONE);
     const runCreateTarball = async(): Promise<TarballFile> => {
       return await createTarball(
-        executable,
         config.outputDir,
         config.buildVariant ?? '',
-        config.version,
-        config.rootDir
+        config.packageInformation as (Required<Config>['packageInformation'])
       );
     };
 
     // Zip the executable, or, on macOS, do it as part of the
     // notarization/signing step.
     if (os.platform() === Platform.MacOs) {
-      tarballFile = await macOSSignAndNotarize(executable, config, runCreateTarball);
+      tarballFile = await macOSSignAndNotarize([
+        config.executablePath,
+        config.mongocryptdPath
+      ], config, runCreateTarball);
     } else {
       tarballFile = await runCreateTarball();
     }

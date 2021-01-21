@@ -9,5 +9,5 @@ const fs = require('fs').promises;
 (async() => {
   const url = getArtifactUrl('mongosh', config.revision, `mongosh-${config.version}-linux.tgz`);
   await fs.mkdir(config.outputDir, { recursive: true });
-  await download(url, config.outputDir, { extract: true });
+  await download(url, config.outputDir, { extract: true, strip: 1 });
 })().catch(err => process.nextTick(() => { throw err; }));
