@@ -124,6 +124,7 @@ export async function downloadMongoDb(targetVersionSemverSpecifier = '*'): Promi
   }
   const productionVersions = fullJson.versions
     .filter((info: VersionInfo) => info.production_release)
+    .filter((info: VersionInfo) => info.downloads.length > 0)
     .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
