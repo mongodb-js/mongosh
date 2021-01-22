@@ -46,12 +46,29 @@ function reduceSetupRuntime(state, action) {
     return state;
   }
 
-  const { url, options } = action.dataService.getConnectionOptions();
+  let connection = action.dataService.getConnectionOptions();
+  // Shallow clone connection options to avoid side-effects
+  connection = { url: connection.url, options: { ...connection.options } };
 
-  const runtime = !!process.env.COMPASS_SHELL_EXPERIMENTAL_WORKER_RUNTIME
+  const shouldUseNewRuntime = !!process.env
+    .COMPASS_SHELL_EXPERIMENTAL_WORKER_RUNTIME;
+
+  if (shouldUseNewRuntime) {
+    // WorkerRuntime uses driver 4 that deprecates following options. They can
+    // be safely removed from the connection. This is necessary so that driver
+    // doesn't throw during the connection
+    //
+    // TODO: This can probably be removed as soon as compass uses the same
+    // driver version as rest of the mongosh packages
+    delete connection.options.useUnifiedTopology;
+    delete connection.options.connectWithNoPrimary;
+    delete connection.options.useNewUrlParser;
+  }
+
+  const runtime = shouldUseNewRuntime
     ? new WorkerRuntime(
-      url,
-      options,
+      connection.url,
+      connection.options,
       {},
       {
         env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
