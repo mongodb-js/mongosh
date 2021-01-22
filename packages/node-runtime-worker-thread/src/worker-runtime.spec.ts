@@ -41,34 +41,93 @@ describe('worker', () => {
   });
 
   describe('evaluate', () => {
-    it('should evaluate simple code and return simple, serializable values', async() => {
-      const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
-      await init('mongodb://nodb/', {}, { nodb: true });
+    let caller: Caller<WorkerRuntime, 'init' | 'evaluate'>;
 
-      const result = await evaluate('1 + 1');
+    beforeEach(() => {
+      const c = createCaller(['init', 'evaluate'], worker);
+      caller = {
+        ...c,
+        async evaluate(code: string) {
+          return deserializeEvaluationResult(await c.evaluate(code));
+        }
+      };
+      (caller.evaluate as any).close = c.evaluate.close;
+    });
 
-      expect(result).to.have.property('type', null);
-      expect(result).to.have.property('printable', 2);
+    afterEach(() => {
+      caller = null;
+    });
+
+    describe('basic shell result values', () => {
+      const primitiveValues: [string, string, unknown][] = [
+        ['null', 'null', null],
+        ['undefined', 'undefined', undefined],
+        ['boolean', '!false', true],
+        ['number', '1+1', 2],
+        ['string', '"hello"', 'hello']
+      ];
+
+      const everythingElse: [string, string, string][] = [
+        ['function', 'function abc() {}; abc', '[Function: abc]'],
+        [
+          'function with properties',
+          'function def() {}; def.def = 1; def',
+          '[Function: def] { def: 1 }'
+        ],
+        ['anonymous function', '(() => {})', '[Function (anonymous)]'],
+        ['class constructor', 'class BCD {}; BCD', '[class BCD]'],
+        [
+          'class instalce',
+          'class ABC { constructor() { this.abc = 1; } }; var abc = new ABC(); abc',
+          'ABC { abc: 1 }'
+        ],
+        ['simple array', '[1, 2, 3]', '[ 1, 2, 3 ]'],
+        [
+          'simple array with empty items',
+          '[1, 2,, 4]',
+          '[ 1, 2, <1 empty item>, 4 ]'
+        ],
+        [
+          'non-serializable array',
+          '[1, 2, 3, () => {}]',
+          '[ 1, 2, 3, [Function (anonymous)] ]'
+        ],
+        [
+          'simple object',
+          '({str: "foo", num: 123})',
+          "{ str: 'foo', num: 123 }"
+        ],
+        [
+          'non-serializable object',
+          '({str: "foo", num: 123, bool: false, fn() {}})',
+          "{ str: 'foo', num: 123, bool: false, fn: [Function: fn] }"
+        ],
+        [
+          'object with bson',
+          '({min: MinKey(), max: MaxKey(), int: NumberInt("1")})',
+          '{ min: MinKey(), max: MaxKey(), int: Int32(1) }'
+        ],
+        [
+          'object with everything',
+          '({ cls: class A{}, fn() {}, bsonType: NumberInt("1"), str: "123"})',
+          "{ cls: [class A], fn: [Function: fn], bsonType: Int32(1), str: '123' }"
+        ]
+      ];
+
+      primitiveValues.concat(everythingElse).forEach((testCase) => {
+        const [testName, evalValue, printable] = testCase;
+
+        it(testName, async() => {
+          const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
+          await init('mongodb://nodb/', {}, { nodb: true });
+          const result = await evaluate(evalValue);
+          expect(result).to.have.property('printable');
+          expect(result.printable).to.deep.equal(printable);
+        });
+      });
     });
 
     describe('errors', () => {
-      let caller: Caller<WorkerRuntime, 'init' | 'evaluate'>;
-
-      beforeEach(() => {
-        const c = createCaller(['init', 'evaluate'], worker);
-        caller = {
-          ...c,
-          async evaluate(code: string) {
-            return deserializeEvaluationResult(await c.evaluate(code));
-          }
-        };
-        (caller.evaluate as any).close = c.evaluate.close;
-      });
-
-      afterEach(() => {
-        caller = null;
-      });
-
       it("should throw an error if it's thrown during evaluation", async() => {
         const { init, evaluate } = caller;
 
