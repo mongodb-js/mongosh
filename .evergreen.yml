@@ -1,106 +1,5 @@
 exec_timeout_secs: 3600
 
-# Variables for common functions.
-#
-# compile_artifact: Compile the mongosh executable.
-# package_and_upload_artifact: Package the executable and upload the artifacts.
-variables:
-  - &compile_artifact
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: bash
-      script: |
-        set -e
-        { # curly brackets to work around EVG-13667
-        cd $(pwd)
-        export NODE_JS_VERSION=${node_js_version}
-        source .evergreen/.setup_env
-        export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-        if [ `uname` == Linux ]; then
-          mkdir -p tmp
-          cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-          (cd scripts/docker && docker build -t centos7-build -f centos7-build.Dockerfile .)
-          echo Starting Docker container build
-          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
-            -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
-            -e NODE_JS_VERSION \
-            -e BUILD_VARIANT \
-            --rm -v $PWD:/tmp/build --network host centos7-build \
-            -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release compile && dist/mongosh --version'
-        else
-          npm run evergreen-release compile
-        fi
-        dist/mongosh --version
-        source .evergreen/.setup_env
-        export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
-        if [ x"$OS" == x"Windows_NT" ]; then
-          export MONGOSH_TEST_EXECUTABLE_PATH="$(cygpath -w "$MONGOSH_TEST_EXECUTABLE_PATH")"
-        fi
-        echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-        npm run test-e2e-ci
-        tar cvzf dist.tgz dist
-        }
-
-  - &package_and_upload_artifact
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: bash
-      script: |
-        set -e
-        {
-        cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
-        set -e
-        cd $(pwd)
-        export NODE_JS_VERSION=${node_js_version}
-        source .evergreen/.setup_env
-        tar xvzf dist.tgz
-        dist/mongosh --version
-        if [ `uname` == Linux ]; then
-          mkdir -p tmp
-          cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-          (cd scripts/docker && docker build -t centos7-package -f centos7-package.Dockerfile .)
-          echo Starting Docker container packaging
-          docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
-            -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
-            -e NODE_JS_VERSION \
-            -e BUILD_VARIANT \
-            --rm -v $PWD:/tmp/build --network host centos7-package \
-            -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
-        else
-          npm run evergreen-release package
-          if [ `uname` == Darwin ]; then
-            # Verify signing
-            spctl -a -vvv -t install dist/mongosh
-          fi
-          npm run evergreen-release upload
-        fi
-        RELEASE_MONGOSH
-        if [ `uname` == Darwin ]; then
-          ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
-        else
-          bash ~/release_mongosh.sh
-        fi
-        }
-
-  - &test_linux_artifact
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: bash
-      script: |
-        set -e
-        {
-        export NODE_JS_VERSION=${node_js_version}
-        source .evergreen/.setup_env
-        node scripts/download-linux-artifact
-        dist/mongosh --version
-        export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
-        echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-        npm run test-e2e-ci
-        }
-
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -202,7 +101,12 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
-    - <<: *compile_artifact
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/compile-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -224,13 +128,33 @@ functions:
         local_file: src/dist.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
         bucket: mciuploads
-    - <<: *package_and_upload_artifact
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/package-and-upload-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
   test_linux_artifact:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
         redacted: true
-    - <<: *test_linux_artifact
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          node scripts/download-linux-artifact
+          dist/mongosh --version
+          export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
+          echo "$MONGOSH_TEST_EXECUTABLE_PATH"
+          npm run test-e2e-ci
+          }
+
   release_publish:
     - command: expansions.write
       params:
