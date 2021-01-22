@@ -44,6 +44,7 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "bson": "^4.2.2",
     "postmsg-rpc": "^2.4.0"
   }
 }

@@ -10,9 +10,29 @@ import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { Caller, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
+import { ObjectId } from 'bson';
+import { inspect } from 'util';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
+
+const chaiBson: Chai.ChaiPlugin = (chai) => {
+  chai.Assertion.addMethod('bson', function bson(expected) {
+    const obj = this._obj;
+
+    new (chai.Assertion)(obj).to.be.instanceof(expected.constructor);
+
+    this.assert(
+      inspect(obj) === inspect(expected),
+      'expected #{this} to match #{exp} but got #{act}',
+      'expected #{this} not to match #{exp}',
+      obj,
+      expected
+    );
+  });
+};
+
+chai.use(chaiBson);
 
 // We need a compiled version so we can import it as a worker
 const workerThreadModule = fs.readFile(
@@ -125,6 +145,89 @@ describe('worker', () => {
           expect(result.printable).to.deep.equal(printable);
         });
       });
+    });
+
+    describe('shell-api results', () => {
+      const testServer = startTestServer('shared');
+      const db = `test-db-${Date.now().toString(16)}`;
+
+      type CommandTestRecord =
+        | [string | string[], string]
+        | [string | string[], string, any];
+
+      const showCommand: CommandTestRecord[] = [
+        ['show dbs', 'ShowDatabasesResult'],
+        ['show collections', 'ShowCollectionsResult'],
+        ['show profile', 'ShowProfileResult'],
+        ['show roles', 'ShowResult']
+      ];
+
+      const useCommand: CommandTestRecord[] = [
+        [`use ${db}`, null, `switched to db ${db}`]
+      ];
+
+      const cursors: CommandTestRecord[] = [
+        [
+          [
+            `use ${db}`,
+            'db.coll.insertOne({ _id: ObjectId("000000000000000000000000"), foo: 321 });',
+            'db.coll.aggregate({ $match: { foo: 321 } })'
+          ],
+          'AggregationCursor',
+          (result) => {
+            expect(result.printable).to.have.property('cursorHasMore', false);
+            expect(result.printable[0])
+              .to.have.property('_id')
+              // TODO: chai assertion types
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              .bson(new ObjectId('000000000000000000000000'));
+            expect(result.printable[0]).to.have.property('foo', 321);
+          }
+        ]
+      ];
+
+      showCommand
+        .concat(useCommand)
+        .concat(cursors)
+        .forEach((testCase) => {
+          const [commands, resultType, printable] = testCase;
+
+          let command: string;
+          let prepare: undefined | string[];
+
+          if (Array.isArray(commands)) {
+            command = commands.pop();
+            prepare = commands;
+          } else {
+            command = commands;
+          }
+
+          it(`"${command}" should return ${resultType}`, async() => {
+            const { init, evaluate } = caller;
+            await init(await testServer.connectionString(), {}, {});
+
+            if (prepare) {
+              for (const code of prepare) {
+                await evaluate(code);
+              }
+            }
+
+            const result = await evaluate(command);
+
+            expect(result).to.have.property('type', resultType);
+
+            if (typeof printable === 'function') {
+              printable(result);
+            } else if (printable instanceof RegExp) {
+              expect(result).to.have.property('printable').match(printable);
+            } else if (printable) {
+              expect(result)
+                .to.have.property('printable')
+                .deep.equal(printable);
+            }
+          });
+        });
     });
 
     describe('errors', () => {

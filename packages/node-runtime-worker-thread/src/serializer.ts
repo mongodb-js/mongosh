@@ -1,6 +1,7 @@
 import v8 from 'v8';
 import { ShellResult } from '@mongosh/shell-evaluator';
 import { inspect } from 'util';
+import { EJSON, Document } from 'bson';
 
 export function serialize(data: unknown): string {
   return `data:;base64,${v8.serialize(data).toString('base64')}`;
@@ -55,8 +56,15 @@ export function deserializeError(err: any): Error {
 
 export enum SerializedResultTypes {
   SerializedErrorResult = 'SerializedErrorResult',
-  InspectResult = 'InspectResult'
+  InspectResult = 'InspectResult',
+  SerializedShellApiResult = 'SerializedShellApiResult'
 }
+
+type SerializedShellApiResult = {
+  origType: string;
+  serializedValue: Document;
+  nonEnumPropertyDescriptors: Record<string, PropertyDescriptor>;
+};
 
 export function serializeEvaluationResult(result: ShellResult): ShellResult {
   result = { ...result };
@@ -76,6 +84,23 @@ export function serializeEvaluationResult(result: ShellResult): ShellResult {
       result.type = SerializedResultTypes.InspectResult;
       result.printable = inspect(result.rawValue);
     }
+  } else if (!isPrimitive(result.printable)) {
+    // If type is present we are dealing with shell-api return value. In most
+    // cases printable values of shell-api are primitive or serializable as
+    // (E)JSON, but they also might have some non-enumerable stuff (looking at
+    // you, Cursor!) that we need to serialize additionally, otherwiser those
+    // params will be lost in the ether causing issues down the way
+    const origType = result.type;
+    result.type = SerializedResultTypes.SerializedShellApiResult;
+    result.printable = {
+      origType,
+      serializedValue: EJSON.serialize(result.printable),
+      nonEnumPropertyDescriptors: Object.fromEntries(
+        Object.entries(
+          Object.getOwnPropertyDescriptors(result.printable)
+        ).filter(([, descriptor]) => !descriptor.enumerable)
+      )
+    };
   }
 
   // `rawValue` can't be serialized "by design", we don't really care about it
@@ -92,6 +117,20 @@ export function deserializeEvaluationResult(result: ShellResult): ShellResult {
   if (result.type === SerializedResultTypes.SerializedErrorResult) {
     result.type = null;
     result.printable = deserializeError(result.printable);
+  }
+
+  if (result.type === SerializedResultTypes.SerializedShellApiResult) {
+    const value: SerializedShellApiResult = result.printable;
+    const printable = EJSON.deserialize(value.serializedValue);
+
+    // Primitives should not end up here ever, but we need to convince TS that
+    // its true
+    if (!isPrimitive(printable)) {
+      Object.defineProperties(printable, value.nonEnumPropertyDescriptors);
+    }
+
+    result.type = value.origType;
+    result.printable = printable;
   }
 
   Object.defineProperty(result, 'rawValue', {
