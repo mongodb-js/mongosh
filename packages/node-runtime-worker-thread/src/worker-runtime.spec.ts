@@ -118,7 +118,7 @@ describe('worker', () => {
         const [testName, evalValue, printable] = testCase;
 
         it(testName, async() => {
-          const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
+          const { init, evaluate } = caller;
           await init('mongodb://nodb/', {}, { nodb: true });
           const result = await evaluate(evalValue);
           expect(result).to.have.property('printable');
