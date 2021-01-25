@@ -169,42 +169,6 @@ export class GithubRepo {
     await this.octokit.repos.updateRelease(params);
   }
 
-  /**
-  * Checks if current build needs to be released to github and the downloads
-  * centre.
-  * Returns true if current branch is not master, there is a commit tag, and if
-  * current version matches current revision.
-  */
-  async shouldDoPublicRelease(config: Config): Promise<boolean> {
-    if (config.isPatch) {
-      console.info('mongosh: skip public release: is a patch');
-      return false;
-    }
-
-    if (config.branch !== 'master') {
-      console.info('mongosh: skip public release: is not master');
-      return false;
-    }
-
-    const commitTag = config.revision && await this.getTagByCommitSha(config.revision);
-
-    if (!commitTag) {
-      console.info('mongosh: skip public release: commit is not tagged');
-      return false;
-    }
-
-    if (semver.neq(commitTag.name, config.version)) {
-      console.info(
-        'mongosh: skip public release: the commit tag', commitTag.name,
-        'is different from the release version', config.version
-      );
-
-      return false;
-    }
-
-    return true;
-  }
-
   jiraReleaseNotesLink(version: string): string {
     return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
   }
