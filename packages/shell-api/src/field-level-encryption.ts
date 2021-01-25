@@ -14,7 +14,7 @@ import { assertArgsDefined, assertArgsType } from './helpers';
 import { asPrintable } from './enums';
 import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
 /** Configuration options for using 'aws' as your KMS provider */
 declare interface awsKms {
@@ -52,7 +52,13 @@ export class ClientEncryption extends ShellApiClass {
   constructor(mongo: any) {
     super();
     this._mongo = mongo;
-    this._libmongocrypt = new mongo._serviceProvider.fle.ClientEncryption(
+
+    const fle = mongo._serviceProvider.fle;
+    if (!fle) {
+      throw new MongoshRuntimeError('FLE API is not available');
+    }
+
+    this._libmongocrypt = new fle.ClientEncryption(
       mongo._serviceProvider.getRawClient(),
       {
         ...this._mongo._fleOptions
