@@ -6,12 +6,13 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
+import { ObjectId } from 'bson';
+import { inspect } from 'util';
+import { ShellResult } from '@mongosh/shell-evaluator';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { Caller, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
-import { ObjectId } from 'bson';
-import { inspect } from 'util';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -20,7 +21,7 @@ const chaiBson: Chai.ChaiPlugin = (chai) => {
   chai.Assertion.addMethod('bson', function bson(expected) {
     const obj = this._obj;
 
-    new (chai.Assertion)(obj).to.be.instanceof(expected.constructor);
+    new chai.Assertion(obj).to.be.instanceof(expected.constructor);
 
     this.assert(
       inspect(obj) === inspect(expected),
@@ -156,14 +157,41 @@ describe('worker', () => {
         | [string | string[], string, any];
 
       const showCommand: CommandTestRecord[] = [
-        ['show dbs', 'ShowDatabasesResult'],
-        ['show collections', 'ShowCollectionsResult'],
-        ['show profile', 'ShowProfileResult'],
-        ['show roles', 'ShowResult']
+        [
+          'show dbs',
+          'ShowDatabasesResult',
+          ({ printable }: ShellResult) => {
+            expect(printable.find(({ name }: any) => name === 'admin')).to.not
+              .be.undefined;
+          }
+        ],
+        ['show collections', 'ShowCollectionsResult', []],
+        ['show profile', 'ShowProfileResult', { count: 0 }],
+        [
+          'show roles',
+          'ShowResult',
+          ({ printable }: ShellResult) => {
+            expect(printable.find(({ role }: any) => role === 'dbAdmin')).to.not
+              .be.undefined;
+          }
+        ]
       ];
 
       const useCommand: CommandTestRecord[] = [
         [`use ${db}`, null, `switched to db ${db}`]
+      ];
+
+      const helpCommand: CommandTestRecord[] = [
+        [
+          'help',
+          'Help',
+          ({ printable }: ShellResult) => {
+            expect(printable).to.have.property('help', 'Shell Help');
+            expect(printable)
+              .to.have.property('docs')
+              .match(/https:\/\/docs.mongodb.com/);
+          }
+        ]
       ];
 
       const cursors: CommandTestRecord[] = [
@@ -174,22 +202,103 @@ describe('worker', () => {
             'db.coll.aggregate({ $match: { foo: 321 } })'
           ],
           'AggregationCursor',
-          (result) => {
-            expect(result.printable).to.have.property('cursorHasMore', false);
-            expect(result.printable[0])
-              .to.have.property('_id')
+          ({ printable }: ShellResult) => {
+            expect(printable).to.have.property('cursorHasMore', false);
+            expect(printable)
+              .to.have.nested.property('[0]._id')
               // TODO: chai assertion types
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               .bson(new ObjectId('000000000000000000000000'));
-            expect(result.printable[0]).to.have.property('foo', 321);
+            expect(printable).to.have.nested.property('[0].foo', 321);
+          }
+        ],
+        [
+          [
+            `use ${db}`,
+            'db.coll.insertMany([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => ({ i })))',
+            'db.coll.find({ i: { $mod: [2, 0] } }, { _id: 0 })'
+          ],
+          'Cursor',
+          [{ i: 2 }, { i: 4 }, { i: 6 }, { i: 8 }, { i: 10 }]
+        ],
+        [
+          [
+            `use ${db}`,
+            "db.coll.insertMany('a'.repeat(100).split('').map(a => ({ a })))",
+            'db.coll.find({}, { _id: 0 })',
+            'it'
+          ],
+          'CursorIterationResult',
+          ({ printable }: ShellResult) => {
+            expect(printable).to.include.deep.members([{ a: 'a' }]);
+          }
+        ]
+      ];
+
+      const crudCommands: CommandTestRecord[] = [
+        [
+          [`use ${db}`, 'db.coll.insertOne({ a: "a" })'],
+          'InsertOneResult',
+          ({ printable }: ShellResult) => {
+            expect(printable).to.have.property('acknowledged', true);
+            expect(printable)
+              .to.have.property('insertedId')
+              .instanceof(ObjectId);
+          }
+        ],
+        [
+          [`use ${db}`, 'db.coll.insertMany([{ b: "b" }, { c: "c" }])'],
+          'InsertManyResult',
+          ({ printable }: ShellResult) => {
+            expect(printable).to.have.property('acknowledged', true);
+            expect(printable)
+              .to.have.nested.property('insertedIds[0]')
+              .instanceof(ObjectId);
+          }
+        ],
+        [
+          [
+            `use ${db}`,
+            'db.coll.insertOne({ a: "a" })',
+            'db.coll.updateOne({ a: "a" }, { $set: { a: "b" } })'
+          ],
+          'UpdateResult',
+          {
+            acknowledged: true,
+            insertedId: null,
+            matchedCount: 1,
+            modifiedCount: 1,
+            upsertedCount: 0
+          }
+        ],
+        [
+          [
+            `use ${db}`,
+            'db.coll.insertOne({ a: "a" })',
+            'db.coll.deleteOne({ a: "a" })'
+          ],
+          'DeleteResult',
+          { acknowledged: true, deletedCount: 1 }
+        ],
+        [
+          [`use ${db}`, 'db.coll.bulkWrite([{ insertOne: { d: "d" } }])'],
+          'BulkWriteResult',
+          ({ printable }: ShellResult) => {
+            expect(printable).to.have.property('acknowledged', true);
+            expect(printable).to.have.property('insertedCount', 1);
+            expect(printable)
+              .to.have.nested.property('insertedIds[0]')
+              .instanceof(ObjectId);
           }
         ]
       ];
 
       showCommand
         .concat(useCommand)
+        .concat(helpCommand)
         .concat(cursors)
+        .concat(crudCommands)
         .forEach((testCase) => {
           const [commands, resultType, printable] = testCase;
 
@@ -203,7 +312,7 @@ describe('worker', () => {
             command = commands;
           }
 
-          it(`"${command}" should return ${resultType}`, async() => {
+          it(`"${command}" should return ${resultType} result`, async() => {
             const { init, evaluate } = caller;
             await init(await testServer.connectionString(), {}, {});
 
@@ -221,7 +330,7 @@ describe('worker', () => {
               printable(result);
             } else if (printable instanceof RegExp) {
               expect(result).to.have.property('printable').match(printable);
-            } else if (printable) {
+            } else if (typeof printable !== 'undefined') {
               expect(result)
                 .to.have.property('printable')
                 .deep.equal(printable);
