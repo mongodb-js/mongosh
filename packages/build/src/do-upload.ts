@@ -9,7 +9,7 @@ export default async function doUpload(
   githubRepo: GithubRepo,
   barque: Barque,
   tarballFile: TarballFile,
-  uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>,
+  uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string, artifactUrlFile?: string) => Promise<void>,
   uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
   for (const key of [
     'evgAwsKey', 'evgAwsSecret', 'project', 'revision', 'downloadCenterAwsKey', 'downloadCenterAwsSecret'
@@ -25,7 +25,8 @@ export default async function doUpload(
     config.evgAwsKey as string,
     config.evgAwsSecret as string,
     config.project as string,
-    config.revision as string
+    config.revision as string,
+    config.artifactUrlFile
   );
   console.info('mongosh: internal release completed.');
 

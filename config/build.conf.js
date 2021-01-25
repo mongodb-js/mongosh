@@ -98,6 +98,7 @@ module.exports = {
     owner: 'mongodb-js',
     repo: 'mongosh'
   },
+  artifactUrlFile: process.env.ARTIFACT_URL_FILE,
   mongocryptdPath: MONGOCRYPTD_PATH,
   packageInformation: {
     binaries: [

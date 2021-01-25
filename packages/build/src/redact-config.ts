@@ -18,6 +18,7 @@ export function redactConfig(config: Config): Partial<Config> {
     repo: config.repo,
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
-    mongocryptdPath: config.mongocryptdPath
+    mongocryptdPath: config.mongocryptdPath,
+    artifactUrlFile: config.artifactUrlFile
   };
 }
