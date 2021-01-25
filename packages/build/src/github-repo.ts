@@ -2,7 +2,6 @@
 import { Octokit } from '@octokit/rest';
 import fs from 'fs';
 import path from 'path';
-import semver from 'semver';
 import util from 'util';
 import Config from './config';
 import { TarballFile } from './tarball';
