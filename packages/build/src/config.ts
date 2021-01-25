@@ -36,4 +36,5 @@ export default interface Config {
   isPatch?: boolean;
   mongocryptdPath: string;
   packageInformation?: PackageInformation;
+  artifactUrlFile?: string;
 }
