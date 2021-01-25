@@ -37,11 +37,10 @@ export default async function release(
 
   const githubRepo = new GithubRepo(config.repo, octokit);
   const mongoHomebrewRepo = new GithubRepo({ owner: 'mongodb', repo: 'homebrew-brew' }, octokit);
-  const commitTag = await githubRepo.getTagByCommitSha(config.revision);
 
   config = {
     ...config,
-    version: await getReleaseVersionFromTag(commitTag?.name) || config.version
+    version: await getReleaseVersionFromTag(config.triggeringGitTag) || config.version
   };
 
   // updates the version of internal packages to reflect the tagged one
@@ -107,5 +106,3 @@ export default async function release(
     throw new Error(`Unknown command: ${command}`);
   }
 }
-
-
