@@ -88,14 +88,14 @@ describe('worker', () => {
         ['string', '"hello"', 'hello']
       ];
 
-      const everythingElse: [string, string, string][] = [
+      const everythingElse: [string, string, string | RegExp][] = [
         ['function', 'function abc() {}; abc', '[Function: abc]'],
         [
           'function with properties',
           'function def() {}; def.def = 1; def',
           '[Function: def] { def: 1 }'
         ],
-        ['anonymous function', '(() => {})', '[Function (anonymous)]'],
+        ['anonymous function', '(() => {})', /\[Function( \(anonymous\))?\]/],
         ['class constructor', 'class BCD {}; BCD', '[class BCD]'],
         [
           'class instalce',
@@ -111,7 +111,7 @@ describe('worker', () => {
         [
           'non-serializable array',
           '[1, 2, 3, () => {}]',
-          '[ 1, 2, 3, [Function (anonymous)] ]'
+          /\[ 1, 2, 3, \[Function( \(anonymous\))?\] \]/
         ],
         [
           'simple object',
@@ -143,7 +143,11 @@ describe('worker', () => {
           await init('mongodb://nodb/', {}, { nodb: true });
           const result = await evaluate(evalValue);
           expect(result).to.have.property('printable');
-          expect(result.printable).to.deep.equal(printable);
+          if (printable instanceof RegExp) {
+            expect(result.printable).to.match(printable);
+          } else {
+            expect(result.printable).to.deep.equal(printable);
+          }
         });
       });
     });
