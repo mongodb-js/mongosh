@@ -86,6 +86,7 @@ module.exports = {
   segmentKey: process.env.SEGMENT_API_KEY,
   isCi: process.env.IS_CI === 'true',
   isPatch: process.env.IS_PATCH === 'true',
+  triggeringGitTag: process.env.TRIGGERED_BY_GIT_TAG,
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
   buildVariant: BUILD_VARIANT,

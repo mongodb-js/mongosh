@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
 import type writeAnalyticsConfigType from './analytics';
-import Config from './config';
+import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import type uploadDownloadCenterConfigType from './download-center';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
@@ -21,6 +21,7 @@ describe('publish', () => {
   let publishNpmPackages: typeof publishNpmPackagesType;
   let writeAnalyticsConfig: typeof writeAnalyticsConfigType;
   let publishToHomebrew: typeof publishToHomebrewType;
+  let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
   let githubRepo: GithubRepo;
   let mongoHomebrewRepo: GithubRepo;
 
@@ -61,15 +62,14 @@ describe('publish', () => {
     publishNpmPackages = sinon.spy();
     writeAnalyticsConfig = sinon.spy();
     publishToHomebrew = sinon.spy();
+    shouldDoPublicRelease = sinon.spy();
     githubRepo = createStubRepo();
     mongoHomebrewRepo = createStubRepo();
   });
 
   context('if is a public release', () => {
     beforeEach(() => {
-      githubRepo = createStubRepo({
-        shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(true))
-      });
+      shouldDoPublicRelease = sinon.stub().returns(true);
     });
 
     it('updates the download center config', async() => {
@@ -80,7 +80,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(uploadDownloadCenterConfig).to.have.been.calledWith(
@@ -98,7 +99,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(githubRepo.promoteRelease).to.have.been.calledWith(config);
@@ -112,7 +114,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(writeAnalyticsConfig).to.have.been.calledOnceWith(
@@ -130,7 +133,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(publishToHomebrew).to.have.been.calledWith(
@@ -143,9 +147,7 @@ describe('publish', () => {
 
   context('if is not a public release', () => {
     beforeEach(() => {
-      githubRepo = createStubRepo({
-        shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(false))
-      });
+      shouldDoPublicRelease = sinon.stub().returns(false);
     });
 
     it('does not update the download center config', async() => {
@@ -156,7 +158,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(uploadDownloadCenterConfig).not.to.have.been.called;
@@ -170,7 +173,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(githubRepo.promoteRelease).not.to.have.been.called;
@@ -184,7 +188,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(publishNpmPackages).not.to.have.been.called;
@@ -198,7 +203,8 @@ describe('publish', () => {
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
-        publishToHomebrew
+        publishToHomebrew,
+        shouldDoPublicRelease
       );
 
       expect(publishToHomebrew).not.to.have.been.called;

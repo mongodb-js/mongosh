@@ -17,7 +17,7 @@ export default function getReleaseVersionFromTag(
   // a GA (vX.X.X) or rc (vX.X.X-rc.X) version.
   const prerelease = semver.prerelease(tagSemver);
 
-  if (prerelease && prerelease[0] !== 'rc') {
+  if (prerelease && prerelease[0] !== 'draft') {
     return;
   }
 

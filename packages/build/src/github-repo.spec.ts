@@ -20,42 +20,6 @@ describe('GithubRepo', () => {
   beforeEach(() => {
     githubRepo = getTestGithubRepo();
   });
-
-  describe('shouldDoPublicRelease', () => {
-    it('returns false when isPatch is true', async() => {
-      const config = { isPatch: true };
-      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
-    });
-
-
-    it('returns false when branch is not master', async() => {
-      const config = { branch: 'feature' };
-      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
-    });
-
-    it('returns false when branch is master but not tagged', async() => {
-      githubRepo.getTagByCommitSha = sinon.stub().resolves();
-
-      const config = { branch: 'master', revision: 'sha' };
-      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
-      expect(await githubRepo.getTagByCommitSha).to.have.been.calledWith('sha');
-    });
-
-    it('returns false when current version does not match commit tag', async() => {
-      githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
-
-      const config = { branch: 'master', revision: 'sha', version: '0.0.4' };
-      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.false;
-    });
-
-    it('returns true when version matches commit tag', async() => {
-      githubRepo.getTagByCommitSha = sinon.stub().resolves({ name: '0.0.3' });
-
-      const config = { branch: 'master', revision: 'sha', version: '0.0.3' };
-      expect(await githubRepo.shouldDoPublicRelease(config as any)).to.be.true;
-    });
-  });
-
   describe('getTagByCommitSha', () => {
     it('returns undefined if the commit sha is undefined or empty', async() => {
       expect(

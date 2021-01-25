@@ -171,8 +171,10 @@ functions:
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "//registry.npmjs.org/:_authToken=${DEVTOOLSBOT_NPM_TOKEN}" > .npmrc
-          npm run evergreen-release publish
+          echo "PUBLISHING RELEASE"
           }
+        # TODO: move that back in once verified it works as expected
+        # npm run evergreen-release publish
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
@@ -406,6 +408,8 @@ tasks:
         vars:
           node_js_version: "14.15.1"
   - name: release_publish
+    tags: ["publish"]
+    git_tag_only: true
     depends_on:
       - name: package_and_upload_artifact_win
         variant: win32

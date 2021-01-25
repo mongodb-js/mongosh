@@ -2,7 +2,7 @@ import { getArtifactUrl } from './evergreen';
 import { GithubRepo } from './github-repo';
 import { TarballFile } from './tarball';
 import { Barque } from './barque';
-import Config from './config';
+import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 
 export default async function doUpload(
   config: Config,
@@ -10,7 +10,9 @@ export default async function doUpload(
   barque: Barque,
   tarballFile: TarballFile,
   uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string, artifactUrlFile?: string) => Promise<void>,
-  uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>): Promise<void> {
+  uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>,
+  shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn
+): Promise<void> {
   for (const key of [
     'evgAwsKey', 'evgAwsSecret', 'project', 'revision', 'downloadCenterAwsKey', 'downloadCenterAwsSecret'
   ]) {
@@ -34,7 +36,7 @@ export default async function doUpload(
     config.project as string, config.revision as string, tarballFile.path);
 
   // Only release to public from master and when tagged with the right version.
-  if (await githubRepo.shouldDoPublicRelease(config)) {
+  if (shouldDoPublicRelease(config)) {
     console.info('mongosh: start public release.');
 
     await uploadToDownloadCenter(
@@ -51,4 +53,3 @@ export default async function doUpload(
 
   console.info('mongosh: finished release process.');
 }
-
