@@ -10,6 +10,15 @@ export function bumpNpmPackages(version: string): void {
     return;
   }
 
+  execFileSync('git', ['--version'], { stdio: 'inherit' });
+  try {
+    const execa = require('execa');
+    execa('git', ['--version']);
+  } catch (e) {
+    console.warn('Could not use execa directly for debugging...');
+  }
+
+  console.info(`mongosh: Bumping package versions to ${version}`);
   execFileSync(LERNA_BIN, [
     'version',
     version,
