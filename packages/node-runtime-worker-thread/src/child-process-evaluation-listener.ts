@@ -1,13 +1,13 @@
 import { ChildProcess } from 'child_process';
-import { EvaluationListener } from '@mongosh/shell-evaluator';
 import { exposeAll, WithClose } from './rpc';
 import type { WorkerRuntime } from './index';
+import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 export class ChildProcessEvaluationListener {
-  exposedListener: WithClose<EvaluationListener>;
+  exposedListener: WithClose<RuntimeEvaluationListener>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
-    this.exposedListener = exposeAll<EvaluationListener>(
+    this.exposedListener = exposeAll<RuntimeEvaluationListener>(
       {
         onPrompt(question, type) {
           return (

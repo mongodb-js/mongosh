@@ -8,11 +8,11 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { ObjectId } from 'bson';
 import { inspect } from 'util';
-import { ShellResult } from '@mongosh/shell-evaluator';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { Caller, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
+import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -164,7 +164,7 @@ describe('worker', () => {
         [
           'show dbs',
           'ShowDatabasesResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable.find(({ name }: any) => name === 'admin')).to.not
               .be.undefined;
           }
@@ -174,7 +174,7 @@ describe('worker', () => {
         [
           'show roles',
           'ShowResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable.find(({ role }: any) => role === 'dbAdmin')).to.not
               .be.undefined;
           }
@@ -189,7 +189,7 @@ describe('worker', () => {
         [
           'help',
           'Help',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('help', 'Shell Help');
             expect(printable)
               .to.have.property('docs')
@@ -206,7 +206,7 @@ describe('worker', () => {
             'db.coll.aggregate({ $match: { foo: 321 } })'
           ],
           'AggregationCursor',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('cursorHasMore', false);
             expect(printable)
               .to.have.nested.property('[0]._id')
@@ -234,7 +234,7 @@ describe('worker', () => {
             'it'
           ],
           'CursorIterationResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.include.deep.members([{ a: 'a' }]);
           }
         ]
@@ -244,7 +244,7 @@ describe('worker', () => {
         [
           [`use ${db}`, 'db.coll.insertOne({ a: "a" })'],
           'InsertOneResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('acknowledged', true);
             expect(printable)
               .to.have.property('insertedId')
@@ -254,7 +254,7 @@ describe('worker', () => {
         [
           [`use ${db}`, 'db.coll.insertMany([{ b: "b" }, { c: "c" }])'],
           'InsertManyResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('acknowledged', true);
             expect(printable)
               .to.have.nested.property('insertedIds[0]')
@@ -288,7 +288,7 @@ describe('worker', () => {
         [
           [`use ${db}`, 'db.coll.bulkWrite([{ insertOne: { d: "d" } }])'],
           'BulkWriteResult',
-          ({ printable }: ShellResult) => {
+          ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('acknowledged', true);
             expect(printable).to.have.property('insertedCount', 1);
             expect(printable)

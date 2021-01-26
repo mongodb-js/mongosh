@@ -2,14 +2,13 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { parentPort, isMainThread } from 'worker_threads';
-import { Runtime } from '@mongosh/browser-runtime-core';
+import { Runtime, RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import {
   MongoClientOptions,
   ServiceProvider
 } from '@mongosh/service-provider-core';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
-import { EvaluationListener } from '@mongosh/shell-evaluator';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 
@@ -30,7 +29,7 @@ function ensureRuntime(methodName: string): Runtime {
   return runtime;
 }
 
-const evaluationListener = createCaller<EvaluationListener>(
+const evaluationListener = createCaller<RuntimeEvaluationListener>(
   ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
   parentPort
 );

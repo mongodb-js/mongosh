@@ -6,11 +6,12 @@ import {
 import {
   Runtime,
   OpenContextRuntime,
-  Completion
+  Completion,
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
-import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 import type { MongoshBus } from '@mongosh/types';
 
 declare const __webpack_require__: any;
@@ -42,11 +43,11 @@ export class ElectronRuntime implements Runtime {
     );
   }
 
-  setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
+  setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
     return this.openContextRuntime.setEvaluationListener(listener);
   }
 
-  async evaluate(code: string): Promise<ShellResult> {
+  async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     return await this.openContextRuntime.evaluate(code);
   }
 

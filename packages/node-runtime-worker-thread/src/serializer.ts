@@ -1,7 +1,7 @@
 import v8 from 'v8';
-import { ShellResult } from '@mongosh/shell-evaluator';
 import { inspect } from 'util';
 import { EJSON, Document } from 'bson';
+import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 
 export function serialize(data: unknown): string {
   return `data:;base64,${v8.serialize(data).toString('base64')}`;
@@ -66,23 +66,25 @@ type SerializedShellApiResult = {
   nonEnumPropertyDescriptors: Record<string, PropertyDescriptor>;
 };
 
-export function serializeEvaluationResult(result: ShellResult): ShellResult {
+export function serializeEvaluationResult(
+  result: RuntimeEvaluationResult
+): RuntimeEvaluationResult {
   result = { ...result };
 
   // Type `null` indicates anything that is not returned by shell-api, any
   // usual javascript value returned from evaluation
   if (result.type === null) {
     // Errors get special treatment to achieve better serialization
-    if (isError(result.rawValue)) {
+    if (isError(result.printable)) {
       result.type = SerializedResultTypes.SerializedErrorResult;
-      result.printable = serializeError(result.rawValue);
-    } else if (!isPrimitive(result.rawValue)) {
+      result.printable = serializeError(result.printable);
+    } else if (!isPrimitive(result.printable)) {
       // For everything else that is not a primitive value there is just too
       // many possible combinations of data types to distinguish between them,
       // if we don't know the type and it's not an error, let's inspect and
       // return an inspection result
       result.type = SerializedResultTypes.InspectResult;
-      result.printable = inspect(result.rawValue);
+      result.printable = inspect(result.printable);
     }
   } else if (!isPrimitive(result.printable)) {
     // If type is present we are dealing with shell-api return value. In most
@@ -103,15 +105,12 @@ export function serializeEvaluationResult(result: ShellResult): ShellResult {
     };
   }
 
-  // `rawValue` can't be serialized "by design", we don't really care about it
-  // for the worker thread runtime so as an easy workaround we will just remove
-  // it completely from the result
-  delete result.rawValue;
-
   return result;
 }
 
-export function deserializeEvaluationResult(result: ShellResult): ShellResult {
+export function deserializeEvaluationResult(
+  result: RuntimeEvaluationResult
+): RuntimeEvaluationResult {
   result = { ...result };
 
   if (result.type === SerializedResultTypes.SerializedErrorResult) {

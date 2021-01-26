@@ -4,12 +4,13 @@ import {
 
 import {
   Runtime,
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult,
   Completion,
   OpenContextRuntime
 } from '@mongosh/browser-runtime-core';
 
 import { ServiceProvider } from '@mongosh/service-provider-core';
-import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime | null = null;
@@ -17,13 +18,13 @@ export class IframeRuntime implements Runtime {
   private iframe: HTMLIFrameElement | null = null;
   private container: HTMLDivElement | null = null;
   private serviceProvider: ServiceProvider;
-  private evaluationListener: EvaluationListener | null = null;
+  private evaluationListener: RuntimeEvaluationListener | null = null;
 
   constructor(serviceProvider: ServiceProvider) {
     this.serviceProvider = serviceProvider;
   }
 
-  setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
+  setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
     if (this.openContextRuntime) {
@@ -32,7 +33,7 @@ export class IframeRuntime implements Runtime {
     return prev;
   }
 
-  async evaluate(code: string): Promise<ShellResult> {
+  async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     const runtime = await this.initialize();
     return await runtime.evaluate(code);
   }
