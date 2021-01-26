@@ -7,6 +7,7 @@ const { spawn } = require('child_process');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
+/** @type import('webpack').Configuration */
 const config = {
   mode: 'development',
   target: 'electron-renderer',
@@ -76,6 +77,25 @@ const config = {
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }
+  },
+  resolve: {
+    // Without this alias, in dev mode symlinked browser-repl breaks the code
+    // by having two reacts loadeded on the page
+    alias: {
+      'react': require.resolve('react'),
+      'react-dom': require.resolve('@hot-loader/react-dom'),
+    }
+  },
+  externals: {
+    // Runtime implementation depends on worker file existing near the library
+    // main import and for that reason it needs to be external (it's done with
+    // a plugin in production build)
+    '@mongosh/node-runtime-worker-thread': 'commonjs2 @mongosh/node-runtime-worker-thread',
+    // Optional mongodb dependencies that are not really needed for local dev
+    // (for now)
+    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
+    kerberos: 'commonjs2 kerberos',
+    snappy: 'commonjs2 snappy'
   }
 };
 
