@@ -22,15 +22,30 @@ import uploadToDownloadCenter from './upload-to-download-center';
 import { downloadMongocrypt } from './download-mongocryptd';
 
 /**
- * Run the release process.
- * zip, release internally on evergreen, and, if applicable do a public release
- * (download centre and github.
- * @param {Config} config - the configuration, usually config/build.config.js.
+ * Run release specific commands.
+ * @param command The command to run
+ * @param config The configuration, usually config/build.config.js.
  */
 export default async function release(
-  command: 'compile' | 'package' | 'upload' | 'publish',
+  command: 'bump' | 'compile' | 'package' | 'upload' | 'publish',
   config: Config
 ): Promise<void> {
+  config = {
+    ...config,
+    version: await getReleaseVersionFromTag(config.triggeringGitTag) || config.version
+  };
+
+  console.info(
+    `mongosh: running command '${command}' with config:`,
+    redactConfig(config)
+  );
+
+  // updates the version of internal packages to reflect the tagged one
+  bumpNpmPackages(config.version);
+  if (command === 'bump') {
+    return;
+  }
+
   const octokit = new Octokit({
     auth: config.githubToken
   });
@@ -38,20 +53,7 @@ export default async function release(
   const githubRepo = new GithubRepo(config.repo, octokit);
   const mongoHomebrewRepo = new GithubRepo({ owner: 'mongodb', repo: 'homebrew-brew' }, octokit);
 
-  config = {
-    ...config,
-    version: await getReleaseVersionFromTag(config.triggeringGitTag) || config.version
-  };
-
-  // updates the version of internal packages to reflect the tagged one
-  bumpNpmPackages(config.version);
-
   let tarballFile: TarballFile;
-
-  console.info(
-    `mongosh: running command '${command}' with config:`,
-    redactConfig(config)
-  );
 
   if (command === 'compile') {
     await compileExec(
