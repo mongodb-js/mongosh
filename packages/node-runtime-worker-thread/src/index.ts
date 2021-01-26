@@ -4,11 +4,12 @@
 import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import { Runtime, RuntimeEvaluationListener, RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import { promises as fs } from 'fs';
+import path from 'path';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 import { Caller, createCaller } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
-import childProcessProxySrc from 'inline-entry-loader!./child-process-proxy';
 import { deserializeEvaluationResult } from './serializer';
 
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
@@ -43,10 +44,21 @@ class WorkerRuntime implements Runtime {
   private async initWorker() {
     const { uri, driverOptions, cliOptions, spawnOptions } = this.initOptions;
 
-    this.childProcess = await spawnChildFromSource(
-      childProcessProxySrc,
-      spawnOptions
+    const childProcessProxySrc = await fs.readFile(
+      path.resolve(__dirname, 'child-process-proxy.js'),
+      'utf-8'
     );
+
+    this.childProcess = await spawnChildFromSource(childProcessProxySrc, {
+      ...spawnOptions,
+      env: {
+        // Proxy child process and worker_threads worker are inlined and as such
+        // they are not aware of the dirname (which child process will need to
+        // read worker source)
+        NODE_RUNTIME_WORKER_THREAD_PARENT_DIRNAME: __dirname,
+        ...spawnOptions.env
+      }
+    });
 
     this.childProcessRuntime = createCaller(
       ['init', 'evaluate', 'getCompletions', 'setEvaluationListener'],

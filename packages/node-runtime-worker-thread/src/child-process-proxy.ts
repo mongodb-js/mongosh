@@ -13,16 +13,20 @@
  *
  * @see {@link https://github.com/nodejs/node/pull/36344}
  */
-
 import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
+import fs from 'fs';
+import path from 'path';
 import { exposeAll, createCaller } from './rpc';
 
-/**
- * The source has to be inlined to allow the runtime to be bundled in a single
- * file when used by compass shell
- */
-import workerRuntimeSrc from 'inline-entry-loader!./worker-runtime';
+// eslint-disable-next-line no-sync
+const workerRuntimeSrc = fs.readFileSync(
+  path.resolve(
+    process.env.NODE_RUNTIME_WORKER_THREAD_PARENT_DIRNAME || __dirname,
+    'worker-runtime.js'
+  ),
+  'utf-8'
+);
 
 const workerProcess = new Worker(workerRuntimeSrc, {
   eval: true,
