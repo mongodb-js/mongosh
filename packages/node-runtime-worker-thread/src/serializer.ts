@@ -1,6 +1,6 @@
 import v8 from 'v8';
 import { inspect } from 'util';
-import { EJSON, Document } from 'bson';
+import { EJSON } from 'bson';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 
 export function serialize(data: unknown): string {
@@ -60,85 +60,84 @@ export enum SerializedResultTypes {
   SerializedShellApiResult = 'SerializedShellApiResult'
 }
 
-type SerializedShellApiResult = {
-  origType: string;
-  serializedValue: Document;
-  nonEnumPropertyDescriptors: Record<string, PropertyDescriptor>;
-};
+export function serializeEvaluationResult({
+  type,
+  printable,
+  source
+}: RuntimeEvaluationResult): RuntimeEvaluationResult {
+  // Primitive values don't require any special treatment for serialization
+  if (isPrimitive(printable)) {
+    return { type, printable, source };
+  }
 
-export function serializeEvaluationResult(
-  result: RuntimeEvaluationResult
-): RuntimeEvaluationResult {
-  result = { ...result };
-
-  // Type `null` indicates anything that is not returned by shell-api, any
-  // usual javascript value returned from evaluation
-  if (result.type === null) {
-    // Errors get special treatment to achieve better serialization
-    if (isError(result.printable)) {
-      result.type = SerializedResultTypes.SerializedErrorResult;
-      result.printable = serializeError(result.printable);
-    } else if (!isPrimitive(result.printable)) {
-      // For everything else that is not a primitive value there is just too
-      // many possible combinations of data types to distinguish between them,
-      // if we don't know the type and it's not an error, let's inspect and
-      // return an inspection result
-      result.type = SerializedResultTypes.InspectResult;
-      result.printable = inspect(result.printable);
-    }
-  } else if (!isPrimitive(result.printable)) {
-    // If type is present we are dealing with shell-api return value. In most
-    // cases printable values of shell-api are primitive or serializable as
-    // (E)JSON, but they also might have some non-enumerable stuff (looking at
-    // you, Cursor!) that we need to serialize additionally, otherwiser those
-    // params will be lost in the ether causing issues down the way
-    const origType = result.type;
-    result.type = SerializedResultTypes.SerializedShellApiResult;
-    result.printable = {
-      origType,
-      serializedValue: EJSON.serialize(result.printable),
-      nonEnumPropertyDescriptors: Object.fromEntries(
-        Object.entries(
-          Object.getOwnPropertyDescriptors(result.printable)
-        ).filter(([, descriptor]) => !descriptor.enumerable)
-      )
+  // Errors are serialized as some error metadata can be lost without this
+  if (isError(printable)) {
+    return {
+      type: SerializedResultTypes.SerializedErrorResult,
+      printable: serializeError(printable),
+      source
     };
   }
 
-  return result;
-}
-
-export function deserializeEvaluationResult(
-  result: RuntimeEvaluationResult
-): RuntimeEvaluationResult {
-  result = { ...result };
-
-  if (result.type === SerializedResultTypes.SerializedErrorResult) {
-    result.type = null;
-    result.printable = deserializeError(result.printable);
+  // `null` type indicates evaluation result that is anyuthing, but shell-api
+  // result. There are too many different combinations of what this can be, both
+  // easily serializable and completely non-serializable. Instead of handing
+  // those cases and becase we don't really care for preserving those as close
+  // to real value as possible, we will convert them to inspect string result
+  // before passing to the main thread
+  if (type === null) {
+    return {
+      type: SerializedResultTypes.InspectResult,
+      printable: inspect(printable),
+      source
+    };
   }
 
-  if (result.type === SerializedResultTypes.SerializedShellApiResult) {
-    const value: SerializedShellApiResult = result.printable;
-    const printable = EJSON.deserialize(value.serializedValue);
+  // For everything else that we consider a shell-api result we will do our best
+  // to preserve as much information as possible, including serializing the
+  // printable value to EJSON as its a common thing to be returned by shell-api
+  // and copying over all non-enumerable properties from the result
+  return {
+    type: SerializedResultTypes.SerializedShellApiResult,
+    printable: {
+      origType: type,
+      serializedValue: EJSON.serialize(printable),
+      nonEnumPropertyDescriptors: Object.fromEntries(
+        Object.entries(Object.getOwnPropertyDescriptors(printable)).filter(
+          ([, descriptor]) => !descriptor.enumerable
+        )
+      )
+    }
+  };
+}
+
+export function deserializeEvaluationResult({
+  type,
+  printable,
+  source
+}: RuntimeEvaluationResult): RuntimeEvaluationResult {
+  if (type === SerializedResultTypes.SerializedErrorResult) {
+    return { type, printable: deserializeError(printable), source };
+  }
+
+  if (type === SerializedResultTypes.SerializedShellApiResult) {
+    const deserializedValue = EJSON.deserialize(printable.serializedValue);
 
     // Primitives should not end up here ever, but we need to convince TS that
     // its true
-    if (!isPrimitive(printable)) {
-      Object.defineProperties(printable, value.nonEnumPropertyDescriptors);
-    }
-
-    result.type = value.origType;
-    result.printable = printable;
-  }
-
-  Object.defineProperty(result, 'rawValue', {
-    get() {
-      throw new Error(
-        '`rawValue` is not available for evaluation result produced by WorkerRuntime'
+    if (!isPrimitive(deserializedValue)) {
+      Object.defineProperties(
+        deserializedValue,
+        printable.nonEnumPropertyDescriptors
       );
     }
-  });
 
-  return result;
+    return {
+      type: printable.origType,
+      printable: deserializedValue,
+      source
+    };
+  }
+
+  return { type, printable, source };
 }
