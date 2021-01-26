@@ -1,3 +1,4 @@
+import v8 from 'v8';
 import {
   expose,
   caller,
@@ -6,12 +7,20 @@ import {
   ServerMessageData,
   ClientMessageData
 } from 'postmsg-rpc';
-import {
-  serialize,
-  deserialize,
-  deserializeError,
-  serializeError
-} from './serializer';
+import { deserializeError, serializeError } from './serializer';
+
+function serialize(data: unknown): string {
+  return `data:;base64,${v8.serialize(data).toString('base64')}`;
+}
+
+function deserialize<T = unknown>(str: string): T | string {
+  if (/^data:;base64,.+/.test(str)) {
+    return v8.deserialize(
+      Buffer.from(str.replace('data:;base64,', ''), 'base64')
+    );
+  }
+  return str;
+}
 
 type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage: Function; send?: never }

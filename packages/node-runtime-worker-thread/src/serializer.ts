@@ -1,20 +1,6 @@
-import v8 from 'v8';
 import { inspect } from 'util';
 import { EJSON } from 'bson';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
-
-export function serialize(data: unknown): string {
-  return `data:;base64,${v8.serialize(data).toString('base64')}`;
-}
-
-export function deserialize<T = unknown>(str: string): T | string {
-  if (/^data:;base64,.+/.test(str)) {
-    return v8.deserialize(
-      Buffer.from(str.replace('data:;base64,', ''), 'base64')
-    );
-  }
-  return str;
-}
 
 function isPrimitive(
   val: any
