@@ -391,7 +391,7 @@ describe('Auth e2e', function() {
         it('all arguments', async() => {
           await shell.writeInputLine(`use ${dbName}`);
           await shell.writeInputLine(
-            `db.createRole({ role: "anna", privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"], authenticationRestrictions: [ { serverAddress: {}} ] })`
+            `db.createRole({ role: "anna", privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"], authenticationRestrictions: [ { serverAddress: [] } ] })`
           );
           await eventually(async() => {
             shell.assertContainsOutput('{ ok: 1 }');
