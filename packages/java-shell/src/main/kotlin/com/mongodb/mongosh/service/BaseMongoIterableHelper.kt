@@ -185,8 +185,15 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
     }
 
     override fun explain(verbosity: String?): Any? {
-        set("explain", true)
-        return iterable.first()
+        check(createOptions != null) { "createOptions were not saved" }
+        val findCommand = Document()
+        findCommand["find"] = createOptions.collection
+        findCommand["filter"] = createOptions.find
+        findCommand.putAll(options)
+        val explain = Document()
+        explain["explain"] = findCommand
+        explain["verbosity"] = verbosity ?: "queryPlanner"
+        return createOptions.db.runCommand(explain)
     }
 }
 
