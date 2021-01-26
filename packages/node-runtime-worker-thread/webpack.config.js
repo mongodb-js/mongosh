@@ -25,10 +25,6 @@ const config = {
     extensions: ['.ts', '.js']
   },
 
-  resolveLoader: {
-    modules: ['node_modules', path.resolve(__dirname, 'loaders')]
-  },
-
   optimization: {
     minimizer: [
       new TerserPlugin({
