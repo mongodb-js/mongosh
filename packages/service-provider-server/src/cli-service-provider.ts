@@ -1156,6 +1156,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   getRawClient(): MongoClient {
     return this.mongoClient;
   }
+
+  getURI(): string | undefined {
+    return this.uri?.href;
+  }
 }
 
 export default CliServiceProvider;

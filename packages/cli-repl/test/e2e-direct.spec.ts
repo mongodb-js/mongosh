@@ -69,6 +69,31 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs1.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
+
+        it('fails to list collections without explicit readPreference', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.runCommand({ listCollections: 1 })');
+          shell.assertContainsError('MongoError: not master');
+        });
+
+        it('lists collections when readPreference is in the connection string', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}?readPreference=secondaryPreferred`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.runCommand({ listCollections: 1 })');
+          shell.assertContainsOutput("name: 'system.version'");
+        });
+
+        it('lists collections when readPreference is set via Mongo', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.getMongo().setReadPref("secondaryPreferred")');
+          await shell.executeLine('db.runCommand({ listCollections: 1 })');
+          shell.assertContainsOutput("name: 'system.version'");
+        });
       });
 
       context('connecting to primary', () => {

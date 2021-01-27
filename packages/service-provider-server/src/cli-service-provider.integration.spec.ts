@@ -686,4 +686,10 @@ describe('CliServiceProvider [integration]', function() {
       expect(serviceProvider.driverMetadata.driver.name).to.equal('nodejs');
     });
   });
+
+  describe('#getURI', () => {
+    it('returns the current URI', () => {
+      expect(serviceProvider.getURI()).to.equal(connectionString + '/');
+    });
+  });
 });
