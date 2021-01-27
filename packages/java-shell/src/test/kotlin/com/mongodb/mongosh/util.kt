@@ -53,6 +53,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     when (key) {
                         "getArrayItem" -> GetArrayItemCommand(value.toInt())
                         "extractProperty" -> ExtractPropertyCommand(value)
+                        "containsProperty" -> ContainsPropertyCommand(value)
                         else -> null
                     }
                 })
@@ -112,12 +113,16 @@ private fun getActualValue(result: MongoShellResult<*>, options: CompareOptions)
                 (unwrapped as List<*>)[command.index]
             }
             is ExtractPropertyCommand -> {
-                assertTrue("To extract property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}",
-                        unwrapped is Document)
+                assertTrue("To extract property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}", unwrapped is Document)
                 val property = if (unwrapped is Document) unwrapped[command.property]
                 else throw AssertionError()
                 assertNotNull("Result does not contain property ${command.property}. Result: ${unwrapped.toLiteral()}", property)
                 property
+            }
+            is ContainsPropertyCommand -> {
+                assertTrue("To check property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}", unwrapped is Document)
+                if (unwrapped is Document) unwrapped.containsKey(command.property)
+                else throw AssertionError()
             }
         }
     }
@@ -130,6 +135,7 @@ private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: 
 private sealed class CompareCommand
 private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()
+private class ContainsPropertyCommand(val property: String) : CompareCommand()
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db") as StringResult).value else null
