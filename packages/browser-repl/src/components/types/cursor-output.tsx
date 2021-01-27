@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
 
 interface CursorOutputProps {
-  value: Document[] & { cursorHasMore: boolean };
+  value: { documents: Document[], cursorHasMore: boolean };
 }
 
 export class CursorOutput extends Component<CursorOutputProps> {
@@ -12,7 +12,7 @@ export class CursorOutput extends Component<CursorOutputProps> {
   };
 
   render(): JSX.Element {
-    if (!this.props.value.length) {
+    if (!this.props.value.documents.length) {
       return <pre/>;
     }
 

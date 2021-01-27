@@ -209,12 +209,12 @@ describe('worker', () => {
           ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('cursorHasMore', false);
             expect(printable)
-              .to.have.nested.property('[0]._id')
+              .to.have.nested.property('documents[0]._id')
               // TODO: chai assertion types
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               .bson(new ObjectId('000000000000000000000000'));
-            expect(printable).to.have.nested.property('[0].foo', 321);
+            expect(printable).to.have.nested.property('documents[0].foo', 321);
           }
         ],
         [
@@ -224,7 +224,10 @@ describe('worker', () => {
             'db.coll.find({ i: { $mod: [2, 0] } }, { _id: 0 })'
           ],
           'Cursor',
-          [{ i: 2 }, { i: 4 }, { i: 6 }, { i: 8 }, { i: 10 }]
+          {
+            documents: [{ i: 2 }, { i: 4 }, { i: 6 }, { i: 8 }, { i: 10 }],
+            cursorHasMore: false
+          }
         ],
         [
           [
@@ -235,7 +238,7 @@ describe('worker', () => {
           ],
           'CursorIterationResult',
           ({ printable }: RuntimeEvaluationResult) => {
-            expect(printable).to.include.deep.members([{ a: 'a' }]);
+            expect(printable.documents).to.include.deep.members([{ a: 'a' }]);
           }
         ]
       ];

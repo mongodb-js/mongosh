@@ -82,17 +82,11 @@ export function serializeEvaluationResult({
   // For everything else that we consider a shell-api result we will do our best
   // to preserve as much information as possible, including serializing the
   // printable value to EJSON as its a common thing to be returned by shell-api
-  // and copying over all non-enumerable properties from the result
   return {
     type: SerializedResultTypes.SerializedShellApiResult,
     printable: {
       origType: type,
-      serializedValue: EJSON.serialize(printable),
-      nonEnumPropertyDescriptors: Object.fromEntries(
-        Object.entries(Object.getOwnPropertyDescriptors(printable)).filter(
-          ([, descriptor]) => !descriptor.enumerable
-        )
-      )
+      serializedValue: EJSON.serialize(printable)
     }
   };
 }
@@ -107,20 +101,9 @@ export function deserializeEvaluationResult({
   }
 
   if (type === SerializedResultTypes.SerializedShellApiResult) {
-    const deserializedValue = EJSON.deserialize(printable.serializedValue);
-
-    // Primitives should not end up here ever, but we need to convince TS that
-    // its true
-    if (!isPrimitive(deserializedValue)) {
-      Object.defineProperties(
-        deserializedValue,
-        printable.nonEnumPropertyDescriptors
-      );
-    }
-
     return {
       type: printable.origType,
-      printable: deserializedValue,
+      printable: EJSON.deserialize(printable.serializedValue),
       source
     };
   }
