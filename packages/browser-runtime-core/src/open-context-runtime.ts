@@ -54,15 +54,13 @@ export class OpenContextRuntime implements Runtime {
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     const evalFn = this.interpreter.evaluate.bind(this.interpreter);
-    // Omitting rawValue before returning the result hence the unused variable
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { rawValue, ...result } = await this.shellEvaluator.customEval(
+    const { type, printable, source } = await this.shellEvaluator.customEval(
       evalFn,
       code,
       this.interpreterEnvironment.getContextObject(),
       ''
     );
-    return result;
+    return { type, printable, source };
   }
 
   setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
