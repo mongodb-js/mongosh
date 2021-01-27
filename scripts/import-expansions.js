@@ -31,6 +31,9 @@ const importExpansions = () => {
   const expansions = YAML.parse(data);
   Object.keys(expansions).forEach((key) => {
     process.env[key.toUpperCase()] = expansions[key];
+    if (process.env[key.toUpperCase() + '_OVERRIDE']) {
+      process.env[key.toUpperCase()] = process.env[key.toUpperCase() + '_OVERRIDE'];
+    }
   });
 
   console.info('Imported expansions:', Object.keys(expansions).join(', '));

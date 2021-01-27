@@ -1,7 +1,7 @@
 FROM centos:7
 
-ARG commit=""
-ARG version=""
-ADD https://s3.amazonaws.com/mciuploads/mongosh/${commit}/mongosh-${version}-x86_64.rpm /tmp
-RUN rpm -ivh /tmp/mongosh-${version}-x86_64.rpm
+ARG artifact_url=""
+ADD ${artifact_url} /tmp
+RUN yum repolist
+RUN yum install -y /tmp/mongosh-*-x86_64.rpm
 ENTRYPOINT [ "mongosh" ]
