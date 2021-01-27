@@ -126,8 +126,9 @@ export default class ShellInternalState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
-    this.fetchConnectionInfo();
-    this.currentDb._getCollectionNames(); // Pre-fetch for autocompletion.
+    this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err));
+    // Pre-fetch for autocompletion.
+    this.currentDb._getCollectionNames().catch(err => this.messageBus.emit('mongosh:error', err));
     return newDb;
   }
 
