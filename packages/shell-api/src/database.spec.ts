@@ -1691,7 +1691,7 @@ describe('Database', () => {
         await database.stats(1);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
+          database._name,
           {
             dbStats: 1,
             scale: 1
@@ -1703,7 +1703,7 @@ describe('Database', () => {
         await database.stats();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
+          database._name,
           {
             dbStats: 1,
             scale: 1

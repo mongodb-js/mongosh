@@ -825,7 +825,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async stats(scale = 1): Promise<Document> {
     this._emitDatabaseApiCall('stats', { scale: scale });
-    return await this._runAdminCommand(
+    return await this._runCommand(
       {
         dbStats: 1,
         scale: scale
