@@ -152,8 +152,11 @@ describe('rpc', () => {
         // Due to how our mocks implemented we have to introduce an if here to
         // skip our own message being received by the message bus
         if (data.sender === 'postmsg-rpc/server') {
-          expect(data.id).to.be.equal('123abc');
-          expect(data.res).to.be.equal('Meow meow meow meow!');
+          expect(data).to.have.property('id', '123abc');
+          expect(data).to.have.nested.property(
+            'res.payload',
+            'Meow meow meow meow!'
+          );
           done();
         }
       });

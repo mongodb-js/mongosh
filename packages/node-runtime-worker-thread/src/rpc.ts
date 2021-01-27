@@ -29,6 +29,22 @@ type RPCMessageBus = { on: Function; off: Function } & (
 
 const ERROR = '$$ERROR';
 
+const MESSAGE = '$$MESSAGE';
+
+type RPCMessage = {
+  type: typeof MESSAGE;
+  payload: string;
+};
+
+type RPCError = {
+  type: typeof ERROR;
+  payload: Error;
+};
+
+function isRPCError(data: any): data is RPCError {
+  return data && typeof data === 'object' && data.type === ERROR;
+}
+
 function isMessageData(data: any): data is MessageData {
   return data && typeof data === 'object' && 'id' in data && 'sender' in data;
 }
@@ -82,8 +98,8 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
         // resolve
         try {
           data.res = serialize(data.res);
-        } catch (err) {
-          data.res = { [ERROR]: serializeError(err) };
+        } catch (e) {
+          data.res = serialize({ type: ERROR, payload: serializeError(e) });
         }
       }
 
@@ -115,9 +131,9 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
       key,
       async(...args: unknown[]) => {
         try {
-          return await val(...args);
+          return { type: MESSAGE, payload: await val(...args) };
         } catch (e) {
-          return { [ERROR]: serializeError(e) };
+          return { type: ERROR, payload: serializeError(e) };
         }
       },
       getRPCOptions(messageBus)
@@ -139,11 +155,9 @@ export function createCaller<Impl extends {}>(
   methodNames.forEach((name) => {
     const c = caller(name as string, getRPCOptions(messageBus));
     (obj as any)[name] = async(...args: unknown[]) => {
-      const result = await c(...args);
-      if (typeof result === 'object' && result !== null && ERROR in result) {
-        throw deserializeError((result as any)[ERROR]);
-      }
-      return result;
+      const result = (await c(...args)) as RPCError | RPCMessage;
+      if (isRPCError(result)) throw deserializeError(result.payload);
+      return result.payload;
     };
   });
   return obj as Caller<Impl, typeof methodNames[number]>;
