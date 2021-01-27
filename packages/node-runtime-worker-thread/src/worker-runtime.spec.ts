@@ -6,8 +6,7 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
-import { ObjectId } from 'bson';
-import { inspect } from 'util';
+import { EJSON, ObjectId } from 'bson';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { Caller, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
@@ -16,24 +15,6 @@ import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
-
-const chaiBson: Chai.ChaiPlugin = (chai) => {
-  chai.Assertion.addMethod('bson', function bson(expected) {
-    const obj = this._obj;
-
-    new chai.Assertion(obj).to.be.instanceof(expected.constructor);
-
-    this.assert(
-      inspect(obj) === inspect(expected),
-      'expected #{this} to match #{exp} but got #{act}',
-      'expected #{this} not to match #{exp}',
-      obj,
-      expected
-    );
-  });
-};
-
-chai.use(chaiBson);
 
 // We need a compiled version so we can import it as a worker
 const workerThreadModule = fs.readFile(
@@ -208,13 +189,13 @@ describe('worker', () => {
           'AggregationCursor',
           ({ printable }: RuntimeEvaluationResult) => {
             expect(printable).to.have.property('cursorHasMore', false);
-            expect(printable)
-              .to.have.nested.property('documents[0]._id')
-              // TODO: chai assertion types
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              .bson(new ObjectId('000000000000000000000000'));
-            expect(printable).to.have.nested.property('documents[0].foo', 321);
+            const doc = printable.documents[0];
+            expect(EJSON.serialize(doc)).to.deep.equal(
+              EJSON.serialize({
+                _id: new ObjectId('000000000000000000000000'),
+                foo: 321
+              })
+            );
           }
         ],
         [
