@@ -213,7 +213,7 @@ functions:
       params:
         num_hosts: 1
         path: buildhosts.yml # Write the host information to disk.
-        timeout_seconds: 600
+        timeout_seconds: 1200
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
