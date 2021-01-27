@@ -9,6 +9,7 @@ import type { Document } from '@mongosh/service-provider-core';
 import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
+import { redactPassword } from '@mongosh/history';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -24,7 +25,7 @@ export default class Shard extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${this._database._mongo._uri} via db ${this._database._name}`;
+    return `Shard class connected to ${redactPassword(this._database._mongo._uri)} via db ${this._database._name}`;
   }
 
   /**

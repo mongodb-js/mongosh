@@ -12,7 +12,7 @@ import { asPrintable } from './enums';
 import { assertArgsDefined, assertArgsType } from './helpers';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
-
+import { redactPassword } from '@mongosh/history';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -252,7 +252,7 @@ export default class ReplicaSet extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `ReplicaSet class connected to ${this._database._mongo._uri} via db ${this._database._name}`;
+    return `ReplicaSet class connected to ${redactPassword(this._database._mongo._uri)} via db ${this._database._name}`;
   }
 
   /**
