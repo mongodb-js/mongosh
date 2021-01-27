@@ -5,6 +5,7 @@ import clr from './clr';
 import { USAGE, TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { getStoragePaths } from './config-directory';
 import { getMongocryptdPath } from './mongocryptd-path';
+import { runSmokeTests } from './smoke-tests';
 
 export default CliRepl;
 
@@ -17,5 +18,6 @@ export {
   parseCliArgs,
   mapCliToDriver,
   getStoragePaths,
-  getMongocryptdPath
+  getMongocryptdPath,
+  runSmokeTests
 };

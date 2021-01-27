@@ -1,4 +1,4 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPath, USAGE } from './index';
+import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPath, runSmokeTests, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
 
 (async() => {
@@ -13,6 +13,8 @@ import { generateUri } from '@mongosh/service-provider-server';
     } else if (options.version) {
       // eslint-disable-next-line no-console
       console.log(version);
+    } else if (options.smokeTests) {
+      await runSmokeTests(process.execPath);
     } else {
       let mongocryptdSpawnPath = null;
       if (process.execPath === process.argv[1]) {
