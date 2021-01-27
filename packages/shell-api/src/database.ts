@@ -28,7 +28,8 @@ import type {
   CommandOperationOptions,
   CreateCollectionOptions,
   Document,
-  WriteConcern
+  WriteConcern,
+  ListCollectionsOptions
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, CommandResult } from './index';
 import {
@@ -116,27 +117,27 @@ export default class Database extends ShellApiClass {
 
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
 
-  public async _runCommand(cmd: Document, options = {}): Promise<Document> {
+  public async _runCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       cmd,
-      { ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
     );
   }
 
-  public async _runAdminCommand(cmd: Document, options = {}): Promise<Document> {
+  public async _runAdminCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       cmd,
-      { ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
     );
   }
 
-  private async _listCollections(filter: Document, options: Document): Promise<Document[]> {
+  private async _listCollections(filter: Document, options: ListCollectionsOptions): Promise<Document[]> {
     return await this._mongo._serviceProvider.listCollections(
       this._name,
       filter,
-      { ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
     ) || [];
   }
 
@@ -216,7 +217,7 @@ export default class Database extends ShellApiClass {
    */
   @returnsPromise
   @serverVersions(['3.0.0', ServerVersions.latest])
-  async getCollectionInfos(filter: Document = {}, options: Document = {}): Promise<Document[]> {
+  async getCollectionInfos(filter: Document = {}, options: ListCollectionsOptions = {}): Promise<Document[]> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
     return await this._listCollections(
       filter,

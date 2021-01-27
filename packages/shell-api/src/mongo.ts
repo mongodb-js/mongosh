@@ -59,17 +59,23 @@ export default class Mongo extends ShellApiClass {
   public _fleOptions: SPAutoEncryption | undefined;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
+  private _readPreferenceWasExplicitlyRequested = false;
 
   constructor(
     internalState: ShellInternalState,
-    uri = 'mongodb://localhost/',
+    uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions
   ) {
     super();
     this._internalState = internalState;
     this._databases = {};
-    this._uri = generateUri({ _: [uri] });
     this._serviceProvider = this._internalState.initialServiceProvider;
+    if (typeof uri === 'string') {
+      this._uri = generateUri({ _: [uri] });
+    } else {
+      this._uri = this._serviceProvider?.getURI?.() ?? generateUri({ _: ['mongodb://localhost/'] });
+    }
+    this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
     if (fleOptions) {
       this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
       const { mongocryptdSpawnPath } = this._internalState;
@@ -203,6 +209,12 @@ export default class Mongo extends ShellApiClass {
     return this._serviceProvider.getReadPreference();
   }
 
+  _getExplicitlyRequestedReadPref(): { readPreference: ReadPreference } | undefined {
+    return this._readPreferenceWasExplicitlyRequested ?
+      { readPreference: this.getReadPref() } :
+      undefined;
+  }
+
   getReadConcern(): string | undefined {
     try {
       const rc = this._serviceProvider.getReadConcern();
@@ -217,6 +229,7 @@ export default class Mongo extends ShellApiClass {
     await this._serviceProvider.resetConnectionOptions({
       readPreference: { mode: mode, tagSet: tagSet, hedgeOptions: hedgeOptions }
     });
+    this._readPreferenceWasExplicitlyRequested = true;
   }
 
   @returnsPromise

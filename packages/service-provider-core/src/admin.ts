@@ -48,6 +48,11 @@ export default interface Admin {
   getNewConnection(uri: string, options: MongoClientOptions): Promise<any>; // returns the ServiceProvider instance
 
   /**
+   * Return the URI for the current connection, if this ServiceProvider is connected.
+   */
+  getURI(): string | undefined;
+
+  /**
    * Return connection info
    */
   getConnectionInfo(): Promise<Document>;
