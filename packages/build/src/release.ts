@@ -40,9 +40,9 @@ export default async function release(
     redactConfig(config)
   );
 
-  // updates the version of internal packages to reflect the tagged one
-  bumpNpmPackages(config.version);
   if (command === 'bump') {
+    // updates the version of internal packages to reflect the tagged one
+    bumpNpmPackages(config.version);
     return;
   }
 
