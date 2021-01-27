@@ -240,6 +240,16 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.pr';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
+
+    it('does not provide anything if there is a function call instead of a collection name', async() => {
+      const i = 'db.getMongo().find';
+      expect(await completer(standalone440, i)).to.deep.equal([[i], i]);
+    });
+
+    it('provides results if the function call is getCollection', async() => {
+      const i = 'db.getCollection("foo").find';
+      expect((await completer(standalone440, i))[0].length).to.be.greaterThan(1);
+    });
   });
 
   context('when context is collections and aggregation cursor', () => {
@@ -462,6 +472,11 @@ describe('completer.completer', () => {
         [
           'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).close'
         ], i]);
+    });
+
+    it('does not match if it is not .find or .aggregate', async() => {
+      const i = 'db.shipwrecks.moo({feature_type: "Wrecks - Visible"}).';
+      expect(await completer(standalone440, i)).to.deep.equal([[i], i]);
     });
   });
 });

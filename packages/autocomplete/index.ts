@@ -66,29 +66,44 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   if (splitLine.length <= 1) {
     const hits = filterShellAPI(params, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.includes('db') && splitLine.length === 2) {
+  } else if (firstLineEl.match(/\bdb\b/) && splitLine.length === 2) {
+    // We're seeing something like 'db.foo' and expand that to all methods on
+    // db which start with 'foo' and all collections on the current db that
+    // start with 'foo'.
     const hits = filterShellAPI(params, DB_COMPLETIONS, elToComplete, splitLine);
     const colls = await params.getCollectionCompletionsForCurrentDb(elToComplete.trim());
     hits.push(...colls.map(coll => `${splitLine[0]}.${coll}`));
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.includes('db') && splitLine.length > 2) {
+  } else if (firstLineEl.match(/\bdb\b/) && splitLine.length > 2) {
+    if (!splitLine[1].match(/^\s*\w+\s*$/) && !splitLine[1].match(/\bgetCollection\b/)) {
+      // The collection name contains something that is not whitespace or an
+      // alphanumeric character. This could be a function call, for example.
+      // In any case, we can't currently provide reasonable autocompletion
+      // suggestions for this.
+      return [[line], line];
+    }
+
     if (splitLine.length > 3) {
-      // aggregation cursor completions
-      if (splitLine[2].includes('aggregate')) {
+      // We're seeing something like db.coll.find().xyz or db.coll.aggregate().xyz
+      if (splitLine[2].match(/\baggregate\b/)) {
+        // aggregation cursor completions
         const hits = filterShellAPI(
           params, AGG_CURSOR_COMPLETIONS, elToComplete, splitLine);
         return [hits.length ? hits : [], line];
+      } else if (splitLine[2].match(/\bfind\b/)) {
+        // collection cursor completions
+        const hits = filterShellAPI(
+          params, COLL_CURSOR_COMPLETIONS, elToComplete, splitLine);
+        return [hits.length ? hits : [], line];
       }
-      // collection cursor completions
-      const hits = filterShellAPI(
-        params, COLL_CURSOR_COMPLETIONS, elToComplete, splitLine);
-      return [hits.length ? hits : [], line];
+      // This is something else, and we currently don't know what this is.
+      return [[line], line];
     }
 
     // complete aggregation and collection  queries/stages
     if (splitLine[2].includes('([') || splitLine[2].includes('({')) {
       let expressions;
-      if (splitLine[2].includes('aggregate')) {
+      if (splitLine[2].match(/\baggregate\b/)) {
         // aggregation needs extra accumulators to autocomplete properly
         expressions = BASE_COMPLETIONS.concat(getStageAccumulators(
           params, elToComplete));
@@ -107,11 +122,11 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     const hits = filterShellAPI(
       params, COLL_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.includes('sh')) {
+  } else if (firstLineEl.match(/\bsh\b/) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, SHARD_COMPLETE, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.includes('rs')) {
+  } else if (firstLineEl.match(/\brs\b/) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, RS_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
