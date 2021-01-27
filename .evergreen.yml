@@ -21,6 +21,10 @@ functions:
       params:
         directory: src
   install:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
     - command: shell.exec
       params:
         working_dir: src
@@ -28,6 +32,7 @@ functions:
         script: |
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.install_node
+          npm run evergreen-release bump
   check:
     - command: shell.exec
       params:

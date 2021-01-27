@@ -7,6 +7,7 @@ const LERNA_BIN = path.resolve(PROJECT_ROOT, 'node_modules', '.bin', 'lerna');
 
 export function bumpNpmPackages(version: string): void {
   if (!version || version === PLACEHOLDER_VERSION) {
+    console.info('mongosh: Not bumping package version, keeping at placeholder');
     return;
   }
 
