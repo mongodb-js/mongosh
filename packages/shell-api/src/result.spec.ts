@@ -125,8 +125,13 @@ describe('Results', () => {
       expect(r.length).to.equal(3);
     });
     it('toShellResult', async() => {
-      expect((await toShellResult(r)).type).to.equal('CursorIterationResult');
-      expect((await toShellResult(r)).printable).to.deep.equal(JSON.parse(JSON.stringify(r)));
+      expect(await toShellResult(r)).to.have.property(
+        'type',
+        'CursorIterationResult'
+      );
+      expect(await toShellResult(r))
+        .to.have.nested.property('printable.documents')
+        .deep.equal(JSON.parse(JSON.stringify(r)));
     });
   });
 });

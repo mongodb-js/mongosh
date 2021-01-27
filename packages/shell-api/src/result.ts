@@ -108,7 +108,7 @@ export class DeleteResult extends ShellApiClass {
   }
 }
 
-export class PrintableCursorIterationResult {
+class PrintableCursorIterationResult {
   documents: Document[];
   cursorHasMore: boolean;
   constructor(cursor: CursorIterationResult) {
