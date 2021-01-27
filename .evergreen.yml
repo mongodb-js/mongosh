@@ -198,10 +198,8 @@ functions:
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "//registry.npmjs.org/:_authToken=${DEVTOOLSBOT_NPM_TOKEN}" > .npmrc
-          echo "PUBLISHING RELEASE"
+          npm run evergreen-release publish
           }
-        # TODO: move that back in once verified it works as expected
-        # npm run evergreen-release publish
   spawn_host:
     - command: host.create
       params:
