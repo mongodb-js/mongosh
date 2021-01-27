@@ -52,6 +52,7 @@ const OPTIONS = {
     'redactInfo',
     'retryWrites',
     'shell',
+    'smokeTests',
     'tls',
     'tlsAllowInvalidCertificates',
     'tlsAllowInvalidHostnames',
@@ -93,7 +94,7 @@ function getLocale(args: string[], env: any): string {
  *
  * @returns {CliOptions} The arguments as cli options.
  */
-function parse(args: string[]): CliOptions {
+function parse(args: string[]): (CliOptions & { smokeTests: boolean }) {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
@@ -110,7 +111,7 @@ function parse(args: string[]): CliOptions {
       ${USAGE}`
     );
   });
-  return parsed;
+  return parsed as unknown as (CliOptions & { smokeTests: boolean });
 }
 
 export default parse;

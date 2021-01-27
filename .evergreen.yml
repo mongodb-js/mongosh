@@ -246,7 +246,7 @@ functions:
           {
           export ARTIFACT_URL="$(cat ../artifact-url.txt)"
           ./scripts/docker/build.sh ${dockerfile}
-          echo 'print ("He" + "llo")' | ./scripts/docker/run.sh ${dockerfile} --nodb | grep -q Hello
+          ./scripts/docker/run.sh ${dockerfile} --smokeTests
           }
   test_artifact_macos:
     - command: shell.exec
@@ -260,7 +260,7 @@ functions:
           export ARTIFACT_URL="$(cat ../artifact-url.txt)"
           curl -sSfL "$ARTIFACT_URL" > mongosh.zip
           unzip mongosh.zip
-          echo 'print ("He" + "llo")' | ./bin/mongosh  --nodb | grep -q Hello
+          ./bin/mongosh --smokeTests
           }
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
