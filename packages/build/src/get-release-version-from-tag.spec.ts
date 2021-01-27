@@ -22,9 +22,9 @@ describe('GithubRepo', () => {
       expect(getReleaseVersionFromTag('v1.2.3')).to.equal('1.2.3');
     });
 
-    it('returns the version string if the tag is an rc prerelease', async() => {
-      expect(getReleaseVersionFromTag('1.2.3-rc.0')).to.equal('1.2.3');
-      expect(getReleaseVersionFromTag('v1.2.3-rc.0')).to.equal('1.2.3');
+    it('returns the version string if the tag is a draft prerelease', async() => {
+      expect(getReleaseVersionFromTag('1.2.3-draft.0')).to.equal('1.2.3');
+      expect(getReleaseVersionFromTag('v1.2.3-draft.0')).to.equal('1.2.3');
     });
   });
 });

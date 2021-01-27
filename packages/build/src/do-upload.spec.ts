@@ -3,7 +3,7 @@ import { GithubRepo } from './github-repo';
 import { TarballFile } from './tarball';
 import chai, { expect } from 'chai';
 import { Barque } from './barque';
-import Config from './config';
+import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import sinon from 'ts-sinon';
 import path from 'path';
 
@@ -17,11 +17,12 @@ function createStubBarque(overrides?: any): Barque {
   return sinon.createStubInstance(Barque, overrides) as unknown as Barque;
 }
 
-describe('buildAndRelease', () => {
+describe('do-upload', () => {
   let config: Config;
   let tarballFile: TarballFile;
   let uploadToEvergreen: (artifact: string, awsKey: string, awsSecret: string, project: string, revision: string) => Promise<void>;
   let uploadToDownloadCenter: (artifact: string, awsKey: string, awsSecret: string) => Promise<void>;
+  let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
   let barque: Barque;
   let githubRepo: GithubRepo;
 
@@ -62,14 +63,13 @@ describe('buildAndRelease', () => {
     barque = createStubBarque();
     uploadToEvergreen = sinon.spy();
     uploadToDownloadCenter = sinon.spy();
+    shouldDoPublicRelease = sinon.spy();
     githubRepo = createStubRepo();
   });
 
   [true, false].forEach((isPublicRelease) => {
     it(`uploads the artifact to evergreen if is ${isPublicRelease ? 'a' : 'not a'} public release`, async() => {
-      githubRepo = createStubRepo({
-        shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(isPublicRelease))
-      });
+      shouldDoPublicRelease = sinon.stub().returns(isPublicRelease);
 
       barque = createStubBarque({
         releaseToBarque: sinon.stub().returns(Promise.resolve(true))
@@ -81,7 +81,8 @@ describe('buildAndRelease', () => {
         barque,
         tarballFile,
         uploadToEvergreen,
-        uploadToDownloadCenter
+        uploadToDownloadCenter,
+        shouldDoPublicRelease
       );
 
       expect(uploadToEvergreen).to.have.been.calledWith(
@@ -95,9 +96,7 @@ describe('buildAndRelease', () => {
   });
 
   it('releases to github if a public release', async() => {
-    githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().resolves(true)
-    });
+    shouldDoPublicRelease = sinon.stub().returns(true);
 
     barque = createStubBarque({
       releaseToBarque: sinon.stub().resolves(true)
@@ -109,7 +108,8 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(uploadToDownloadCenter).to.have.been.calledWith(
@@ -120,9 +120,7 @@ describe('buildAndRelease', () => {
   });
 
   it('does not release to github if not a public release', async() => {
-    githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().resolves(false)
-    });
+    shouldDoPublicRelease = sinon.stub().returns(false);
 
     barque = createStubBarque({
       releaseToBarque: sinon.stub().resolves(true)
@@ -134,16 +132,15 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(uploadToDownloadCenter).to.not.have.been.called;
   });
 
   it('releases to barque if a public release', async() => {
-    githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().returns(Promise.resolve(true))
-    });
+    shouldDoPublicRelease = sinon.stub().returns(true);
 
     barque = createStubBarque({
       releaseToBarque: sinon.stub().returns(Promise.resolve(true))
@@ -155,16 +152,15 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(barque.releaseToBarque).to.have.been.called;
   });
 
   it('does not releases to barque if not a public release', async() => {
-    githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().resolves(false)
-    });
+    shouldDoPublicRelease = sinon.stub().returns(false);
 
     barque = createStubBarque({
       releaseToBarque: sinon.stub().resolves(true)
@@ -176,15 +172,16 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(barque.releaseToBarque).to.not.have.been.called;
   });
 
   it('releases to downloads centre if a public release', async() => {
+    shouldDoPublicRelease = sinon.stub().returns(true);
     githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().resolves(true),
       releaseToGithub: sinon.stub().resolves(true)
     } as any);
 
@@ -198,15 +195,16 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(githubRepo.releaseToGithub).to.have.been.calledWith(tarballFile, config);
   });
 
   it('does not release to downloads centre if not a public release', async() => {
+    shouldDoPublicRelease = sinon.stub().returns(false);
     githubRepo = createStubRepo({
-      shouldDoPublicRelease: sinon.stub().resolves(false),
       releaseToGithub: sinon.stub().resolves(true)
     } as any);
 
@@ -220,7 +218,8 @@ describe('buildAndRelease', () => {
       barque,
       tarballFile,
       uploadToEvergreen,
-      uploadToDownloadCenter
+      uploadToDownloadCenter,
+      shouldDoPublicRelease
     );
 
     expect(githubRepo.releaseToGithub).to.not.have.been.called;

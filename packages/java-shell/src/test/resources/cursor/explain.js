@@ -9,7 +9,15 @@ db.coll.explain().find();
 db.coll.explain("executionStats").find();
 // command extractProperty=queryPlanner extractProperty=namespace
 db.coll.find().explain();
-// command extractProperty=queryPlanner extractProperty=namespace
+// command containsProperty=executionStats
 db.coll.find().explain("executionStats");
+// command containsProperty=executionStats
+db.coll.find().explain("queryPlanner");
+// command extractProperty=executionStats extractProperty=executionStages extractProperty=limitAmount
+db.coll.find().limit(42).explain("executionStats");
+// command extractProperty=executionStats extractProperty=executionStages extractProperty=filter
+db.coll.find({name: "Vasya"}).explain("executionStats");
+// command extractProperty=executionStats extractProperty=executionStages extractProperty=transformBy
+db.coll.find({}, {_id: -1}).explain("executionStats");
 // clear
 db.coll.drop();

@@ -197,9 +197,6 @@ internal val findConverters: Map<String, (FindIterable<*>, Any?) -> Either<FindI
         typed("comment", String::class.java) { iterable, value ->
             iterable.comment(value)
         },
-        typed("explain", Boolean::class.java) { iterable, value ->
-            iterable.modifiers(Document("\$explain", value))
-        },
         "hint" to { iterable, value ->
             when (value) {
                 is String -> Right(iterable.hint(Document(value, 1)))

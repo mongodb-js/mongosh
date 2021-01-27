@@ -1,5 +1,5 @@
 import type writeAnalyticsConfigType from './analytics';
-import Config from './config';
+import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import type uploadDownloadCenterConfigType from './download-center';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
@@ -13,14 +13,15 @@ export default async function publish(
   uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType,
   publishNpmPackages: typeof publishNpmPackagesType,
   writeAnalyticsConfig: typeof writeAnalyticsConfigType,
-  publishToHomebrew: typeof publishToHomebrewType
+  publishToHomebrew: typeof publishToHomebrewType,
+  shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn
 ): Promise<void> {
   console.info(
     'mongosh: beginning publish release with config:',
     redactConfig(config)
   );
 
-  if (!await mongoshGithubRepo.shouldDoPublicRelease(config)) return;
+  if (!shouldDoPublicRelease(config)) return;
 
   await uploadDownloadCenterConfig(
     config.version,

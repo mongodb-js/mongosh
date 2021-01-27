@@ -1,9 +1,6 @@
 FROM ubuntu:20.04
 
-ARG commit=""
-ARG version=""
-ADD https://s3.amazonaws.com/mciuploads/mongosh/${commit}/mongosh_${version}_amd64.deb /tmp
-RUN dpkg -i /tmp/mongosh_${version}_amd64.deb
+ARG artifact_url=""
+ADD ${artifact_url} /tmp
+RUN dpkg -i /tmp/mongosh_*_amd64.deb
 ENTRYPOINT [ "mongosh" ]
-
-

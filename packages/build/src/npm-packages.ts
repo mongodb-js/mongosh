@@ -1,4 +1,4 @@
-import { execFileSync } from 'child_process';
+import * as spawn from 'cross-spawn';
 import path from 'path';
 
 const PLACEHOLDER_VERSION = '0.0.0-dev.0';
@@ -7,10 +7,12 @@ const LERNA_BIN = path.resolve(PROJECT_ROOT, 'node_modules', '.bin', 'lerna');
 
 export function bumpNpmPackages(version: string): void {
   if (!version || version === PLACEHOLDER_VERSION) {
+    console.info('mongosh: Not bumping package version, keeping at placeholder');
     return;
   }
 
-  execFileSync(LERNA_BIN, [
+  console.info(`mongosh: Bumping package versions to ${version}`);
+  spawn.sync(LERNA_BIN, [
     'version',
     version,
     '--no-changelog',
@@ -38,7 +40,7 @@ export function publishNpmPackages(): void {
     throw new Error('Refusing to publish packages with placeholder version');
   }
 
-  execFileSync(LERNA_BIN, [
+  spawn.sync(LERNA_BIN, [
     'publish',
     'from-package',
     '--no-changelog',
@@ -54,7 +56,7 @@ export function publishNpmPackages(): void {
 }
 
 function listNpmPackages(): {version: string}[] {
-  const lernaListOutput = execFileSync(
+  const lernaListOutput = spawn.sync(
     LERNA_BIN, [
       'list',
       '--json',
@@ -64,6 +66,5 @@ function listNpmPackages(): {version: string}[] {
     }
   ).toString();
 
-  const packages = JSON.parse(lernaListOutput);
-  return packages;
+  return JSON.parse(lernaListOutput);
 }
