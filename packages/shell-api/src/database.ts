@@ -141,8 +141,8 @@ export default class Database extends ShellApiClass {
     ) || [];
   }
 
-  async _getCollectionNames(): Promise<string[]> {
-    const infos = await this._listCollections({}, { nameOnly: true });
+  async _getCollectionNames(options?: ListCollectionsOptions): Promise<string[]> {
+    const infos = await this._listCollections({}, { ...options, nameOnly: true });
     this._cachedCollectionNames = infos.map((collection: any) => collection.name);
     return this._cachedCollectionNames;
   }

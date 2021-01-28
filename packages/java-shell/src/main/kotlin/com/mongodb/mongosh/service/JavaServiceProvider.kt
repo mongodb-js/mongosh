@@ -438,7 +438,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun listDatabases(database: String): Value = promise {
+    override fun listDatabases(database: String, options: Value?): Value = promise {
         Right(mapOf("databases" to client.listDatabases()))
     }
 

@@ -8,7 +8,8 @@ import type {
   CreateCollectionOptions,
   ClientSession,
   DbOptions,
-  ClientSessionOptions
+  ClientSessionOptions,
+  ListDatabasesOptions
 } from './all-transport-types';
 import type { bson as BSON } from './index';
 import { ReplPlatform } from './platform';
@@ -37,7 +38,7 @@ export default interface Admin {
    *
    * @returns {Promise} The promise of command Documents.
    */
-  listDatabases(database: string): Promise<Document>;
+  listDatabases(database: string, options?: ListDatabasesOptions): Promise<Document>;
 
   /**
    * create a new service provider with a new connection.

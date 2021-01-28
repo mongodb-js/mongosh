@@ -841,8 +841,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Promise} The promise of command results.
    */
-  listDatabases(database: string): Promise<Document> {
-    return this.db(database).admin().listDatabases(this.baseCmdOptions as ListDatabasesOptions);
+  listDatabases(database: string, options: ListDatabasesOptions = {}): Promise<Document> {
+    options = { ...this.baseCmdOptions, ...options };
+    return this.db(database).admin().listDatabases(options);
   }
 
   /**

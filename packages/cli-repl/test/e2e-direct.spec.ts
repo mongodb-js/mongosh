@@ -1,5 +1,6 @@
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from './helpers';
+import { expect } from 'chai';
 import { TestShell } from './test-shell';
 
 describe('e2e direct connection', () => {
@@ -94,6 +95,14 @@ describe('e2e direct connection', () => {
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
           shell.assertContainsOutput("name: 'system.version'");
         });
+
+        it('lists collections and dbs using show by default', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          expect(await shell.executeLine('show collections')).to.include('system.version');
+          expect(await shell.executeLine('show dbs')).to.include('admin');
+        });
       });
 
       context('connecting to primary', () => {
@@ -121,6 +130,14 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput('ismaster: true');
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
+        });
+
+        it('lists collections and dbs using show by default', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          expect(await shell.executeLine('show collections')).to.include('system.version');
+          expect(await shell.executeLine('show dbs')).to.include('admin');
         });
       });
     });
