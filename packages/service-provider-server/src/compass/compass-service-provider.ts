@@ -18,14 +18,15 @@ class CompassServiceProvider extends CliServiceProvider {
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   * @param {MongoClientOptions} driverOptions
    * @param {string} uri - optional URI for telemetry.
    */
   constructor(
     mongoClient: MongoClient,
-    clientOptions: MongoClientOptions = {},
+    driverOptions: MongoClientOptions = {},
     uri?: ConnectionString
   ) {
-    super(mongoClient, clientOptions, uri);
+    super(mongoClient, driverOptions, uri);
     this.platform = ReplPlatform.Compass;
   }
   /**
