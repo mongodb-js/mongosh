@@ -27,22 +27,25 @@ type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage?: never; send?: Function }
 );
 
-const ERROR = '$$ERROR';
-
-const MESSAGE = '$$MESSAGE';
+enum RPCMessageTypes {
+  Message,
+  Error
+}
 
 type RPCMessage = {
-  type: typeof MESSAGE;
+  type: RPCMessageTypes.Message;
   payload: string;
 };
 
 type RPCError = {
-  type: typeof ERROR;
+  type: RPCMessageTypes.Error;
   payload: Error;
 };
 
 function isRPCError(data: any): data is RPCError {
-  return data && typeof data === 'object' && data.type === ERROR;
+  return (
+    data && typeof data === 'object' && data.type === RPCMessageTypes.Error
+  );
 }
 
 function isMessageData(data: any): data is MessageData {
@@ -97,7 +100,10 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
         try {
           data.res = serialize(data.res);
         } catch (e) {
-          data.res = serialize({ type: ERROR, payload: serializeError(e) });
+          data.res = serialize({
+            type: RPCMessageTypes.Error,
+            payload: serializeError(e)
+          });
         }
       }
 
@@ -129,13 +135,13 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
       key,
       async(...args: unknown[]) => {
         try {
-          return { type: MESSAGE, payload: await val(...args) };
+          return { type: RPCMessageTypes.Message, payload: await val(...args) };
         } catch (e) {
           // If server (whatever is executing the exposed method) throws during
           // the execution, we want to propagate error to the client (whatever
           // issued the call) and re-throw there. We will do this with a special
           // return type.
-          return { type: ERROR, payload: serializeError(e) };
+          return { type: RPCMessageTypes.Error, payload: serializeError(e) };
         }
       },
       getRPCOptions(messageBus)
