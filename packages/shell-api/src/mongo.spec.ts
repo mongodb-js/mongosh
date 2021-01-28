@@ -116,14 +116,16 @@ describe('Mongo', () => {
         describe(t, () => {
           it('calls database.getCollectionNames', async() => {
             const expectedResult = ['a', 'b'];
-            database.getCollectionNames.resolves(expectedResult);
+            database._getCollectionNames.resolves(expectedResult);
             await mongo.show(t);
-            expect(database.getCollectionNames).to.have.been.calledWith();
+            expect(database._getCollectionNames).to.have.been.calledWith({
+              readPreference: 'primaryPreferred'
+            });
           });
 
           it('returns ShowCollectionsResult CommandResult', async() => {
             const expectedResult = ['a', 'b'];
-            database.getCollectionNames.resolves(expectedResult);
+            database._getCollectionNames.resolves(expectedResult);
             const result = await mongo.show(t);
             expect(result.value).to.deep.equal(expectedResult);
             expect(result.type).to.equal('ShowCollectionsResult');
@@ -131,7 +133,7 @@ describe('Mongo', () => {
 
           it('throws if database.getCollectionNames rejects', async() => {
             const expectedError = new Error();
-            database.getCollectionNames.rejects(expectedError);
+            database._getCollectionNames.rejects(expectedError);
             const catchedError = await mongo.show(t)
               .catch(e => e);
             expect(catchedError).to.equal(expectedError);

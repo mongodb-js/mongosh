@@ -145,12 +145,12 @@ export default class Mongo extends ShellApiClass {
 
   @returnsPromise
   async show(cmd: string, arg?: string): Promise<CommandResult> {
-    this._internalState.messageBus.emit( 'mongosh:show', { method: `show ${cmd}` });
+    this._internalState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = await this._serviceProvider.listDatabases('admin');
+        const result = await this._serviceProvider.listDatabases('admin', { readPreference: 'primaryPreferred' });
         if (!('databases' in result)) {
           const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
           this._internalState.messageBus.emit('mongosh:error', err);
@@ -160,7 +160,7 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowDatabasesResult', result.databases);
       case 'collections':
       case 'tables':
-        const collectionNames = await this._internalState.currentDb.getCollectionNames();
+        const collectionNames = await this._internalState.currentDb._getCollectionNames({ readPreference: 'primaryPreferred' });
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
         const sysprof = this._internalState.currentDb.getCollection('system.profile');
