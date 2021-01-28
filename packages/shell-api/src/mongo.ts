@@ -23,7 +23,9 @@ import {
   ChangeStreamOptions,
   Document,
   generateUri,
+  ReadConcernLevelId,
   ReadPreference,
+  ReadPreferenceLike,
   ReadPreferenceModeId,
   ReplPlatform,
   ServiceProvider,
@@ -225,15 +227,19 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async setReadPref(mode: string, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
+  async setReadPref(mode: ReadPreferenceLike, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({
-      readPreference: { mode: mode, tagSet: tagSet, hedgeOptions: hedgeOptions }
+      readPreference: this._serviceProvider.readPreferenceFromOptions({
+        readPreference: mode,
+        readPreferenceTags: tagSet,
+        hedge: hedgeOptions
+      })
     });
     this._readPreferenceWasExplicitlyRequested = true;
   }
 
   @returnsPromise
-  async setReadConcern(level: string): Promise<void> {
+  async setReadConcern(level: ReadConcernLevelId): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
   }
 

@@ -96,7 +96,7 @@ describe('CliServiceProvider [integration]', function() {
     it('resets the MongoClient', async() => {
       const mongoClientBefore = serviceProvider.mongoClient;
       await serviceProvider.resetConnectionOptions({
-        readPreference: { mode: 'secondaryPreferred' }
+        readPreference: 'secondaryPreferred'
       });
       expect(serviceProvider.mongoClient).to.not.equal(mongoClientBefore);
       expect(serviceProvider.getReadPreference().mode).to.equal('secondaryPreferred');

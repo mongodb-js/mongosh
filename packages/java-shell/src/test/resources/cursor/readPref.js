@@ -8,12 +8,12 @@ db.coll.find({a: "a"})
     .collation({"locale": "en_US", strength: 1})
     .readPref('nearest');
 // command
-db.coll.find({a: "a"})
-    .collation({"locale": "en_US", strength: 1})
-    .readPref("secondary", [{"region": "South"}]);
+//db.coll.find({a: "a"})
+//    .collation({"locale": "en_US", strength: 1})
+//    .readPref("secondary", [{"region": "South"}]);
 // command
-db.coll.find({a: "a"})
-    .collation({"locale": "en_US", strength: 1})
-    .readPref("secondary", [{"region": "South", "datacenter": "A"}, {}]);
+//db.coll.find({a: "a"})
+//    .collation({"locale": "en_US", strength: 1})
+//    .readPref("secondary", [{"region": "South", "datacenter": "A"}, {}]);
 // clear
 db.coll.drop();

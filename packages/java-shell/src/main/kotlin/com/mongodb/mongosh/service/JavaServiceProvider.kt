@@ -448,6 +448,11 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
+    override fun readPreferenceFromOptions(options: Value?): Value = promise<Any?> {
+        Left(NotImplementedError())
+    }
+
+    @HostAccess.Export
     override fun getConnectionInfo(): Value = promise<Any?> {
         Left(NotImplementedError())
     }

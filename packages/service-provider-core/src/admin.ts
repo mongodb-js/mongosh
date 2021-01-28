@@ -92,7 +92,7 @@ export default interface Admin {
    *
    * @param options
    */
-  resetConnectionOptions(options: Document): Promise<void>;
+  resetConnectionOptions(options: MongoClientOptions): Promise<void>;
 
   /**
    * Start a session.

@@ -369,12 +369,13 @@ describe('Mongo', () => {
     describe('setReadPref', () => {
       it('calls serviceProvider.restConnectionOptions', async() => {
         serviceProvider.resetConnectionOptions.resolves();
+        serviceProvider.readPreferenceFromOptions.callsFake(input => input as any);
         await mongo.setReadPref('primaryPreferred', []);
         expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith({
           readPreference: {
-            mode: 'primaryPreferred',
-            tagSet: [],
-            hedgeOptions: undefined
+            readPreference: 'primaryPreferred',
+            readPreferenceTags: [],
+            hedge: undefined
           }
         });
       });

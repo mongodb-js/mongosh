@@ -442,11 +442,18 @@ describe('Cursor', () => {
     describe('#readPref', () => {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
+      let fromOptionsStub;
       const value = 'primary';
+      const tagSet = [{ nodeType: 'ANALYTICS' }];
 
       beforeEach(() => {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
+        fromOptionsStub = sinon.stub();
+        fromOptionsStub.callsFake(input => input);
+        mongo._serviceProvider = {
+          readPreferenceFromOptions: fromOptionsStub
+        };
       });
 
       it('fluidly sets the read preference', () => {
@@ -454,17 +461,13 @@ describe('Cursor', () => {
         expect(spCursor.withReadPreference).to.have.been.calledWith(value);
       });
 
-      it('throws MongoshUnimplementedError if tagset is passed', () => {
-        try {
-          shellApiCursor.readPref(value, []);
-          expect.fail('expected error');
-        } catch (e) {
-          expect(e).to.be.instanceOf(MongoshUnimplementedError);
-          expect(e.message).to.contain('the tagSet argument is not yet supported.');
-          expect(e.code).to.equal(CommonErrors.NotImplemented);
-          expect(e.metadata?.driverCaused).to.equal(true);
-          expect(e.metadata?.api).to.equal('Cursor.readPref#tagSet');
-        }
+      it('fluidly sets the read preference with tagSet and hedge options', () => {
+        expect(shellApiCursor.readPref(value, tagSet, { enabled: true })).to.equal(shellApiCursor);
+        expect(spCursor.withReadPreference).to.have.been.calledWith({
+          readPreference: value,
+          readPreferenceTags: tagSet,
+          hedge: { enabled: true }
+        });
       });
     });
 

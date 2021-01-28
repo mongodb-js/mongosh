@@ -22,9 +22,10 @@ import {
   CollationOptions,
   ExplainVerbosityLike,
   ReadPreferenceLike,
-  ReadConcernLevelId
+  ReadConcernLevelId,
+  TagSet,
+  HedgeOptions
 } from '@mongosh/service-provider-core';
-import { blockedByDriverMetadata } from './error-codes';
 import { iterate, validateExplainableVerbosity } from './helpers';
 import Mongo from './mongo';
 import { CursorIterationResult } from './result';
@@ -282,16 +283,20 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnType('Cursor')
-  readPref(mode: ReadPreferenceLike, tagSet?: Document[]): Cursor {
-    if (tagSet) {
-      throw new MongoshUnimplementedError(
-        'the tagSet argument is not yet supported.',
-        CommonErrors.NotImplemented,
-        blockedByDriverMetadata('Cursor.readPref#tagSet')
-      );
-    }
+  readPref(mode: ReadPreferenceLike, tagSet?: TagSet[], hedgeOptions?: HedgeOptions): Cursor {
+    let pref: ReadPreferenceLike;
 
-    this._cursor = this._cursor.withReadPreference(mode);
+    // Only conditionally use readPreferenceFromOptions, for java-shell compatibility.
+    if (tagSet || hedgeOptions) {
+      pref = this._mongo._serviceProvider.readPreferenceFromOptions({
+        readPreference: mode,
+        readPreferenceTags: tagSet,
+        hedge: hedgeOptions
+      }) as ReadPreferenceLike;
+    } else {
+      pref = mode;
+    }
+    this._cursor = this._cursor.withReadPreference(pref);
     return this;
   }
 

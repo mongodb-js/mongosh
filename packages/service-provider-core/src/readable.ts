@@ -11,7 +11,9 @@ import type {
   ListIndexesOptions,
   AggregationCursor,
   FindCursor,
-  DbOptions
+  DbOptions,
+  ReadPreferenceFromOptions,
+  ReadPreferenceLike
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
@@ -198,6 +200,11 @@ export default interface Readable {
     filter?: Document,
     options?: ListCollectionsOptions,
     dbOptions?: DbOptions): Promise<Document[]>;
+
+  /**
+   * Create a ReadPreference object from a set of options
+   */
+  readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined;
 
   /**
    * Get all the collection statistics.
