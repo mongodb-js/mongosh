@@ -3,7 +3,8 @@ import {
   shellApiClassDefault,
   hasAsyncChild,
   ShellApiClass,
-  returnsPromise
+  returnsPromise,
+  deprecated
 } from './decorators';
 import {
   Document
@@ -118,6 +119,7 @@ export default class ReplicaSet extends ShellApiClass {
     return this._database.printSecondaryReplicationInfo();
   }
 
+  @deprecated
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
     throw new MongoshDeprecatedError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');

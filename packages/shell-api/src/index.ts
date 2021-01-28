@@ -24,7 +24,8 @@ import {
   signatures,
   ShellResult,
   toShellResult,
-  getShellApiType
+  getShellApiType,
+  TypeSignature
 } from './decorators';
 import {
   Topologies,
@@ -60,5 +61,6 @@ export {
   toShellResult,
   getShellApiType,
   ShellResult,
-  ShellCliOptions
+  ShellCliOptions,
+  TypeSignature
 };

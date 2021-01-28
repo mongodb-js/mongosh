@@ -35,6 +35,7 @@ describe('Bulk API', () => {
         expect(signatures.Bulk.attributes.find).to.deep.equal({
           type: 'function',
           returnsPromise: false,
+          deprecated: false,
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
@@ -236,6 +237,7 @@ describe('Bulk API', () => {
         expect(signatures.BulkFindOp.attributes.hint).to.deep.equal({
           type: 'function',
           returnsPromise: false,
+          deprecated: false,
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,

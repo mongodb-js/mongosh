@@ -81,6 +81,7 @@ describe('Database', () => {
       expect(signatures.Database.attributes.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

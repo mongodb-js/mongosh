@@ -40,6 +40,7 @@ describe('Collection', () => {
       expect(signatures.Collection.attributes.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

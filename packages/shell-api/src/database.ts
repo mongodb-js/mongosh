@@ -8,7 +8,8 @@ import {
   serverVersions,
   ShellApiClass,
   shellApiClassDefault,
-  topologies
+  topologies,
+  deprecated
 } from './decorators';
 import { ADMIN_DB, asPrintable, ServerVersions, Topologies } from './enums';
 import {
@@ -1024,14 +1025,17 @@ export default class Database extends ShellApiClass {
     return result.logComponentVerbosity;
   }
 
+  @deprecated
   cloneDatabase(): void {
     throw new MongoshDeprecatedError('`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
 
+  @deprecated
   cloneCollection(): void {
     throw new MongoshDeprecatedError('`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
   }
 
+  @deprecated
   copyDatabase(): void {
     throw new MongoshDeprecatedError('`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
@@ -1248,6 +1252,7 @@ export default class Database extends ShellApiClass {
     return new CommandResult('StatsResult', result);
   }
 
+  @deprecated
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
     throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');

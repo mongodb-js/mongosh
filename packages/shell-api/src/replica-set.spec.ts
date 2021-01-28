@@ -44,6 +44,7 @@ describe('ReplicaSet', () => {
       expect(signatures.ReplicaSet.attributes.initiate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

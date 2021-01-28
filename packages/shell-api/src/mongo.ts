@@ -16,7 +16,8 @@ import {
   serverVersions,
   ShellApiClass,
   shellApiClassDefault,
-  topologies
+  topologies,
+  deprecated
 } from './decorators';
 import {
   ChangeStreamOptions,
@@ -260,10 +261,12 @@ export default class Mongo extends ShellApiClass {
     );
   }
 
+  @deprecated
   setSlaveOk(): void {
     throw new MongoshDeprecatedError('setSlaveOk is deprecated.');
   }
 
+  @deprecated
   setSecondaryOk(): void {
     throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead');
   }

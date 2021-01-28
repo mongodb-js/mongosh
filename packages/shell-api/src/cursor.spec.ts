@@ -28,6 +28,7 @@ describe('Cursor', () => {
       expect(signatures.Cursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
+        deprecated: false,
         returnType: 'Cursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

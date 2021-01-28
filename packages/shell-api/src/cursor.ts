@@ -6,7 +6,8 @@ import {
   serverVersions,
   ShellApiClass,
   shellApiClassDefault,
-  toShellResult
+  toShellResult,
+  deprecated
 } from './decorators';
 import {
   ServerVersions,
@@ -75,7 +76,6 @@ export default class Cursor extends ShellApiClass {
     if (optionFlagNumber === 4) {
       throw new MongoshUnimplementedError('the slaveOk option is not supported.', CommonErrors.NotImplemented);
     }
-
     const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
 
     if (!optionFlag) {
@@ -340,6 +340,7 @@ export default class Cursor extends ShellApiClass {
     return this;
   }
 
+  @deprecated
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
     throw new MongoshDeprecatedError(

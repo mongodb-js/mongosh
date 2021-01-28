@@ -24,6 +24,7 @@ describe('AggregationCursor', () => {
       expect(signatures.AggregationCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
+        deprecated: false,
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

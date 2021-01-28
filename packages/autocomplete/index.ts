@@ -1,6 +1,6 @@
 /* eslint complexity: 0, camelcase: 0, no-nested-ternary: 0 */
 
-import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
+import { signatures as shellSignatures, Topologies, TypeSignature } from '@mongosh/shell-api';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,
@@ -13,6 +13,8 @@ import {
   ADL,
   ON_PREM
 } from 'mongodb-ace-autocompleter';
+
+type TypeSignatureAttributes = { [key: string]: TypeSignature };
 
 export interface AutocompleteParameters {
   topology: () => Topologies;
@@ -49,13 +51,13 @@ const GROUP = '$group';
  * @returns {array} Matching Completions, Current User Input.
  */
 async function completer(params: AutocompleteParameters, line: string): Promise<[string[], string]> {
-  const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes;
-  const COLL_COMPLETIONS = shellSignatures.Collection.attributes;
-  const DB_COMPLETIONS = shellSignatures.Database.attributes;
-  const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes;
-  const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes;
-  const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes;
-  const SHARD_COMPLETE = shellSignatures.Shard.attributes;
+  const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes as TypeSignatureAttributes;
+  const COLL_COMPLETIONS = shellSignatures.Collection.attributes as TypeSignatureAttributes;
+  const DB_COMPLETIONS = shellSignatures.Database.attributes as TypeSignatureAttributes;
+  const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes as TypeSignatureAttributes;
+  const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes as TypeSignatureAttributes;
+  const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes as TypeSignatureAttributes;
+  const SHARD_COMPLETE = shellSignatures.Shard.attributes as TypeSignatureAttributes;
 
   // keep initial line param intact to always return in return statement
   // check for contents of line with:
@@ -174,17 +176,29 @@ function filterQueries(params: AutocompleteParameters, completions: any, prefix:
   return hits.map(h => `${split}${h.name}`);
 }
 
-function filterShellAPI(params: AutocompleteParameters, completions: any, prefix: string, split?: string[]): string[] {
-  const hits: string[] = Object.keys(completions).filter((c: any) => {
+function filterShellAPI(
+  params: AutocompleteParameters,
+  completions: { [key: string]: TypeSignature },
+  prefix: string,
+  split?: string[]): string[] {
+  const hits: string[] = Object.keys(completions).filter((c: string) => {
     if (!c.startsWith(prefix)) return false;
+    if (completions[c].deprecated) return false;
+
     const serverVersion = params.connectionInfo()?.server_version;
     if (!serverVersion) return true;
+
+    const acceptableVersions = completions[c].serverVersions;
     const isAcceptableVersion =
-      (semver.gte(serverVersion, completions[c].serverVersions[0]) &&
-       semver.lte(serverVersion, completions[c].serverVersions[1]));
+      !acceptableVersions ||
+      (semver.gte(serverVersion, acceptableVersions[0]) &&
+       semver.lte(serverVersion, acceptableVersions[1]));
+
+    const acceptableTopologies = completions[c].topologies;
     const isAcceptableTopology =
-      !completions[c].topologies ||
-      completions[c].topologies.includes(params.topology());
+      !acceptableTopologies ||
+      acceptableTopologies.includes(params.topology());
+
     return isAcceptableVersion && isAcceptableTopology;
   });
 

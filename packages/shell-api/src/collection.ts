@@ -9,7 +9,8 @@ import {
   serverVersions,
   ShellApiClass,
   shellApiClassDefault,
-  topologies
+  topologies,
+  deprecated
 } from './decorators';
 import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
@@ -233,6 +234,7 @@ export default class Collection extends ShellApiClass {
    * @returns {Integer} The promise of the count.
    */
   @returnsPromise
+  @deprecated
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   async count(query = {}, options: CountOptions = {}): Promise<number> {
     this._emitCollectionApiCall(
@@ -592,6 +594,8 @@ export default class Collection extends ShellApiClass {
    * @return {InsertManyResult}
    */
   @returnsPromise
+  @deprecated
+  @serverVersions([ServerVersions.earliest, '3.6.0'])
   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     printDeprecationWarning(
       'Collection.insert() is deprecated. Use insertOne, insertMany or bulkWrite.',
@@ -702,6 +706,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
+  @deprecated
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
     printDeprecationWarning(
@@ -730,6 +735,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @deprecated
   save(): Promise<void> {
     throw new MongoshInvalidInputError('Collection.save() is deprecated. Use insertOne, insertMany, updateOne or updateMany.');
   }
@@ -772,6 +778,7 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
+  @deprecated
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
     printDeprecationWarning(

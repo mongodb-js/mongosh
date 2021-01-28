@@ -179,8 +179,11 @@ describe('completer.completer', () => {
 
     it('returns all suggestions', async() => {
       const i = 'db.';
-      const dbComplete = Object.keys(shellSignatures.Database.attributes as any);
-      const adjusted = dbComplete.map(c => `${i}${c}`);
+      const attr = shellSignatures.Database.attributes as any;
+      const dbComplete = Object.keys(attr);
+      const adjusted = dbComplete
+        .filter(c => !attr[c].deprecated)
+        .map(c => `${i}${c}`);
       expect(await completer(noParams, i)).to.deep.equal([adjusted, i]);
     });
 
@@ -221,7 +224,7 @@ describe('completer.completer', () => {
     it('returns all suggestions', async() => {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
-      const adjusted = collComplete.filter(c => !['count', 'update', 'remove'].includes(c)).map(c => `${i}${c}`);
+      const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save'].includes(c)).map(c => `${i}${c}`);
 
       expect(await completer(sharded440, i)).to.deep.equal([adjusted, i]);
     });
