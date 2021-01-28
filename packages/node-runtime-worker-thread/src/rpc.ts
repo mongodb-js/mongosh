@@ -86,16 +86,14 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
     removeListener: messageBus.off.bind(messageBus),
     postMessage(data) {
       if (isClientMessageData(data) && Array.isArray(data.args)) {
-        // We don't guard against serialization errors on the client, if they
-        // happen, client is responsible for handling them
         data.args = serialize(removeTrailingUndefined(data.args));
       }
 
       if (isServerMessageData(data)) {
-        // If serialization error happened on the server, we use our special
-        // error return value to propagate the error back to the client,
-        // otherwise error can be lost on the server and client call will never
-        // resolve
+        // If serialization of the response failed for some reason (e.g., the
+        // value is not serializable) we want to propagate the error back to the
+        // client that issued the remote call instead of throwing on the server
+        // that was executing the method.
         try {
           data.res = serialize(data.res);
         } catch (e) {
@@ -133,6 +131,10 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
         try {
           return { type: MESSAGE, payload: await val(...args) };
         } catch (e) {
+          // If server (whatever is executing the exposed method) throws during
+          // the execution, we want to propagate error to the client (whatever
+          // issued the call) and re-throw there. We will do this with a special
+          // return type.
           return { type: ERROR, payload: serializeError(e) };
         }
       },
