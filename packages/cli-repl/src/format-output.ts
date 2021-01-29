@@ -168,7 +168,7 @@ function inspect(output: any, options: FormatOptions): any {
 }
 
 function formatCursor(value: any, options: FormatOptions): any {
-  if (!value.length) {
+  if (!value.documents.length) {
     return '';
   }
 
@@ -176,11 +176,11 @@ function formatCursor(value: any, options: FormatOptions): any {
 }
 
 function formatCursorIterationResult(value: any, options: FormatOptions): any {
-  if (!value.length) {
+  if (!value.documents.length) {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
 
-  let ret = inspect(value, options);
+  let ret = inspect(value.documents, options);
   if (value.cursorHasMore) {
     ret += '\n' + i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more');
   }

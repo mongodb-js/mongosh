@@ -52,7 +52,10 @@ describe('Cursor', () => {
     it('sets dynamic properties', async() => {
       expect((await toShellResult(cursor)).type).to.equal('Cursor');
       expect((await toShellResult(cursor._it())).type).to.equal('CursorIterationResult');
-      expect((await toShellResult(cursor)).printable).to.deep.equal([]);
+      expect((await toShellResult(cursor)).printable).to.deep.equal({
+        documents: [],
+        cursorHasMore: false
+      });
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
@@ -768,7 +771,7 @@ describe('Cursor', () => {
         shellApiCursor.batchSize(10);
         const result = (await toShellResult(shellApiCursor)).printable;
         expect(i).to.equal(10);
-        expect(result.length).to.equal(10);
+        expect(result).to.have.nested.property('documents.length', 10);
       });
     });
   });

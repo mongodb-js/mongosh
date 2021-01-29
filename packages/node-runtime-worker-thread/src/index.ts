@@ -3,13 +3,13 @@
 
 import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
-import { Runtime } from '@mongosh/browser-runtime-core';
-import { EvaluationListener } from '@mongosh/shell-evaluator';
+import { Runtime, RuntimeEvaluationListener, RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 import { Caller, createCaller } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import childProcessProxySrc from 'inline-entry-loader!./child-process-proxy';
+import { deserializeEvaluationResult } from './serializer';
 
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
 class WorkerRuntime implements Runtime {
@@ -20,7 +20,7 @@ class WorkerRuntime implements Runtime {
     spawnOptions: SpawnOptionsWithoutStdio;
   };
 
-  evaluationListener: EvaluationListener | null = null;
+  evaluationListener: RuntimeEvaluationListener | null = null;
 
   private childProcessEvaluationListener!: ChildProcessEvaluationListener;
 
@@ -61,9 +61,11 @@ class WorkerRuntime implements Runtime {
     await this.childProcessRuntime.init(uri, driverOptions, cliOptions);
   }
 
-  async evaluate(code: string) {
+  async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     await this.initWorkerPromise;
-    return this.childProcessRuntime.evaluate(code);
+    return deserializeEvaluationResult(
+      await this.childProcessRuntime.evaluate(code)
+    );
   }
 
   async getCompletions(code: string) {
@@ -76,7 +78,7 @@ class WorkerRuntime implements Runtime {
     return await this.childProcessRuntime.getShellPrompt();
   }
 
-  setEvaluationListener(listener: EvaluationListener | null) {
+  setEvaluationListener(listener: RuntimeEvaluationListener | null) {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
     return prev;

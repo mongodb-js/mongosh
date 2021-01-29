@@ -8,12 +8,12 @@ import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { bson } from '@mongosh/service-provider-core';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
-import { EvaluationListener } from '@mongosh/shell-evaluator';
+import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 describe('Electron runtime', function() {
   let serviceProvider: SinonStubbedInstance<CliServiceProvider>;
   let messageBus: SinonStubbedInstance<EventEmitter>;
-  let evaluationListener: SinonStubbedInstance<EvaluationListener>;
+  let evaluationListener: SinonStubbedInstance<RuntimeEvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
   beforeEach(async() => {

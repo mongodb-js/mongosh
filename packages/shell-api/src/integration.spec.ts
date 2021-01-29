@@ -156,8 +156,13 @@ describe('Shell API (integration)', function() {
 
         describe('when calling toShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect((await toShellResult(cursor)).printable.constructor).to.equal(Array);
-            expect((await toShellResult(cursor)).printable).to.deep.equal([{ doc: 2 }]);
+            expect(await toShellResult(cursor)).to.have.nested.property(
+              'printable.documents.constructor',
+              Array
+            );
+            expect(await toShellResult(cursor))
+              .to.have.nested.property('printable.documents')
+              .deep.equal([{ doc: 2 }]);
           });
         });
       });

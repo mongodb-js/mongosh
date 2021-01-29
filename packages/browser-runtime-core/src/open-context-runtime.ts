@@ -2,11 +2,15 @@ import { Completion } from './autocompleter/autocompleter';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
 import { Interpreter, InterpreterEnvironment } from './interpreter';
-import { Runtime } from './runtime';
+import {
+  Runtime,
+  RuntimeEvaluationResult,
+  RuntimeEvaluationListener
+} from './runtime';
 import { EventEmitter } from 'events';
-import { ShellInternalState, ShellResult } from '@mongosh/shell-api';
+import { ShellInternalState } from '@mongosh/shell-api';
 
-import { ShellEvaluator, EvaluationListener } from '@mongosh/shell-evaluator';
+import { ShellEvaluator } from '@mongosh/shell-evaluator';
 import type { MongoshBus } from '@mongosh/types';
 
 /**
@@ -23,7 +27,7 @@ export class OpenContextRuntime implements Runtime {
   private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
   private internalState: ShellInternalState;
-  private evaluationListener: EvaluationListener | null = null;
+  private evaluationListener: RuntimeEvaluationListener | null = null;
   private updatedConnectionInfo = false;
 
   constructor(
@@ -48,17 +52,18 @@ export class OpenContextRuntime implements Runtime {
     return this.autocompleter.getCompletions(code);
   }
 
-  async evaluate(code: string): Promise<ShellResult> {
+  async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     const evalFn = this.interpreter.evaluate.bind(this.interpreter);
-    return await this.shellEvaluator.customEval(
+    const { type, printable, source } = await this.shellEvaluator.customEval(
       evalFn,
       code,
       this.interpreterEnvironment.getContextObject(),
       ''
     );
+    return { type, printable, source };
   }
 
-  setEvaluationListener(listener: EvaluationListener): EvaluationListener | null {
+  setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
     this.internalState.setEvaluationListener(listener);

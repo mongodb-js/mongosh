@@ -1569,8 +1569,13 @@ describe('Collection', () => {
         const cursor = await collection.find();
         const result = await toShellResult(cursor);
         expect(result.type).to.equal('Cursor');
-        expect(result.printable.length).to.not.equal(0);
-        expect(result.printable[0]._id).to.equal('abc');
+        expect(result)
+          .to.have.nested.property('printable.documents.length')
+          .not.equal(0);
+        expect(result).to.have.nested.property(
+          'printable.documents[0]._id',
+          'abc'
+        );
         expect(result.source).to.deep.equal({
           namespace: {
             db: 'db1',

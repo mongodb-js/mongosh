@@ -7,11 +7,46 @@ import {
   ServerMessageData,
   ClientMessageData
 } from 'postmsg-rpc';
+import { deserializeError, serializeError } from './serializer';
+
+function serialize(data: unknown): string {
+  return `data:;base64,${v8.serialize(data).toString('base64')}`;
+}
+
+function deserialize<T = unknown>(str: string): T | string {
+  if (/^data:;base64,.+/.test(str)) {
+    return v8.deserialize(
+      Buffer.from(str.replace('data:;base64,', ''), 'base64')
+    );
+  }
+  return str;
+}
 
 type RPCMessageBus = { on: Function; off: Function } & (
   | { postMessage: Function; send?: never }
   | { postMessage?: never; send?: Function }
 );
+
+enum RPCMessageTypes {
+  Message,
+  Error
+}
+
+type RPCMessage = {
+  type: RPCMessageTypes.Message;
+  payload: string;
+};
+
+type RPCError = {
+  type: RPCMessageTypes.Error;
+  payload: Error;
+};
+
+function isRPCError(data: any): data is RPCError {
+  return (
+    data && typeof data === 'object' && data.type === RPCMessageTypes.Error
+  );
+}
 
 function isMessageData(data: any): data is MessageData {
   return data && typeof data === 'object' && 'id' in data && 'sender' in data;
@@ -48,19 +83,6 @@ function send(messageBus: RPCMessageBus, data: any): void {
   }
 }
 
-function serialize(data: unknown): string {
-  return `data:;base64,${v8.serialize(data).toString('base64')}`;
-}
-
-function deserialize<T = unknown>(str: string): T | string {
-  if (/^data:;base64,.+/.test(str)) {
-    return v8.deserialize(
-      Buffer.from(str.replace('data:;base64,', ''), 'base64')
-    );
-  }
-  return str;
-}
-
 function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   return {
     addListener: messageBus.on.bind(messageBus),
@@ -71,7 +93,18 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
       }
 
       if (isServerMessageData(data)) {
-        data.res = serialize(data.res);
+        // If serialization of the response failed for some reason (e.g., the
+        // value is not serializable) we want to propagate the error back to the
+        // client that issued the remote call instead of throwing on the server
+        // that was executing the method.
+        try {
+          data.res = serialize(data.res);
+        } catch (e) {
+          data.res = serialize({
+            type: RPCMessageTypes.Error,
+            payload: serializeError(e)
+          });
+        }
       }
 
       return send(messageBus, data);
@@ -98,7 +131,21 @@ export type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
 
 export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
   Object.entries(obj).forEach(([key, val]) => {
-    const { close } = expose(key, val, getRPCOptions(messageBus));
+    const { close } = expose(
+      key,
+      async(...args: unknown[]) => {
+        try {
+          return { type: RPCMessageTypes.Message, payload: await val(...args) };
+        } catch (e) {
+          // If server (whatever is executing the exposed method) throws during
+          // the execution, we want to propagate error to the client (whatever
+          // issued the call) and re-throw there. We will do this with a special
+          // return type.
+          return { type: RPCMessageTypes.Error, payload: serializeError(e) };
+        }
+      },
+      getRPCOptions(messageBus)
+    );
     (val as any).close = close;
   });
   return obj as WithClose<O>;
@@ -114,7 +161,12 @@ export function createCaller<Impl extends {}>(
 ): Caller<Impl, typeof methodNames[number]> {
   const obj = {};
   methodNames.forEach((name) => {
-    (obj as any)[name] = caller(name as string, getRPCOptions(messageBus));
+    const c = caller(name as string, getRPCOptions(messageBus));
+    (obj as any)[name] = async(...args: unknown[]) => {
+      const result = (await c(...args)) as RPCError | RPCMessage;
+      if (isRPCError(result)) throw deserializeError(result.payload);
+      return result.payload;
+    };
   });
   return obj as Caller<Impl, typeof methodNames[number]>;
 }

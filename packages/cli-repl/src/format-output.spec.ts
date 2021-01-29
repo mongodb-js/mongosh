@@ -30,10 +30,12 @@ for (const colors of [ false, true ]) {
     context('when the result is a Cursor', () => {
       context('when the Cursor is not empty', () => {
         it('returns the inspection', () => {
-          const output = stripAnsiColors(format({
-            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: true }),
-            type: 'Cursor'
-          }));
+          const output = stripAnsiColors(
+            format({
+              value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: true },
+              type: 'Cursor'
+            })
+          );
 
           expect(output).to.include('doc: 1');
           expect(output).to.include('doc: 2');
@@ -42,10 +44,12 @@ for (const colors of [ false, true ]) {
 
       context('when the Cursor is empty', () => {
         it('returns an empty string', () => {
-          const output = stripAnsiColors(format({
-            value: Object.assign([], { cursorHasMore: false }),
-            type: 'Cursor'
-          }));
+          const output = stripAnsiColors(
+            format({
+              value: { documents: [], cursorHasMore: false },
+              type: 'Cursor'
+            })
+          );
 
           expect(output).to.equal('');
         });
@@ -55,10 +59,12 @@ for (const colors of [ false, true ]) {
     context('when the result is a CursorIterationResult', () => {
       context('when the CursorIterationResult is not empty', () => {
         it('returns the inspection', () => {
-          const output = stripAnsiColors(format({
-            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: true }),
-            type: 'CursorIterationResult'
-          }));
+          const output = stripAnsiColors(
+            format({
+              value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: true },
+              type: 'CursorIterationResult'
+            })
+          );
 
           expect(output).to.include('doc: 1');
           expect(output).to.include('doc: 2');
@@ -68,10 +74,12 @@ for (const colors of [ false, true ]) {
 
       context('when the CursorIterationResult is not empty but exhausted', () => {
         it('returns the inspection', () => {
-          const output = stripAnsiColors(format({
-            value: Object.assign([{ doc: 1 }, { doc: 2 }], { cursorHasMore: false }),
-            type: 'CursorIterationResult'
-          }));
+          const output = stripAnsiColors(
+            format({
+              value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: false },
+              type: 'CursorIterationResult'
+            })
+          );
 
           expect(output).to.include('doc: 1');
           expect(output).to.include('doc: 2');
@@ -82,7 +90,7 @@ for (const colors of [ false, true ]) {
       context('when the CursorIterationResult is empty', () => {
         it('returns "no cursor"', () => {
           const output = stripAnsiColors(format({
-            value: Object.assign([], { cursorHasMore: false }),
+            value: { documents: [], cursorHasMore: false },
             type: 'CursorIterationResult'
           }));
 

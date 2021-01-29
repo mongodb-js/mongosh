@@ -46,11 +46,9 @@ declare type Params<T extends (...args: any) => any> = T extends (
   : never;
 
 declare type Promisified<T> = {
-  [k in keyof T]: T[k] extends (...args: any) => any
+  [k in keyof T]: T[k] extends (...args: infer Args) => infer ReturnVal
     ? (
-        ...args: Params<T[k]>
-      ) => ReturnType<T[k]> extends Promise<any>
-        ? ReturnType<T[k]>
-        : Promise<ReturnType<T[k]>>
+        ...args: Args
+      ) => ReturnVal extends Promise<any> ? ReturnVal : Promise<ReturnVal>
     : T[k];
 };
