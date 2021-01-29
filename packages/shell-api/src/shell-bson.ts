@@ -58,6 +58,7 @@ export default function constructShellBson(bson: typeof BSON): any {
   });
   // Symbol is deprecated
   (bson.BSONSymbol as any).prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
+  (bson.BSONSymbol as any).prototype.deprecated = true;
 
   const bsonPkg = {
     DBRef: function(namespace: string, oid: any, db?: string): any {

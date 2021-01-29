@@ -3,7 +3,8 @@ import {
   returnsPromise,
   returnType,
   hasAsyncChild,
-  ShellApiClass
+  ShellApiClass,
+  deprecated
 } from './decorators';
 import {
   ChangeStream,
@@ -58,6 +59,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
   }
 
   @returnsPromise
+  @deprecated
   async hasNext(): Promise<void> {
     printWarning(
       'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +

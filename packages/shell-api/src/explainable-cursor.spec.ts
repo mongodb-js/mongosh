@@ -21,6 +21,7 @@ describe('ExplainableCursor', () => {
       expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
+        deprecated: false,
         returnType: 'ExplainableCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

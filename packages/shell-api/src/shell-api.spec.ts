@@ -37,6 +37,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.use).to.deep.equal({
         type: 'function',
         returnsPromise: false,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -45,6 +46,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.show).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -53,6 +55,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.exit).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -61,6 +64,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.it).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -69,6 +73,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.print).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -77,6 +82,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.printjson).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -85,6 +91,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.sleep).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -93,6 +100,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.cls).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -101,6 +109,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: 'Mongo',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
@@ -109,6 +118,7 @@ describe('ShellApi', () => {
       expect(signatures.ShellApi.attributes.connect).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: 'Database',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,

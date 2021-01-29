@@ -133,10 +133,13 @@ function wrapWithAddSourceToResult(fn: Function): Function {
   return wrapper;
 }
 
-interface TypeSignature {
+export interface TypeSignature {
   type: string;
   hasAsyncChild?: boolean;
+  serverVersions?: [ string, string ];
+  topologies?: Topologies[];
   returnsPromise?: boolean;
+  deprecated?: boolean;
   returnType?: string | TypeSignature;
   attributes?: { [key: string]: TypeSignature };
 }
@@ -156,6 +159,7 @@ type ClassSignature = {
   type: string;
   hasAsyncChild: boolean;
   returnsPromise: boolean;
+  deprecated: boolean;
   attributes: {
     [methodName: string]: {
       type: 'function';
@@ -163,6 +167,7 @@ type ClassSignature = {
       topologies: Topologies[];
       returnType: ClassSignature;
       returnsPromise: boolean;
+      deprecated: boolean;
       platforms: ReplPlatform[];
     }
   };
@@ -187,6 +192,7 @@ export function shellApiClassDefault(constructor: Function): void {
     type: className,
     hasAsyncChild: constructor.prototype.hasAsyncChild || false,
     returnsPromise: constructor.prototype.returnsPromise || false,
+    deprecated: constructor.prototype.deprecated || false,
     attributes: {}
   };
 
@@ -209,6 +215,7 @@ export function shellApiClassDefault(constructor: Function): void {
     method.topologies = method.topologies || ALL_TOPOLOGIES;
     method.returnType = method.returnType || { type: 'unknown', attributes: {} };
     method.returnsPromise = method.returnsPromise || false;
+    method.deprecated = method.deprecated || false;
     method.platforms = method.platforms || ALL_PLATFORMS;
 
     classSignature.attributes[propertyName] = {
@@ -217,6 +224,7 @@ export function shellApiClassDefault(constructor: Function): void {
       topologies: method.topologies,
       returnType: method.returnType,
       returnsPromise: method.returnsPromise,
+      deprecated: method.deprecated,
       platforms: method.platforms
     };
 
@@ -262,6 +270,7 @@ export function shellApiClassDefault(constructor: Function): void {
         topologies: method.topologies,
         returnType: method.returnType,
         returnsPromise: method.returnsPromise,
+        deprecated: method.deprecated,
         platforms: method.platforms
       };
 
@@ -284,7 +293,7 @@ export function shellApiClassDefault(constructor: Function): void {
 }
 
 export { signatures };
-export function serverVersions(versionArray: any[]): Function {
+export function serverVersions(versionArray: [ string, string ]): Function {
   return function(
     _target: any,
     _propertyKey: string,
@@ -293,7 +302,10 @@ export function serverVersions(versionArray: any[]): Function {
     descriptor.value.serverVersions = versionArray;
   };
 }
-export function topologies(topologiesArray: any[]): Function {
+export function deprecated(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+  descriptor.value.deprecated = true;
+}
+export function topologies(topologiesArray: Topologies[]): Function {
   return function(
     _target: any,
     _propertyKey: string,
@@ -322,6 +334,9 @@ export function hasAsyncChild(constructor: Function): void {
 }
 export function classReturnsPromise(constructor: Function): void {
   constructor.prototype.returnsPromise = true;
+}
+export function classDeprecated(constructor: Function): void {
+  constructor.prototype.deprecated = true;
 }
 export function platforms(platformsArray: any[]): Function {
   return function(

@@ -1,12 +1,14 @@
 import {
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  classDeprecated
 } from './decorators';
 import { asPrintable } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
 
 
 @shellApiClassDefault
+@classDeprecated
 class DeprecatedClass extends ShellApiClass {
   public name: string;
   constructor(name: string, alternatives: Record<string, string> = {}) {

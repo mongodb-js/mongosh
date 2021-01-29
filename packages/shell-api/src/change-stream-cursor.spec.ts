@@ -30,6 +30,7 @@ describe('ChangeStreamCursor', () => {
       expect(signatures.ChangeStreamCursor.attributes.next).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

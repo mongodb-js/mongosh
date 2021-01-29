@@ -3,7 +3,8 @@ import {
   returnsPromise,
   serverVersions,
   ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  deprecated
 } from './decorators';
 import { Document } from '@mongosh/service-provider-core';
 import Collection from './collection';
@@ -52,10 +53,12 @@ export default class PlanCache extends ShellApiClass {
     return await agg.toArray();
   }
 
+  @deprecated
   planCacheQueryShapes(): void {
     throw new MongoshDeprecatedError('PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead');
   }
 
+  @deprecated
   getPlansByQuery(): void {
     throw new MongoshDeprecatedError('PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead');
   }

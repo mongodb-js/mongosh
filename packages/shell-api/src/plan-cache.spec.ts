@@ -22,6 +22,7 @@ describe('PlanCache', () => {
       expect(signatures.PlanCache.attributes.list).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

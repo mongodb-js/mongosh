@@ -95,6 +95,7 @@ describe('Field Level Encryption', () => {
       expect(signatures.KeyVault.attributes.createKey).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -103,6 +104,7 @@ describe('Field Level Encryption', () => {
       expect(signatures.ClientEncryption.attributes.encrypt).to.deep.equal({
         type: 'function',
         returnsPromise: true,
+        deprecated: false,
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
