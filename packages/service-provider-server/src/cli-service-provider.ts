@@ -198,10 +198,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
-   * @param clientOptions
+   * @param {MongoClientOptions} clientOptions
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, clientOptions = {}, uri?: ConnectionString) {
+  constructor(mongoClient: MongoClient, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
     super(bsonlib);
     this.mongoClient = mongoClient;
     this.uri = uri;
@@ -222,12 +222,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async getNewConnection(uri: string, options: MongoClientOptions = {}): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = processDriverOptions(options);
-
     const mongoClient = await connectMongoClient(
       connectionString.toString(),
       clientOptions
     );
-    return new CliServiceProvider(mongoClient, connectionString);
+    return new CliServiceProvider(mongoClient, clientOptions, connectionString);
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {

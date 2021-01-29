@@ -106,7 +106,7 @@ describe('CliServiceProvider [integration]', function() {
   describe('.getConnectionInfo', () => {
     context('when a uri has been passed', () => {
       it('returns the connection\'s info', async() => {
-        const instance = new CliServiceProvider(client, connectionString);
+        const instance = new CliServiceProvider(client, {}, new ConnectionString(connectionString));
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([

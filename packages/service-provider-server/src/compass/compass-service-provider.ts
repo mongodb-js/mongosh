@@ -1,6 +1,6 @@
 import CliServiceProvider from '../cli-service-provider';
-import { MongoClient } from 'mongodb';
-import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
+import { MongoClient, MongoClientOptions } from 'mongodb';
+import { ConnectionString, ReplPlatform } from '@mongosh/service-provider-core';
 
 interface DataService {
   client: {
@@ -13,22 +13,21 @@ interface DataService {
  */
 class CompassServiceProvider extends CliServiceProvider {
   public readonly platform: ReplPlatform;
-  public readonly initialDb: string;
   /**
    * Instantiate a new CompassServiceProvider with the data-service's connected
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
+   * @param {MongoClientOptions} driverOptions
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, uri?: string) {
-    super(mongoClient, uri);
+  constructor(
+    mongoClient: MongoClient,
+    driverOptions: MongoClientOptions = {},
+    uri?: ConnectionString
+  ) {
+    super(mongoClient, driverOptions, uri);
     this.platform = ReplPlatform.Compass;
-    try {
-      this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
-    } catch (err) {
-      this.initialDb = DEFAULT_DB;
-    }
   }
   /**
    * Creates a new CompassServiceProvider that uses compass
