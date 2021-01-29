@@ -7,6 +7,7 @@ import org.graalvm.polyglot.Value
  */
 internal interface AdminServiceProvider {
     fun listDatabases(database: String, options: Value?): Value
+    fun readPreferenceFromOptions(options: Value?): Value
     fun getNewConnection(uri: String, options: Value?): Value
     fun getConnectionInfo(): Value
     fun authenticate(authDoc: Value): Value

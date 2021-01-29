@@ -16,7 +16,9 @@ import {
   Decimal128,
   BSONSymbol,
   ClientMetadata,
-  Topology
+  Topology,
+  ReadPreferenceFromOptions,
+  ReadPreferenceLike
 } from 'mongodb';
 
 import {
@@ -1104,21 +1106,16 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.mongoClient.writeConcern;
   }
 
+  readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined {
+    return ReadPreference.fromOptions(options);
+  }
+
   /**
    * For instances where a user wants to set a option that requires a new MongoClient.
    *
    * @param options
    */
-  async resetConnectionOptions(options: Document): Promise<void> {
-    // NOTE: we keep all the original options and just overwrite the passed.
-    if (options.readPreference !== undefined) {
-      const pr = new ReadPreference(
-        options.readPreference.mode,
-        options.readPreference.tagSet,
-        options.hedgeOptions
-      );
-      options.readPreference = pr;
-    }
+  async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
     const clientOptions = processDriverOptions({
       ...this.initialOptions,
       ...options
