@@ -1,6 +1,6 @@
 import CliServiceProvider from '../cli-service-provider';
-import { MongoClient, MongoClientOptions } from 'mongodb';
-import { ConnectionString, ReplPlatform } from '@mongosh/service-provider-core';
+import { MongoClient } from 'mongodb';
+import { ConnectionString, ReplPlatform, MongoClientOptions } from '@mongosh/service-provider-core';
 
 interface DataService {
   client: {
