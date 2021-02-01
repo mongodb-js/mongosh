@@ -114,7 +114,7 @@ module.exports = {
           rpmIdentifier: 'ASL 2.0'
         }
       },
-      {
+      /*{
         sourceFilePath: MONGOCRYPTD_PATH,
         category: 'libexec',
         license: {
@@ -124,13 +124,13 @@ module.exports = {
           debIdentifier: 'Proprietary',
           rpmIdentifier: 'Proprietary'
         }
-      }
+      }*/
     ],
     otherDocFilePaths: [
-      {
+      /*{
         sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),
         packagedFilePath: 'README'
-      },
+      },*/
       {
         sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
         packagedFilePath: 'THIRD_PARTY_NOTICES'
