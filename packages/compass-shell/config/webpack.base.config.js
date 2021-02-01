@@ -128,5 +128,11 @@ module.exports = {
         exclude: /(node_modules)/
       }
     ]
+  },
+  externals: {
+    // Runtime implementation depends on worker file existing near the library
+    // main import and for that reason it needs to stay external to the
+    // compass-shell
+    '@mongosh/node-runtime-worker-thread': 'commonjs2 @mongosh/node-runtime-worker-thread',
   }
 };

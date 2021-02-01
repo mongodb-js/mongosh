@@ -7,6 +7,7 @@ const { spawn } = require('child_process');
 const baseWebpackConfig = require('./webpack.base.config');
 const project = require('./project');
 
+/** @type import('webpack').Configuration */
 const config = {
   mode: 'development',
   target: 'electron-renderer',
@@ -76,6 +77,21 @@ const config = {
         .on('close', () => process.exit(0))
         .on('error', spawnError => console.error(spawnError)); // eslint-disable-line no-console
     }
+  },
+  resolve: {
+    // Without this alias, in dev mode symlinked browser-repl breaks the code
+    // by having two reacts loadeded on the page
+    alias: {
+      'react': require.resolve('react'),
+      'react-dom': require.resolve('@hot-loader/react-dom'),
+    }
+  },
+  externals: {
+    // "Optional" mongodb dependencies that should stay out of the build in dev
+    // mode
+    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
+    kerberos: 'commonjs2 kerberos',
+    snappy: 'commonjs2 snappy'
   }
 };
 

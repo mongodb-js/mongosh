@@ -5,8 +5,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const config = {
   target: 'node',
 
-  devtool: false,
-
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
@@ -27,10 +25,6 @@ const config = {
     extensions: ['.ts', '.js']
   },
 
-  resolveLoader: {
-    modules: ['node_modules', path.resolve(__dirname, 'loaders')]
-  },
-
   optimization: {
     minimizer: [
       new TerserPlugin({
@@ -40,6 +34,14 @@ const config = {
         }
       })
     ]
+  },
+
+  node: false,
+
+  externals: {
+    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
+    kerberos: 'commonjs2 kerberos',
+    snappy: 'commonjs2 snappy'
   }
 };
 
