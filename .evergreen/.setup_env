@@ -15,6 +15,9 @@ node --version
 echo "Using npm version:"
 npm --version
 
+echo "Using git version:"
+git --version
+
 export EVERGREEN_EXPANSIONS_PATH="$BASEDIR/../../tmp/expansions.yaml"
 
 if [ "$OS" == "Windows_NT" ]; then
