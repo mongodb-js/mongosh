@@ -68,7 +68,7 @@ export default async function release(
     const runCreateTarball = async(): Promise<TarballFile> => {
       return await createTarball(
         config.outputDir,
-        config.buildVariant ?? '',
+        config.buildVariant ?? '' as any,
         config.packageInformation as (Required<Config>['packageInformation'])
       );
     };

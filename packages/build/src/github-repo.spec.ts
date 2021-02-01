@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
+import * as path from 'path';
 import sinon from 'ts-sinon';
 import { GithubRepo } from './github-repo';
-import { tarballPath } from './tarball';
 
 function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
   const repo = {
@@ -54,16 +54,15 @@ describe('GithubRepo', () => {
 
   describe('releaseToGithub', () => {
     const platform = os.platform();
-    const version = '1.0.0';
-    const expectedTarball = tarballPath(__dirname, platform, version, 'mongosh');
-    const tarballFile = { path: expectedTarball, contentType: 'application/zip' };
+    const dummyTarballPath = path.join(__dirname, `mongosh_1.0.0_${platform}.zip`);
+    const tarballFile = { path: dummyTarballPath, contentType: 'application/zip' };
 
     before(async() => {
-      await fs.writeFile(expectedTarball, 'not a real tarball but 🤷‍♀️');
+      await fs.writeFile(dummyTarballPath, 'not a real tarball but 🤷‍♀️');
     });
 
     after(async() => {
-      await fs.unlink(expectedTarball);
+      await fs.unlink(dummyTarballPath);
     });
 
     it('calls createDraftRelease when running releaseToGithub', async() => {

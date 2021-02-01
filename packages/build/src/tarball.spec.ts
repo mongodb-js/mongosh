@@ -1,45 +1,69 @@
-import BuildVariant from './build-variant';
+import { expect } from 'chai';
+import childProcess from 'child_process';
 import commandExists from 'command-exists';
 import { promises as fs } from 'fs';
-import { expect } from 'chai';
 import path from 'path';
-import {
-  createTarball,
-  tarballPath,
-  PackageInformation
-} from './tarball';
-import { promisify } from 'util';
 import rimraf from 'rimraf';
-import childProcess from 'child_process';
+import { promisify } from 'util';
+import BuildVariant from './build-variant';
+import { createTarball, getTarballFile, PackageInformation } from './tarball';
+
 const execFile = promisify(childProcess.execFile);
 
 describe('tarball module', () => {
-  describe('.tarballPath', () => {
+  describe('.getTarballFile', () => {
     context('when the build variant is windows', () => {
       it('returns the windows tarball name', () => {
-        expect(tarballPath('', BuildVariant.Windows, '1.0.0', 'mongosh')).
-          to.equal('mongosh-1.0.0-win32.zip');
+        expect(
+          getTarballFile(BuildVariant.Windows, '1.0.0', 'mongosh')
+        ).to.deep.equal({
+          path: 'mongosh-1.0.0-win32.zip',
+          contentType: 'application/zip'
+        });
       });
     });
 
     context('when the build variant is macos', () => {
-      it('returns the tarball name', () => {
-        expect(tarballPath('', BuildVariant.MacOs, '1.0.0', 'mongosh')).
-          to.equal('mongosh-1.0.0-darwin.zip');
+      it('returns the tarball details', () => {
+        expect(
+          getTarballFile(BuildVariant.MacOs, '1.0.0', 'mongosh')
+        ).to.deep.equal({
+          path: 'mongosh-1.0.0-darwin.zip',
+          contentType: 'application/zip'
+        });
       });
     });
 
     context('when the build variant is linux', () => {
-      it('returns the tarball name', () => {
-        expect(tarballPath('', BuildVariant.Linux, '1.0.0', 'mongosh')).
-          to.equal('mongosh-1.0.0-linux.tgz');
+      it('returns the tarball details', () => {
+        expect(
+          getTarballFile(BuildVariant.Linux, '1.0.0', 'mongosh')
+        ).to.deep.equal({
+          path: 'mongosh-1.0.0-linux.tgz',
+          contentType: 'application/gzip'
+        });
       });
     });
 
     context('when the build variant is debian', () => {
-      it('returns the tarball name', () => {
-        expect(tarballPath('', BuildVariant.Debian, '1.0.0', 'mongosh')).
-          to.equal('mongosh_1.0.0_amd64.deb');
+      it('returns the tarball details', () => {
+        expect(
+          getTarballFile(BuildVariant.Debian, '1.0.0', 'mongosh')
+        ).to.deep.equal({
+          path: 'mongosh_1.0.0_amd64.deb',
+          contentType: 'application/vnd.debian.binary-package'
+        });
+      });
+    });
+
+    context('when the build variant is rhel', () => {
+      it('returns the tarball details', () => {
+        expect(
+          getTarballFile(BuildVariant.Redhat, '1.0.0', 'mongosh')
+        ).to.deep.equal({
+          path: 'mongosh-1.0.0-x86_64.rpm',
+          contentType: 'application/x-rpm'
+        });
       });
     });
   });
@@ -60,7 +84,7 @@ describe('tarball module', () => {
 
     describe('.tarballPosix', () => {
       it('packages the executable(s)', async() => {
-        const tarball = await createTarball(tarballDir, 'linux', pkgConfig);
+        const tarball = await createTarball(tarballDir, BuildVariant.Linux, pkgConfig);
         await fs.access(tarball.path);
       });
     });
@@ -75,7 +99,7 @@ describe('tarball module', () => {
       });
 
       it('packages the executable(s)', async() => {
-        const tarball = await createTarball(tarballDir, 'debian', pkgConfig);
+        const tarball = await createTarball(tarballDir, BuildVariant.Debian, pkgConfig);
         if (process.env.MONGOSH_TEST_NO_DPKG) {
           return;
         }
@@ -112,7 +136,7 @@ describe('tarball module', () => {
       });
 
       it('packages the executable(s)', async() => {
-        const tarball = await createTarball(tarballDir, 'rhel', pkgConfig);
+        const tarball = await createTarball(tarballDir, BuildVariant.Redhat, pkgConfig);
         if (process.env.MONGOSH_TEST_NO_RPMBUILD) {
           return;
         }
@@ -133,7 +157,7 @@ describe('tarball module', () => {
 
     describe('.tarballWindows', () => {
       it('packages the executable(s)', async() => {
-        const tarball = await createTarball(tarballDir, 'win32', pkgConfig);
+        const tarball = await createTarball(tarballDir, BuildVariant.Windows, pkgConfig);
         await fs.access(tarball.path);
       });
     });
