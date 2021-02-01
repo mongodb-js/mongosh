@@ -519,6 +519,8 @@ tasks:
         variant: ubuntu1604
       - name: test_linux_artifact
         variant: ubuntu2004
+      - name: test_connectivity
+        variant: linux
       - name: test_vscode
         variant: linux
       - name: pkg_test_docker_centos7
