@@ -8,7 +8,7 @@ import {
   MongoClientOptions,
   ServiceProvider
 } from '@mongosh/service-provider-core';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 
@@ -43,8 +43,16 @@ export type WorkerRuntime = Runtime & {
 };
 
 const workerRuntime: WorkerRuntime = {
-  async init(uri, driverOptions = {}, cliOptions = {}) {
-    provider = await CliServiceProvider.connect(uri, driverOptions, cliOptions);
+  async init(
+    uri: string,
+    driverOptions: MongoClientOptions = {},
+    cliOptions: { nodb?: boolean } = {}
+  ) {
+    provider = await CompassServiceProvider.connect(
+      uri,
+      driverOptions,
+      cliOptions
+    );
     runtime = new ElectronRuntime(
       provider /** , TODO: `messageBus` support for telemetry in a separate ticket */
     );

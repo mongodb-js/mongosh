@@ -169,6 +169,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @returns {Promise} The promise with cli service provider.
    */
   static async connect(
+    this: typeof CliServiceProvider,
     uri: string,
     driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {}
@@ -183,7 +184,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ) :
       new MongoClient(connectionString.toString(), clientOptions);
 
-    return new CliServiceProvider(mongoClient, clientOptions, connectionString);
+    return new this(mongoClient, clientOptions, connectionString);
   }
 
   public readonly platform: ReplPlatform;
