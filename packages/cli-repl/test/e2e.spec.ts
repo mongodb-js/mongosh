@@ -416,6 +416,16 @@ describe('e2e', function() {
         shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
       });
     });
+
+    it('treats piping a script into stdin line by line', async() => {
+      // This script doesn't work if evaluated as a whole, only when evaluated
+      // line-by-line, due to Automatic Semicolon Insertion (ASI).
+      createReadStream(path.resolve(__dirname, 'fixtures', 'asi-script.js'))
+        .pipe(shell.process.stdin);
+      await eventually(() => {
+        shell.assertContainsOutput('admin;system.version;');
+      });
+    });
   });
 
   describe('Node.js builtin APIs in the shell', () => {
