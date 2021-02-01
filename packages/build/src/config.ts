@@ -1,3 +1,4 @@
+import BuildVariant from './build-variant';
 import type { PackageInformation } from './tarball';
 import semver from 'semver';
 
@@ -29,7 +30,7 @@ export default interface Config {
   isCi?: boolean;
   platform?: string;
   execNodeVersion: string;
-  buildVariant?: string;
+  buildVariant: BuildVariant;
   repo: {
     owner: string;
     repo: string;

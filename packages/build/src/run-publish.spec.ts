@@ -2,17 +2,24 @@ import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
 import type writeAnalyticsConfigType from './analytics';
+import { Barque } from './barque';
+import BuildVariant from './build-variant';
 import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import type uploadDownloadCenterConfigType from './download-center';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import publish from './publish';
+import { runPublish } from './run-publish';
+import { PackageInformation } from './tarball';
 
 chai.use(require('sinon-chai'));
 
 function createStubRepo(overrides?: any): GithubRepo {
   return sinon.createStubInstance(GithubRepo, overrides) as unknown as GithubRepo;
+}
+
+function createStubBarque(overrides?: any): Barque {
+  return sinon.createStubInstance(Barque, overrides) as unknown as Barque;
 }
 
 describe('publish', () => {
@@ -24,6 +31,7 @@ describe('publish', () => {
   let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
   let githubRepo: GithubRepo;
   let mongoHomebrewRepo: GithubRepo;
+  let barque: Barque;
 
   beforeEach(() => {
     config = {
@@ -49,11 +57,20 @@ describe('publish', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'platform',
-      buildVariant: 'linux',
+      buildVariant: BuildVariant.Linux,
       repo: {
         owner: 'owner',
         repo: 'repo',
       },
+      packageInformation: {
+        metadata: {
+          name: 'mongosh',
+          version: 'packageVersion',
+          description: 'The best shell you ever had.',
+          homepage: 'https://mongodb.com',
+          maintainer: 'We, us, everyone.'
+        }
+      } as PackageInformation,
       execNodeVersion: process.version,
       rootDir: path.resolve(__dirname, '..', '..')
     };
@@ -65,18 +82,51 @@ describe('publish', () => {
     shouldDoPublicRelease = sinon.spy();
     githubRepo = createStubRepo();
     mongoHomebrewRepo = createStubRepo();
+    barque = createStubBarque({
+      releaseToBarque: sinon.stub().resolves(true)
+    });
   });
 
   context('if is a public release', () => {
     beforeEach(() => {
+      config.triggeringGitTag = 'v0.7.0';
       shouldDoPublicRelease = sinon.stub().returns(true);
+      githubRepo = createStubRepo({
+        getMostRecentDraftTagForRelease: sinon.stub().resolves({ name: 'v0.7.0-draft.42' })
+      });
     });
 
-    it('updates the download center config', async() => {
-      await publish(
+    it('publishes artifacts to barque', async() => {
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig,
+        publishToHomebrew,
+        shouldDoPublicRelease
+      );
+
+      expect(barque.releaseToBarque).to.have.been.callCount(3);
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh-0.7.0-linux.tgz'
+      );
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh-0.7.0-x86_64.rpm'
+      );
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh_0.7.0_amd64.deb'
+      );
+    });
+
+    it('updates the download center config', async() => {
+      await runPublish(
+        config,
+        githubRepo,
+        mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -92,10 +142,11 @@ describe('publish', () => {
     });
 
     it('promotes the release in github', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -107,10 +158,11 @@ describe('publish', () => {
     });
 
     it('writes analytics config and then publishes NPM packages', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -126,10 +178,11 @@ describe('publish', () => {
       expect(publishNpmPackages).to.have.been.calledAfter(writeAnalyticsConfig as any);
     });
     it('publishes to homebrew', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -151,10 +204,11 @@ describe('publish', () => {
     });
 
     it('does not update the download center config', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -166,10 +220,11 @@ describe('publish', () => {
     });
 
     it('does not promote the release in github', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -181,10 +236,11 @@ describe('publish', () => {
     });
 
     it('does not publish npm packages', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -196,10 +252,11 @@ describe('publish', () => {
     });
 
     it('does not publish to homebrew', async() => {
-      await publish(
+      await runPublish(
         config,
         githubRepo,
         mongoHomebrewRepo,
+        barque,
         uploadDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
@@ -208,6 +265,22 @@ describe('publish', () => {
       );
 
       expect(publishToHomebrew).not.to.have.been.called;
+    });
+
+    it('does not release to barque', async() => {
+      await runPublish(
+        config,
+        githubRepo,
+        mongoHomebrewRepo,
+        barque,
+        uploadDownloadCenterConfig,
+        publishNpmPackages,
+        writeAnalyticsConfig,
+        publishToHomebrew,
+        shouldDoPublicRelease
+      );
+
+      expect(barque.releaseToBarque).not.to.have.been.called;
     });
   });
 });

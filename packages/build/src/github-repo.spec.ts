@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
+import * as path from 'path';
 import sinon from 'ts-sinon';
 import { GithubRepo } from './github-repo';
-import { tarballPath } from './tarball';
 
 function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
   const repo = {
@@ -20,50 +20,75 @@ describe('GithubRepo', () => {
   beforeEach(() => {
     githubRepo = getTestGithubRepo();
   });
-  describe('getTagByCommitSha', () => {
-    it('returns undefined if the commit sha is undefined or empty', async() => {
+  describe('getMostRecentDraftTag', () => {
+    it('returns undefined if the release version is undefined or empty', async() => {
       expect(
-        await githubRepo.getTagByCommitSha('')
+        await githubRepo.getMostRecentDraftTagForRelease('')
       ).to.be.undefined;
 
       expect(
-        await githubRepo.getTagByCommitSha(undefined)
+        await githubRepo.getMostRecentDraftTagForRelease(undefined)
       ).to.be.undefined;
     });
 
-    it('returns tag info for a commit that has a tag', async() => {
+    it('returns undefined if there is no matching tag', async() => {
       githubRepo = getTestGithubRepo({
-        paginate: sinon.stub().resolves([{ name: 'v0.0.6', commit: { sha: 'sha' } }])
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6' },
+          { name: 'v0.0.3-draft.0' },
+          { name: 'v0.0.3-draft.1' },
+          { name: 'v0.1.3-draft.8' },
+        ])
       });
 
       expect(
-        await githubRepo.getTagByCommitSha('sha')
-      ).to.haveOwnProperty('name', 'v0.0.6');
+        await githubRepo.getMostRecentDraftTagForRelease('0.0.7')
+      ).to.be.undefined;
     });
 
-    it('returns undefined for a commit that does not have a tag', async() => {
+    it('returns the latest draft for a release version if there are multiple', async() => {
       githubRepo = getTestGithubRepo({
-        paginate: sinon.stub().resolves([{ name: 'v0.0.6', commit: { sha: 'sha1' } }])
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6' },
+          { name: 'v0.0.3-draft.11' },
+          { name: 'v0.0.3-draft.2' },
+          { name: 'v0.1.3-draft.0' },
+        ])
       });
 
       expect(
-        await githubRepo.getTagByCommitSha('sha2')
-      ).to.be.undefined;
+        await githubRepo.getMostRecentDraftTagForRelease('0.0.3')
+      ).to.deep.equal({ name: 'v0.0.3-draft.11' });
+    });
+
+    it('returns the draft for a release version if there is only one draft', async() => {
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6' },
+          { name: 'v0.0.3-draft.11' },
+          { name: 'v0.0.3-draft.2' },
+          { name: 'v0.1.3-draft.0' },
+          { name: 'v0.1.3-test' },
+        ])
+      });
+
+      expect(
+        await githubRepo.getMostRecentDraftTagForRelease('0.1.3')
+      ).to.deep.equal({ name: 'v0.1.3-draft.0' });
     });
   });
 
   describe('releaseToGithub', () => {
     const platform = os.platform();
-    const version = '1.0.0';
-    const expectedTarball = tarballPath(__dirname, platform, version, 'mongosh');
-    const tarballFile = { path: expectedTarball, contentType: 'application/zip' };
+    const dummyTarballPath = path.join(__dirname, `mongosh_1.0.0_${platform}.zip`);
+    const tarballFile = { path: dummyTarballPath, contentType: 'application/zip' };
 
     before(async() => {
-      await fs.writeFile(expectedTarball, 'not a real tarball but 🤷‍♀️');
+      await fs.writeFile(dummyTarballPath, 'not a real tarball but 🤷‍♀️');
     });
 
     after(async() => {
-      await fs.unlink(expectedTarball);
+      await fs.unlink(dummyTarballPath);
     });
 
     it('calls createDraftRelease when running releaseToGithub', async() => {

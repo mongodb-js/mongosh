@@ -103,7 +103,7 @@ await release(command, config);
 If `config.dryRun` is set, this will only package a tarball and skip all later
 steps.
 
-#### await compileExec()
+#### await runCompile()
 Create a compiled down binary. Binary is created for the provided platform (e.g.
 windows will build `mongosh.exe`). Before we compile the binary, we bundle
 `execInput` into a single `.js` file.
@@ -111,7 +111,7 @@ windows will build `mongosh.exe`). Before we compile the binary, we bundle
 __input:__ path to build input.
 __execInput:__ path to compiled executive input.
 __outputDir:__ path to where the compiled binary will live.
-__platform:__  platform to run `compileExec` on. `linux`, `darwin`, and `win32`
+__platform:__  platform to run `runCompile` on. `linux`, `darwin`, and `win32`
 are accepted options.
 __analyticsConfig:__ path to analytics config for telemetry.
 __segmentKey:__ segment api key for telemetry.
@@ -126,7 +126,7 @@ const config = {
   analyticsConfigFilePath: 'path/to/analytics/config',
   segmentKey: 'SEGMENT_API_KEY_23481k',
 }
-await compileExec(
+await runCompile(
   config.input,
   config.execInput,
   config.outputDir,

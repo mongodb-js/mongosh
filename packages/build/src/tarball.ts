@@ -1,10 +1,10 @@
-import tar from 'tar';
-import path from 'path';
-import BuildVariant from './build-variant';
-import { promises as fs, constants as fsConstants } from 'fs';
 import childProcess from 'child_process';
-import { promisify } from 'util';
+import { constants as fsConstants, promises as fs } from 'fs';
+import path from 'path';
 import rimraf from 'rimraf';
+import tar from 'tar';
+import { promisify } from 'util';
+import BuildVariant from './build-variant';
 // FICLONE means preferring copy-on-write clones if the fs supports it.
 const { COPYFILE_FICLONE } = fsConstants;
 
@@ -51,28 +51,36 @@ export interface PackageInformation {
   rpmTemplateDir: string;
 }
 
-/**
- * Get the path to the tarball.
- *
- * @param {string} outputDir - The output directory.
- * @param {string} build variant - The Build Variant.
- * @param {string} version - The version.
- *
- * @returns {string} The path.
- */
-export const tarballPath = (outputDir: string, buildVariant: string, version: string, name: string): string => {
-  if (buildVariant === BuildVariant.Linux) {
-    return path.join(outputDir, `${name}-${version}-${buildVariant}.tgz`);
-  } else if (buildVariant === BuildVariant.Redhat) {
-    return path.join(outputDir, `${name}-${version}-x86_64.rpm`);
-  } else if (buildVariant === BuildVariant.Debian) {
-    // debian packages are required to be separated by _ and have arch in the
-    // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
-    // sometimes there is also revision number, but we can add that later.
-    return path.join(outputDir, `${name}_${version}_amd64.deb`);
+export function getTarballFile(buildVariant: BuildVariant, version: string, name: string): TarballFile {
+  switch (buildVariant) {
+    case BuildVariant.Linux:
+      return {
+        path: `${name}-${version}-${buildVariant}.tgz`,
+        contentType: 'application/gzip'
+      };
+    case BuildVariant.Redhat:
+      return {
+        path: `${name}-${version}-x86_64.rpm`,
+        contentType: 'application/x-rpm'
+      };
+    case BuildVariant.Debian:
+      // debian packages are required to be separated by _ and have arch in the
+      // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
+      // sometimes there is also revision number, but we can add that later.
+      return {
+        path: `${name}_${version}_amd64.deb`,
+        contentType: 'application/vnd.debian.binary-package'
+      };
+    case BuildVariant.MacOs:
+    case BuildVariant.Windows:
+      return {
+        path: `${name}-${version}-${buildVariant}.zip`,
+        contentType: 'application/zip'
+      };
+    default:
+      throw new Error(`Unknown build variant: ${buildVariant}`);
   }
-  return path.join(outputDir, `${name}-${version}-${buildVariant}.zip`);
-};
+}
 
 /**
  * Create a directory containing the contents of the to-be-generated tarball/zip.
@@ -243,7 +251,7 @@ export const tarballRedhat = async(pkg: PackageInformation, templateDir: string,
   // Put the binaries in their expected locations.
   const installscriptRpm = pkg.binaries.map(({ sourceFilePath, category }) =>
     `mkdir -p %{buildroot}/%{_${category}dir}\n` +
-    `install -m 755 ${path.basename(sourceFilePath)} %{buildroot}/%{_${category}dir}/${path.basename(sourceFilePath)}`)
+        `install -m 755 ${path.basename(sourceFilePath)} %{buildroot}/%{_${category}dir}/${path.basename(sourceFilePath)}`)
     .join('\n');
   // Add binaries to the package, and list license and other documentation files.
   // rpm will automatically put license and doc files in the directories where
@@ -296,8 +304,8 @@ export const tarballRedhat = async(pkg: PackageInformation, templateDir: string,
 /**
  * Create a tarball archive for windows.
  *
- * @param {string} input - The file to tarball.
- * @param {string} filename - the tarball filename.
+ * @param pkg - Package information
+ * @param filename - the tarball filename.
  */
 export const tarballWindows = async(pkg: PackageInformation, filename: string): Promise<void> => {
   // Let's assume that either zip or 7z are installed. That's true for the
@@ -322,52 +330,40 @@ export type TarballFile = { path: string; contentType: string };
 /**
  * Create a gzipped tarball or zip for the provided options.
  *
- * @param {string} input - The file location to tarball.
- * @param {string} outputDir - Where to save the tarball.
- * @param {string} buildVariant- The build variant.
- * @param {string} version - The version.
- *
- * @returns {TarballFile} The path and type of the tarball.
+ * @param outputDir - Where to save the tarball.
+ * @param buildVariant - The build variant.
+ * @param packageInformation - Additional package information.
+ * @returns The path and type of the tarball.
  */
 export async function createTarball(
   outputDir: string,
-  buildVariant: string,
+  buildVariant: BuildVariant,
   packageInformation: PackageInformation
 ): Promise<TarballFile> {
-  const tarballFilename = tarballPath(
-    outputDir,
-    buildVariant,
-    packageInformation.metadata.version,
-    packageInformation.metadata.name);
+  const tarballFile = getTarballFile(buildVariant, packageInformation.metadata.version, packageInformation.metadata.name);
+  const fullTarballFilePath = path.join(outputDir, tarballFile.path);
+  console.info('mongosh: gzipping:', fullTarballFilePath);
 
-  console.info('mongosh: gzipping:', tarballFilename);
-
-  if (buildVariant === BuildVariant.Linux) {
-    await tarballPosix(packageInformation, tarballFilename);
-
-    return {
-      path: tarballFilename,
-      contentType: 'application/gzip'
-    };
-  } else if (buildVariant === BuildVariant.Redhat) {
-    await tarballRedhat(packageInformation, packageInformation.rpmTemplateDir, tarballFilename);
-
-    return {
-      path: tarballFilename,
-      contentType: 'application/x-rpm'
-    };
-  } else if (buildVariant === BuildVariant.Debian) {
-    await tarballDebian(packageInformation, packageInformation.debTemplateDir, tarballFilename);
-
-    return {
-      path: tarballFilename,
-      contentType: 'application/vnd.debian.binary-package'
-    };
+  switch (buildVariant) {
+    case BuildVariant.Linux:
+      await tarballPosix(packageInformation, fullTarballFilePath);
+      break;
+    case BuildVariant.Redhat:
+      await tarballRedhat(packageInformation, packageInformation.rpmTemplateDir, fullTarballFilePath);
+      break;
+    case BuildVariant.Debian:
+      await tarballDebian(packageInformation, packageInformation.debTemplateDir, fullTarballFilePath);
+      break;
+    case BuildVariant.MacOs:
+    case BuildVariant.Windows:
+      await tarballWindows(packageInformation, fullTarballFilePath);
+      break;
+    default:
+      throw new Error(`Unhandled build variant: ${buildVariant}`);
   }
-  await tarballWindows(packageInformation, tarballFilename);
 
   return {
-    path: tarballFilename,
-    contentType: 'application/zip'
+    ...tarballFile,
+    path: fullTarballFilePath
   };
 }
