@@ -1,20 +1,31 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { MongoshBus } from '@mongosh/types';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { WorkerRuntime } from '../dist/index';
 
 chai.use(sinonChai);
 
+function createMockEventEmitter() {
+  return (sinon.stub({ on() {}, emit() {} }) as unknown) as MongoshBus;
+}
+
 describe('WorkerRuntime', () => {
+  let runtime: WorkerRuntime;
+
+  afterEach(async() => {
+    if (runtime) {
+      await runtime.terminate();
+    }
+  });
+
   describe('evaluate', () => {
     it('should evaluate and return basic values', async() => {
-      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
       const result = await runtime.evaluate('1+1');
 
       expect(result.printable).to.equal(2);
-
-      await runtime.terminate();
     });
 
     describe('errors', () => {
@@ -46,7 +57,9 @@ describe('WorkerRuntime', () => {
       });
 
       it("should return an error if it's returned from evaluation", async() => {
-        const { printable } = await runtime.evaluate('new SyntaxError("Syntax!")');
+        const { printable } = await runtime.evaluate(
+          'new SyntaxError("Syntax!")'
+        );
 
         expect(printable).to.be.instanceof(Error);
         expect(printable).to.have.property('name', 'SyntaxError');
@@ -62,12 +75,10 @@ describe('WorkerRuntime', () => {
     const testServer = startTestServer('shared');
 
     it('should return completions', async() => {
-      const runtime = new WorkerRuntime(await testServer.connectionString());
+      runtime = new WorkerRuntime(await testServer.connectionString());
       const completions = await runtime.getCompletions('db.coll1.f');
 
       expect(completions).to.deep.contain({ completion: 'db.coll1.find' });
-
-      await runtime.terminate();
     });
   });
 
@@ -77,7 +88,7 @@ describe('WorkerRuntime', () => {
         onPrompt: sinon.spy(() => 'password123')
       };
 
-      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
 
       runtime.setEvaluationListener(evalListener);
 
@@ -85,8 +96,31 @@ describe('WorkerRuntime', () => {
 
       expect(evalListener.onPrompt).to.have.been.called;
       expect(password.printable).to.equal('password123');
+    });
+  });
 
-      await runtime.terminate();
+  describe('eventEmitter', () => {
+    const testServer = startTestServer('shared');
+
+    it('should propagate emitted events from worker', async() => {
+      const eventEmitter = createMockEventEmitter();
+
+      runtime = new WorkerRuntime(
+        await testServer.connectionString(),
+        {},
+        {},
+        {},
+        eventEmitter
+      );
+
+      await runtime.evaluate('db.getCollectionNames()');
+
+      expect(eventEmitter.emit).to.have.been.calledWith('mongosh:api-call', {
+        arguments: {},
+        class: 'Database',
+        db: 'test',
+        method: 'getCollectionNames'
+      });
     });
   });
 });

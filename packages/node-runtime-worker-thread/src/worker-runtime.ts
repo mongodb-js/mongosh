@@ -11,6 +11,7 @@ import {
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
+import { MongoshBus } from '@mongosh/types';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -34,6 +35,17 @@ const evaluationListener = createCaller<RuntimeEvaluationListener>(
   parentPort
 );
 
+const messageBus: MongoshBus = Object.assign(
+  createCaller(['emit'], parentPort),
+  {
+    on() {
+      // this method is a no-op, we only want message bus to proxy emitted
+      // events to main thread
+      return messageBus;
+    }
+  }
+);
+
 export type WorkerRuntime = Runtime & {
   init(
     uri: string,
@@ -53,10 +65,7 @@ const workerRuntime: WorkerRuntime = {
       driverOptions,
       cliOptions
     );
-    runtime = new ElectronRuntime(
-      provider /** , TODO: `messageBus` support for telemetry in a separate ticket */
-    );
-
+    runtime = new ElectronRuntime(provider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
   },
 

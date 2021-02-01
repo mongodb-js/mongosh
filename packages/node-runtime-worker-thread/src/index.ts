@@ -4,15 +4,19 @@
 import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import { Runtime, RuntimeEvaluationListener, RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import { MongoshBus } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { EventEmitter } from 'events';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 import { Caller, createCaller } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import { deserializeEvaluationResult } from './serializer';
+import { ChildProcessMongoshBus } from './child-process-mongosh-bus';
 
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
+
 class WorkerRuntime implements Runtime {
   private initOptions: {
     uri: string;
@@ -22,6 +26,10 @@ class WorkerRuntime implements Runtime {
   };
 
   evaluationListener: RuntimeEvaluationListener | null = null;
+
+  private eventEmitter: MongoshBus;
+
+  private childProcessMongoshBus!: ChildProcessMongoshBus;
 
   private childProcessEvaluationListener!: ChildProcessEvaluationListener;
 
@@ -35,10 +43,12 @@ class WorkerRuntime implements Runtime {
     uri: string,
     driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {},
-    spawnOptions: SpawnOptionsWithoutStdio = {}
+    spawnOptions: SpawnOptionsWithoutStdio = {},
+    eventEmitter: MongoshBus = new EventEmitter()
   ) {
     this.initOptions = { uri, driverOptions, cliOptions, spawnOptions };
     this.initWorkerPromise = this.initWorker();
+    this.eventEmitter = eventEmitter;
   }
 
   private async initWorker() {
@@ -67,6 +77,11 @@ class WorkerRuntime implements Runtime {
 
     this.childProcessEvaluationListener = new ChildProcessEvaluationListener(
       this,
+      this.childProcess
+    );
+
+    this.childProcessMongoshBus = new ChildProcessMongoshBus(
+      this.eventEmitter,
       this.childProcess
     );
 

@@ -68,3 +68,7 @@ const evaluationListener = createCaller(
 );
 
 exposeAll(evaluationListener, workerProcess);
+
+const messageBus = createCaller(['emit', 'on'], process);
+
+exposeAll(messageBus, workerProcess);
