@@ -87,12 +87,8 @@ const config = {
     }
   },
   externals: {
-    // Runtime implementation depends on worker file existing near the library
-    // main import and for that reason it needs to be external (it's done with
-    // a plugin in production build)
-    '@mongosh/node-runtime-worker-thread': 'commonjs2 @mongosh/node-runtime-worker-thread',
-    // "Optional" mongodb dependencies that should stay out of the build at
-    // least in dev mode
+    // "Optional" mongodb dependencies that should stay out of the build in dev
+    // mode
     'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     kerberos: 'commonjs2 kerberos',
     snappy: 'commonjs2 snappy'
