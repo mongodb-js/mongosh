@@ -2,7 +2,10 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { parentPort, isMainThread } from 'worker_threads';
-import { Runtime, RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
+import {
+  Runtime,
+  RuntimeEvaluationListener
+} from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import {
   MongoClientOptions,
@@ -11,6 +14,7 @@ import {
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
+import { MongoshBus } from '@mongosh/types';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -34,6 +38,15 @@ const evaluationListener = createCaller<RuntimeEvaluationListener>(
   parentPort
 );
 
+const messageBus: MongoshBus = Object.assign(
+  createCaller(['emit'], parentPort),
+  {
+    on() {
+      throw new Error("Can't call `on` method on worker runtime MongoshBus");
+    }
+  }
+);
+
 export type WorkerRuntime = Runtime & {
   init(
     uri: string,
@@ -53,10 +66,7 @@ const workerRuntime: WorkerRuntime = {
       driverOptions,
       cliOptions
     );
-    runtime = new ElectronRuntime(
-      provider /** , TODO: `messageBus` support for telemetry in a separate ticket */
-    );
-
+    runtime = new ElectronRuntime(provider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
   },
 
