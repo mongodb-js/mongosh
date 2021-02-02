@@ -1,9 +1,26 @@
+import { SpawnSyncOptionsWithStringEncoding, SpawnSyncReturns } from 'child_process';
 import * as spawn from 'cross-spawn';
 import path from 'path';
 
 const PLACEHOLDER_VERSION = '0.0.0-dev.0';
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
 const LERNA_BIN = path.resolve(PROJECT_ROOT, 'node_modules', '.bin', 'lerna');
+
+function spawnSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> {
+  const result = spawn.sync(command, args, options);
+  if (result.error) {
+    console.error('spawn.sync returned error', result.error);
+    console.error(result.stdout);
+    console.error(result.stderr);
+    throw new Error(`Failed to spawn ${command}, args: ${args.join(',')}: ${result.error}`);
+  } else if (result.status !== 0) {
+    console.error('spawn.sync exited with non-zero', result.status);
+    console.error(result.stdout);
+    console.error(result.stderr);
+    throw new Error(`Spawn exited non-zero for ${command}, args: ${args.join(',')}: ${result.status}`);
+  }
+  return result;
+}
 
 export function bumpNpmPackages(version: string): void {
   if (!version || version === PLACEHOLDER_VERSION) {
@@ -12,7 +29,7 @@ export function bumpNpmPackages(version: string): void {
   }
 
   console.info(`mongosh: Bumping package versions to ${version}`);
-  spawn.sync(LERNA_BIN, [
+  spawnSync(LERNA_BIN, [
     'version',
     version,
     '--no-changelog',
@@ -23,7 +40,8 @@ export function bumpNpmPackages(version: string): void {
     '--yes'
   ], {
     stdio: 'inherit',
-    cwd: PROJECT_ROOT
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8'
   });
 }
 
@@ -40,23 +58,31 @@ export function publishNpmPackages(): void {
     throw new Error('Refusing to publish packages with placeholder version');
   }
 
-  spawn.sync(LERNA_BIN, [
-    'publish',
-    'from-package',
-    '--no-changelog',
-    '--no-push',
-    '--exact',
-    '--no-git-tag-version',
-    '--force-publish',
-    '--yes'
-  ], {
-    stdio: 'inherit',
-    cwd: PROJECT_ROOT
-  });
+  // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
+  // we use git update-index --assume-unchanged on files we know have been bumped
+  markBumpedFilesAsAssumeUnchanged(packages, true);
+  try {
+    spawnSync(LERNA_BIN, [
+      'publish',
+      'from-package',
+      '--no-changelog',
+      '--no-push',
+      '--exact',
+      '--no-git-tag-version',
+      '--force-publish',
+      '--yes'
+    ], {
+      stdio: 'inherit',
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8'
+    });
+  } finally {
+    markBumpedFilesAsAssumeUnchanged(packages, false);
+  }
 }
 
-export function listNpmPackages(): {name: string; version: string}[] {
-  const lernaListOutput = spawn.sync(
+export function listNpmPackages(): { name: string; version: string }[] {
+  const lernaListOutput = spawnSync(
     LERNA_BIN, [
       'list',
       '--json',
@@ -68,4 +94,31 @@ export function listNpmPackages(): {name: string; version: string}[] {
   );
 
   return JSON.parse(lernaListOutput.stdout);
+}
+
+export function markBumpedFilesAsAssumeUnchanged(
+  packages: { name: string }[], assumeUnchanged: boolean,
+  spawnSyncFn: typeof spawnSync = spawnSync
+): void {
+  const filesToAssume = [
+    '.npmrc',
+    'lerna.json'
+  ];
+  packages.forEach(({ name }) => {
+    filesToAssume.push(`packages/${name}/package.json`);
+    filesToAssume.push(`packages/${name}/package-lock.json`);
+  });
+
+  filesToAssume.forEach(f => {
+    spawnSyncFn('git', [
+      'update-index',
+      assumeUnchanged ? '--assume-unchanged' : '--no-assume-unchanged',
+      f
+    ], {
+      stdio: 'inherit',
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8'
+    });
+    console.info(`File ${f} is now ${assumeUnchanged ? '' : 'NOT '}assumed to be unchanged`);
+  });
 }
