@@ -1,9 +1,35 @@
 import { expect } from 'chai';
 import sinon, { SinonStub } from 'sinon';
-import { listNpmPackages, markBumpedFilesAsAssumeUnchanged } from './npm-packages';
+import { listNpmPackages, markBumpedFilesAsAssumeUnchanged, spawnSync } from './npm-packages';
 
 
 describe('npm-packages', () => {
+  describe('spawnSync', () => {
+    it('works for a valid command', () => {
+      const result = spawnSync('bash', ['-c', 'echo -n works'], { encoding: 'utf8' });
+      expect(result.status).to.equal(0);
+      expect(result.stdout).to.equal('works');
+    });
+
+    it('throws on ENOENT error', () => {
+      try {
+        spawnSync('notaprogram', [], { encoding: 'utf8' });
+      } catch (e) {
+        return expect(e).to.not.be.undefined;
+      }
+      expect.fail('Expected error');
+    });
+
+    it('throws on non-zero exit code', () => {
+      try {
+        spawnSync('bash', ['-c', 'exit 1'], { encoding: 'utf8' });
+      } catch (e) {
+        return expect(e).to.not.be.undefined;
+      }
+      expect.fail('Expected error');
+    });
+  });
+
   describe('listNpmPackages', () => {
     it('lists packages', () => {
       const packages = listNpmPackages();

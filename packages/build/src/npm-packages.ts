@@ -6,7 +6,7 @@ const PLACEHOLDER_VERSION = '0.0.0-dev.0';
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
 const LERNA_BIN = path.resolve(PROJECT_ROOT, 'node_modules', '.bin', 'lerna');
 
-function spawnSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> {
+export function spawnSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> {
   const result = spawn.sync(command, args, options);
   if (result.error) {
     console.error('spawn.sync returned error', result.error);
