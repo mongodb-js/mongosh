@@ -22,14 +22,17 @@ export function spawnSync(command: string, args: string[], options: SpawnSyncOpt
   return result;
 }
 
-export function bumpNpmPackages(version: string): void {
+export function bumpNpmPackages(
+  version: string,
+  spawnSyncFn: typeof spawnSync = spawnSync
+): void {
   if (!version || version === PLACEHOLDER_VERSION) {
     console.info('mongosh: Not bumping package version, keeping at placeholder');
     return;
   }
 
   console.info(`mongosh: Bumping package versions to ${version}`);
-  spawnSync(LERNA_BIN, [
+  spawnSyncFn(LERNA_BIN, [
     'version',
     version,
     '--no-changelog',
@@ -45,8 +48,12 @@ export function bumpNpmPackages(version: string): void {
   });
 }
 
-export function publishNpmPackages(): void {
-  const packages = listNpmPackages();
+export function publishNpmPackages(
+  listNpmPackagesFn: typeof listNpmPackages = listNpmPackages,
+  markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
+  spawnSyncFn: typeof spawnSync = spawnSync
+): void {
+  const packages = listNpmPackagesFn();
 
   const versions = Array.from(new Set(packages.map(({ version }) => version)));
 
@@ -60,9 +67,9 @@ export function publishNpmPackages(): void {
 
   // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
   // we use git update-index --assume-unchanged on files we know have been bumped
-  markBumpedFilesAsAssumeUnchanged(packages, true);
+  markBumpedFilesAsAssumeUnchangedFn(packages, true);
   try {
-    spawnSync(LERNA_BIN, [
+    spawnSyncFn(LERNA_BIN, [
       'publish',
       'from-package',
       '--no-changelog',
@@ -77,7 +84,7 @@ export function publishNpmPackages(): void {
       encoding: 'utf8'
     });
   } finally {
-    markBumpedFilesAsAssumeUnchanged(packages, false);
+    markBumpedFilesAsAssumeUnchangedFn(packages, false);
   }
 }
 
