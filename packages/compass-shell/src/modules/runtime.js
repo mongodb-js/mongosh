@@ -73,7 +73,8 @@ function reduceSetupRuntime(state, action) {
       {
         env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
         serialization: 'advanced',
-      }
+      },
+      action.appRegistry
     )
     : new ElectronRuntime(
       CompassServiceProvider.fromDataService(action.dataService),
