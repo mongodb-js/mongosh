@@ -6,6 +6,13 @@ const PLACEHOLDER_VERSION = '0.0.0-dev.0';
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
 const LERNA_BIN = path.resolve(PROJECT_ROOT, 'node_modules', '.bin', 'lerna');
 
+export interface LernaPackageDescription {
+  name: string;
+  version: string;
+  private: boolean;
+  location: string;
+}
+
 export function spawnSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> {
   const result = spawn.sync(command, args, options);
   if (result.error) {
@@ -88,11 +95,12 @@ export function publishNpmPackages(
   }
 }
 
-export function listNpmPackages(): { name: string; version: string }[] {
+export function listNpmPackages(): LernaPackageDescription[] {
   const lernaListOutput = spawnSync(
     LERNA_BIN, [
       'list',
       '--json',
+      '--all'
     ],
     {
       cwd: PROJECT_ROOT,
@@ -104,15 +112,16 @@ export function listNpmPackages(): { name: string; version: string }[] {
 }
 
 export function markBumpedFilesAsAssumeUnchanged(
-  packages: { name: string }[], assumeUnchanged: boolean,
+  packages: LernaPackageDescription[],
+  assumeUnchanged: boolean,
   spawnSyncFn: typeof spawnSync = spawnSync
 ): void {
   const filesToAssume = [
     'lerna.json'
   ];
-  packages.forEach(({ name }) => {
-    filesToAssume.push(`packages/${name}/package.json`);
-    filesToAssume.push(`packages/${name}/package-lock.json`);
+  packages.forEach(({ location }) => {
+    filesToAssume.push(`${location}/package.json`);
+    filesToAssume.push(`${location}/package-lock.json`);
   });
 
   filesToAssume.forEach(f => {

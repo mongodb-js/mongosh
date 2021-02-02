@@ -6,7 +6,8 @@ import {
   listNpmPackages,
   markBumpedFilesAsAssumeUnchanged,
   publishNpmPackages,
-  spawnSync
+  spawnSync,
+  LernaPackageDescription
 } from './npm-packages';
 
 
@@ -167,16 +168,16 @@ describe('npm-packages', () => {
   });
 
   describe('markBumpedFilesAsAssumeUnchanged', () => {
-    let packages: { name: string; version: string }[];
+    let packages: LernaPackageDescription[];
     let expectedFiles: string[];
     let spawnSync: SinonStub;
 
     beforeEach(() => {
       expectedFiles = ['lerna.json'];
       packages = listNpmPackages();
-      packages.forEach(({ name }) => {
-        expectedFiles.push(`packages/${name}/package.json`);
-        expectedFiles.push(`packages/${name}/package-lock.json`);
+      packages.forEach(({ location }) => {
+        expectedFiles.push(`${location}/package.json`);
+        expectedFiles.push(`${location}/package-lock.json`);
       });
 
       spawnSync = sinon.stub();
