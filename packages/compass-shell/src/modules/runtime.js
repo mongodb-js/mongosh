@@ -63,6 +63,13 @@ function reduceSetupRuntime(state, action) {
     delete connection.options.useUnifiedTopology;
     delete connection.options.connectWithNoPrimary;
     delete connection.options.useNewUrlParser;
+    // `true` is not a valid tls checkServerIdentity option that seems to break
+    // driver 4
+    //
+    // TODO(NODE-3061): Remove when fixed on driver side
+    if (connection.options.checkServerIdentity === true) {
+      delete connection.options.checkServerIdentity;
+    }
   }
 
   const runtime = shouldUseNewRuntime
