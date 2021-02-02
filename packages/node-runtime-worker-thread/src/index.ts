@@ -61,7 +61,13 @@ class WorkerRuntime implements Runtime {
     });
 
     this.childProcessRuntime = createCaller(
-      ['init', 'evaluate', 'getCompletions', 'setEvaluationListener'],
+      [
+        'init',
+        'evaluate',
+        'getCompletions',
+        'setEvaluationListener',
+        'getShellPrompt'
+      ],
       this.childProcess
     );
 
