@@ -2,7 +2,10 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { parentPort, isMainThread } from 'worker_threads';
-import { Runtime, RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
+import {
+  Runtime,
+  RuntimeEvaluationListener
+} from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import {
   MongoClientOptions,
@@ -39,9 +42,7 @@ const messageBus: MongoshBus = Object.assign(
   createCaller(['emit'], parentPort),
   {
     on() {
-      // this method is a no-op, we only want message bus to proxy emitted
-      // events to main thread
-      return messageBus;
+      throw new Error("Can't call `on` method on worker runtime MongoshBus");
     }
   }
 );

@@ -12,8 +12,7 @@ export class ChildProcessMongoshBus {
           eventEmitter.emit(...args);
         },
         on() {
-          // no-op
-          return exposedEmitter;
+          throw new Error("Can't use `on` method on ChildProcessMongoshBus");
         }
       },
       childProcess
