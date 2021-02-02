@@ -172,7 +172,7 @@ describe('npm-packages', () => {
     let spawnSync: SinonStub;
 
     beforeEach(() => {
-      expectedFiles = ['.npmrc', 'lerna.json'];
+      expectedFiles = ['lerna.json'];
       packages = listNpmPackages();
       packages.forEach(({ name }) => {
         expectedFiles.push(`packages/${name}/package.json`);

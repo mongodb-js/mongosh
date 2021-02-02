@@ -108,7 +108,6 @@ export function markBumpedFilesAsAssumeUnchanged(
   spawnSyncFn: typeof spawnSync = spawnSync
 ): void {
   const filesToAssume = [
-    '.npmrc',
     'lerna.json'
   ];
   packages.forEach(({ name }) => {
