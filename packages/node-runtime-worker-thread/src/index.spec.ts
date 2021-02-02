@@ -82,6 +82,19 @@ describe('WorkerRuntime', () => {
     });
   });
 
+  describe('getShellPrompt', () => {
+    const testServer = startTestServer('shared');
+
+    it('should return prompt when connected to the server', async() => {
+      const runtime = new WorkerRuntime(await testServer.connectionString());
+      const result = await runtime.getShellPrompt();
+
+      expect(result).to.match(/>/);
+
+      await runtime.terminate();
+    });
+  });
+
   describe('setEvaluationListener', () => {
     it('allows to set evaluation listener for runtime', async() => {
       const evalListener = {

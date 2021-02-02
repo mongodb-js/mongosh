@@ -55,16 +55,17 @@ export function publishNpmPackages(): void {
   });
 }
 
-function listNpmPackages(): {version: string}[] {
+export function listNpmPackages(): {name: string; version: string}[] {
   const lernaListOutput = spawn.sync(
     LERNA_BIN, [
       'list',
       '--json',
     ],
     {
-      cwd: PROJECT_ROOT
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8'
     }
-  ).toString();
+  );
 
-  return JSON.parse(lernaListOutput);
+  return JSON.parse(lernaListOutput.stdout);
 }
