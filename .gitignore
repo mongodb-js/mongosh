@@ -3,6 +3,7 @@
 .idea/
 .vscode/
 *.iml
+.npmrc
 .nvmrc
 .nyc_output
 *.swp
