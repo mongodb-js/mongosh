@@ -86,12 +86,10 @@ describe('WorkerRuntime', () => {
     const testServer = startTestServer('shared');
 
     it('should return prompt when connected to the server', async() => {
-      const runtime = new WorkerRuntime(await testServer.connectionString());
+      runtime = new WorkerRuntime(await testServer.connectionString());
       const result = await runtime.getShellPrompt();
 
       expect(result).to.match(/>/);
-
-      await runtime.terminate();
     });
   });
 
