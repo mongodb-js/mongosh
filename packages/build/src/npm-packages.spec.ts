@@ -36,6 +36,17 @@ describe('npm-packages', () => {
       }
       expect.fail('Expected error');
     });
+
+    it('ignores errors when asked to for ENOENT', () => {
+      const result = spawnSync('notaprogram', [], { encoding: 'utf8' }, true);
+      expect(result).to.not.be.undefined;
+    });
+
+    it('ignores errors when asked to for non-zero exit code', () => {
+      const result = spawnSync('bash', ['-c', 'exit 1'], { encoding: 'utf8' }, true);
+      expect(result).to.not.be.undefined;
+      expect(result?.status).to.equal(1);
+    });
   });
 
   describe('bumpNpmPackages', () => {
