@@ -518,11 +518,11 @@ export async function iterate(
   for (let i = 0; i < batchSize; i++) {
     const doc = await cursor.tryNext();
     if (doc === null) {
-      results.hasMore = false;
+      results.cursorHasMore = false;
       break;
     }
 
-    results.push(doc);
+    results.documents.push(doc);
   }
 
   return results;

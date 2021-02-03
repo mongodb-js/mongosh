@@ -56,7 +56,7 @@ export default class Cursor extends ShellApiClass {
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
     await iterate(results, this._cursor, this._batchSize);
-    results.hasMore = !this.isExhausted();
+    results.cursorHasMore = !this.isExhausted();
     return results;
   }
 
