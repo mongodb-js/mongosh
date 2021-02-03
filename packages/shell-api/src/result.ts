@@ -1,6 +1,5 @@
 import { ShellApiClass, shellApiClassDefault } from './decorators';
 import { shellApiType, asPrintable } from './enums';
-import { addHiddenDataProperty } from './helpers';
 import { Document, ObjectIdType } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
@@ -108,28 +107,14 @@ export class DeleteResult extends ShellApiClass {
   }
 }
 
-class PrintableCursorIterationResult {
-  documents: Document[];
-  cursorHasMore: boolean;
-  constructor(cursor: CursorIterationResult) {
-    this.documents = [...cursor];
-    this.cursorHasMore = cursor.hasMore;
-  }
-}
-
-// NOTE: because this is inherited, the decorator does not add attributes. So no help() function.
 @shellApiClassDefault
-export class CursorIterationResult extends Array {
-  [shellApiType]: string;
-  hasMore: boolean;
+export class CursorIterationResult extends ShellApiClass {
+  cursorHasMore: boolean;
+  documents: Document[];
 
   constructor() {
     super();
-    this.hasMore = true; // filled by iterate() in helpers.ts or the _it() methods
-    addHiddenDataProperty(this, shellApiType, 'CursorIterationResult');
-  }
-
-  [asPrintable]() {
-    return new PrintableCursorIterationResult(this);
+    this.cursorHasMore = true; // filled by iterate() in helpers.ts or the _it() methods
+    this.documents = [];
   }
 }

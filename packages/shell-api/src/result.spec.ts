@@ -120,9 +120,9 @@ describe('Results', () => {
   });
   describe('CursorIterationResult', () => {
     const r = new results.CursorIterationResult() as ShellApiInterface;
-    r.push(1, 2, 3);
+    r.documents.push(1, 2, 3);
     it('superclass attributes set', () => {
-      expect(r.length).to.equal(3);
+      expect(r.documents.length).to.equal(3);
     });
     it('toShellResult', async() => {
       expect(await toShellResult(r)).to.have.property(
@@ -131,7 +131,7 @@ describe('Results', () => {
       );
       expect(await toShellResult(r))
         .to.have.nested.property('printable.documents')
-        .deep.equal(JSON.parse(JSON.stringify(r)));
+        .deep.equal(JSON.parse(JSON.stringify(r.documents)));
     });
   });
 });

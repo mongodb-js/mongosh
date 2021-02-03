@@ -278,6 +278,27 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
+    it('allows to find documents using aggregate', async() => {
+      await shell.writeInputLine(`use ${dbName}`);
+
+      await db.collection('test').insertMany([
+        { doc: 1 },
+        { doc: 2 },
+        { doc: 3 }
+      ]);
+
+      await shell.writeInputLine('db.test.aggregate({ $match: {} })');
+
+      await eventually(() => {
+        shell.assertContainsOutput('doc: 1');
+        shell.assertContainsOutput('doc: 2');
+        shell.assertContainsOutput('doc: 3');
+      });
+      shell.assertNotContainsOutput('CursorIterationResult');
+
+      shell.assertNoErrors();
+    });
+
     it('allows collections with .', async() => {
       await shell.writeInputLine(`use ${dbName}`);
 

@@ -28,10 +28,11 @@ type FormatOptions = {
  *
  * @returns {string} The output.
  */
+// eslint-disable-next-line complexity
 export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {
   const { value, type } = evaluationResult;
 
-  if (type === 'Cursor') {
+  if (type === 'Cursor' || type === 'AggregationCursor' || type === 'ChangeStreamCursor') {
     return formatCursor(value, options);
   }
 

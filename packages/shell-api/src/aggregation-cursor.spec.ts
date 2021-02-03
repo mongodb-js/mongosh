@@ -38,7 +38,8 @@ describe('AggregationCursor', () => {
     beforeEach(() => {
       wrappee = {
         map: sinon.spy(),
-        closed: true
+        closed: true,
+        bufferedCount() { return 0; }
       };
       cursor = new AggregationCursor({
         _serviceProvider: { platform: ReplPlatform.CLI }

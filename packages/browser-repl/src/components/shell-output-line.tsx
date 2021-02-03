@@ -75,7 +75,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <ShowCollectionsOutput value={value} />;
     }
 
-    if (type === 'Cursor') {
+    if (type === 'Cursor' || type === 'AggregationCursor' || type === 'ChangeStreamCursor') {
       return <CursorOutput value={value} />;
     }
 
