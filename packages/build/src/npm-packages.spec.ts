@@ -6,7 +6,8 @@ import {
   listNpmPackages,
   markBumpedFilesAsAssumeUnchanged,
   publishNpmPackages,
-  spawnSync
+  spawnSync,
+  LernaPackageDescription
 } from './npm-packages';
 
 
@@ -56,6 +57,11 @@ describe('npm-packages', () => {
       expect(spawnSync).to.have.been.calledWith(
         lernaBin,
         ['version', '0.7.0', '--no-changelog', '--no-push', '--exact', '--no-git-tag-version', '--force-publish', '--yes'],
+        sinon.match.any
+      );
+      expect(spawnSync).to.have.been.calledWith(
+        'git',
+        ['status', '--porcelain'],
         sinon.match.any
       );
     });
@@ -167,16 +173,18 @@ describe('npm-packages', () => {
   });
 
   describe('markBumpedFilesAsAssumeUnchanged', () => {
-    let packages: { name: string; version: string }[];
+    let packages: LernaPackageDescription[];
     let expectedFiles: string[];
     let spawnSync: SinonStub;
 
     beforeEach(() => {
-      expectedFiles = ['lerna.json'];
+      expectedFiles = [
+        path.resolve(__dirname, '..', '..', '..', 'lerna.json')
+      ];
       packages = listNpmPackages();
-      packages.forEach(({ name }) => {
-        expectedFiles.push(`packages/${name}/package.json`);
-        expectedFiles.push(`packages/${name}/package-lock.json`);
+      packages.forEach(({ location }) => {
+        expectedFiles.push(path.resolve(location, 'package.json'));
+        expectedFiles.push(path.resolve(location, 'package-lock.json'));
       });
 
       spawnSync = sinon.stub();
