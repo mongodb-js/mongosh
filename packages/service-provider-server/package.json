@@ -42,13 +42,13 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
-    "mongodb": "4.0.0-beta.0",
+    "mongodb": "4.0.0-beta.1",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "devDependencies": {
     "@types/bl": "^2.1.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.1.0"
+    "mongodb-client-encryption": "^1.2.0"
   }
 }
