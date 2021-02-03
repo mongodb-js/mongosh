@@ -32,7 +32,7 @@ type FormatOptions = {
 export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {
   const { value, type } = evaluationResult;
 
-  if (type === 'Cursor' || type === 'AggregationCursor' || type === 'ChangeStreamCursor') {
+  if (type === 'Cursor' || type === 'AggregationCursor') {
     return formatCursor(value, options);
   }
 
