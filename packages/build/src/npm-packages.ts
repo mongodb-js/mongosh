@@ -53,6 +53,11 @@ export function bumpNpmPackages(
     cwd: PROJECT_ROOT,
     encoding: 'utf8'
   });
+  spawnSyncFn('git', ['status', '--porcelain'], {
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8'
+  });
 }
 
 export function publishNpmPackages(

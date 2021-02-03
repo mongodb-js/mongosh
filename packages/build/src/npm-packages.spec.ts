@@ -59,6 +59,11 @@ describe('npm-packages', () => {
         ['version', '0.7.0', '--no-changelog', '--no-push', '--exact', '--no-git-tag-version', '--force-publish', '--yes'],
         sinon.match.any
       );
+      expect(spawnSync).to.have.been.calledWith(
+        'git',
+        ['status', '--porcelain'],
+        sinon.match.any
+      );
     });
   });
 
