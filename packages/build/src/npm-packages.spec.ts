@@ -173,11 +173,13 @@ describe('npm-packages', () => {
     let spawnSync: SinonStub;
 
     beforeEach(() => {
-      expectedFiles = ['lerna.json'];
+      expectedFiles = [
+        path.resolve(__dirname, '..', '..', '..', 'lerna.json')
+      ];
       packages = listNpmPackages();
       packages.forEach(({ location }) => {
-        expectedFiles.push(`${location}/package.json`);
-        expectedFiles.push(`${location}/package-lock.json`);
+        expectedFiles.push(path.resolve(location, 'package.json'));
+        expectedFiles.push(path.resolve(location, 'package-lock.json'));
       });
 
       spawnSync = sinon.stub();

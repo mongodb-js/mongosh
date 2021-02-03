@@ -117,11 +117,11 @@ export function markBumpedFilesAsAssumeUnchanged(
   spawnSyncFn: typeof spawnSync = spawnSync
 ): void {
   const filesToAssume = [
-    'lerna.json'
+    path.resolve(PROJECT_ROOT, 'lerna.json')
   ];
   packages.forEach(({ location }) => {
-    filesToAssume.push(`${location}/package.json`);
-    filesToAssume.push(`${location}/package-lock.json`);
+    filesToAssume.push(path.resolve(location, 'package.json'));
+    filesToAssume.push(path.resolve(location, 'package-lock.json'));
   });
 
   filesToAssume.forEach(f => {
