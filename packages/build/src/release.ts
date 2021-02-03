@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import spawn from 'cross-spawn';
 import { promises as fs, constants as fsConstants } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -43,6 +44,7 @@ export default async function release(
   if (command === 'bump') {
     // updates the version of internal packages to reflect the tagged one
     bumpNpmPackages(config.version);
+    spawn.sync('git', ['status', '--porcelain'], { stdio: 'inherit', encoding: 'utf8' });
     return;
   }
 
