@@ -16,7 +16,8 @@ if [ "$(uname)" == Linux ]; then
     export DISTRO_ID_OVERRIDE=rhel70
   fi
   if [ "$BUILD_VARIANT" = debian ]; then
-    export DISTRO_ID_OVERRIDE=ubuntu1604
+    # We need ubuntu1804 in order for mongocryptd to work on ubuntu1804 and above.
+    export DISTRO_ID_OVERRIDE=ubuntu1804
   fi
   mkdir -p tmp
   cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml

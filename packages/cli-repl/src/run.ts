@@ -14,7 +14,14 @@ import { generateUri } from '@mongosh/service-provider-server';
       // eslint-disable-next-line no-console
       console.log(version);
     } else if (options.smokeTests) {
-      await runSmokeTests(process.execPath);
+      const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
+      if (process.execPath === process.argv[1]) {
+        // This is the compiled binary. Use only the path to it.
+        await runSmokeTests(smokeTestServer, process.execPath);
+      } else {
+        // This is not the compiled binary. Use node + this script.
+        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1]);
+      }
     } else {
       let mongocryptdSpawnPath = null;
       if (process.execPath === process.argv[1]) {
