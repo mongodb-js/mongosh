@@ -4,6 +4,7 @@
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <team-compass@10gen.com>",
+  "manufacturer": "MongoDB Inc.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {

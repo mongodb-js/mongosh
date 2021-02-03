@@ -33,11 +33,14 @@ module.exports = {
   ],
   metadata: {
     version: '1.0.0',
+    fullName: 'Very dumb dummy package',
     description: 'Dummy package',
     homepage: 'https://example.org',
     maintainer: 'Somebody <somebody@example.org>',
-    name: 'foobar'
+    name: 'foobar',
+    manufacturer: 'Some Random Company Inc.'
   },
   debTemplateDir: path.resolve(__dirname, 'deb-template'),
-  rpmTemplateDir: path.resolve(__dirname, 'rpm-template')
+  rpmTemplateDir: path.resolve(__dirname, 'rpm-template'),
+  msiTemplateDir: path.resolve(__dirname, 'msi-template')
 };

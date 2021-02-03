@@ -6,6 +6,7 @@
  */
 enum BuildVariant {
   Windows = 'win32',
+  WindowsMSI = 'win32msi',
   MacOs = 'darwin',
   Linux = 'linux',
   Debian = 'debian',

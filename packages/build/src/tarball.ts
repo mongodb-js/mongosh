@@ -46,9 +46,12 @@ export interface PackageInformation {
     description: string;
     homepage: string;
     maintainer: string;
+    manufacturer: string;
+    fullName: string;
   };
   debTemplateDir: string;
   rpmTemplateDir: string;
+  msiTemplateDir: string;
 }
 
 export function getTarballFile(buildVariant: BuildVariant, version: string, name: string): TarballFile {
@@ -77,6 +80,11 @@ export function getTarballFile(buildVariant: BuildVariant, version: string, name
         path: `${name}-${version}-${buildVariant}.zip`,
         contentType: 'application/zip'
       };
+    case BuildVariant.WindowsMSI:
+      return {
+        path: `${name}-${version}.msi`,
+        contentType: 'application/x-msi'
+      };
     default:
       throw new Error(`Unknown build variant: ${buildVariant}`);
   }
@@ -88,7 +96,7 @@ export function getTarballFile(buildVariant: BuildVariant, version: string, name
 async function createTarballContents(pkg: PackageInformation): Promise<string> {
   // For the tarball and the zip file: We put license and readme texts at the
   // root of the package, and put all binaries into /bin.
-  const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}`);
+  const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}-${Math.random()}`);
   await fs.mkdir(tmpDir, { recursive: true });
   const docFiles = [
     ...pkg.otherDocFilePaths,
@@ -126,7 +134,7 @@ export const tarballPosix = async(pkg: PackageInformation, filename: string): Pr
  * which we don't know how to replace it, we fail with an error.
  */
 async function generateDirFromTemplate(sourceDir: string, interpolations: Record<string, any>): Promise<string> {
-  const dir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}`);
+  const dir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}-${Math.random()}`);
   await copyDirAndApplyTemplates(sourceDir, dir);
   return dir;
 
@@ -161,8 +169,10 @@ async function estimatePackageSize(pkg: PackageInformation) {
   return size;
 }
 
-function sanitizeVersion(version: string): string {
-  return version.replace(/[-]/g, '.'); // Needed to create a valid rpm.
+function sanitizeVersion(version: string, variant: 'rpm' | 'msi'): string {
+  const rpmVersion = version.replace(/[-]/g, '.'); // Needed to create a valid rpm.
+  if (variant === 'rpm') return rpmVersion;
+  return rpmVersion.split('.').slice(0, 3).join('.');
 }
 
 async function generateDebianCopyright(pkg: PackageInformation): Promise<string> {
@@ -262,7 +272,7 @@ export const tarballRedhat = async(pkg: PackageInformation, templateDir: string,
     ...pkg.binaries.map(({ license }) => `%license ${license.packagedFilePath}`),
     ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`)
   ].join('\n');
-  const version = sanitizeVersion(pkg.metadata.version);
+  const version = sanitizeVersion(pkg.metadata.version, 'rpm');
   const dir = await generateDirFromTemplate(templateDir, {
     ...pkg.metadata,
     licenseRpm,
@@ -297,6 +307,67 @@ export const tarballRedhat = async(pkg: PackageInformation, templateDir: string,
       throw new Error(`Don’t know which RPM from ${rpmdir} to pick: ${rpmnames}`);
     }
     await fs.rename(path.join(rpmdir, rpmnames[0]), filename);
+  }
+  await promisify(rimraf)(dir);
+};
+
+/**
+ * Create an msi installer.
+ *
+ * @param {string} pkg - The source package information.
+ * @param {string} templateDir - A directory with templates for the package.
+ * @param {string} filename - the tarball filename.
+ */
+export const tarballWindowsMSI = async(pkg: PackageInformation, templateDir: string, filename: string): Promise<void> => {
+  console.info('mongosh: writing msi package');
+
+  const filenames = [...new Set([
+    ...pkg.binaries.map(({ sourceFilePath }) => path.basename(sourceFilePath)),
+    ...pkg.binaries.map(({ license }) => license.packagedFilePath),
+    ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => packagedFilePath)
+  ])];
+  const msiComponentList =
+    filenames.map(f => `<Component><File Source="$(var.BuildFolder)\\${f}"/></Component>`).join('\n');
+  const version = sanitizeVersion(pkg.metadata.version, 'msi');
+
+  const dir = await generateDirFromTemplate(templateDir, {
+    ...pkg.metadata,
+    msiComponentList,
+    version
+  });
+
+  // Copy all files that we want to ship into the BUILD directory.
+  for (const { sourceFilePath } of pkg.binaries) {
+    await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', path.basename(sourceFilePath)), COPYFILE_FICLONE);
+  }
+  for (const { sourceFilePath, packagedFilePath } of pkg.binaries.map(({ license }) => license)) {
+    await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', packagedFilePath), COPYFILE_FICLONE);
+  }
+  for (const { sourceFilePath, packagedFilePath } of pkg.otherDocFilePaths) {
+    await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', packagedFilePath), COPYFILE_FICLONE);
+  }
+
+  if (!process.env.MONGOSH_TEST_NO_MSIBUILD) {
+    const WIX = process.env.WIX;
+    await execFile(`${WIX}\\bin\\candle.exe`, [
+      '-out', 'obj\\Release\\',
+      '-arch', 'x64',
+      '-ext', `${WIX}\\bin\\WixUIExtension.dll`,
+      'MongoshUI.wxs', 'Product.wxs'
+    ], {
+      cwd: dir
+    });
+    await execFile(`${WIX}\\bin\\light.exe`, [
+      '-out', `bin\\Release\\${path.basename(filename)}`,
+      '-cultures:en-US',
+      '-ext', `${WIX}\\bin\\WixUIExtension.dll`,
+      '-loc', 'MongoshUI.en-US.wxl',
+      'obj\\Release\\MongoshUI.wixobj',
+      'obj\\Release\\Product.wixobj'
+    ], {
+      cwd: dir
+    });
+    await fs.rename(path.join(dir, 'bin', 'Release', path.basename(filename)), filename);
   }
   await promisify(rimraf)(dir);
 };
@@ -353,6 +424,9 @@ export async function createTarball(
       break;
     case BuildVariant.Debian:
       await tarballDebian(packageInformation, packageInformation.debTemplateDir, fullTarballFilePath);
+      break;
+    case BuildVariant.WindowsMSI:
+      await tarballWindowsMSI(packageInformation, packageInformation.msiTemplateDir, fullTarballFilePath);
       break;
     case BuildVariant.MacOs:
     case BuildVariant.Windows:
