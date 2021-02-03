@@ -184,33 +184,31 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('createKey', () => {
-      it('calls createDataKey on libmongoc with string key', async() => {
+      it('calls createDataKey on libmongoc with no key for local', async() => {
         const raw = { result: 1 };
-        const kms = AWS_KMS.kmsProvider;
-        const masterkey = 'masterkey';
-        const keyaltname = ['keyaltname'];
+        const kms = 'local';
         libmongoc.createDataKey.resolves(raw);
-        const result = await keyVault.createKey(kms, masterkey, keyaltname);
-        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey: { key: masterkey }, keyAltNames: keyaltname });
+        const result = await keyVault.createKey('local');
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey: undefined });
         expect(result).to.deep.equal(raw);
       });
       it('calls createDataKey on libmongoc with doc key', async() => {
         const raw = { result: 1 };
         const kms = AWS_KMS.kmsProvider;
-        const masterkey = { docKey: 1 };
+        const masterKey = { region: 'us-east-1', key: 'masterkey' };
         const keyaltname = ['keyaltname'];
         libmongoc.createDataKey.resolves(raw);
-        const result = await keyVault.createKey(kms, masterkey, keyaltname);
-        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey: masterkey, keyAltNames: keyaltname });
+        const result = await keyVault.createKey(kms, masterKey, keyaltname);
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey, keyAltNames: keyaltname });
         expect(result).to.deep.equal(raw);
       });
       it('throw if failed', async() => {
         const kms = AWS_KMS.kmsProvider;
-        const masterkey = 'masterkey';
+        const masterKey = { region: 'us-east-1', key: 'masterkey' };
         const keyaltname = ['keyaltname'];
         const expectedError = new Error();
         libmongoc.createDataKey.rejects(expectedError);
-        const caughtError = await keyVault.createKey(kms, masterkey, keyaltname)
+        const caughtError = await keyVault.createKey(kms, masterKey, keyaltname)
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });

@@ -120,17 +120,13 @@ export class KeyVault extends ShellApiClass {
   @returnsPromise
   createKey(
     kms: string | Document,
-    customMasterKey: string | Document, // doc defined here: https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/client-side-encryption.rst#masterkey
+    customMasterKey?: Document, // doc defined here: https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/client-side-encryption.rst#masterkey
     keyAltName?: string[]
   ): Promise<Document> {
-    assertArgsDefined(kms, customMasterKey);
+    assertArgsDefined(kms);
     const options = {} as any;
 
-    if (typeof customMasterKey === 'string') {
-      options.masterKey = { key: customMasterKey };
-    } else {
-      options.masterKey = customMasterKey;
-    }
+    options.masterKey = customMasterKey;
     if (keyAltName) {
       options.keyAltNames = keyAltName;
     }
