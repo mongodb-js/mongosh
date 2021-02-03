@@ -133,9 +133,10 @@ describe('Shell API (integration)', function() {
         it('returns next batch of docs', async() => {
           collection.find({}, { _id: 0 });
           await shellApi.it();
-          expect(await shellApi.it()).to.deep.equal([{
-            doc: 21
-          }]);
+          expect({ ...await shellApi.it() }).to.deep.equal({
+            cursorHasMore: false,
+            documents: [{ doc: 21 }]
+          });
         });
       });
 

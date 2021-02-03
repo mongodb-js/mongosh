@@ -103,7 +103,7 @@ describe('ChangeStreamCursor', () => {
       } as Mongo);
       cursor2.batchSize(3);
       const results = await cursor2._it();
-      expect(results).to.deep.equal([{ doc: 1 }, { doc: 1 }, { doc: 1 }]);
+      expect(results.documents).to.deep.equal([{ doc: 1 }, { doc: 1 }, { doc: 1 }]);
     });
   });
   describe('integration', () => {
@@ -163,11 +163,11 @@ describe('ChangeStreamCursor', () => {
         const result = await ensureResult(
           100,
           async() => await cursor._it(),
-          (t) => (t.length > 0),
+          (t) => (t.documents.length > 0),
           '_it to return a batch');
-        expect(result).to.have.lengthOf(1);
-        expect(result[0].operationType).to.equal('insert');
-        expect(result[0].fullDocument.myDoc).to.equal(1);
+        expect(result.documents).to.have.lengthOf(1);
+        expect(result.documents[0].operationType).to.equal('insert');
+        expect(result.documents[0].fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
       it('async iteration iterates over the cursor', async() => {
