@@ -7,6 +7,7 @@ if [ "$OS" != "Windows_NT" ]; then
   export NVM_DIR="$HOME/.nvm"
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  nvm use $NODE_JS_VERSION
 fi
 
 echo "Using node version:"
