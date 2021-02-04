@@ -667,7 +667,9 @@ tasks:
     git_tag_only: true
     depends_on:
       - name: ".smoke-test"
+        variant: "*"
       - name: ".extra-integration-test"
+        variant: "*"
     commands:
       - func: checkout
       - func: install
@@ -753,32 +755,32 @@ buildvariants:
     tasks:
       - name: package_and_upload_artifact_linux
   - name: rhel70
-    display_name: "RHEL 7.0"
+    display_name: "RHEL 7.0 (artifact test)"
     run_on: rhel70-small
     tasks:
       - name: test_linux_artifact
   - name: rhel76
-    display_name: "RHEL 7.6"
+    display_name: "RHEL 7.6 (artifact test)"
     run_on: rhel76-small
     tasks:
       - name: test_linux_artifact
   - name: ubuntu1604
-    display_name: "Ubuntu 16.04"
+    display_name: "Ubuntu 16.04 (artifact test)"
     run_on: ubuntu1604-small
     tasks:
       - name: test_linux_artifact
   - name: ubuntu1804
-    display_name: "Ubuntu 18.04"
+    display_name: "Ubuntu 18.04 (artifact test)"
     run_on: ubuntu1804-small
     tasks:
       - name: test_linux_artifact
   - name: ubuntu2004
-    display_name: "Ubuntu 20.04"
+    display_name: "Ubuntu 20.04 (artifact test)"
     run_on: ubuntu2004-small
     tasks:
       - name: test_linux_artifact
   - name: debian10
-    display_name: "Debian 10"
+    display_name: "Debian 10 (artifact test)"
     run_on: debian10-small
     tasks:
       - name: test_linux_artifact
@@ -812,11 +814,6 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: package_and_upload_artifact_win
-  - name: darwin_release_publish
-    display_name: "Publish Release"
-    run_on: macos-1014-codesign
-    tasks:
-      - name: release_publish
   - name: pkg_smoke_tests_docker
     display_name: "package smoke tests (Docker)"
     run_on: ubuntu1804-small
@@ -837,3 +834,9 @@ buildvariants:
     run_on: macos-1014
     tasks:
       - name: pkg_test_macos1014
+  - name: draft_publish_release
+    display_name: "Draft/Publish Release"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: release_draft
+      - name: release_publish
