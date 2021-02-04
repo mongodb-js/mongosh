@@ -92,7 +92,75 @@ describe('publish', () => {
       config.triggeringGitTag = 'v0.7.0';
       shouldDoPublicRelease = sinon.stub().returns(true);
       githubRepo = createStubRepo({
-        getMostRecentDraftTagForRelease: sinon.stub().resolves({ name: 'v0.7.0-draft.42' })
+        getMostRecentDraftTagForRelease: sinon.stub().resolves({ name: 'v0.7.0-draft.42', sha: 'revision' })
+      });
+    });
+
+    context('validates configuration', () => {
+      it('fails if no draft tag is found', async() => {
+        githubRepo = createStubRepo({
+          getMostRecentDraftTagForRelease: sinon.stub().resolves(undefined)
+        });
+        try {
+          await runPublish(
+            config,
+            githubRepo,
+            mongoHomebrewRepo,
+            barque,
+            uploadDownloadCenterConfig,
+            publishNpmPackages,
+            writeAnalyticsConfig,
+            publishToHomebrew,
+            shouldDoPublicRelease
+          );
+        } catch (e) {
+          return expect(e.message).to.contain('Could not find prior draft tag');
+        }
+        expect.fail('Expected error');
+      });
+
+      it('fails if draft tag SHA does not match revision', async() => {
+        githubRepo = createStubRepo({
+          getMostRecentDraftTagForRelease: sinon.stub().resolves({ name: 'v0.7.0-draft.42', sha: 'wrong' })
+        });
+        try {
+          await runPublish(
+            config,
+            githubRepo,
+            mongoHomebrewRepo,
+            barque,
+            uploadDownloadCenterConfig,
+            publishNpmPackages,
+            writeAnalyticsConfig,
+            publishToHomebrew,
+            shouldDoPublicRelease
+          );
+        } catch (e) {
+          return expect(e.message).to.contain('Version mismatch');
+        }
+        expect.fail('Expected error');
+      });
+
+      it('fails if package name is missing', async() => {
+        config.packageInformation = {
+          metadata: {}
+        } as any;
+        try {
+          await runPublish(
+            config,
+            githubRepo,
+            mongoHomebrewRepo,
+            barque,
+            uploadDownloadCenterConfig,
+            publishNpmPackages,
+            writeAnalyticsConfig,
+            publishToHomebrew,
+            shouldDoPublicRelease
+          );
+        } catch (e) {
+          return expect(e.message).to.contain('Missing package name');
+        }
+        expect.fail('Expected error');
       });
     });
 

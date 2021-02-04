@@ -26,6 +26,7 @@ type Asset = {
 
 type Tag = {
   name: string;
+  sha: string;
 };
 
 type ReleaseDetails = {
@@ -57,15 +58,21 @@ export class GithubRepo {
         this.repo,
       );
 
-    const sortedDraftTags = tags
-      .filter(t => t.name && t.name.startsWith(`v${releaseVersion}`) && t.name.match(/^v\d+\.\d+\.\d+-draft\.\d+/))
+    const sortedTags = tags
+      .filter(t => t.name && t.name.startsWith(`v${releaseVersion}-draft`) && t.name.match(/^v\d+\.\d+\.\d+-draft\.\d+/))
       .map(t => ({
         name: t.name,
+        sha: t.commit.sha,
         draftVersion: semver.prerelease(t.name)?.[1] as string
       }))
       .filter(t => t.draftVersion !== undefined)
-      .sort((t1, t2) => parseInt(t1.draftVersion, 10) < parseInt(t2.draftVersion, 10) ? 1 : -1);
-    return sortedDraftTags.length ? { name: sortedDraftTags[0].name } : undefined;
+      .sort((t1, t2) => parseInt(t2.draftVersion, 10) - parseInt(t1.draftVersion, 10));
+
+    const mostRecentTag = sortedTags[0];
+    return mostRecentTag ? {
+      name: mostRecentTag.name,
+      sha: mostRecentTag.sha
+    } : undefined;
   }
 
   /**

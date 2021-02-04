@@ -38,6 +38,10 @@ export async function runPublish(
   if (!latestDraftTag || !releaseVersion) {
     throw new Error(`Could not find prior draft tag for release version: ${releaseVersion}`);
   }
+  if (latestDraftTag.sha !== config.revision) {
+    throw new Error(`Version mismatch - latest draft tag was for revision ${latestDraftTag.sha}, current revision is ${config.revision}`);
+  }
+
   const packageName = config.packageInformation?.metadata.name;
   if (!packageName) {
     throw new Error('Missing package name from config.packageInformation.metadata');

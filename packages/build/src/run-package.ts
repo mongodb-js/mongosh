@@ -15,7 +15,7 @@ export async function runPackage(
     return await createTarball(
       config.outputDir,
       config.buildVariant,
-            config.packageInformation as (Required<Config>['packageInformation'])
+      config.packageInformation as (Required<Config>['packageInformation'])
     );
   };
 
