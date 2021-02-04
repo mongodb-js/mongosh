@@ -3,13 +3,17 @@
 
 import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
-import { Runtime, RuntimeEvaluationListener, RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import {
+  Runtime,
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult
+} from '@mongosh/browser-runtime-core';
 import { MongoshBus } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
-import { Caller, createCaller } from './rpc';
+import { Caller, createCaller, cancel } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import { deserializeEvaluationResult } from './serializer';
@@ -120,6 +124,9 @@ class WorkerRuntime implements Runtime {
   async terminate() {
     await this.initWorkerPromise;
     await kill(this.childProcess);
+    this.childProcessRuntime[cancel]();
+    this.childProcessEvaluationListener.terminate();
+    this.childProcessMongoshBus.terminate();
   }
 }
 
