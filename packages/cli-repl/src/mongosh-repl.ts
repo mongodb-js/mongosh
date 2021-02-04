@@ -96,6 +96,7 @@ class MongoshNodeRepl implements EvaluationListener {
       breakEvalOnSigint: true,
       preview: false,
       asyncEval: this.eval.bind(this),
+      historySize: 1000, // Same as the old shell.
       wrapCallbackError:
         (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
       ...this.nodeReplOptions
