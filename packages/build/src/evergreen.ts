@@ -1,6 +1,7 @@
+import S3 from 'aws-sdk/clients/s3';
+import download from 'download';
 import fs from 'fs';
 import path from 'path';
-import S3 from 'aws-sdk/clients/s3';
 import upload, { PUBLIC_READ } from './s3';
 
 /**
@@ -11,46 +12,63 @@ const BUCKET = 'mciuploads';
 /**
  * Upload the provided argument to evergreen s3 bucket.
  *
- * @param {string} artifact - The artifact.
- * @param {string} awsKey - The aws key.
- * @param {string} awsSecret - The aws secret.
- * @param {string} revision - The patch/commit id.
- * @param {string} artifactUrlFile - An optional path to a file for writing the artifact's URL.
+ * @param artifact - The artifact.
+ * @param awsKey - The aws key.
+ * @param awsSecret - The aws secret.
+ * @param project - The project the artifact belongs to.
+ * @param revisionOrVersion - The hash of the base commit or the release version.
  *
- * @returns {Promise} The promise.
+ * @returns Resolves to the artifact URL after upload
  */
-async function uploadArtifactToEvergreen(
+export async function uploadArtifactToEvergreen(
   artifact: string,
   awsKey: string,
   awsSecret: string,
   project: string,
-  revision: string,
-  artifactUrlFile?: string): Promise<void> {
+  revisionOrVersion: string
+): Promise<string> {
   const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
   });
-  const key = `${project}/${revision}/${path.basename(artifact)}`;
-  const uploadParams = {
+  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
+
+  console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
+
+  await upload({
     ACL: PUBLIC_READ,
     Bucket: BUCKET,
     Key: key,
     Body: fs.createReadStream(artifact)
-  };
+  }, s3);
 
-  console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
-  await upload(uploadParams, s3);
-
-  const url = `https://s3.amazonaws.com/${BUCKET}/${key}`;
+  const url = getArtifactUrl(project, revisionOrVersion, artifact);
   console.info(`mongosh: artifact download url: ${url}`);
-  if (artifactUrlFile) {
-    await fs.promises.writeFile(artifactUrlFile, url);
-  }
+  return url;
 }
 
-function getArtifactUrl(project: string, revision: string, artifact: string): string {
-  return `https://s3.amazonaws.com/${BUCKET}/${project}/${revision}/${path.basename(artifact)}`;
+export async function downloadArtifactFromEvergreen(
+  artifact: string,
+  project: string,
+  revisionOrVersion: string,
+  localDirectory: string
+): Promise<string> {
+  const artifactUrl = getArtifactUrl(project, revisionOrVersion, artifact);
+  console.info(`mongosh: downloading to ${localDirectory} from evergreen:`, artifactUrl);
+
+  const filename = path.basename(artifact);
+  await download(artifactUrl, localDirectory, {
+    filename
+  });
+
+  return path.join(localDirectory, filename);
 }
 
-export default uploadArtifactToEvergreen;
-export { getArtifactUrl };
+export function getArtifactUrl(project: string, revisionOrVersion: string, artifact: string): string {
+  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
+  return `https://s3.amazonaws.com/${BUCKET}/${key}`;
+}
+
+function getS3ObjectKey(project: string, revisionOrVersion: string, artifact: string) {
+  return `${project}/${revisionOrVersion}/${path.basename(artifact)}`;
+}

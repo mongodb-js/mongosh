@@ -17,7 +17,7 @@ const BUCKET = 'downloads.10gen.com';
  *
  * @returns {Promise} The promise.
  */
-const uploadToDownloadCenter = (artifact: string, awsKey: string, awsSecret: string): Promise<any> => {
+export async function uploadToDownloadCenter(artifact: string, awsKey: string, awsSecret: string): Promise<any> {
   const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
@@ -30,6 +30,4 @@ const uploadToDownloadCenter = (artifact: string, awsKey: string, awsSecret: str
   };
   console.info(`mongosh: uploading ${artifact} to downloads`);
   return upload(uploadParams, s3);
-};
-
-export default uploadToDownloadCenter;
+}

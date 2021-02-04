@@ -1,12 +1,13 @@
+import { expect } from 'chai';
+import fs from 'fs-extra';
 import nock from 'nock';
 import fetch from 'node-fetch';
-import { Barque, LATEST_CURATOR } from './barque';
-import { expect } from 'chai';
-import Config from './config';
-import sinon from 'sinon';
-import fs from 'fs-extra';
 import path from 'path';
+import sinon from 'sinon';
 import { URL } from 'url';
+import { Barque, LATEST_CURATOR } from './barque';
+import BuildVariant from './build-variant';
+import Config from './config';
 
 describe('Barque', () => {
   let barque: Barque;
@@ -37,7 +38,7 @@ describe('Barque', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'linux',
-      buildVariant: 'linux',
+      buildVariant: BuildVariant.Linux,
       repo: {
         owner: 'owner',
         repo: 'repo',

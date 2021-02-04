@@ -1,7 +1,18 @@
 import { expect } from 'chai';
-import BuildVariant from './build-variant';
+import BuildVariant, { ALL_BUILD_VARIANTS } from './build-variant';
 
 describe('BuildVariant', () => {
+  describe('all build variants', () => {
+    it('has all of them', () => {
+      expect(ALL_BUILD_VARIANTS).to.have.length(5);
+      expect(ALL_BUILD_VARIANTS).to.contain(BuildVariant.Windows);
+      expect(ALL_BUILD_VARIANTS).to.contain(BuildVariant.MacOs);
+      expect(ALL_BUILD_VARIANTS).to.contain(BuildVariant.Linux);
+      expect(ALL_BUILD_VARIANTS).to.contain(BuildVariant.Debian);
+      expect(ALL_BUILD_VARIANTS).to.contain(BuildVariant.Redhat);
+    });
+  });
+
   describe('BuildVariant.Windows', () => {
     it('returns win32', () => {
       expect(BuildVariant.Windows).to.equal('win32');
