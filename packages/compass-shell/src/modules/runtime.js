@@ -70,6 +70,22 @@ function reduceSetupRuntime(state, action) {
     if (connection.options.checkServerIdentity === true) {
       delete connection.options.checkServerIdentity;
     }
+    // driver 4 doesn't support certificates as buffers, so let's copy paths
+    // back from model `driverOptions`
+    //
+    // TODO: Driver is not sure if buffer behavior was a bug or a feature,
+    // hopefully this can be removed eventually (see https://mongodb.slack.com/archives/C0V8RU15L/p1612347025017200)
+    ['sslCA', 'sslCRL', 'sslCert', 'sslKey'].forEach((key) => {
+      if (
+        connection.options[key] &&
+        action.dataService?.client?.model?.driverOptions?.[key]
+      ) {
+        // Option value can be array or a string in connection-model, we'll
+        // unwrap it if it's an array (it's always an array with one value)
+        const option = action.dataService.client.model.driverOptions[key];
+        connection.options[key] = Array.isArray(option) ? option[0] : option;
+      }
+    });
   }
 
   const runtime = shouldUseNewRuntime
