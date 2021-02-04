@@ -49,11 +49,13 @@ describe('worker', () => {
       const c = createCaller(['init', 'evaluate'], worker);
       caller = {
         ...c,
-        async evaluate(code: string) {
-          return deserializeEvaluationResult(await c.evaluate(code));
+        // Making TS happy by not using async and adding cancel to the method
+        evaluate(code: string): Promise<any> & { cancel(): void } {
+          const promise = c.evaluate(code).then(deserializeEvaluationResult);
+          (promise as any).cancel = () => {};
+          return promise;
         }
       };
-      (caller.evaluate as any).close = c.evaluate.close;
     });
 
     afterEach(() => {
