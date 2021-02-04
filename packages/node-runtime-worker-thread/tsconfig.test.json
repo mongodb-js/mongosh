@@ -9,11 +9,5 @@
   },
   "files": [
     "./src/index.d.ts"
-  ],
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "./src/**/*.spec.*"
   ]
 }

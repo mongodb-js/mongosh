@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 
-import { createCaller, exposeAll } from './rpc';
+import { createCaller, exposeAll, terminate } from './rpc';
 
 function createMockRpcMesageBus() {
   const bus = new (class Bus extends EventEmitter {
@@ -10,6 +10,10 @@ function createMockRpcMesageBus() {
     }
   })();
   return bus;
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 describe('rpc', () => {
@@ -133,6 +137,28 @@ describe('rpc', () => {
 
       caller.meow();
     });
+
+    describe('terminate', () => {
+      it('stops all in-flight evaluations', async() => {
+        const rpcProcess = createMockRpcMesageBus();
+        const caller = createCaller(['neverResolves'], rpcProcess);
+        let err: Error;
+        try {
+          await Promise.all([
+            caller.neverResolves(),
+            (async() => {
+              // smol sleep to make sure we actually issued a call
+              await sleep(100);
+              caller[terminate]();
+            })()
+          ]);
+        } catch (e) {
+          err = e;
+        }
+        expect(err).to.be.instanceof(Error);
+        expect(err).to.have.property('isCanceled', true);
+      });
+    });
   });
 
   describe('exposeAll', () => {
@@ -165,6 +191,16 @@ describe('rpc', () => {
         sender: 'postmsg-rpc/client',
         func: 'meow',
         id: '123abc'
+      });
+    });
+
+    describe('terminate', () => {
+      it('disables all exposed listeners', () => {
+        const rpc = createMockRpcMesageBus();
+        const exposed = exposeAll({ doSomething() {} }, rpc);
+        expect(rpc.listenerCount('message')).to.equal(1);
+        exposed[terminate]();
+        expect(rpc.listenerCount('message')).to.equal(0);
       });
     });
   });
