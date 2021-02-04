@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 
-import { createCaller, exposeAll, terminate } from './rpc';
+import { createCaller, exposeAll, close, cancel } from './rpc';
 
 function createMockRpcMesageBus() {
   const bus = new (class Bus extends EventEmitter {
@@ -138,7 +138,7 @@ describe('rpc', () => {
       caller.meow();
     });
 
-    describe('terminate', () => {
+    describe('cancel', () => {
       it('stops all in-flight evaluations', async() => {
         const rpcProcess = createMockRpcMesageBus();
         const caller = createCaller(['neverResolves'], rpcProcess);
@@ -149,7 +149,7 @@ describe('rpc', () => {
             (async() => {
               // smol sleep to make sure we actually issued a call
               await sleep(100);
-              caller[terminate]();
+              caller[cancel]();
             })()
           ]);
         } catch (e) {
@@ -194,12 +194,12 @@ describe('rpc', () => {
       });
     });
 
-    describe('terminate', () => {
+    describe('close', () => {
       it('disables all exposed listeners', () => {
         const rpc = createMockRpcMesageBus();
         const exposed = exposeAll({ doSomething() {} }, rpc);
         expect(rpc.listenerCount('message')).to.equal(1);
-        exposed[terminate]();
+        exposed[close]();
         expect(rpc.listenerCount('message')).to.equal(0);
       });
     });

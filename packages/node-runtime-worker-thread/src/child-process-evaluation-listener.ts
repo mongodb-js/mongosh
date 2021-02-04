@@ -1,13 +1,15 @@
 import { ChildProcess } from 'child_process';
-import { exposeAll, WithClose } from './rpc';
+import { exposeAll, Exposed, close } from './rpc';
 import type { WorkerRuntime } from './index';
 import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
+type NoUndef<T> = { [k in keyof T]-?: T[k] };
+
 export class ChildProcessEvaluationListener {
-  exposedListener: WithClose<RuntimeEvaluationListener>;
+  exposedListener: Exposed<NoUndef<RuntimeEvaluationListener>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
-    this.exposedListener = exposeAll<RuntimeEvaluationListener>(
+    this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {
           return (
@@ -32,5 +34,9 @@ export class ChildProcessEvaluationListener {
       },
       childProcess
     );
+  }
+
+  terminate() {
+    this.exposedListener[close]();
   }
 }

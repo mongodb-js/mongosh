@@ -126,10 +126,12 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   };
 }
 
-export const terminate = Symbol('@@rpc.terminate');
+export const close = Symbol('@@rpc.close');
+
+export const cancel = Symbol('@@rpc.cancel');
 
 export type Exposed<T> = { [k in keyof T]: T[k] & { close(): void } } & {
-  [terminate]: () => void;
+  [close]: () => void;
 };
 
 export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
@@ -151,7 +153,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
     );
     (val as any).close = close;
   });
-  Object.defineProperty(obj, terminate, {
+  Object.defineProperty(obj, close, {
     enumerable: false,
     value() {
       Object.values(obj).forEach((fn) => {
@@ -165,7 +167,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
 export type Caller<
   Impl,
   Keys extends keyof Impl = keyof Impl
-> = CancellableMethods<Pick<Impl, Keys>> & { [terminate]: () => void };
+> = CancellableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
 
 export function createCaller<Impl extends {}>(
   methodNames: Extract<keyof Impl, string>[],
@@ -184,7 +186,7 @@ export function createCaller<Impl extends {}>(
       return result.payload;
     };
   });
-  Object.defineProperty(obj, terminate, {
+  Object.defineProperty(obj, cancel, {
     enumerable: false,
     value() {
       for (const cancelable of inflight) {
