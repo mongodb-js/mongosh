@@ -157,8 +157,7 @@ describe('rpc', () => {
       caller = createCaller(['meow'], messageBus);
 
       messageBus.on('message', (data) => {
-        expect(data).to.have.property('func');
-        expect((data as any).func).to.equal('meow');
+        expect(data).to.have.property('func', 'meow');
         done();
       });
 
