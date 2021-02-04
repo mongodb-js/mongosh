@@ -865,6 +865,31 @@ describe('Auth e2e', function() {
       });
       shell.assertNoErrors();
     });
+    it('connection-resetting operations don’t undo auth', async() => {
+      const connectionString = await testServer.connectionString();
+      const split = connectionString.split('//');
+      const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
+      shell = TestShell.start({ args: [authConnectionString] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+      await shell.executeLine(`use ${dbName}`);
+      expect(await shell.executeLine(
+        'db.runCommand({connectionStatus:1}).authInfo.authenticatedUsers'
+      )).to.match(/user: 'anna2'/);
+      expect(await shell.executeLine(
+        'db.auth({user: "anna", pwd: "pwd"})'
+      )).to.match(/ok: 1/);
+      expect(await shell.executeLine(
+        'db.runCommand({connectionStatus:1}).authInfo.authenticatedUsers'
+      )).to.match(/user: 'anna'/);
+      await shell.executeLine(
+        'db.getMongo().setReadConcern("majority")'
+      ); // No output
+      expect(await shell.executeLine(
+        'db.runCommand({connectionStatus:1}).authInfo.authenticatedUsers'
+      )).to.match(/user: 'anna'/);
+      shell.assertNoErrors();
+    });
     it('can auth when there is -u and -p', async() => {
       const connectionString = await testServer.connectionString();
       shell = TestShell.start({ args: [
