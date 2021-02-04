@@ -91,6 +91,12 @@ const workerRuntime: WorkerRuntime = {
   }
 };
 
+// We expect the amount of listeners to be more than the default value of 10 but
+// probably not more than ~15 (all exposed methods on
+// ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
+// in-flight calls on ChildProcessRuntime) at once
+parentPort.setMaxListeners(15);
+
 exposeAll(workerRuntime, parentPort);
 
 process.nextTick(() => {
