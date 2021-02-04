@@ -33,7 +33,7 @@ declare module 'postmsg-rpc' {
     funcName: string,
     opts: PostmsgRpcOptions
   ): T extends (...args: infer Args) => Promise<infer Ret>
-    ? (...args: Args) => CancellablePromise<Ret>
+    ? (...args: Args) => CancelablePromise<Ret>
     : never;
 }
 
@@ -48,14 +48,14 @@ declare type Params<T extends (...args: any) => any> = T extends (
   ? P
   : never;
 
-declare type CancellablePromise<T> = Promise<T> & { cancel(): void };
+declare type CancelablePromise<T> = Promise<T> & { cancel(): void };
 
-declare type CancellableMethods<T> = {
+declare type CancelableMethods<T> = {
   [k in keyof T]: T[k] extends (...args: infer Args) => infer ReturnVal
     ? (
         ...args: Args
       ) => ReturnVal extends Promise<infer PromiseValue>
-        ? CancellablePromise<PromiseValue>
-        : CancellablePromise<ReturnVal>
+        ? CancelablePromise<PromiseValue>
+        : CancelablePromise<ReturnVal>
     : T[k];
 };

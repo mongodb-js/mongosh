@@ -167,14 +167,14 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
 export type Caller<
   Impl,
   Keys extends keyof Impl = keyof Impl
-> = CancellableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
+> = CancelableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
 
 export function createCaller<Impl extends {}>(
   methodNames: Extract<keyof Impl, string>[],
   messageBus: RPCMessageBus
 ): Caller<Impl, typeof methodNames[number]> {
   const obj = {};
-  const inflight = new Set<CancellablePromise<unknown>>();
+  const inflight = new Set<CancelablePromise<unknown>>();
   methodNames.forEach((name) => {
     const c = caller(name as string, getRPCOptions(messageBus));
     (obj as any)[name] = async(...args: unknown[]) => {
