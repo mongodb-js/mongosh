@@ -21,6 +21,7 @@ describe('WorkerRuntime', () => {
   afterEach(async() => {
     if (runtime) {
       await runtime.terminate();
+      runtime = null;
     }
   });
 
@@ -33,17 +34,9 @@ describe('WorkerRuntime', () => {
     });
 
     describe('errors', () => {
-      let runtime: WorkerRuntime;
-
-      beforeEach(() => {
-        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
-      });
-
-      afterEach(async() => {
-        await runtime.terminate();
-      });
-
       it("should throw an error if it's thrown during evaluation", async() => {
+        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
         let err: Error;
 
         try {
@@ -61,6 +54,8 @@ describe('WorkerRuntime', () => {
       });
 
       it("should return an error if it's returned from evaluation", async() => {
+        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
         const { printable } = await runtime.evaluate(
           'new SyntaxError("Syntax!")'
         );
@@ -148,7 +143,6 @@ describe('WorkerRuntime', () => {
         return false;
       }
     }
-
 
     // We will be testing a bunch of private props that can be accessed only with
     // strings to make TS happy

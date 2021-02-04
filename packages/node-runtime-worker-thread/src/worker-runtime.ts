@@ -50,8 +50,8 @@ const messageBus: MongoshBus = Object.assign(
 export type WorkerRuntime = Runtime & {
   init(
     uri: string,
-    driverOptions: MongoClientOptions,
-    cliOptions: { nodb?: boolean }
+    driverOptions?: MongoClientOptions,
+    cliOptions?: { nodb?: boolean }
   ): Promise<void>;
 };
 

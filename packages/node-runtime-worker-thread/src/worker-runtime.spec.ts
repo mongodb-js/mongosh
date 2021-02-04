@@ -8,7 +8,7 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { Caller, createCaller, exposeAll } from './rpc';
+import { Caller, cancel, close, createCaller, exposeAll, Exposed } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
@@ -24,10 +24,28 @@ const workerThreadModule = fs.readFile(
 
 describe('worker', () => {
   let worker: Worker;
+  let caller: Caller<WorkerRuntime>;
 
   beforeEach(async() => {
     worker = new Worker(await workerThreadModule, { eval: true });
     await once(worker, 'message');
+
+    caller = createCaller(
+      [
+        'init',
+        'evaluate',
+        'getCompletions',
+        'getShellPrompt',
+        'setEvaluationListener'
+      ],
+      worker
+    );
+    const origEvaluate = caller.evaluate;
+    caller.evaluate = (code: string): Promise<any> & { cancel(): void } => {
+      const promise = origEvaluate(code).then(deserializeEvaluationResult);
+      (promise as any).cancel = () => {};
+      return promise as Promise<any> & { cancel(): void };
+    };
   });
 
   afterEach(async() => {
@@ -35,33 +53,19 @@ describe('worker', () => {
       await worker.terminate();
       worker = null;
     }
+
+    if (caller) {
+      caller[cancel]();
+      caller = null;
+    }
   });
 
   it('should throw if worker is not initialized yet', () => {
-    const { evaluate } = createCaller(['evaluate'], worker);
-    return expect(evaluate('1 + 1')).to.eventually.be.rejected;
+    caller = createCaller(['evaluate'], worker);
+    return expect(caller.evaluate('1 + 1')).to.eventually.be.rejected;
   });
 
   describe('evaluate', () => {
-    let caller: Caller<WorkerRuntime, 'init' | 'evaluate'>;
-
-    beforeEach(() => {
-      const c = createCaller(['init', 'evaluate'], worker);
-      caller = {
-        ...c,
-        // Making TS happy by not using async and adding cancel to the method
-        evaluate(code: string): Promise<any> & { cancel(): void } {
-          const promise = c.evaluate(code).then(deserializeEvaluationResult);
-          (promise as any).cancel = () => {};
-          return promise;
-        }
-      };
-    });
-
-    afterEach(() => {
-      caller = null;
-    });
-
     describe('basic shell result values', () => {
       const primitiveValues: [string, string, unknown][] = [
         ['null', 'null', null],
@@ -371,10 +375,7 @@ describe('worker', () => {
     const testServer = startTestServer('shared');
 
     it('should return prompt when connected to the server', async() => {
-      const { init, getShellPrompt } = createCaller(
-        ['init', 'getShellPrompt'],
-        worker
-      );
+      const { init, getShellPrompt } = caller;
 
       await init(await testServer.connectionString());
 
@@ -388,10 +389,7 @@ describe('worker', () => {
     const testServer = startTestServer('shared');
 
     it('should return completions', async() => {
-      const { init, getCompletions } = createCaller(
-        ['init', 'getCompletions'],
-        worker
-      );
+      const { init, getCompletions } = caller;
 
       await init(await testServer.connectionString());
 
@@ -412,12 +410,21 @@ describe('worker', () => {
       };
     };
 
+    let exposed: Exposed<unknown>;
+
+    afterEach(() => {
+      if (exposed) {
+        exposed[close]();
+        exposed = null;
+      }
+    });
+
     describe('onPrint', () => {
       it('should be called when shell evaluates `print`', async() => {
-        const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
+        const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, worker);
 
         await init('mongodb://nodb/', {}, { nodb: true });
         await evaluate('print("Hi!")');
@@ -430,10 +437,10 @@ describe('worker', () => {
 
     describe('onPrompt', () => {
       it('should be called when shell evaluates `passwordPrompt`', async() => {
-        const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
+        const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, worker);
 
         await init('mongodb://nodb/', {}, { nodb: true });
         const password = await evaluate('passwordPrompt()');
@@ -445,10 +452,10 @@ describe('worker', () => {
 
     describe('toggleTelemetry', () => {
       it('should be called when shell evaluates `enableTelemetry` or `disableTelemetry`', async() => {
-        const { init, evaluate } = createCaller(['init', 'evaluate'], worker);
+        const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, worker);
 
         await init('mongodb://nodb/', {}, { nodb: true });
 
