@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { adaptDriverV36ConnectionParams } from './adapt-driver-v36-connection-params';
 
-const LOCALHOST = 'mongodb://localhost:27017';
+const LOCALHOST = 'mongodb://localhost:27017/';
 
 describe.only('adaptDriverV36ConnectionParams', () => {
   it('removes useUnifiedTopology', () => {
@@ -56,7 +56,7 @@ describe.only('adaptDriverV36ConnectionParams', () => {
 
   it('replaces driver ssl options with filenames from connection model (unwrap arrays)', () => {
     const [, options] = adaptDriverV36ConnectionParams(
-      'mongodb://localhost:27017',
+      LOCALHOST,
       {
         sslCA: Buffer.from('invalid-value'),
         sslCRL: Buffer.from('invalid-value'),
@@ -79,7 +79,7 @@ describe.only('adaptDriverV36ConnectionParams', () => {
 
   it('replaces driver ssl options with filenames from connection model', () => {
     const [, options] = adaptDriverV36ConnectionParams(
-      'mongodb://localhost:27017',
+      LOCALHOST,
       {
         sslCA: Buffer.from('invalid-value'),
         sslCRL: Buffer.from('invalid-value'),
@@ -98,5 +98,15 @@ describe.only('adaptDriverV36ConnectionParams', () => {
     expect(options.sslCRL).to.equal('./valid-sslCRL.file');
     expect(options.sslCert).to.equal('./valid-sslCert.file');
     expect(options.sslKey).to.equal('./valid-sslKey.file');
+  });
+
+  it('move gssapiServiceName from connection string to options', () => {
+    const [ uri, options ] = adaptDriverV36ConnectionParams(
+      `${LOCALHOST}?gssapiServiceName=some-name`,
+      {}
+    );
+
+    expect(uri).to.equal(LOCALHOST);
+    expect(options.authMechanismProperties.gssapiServiceName).to.equal('some-name');
   });
 });

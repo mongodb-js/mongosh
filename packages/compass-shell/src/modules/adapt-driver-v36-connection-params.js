@@ -1,3 +1,5 @@
+import { ConnectionString } from '@mongosh/service-provider-core';
+
 export function adaptDriverV36ConnectionParams(
   oldDriverUrl,
   oldDriverOptions,
@@ -35,5 +37,23 @@ export function adaptDriverV36ConnectionParams(
     }
   });
 
-  return [oldDriverUrl, newDriverOptions];
+  return extractGssapiServiceName(oldDriverUrl, newDriverOptions);
+}
+
+function extractGssapiServiceName(oldDriverUrl, newDriverOptions) {
+  const uri = new ConnectionString(oldDriverUrl);
+
+  const gssapiServiceName = uri.searchParams.get('gssapiServiceName');
+  uri.searchParams.delete('gssapiServiceName');
+
+  return [
+    uri.toString(),
+    {
+      ...newDriverOptions,
+      authMechanismProperties: {
+        ...newDriverOptions.authMechanismProperties,
+        gssapiServiceName
+      }
+    }
+  ];
 }
