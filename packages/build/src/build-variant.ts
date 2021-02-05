@@ -15,6 +15,7 @@ enum BuildVariant {
 
 export const ALL_BUILD_VARIANTS = Object.freeze([
   BuildVariant.Windows,
+  BuildVariant.WindowsMSI,
   BuildVariant.MacOs,
   BuildVariant.Linux,
   BuildVariant.Debian,
