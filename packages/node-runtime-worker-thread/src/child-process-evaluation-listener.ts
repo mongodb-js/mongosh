@@ -3,10 +3,8 @@ import { exposeAll, Exposed, close } from './rpc';
 import type { WorkerRuntime } from './index';
 import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
-type NoUndef<T> = { [k in keyof T]-?: T[k] };
-
 export class ChildProcessEvaluationListener {
-  exposedListener: Exposed<NoUndef<RuntimeEvaluationListener>>;
+  exposedListener: Exposed<Required<RuntimeEvaluationListener>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
     this.exposedListener = exposeAll(
