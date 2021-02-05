@@ -46,29 +46,34 @@ function reduceSetupRuntime(state, action) {
     return state;
   }
 
-  let connection = action.dataService.getConnectionOptions();
-  // Shallow clone connection options to avoid side-effects
-  connection = { url: connection.url, options: { ...connection.options } };
-
   const shouldUseNewRuntime = !!process.env
     .COMPASS_SHELL_EXPERIMENTAL_WORKER_RUNTIME;
 
+  let connectionOptions;
+
   if (shouldUseNewRuntime) {
+    connectionOptions = action.dataService.getConnectionOptions();
+    // Shallow clone connection options to avoid side-effects
+    connectionOptions = {
+      url: connectionOptions.url,
+      options: { ...connectionOptions.options },
+    };
+
     // WorkerRuntime uses driver 4 that deprecates following options. They can
     // be safely removed from the connection. This is necessary so that driver
     // doesn't throw during the connection
     //
     // TODO: This can probably be removed as soon as compass uses the same
     // driver version as rest of the mongosh packages
-    delete connection.options.useUnifiedTopology;
-    delete connection.options.connectWithNoPrimary;
-    delete connection.options.useNewUrlParser;
+    delete connectionOptions.options.useUnifiedTopology;
+    delete connectionOptions.options.connectWithNoPrimary;
+    delete connectionOptions.options.useNewUrlParser;
     // `true` is not a valid tls checkServerIdentity option that seems to break
     // driver 4
     //
     // TODO(NODE-3061): Remove when fixed on driver side
-    if (connection.options.checkServerIdentity === true) {
-      delete connection.options.checkServerIdentity;
+    if (connectionOptions.options.checkServerIdentity === true) {
+      delete connectionOptions.options.checkServerIdentity;
     }
     // driver 4 doesn't support certificates as buffers, so let's copy paths
     // back from model `driverOptions`
@@ -77,21 +82,23 @@ function reduceSetupRuntime(state, action) {
     // hopefully this can be removed eventually (see https://mongodb.slack.com/archives/C0V8RU15L/p1612347025017200)
     ['sslCA', 'sslCRL', 'sslCert', 'sslKey'].forEach((key) => {
       if (
-        connection.options[key] &&
+        connectionOptions.options[key] &&
         action.dataService?.client?.model?.driverOptions?.[key]
       ) {
         // Option value can be array or a string in connection-model, we'll
         // unwrap it if it's an array (it's always an array with one value)
         const option = action.dataService.client.model.driverOptions[key];
-        connection.options[key] = Array.isArray(option) ? option[0] : option;
+        connectionOptions.options[key] = Array.isArray(option)
+          ? option[0]
+          : option;
       }
     });
   }
 
   const runtime = shouldUseNewRuntime
     ? new WorkerRuntime(
-      connection.url,
-      connection.options,
+      connectionOptions.url,
+      connectionOptions.options,
       {},
       {
         env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
@@ -107,7 +114,7 @@ function reduceSetupRuntime(state, action) {
   return {
     error: action.error,
     dataService: action.dataService,
-    runtime: runtime
+    runtime
   };
 }
 
