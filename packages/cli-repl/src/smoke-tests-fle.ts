@@ -26,7 +26,7 @@ use(dbname);
 unencryptedDb = db;
 assert(db.getName() === dbname, 'db name must match');
 
-const local = { key: BinData(0, 'kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY') };
+const local = { key: Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY', 'base64') };
 
 const keyMongo = Mongo(db.getMongo()._uri, {
   keyVaultNamespace: 'encryption.__keyVault',
