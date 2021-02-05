@@ -138,12 +138,15 @@ module.exports = {
     ],
     metadata: {
       name: 'mongosh',
+      fullName: 'MongoDB Shell',
       version: CLI_REPL_PACKAGE_JSON.version,
       description: CLI_REPL_PACKAGE_JSON.description,
       homepage: CLI_REPL_PACKAGE_JSON.homepage,
-      maintainer: CLI_REPL_PACKAGE_JSON.author
+      maintainer: CLI_REPL_PACKAGE_JSON.author,
+      manufacturer: CLI_REPL_PACKAGE_JSON.manufacturer
     },
     debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
-    rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template')
+    rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template'),
+    msiTemplateDir: path.resolve(__dirname, '..', 'packaging', 'msi-template')
   }
 };

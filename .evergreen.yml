@@ -555,6 +555,32 @@ tasks:
           admin_user_name: Administrator
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
+  - name: pkg_test_ssh_win32msi
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_win
+        variant: win32msi
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: win32msi
+      - command: shell.exec
+        params:
+          working_dir: src
+          shell: bash
+          script: |
+            set -e
+            set -x
+            echo "export ARTIFACT_URL=$(cat ../artifact-url.txt)" >> preload.sh
+      - func: spawn_host
+        vars:
+          distro: windows-64-vs2019-small
+      - func: run_pkg_tests_through_ssh
+        vars:
+          admin_user_name: Administrator
+          onhost_script_path: .evergreen/test-package-win32.sh
+          preload_script_path: preload.sh
   - name: pkg_test_docker_ubuntu1604
     tags: ["smoke-test"]
     depends_on:
@@ -779,6 +805,13 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: compile_artifact
+  - name: win32msi
+    display_name: "Windows VS 2019 (msi target)"
+    run_on: windows-64-vs2019-small
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: package_and_upload_artifact_win
   - name: darwin_release_publish
     display_name: "Publish Release"
     run_on: macos-1014-codesign
@@ -798,6 +831,7 @@ buildvariants:
     run_on: ubuntu1804-small
     tasks:
       - name: pkg_test_ssh_win32
+      - name: pkg_test_ssh_win32msi
   - name: pkg_smoke_tests_macos
     display_name: "package smoke tests (macos)"
     run_on: macos-1014

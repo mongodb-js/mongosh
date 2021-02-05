@@ -155,6 +155,24 @@ describe('tarball module', () => {
       });
     });
 
+    describe('.tarballWindowsMSI', () => {
+      // WIX is not available everywhere. When it's not there, we skip
+      // the part of the test that would actually generate the MSI.
+      beforeEach(async function() {
+        if (!process.env.WIX) {
+          process.env.MONGOSH_TEST_NO_MSIBUILD = 'yes';
+        }
+      });
+
+      it('packages the executable(s)', async() => {
+        const tarball = await createTarball(tarballDir, BuildVariant.WindowsMSI, pkgConfig);
+        if (process.env.MONGOSH_TEST_NO_MSIBUILD) {
+          return;
+        }
+        await fs.access(tarball.path);
+      });
+    });
+
     describe('.tarballWindows', () => {
       it('packages the executable(s)', async() => {
         const tarball = await createTarball(tarballDir, BuildVariant.Windows, pkgConfig);
