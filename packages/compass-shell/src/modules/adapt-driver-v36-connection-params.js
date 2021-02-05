@@ -1,5 +1,18 @@
 import { ConnectionString } from '@mongosh/service-provider-core';
 
+/**
+ * Takes the connection options for the driver v3.6 and converts
+ * them into connection options for the driver v4.0.
+ *
+ * @param {string} oldDriverUrl
+ *  3.6 connection string
+ * @param {object} oldDriverOptions
+ *  3.6 connection options
+ * @param {object} connectionModelDriverOptions
+ *  raw driver options from connection model
+ * @returns {Array<string,object>}
+ *  connection string and options suitable to connect with the driver v4.0
+ */
 export function adaptDriverV36ConnectionParams(
   oldDriverUrl,
   oldDriverOptions,
