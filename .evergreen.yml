@@ -181,25 +181,6 @@ functions:
           echo "$MONGOSH_TEST_EXECUTABLE_PATH"
           npm run test-e2e-ci
           }
-
-  release_publish:
-    - command: expansions.write
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          {
-          export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
-          npm run evergreen-release publish
-          }
   spawn_host:
     - command: host.create
       params:
@@ -259,6 +240,43 @@ functions:
           curl -sSfL "$ARTIFACT_URL" > mongosh.zip
           unzip mongosh.zip
           ./bin/mongosh --smokeTests
+          }
+
+  release_draft:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          npm run evergreen-release draft
+          }
+
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
+          npm run evergreen-release publish
           }
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
@@ -368,6 +386,7 @@ tasks:
           mongosh_server_test_version: "latest-alpha"
           node_js_version: "14.15.1"
   - name: test_vscode
+    tags: ["extra-integration-test"]
     commands:
       - func: checkout
       - func: install
@@ -375,6 +394,7 @@ tasks:
           node_js_version: "12.20.0"
       - func: test_vscode
   - name: test_connectivity
+    tags: ["extra-integration-test"]
     commands:
       - func: checkout
       - func: install
@@ -495,55 +515,8 @@ tasks:
       - func: test_linux_artifact
         vars:
           node_js_version: "14.15.1"
-  - name: release_publish
-    tags: ["publish"]
-    git_tag_only: true
-    depends_on:
-      - name: package_and_upload_artifact_win
-        variant: win32
-      - name: package_and_upload_artifact_linux
-        variant: linux
-      - name: package_and_upload_artifact_linux
-        variant: rhel
-      - name: package_and_upload_artifact_linux
-        variant: debian
-      - name: package_and_upload_artifact_macos
-        variant: darwin_codesign
-      - name: test_linux_artifact
-        variant: rhel70
-      - name: test_linux_artifact
-        variant: rhel76
-      - name: test_linux_artifact
-        variant: debian10
-      - name: test_linux_artifact
-        variant: ubuntu1604
-      - name: test_linux_artifact
-        variant: ubuntu2004
-      - name: test_connectivity
-        variant: linux
-      - name: test_vscode
-        variant: linux
-      - name: pkg_test_docker_centos7
-        variant: pkg_smoke_tests_docker
-      - name: pkg_test_docker_centos8
-        variant: pkg_smoke_tests_docker
-      - name: pkg_test_docker_ubuntu1604
-        variant: pkg_smoke_tests_docker
-      - name: pkg_test_docker_ubuntu2004
-        variant: pkg_smoke_tests_docker
-      - name: pkg_test_macos1014
-        variant: pkg_smoke_tests_macos
-      - name: pkg_test_ssh_win32
-        variant: pkg_smoke_tests_win32
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "14.15.1"
-      - func: release_publish
-        vars:
-          node_js_version: "14.15.1"
   - name: pkg_test_ssh_win32
+    tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_win
         variant: win32
@@ -569,6 +542,7 @@ tasks:
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
   - name: pkg_test_docker_ubuntu1604
+    tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_linux
         variant: debian
@@ -581,6 +555,7 @@ tasks:
         vars:
           dockerfile: ubuntu16.04-deb
   - name: pkg_test_docker_ubuntu2004
+    tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_linux
         variant: debian
@@ -593,6 +568,7 @@ tasks:
         vars:
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_centos7
+    tags: [ "smoke-test" ]
     depends_on:
       - name: package_and_upload_artifact_linux
         variant: rhel
@@ -605,6 +581,7 @@ tasks:
         vars:
           dockerfile: centos7-rpm
   - name: pkg_test_docker_centos8
+    tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_linux
         variant: rhel
@@ -617,6 +594,7 @@ tasks:
         vars:
           dockerfile: centos8-rpm
   - name: pkg_test_macos1014
+    tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_macos
         variant: darwin_codesign
@@ -626,6 +604,30 @@ tasks:
         vars:
           source_build_variant: darwin_codesign
       - func: test_artifact_macos
+  - name: release_draft
+    git_tag_only: true
+    depends_on:
+      - name: ".smoke-test"
+      - name: ".extra-integration-test"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: release_draft
+        vars:
+          node_js_version: "14.15.1"
+  - name: release_publish
+    tags: ["publish"]
+    git_tag_only: true
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: release_publish
+        vars:
+          node_js_version: "14.15.1"
 
 # Need to run builds for every possible build variant.
 buildvariants:

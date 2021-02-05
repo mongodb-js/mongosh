@@ -191,7 +191,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: ConnectionString;
-  private initialOptions: MongoClientOptions;
+  private currentClientOptions: MongoClientOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: any; // public for testing
   public fle: any;
@@ -214,7 +214,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     } catch (err) {
       this.initialDb = DEFAULT_DB;
     }
-    this.initialOptions = clientOptions;
+    this.currentClientOptions = clientOptions;
     this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
     try {
@@ -1047,26 +1047,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   async authenticate(
     authDoc: ShellAuthOptions
-  ): Promise<{ ok: number }> {
-    const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
+  ): Promise<{ ok: 1 }> {
     // NOTE: we keep all the original options and just overwrite the auth ones.
-    const clientOptions = processDriverOptions({
-      ...this.initialOptions,
-      auth
+    const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
+    await this.resetConnectionOptions({
+      auth,
+      ...(authDoc.mechanism ? { authMechanism: authDoc.mechanism as AuthMechanismId } : {}),
+      ...(authDoc.authDb ? { authSource: authDoc.authDb } : {})
     });
-    if (authDoc.mechanism) clientOptions.authMechanism = authDoc.mechanism as AuthMechanismId;
-    if (authDoc.authDb) clientOptions.authSource = authDoc.authDb;
-    const mc = await connectMongoClient(
-      Object.assign((this.uri as ConnectionString).clone(), {
-        username: '', password: ''
-      }).toString(),
-      clientOptions
-    );
-    try {
-      await this.mongoClient.close();
-      // eslint-disable-next-line no-empty
-    } catch {}
-    this.mongoClient = mc;
     return { ok: 1 };
   }
 
@@ -1117,12 +1105,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param options
    */
   async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
-    const clientOptions = processDriverOptions({
-      ...this.initialOptions,
+    this.currentClientOptions = {
+      ...this.currentClientOptions,
       ...options
-    });
+    };
+    const clientOptions = processDriverOptions(this.currentClientOptions);
     const mc = await connectMongoClient(
-      // TODO This seems to potentially undo a previous db.auth(), MONGOSH-529
       (this.uri as ConnectionString).toString(),
       clientOptions
     );

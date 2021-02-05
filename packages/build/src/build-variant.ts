@@ -12,4 +12,12 @@ enum BuildVariant {
   Redhat = 'rhel'
 }
 
+export const ALL_BUILD_VARIANTS = Object.freeze([
+  BuildVariant.Windows,
+  BuildVariant.MacOs,
+  BuildVariant.Linux,
+  BuildVariant.Debian,
+  BuildVariant.Redhat,
+]);
+
 export default BuildVariant;

@@ -2,6 +2,7 @@
 import { Octokit } from '@octokit/rest';
 import fs from 'fs';
 import path from 'path';
+import semver from 'semver/preload';
 import util from 'util';
 import Config from './config';
 import { TarballFile } from './tarball';
@@ -25,6 +26,7 @@ type Asset = {
 
 type Tag = {
   name: string;
+  sha: string;
 };
 
 type ReleaseDetails = {
@@ -43,14 +45,10 @@ export class GithubRepo {
   }
 
   /**
-   * Returns the first tag found for a given commit sha
-   *
-   * @param {string} sha
-   * @returns {Promise<Tag>}
-   * @memberof GithubRepo
+   * Returns the most recent draft tag for the given release version (without leading `v`).
    */
-  async getTagByCommitSha(sha?: string): Promise<Tag | undefined> {
-    if (!sha) {
+  async getMostRecentDraftTagForRelease(releaseVersion: string | undefined): Promise<Tag | undefined> {
+    if (!releaseVersion) {
       return undefined;
     }
 
@@ -60,7 +58,21 @@ export class GithubRepo {
         this.repo,
       );
 
-    return tags.find(({ commit }) => commit.sha === sha);
+    const sortedTags = tags
+      .filter(t => t.name && t.name.startsWith(`v${releaseVersion}-draft`) && t.name.match(/^v\d+\.\d+\.\d+-draft\.\d+/))
+      .map(t => ({
+        name: t.name,
+        sha: t.commit.sha,
+        draftVersion: semver.prerelease(t.name)?.[1] as string
+      }))
+      .filter(t => t.draftVersion !== undefined)
+      .sort((t1, t2) => parseInt(t2.draftVersion, 10) - parseInt(t1.draftVersion, 10));
+
+    const mostRecentTag = sortedTags[0];
+    return mostRecentTag ? {
+      name: mostRecentTag.name,
+      sha: mostRecentTag.sha
+    } : undefined;
   }
 
   /**
