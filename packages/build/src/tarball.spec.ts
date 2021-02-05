@@ -156,8 +156,8 @@ describe('tarball module', () => {
     });
 
     describe('.tarballWindowsMSI', () => {
-      // rpmbuild is not available everywhere. When it's not there, we skip
-      // the part of the test that would actually generate the RPM.
+      // WIX is not available everywhere. When it's not there, we skip
+      // the part of the test that would actually generate the MSI.
       beforeEach(async function() {
         if (!process.env.WIX) {
           process.env.MONGOSH_TEST_NO_MSIBUILD = 'yes';
