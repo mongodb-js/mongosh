@@ -1,4 +1,5 @@
 import type { REPLServer, ReplOptions } from 'repl';
+import type { ReadLineOptions } from 'readline';
 import { Recoverable, start as originalStart } from 'repl';
 import isRecoverableError from 'is-recoverable-error';
 import { promisify } from 'util';
@@ -12,7 +13,7 @@ type Mutable<T> = {
 export type OriginalEvalFunction = (input: string, context: any, filename: string) => Promise<any>;
 export type AsyncEvalFunction = (originalEval: OriginalEvalFunction, input: string, context: any, filename: string) => Promise<any>;
 
-export type AsyncREPLOptions = Omit<ReplOptions, 'eval'> & {
+export type AsyncREPLOptions = ReadLineOptions & Omit<ReplOptions, 'eval'> & {
   start?: typeof originalStart,
   wrapCallbackError?: (err: Error) => Error;
   asyncEval: AsyncEvalFunction;
