@@ -3,7 +3,7 @@ import { adaptDriverV36ConnectionParams } from './adapt-driver-v36-connection-pa
 
 const LOCALHOST = 'mongodb://localhost:27017/';
 
-describe.only('adaptDriverV36ConnectionParams', () => {
+describe('adaptDriverV36ConnectionParams', () => {
   it('removes useUnifiedTopology', () => {
     expect(
       adaptDriverV36ConnectionParams(LOCALHOST, { useUnifiedTopology: true })[1]
