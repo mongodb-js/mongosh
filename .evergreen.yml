@@ -181,6 +181,26 @@ functions:
           echo "$MONGOSH_TEST_EXECUTABLE_PATH"
           npm run test-e2e-ci
           }
+
+  write_preload_script:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set +x
+          cat <<PRELOAD_SCRIPT > preload.sh
+          echo "Preload script starting"
+          set -e
+          set -x
+          export ARTIFACT_URL=$(cat ../artifact-url.txt)
+          export IS_CI=1
+          set +x
+          export MONGOSH_SMOKE_TEST_SERVER="mongodb+srv://${connectivity_test_atlas_username}:${connectivity_test_atlas_password}@${connectivity_test_atlas_hostname}/"
+          echo "Preload script done"
+          set -x
+          PRELOAD_SCRIPT
   spawn_host:
     - command: host.create
       params:
@@ -223,7 +243,7 @@ functions:
           set -e
           set -x
           {
-          export ARTIFACT_URL="$(cat ../artifact-url.txt)"
+          . preload.sh
           ./scripts/docker/build.sh ${dockerfile}
           ./scripts/docker/run.sh ${dockerfile} --smokeTests
           }
@@ -236,7 +256,7 @@ functions:
           set -e
           set -x
           {
-          export ARTIFACT_URL="$(cat ../artifact-url.txt)"
+          . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.zip
           unzip mongosh.zip
           ./bin/mongosh --smokeTests
@@ -291,6 +311,7 @@ functions:
 #   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
+#   pkg_test_* - Run tests on the release packages
 tasks:
   - name: check
     commands:
@@ -525,14 +546,7 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: win32
-      - command: shell.exec
-        params:
-          working_dir: src
-          shell: bash
-          script: |
-            set -e
-            set -x
-            echo "export ARTIFACT_URL=$(cat ../artifact-url.txt)" >> preload.sh
+      - func: write_preload_script
       - func: spawn_host
         vars:
           distro: windows-64-vs2019-small
@@ -551,9 +565,24 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: debian
+      - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu16.04-deb
+  - name: pkg_test_docker_ubuntu1804
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_linux
+        variant: debian
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_build_variant: debian
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu18.04-deb
   - name: pkg_test_docker_ubuntu2004
     tags: ["smoke-test"]
     depends_on:
@@ -564,6 +593,7 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: debian
+      - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu20.04-deb
@@ -577,6 +607,7 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: rhel
+      - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: centos7-rpm
@@ -590,6 +621,7 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: rhel
+      - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: centos8-rpm
@@ -603,6 +635,7 @@ tasks:
       - func: get_artifact_url
         vars:
           source_build_variant: darwin_codesign
+      - func: write_preload_script
       - func: test_artifact_macos
   - name: release_draft
     git_tag_only: true
@@ -708,6 +741,11 @@ buildvariants:
     run_on: ubuntu1604-small
     tasks:
       - name: test_linux_artifact
+  - name: ubuntu1804
+    display_name: "Ubuntu 18.04"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: test_linux_artifact
   - name: ubuntu2004
     display_name: "Ubuntu 20.04"
     run_on: ubuntu2004-small
@@ -753,6 +791,7 @@ buildvariants:
       - name: pkg_test_docker_centos7
       - name: pkg_test_docker_centos8
       - name: pkg_test_docker_ubuntu1604
+      - name: pkg_test_docker_ubuntu1804
       - name: pkg_test_docker_ubuntu2004
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"

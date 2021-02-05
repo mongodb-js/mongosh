@@ -7,4 +7,4 @@ if [ -t 0 ]; then # Check whether input is a TTY
 else
   DOCKER_FLAGS='-i'
 fi
-docker run --rm $DOCKER_FLAGS --network host "mongosh-${1}" ${@:2}
+docker run --rm $DOCKER_FLAGS -e MONGOSH_SMOKE_TEST_SERVER -e IS_CI --network host "mongosh-${1}" ${@:2}
