@@ -18,7 +18,8 @@ import {
   ClientMetadata,
   Topology,
   ReadPreferenceFromOptions,
-  ReadPreferenceLike
+  ReadPreferenceLike,
+  OperationOptions
 } from 'mongodb';
 
 import {
@@ -109,7 +110,7 @@ type ExtraConnectionInfo = ReturnType<typeof getConnectInfo>;
 /**
  * Default driver options we always use.
  */
-const DEFAULT_DRIVER_OPTIONS = Object.freeze({
+const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
 });
 
 function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
@@ -123,7 +124,7 @@ function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
 /**
  * Default driver method options we always use.
  */
-const DEFAULT_BASE_OPTIONS = Object.freeze({
+const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
   serializeFunctions: true
 });
 
@@ -193,7 +194,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   private readonly uri?: ConnectionString;
   private currentClientOptions: MongoClientOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
-  public baseCmdOptions: any; // public for testing
+  public baseCmdOptions: OperationOptions; // public for testing
   public fle: any;
 
   /**
