@@ -49,6 +49,6 @@
     "@types/bl": "^2.1.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.2.0"
+    "mongodb-client-encryption": "^1.2.1"
   }
 }
