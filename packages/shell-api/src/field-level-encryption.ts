@@ -24,10 +24,16 @@ import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
 import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
+export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
+  local?: {
+    key: Buffer | string | BinaryType;
+  }
+};
+
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
   keyVaultNamespace: string,
-  kmsProvider: KMSProviders,
+  kmsProvider: ClientSideFieldLevelEncryptionKmsProvider,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
 }

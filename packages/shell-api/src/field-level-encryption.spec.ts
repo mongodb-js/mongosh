@@ -320,7 +320,7 @@ describe('Field Level Encryption', () => {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProvider: {
           local: {
-            key: Buffer.alloc(96).toString('base64')
+            key: new bson.Binary(Buffer.alloc(96).toString('base64'))
           }
         },
         schemaMap: SCHEMA_MAP,

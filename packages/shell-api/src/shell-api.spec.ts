@@ -211,24 +211,30 @@ describe('ShellApi', () => {
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true');
       });
       context('FLE', () => {
-        it('local kms provider', async() => {
-          await internalState.shellApi.Mongo('dbname', {
-            keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
-              local: {
-                key: Buffer.from(b641234, 'base64')
-              }
-            }
-          });
-          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
-            {
-              autoEncryption: {
-                keyVaultClient: rawClientStub,
-                keyVaultNamespace: 'encryption.dataKeys',
-                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
+        [
+          { type: 'base64 string', key: b641234, expectedKey: b641234 },
+          { type: 'Buffer', key: Buffer.from(b641234, 'base64'), expectedKey: Buffer.from(b641234, 'base64') },
+          { type: 'BinData', key: new bson.Binary(Buffer.from(b641234, 'base64'), 128), expectedKey: Buffer.from(b641234, 'base64') }
+        ].forEach(({ type, key, expectedKey }) => {
+          it(`local kms provider - key is ${type}`, async() => {
+            await internalState.shellApi.Mongo('dbname', {
+              keyVaultNamespace: 'encryption.dataKeys',
+              kmsProvider: {
+                local: {
+                  key: key
+                }
               }
             });
+            expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+              'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+              {
+                autoEncryption: {
+                  keyVaultClient: rawClientStub,
+                  keyVaultNamespace: 'encryption.dataKeys',
+                  kmsProviders: { local: { key: expectedKey } }
+                }
+              });
+          });
         });
         it('aws kms provider', async() => {
           await internalState.shellApi.Mongo('dbname', {
