@@ -22,7 +22,7 @@ import { assertArgsDefined, assertArgsType } from './helpers';
 import { asPrintable } from './enums';
 import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
-import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
   local?: {
@@ -84,7 +84,7 @@ export class ClientEncryption extends ShellApiClass {
 
   @returnsPromise
   async decrypt(
-    encryptedValue: any
+    encryptedValue: BinaryType
   ): Promise<any> {
     assertArgsDefined(encryptedValue);
     return await this._libmongocrypt.decrypt(encryptedValue);
@@ -113,12 +113,22 @@ export class KeyVault extends ShellApiClass {
     return `KeyVault class for ${redactPassword(this._mongo._uri)}`;
   }
 
+  createKey(kms: ClientEncryptionDataKeyProvider): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: ClientEncryptionCreateDataKeyProviderOptions): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: ClientEncryptionCreateDataKeyProviderOptions, ...args: any[]): never
   @returnsPromise
   createKey(
     kms: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions
+    options?: ClientEncryptionCreateDataKeyProviderOptions,
+    ...args: any[]
   ): Promise<Document> {
     assertArgsDefined(kms);
+    if (args && args.length) {
+      throw new MongoshInvalidInputError(
+        'KeyVault.createKey requires 1 or 2 arguments: KMS provider and the key provider options',
+        CommonErrors.Deprecated
+      );
+    }
     return this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 

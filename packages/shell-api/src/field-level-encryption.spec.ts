@@ -1,3 +1,4 @@
+import { CommonErrors } from '@mongosh/errors';
 import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { KeyVault, ClientEncryption, ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
@@ -207,6 +208,16 @@ describe('Field Level Encryption', () => {
         const caughtError = await keyVault.createKey('aws', { masterKey, keyAltNames })
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+      it('fails if it is handed 3 arguments', async() => {
+        try {
+          await keyVault.createKey('aws', null, ['oldAltNames']);
+        } catch (e) {
+          expect(e.message).to.contain('KeyVault.createKey requires 1 or 2 arguments');
+          expect(e.code).to.equal(CommonErrors.Deprecated);
+          return;
+        }
+        expect.fail('Expected error');
       });
     });
     describe('getKey', () => {
