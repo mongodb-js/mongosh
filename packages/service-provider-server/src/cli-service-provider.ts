@@ -233,9 +233,27 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const buildInfo = await this.runCommandWithCheck('admin', {
-      buildInfo: 1
-    }, this.baseCmdOptions);
+    // buildInfo try/catch can be removed after MONGOCRYPT-308
+    let buildInfo;
+    try {
+      buildInfo = await this.runCommandWithCheck('admin', {
+        buildInfo: 1
+      }, this.baseCmdOptions);
+    } catch (e) {
+      if (e.message.includes('not supported for auto encryption')) {
+        const options = { ...this.currentClientOptions };
+        delete options.autoEncryption;
+        const unencrypted =
+          await this.getNewConnection(
+            (this.uri as ConnectionString).toString(),
+            options);
+        try {
+          return await unencrypted.getConnectionInfo();
+        } finally {
+          await unencrypted.close(true);
+        }
+      }
+    }
     const topology = this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
