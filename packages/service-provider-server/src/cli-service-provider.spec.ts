@@ -4,6 +4,7 @@ import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import CliServiceProvider, { connectMongoClient } from './cli-service-provider';
+import { ConnectionString } from '@mongosh/service-provider-core';
 
 chai.use(sinonChai);
 
@@ -799,6 +800,41 @@ describe('CliServiceProvider', () => {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
       expect(result).to.deep.equal(expectedResult);
       (watchMock3 as any).verify();
+    });
+  });
+
+  describe('#getConnectionInfo', () => {
+    let clientStub: any;
+    let dbStub: any;
+    let firstCall = true;
+
+    beforeEach(() => {
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.command.callsFake(() => {
+        if (firstCall) {
+          firstCall = false;
+          throw new Error('some command not supported for auto encryption');
+        }
+        return { ok: 1 };
+      });
+      clientStub.db.returns(dbStub);
+      clientStub.topology = { s: {} };
+      serviceProvider = new CliServiceProvider(clientStub, {}, new ConnectionString('mongodb://localhost/'));
+      serviceProvider.getNewConnection = async() => serviceProvider;
+    });
+
+    afterEach(() => {
+      dbStub = null;
+      clientStub = null;
+      serviceProvider = null;
+    });
+
+    it('returns some connection info data', async() => {
+      const info = await serviceProvider.getConnectionInfo();
+      expect(info.extraInfo.is_atlas).to.equal(false);
+      expect(info.extraInfo.is_localhost).to.equal(true);
+      expect(dbStub.command).to.have.callCount(3);
     });
   });
 });
