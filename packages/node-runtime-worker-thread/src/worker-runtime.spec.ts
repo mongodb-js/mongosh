@@ -3,7 +3,6 @@ import { promises as fs } from 'fs';
 import { once } from 'events';
 import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
@@ -14,7 +13,6 @@ import type { WorkerRuntime } from './worker-runtime';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 
 chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 // We need a compiled version so we can import it as a worker
 const workerThreadModule = fs.readFile(
@@ -60,9 +58,20 @@ describe('worker', () => {
     }
   });
 
-  it('should throw if worker is not initialized yet', () => {
+  it('should throw if worker is not initialized yet', async() => {
     caller = createCaller(['evaluate'], worker);
-    return expect(caller.evaluate('1 + 1')).to.eventually.be.rejected;
+    let err: Error;
+
+    try {
+      await caller.evaluate('1 + 1');
+    } catch (e) {
+      err = e;
+    }
+
+    expect(err).to.be.instanceof(Error);
+    expect(err)
+      .to.have.property('message')
+      .match(/Can\'t call evaluate before shell runtime is initiated/);
   });
 
   describe('evaluate', () => {

@@ -29,8 +29,6 @@
     "prepublish": "npm run webpack-build"
   },
   "devDependencies": {
-    "@types/chai-as-promised": "^7.1.3",
-    "chai-as-promised": "^7.1.1",
     "loader-utils": "^2.0.0",
     "mocha": "^7.1.2",
     "terser-webpack-plugin": "^4.2.3",
