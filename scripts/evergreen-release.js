@@ -11,8 +11,8 @@ const config = require(path.join(__dirname, '..', 'config', 'build.conf.js'));
 const runRelease = async() => {
   const command = process.argv[2];
 
-  if (!['bump', 'compile', 'package', 'upload', 'publish'].includes(command)) {
-    throw new Error('USAGE: npm run evergreen-release -- <bump|compile|package|upload|publish>');
+  if (!['bump', 'compile', 'package', 'upload', 'draft', 'publish'].includes(command)) {
+    throw new Error('USAGE: npm run evergreen-release -- <bump|compile|package|upload|draft|publish>');
   }
 
   const cliBuildVariant =
