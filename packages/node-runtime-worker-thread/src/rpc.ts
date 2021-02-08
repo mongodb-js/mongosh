@@ -191,6 +191,7 @@ export function createCaller<Impl extends {}>(
     value() {
       for (const cancelable of inflight) {
         cancelable.cancel();
+        inflight.delete(cancelable);
       }
     }
   });
