@@ -1,13 +1,12 @@
 import v8 from 'v8';
-import {
-  expose,
-  caller,
+import { expose, caller } from 'postmsg-rpc';
+import { deserializeError, serializeError } from './serializer';
+import type {
   MessageData,
   PostmsgRpcOptions,
   ServerMessageData,
   ClientMessageData
 } from 'postmsg-rpc';
-import { deserializeError, serializeError } from './serializer';
 
 function serialize(data: unknown): string {
   return `data:;base64,${v8.serialize(data).toString('base64')}`;
@@ -127,9 +126,15 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   };
 }
 
-export type WithClose<T> = { [k in keyof T]: T[k] & { close(): void } };
+export const close = Symbol('@@rpc.close');
 
-export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
+export const cancel = Symbol('@@rpc.cancel');
+
+export type Exposed<T> = { [k in keyof T]: T[k] & { close(): void } } & {
+  [close]: () => void;
+};
+
+export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
   Object.entries(obj).forEach(([key, val]) => {
     const { close } = expose(
       key,
@@ -148,25 +153,48 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): WithClose<O> {
     );
     (val as any).close = close;
   });
-  return obj as WithClose<O>;
+  Object.defineProperty(obj, close, {
+    enumerable: false,
+    value() {
+      Object.values(obj).forEach((fn) => {
+        fn.close();
+      });
+    }
+  });
+  return obj as Exposed<O>;
 }
 
-export type Caller<Impl, Keys extends keyof Impl = keyof Impl> = Promisified<
-  Pick<Impl, Keys>
->;
+export type Caller<
+  Impl,
+  Keys extends keyof Impl = keyof Impl
+> = CancelableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
 
 export function createCaller<Impl extends {}>(
   methodNames: Extract<keyof Impl, string>[],
   messageBus: RPCMessageBus
 ): Caller<Impl, typeof methodNames[number]> {
   const obj = {};
+  const inflight = new Set<CancelablePromise<unknown>>();
   methodNames.forEach((name) => {
     const c = caller(name as string, getRPCOptions(messageBus));
     (obj as any)[name] = async(...args: unknown[]) => {
-      const result = (await c(...args)) as RPCError | RPCMessage;
+      const promise = c(...args);
+      inflight.add(promise);
+      const result = (await promise) as RPCError | RPCMessage;
+      inflight.delete(promise);
       if (isRPCError(result)) throw deserializeError(result.payload);
       return result.payload;
     };
   });
+  Object.defineProperty(obj, cancel, {
+    enumerable: false,
+    value() {
+      for (const cancelable of inflight) {
+        cancelable.cancel();
+        inflight.delete(cancelable);
+      }
+    }
+  });
   return obj as Caller<Impl, typeof methodNames[number]>;
 }
+

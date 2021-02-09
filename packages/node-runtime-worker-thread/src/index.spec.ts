@@ -11,12 +11,17 @@ function createMockEventEmitter() {
   return (sinon.stub({ on() {}, emit() {} }) as unknown) as MongoshBus;
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 describe('WorkerRuntime', () => {
   let runtime: WorkerRuntime;
 
   afterEach(async() => {
     if (runtime) {
       await runtime.terminate();
+      runtime = null;
     }
   });
 
@@ -29,17 +34,9 @@ describe('WorkerRuntime', () => {
     });
 
     describe('errors', () => {
-      let runtime: WorkerRuntime;
-
-      beforeEach(() => {
-        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
-      });
-
-      afterEach(async() => {
-        await runtime.terminate();
-      });
-
       it("should throw an error if it's thrown during evaluation", async() => {
+        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
         let err: Error;
 
         try {
@@ -57,6 +54,8 @@ describe('WorkerRuntime', () => {
       });
 
       it("should return an error if it's returned from evaluation", async() => {
+        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
         const { printable } = await runtime.evaluate(
           'new SyntaxError("Syntax!")'
         );
@@ -132,6 +131,53 @@ describe('WorkerRuntime', () => {
         db: 'test',
         method: 'getCollectionNames'
       });
+    });
+  });
+
+  describe('terminate', () => {
+    function isRunning(pid: number): boolean {
+      try {
+        process.kill(pid, 0);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // We will be testing a bunch of private props that can be accessed only with
+    // strings to make TS happy
+    /* eslint-disable dot-notation */
+    it('should terminate child process', async() => {
+      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      await runtime.terminate();
+      expect(runtime['childProcess']).to.have.property('killed', true);
+      expect(isRunning(runtime['childProcess'].pid)).to.equal(false);
+    });
+
+    it('should remove all listeners from childProcess', async() => {
+      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      await runtime.terminate();
+      expect(runtime['childProcess'].listenerCount('message')).to.equal(0);
+    });
+    /* eslint-enable dot-notation */
+
+    it('should cancel any in-flight runtime calls', async() => {
+      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      let err: Error;
+      try {
+        await Promise.all([
+          runtime.evaluate('while(true){}'),
+          (async() => {
+            // smol sleep to make sure we actually issued a call
+            await sleep(100);
+            await runtime.terminate();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+      expect(err).to.be.instanceof(Error);
+      expect(err).to.have.property('isCanceled', true);
     });
   });
 });
