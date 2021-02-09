@@ -12,7 +12,10 @@ import {
   ClientEncryptionOptions,
   ClientEncryptionEncryptOptions,
   KMSProviders,
-  ReplPlatform
+  ReplPlatform,
+  AWSEncryptionKeyOptions,
+  AzureEncryptionKeyOptions,
+  GCPEncryptionKeyOptions
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
@@ -113,22 +116,63 @@ export class KeyVault extends ShellApiClass {
     return `KeyVault class for ${redactPassword(this._mongo._uri)}`;
   }
 
-  createKey(kms: ClientEncryptionDataKeyProvider): Promise<Document>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: ClientEncryptionCreateDataKeyProviderOptions): Promise<Document>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: ClientEncryptionCreateDataKeyProviderOptions, ...args: any[]): never
+  createKey(kms: 'local', keyAltNames?: string[]): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, legacyMasterKey: string, keyAltNames?: string[]): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
   @returnsPromise
   createKey(
     kms: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions,
-    ...args: any[]
+    masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
+    keyAltNames?: string[]
   ): Promise<Document> {
     assertArgsDefined(kms);
-    if (args && args.length) {
-      throw new MongoshInvalidInputError(
-        'KeyVault.createKey requires 1 or 2 arguments: KMS provider and the key provider options',
-        CommonErrors.Deprecated
-      );
+
+    if (typeof masterKeyOrAltNames === 'string') {
+      if (kms === 'local' && masterKeyOrAltNames === '') {
+        // allowed in the old shell - even enforced prior to 4.2.3
+        // https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/
+        masterKeyOrAltNames = undefined;
+      } else {
+        throw new MongoshInvalidInputError(
+          'KeyVault.createKey does not support providing masterKey as string anymore. For AWS please use createKey("aws", { region: ..., masterKey: ... })',
+          CommonErrors.Deprecated
+        );
+      }
+    } else if (Array.isArray(masterKeyOrAltNames)) {
+      // old signature - one could immediately provide an array of key alt names
+      // not documented but visible in code: https://github.com/mongodb/mongo/blob/eb2b72cf9c0269f086223d499ac9be8a270d268c/src/mongo/shell/keyvault.js#L19
+      if (kms !== 'local') {
+        throw new MongoshInvalidInputError(
+          'KeyVault.createKey requires masterKey to be given as second argument if KMS is not local',
+          CommonErrors.InvalidArgument
+        );
+      } else {
+        if (keyAltNames) {
+          throw new MongoshInvalidInputError(
+            'KeyVault.createKey was supplied with an array for the masterKey and keyAltNames - either specify keyAltNames as second argument or set undefined for masterKey',
+            CommonErrors.InvalidArgument
+          );
+        }
+
+        keyAltNames = masterKeyOrAltNames;
+        masterKeyOrAltNames = undefined;
+      }
     }
+
+    let options: ClientEncryptionCreateDataKeyProviderOptions | undefined;
+    if (masterKeyOrAltNames) {
+      options = {
+        masterKey: masterKeyOrAltNames as ClientEncryptionCreateDataKeyProviderOptions['masterKey']
+      };
+    }
+    if (keyAltNames) {
+      options = {
+        ...(options ?? {}),
+        keyAltNames
+      };
+    }
+
     return this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 

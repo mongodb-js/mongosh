@@ -1,15 +1,15 @@
-import { CommonErrors } from '@mongosh/errors';
+import { MongoshInvalidInputError } from '@mongosh/errors';
+import { bson, ClientEncryption as FLEClientEncryption, ServiceProvider } from '@mongosh/service-provider-core';
+import { expect } from 'chai';
+import { EventEmitter } from 'events';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import Database from './database';
 import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { KeyVault, ClientEncryption, ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
+import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
-import { expect } from 'chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import { ServiceProvider, bson, ClientEncryption as FLEClientEncryption } from '@mongosh/service-provider-core';
-import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
-import Database from './database';
 import { DeleteResult } from './result';
+import ShellInternalState from './shell-internal-state';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -193,10 +193,7 @@ describe('Field Level Encryption', () => {
         const masterKey = { region: 'us-east-1', key: 'masterkey' };
         const keyAltNames = ['keyaltname'];
         libmongoc.createDataKey.resolves(raw);
-        const result = await keyVault.createKey('aws', {
-          masterKey,
-          keyAltNames
-        });
+        const result = await keyVault.createKey('aws', masterKey, keyAltNames);
         expect(libmongoc.createDataKey).calledOnceWithExactly('aws', { masterKey, keyAltNames });
         expect(result).to.deep.equal(raw);
       });
@@ -205,16 +202,56 @@ describe('Field Level Encryption', () => {
         const keyAltNames = ['keyaltname'];
         const expectedError = new Error();
         libmongoc.createDataKey.rejects(expectedError);
-        const caughtError = await keyVault.createKey('aws', { masterKey, keyAltNames })
+        const caughtError = await keyVault.createKey('aws', masterKey, keyAltNames)
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('fails if it is handed 3 arguments', async() => {
+      it('supports the old local-masterKey combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', '');
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, undefined);
+        expect(result).to.deep.equal(raw);
+      });
+      it('supports the old local-keyAltNames combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        const keyAltNames = ['keyaltname'];
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', keyAltNames);
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
+        expect(result).to.deep.equal(raw);
+      });
+      it('supports the old local-masterKey-keyAltNames combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        const keyAltNames = ['keyaltname'];
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', '', keyAltNames);
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
+        expect(result).to.deep.equal(raw);
+      });
+      it('throws if old AWS style key is created', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
         try {
-          await keyVault.createKey('aws', null, ['oldAltNames']);
+          await keyVault.createKey('aws', 'oldstyle');
         } catch (e) {
-          expect(e.message).to.contain('KeyVault.createKey requires 1 or 2 arguments');
-          expect(e.code).to.equal(CommonErrors.Deprecated);
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('For AWS please use createKey');
+          return;
+        }
+        expect.fail('Expected error');
+      });
+      it('throws if old AWS style key is created with altNames', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('aws', 'oldstyle', ['altname']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('For AWS please use createKey');
           return;
         }
         expect.fail('Expected error');
