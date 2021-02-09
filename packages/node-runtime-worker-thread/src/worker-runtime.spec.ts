@@ -20,9 +20,7 @@ const workerThreadModule = fs.readFile(
   'utf8'
 );
 
-// This set of tests causes flakiness in CI, disabled for now and will be
-// resolved in a separate PR
-describe.skip('worker', () => {
+describe('worker', () => {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
