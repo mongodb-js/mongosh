@@ -232,6 +232,30 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
         expect(result).to.deep.equal(raw);
       });
+      it('throws if alt names are given as second arg for non-local', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('aws' as any, ['altkey']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('requires masterKey to be given as second argument');
+          return;
+        }
+        expect.fail('Expected error');
+      });
+      it('throws if array is given twice', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('local', ['altkey'] as any, ['altkeyx']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('array for the masterKey and keyAltNames');
+          return;
+        }
+        expect.fail('Expected error');
+      });
       it('throws if old AWS style key is created', async() => {
         const raw = { result: 1 };
         libmongoc.createDataKey.resolves(raw);
@@ -378,6 +402,32 @@ describe('Field Level Encryption', () => {
       new Mongo(internalState, 'localhost:27017', localKmsOptions);
       // eslint-disable-next-line no-new
       new Mongo(internalState, 'localhost:27017', localKmsOptions);
+    });
+  });
+  describe('KeyVault constructor', () => {
+    beforeEach(() => {
+      libmongoc = stubInterface<FLEClientEncryption>();
+      sp = stubInterface<ServiceProvider>();
+      sp.getRawClient.returns(RAW_CLIENT);
+      sp.bsonLibrary = bson;
+      sp.fle = {
+        ClientEncryption: function() {
+          return libmongoc;
+        }
+      } as any;
+      sp.initialDb = 'test';
+      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
+      internalState.currentDb = stubInterface<Database>();
+    });
+    it('fails to construct when FLE options are missing on Mongo', () => {
+      mongo = new Mongo(internalState, 'localhost:27017');
+      clientEncryption = new ClientEncryption(mongo);
+      try {
+        void new KeyVault(clientEncryption);
+      } catch (e) {
+        return expect(e.message).to.contain('FLE options must be passed to the Mongo object');
+      }
+      expect.fail('Expected error');
     });
   });
 });
