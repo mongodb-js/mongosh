@@ -370,8 +370,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).flatMap { db ->
             convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, opt).map { countOptions ->
-                @Suppress("DEPRECATION")
-                db.getCollection(collection).count(query, countOptions)
+                db.getCollection(collection).countDocuments(query, countOptions)
             }
         }
     }

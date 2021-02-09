@@ -1,10 +1,14 @@
 package com.mongodb.mongosh.result
 
-import com.mongodb.DBRef
-import com.mongodb.util.JSONSerializers
 import org.apache.commons.text.StringEscapeUtils
+import org.bson.BsonBinary
+import org.bson.BsonTimestamp
 import org.bson.BsonUndefined
+import org.bson.json.JsonMode
+import org.bson.json.JsonWriter
+import org.bson.json.JsonWriterSettings
 import org.bson.types.*
+import java.io.StringWriter
 import java.util.*
 
 
@@ -13,25 +17,24 @@ internal fun String.quote(): String {
 }
 
 internal fun Any?.toLiteral(): String = when (this) {
-    null -> "null"
-    is Map<*, *> -> this.toLiteral()
+    null             -> "null"
+    is Map<*, *>     -> this.toLiteral()
     is Collection<*> -> this.toLiteral()
-    is String -> this.quote()
-    is BsonUndefined -> "undefined"
-    is DBRef,
-    is BSONTimestamp,
-    is Decimal128,
-    is Code,
-    is Binary,
-    is Date,
-    is CodeWithScope,
-    is MinKey,
-    is MaxKey -> {
-        val sb = StringBuilder()
-        JSONSerializers.getStrict().serialize(this, sb)
-        sb.toString()
-    }
-    else -> toString()
+    is String        -> this.quote()
+    is BSONTimestamp -> "{\"\$timestamp\": {\"t\": ${this.time}, \"i\": ${this.inc}}}"
+    is BsonUndefined -> json { it.writeUndefined() }
+    is Decimal128    -> "{\"\$numberDecimal\": \"$this\"}"
+    is Code          -> "{\"\$code\": \"${this.code}\"}"
+    is Binary        -> json { it.writeBinaryData(BsonBinary(this.type, this.data)) }
+    is Date          -> json { it.writeDateTime(this.time) }
+    is CodeWithScope -> json { it.writeJavaScriptWithScope(this.code) }
+    is MinKey        -> "{\"\$minKey\": 1}"
+    is MaxKey        -> "{\"\$maxKey\": 1}"
+    else             -> toString()
+}
+
+private fun json(w: (JsonWriter) -> Unit): String {
+    return JsonWriter(StringWriter(), JsonWriterSettings.builder().outputMode(JsonMode.EXTENDED).build()).also { w(it) }.writer.toString()
 }
 
 internal fun Collection<*>.toLiteral(): String = when {
