@@ -15,6 +15,7 @@ import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 import { MongoshBus } from '@mongosh/types';
+import { Lock } from './lock';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -22,6 +23,8 @@ if (!parentPort || isMainThread) {
 
 let runtime: Runtime | null = null;
 let provider: ServiceProvider | null = null;
+
+const evaluationLock = new Lock();
 
 function ensureRuntime(methodName: string): Runtime {
   if (!runtime) {
@@ -71,9 +74,21 @@ const workerRuntime: WorkerRuntime = {
   },
 
   async evaluate(code) {
-    return serializeEvaluationResult(
+    if (evaluationLock.isLocked()) {
+      throw new Error(
+        "Can't run another evaluation while the previous is not finished"
+      );
+    }
+
+    evaluationLock.lock();
+
+    const result = serializeEvaluationResult(
       await ensureRuntime('evaluate').evaluate(code)
     );
+
+    evaluationLock.unlock();
+
+    return result;
   },
 
   async getCompletions(code) {

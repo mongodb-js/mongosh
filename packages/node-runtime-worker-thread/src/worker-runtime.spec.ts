@@ -22,7 +22,7 @@ const workerThreadModule = fs.readFile(
 
 // This set of tests causes flakiness in CI, disabled for now and will be
 // resolved in a separate PR
-describe.skip('worker', () => {
+describe('worker', () => {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
@@ -378,6 +378,29 @@ describe.skip('worker', () => {
         expect(printable)
           .to.have.property('stack')
           .matches(/SyntaxError: Syntax!/);
+      });
+
+      it('should throw when trying to run two evaluations concurrently', async() => {
+        const { init, evaluate } = caller;
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            evaluate('sleep(50); 1+1'),
+            evaluate('sleep(50); 1+1')
+          ]);
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(
+            /Can\'t run another evaluation while the previous is not finished/
+          );
       });
     });
   });
