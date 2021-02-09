@@ -25,16 +25,15 @@ export async function runDraft(
     return;
   }
 
-  const packageName = config.packageInformation?.metadata.name;
-  if (!packageName) {
-    throw new Error('Missing package name from config.packageInformation.metadata');
+  if (!config.packageInformation) {
+    throw new Error('Missing package information from config');
   }
 
   const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `draft-${Date.now()}`);
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_BUILD_VARIANTS) {
-    const tarballFile = getTarballFile(variant, config.triggeringGitTag, packageName);
+    const tarballFile = getTarballFile(variant, config.packageInformation.metadata.version, config.packageInformation.metadata.name);
     console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
 
     const downloadedArtifact = await downloadArtifactFromEvergreen(

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
 import * as path from 'path';
+import { SinonStub } from 'sinon';
 import sinon from 'ts-sinon';
 import { GithubRepo } from './github-repo';
 
@@ -12,6 +13,17 @@ function getTestGithubRepo(octokitStub: any = {}): GithubRepo {
   };
 
   return new GithubRepo(repo, octokitStub);
+}
+
+class ExistsError extends Error {
+  status = 422;
+  errors = [
+    { code: 'already_exists' }
+  ];
+  constructor() {
+    super();
+    this.name = 'HttpError';
+  }
 }
 
 describe('GithubRepo', () => {
@@ -79,6 +91,154 @@ describe('GithubRepo', () => {
       expect(
         await githubRepo.getMostRecentDraftTagForRelease('0.1.3')
       ).to.deep.equal({ name: 'v0.1.3-draft.0', sha: 'sha-6' });
+    });
+  });
+
+  describe('createDraftRelease', () => {
+    let createRelease: SinonStub;
+    beforeEach(() => {
+      createRelease = sinon.stub();
+      createRelease.resolves();
+      githubRepo = getTestGithubRepo({
+        repos: {
+          createRelease
+        }
+      });
+    });
+
+    it('creates a release', async() => {
+      const params = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: 'notes'
+      };
+      await githubRepo.createDraftRelease(params);
+      expect(createRelease).to.have.been.calledWith({
+        owner: 'mongodb-js',
+        repo: 'mongosh',
+        name: params.name,
+        tag_name: params.tag,
+        body: params.notes,
+        draft: true
+      });
+    });
+
+    it('fails on error', async() => {
+      const params = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: 'notes'
+      };
+      const expectedError = new Error();
+      createRelease.rejects(expectedError);
+      try {
+        await githubRepo.createDraftRelease(params);
+      } catch (e) {
+        return expect(e).to.equal(expectedError);
+      }
+      expect.fail('Expected error');
+    });
+
+    it('ignores already exists error', async() => {
+      const params = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: 'notes'
+      };
+      createRelease.rejects(new ExistsError());
+      await githubRepo.createDraftRelease(params);
+      expect(createRelease).to.have.been.calledWith({
+        owner: 'mongodb-js',
+        repo: 'mongosh',
+        name: params.name,
+        tag_name: params.tag,
+        body: params.notes,
+        draft: true
+      });
+    });
+  });
+
+  describe('uploadReleaseAsset', () => {
+    let octoRequest: SinonStub;
+    let getReleaseByTag: SinonStub;
+    beforeEach(() => {
+      octoRequest = sinon.stub();
+      octoRequest.resolves();
+      getReleaseByTag = sinon.stub();
+      getReleaseByTag.rejects();
+      githubRepo = getTestGithubRepo({
+        request: octoRequest
+      });
+      githubRepo.getReleaseByTag = getReleaseByTag;
+    });
+
+    it('uploads an asset', async() => {
+      const release = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: ''
+      };
+      getReleaseByTag.resolves({
+        upload_url: 'url'
+      });
+
+      await githubRepo.uploadReleaseAsset(release, {
+        path: __filename,
+        contentType: 'xyz'
+      });
+      expect(octoRequest).to.have.been.calledWith({
+        method: 'POST',
+        url: 'url',
+        headers: {
+          'content-type': 'xyz'
+        },
+        name: path.basename(__filename),
+        data: await fs.readFile(__filename)
+      });
+    });
+
+    it('fails if no release can be found', async() => {
+      const release = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: ''
+      };
+      getReleaseByTag.resolves(undefined);
+      try {
+        await githubRepo.uploadReleaseAsset(release, {
+          path: 'path',
+          contentType: 'xyz'
+        });
+      } catch (e) {
+        return expect(e.message).to.contain('Could not look up release for tag');
+      }
+      expect.fail('Expected error');
+    });
+
+    it('ignores already exists error', async() => {
+      const release = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: ''
+      };
+      getReleaseByTag.resolves({
+        upload_url: 'url'
+      });
+      octoRequest.rejects(new ExistsError());
+
+      await githubRepo.uploadReleaseAsset(release, {
+        path: __filename,
+        contentType: 'xyz'
+      });
+      expect(octoRequest).to.have.been.calledWith({
+        method: 'POST',
+        url: 'url',
+        headers: {
+          'content-type': 'xyz'
+        },
+        name: path.basename(__filename),
+        data: await fs.readFile(__filename)
+      });
     });
   });
 
@@ -167,6 +327,25 @@ describe('GithubRepo', () => {
         await githubRepo.promoteRelease({ version: '0.0.6' } as any);
 
         expect(octokit.repos.updateRelease).not.to.have.been.called;
+      });
+    });
+
+    describe('when release does not exist', () => {
+      let getReleaseByTag: SinonStub;
+      beforeEach(() => {
+        getReleaseByTag = sinon.stub();
+        githubRepo = getTestGithubRepo();
+        githubRepo.getReleaseByTag = getReleaseByTag;
+      });
+
+      it('fails if no release can be found', async() => {
+        getReleaseByTag.resolves(undefined);
+        try {
+          await githubRepo.promoteRelease({ version: '0.8.0' } as any);
+        } catch (e) {
+          return expect(e.message).to.contain('Release for v0.8.0 not found');
+        }
+        expect.fail('Expected error');
       });
     });
   });
