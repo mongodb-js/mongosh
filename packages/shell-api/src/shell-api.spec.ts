@@ -502,19 +502,22 @@ describe('ShellApi', () => {
         expect((await toShellResult(internalState.context.DBQuery)).printable).to.contain('deprecated');
       });
     });
-    describe('exit', () => {
-      it('instructs the shell to exit', async() => {
-        evaluationListener.onExit.resolves();
-        try {
-          await internalState.context.exit();
-          expect.fail('missed exception');
-        } catch (e) {
-          // We should be getting an exception because we’re not actually exiting.
-          expect(e.message).to.contain('exit not supported for current platform');
-        }
-        expect(evaluationListener.onExit).to.have.been.calledWith();
+    for (const cmd of ['exit', 'quit']) {
+      // eslint-disable-next-line no-loop-func
+      describe(cmd, () => {
+        it('instructs the shell to exit', async() => {
+          evaluationListener.onExit.resolves();
+          try {
+            await internalState.context[cmd]();
+            expect.fail('missed exception');
+          } catch (e) {
+            // We should be getting an exception because we’re not actually exiting.
+            expect(e.message).to.contain('exit not supported for current platform');
+          }
+          expect(evaluationListener.onExit).to.have.been.calledWith();
+        });
       });
-    });
+    }
     describe('enableTelemetry', () => {
       it('calls .toggleTelemetry() with true', () => {
         internalState.context.enableTelemetry();
@@ -559,5 +562,18 @@ describe('ShellApi', () => {
         expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
+    for (const cmd of ['print', 'printjson']) {
+      // eslint-disable-next-line no-loop-func
+      describe(cmd, () => {
+        it('prints values', async() => {
+          evaluationListener.onPrint.resolves();
+          await internalState.context[cmd](1, 2);
+          expect(evaluationListener.onPrint).to.have.been.calledWith([
+            { printable: 1, rawValue: 1, type: null },
+            { printable: 2, rawValue: 2, type: null }
+          ]);
+        });
+      });
+    }
   });
 });
