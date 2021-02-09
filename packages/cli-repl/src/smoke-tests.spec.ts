@@ -1,10 +1,9 @@
 import { runSmokeTests } from './';
 import path from 'path';
-import { startTestServer, ensureMongodAvailable, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { startTestServer, ensureMongodAvailable } from '../../../testing/integration-testing-hooks';
 
 describe('smoke tests', () => {
   const testServer = startTestServer('shared');
-  skipIfServerVersion(testServer, '< 4.2');
 
   let pathBefore;
   before(async() => {

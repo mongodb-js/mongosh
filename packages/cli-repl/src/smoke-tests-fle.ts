@@ -20,6 +20,11 @@ try {
 } catch(err) {
   console.log(err);
 }
+if (db.version().startsWith('4.0.')) {
+  // No FLE on mongod < 4.2
+  print('Test skipped')
+  process.exit(0)
+}
 
 const dbname = 'testdb_fle' + new Date().getTime();
 use(dbname);
