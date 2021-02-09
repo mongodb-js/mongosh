@@ -8,11 +8,11 @@ import type {
   ClientMessageData
 } from 'postmsg-rpc';
 
-function serialize(data: unknown): string {
+export function serialize(data: unknown): string {
   return `data:;base64,${v8.serialize(data).toString('base64')}`;
 }
 
-function deserialize<T = unknown>(str: string): T | string {
+export function deserialize<T = unknown>(str: string): T | string {
   if (/^data:;base64,.+/.test(str)) {
     return v8.deserialize(
       Buffer.from(str.replace('data:;base64,', ''), 'base64')
@@ -59,7 +59,7 @@ function isClientMessageData(data: any): data is ClientMessageData {
   return isMessageData(data) && data.sender === 'postmsg-rpc/client';
 }
 
-function removeTrailingUndefined(arr: unknown[]): unknown[] {
+export function removeTrailingUndefined(arr: unknown[]): unknown[] {
   if (Array.isArray(arr)) {
     arr = [...arr];
     while (arr.length > 0 && arr[arr.length - 1] === undefined) {
