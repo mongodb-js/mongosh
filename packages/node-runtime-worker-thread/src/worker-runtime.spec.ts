@@ -411,12 +411,22 @@ describe('worker', () => {
   });
 
   describe('evaluationListener', () => {
+    const spySandbox = sinon.createSandbox();
+
     const createSpiedEvaluationListener = () => {
-      return {
-        onPrint: sinon.spy(),
-        onPrompt: sinon.spy(() => '123'),
-        toggleTelemetry: sinon.spy()
+      const evalListener = {
+        onPrint() {},
+        toggleTelemetry() {},
+        onPrompt() {
+          return '123';
+        }
       };
+
+      spySandbox.spy(evalListener, 'onPrint');
+      spySandbox.spy(evalListener, 'onPrompt');
+      spySandbox.spy(evalListener, 'toggleTelemetry');
+
+      return evalListener;
     };
 
     let exposed: Exposed<unknown>;
@@ -426,6 +436,8 @@ describe('worker', () => {
         exposed[close]();
         exposed = null;
       }
+
+      spySandbox.restore();
     });
 
     describe('onPrint', () => {
