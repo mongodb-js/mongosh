@@ -141,7 +141,7 @@ export class CompassShell extends Component {
           }}
           id="content"
           minHeight={defaultShellHeightClosed}
-          maxHeight={800}
+          maxHeight="95vh"
           enable={{
             ...resizeableDirections,
             top: isExpanded
