@@ -27,7 +27,7 @@
     "posttest": "npm run clear-mlaunch",
     "posttest-ci": "npm run clear-mlaunch -- --killAllMongod",
     "posttest-e2e-ci": "npm run clear-mlaunch -- --killAllMongod",
-    "test": "rimraf .nyc_output && lerna exec --scope @mongosh/shell-api -- nyc --no-clean --cwd ../.. --reporter=none npm run test && npm run report-coverage",
+    "test": "rimraf .nyc_output && lerna exec -- nyc --no-clean --cwd ../.. --reporter=none npm run test && npm run report-coverage",
     "test-ci": "rimraf .nyc_output && lerna exec -- nyc --no-clean --cwd ../.. --reporter=none npm run test-ci && npm run report-coverage",
     "test-ci-nocoverage": "lerna exec -- npm run test-ci",
     "test-e2e": "lerna run --stream test-e2e",
