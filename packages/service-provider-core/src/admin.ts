@@ -13,6 +13,7 @@ import type {
 } from './all-transport-types';
 import type { bson as BSON } from './index';
 import { ReplPlatform } from './platform';
+import { FLE } from './all-fle-types';
 
 
 export default interface Admin {
@@ -105,5 +106,8 @@ export default interface Admin {
    */
   getRawClient(): any;
 
-  fle: any; // TODO: NODE-2989 Types for libmongoc
+  /**
+   * The FLE implementation for access to the client-side encryption API.
+   */
+  fle?: FLE | undefined;
 }

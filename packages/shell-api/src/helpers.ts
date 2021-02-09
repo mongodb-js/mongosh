@@ -1,10 +1,4 @@
 /* eslint complexity: 0, no-use-before-define: 0 */
-/**
- * Helper method to adapt aggregation pipeline options.
- * This is here so that it's not visible to the user.
- *
- * @param options
- */
 import type {
   DbOptions,
   Document,
@@ -14,7 +8,8 @@ import type {
   FindAndModifyOptions,
   DeleteOptions,
   MapReduceOptions,
-  ChangeStream
+  ChangeStream,
+  KMSProviders
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import crypto from 'crypto';
@@ -22,10 +17,17 @@ import type Database from './database';
 import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import { ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { BinaryType, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
 
+
+/**
+ * Helper method to adapt aggregation pipeline options.
+ * This is here so that it's not visible to the user.
+ *
+ * @param options
+ */
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
   dbOptions: DbOptions;
@@ -618,29 +620,30 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
-  const autoEncryption = {
+  const autoEncryption: AutoEncryptionOptions = {
     keyVaultClient: fleOptions.keyVaultClient ?
       fleOptions.keyVaultClient._serviceProvider.getRawClient() :
       serviceProvider.getRawClient(),
-    keyVaultNamespace: fleOptions.keyVaultNamespace,
-    kmsProviders: { ...fleOptions.kmsProvider },
-  } as any;
+    keyVaultNamespace: fleOptions.keyVaultNamespace
+  };
 
-  if ('local' in autoEncryption.kmsProviders) {
-    if (autoEncryption.kmsProviders.local.key._bsontype !== 'Binary') {
-      throw new MongoshInvalidInputError('The key attribute of the local kms provider must be a BSON BinData or Binary type');
-    }
-    const rawBuff = autoEncryption.kmsProviders.local.key.value(true);
+  const localKey = fleOptions.kmsProvider.local?.key;
+  if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
+    const rawBuff = (localKey as BinaryType).value(true);
     if (Buffer.isBuffer(rawBuff)) {
-      autoEncryption.kmsProviders.local = {
-        ...autoEncryption.kmsProviders.local,
-        key: rawBuff
+      autoEncryption.kmsProviders = {
+        ...fleOptions.kmsProvider,
+        local: {
+          key: rawBuff
+        }
       };
     } else {
-      // Future TODO: allow binary types that are not from a string
-      throw new MongoshInvalidInputError('key field of local kmsProvider must be a BinData type created from a base64 encoded string');
+      throw new MongoshInvalidInputError('When specifying the key of a local KMS as BSON binary it must be constructed from a base64 encoded string');
     }
+  } else {
+    autoEncryption.kmsProviders = { ...fleOptions.kmsProvider } as KMSProviders;
   }
+
   if (fleOptions.schemaMap) {
     autoEncryption.schemaMap = fleOptions.schemaMap;
   }

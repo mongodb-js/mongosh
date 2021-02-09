@@ -1,14 +1,15 @@
+import { MongoshInvalidInputError } from '@mongosh/errors';
+import { bson, ClientEncryption as FLEClientEncryption, ServiceProvider } from '@mongosh/service-provider-core';
+import { expect } from 'chai';
+import { EventEmitter } from 'events';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import Database from './database';
 import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { KeyVault, ClientEncryption } from './field-level-encryption';
+import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
-import { expect } from 'chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import { ServiceProvider, bson, BinaryType } from '@mongosh/service-provider-core';
-import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
-import Database from './database';
 import { DeleteResult } from './result';
+import ShellInternalState from './shell-internal-state';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -41,29 +42,24 @@ const AWS_KMS = {
 
 const ALGO = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
 
-// TODO: see NODE-2989
-interface lmc {
-  encrypt(value: any, options: { keyId: BinaryType, keyAltName: string, algorithm: string }): Promise<void>;
-  decrypt(): Promise<any>;
-  createDataKey(): Promise<any>;
-}
-
 const RAW_CLIENT = { client: 1 } as any;
 
 describe('Field Level Encryption', () => {
   let sp: StubbedInstance<ServiceProvider>;
   let mongo: Mongo;
   let internalState: ShellInternalState;
-  let libmongoc: StubbedInstance<lmc>;
+  let libmongoc: StubbedInstance<FLEClientEncryption>;
   let clientEncryption: ClientEncryption;
   let keyVault: KeyVault;
   let clientEncryptionSpy;
   describe('Metadata', () => {
     before(() => {
-      libmongoc = stubInterface<lmc>();
+      libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.bsonLibrary = bson;
-      sp.fle = { ClientEncryption: function() { return libmongoc; } };
+      sp.fle = {
+        ClientEncryption: function() { return libmongoc; }
+      } as any;
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
@@ -119,7 +115,7 @@ describe('Field Level Encryption', () => {
   describe('commands', () => {
     beforeEach(() => {
       clientEncryptionSpy = sinon.spy();
-      libmongoc = stubInterface<lmc>();
+      libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.getRawClient.returns(RAW_CLIENT);
       sp.bsonLibrary = bson;
@@ -128,7 +124,7 @@ describe('Field Level Encryption', () => {
           clientEncryptionSpy(...args);
           return libmongoc;
         }
-      };
+      } as any;
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
@@ -189,28 +185,100 @@ describe('Field Level Encryption', () => {
         const kms = 'local';
         libmongoc.createDataKey.resolves(raw);
         const result = await keyVault.createKey('local');
-        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey: undefined });
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, undefined);
         expect(result).to.deep.equal(raw);
       });
       it('calls createDataKey on libmongoc with doc key', async() => {
         const raw = { result: 1 };
-        const kms = AWS_KMS.kmsProvider;
         const masterKey = { region: 'us-east-1', key: 'masterkey' };
-        const keyaltname = ['keyaltname'];
+        const keyAltNames = ['keyaltname'];
         libmongoc.createDataKey.resolves(raw);
-        const result = await keyVault.createKey(kms, masterKey, keyaltname);
-        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { masterKey, keyAltNames: keyaltname });
+        const result = await keyVault.createKey('aws', masterKey, keyAltNames);
+        expect(libmongoc.createDataKey).calledOnceWithExactly('aws', { masterKey, keyAltNames });
         expect(result).to.deep.equal(raw);
       });
       it('throw if failed', async() => {
-        const kms = AWS_KMS.kmsProvider;
         const masterKey = { region: 'us-east-1', key: 'masterkey' };
-        const keyaltname = ['keyaltname'];
+        const keyAltNames = ['keyaltname'];
         const expectedError = new Error();
         libmongoc.createDataKey.rejects(expectedError);
-        const caughtError = await keyVault.createKey(kms, masterKey, keyaltname)
+        const caughtError = await keyVault.createKey('aws', masterKey, keyAltNames)
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+      it('supports the old local-masterKey combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', '');
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, undefined);
+        expect(result).to.deep.equal(raw);
+      });
+      it('supports the old local-keyAltNames combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        const keyAltNames = ['keyaltname'];
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', keyAltNames);
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
+        expect(result).to.deep.equal(raw);
+      });
+      it('supports the old local-masterKey-keyAltNames combination', async() => {
+        const raw = { result: 1 };
+        const kms = 'local';
+        const keyAltNames = ['keyaltname'];
+        libmongoc.createDataKey.resolves(raw);
+        const result = await keyVault.createKey('local', '', keyAltNames);
+        expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
+        expect(result).to.deep.equal(raw);
+      });
+      it('throws if alt names are given as second arg for non-local', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('aws' as any, ['altkey']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('requires masterKey to be given as second argument');
+          return;
+        }
+        expect.fail('Expected error');
+      });
+      it('throws if array is given twice', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('local', ['altkey'] as any, ['altkeyx']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('array for the masterKey and keyAltNames');
+          return;
+        }
+        expect.fail('Expected error');
+      });
+      it('throws if old AWS style key is created', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('aws', 'oldstyle');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('For AWS please use createKey');
+          return;
+        }
+        expect.fail('Expected error');
+      });
+      it('throws if old AWS style key is created with altNames', async() => {
+        const raw = { result: 1 };
+        libmongoc.createDataKey.resolves(raw);
+        try {
+          await keyVault.createKey('aws', 'oldstyle', ['altname']);
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('For AWS please use createKey');
+          return;
+        }
+        expect.fail('Expected error');
       });
     });
     describe('getKey', () => {
@@ -311,16 +379,16 @@ describe('Field Level Encryption', () => {
   });
   describe('Mongo constructor FLE options', () => {
     before(() => {
-      libmongoc = stubInterface<lmc>();
+      libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.bsonLibrary = bson;
-      sp.fle = { ClientEncryption: function() { return libmongoc; } };
+      sp.fle = { ClientEncryption: function() { return libmongoc; } } as any;
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
     });
     it('accepts the same local key twice', () => {
-      const localKmsOptions = {
+      const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProvider: {
           local: {
@@ -334,6 +402,32 @@ describe('Field Level Encryption', () => {
       new Mongo(internalState, 'localhost:27017', localKmsOptions);
       // eslint-disable-next-line no-new
       new Mongo(internalState, 'localhost:27017', localKmsOptions);
+    });
+  });
+  describe('KeyVault constructor', () => {
+    beforeEach(() => {
+      libmongoc = stubInterface<FLEClientEncryption>();
+      sp = stubInterface<ServiceProvider>();
+      sp.getRawClient.returns(RAW_CLIENT);
+      sp.bsonLibrary = bson;
+      sp.fle = {
+        ClientEncryption: function() {
+          return libmongoc;
+        }
+      } as any;
+      sp.initialDb = 'test';
+      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
+      internalState.currentDb = stubInterface<Database>();
+    });
+    it('fails to construct when FLE options are missing on Mongo', () => {
+      mongo = new Mongo(internalState, 'localhost:27017');
+      clientEncryption = new ClientEncryption(mongo);
+      try {
+        void new KeyVault(clientEncryption);
+      } catch (e) {
+        return expect(e.message).to.contain('FLE options must be passed to the Mongo object');
+      }
+      expect.fail('Expected error');
     });
   });
 });
