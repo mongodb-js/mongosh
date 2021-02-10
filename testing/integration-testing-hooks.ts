@@ -195,6 +195,7 @@ export class MongodSetup {
   _connectionString: Promise<string>;
   _setConnectionString: (connectionString: string) => void;
   _serverVersion: string | null = null;
+  _bindir = '';
 
   constructor(connectionString?: string) {
     this._setConnectionString = (connectionString: string) => {};  // Make TypeScript happy.
@@ -250,6 +251,10 @@ export class MongodSetup {
       }
     }
   }
+
+  get bindir(): string {
+    return this._bindir;
+  }
 }
 
 // Spawn mlaunch with a specific set of arguments.
@@ -302,6 +307,7 @@ class MlaunchSetup extends MongodSetup {
     const binarypath = await ensureMongodAvailable();
     if (binarypath) {
       args.unshift('--binarypath', binarypath);
+      this._bindir = binarypath;
     }
 
     if (await statIfExists(this._mlaunchdir)) {
@@ -439,6 +445,29 @@ function skipIfVersion(test: any, testServerVersion: string, semverCondition: st
 export function skipIfServerVersion(server: MongodSetup, semverCondition: string): void {
   before(async function() {
     skipIfVersion(this, await server.serverVersion(), semverCondition);
+  });
+}
+
+/**
+ * Add the server tarball's bin/ directrory to the PATH for this section.
+ * This enables using e.g. mongocryptd if available.
+ *
+ * describe('...', () => {
+ *   useBinaryPath(testServer)
+ * });
+ */
+export function useBinaryPath(server: MongodSetup): void {
+  let pathBefore: string;
+  before(async() => {
+    await server.start();
+    pathBefore = process.env.PATH ?? '';
+    const extraPath = server.bindir;
+    if (extraPath !== null) {
+      process.env.PATH += path.delimiter + extraPath;
+    }
+  });
+  after(() => {
+    process.env.PATH = pathBefore;
   });
 }
 
