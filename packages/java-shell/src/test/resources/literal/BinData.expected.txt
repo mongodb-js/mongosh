@@ -1,3 +1,3 @@
-BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 16}
-BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 16}
-BinaryResult: { "$binary" : "MTIzNA==" , "$type" : 4}
+BinaryResult: {"$binary": {"base64": "MTIzNA==", "subType": "10"}}
+BinaryResult: {"$binary": {"base64": "MTIzNA==", "subType": "10"}}
+BinaryResult: {"$binary": {"base64": "MTIzNA==", "subType": "04"}}

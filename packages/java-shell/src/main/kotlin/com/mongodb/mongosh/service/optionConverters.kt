@@ -466,8 +466,8 @@ internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOpt
         typed("capped", Boolean::class.java) { opt, value ->
             opt.capped(value)
         },
-        typed("autoIndexId", Boolean::class.java) { opt, value ->
-            opt.autoIndex(value)
+        typed("autoIndexId", Boolean::class.java) { _, _ ->
+            throw IllegalArgumentException("autoIndexId was deprecated and removed")
         },
         typed("size", Number::class.java) { opt, value ->
             opt.sizeInBytes(value.toLong())
