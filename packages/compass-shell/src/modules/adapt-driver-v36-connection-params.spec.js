@@ -109,4 +109,9 @@ describe('adaptDriverV36ConnectionParams', () => {
     expect(uri).to.equal(LOCALHOST);
     expect(options.authMechanismProperties.gssapiServiceName).to.equal('some-name');
   });
+
+  it("doesn't add authMechanismProperties if not present", () => {
+    const [, options] = adaptDriverV36ConnectionParams(LOCALHOST, {});
+    expect(options).to.not.have.property('authMechanismProperties');
+  });
 });

@@ -57,16 +57,15 @@ function extractGssapiServiceName(oldDriverUrl, newDriverOptions) {
   const uri = new ConnectionString(oldDriverUrl);
 
   const gssapiServiceName = uri.searchParams.get('gssapiServiceName');
+
   uri.searchParams.delete('gssapiServiceName');
 
-  return [
-    uri.toString(),
-    {
-      ...newDriverOptions,
-      authMechanismProperties: {
-        ...newDriverOptions.authMechanismProperties,
-        gssapiServiceName
-      }
-    }
-  ];
+  if (gssapiServiceName) {
+    newDriverOptions.authMechanismProperties = {
+      ...newDriverOptions.authMechanismProperties,
+      gssapiServiceName,
+    };
+  }
+
+  return [uri.toString(), newDriverOptions];
 }
