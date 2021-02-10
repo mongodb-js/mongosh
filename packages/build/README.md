@@ -135,17 +135,6 @@ await runCompile(
   config.segmentKey
 );
 ```
-#### createDownloadCenterConfig()
-Output Download Centre config json given a particular version. This json is sent
-over to Mongodb Downloads Centre to notify of updated package versions.
-
-__version:__ version of the current package to update.
-
-```js
-const createDownloadCenterConfig = require('@mongosh/build').createDownloadCenterConfig;
-
-const downloadCentreConfig = createDownloadCenterConfig('1.3.2')
-```
 
 
 #### await createTarball(input, outputDir, buildVariant, version, rootDir)

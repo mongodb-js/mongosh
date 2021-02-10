@@ -4,19 +4,18 @@ import path from 'path';
 import writeAnalyticsConfig from './analytics';
 import { Barque } from './barque';
 import Config from './config';
-import uploadDownloadCenterConfig from './download-center';
-import { runCompile } from './run-compile';
-import { runDraft } from './run-draft';
+import { createAndPublishDownloadCenterConfig, uploadArtifactToDownloadCenter } from './download-center';
 import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './evergreen';
 import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
 import { redactConfig } from './redact-config';
+import { runCompile } from './run-compile';
+import { runDraft } from './run-draft';
 import { runPackage } from './run-package';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
-import { uploadToDownloadCenter } from './upload-to-download-center';
 
 /**
  * Run release specific commands.
@@ -75,7 +74,7 @@ export default async function release(
     await runDraft(
       config,
       githubRepo,
-      uploadToDownloadCenter,
+      uploadArtifactToDownloadCenter,
       downloadArtifactFromEvergreen
     );
   } else if (command === 'publish') {
@@ -85,7 +84,7 @@ export default async function release(
       githubRepo,
       mongoHomebrewRepo,
       barque,
-      uploadDownloadCenterConfig,
+      createAndPublishDownloadCenterConfig,
       publishNpmPackages,
       writeAnalyticsConfig,
       publishToHomebrew
