@@ -86,7 +86,8 @@ class WorkerRuntime implements Runtime {
         'evaluate',
         'getCompletions',
         'setEvaluationListener',
-        'getShellPrompt'
+        'getShellPrompt',
+        'interrupt'
       ],
       this.childProcess
     );
@@ -133,6 +134,15 @@ class WorkerRuntime implements Runtime {
     this.childProcessRuntime[cancel]();
     this.childProcessEvaluationListener.terminate();
     this.childProcessMongoshBus.terminate();
+  }
+
+  async interrupt() {
+    await this.initWorkerPromise;
+    return this.childProcessRuntime.interrupt();
+  }
+
+  async waitForRuntimeToBeReady() {
+    await this.initWorkerPromise;
   }
 }
 

@@ -48,7 +48,7 @@ const workerReadyPromise = new Promise(async(resolve) => {
 });
 
 const worker = createCaller(
-  ['init', 'evaluate', 'getCompletions', 'getShellPrompt'],
+  ['init', 'evaluate', 'getCompletions', 'getShellPrompt', 'interrupt'],
   workerProcess
 );
 

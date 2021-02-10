@@ -180,4 +180,31 @@ describe('WorkerRuntime', () => {
       expect(err).to.have.property('isCanceled', true);
     });
   });
+
+  describe('interrupt', () => {
+    it('should interrupt in-flight async tasks', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          runtime.evaluate('sleep(100000)'),
+          (async() => {
+            await sleep(10);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Async script execution was interrupted/);
+    });
+  });
 });
