@@ -455,8 +455,41 @@ internal val indexModelConverters: Map<String, (IndexModel, Any?) -> Either<Inde
         typed("expireAfterSeconds", Number::class.java) { model, value ->
             IndexModel(model.keys, model.options.expireAfter(value.toLong(), TimeUnit.SECONDS))
         },
+        typed("hidden", Boolean::class.java) { model, value ->
+            IndexModel(model.keys, model.options.hidden(value))
+        },
         typed("storageEngine", Map::class.java) { model, value ->
             IndexModel(model.keys, model.options.storageEngine(value as Document))
+        },
+        typed("weights", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.weights(value as Document))
+        },
+        typed("default_language", String::class.java) { model, value ->
+            IndexModel(model.keys, model.options.defaultLanguage(value))
+        },
+        typed("language_override", String::class.java) { model, value ->
+            IndexModel(model.keys, model.options.languageOverride(value))
+        },
+        typed("textIndexVersion", Int::class.java) { model, value ->
+            IndexModel(model.keys, model.options.textVersion(value))
+        },
+        typed("2dsphereIndexVersion", Int::class.java) { model, value ->
+            IndexModel(model.keys, model.options.sphereVersion(value))
+        },
+        typed("bits", Int::class.java) { model, value ->
+            IndexModel(model.keys, model.options.bits(value))
+        },
+        typed("min", Double::class.java) { model, value ->
+            IndexModel(model.keys, model.options.min(value))
+        },
+        typed("max", Double::class.java) { model, value ->
+            IndexModel(model.keys, model.options.max(value))
+        },
+        typed("bucketSize", Double::class.java) { model, value ->
+            IndexModel(model.keys, model.options.bucketSize(value))
+        },
+        typed("wildcardProjection", Map::class.java) { model, value ->
+            IndexModel(model.keys, model.options.wildcardProjection(value as Document))
         }
 )
 
