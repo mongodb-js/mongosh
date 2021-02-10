@@ -39,7 +39,7 @@ export interface ClientSideFieldLevelEncryptionOptions {
   kmsProvider: ClientSideFieldLevelEncryptionKmsProvider,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
-  bypassAutoEncryptionFully?: boolean;
+  explicitEncryptionOnly?: boolean;
 }
 
 @shellApiClassDefault

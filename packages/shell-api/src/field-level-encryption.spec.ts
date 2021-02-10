@@ -406,6 +406,24 @@ describe('Field Level Encryption', () => {
       // eslint-disable-next-line no-new
       new Mongo(internalState, 'localhost:27017', localKmsOptions);
     });
+    it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
+      const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
+        keyVaultNamespace: `${DB}.${COLL}`,
+        kmsProvider: {
+          local: {
+            key: new bson.Binary(Buffer.alloc(96).toString('base64'))
+          }
+        },
+        schemaMap: SCHEMA_MAP,
+        explicitEncryptionOnly: true
+      };
+      try {
+        void new Mongo(internalState, 'localhost:27017', localKmsOptions);
+      } catch (e) {
+        return expect(e.message).to.contain('explicitEncryptionOnly and schemaMap are mutually exclusive');
+      }
+      expect.fail('Expected error');
+    });
   });
   describe('KeyVault constructor', () => {
     beforeEach(() => {
@@ -505,7 +523,7 @@ srDVjIT3LsvTqw==`
         const mongo = new Mongo(internalState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
           kmsProvider: { [kmsName]: kms[kmsName] } as any,
-          bypassAutoEncryptionFully: true
+          explicitEncryptionOnly: true
         });
         await mongo.connect();
         internalState.mongos.push(mongo);
