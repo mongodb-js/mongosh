@@ -56,6 +56,8 @@ export type WorkerRuntime = Runtime & {
     driverOptions?: MongoClientOptions,
     cliOptions?: { nodb?: boolean }
   ): Promise<void>;
+
+  interrupt(): boolean;
 };
 
 const workerRuntime: WorkerRuntime = {
@@ -80,15 +82,20 @@ const workerRuntime: WorkerRuntime = {
       );
     }
 
-    evaluationLock.lock();
+    try {
+      const result = await Promise.race([
+        ensureRuntime('evaluate').evaluate(code),
+        evaluationLock.lock()
+      ]);
 
-    const result = serializeEvaluationResult(
-      await ensureRuntime('evaluate').evaluate(code)
-    );
+      if (evaluationLock.isUnlockToken(result)) {
+        throw new Error('Async script execution was interrupted');
+      }
 
-    evaluationLock.unlock();
-
-    return result;
+      return serializeEvaluationResult(result);
+    } finally {
+      evaluationLock.unlock();
+    }
   },
 
   async getCompletions(code) {
@@ -103,6 +110,10 @@ const workerRuntime: WorkerRuntime = {
     throw new Error(
       'Evaluation listener can not be directly set on the worker runtime'
     );
+  },
+
+  interrupt() {
+    return evaluationLock.unlock();
   }
 };
 

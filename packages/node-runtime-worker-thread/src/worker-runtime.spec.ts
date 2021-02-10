@@ -20,6 +20,10 @@ const workerThreadModule = fs.readFile(
   'utf8'
 );
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 // This set of tests causes flakiness in CI, disabled for now and will be
 // resolved in a separate PR
 describe('worker', () => {
@@ -36,7 +40,8 @@ describe('worker', () => {
         'evaluate',
         'getCompletions',
         'getShellPrompt',
-        'setEvaluationListener'
+        'setEvaluationListener',
+        'interrupt'
       ],
       worker
     );
@@ -499,6 +504,33 @@ describe('worker', () => {
         await evaluate('disableTelemetry()');
         expect(evalListener.toggleTelemetry).to.have.been.calledWith(false);
       });
+    });
+  });
+
+  describe('interrupt', () => {
+    it('should interrupt in-flight async tasks', async() => {
+      const { init, evaluate, interrupt } = caller;
+
+      await init('mongodb://nodb/', {}, { nodb: true });
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          evaluate('sleep(100000)'),
+          (async() => {
+            await sleep(10);
+            await interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Async script execution was interrupted/);
     });
   });
 });
