@@ -1,4 +1,4 @@
-import type writeAnalyticsConfigType from './analytics';
+import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
 import BuildVariant from './build-variant';
 import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';

@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
-import type writeAnalyticsConfigType from './analytics';
+import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
 import BuildVariant from './build-variant';
 import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
