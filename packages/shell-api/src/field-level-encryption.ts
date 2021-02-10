@@ -39,6 +39,7 @@ export interface ClientSideFieldLevelEncryptionOptions {
   kmsProvider: ClientSideFieldLevelEncryptionKmsProvider,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
+  bypassAutoEncryptionFully?: boolean;
 }
 
 @shellApiClassDefault
@@ -60,8 +61,8 @@ export class ClientEncryption extends ShellApiClass {
     this._libmongocrypt = new fle.ClientEncryption(
       mongo._serviceProvider.getRawClient(),
       {
-        ...this._mongo._fleOptions
-      } as ClientEncryptionOptions
+        ...(this._mongo._fleOptions as ClientEncryptionOptions)
+      }
     );
   }
 

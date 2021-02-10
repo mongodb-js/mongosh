@@ -105,6 +105,7 @@
     "command-exists": "^1.2.9",
     "cross-env": "^6.0.3",
     "download": "^8.0.0",
+    "duplexpair": "^1.0.1",
     "electron-notarize": "mongodb-js/electron-notarize",
     "eslint": "^6.8.0",
     "eslint-config-mongodb-js": "^5.0.3",

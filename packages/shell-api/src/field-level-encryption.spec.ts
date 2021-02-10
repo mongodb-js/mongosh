@@ -10,6 +10,9 @@ import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, KeyVault } fro
 import Mongo from './mongo';
 import { DeleteResult } from './result';
 import ShellInternalState from './shell-internal-state';
+import { CliServiceProvider } from '../../service-provider-server';
+import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { fakeAWSKMS, fakeAzureKMS, fakeGCPKMS } from '../../../testing/fake-kms';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -429,5 +432,127 @@ describe('Field Level Encryption', () => {
       }
       expect.fail('Expected error');
     });
+  });
+
+  describe('integration', () => {
+    const testServer = startTestServer('shared');
+    let dbname: string;
+    let uri: string;
+    let serviceProvider;
+    let internalState;
+
+    beforeEach(async() => {
+      dbname = `test_fle_${Date.now()}`;
+      uri = `${await testServer.connectionString()}/${dbname}`;
+      serviceProvider = await CliServiceProvider.connect(uri);
+      internalState = new ShellInternalState(serviceProvider);
+
+      sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
+        switch (options.host) {
+          case 'kms.us-east-2.amazonaws.com':
+            process.nextTick(onConnect);
+            return fakeAWSKMS();
+          case 'login.microsoftonline.com':
+          case 'test.vault.azure.net':
+            process.nextTick(onConnect);
+            return fakeAzureKMS();
+          case 'oauth2.googleapis.com':
+          case 'cloudkms.googleapis.com':
+            process.nextTick(onConnect);
+            return fakeGCPKMS();
+          default:
+            throw new Error(`Unexpected TLS connection to ${options.host}`);
+        }
+      }));
+    });
+
+    afterEach(async() => {
+      await serviceProvider.dropDatabase(dbname);
+      await internalState.close(true);
+      sinon.restore();
+    });
+
+    const kms = {
+      local: {
+        key: new bson.Binary(Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY', 'base64'), 0)
+      },
+      aws: {
+        accessKeyId: 'SxHpYMUtB1CEVg9tX0N1',
+        secretAccessKey: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7'
+      },
+      azure: {
+        tenantId: 'MUtB1CEVg9tX0',
+        clientId: 'SxHpYMUtB1CEVg9tX0N1',
+        clientSecret: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7'
+      },
+      gcp: {
+        email: 'somebody@google.com',
+        // Taken from the PKCS 8 Wikipedia page.
+        privateKey: `\
+MIIBVgIBADANBgkqhkiG9w0BAQEFAASCAUAwggE8AgEAAkEAq7BFUpkGp3+LQmlQ
+Yx2eqzDV+xeG8kx/sQFV18S5JhzGeIJNA72wSeukEPojtqUyX2J0CciPBh7eqclQ
+2zpAswIDAQABAkAgisq4+zRdrzkwH1ITV1vpytnkO/NiHcnePQiOW0VUybPyHoGM
+/jf75C5xET7ZQpBe5kx5VHsPZj0CBb3b+wSRAiEA2mPWCBytosIU/ODRfq6EiV04
+lt6waE7I2uSPqIC20LcCIQDJQYIHQII+3YaPqyhGgqMexuuuGx+lDKD6/Fu/JwPb
+5QIhAKthiYcYKlL9h8bjDsQhZDUACPasjzdsDEdq8inDyLOFAiEAmCr/tZwA3qeA
+ZoBzI10DGPIuoKXBd3nk/eBxPkaxlEECIQCNymjsoI7GldtujVnr1qT+3yedLfHK
+srDVjIT3LsvTqw==`
+      }
+    };
+    for (const kmsName of Object.keys(kms)) {
+      // eslint-disable-next-line no-loop-func
+      it(`provides ClientEncryption for kms=${kmsName}`, async() => {
+        const mongo = new Mongo(internalState, uri, {
+          keyVaultNamespace: `${dbname}.__keyVault`,
+          kmsProvider: { [kmsName]: kms[kmsName] } as any,
+          bypassAutoEncryptionFully: true
+        });
+        await mongo.connect();
+        internalState.mongos.push(mongo);
+
+        const keyVault = mongo.getKeyVault();
+        let keyId;
+        switch (kmsName) {
+          case 'local':
+            keyId = await keyVault.createKey('local');
+            break;
+          case 'aws':
+            keyId = await keyVault.createKey('aws', {
+              region: 'us-east-2',
+              key: 'arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb'
+            });
+            break;
+          case 'azure':
+            keyId = await keyVault.createKey('azure', {
+              keyName: 'asdfghji',
+              keyVaultEndpoint: 'test.vault.azure.net'
+            });
+            break;
+          case 'gcp':
+            keyId = await keyVault.createKey('gcp', {
+              projectId: 'foo',
+              location: 'global',
+              keyRing: 'bar',
+              keyName: 'foobar'
+            });
+            break;
+          default:
+            throw new Error(`unreachable ${kmsName}`);
+        }
+
+        const plaintextValue = { someValue: 'foo' };
+
+        const clientEncryption = mongo.getClientEncryption();
+        const encrypted = await clientEncryption.encrypt(
+          keyId,
+          plaintextValue,
+          'AEAD_AES_256_CBC_HMAC_SHA_512-Random');
+        const decrypted = await clientEncryption.decrypt(encrypted);
+
+        expect(keyId.sub_type).to.equal(4); // UUID
+        expect(encrypted.sub_type).to.equal(6); // Encrypted
+        expect(decrypted).to.deep.equal(plaintextValue);
+      });
+    }
   });
 });
