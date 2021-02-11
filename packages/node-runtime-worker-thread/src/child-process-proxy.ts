@@ -24,11 +24,11 @@ const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
 const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
 
 // We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~15 (all exposed methods on
+// probably not more than ~25 (all exposed methods on
 // ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
 // in-flight calls on ChildProcessRuntime) at once
-process.setMaxListeners(15);
-workerProcess.setMaxListeners(15);
+process.setMaxListeners(25);
+workerProcess.setMaxListeners(25);
 
 const workerReadyPromise = new Promise(async(resolve) => {
   const [message] = await once(workerProcess, 'message');
