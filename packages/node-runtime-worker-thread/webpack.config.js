@@ -41,7 +41,8 @@ const config = {
   externals: {
     'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     kerberos: 'commonjs2 kerberos',
-    snappy: 'commonjs2 snappy'
+    snappy: 'commonjs2 snappy',
+    interruptor: 'commonjs2 interruptor'
   }
 };
 

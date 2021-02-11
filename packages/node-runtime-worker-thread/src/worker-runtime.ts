@@ -16,6 +16,7 @@ import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 import { MongoshBus } from '@mongosh/types';
 import { Lock } from './lock';
+import { runInterruptible, InterruptHandle } from 'interruptor';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -36,8 +37,19 @@ function ensureRuntime(methodName: string): Runtime {
   return runtime;
 }
 
-const evaluationListener = createCaller<RuntimeEvaluationListener>(
-  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
+export type WorkerRuntimeEvaluationListener = RuntimeEvaluationListener & {
+  onRunInterruptible(handle: InterruptHandle | null): void;
+};
+
+const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
+  [
+    'onPrint',
+    'onPrompt',
+    'toggleTelemetry',
+    'onClearCommand',
+    'onExit',
+    'onRunInterruptible'
+  ],
   parentPort
 );
 
@@ -83,8 +95,17 @@ const workerRuntime: WorkerRuntime = {
     }
 
     try {
+      let interrupted = true;
+
       const result = await Promise.race([
-        ensureRuntime('evaluate').evaluate(code),
+        runInterruptible((handle) => {
+          try {
+            evaluationListener.onRunInterruptible(handle);
+            return ensureRuntime('evaluate').evaluate(code);
+          } finally {
+            interrupted = false;
+          }
+        }),
         evaluationLock.lock()
       ]);
 
@@ -92,8 +113,13 @@ const workerRuntime: WorkerRuntime = {
         throw new Error('Async script execution was interrupted');
       }
 
+      if (typeof result === 'undefined' || interrupted === true) {
+        throw new Error('Script execution was interrupted');
+      }
+
       return serializeEvaluationResult(result);
     } finally {
+      evaluationListener.onRunInterruptible(null);
       evaluationLock.unlock();
     }
   },

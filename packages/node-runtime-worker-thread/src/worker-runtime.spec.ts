@@ -11,6 +11,7 @@ import { Caller, cancel, close, createCaller, exposeAll, Exposed } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import { interrupt } from 'interruptor';
 
 chai.use(sinonChai);
 
@@ -445,7 +446,8 @@ describe('worker', () => {
       return {
         onPrint: sinon.spy(),
         onPrompt: sinon.spy(() => '123'),
-        toggleTelemetry: sinon.spy()
+        toggleTelemetry: sinon.spy(),
+        onRunInterruptible: sinon.spy()
       };
     };
 
@@ -503,6 +505,54 @@ describe('worker', () => {
 
         await evaluate('disableTelemetry()');
         expect(evalListener.toggleTelemetry).to.have.been.calledWith(false);
+      });
+    });
+
+    describe('onRunInterruptible', () => {
+      it('should call callback when interruptible evaluation starts and ends', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+        await evaluate('1+1');
+
+        const [firstCall, secondCall] = evalListener.onRunInterruptible.args;
+
+        expect(firstCall[0]).to.have.property('__id');
+        expect(secondCall[0]).to.equal(null);
+      });
+
+      it('should return a handle that allows to interrupt the evaluation', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            evaluate('while(true){}'),
+            (async() => {
+              await sleep(50);
+              const handle = evalListener.onRunInterruptible.args[0][0];
+              interrupt(handle);
+            })()
+          ]);
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(
+            /Script execution was interrupted/
+          );
       });
     });
   });
