@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import { once } from 'events';
 import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
@@ -15,9 +14,11 @@ import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 chai.use(sinonChai);
 
 // We need a compiled version so we can import it as a worker
-const workerThreadModule = fs.readFile(
-  path.resolve(__dirname, '..', 'dist', 'worker-runtime.js'),
-  'utf8'
+const workerThreadModule = path.resolve(
+  __dirname,
+  '..',
+  'dist',
+  'worker-runtime.js'
 );
 
 describe('worker', () => {
@@ -25,7 +26,7 @@ describe('worker', () => {
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async() => {
-    worker = new Worker(await workerThreadModule, { eval: true });
+    worker = new Worker(workerThreadModule);
     await once(worker, 'message');
 
     caller = createCaller(
@@ -48,7 +49,14 @@ describe('worker', () => {
 
   afterEach(async() => {
     if (worker) {
-      await worker.terminate();
+      // Possibly a Node.js bug that causes worker process to still be ref-ed
+      // after termination. To work around that, we are unrefing worker manually
+      // *immediately() after terminate method is called even though it should
+      // not be necessary. If this is not done in rare cases our test suite can
+      // get stuck
+      const terminationPromise = worker.terminate();
+      worker.unref();
+      await terminationPromise;
       worker = null;
     }
 
@@ -59,11 +67,12 @@ describe('worker', () => {
   });
 
   it('should throw if worker is not initialized yet', async() => {
-    caller = createCaller(['evaluate'], worker);
+    const { evaluate } = caller;
+
     let err: Error;
 
     try {
-      await caller.evaluate('1 + 1');
+      await evaluate('1 + 1');
     } catch (e) {
       err = e;
     }
