@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
-import { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
+import { ChildProcess, spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { MongoClientOptions } from '@mongosh/service-provider-core';
 import {
   Runtime,
@@ -9,10 +9,9 @@ import {
   RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 import { MongoshBus } from '@mongosh/types';
-import { promises as fs } from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
-import spawnChildFromSource, { kill } from './spawn-child-from-source';
+import { kill } from './spawn-child-from-source';
 import { Caller, createCaller, cancel } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
@@ -51,27 +50,21 @@ class WorkerRuntime implements Runtime {
     eventEmitter: MongoshBus = new EventEmitter()
   ) {
     this.initOptions = { uri, driverOptions, cliOptions, spawnOptions };
-    this.initWorkerPromise = this.initWorker();
     this.eventEmitter = eventEmitter;
+    this.initWorkerPromise = this.initWorker();
   }
 
   private async initWorker() {
     const { uri, driverOptions, cliOptions, spawnOptions } = this.initOptions;
 
-    const childProcessProxySrc = await fs.readFile(
-      path.resolve(__dirname, 'child-process-proxy.js'),
-      'utf-8'
+    const childProcessProxySrcPath = path.resolve(
+      __dirname,
+      'child-process-proxy.js'
     );
 
-    this.childProcess = await spawnChildFromSource(childProcessProxySrc, {
-      ...spawnOptions,
-      env: {
-        // Proxy child process and worker_threads worker are inlined and as such
-        // they are not aware of the dirname (which child process will need to
-        // read worker source)
-        NODE_RUNTIME_WORKER_THREAD_PARENT_DIRNAME: __dirname,
-        ...spawnOptions.env
-      }
+    this.childProcess = spawn(process.execPath, [childProcessProxySrcPath], {
+      stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+      ...spawnOptions
     });
 
     // We expect the amount of listeners to be more than the default value of 10
