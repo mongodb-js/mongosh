@@ -2,17 +2,17 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ALL_BUILD_VARIANTS } from './build-variant';
 import Config from './config';
+import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
 import { redactConfig } from './redact-config';
 import { getTarballFile } from './tarball';
-import { uploadToDownloadCenter as uploadToDownloadCenterFn } from './upload-to-download-center';
 
 export async function runDraft(
   config: Config,
   githubRepo: GithubRepo,
-  uploadToDownloadCenter: typeof uploadToDownloadCenterFn = uploadToDownloadCenterFn,
+  uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn
 ): Promise<void> {
   console.info(
@@ -25,16 +25,15 @@ export async function runDraft(
     return;
   }
 
-  const packageName = config.packageInformation?.metadata.name;
-  if (!packageName) {
-    throw new Error('Missing package name from config.packageInformation.metadata');
+  if (!config.packageInformation) {
+    throw new Error('Missing package information from config');
   }
 
   const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `draft-${Date.now()}`);
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_BUILD_VARIANTS) {
-    const tarballFile = getTarballFile(variant, config.triggeringGitTag, packageName);
+    const tarballFile = getTarballFile(variant, config.packageInformation.metadata.version, config.packageInformation.metadata.name);
     console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
 
     const downloadedArtifact = await downloadArtifactFromEvergreen(

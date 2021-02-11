@@ -1,11 +1,11 @@
 import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
-import type writeAnalyticsConfigType from './analytics';
+import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
 import BuildVariant from './build-variant';
 import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
-import type uploadDownloadCenterConfigType from './download-center';
+import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
@@ -24,7 +24,7 @@ function createStubBarque(overrides?: any): Barque {
 
 describe('publish', () => {
   let config: Config;
-  let uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType;
+  let createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn;
   let publishNpmPackages: typeof publishNpmPackagesType;
   let writeAnalyticsConfig: typeof writeAnalyticsConfigType;
   let publishToHomebrew: typeof publishToHomebrewType;
@@ -75,7 +75,7 @@ describe('publish', () => {
       rootDir: path.resolve(__dirname, '..', '..')
     };
 
-    uploadDownloadCenterConfig = sinon.spy();
+    createAndPublishDownloadCenterConfig = sinon.spy();
     publishNpmPackages = sinon.spy();
     writeAnalyticsConfig = sinon.spy();
     publishToHomebrew = sinon.spy();
@@ -107,7 +107,7 @@ describe('publish', () => {
             githubRepo,
             mongoHomebrewRepo,
             barque,
-            uploadDownloadCenterConfig,
+            createAndPublishDownloadCenterConfig,
             publishNpmPackages,
             writeAnalyticsConfig,
             publishToHomebrew,
@@ -129,7 +129,7 @@ describe('publish', () => {
             githubRepo,
             mongoHomebrewRepo,
             barque,
-            uploadDownloadCenterConfig,
+            createAndPublishDownloadCenterConfig,
             publishNpmPackages,
             writeAnalyticsConfig,
             publishToHomebrew,
@@ -151,7 +151,7 @@ describe('publish', () => {
             githubRepo,
             mongoHomebrewRepo,
             barque,
-            uploadDownloadCenterConfig,
+            createAndPublishDownloadCenterConfig,
             publishNpmPackages,
             writeAnalyticsConfig,
             publishToHomebrew,
@@ -170,7 +170,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -195,14 +195,14 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
         shouldDoPublicRelease
       );
 
-      expect(uploadDownloadCenterConfig).to.have.been.calledWith(
+      expect(createAndPublishDownloadCenterConfig).to.have.been.calledWith(
         config.version,
         config.downloadCenterAwsKey,
         config.downloadCenterAwsSecret
@@ -215,7 +215,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -231,7 +231,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -251,7 +251,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -277,14 +277,14 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
         shouldDoPublicRelease
       );
 
-      expect(uploadDownloadCenterConfig).not.to.have.been.called;
+      expect(createAndPublishDownloadCenterConfig).not.to.have.been.called;
     });
 
     it('does not promote the release in github', async() => {
@@ -293,7 +293,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -309,7 +309,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -325,7 +325,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,
@@ -341,7 +341,7 @@ describe('publish', () => {
         githubRepo,
         mongoHomebrewRepo,
         barque,
-        uploadDownloadCenterConfig,
+        createAndPublishDownloadCenterConfig,
         publishNpmPackages,
         writeAnalyticsConfig,
         publishToHomebrew,

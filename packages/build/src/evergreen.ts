@@ -2,7 +2,6 @@ import S3 from 'aws-sdk/clients/s3';
 import download from 'download';
 import fs from 'fs';
 import path from 'path';
-import upload, { PUBLIC_READ } from './s3';
 
 /**
  * The S3 bucket.
@@ -27,20 +26,20 @@ export async function uploadArtifactToEvergreen(
   project: string,
   revisionOrVersion: string
 ): Promise<string> {
+  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
+  console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
+
   const s3 = new S3({
     accessKeyId: awsKey,
     secretAccessKey: awsSecret
   });
-  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
 
-  console.info(`mongosh: uploading ${artifact} to evergreen bucket:`, BUCKET, key);
-
-  await upload({
-    ACL: PUBLIC_READ,
+  await s3.upload({
+    ACL: 'public-read',
     Bucket: BUCKET,
     Key: key,
     Body: fs.createReadStream(artifact)
-  }, s3);
+  }).promise();
 
   const url = getArtifactUrl(project, revisionOrVersion, artifact);
   console.info(`mongosh: artifact download url: ${url}`);

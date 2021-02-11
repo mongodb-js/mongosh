@@ -5,6 +5,7 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
 import com.mongodb.mongosh.result.*
 import org.bson.Document
+import org.bson.UuidRepresentation
 import org.junit.Assert.*
 import org.junit.Assume.assumeFalse
 import java.io.File
@@ -23,6 +24,7 @@ fun createMongoRepl(): MongoShell {
 
     val settings = MongoClientSettings.builder()
             .applyConnectionString(ConnectionString(uri))
+            .uuidRepresentation(UuidRepresentation.STANDARD)
             .build()
 
     return MongoShell(MongoClients.create(settings))

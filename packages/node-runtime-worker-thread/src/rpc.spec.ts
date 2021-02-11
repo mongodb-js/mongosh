@@ -1,7 +1,17 @@
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 
-import { createCaller, exposeAll, close, cancel, Caller, Exposed } from './rpc';
+import {
+  createCaller,
+  exposeAll,
+  close,
+  cancel,
+  Caller,
+  Exposed,
+  serialize,
+  deserialize,
+  removeTrailingUndefined
+} from './rpc';
 
 function createMockRpcMesageBus() {
   const bus = new (class Bus extends EventEmitter {
@@ -15,6 +25,32 @@ function createMockRpcMesageBus() {
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+describe('rpc helpers', () => {
+  describe('serialize', () => {
+    it('returns base64 representation of an input', () => {
+      expect(serialize('Hello')).to.equal('data:;base64,/w0iBUhlbGxv');
+    });
+  });
+
+  describe('deserialize', () => {
+    it("converts base64 representation of input back to it's original form", () => {
+      expect(deserialize(serialize('Hello'))).to.equal('Hello');
+    });
+
+    it("returns original string if it's not a base64 data uri", () => {
+      expect(deserialize('Hi')).to.equal('Hi');
+    });
+  });
+
+  describe('removeTrailingUndefined', () => {
+    it('removes trailing undefineds from an array', () => {
+      expect(
+        removeTrailingUndefined([1, 2, 3, undefined, undefined, undefined])
+      ).to.deep.equal([1, 2, 3]);
+    });
+  });
+});
 
 describe('rpc', () => {
   let messageBus: EventEmitter;

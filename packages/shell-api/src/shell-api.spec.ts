@@ -9,8 +9,6 @@ import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
-import constructShellBson from './shell-bson';
-const shellBson = constructShellBson(bson);
 
 const b641234 = 'MTIzNA==';
 const schemaMap = {
@@ -213,24 +211,30 @@ describe('ShellApi', () => {
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true');
       });
       context('FLE', () => {
-        it('local kms provider', async() => {
-          await internalState.shellApi.Mongo('dbname', {
-            keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
-              local: {
-                key: shellBson.BinData(128, b641234)
-              }
-            }
-          });
-          expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
-            {
-              autoEncryption: {
-                keyVaultClient: rawClientStub,
-                keyVaultNamespace: 'encryption.dataKeys',
-                kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
+        [
+          { type: 'base64 string', key: b641234, expectedKey: b641234 },
+          { type: 'Buffer', key: Buffer.from(b641234, 'base64'), expectedKey: Buffer.from(b641234, 'base64') },
+          { type: 'BinData', key: new bson.Binary(Buffer.from(b641234, 'base64'), 128), expectedKey: Buffer.from(b641234, 'base64') }
+        ].forEach(({ type, key, expectedKey }) => {
+          it(`local kms provider - key is ${type}`, async() => {
+            await internalState.shellApi.Mongo('dbname', {
+              keyVaultNamespace: 'encryption.dataKeys',
+              kmsProvider: {
+                local: {
+                  key: key
+                }
               }
             });
+            expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+              'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+              {
+                autoEncryption: {
+                  keyVaultClient: rawClientStub,
+                  keyVaultNamespace: 'encryption.dataKeys',
+                  kmsProviders: { local: { key: expectedKey } }
+                }
+              });
+          });
         });
         it('aws kms provider', async() => {
           await internalState.shellApi.Mongo('dbname', {
@@ -257,7 +261,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             keyVaultClient: mongo
@@ -281,7 +285,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             keyVaultClient: m
@@ -343,7 +347,7 @@ describe('ShellApi', () => {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
               local: {
-                key: shellBson.BinData(128, b641234)
+                key: Buffer.from(b641234, 'base64')
               }
             },
             schemaMap: schemaMap,
@@ -502,19 +506,22 @@ describe('ShellApi', () => {
         expect((await toShellResult(internalState.context.DBQuery)).printable).to.contain('deprecated');
       });
     });
-    describe('exit', () => {
-      it('instructs the shell to exit', async() => {
-        evaluationListener.onExit.resolves();
-        try {
-          await internalState.context.exit();
-          expect.fail('missed exception');
-        } catch (e) {
-          // We should be getting an exception because we’re not actually exiting.
-          expect(e.message).to.contain('exit not supported for current platform');
-        }
-        expect(evaluationListener.onExit).to.have.been.calledWith();
+    for (const cmd of ['exit', 'quit']) {
+      // eslint-disable-next-line no-loop-func
+      describe(cmd, () => {
+        it('instructs the shell to exit', async() => {
+          evaluationListener.onExit.resolves();
+          try {
+            await internalState.context[cmd]();
+            expect.fail('missed exception');
+          } catch (e) {
+            // We should be getting an exception because we’re not actually exiting.
+            expect(e.message).to.contain('exit not supported for current platform');
+          }
+          expect(evaluationListener.onExit).to.have.been.calledWith();
+        });
       });
-    });
+    }
     describe('enableTelemetry', () => {
       it('calls .toggleTelemetry() with true', () => {
         internalState.context.enableTelemetry();
@@ -559,5 +566,18 @@ describe('ShellApi', () => {
         expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
+    for (const cmd of ['print', 'printjson']) {
+      // eslint-disable-next-line no-loop-func
+      describe(cmd, () => {
+        it('prints values', async() => {
+          evaluationListener.onPrint.resolves();
+          await internalState.context[cmd](1, 2);
+          expect(evaluationListener.onPrint).to.have.been.calledWith([
+            { printable: 1, rawValue: 1, type: null },
+            { printable: 2, rawValue: 2, type: null }
+          ]);
+        });
+      });
+    }
   });
 });

@@ -38,6 +38,9 @@
     "@types/bl": "^2.1.0",
     "@types/whatwg-url": "^8.0.0"
   },
+  "optionalDependencies": {
+    "mongodb-client-encryption": "^1.2.1"
+  },
   "dependency-check": {
     "entries": [
       "src/**/*.js"

@@ -62,6 +62,7 @@ export default class Mongo extends ShellApiClass {
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
+  private _explicitEncryptionOnly = false;
 
   constructor(
     internalState: ShellInternalState,
@@ -79,6 +80,14 @@ export default class Mongo extends ShellApiClass {
     }
     this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
     if (fleOptions) {
+      if (fleOptions.explicitEncryptionOnly !== undefined) {
+        if (fleOptions.schemaMap !== undefined) {
+          throw new MongoshInvalidInputError('explicitEncryptionOnly and schemaMap are mutually exclusive', CommonErrors.InvalidArgument);
+        }
+        fleOptions = { ...fleOptions };
+        this._explicitEncryptionOnly = !!fleOptions.explicitEncryptionOnly;
+        delete fleOptions.explicitEncryptionOnly;
+      }
       this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
       const { mongocryptdSpawnPath } = this._internalState;
       if (mongocryptdSpawnPath) {
@@ -114,7 +123,7 @@ export default class Mongo extends ShellApiClass {
     const mongoClientOptions: MongoClientOptions = user || pwd ? {
       auth: { username: user, password: pwd }
     } : {};
-    if (this._fleOptions) {
+    if (this._fleOptions && !this._explicitEncryptionOnly) {
       mongoClientOptions.autoEncryption = this._fleOptions;
     }
     this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, mongoClientOptions);

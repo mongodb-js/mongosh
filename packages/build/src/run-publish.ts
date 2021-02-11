@@ -1,8 +1,8 @@
-import type writeAnalyticsConfigType from './analytics';
+import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
 import BuildVariant from './build-variant';
 import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
-import type uploadDownloadCenterConfigType from './download-center';
+import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
@@ -16,7 +16,7 @@ export async function runPublish(
   mongoshGithubRepo: GithubRepo,
   mongoHomebrewGithubRepo: GithubRepo,
   barque: Barque,
-  uploadDownloadCenterConfig: typeof uploadDownloadCenterConfigType,
+  createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn,
   publishNpmPackages: typeof publishNpmPackagesType,
   writeAnalyticsConfig: typeof writeAnalyticsConfigType,
   publishToHomebrew: typeof publishToHomebrewType,
@@ -58,7 +58,7 @@ export async function runPublish(
     getEvergreenArtifactUrl
   );
 
-  await uploadDownloadCenterConfig(
+  await createAndPublishDownloadCenterConfig(
     config.version,
     config.downloadCenterAwsKey || '',
     config.downloadCenterAwsSecret || ''

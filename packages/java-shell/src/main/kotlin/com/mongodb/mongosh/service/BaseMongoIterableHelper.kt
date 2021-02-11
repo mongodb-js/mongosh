@@ -180,8 +180,7 @@ internal class FindIterableHelper(iterable: FindIterable<out Any?>,
         check(createOptions != null) { "createOptions were not saved" }
         val countOptionsMap = options.filterKeys { countOptionsConverters.containsKey(it) }
         val countOptions = convert(CountOptions(), countOptionsConverters, countOptionsDefaultConverter, countOptionsMap).getOrThrow()
-        @Suppress("DEPRECATION")
-        return createOptions.db.getCollection(createOptions.collection).count(createOptions.find, countOptions)
+        return createOptions.db.getCollection(createOptions.collection).countDocuments(createOptions.find, countOptions)
     }
 
     override fun explain(verbosity: String?): Any? {

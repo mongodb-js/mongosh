@@ -1,12 +1,10 @@
 /* eslint-disable camelcase */
 import { Octokit } from '@octokit/rest';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import semver from 'semver/preload';
-import util from 'util';
 import Config from './config';
 import { TarballFile } from './tarball';
-const readFile = util.promisify(fs.readFile);
 
 type Repo = {
   owner: string;
@@ -93,7 +91,7 @@ export class GithubRepo {
     };
 
     await this.octokit.repos.createRelease(params)
-      .catch(this._ignoreAlreadyExistsError);
+      .catch(this._ignoreAlreadyExistsError());
   }
 
   /**
@@ -119,11 +117,11 @@ export class GithubRepo {
         'content-type': asset.contentType
       },
       name: path.basename(asset.path),
-      data: await readFile(asset.path)
+      data: await fs.readFile(asset.path)
     };
 
     await this.octokit.request(params)
-      .catch(this._ignoreAlreadyExistsError);
+      .catch(this._ignoreAlreadyExistsError());
   }
 
   /**
@@ -288,12 +286,11 @@ export class GithubRepo {
   }
 
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {
-    return (error: any): Promise<void> => {
+    return async(error: any): Promise<void> => {
       if (this._isAlreadyExistsError(error)) {
-        return Promise.resolve();
+        return;
       }
-
-      return Promise.reject(error);
+      throw error;
     };
   }
 

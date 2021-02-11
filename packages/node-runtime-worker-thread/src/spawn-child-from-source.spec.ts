@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import childProcess, { ChildProcess } from 'child_process';
 import { once } from 'events';
-
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 
 describe('spawnChildFromSource', () => {
@@ -12,6 +11,26 @@ describe('spawnChildFromSource', () => {
       await kill(spawned, 'SIGKILL');
       spawned = null;
     }
+  });
+
+  it('should throw if stdin is missing', async() => {
+    let err: Error;
+
+    try {
+      spawned = await spawnChildFromSource('console.log("Hi")', {
+        // Making istanbul happy by passing stuff that's not allowed
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        stdio: 'ignore'
+      });
+    } catch (e) {
+      err = e;
+    }
+
+    expect(err).to.be.instanceof(Error);
+    expect(err)
+      .to.have.property('message')
+      .match(/missing stdin/);
   });
 
   it('should resolve with a child process', async() => {

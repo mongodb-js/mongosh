@@ -2,7 +2,7 @@ import {
   ChildProcess,
   Serializable,
   spawn,
-  SpawnOptionsWithoutStdio,
+  SpawnOptions,
   StdioNull,
   StdioPipe
 } from 'child_process';
@@ -20,7 +20,7 @@ export async function kill(
 
 export default function spawnChildFromSource(
   src: string,
-  spawnOptions: SpawnOptionsWithoutStdio = {},
+  spawnOptions: Omit<SpawnOptions, 'stdio'> = {},
   timeoutMs?: number,
   _stdout: StdioNull | StdioPipe = 'inherit',
   _stderr: StdioNull | StdioPipe = 'inherit'
@@ -62,6 +62,8 @@ export default function spawnChildFromSource(
       }
     }
 
+    /* really hard to reproduce in tests and coverage is not happy */
+    /* istanbul ignore next */
     async function onWriteError(error: Error) {
       cleanupListeners();
       await kill(childProcess);
@@ -71,9 +73,7 @@ export default function spawnChildFromSource(
     async function onTimeout() {
       cleanupListeners();
       await kill(childProcess);
-      reject(
-        new Error('Timed out while waiting for child process to start')
-      );
+      reject(new Error('Timed out while waiting for child process to start'));
     }
 
     function onMessage(data: Serializable) {
@@ -92,8 +92,6 @@ export default function spawnChildFromSource(
     childProcess.stdin.end();
 
     timeoutId =
-      timeoutMs !== undefined
-        ? setTimeout(onTimeout, timeoutMs)
-        : null;
+      timeoutMs !== undefined ? setTimeout(onTimeout, timeoutMs) : null;
   });
 }

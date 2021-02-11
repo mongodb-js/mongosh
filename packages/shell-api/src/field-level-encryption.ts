@@ -5,7 +5,18 @@ import {
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import {
+  ClientEncryption as MongoCryptClientEncryption,
+  ClientEncryptionCreateDataKeyProviderOptions,
+  ClientEncryptionDataKeyProvider,
+  ClientEncryptionOptions,
+  ClientEncryptionEncryptOptions,
+  KMSProviders,
+  ReplPlatform,
+  AWSEncryptionKeyOptions,
+  AzureEncryptionKeyOptions,
+  GCPEncryptionKeyOptions
+} from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
@@ -14,32 +25,21 @@ import { assertArgsDefined, assertArgsType } from './helpers';
 import { asPrintable } from './enums';
 import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
-import { MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
-/** Configuration options for using 'aws' as your KMS provider */
-declare interface awsKms {
-  aws: {
-    /** The access key used for the AWS KMS provider */
-    accessKeyId?: string;
-    /** The secret access key used for the AWS KMS provider */
-    secretAccessKey?: string;
-  };
-}
-
-/** Configuration options for using 'local' as your KMS provider */
-declare interface localKms {
-  local: {
-    /** The master key used to encrypt/decrypt data keys. A 96-byte long Buffer. */
-    key: BinaryType;
-  };
-}
+export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
+  local?: {
+    key: Buffer | string | BinaryType;
+  }
+};
 
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
   keyVaultNamespace: string,
-  kmsProvider: awsKms | localKms,
+  kmsProvider: ClientSideFieldLevelEncryptionKmsProvider,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
+  explicitEncryptionOnly?: boolean;
 }
 
 @shellApiClassDefault
@@ -47,9 +47,9 @@ export interface ClientSideFieldLevelEncryptionOptions {
 @classPlatforms([ ReplPlatform.CLI ] )
 export class ClientEncryption extends ShellApiClass {
   public _mongo: Mongo;
-  public _libmongocrypt: any;
+  public _libmongocrypt: MongoCryptClientEncryption;
 
-  constructor(mongo: any) {
+  constructor(mongo: Mongo) {
     super();
     this._mongo = mongo;
 
@@ -61,7 +61,7 @@ export class ClientEncryption extends ShellApiClass {
     this._libmongocrypt = new fle.ClientEncryption(
       mongo._serviceProvider.getRawClient(),
       {
-        ...this._mongo._fleOptions
+        ...(this._mongo._fleOptions as ClientEncryptionOptions)
       }
     );
   }
@@ -74,7 +74,7 @@ export class ClientEncryption extends ShellApiClass {
   async encrypt(
     encryptionId: BinaryType,
     value: any,
-    encryptionAlgorithm: string
+    encryptionAlgorithm: ClientEncryptionEncryptOptions['algorithm']
   ): Promise<BinaryType> {
     assertArgsDefined(encryptionId, value, encryptionAlgorithm);
     return await this._libmongocrypt.encrypt(
@@ -87,11 +87,11 @@ export class ClientEncryption extends ShellApiClass {
   }
 
   @returnsPromise
-  decrypt(
-    encryptedValue: any
-  ): Promise<BinaryType> {
+  async decrypt(
+    encryptedValue: BinaryType
+  ): Promise<any> {
     assertArgsDefined(encryptedValue);
-    return this._libmongocrypt.decrypt(encryptedValue);
+    return await this._libmongocrypt.decrypt(encryptedValue);
   }
 }
 
@@ -117,20 +117,64 @@ export class KeyVault extends ShellApiClass {
     return `KeyVault class for ${redactPassword(this._mongo._uri)}`;
   }
 
+  createKey(kms: 'local', keyAltNames?: string[]): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, legacyMasterKey: string, keyAltNames?: string[]): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<Document>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
   @returnsPromise
   createKey(
-    kms: string | Document,
-    customMasterKey?: Document, // doc defined here: https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/client-side-encryption.rst#masterkey
-    keyAltName?: string[]
+    kms: ClientEncryptionDataKeyProvider,
+    masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
+    keyAltNames?: string[]
   ): Promise<Document> {
     assertArgsDefined(kms);
-    const options = {} as any;
 
-    options.masterKey = customMasterKey;
-    if (keyAltName) {
-      options.keyAltNames = keyAltName;
+    if (typeof masterKeyOrAltNames === 'string') {
+      if (kms === 'local' && masterKeyOrAltNames === '') {
+        // allowed in the old shell - even enforced prior to 4.2.3
+        // https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/
+        masterKeyOrAltNames = undefined;
+      } else {
+        throw new MongoshInvalidInputError(
+          'KeyVault.createKey does not support providing masterKey as string anymore. For AWS please use createKey("aws", { region: ..., masterKey: ... })',
+          CommonErrors.Deprecated
+        );
+      }
+    } else if (Array.isArray(masterKeyOrAltNames)) {
+      // old signature - one could immediately provide an array of key alt names
+      // not documented but visible in code: https://github.com/mongodb/mongo/blob/eb2b72cf9c0269f086223d499ac9be8a270d268c/src/mongo/shell/keyvault.js#L19
+      if (kms !== 'local') {
+        throw new MongoshInvalidInputError(
+          'KeyVault.createKey requires masterKey to be given as second argument if KMS is not local',
+          CommonErrors.InvalidArgument
+        );
+      } else {
+        if (keyAltNames) {
+          throw new MongoshInvalidInputError(
+            'KeyVault.createKey was supplied with an array for the masterKey and keyAltNames - either specify keyAltNames as second argument or set undefined for masterKey',
+            CommonErrors.InvalidArgument
+          );
+        }
+
+        keyAltNames = masterKeyOrAltNames;
+        masterKeyOrAltNames = undefined;
+      }
     }
-    return this._clientEncryption._libmongocrypt.createDataKey(kms, options);
+
+    let options: ClientEncryptionCreateDataKeyProviderOptions | undefined;
+    if (masterKeyOrAltNames) {
+      options = {
+        masterKey: masterKeyOrAltNames as ClientEncryptionCreateDataKeyProviderOptions['masterKey']
+      };
+    }
+    if (keyAltNames) {
+      options = {
+        ...(options ?? {}),
+        keyAltNames
+      };
+    }
+
+    return this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 
   getKey(keyId: BinaryType): Cursor {
