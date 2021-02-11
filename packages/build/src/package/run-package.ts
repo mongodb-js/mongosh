@@ -1,9 +1,8 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import os from 'os';
-import Config from '../config';
+import { Config, Platform } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
 import { macOSSignAndNotarize } from './macos-sign';
-import Platform from '../platform';
 import { createTarball, TarballFile } from '../tarball';
 
 export async function runPackage(

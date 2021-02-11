@@ -3,7 +3,7 @@ import { Octokit } from '@octokit/rest';
 import { promises as fs } from 'fs';
 import path from 'path';
 import semver from 'semver/preload';
-import Config from './config';
+import { Config } from './config';
 import { TarballFile } from './tarball';
 
 type Repo = {

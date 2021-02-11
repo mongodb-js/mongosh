@@ -1,8 +1,7 @@
 import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
-import BuildVariant from './build-variant';
-import Config from './config';
+import { BuildVariant, Config } from './config';
 import { runUpload } from './run-upload';
 import { uploadArtifactToEvergreen } from './evergreen';
 import { TarballFile } from './tarball';

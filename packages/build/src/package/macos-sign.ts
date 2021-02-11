@@ -1,7 +1,7 @@
 import { notarize as nodeNotarize } from 'electron-notarize';
 import codesign from 'node-codesign';
 import util from 'util';
-import Config from '../config';
+import { Config } from '../config';
 import { TarballFile } from '../tarball';
 
 export async function macOSSignAndNotarize(

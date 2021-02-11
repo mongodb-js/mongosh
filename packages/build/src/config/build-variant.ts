@@ -4,7 +4,7 @@
  * Different from 'platform': platform is extracted from os.platform() and
  * build variant is the host evergreen is building on.
  */
-enum BuildVariant {
+export enum BuildVariant {
   Windows = 'win32',
   WindowsMSI = 'win32msi',
   MacOs = 'darwin',
@@ -21,5 +21,3 @@ export const ALL_BUILD_VARIANTS = Object.freeze([
   BuildVariant.Debian,
   BuildVariant.Redhat,
 ]);
-
-export default BuildVariant;

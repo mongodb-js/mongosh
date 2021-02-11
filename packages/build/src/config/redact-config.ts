@@ -1,4 +1,4 @@
-import Config from './config';
+import { Config } from './config';
 
 export function redactConfig(config: Config): Partial<Config> {
   return {

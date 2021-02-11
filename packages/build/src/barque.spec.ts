@@ -6,8 +6,7 @@ import path from 'path';
 import sinon from 'sinon';
 import { URL } from 'url';
 import { Barque, LATEST_CURATOR } from './barque';
-import BuildVariant from './build-variant';
-import Config from './config';
+import { BuildVariant, Config } from './config';
 
 describe('Barque', () => {
   let barque: Barque;

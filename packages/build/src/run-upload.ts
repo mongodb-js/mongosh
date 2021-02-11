@@ -1,7 +1,6 @@
 import fs from 'fs';
-import Config from './config';
+import { Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { TarballFile } from './tarball';
 
 export async function runUpload(
