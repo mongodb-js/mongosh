@@ -14,21 +14,21 @@ const TEMPLATE = 'module.exports = { SEGMENT_API_KEY: "{{segmentKey}}" };';
  *
  * @returns {string} The compiled template.
  */
-const createAnalyticsConfig = (segmentKey: string): string => {
+export function createAnalyticsConfig(segmentKey: string): string {
   const template = handlebars.compile(TEMPLATE);
   return template({ segmentKey: segmentKey });
-};
+}
 
 /**
  * Write the analytics config.
  *
- * @param {string} analyticsConfigFilePath - The filename.
- * @param {string} segmentKey - The segment key.
+ * @param analyticsConfigFilePath - The filename.
+ * @param segmentKey - The segment key.
  */
-const writeAnalyticsConfig = (
+export function writeAnalyticsConfig(
   analyticsConfigFilePath?: string,
   segmentKey?: string
-): Promise<void> => {
+): Promise<void> {
   if (!analyticsConfigFilePath) {
     throw new Error('Analytics config file path is required');
   }
@@ -41,7 +41,4 @@ const writeAnalyticsConfig = (
   console.info('mongosh: writing analytics template:', analyticsConfigFilePath);
   // Cannot use fs/promises on Cygwin.
   return util.promisify(fs.writeFile)(analyticsConfigFilePath, template);
-};
-
-export default writeAnalyticsConfig;
-export { createAnalyticsConfig };
+}

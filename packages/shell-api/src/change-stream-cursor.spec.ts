@@ -119,7 +119,7 @@ describe('ChangeStreamCursor', () => {
       this.timeout(100_000);
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
       internalState = new ShellInternalState(serviceProvider);
-      mongo = new Mongo(internalState);
+      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       db = mongo.getDB('testDb');
       coll = db.getCollection('testColl');
     });

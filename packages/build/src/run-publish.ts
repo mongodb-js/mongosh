@@ -1,14 +1,17 @@
-import type writeAnalyticsConfigType from './analytics';
+import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
-import BuildVariant from './build-variant';
-import Config, { shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
+import {
+  BuildVariant,
+  Config,
+  getReleaseVersionFromTag,
+  redactConfig,
+  shouldDoPublicRelease as shouldDoPublicReleaseFn
+} from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import { redactConfig } from './redact-config';
 import { getTarballFile } from './tarball';
 
 export async function runPublish(

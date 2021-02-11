@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-export default function getReleaseVersionFromTag(
+export function getReleaseVersionFromTag(
   tagName?: string
 ): string | undefined {
   if (!tagName) {

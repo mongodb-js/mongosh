@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
 import { withTempPackageEach } from '../../test/helpers';
-import BuildVariant from '../build-variant';
+import { BuildVariant } from '../config';
 import { createTarball } from './create-tarball';
 import { tarballRedhat } from './redhat';
 

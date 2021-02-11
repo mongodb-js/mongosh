@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { withTempPackageEach } from '../../test/helpers';
-import { ALL_BUILD_VARIANTS } from '../build-variant';
+import { ALL_BUILD_VARIANTS } from '../config';
 import { createTarball } from './create-tarball';
 import sinon = require('sinon');
 

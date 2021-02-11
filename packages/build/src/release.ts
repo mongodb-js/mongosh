@@ -1,19 +1,17 @@
 import { Octokit } from '@octokit/rest';
 import { promises as fs } from 'fs';
 import path from 'path';
-import writeAnalyticsConfig from './analytics';
+import { writeAnalyticsConfig } from './analytics';
 import { Barque } from './barque';
-import Config from './config';
+import { runCompile } from './compile';
+import { Config, getReleaseVersionFromTag, redactConfig } from './config';
 import { createAndPublishDownloadCenterConfig, uploadArtifactToDownloadCenter } from './download-center';
 import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './evergreen';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
-import { redactConfig } from './redact-config';
-import { runCompile } from './run-compile';
+import { runPackage } from './package';
 import { runDraft } from './run-draft';
-import { runPackage } from './run-package';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 

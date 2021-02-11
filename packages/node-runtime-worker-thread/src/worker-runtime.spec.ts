@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import { once } from 'events';
 import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
@@ -16,23 +15,23 @@ import { interrupt } from 'interruptor';
 chai.use(sinonChai);
 
 // We need a compiled version so we can import it as a worker
-const workerThreadModule = fs.readFile(
-  path.resolve(__dirname, '..', 'dist', 'worker-runtime.js'),
-  'utf8'
+const workerThreadModule = path.resolve(
+  __dirname,
+  '..',
+  'dist',
+  'worker-runtime.js'
 );
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// This set of tests causes flakiness in CI, disabled for now and will be
-// resolved in a separate PR
 describe('worker', () => {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async() => {
-    worker = new Worker(await workerThreadModule, { eval: true });
+    worker = new Worker(workerThreadModule);
     await once(worker, 'message');
 
     caller = createCaller(
@@ -56,7 +55,17 @@ describe('worker', () => {
 
   afterEach(async() => {
     if (worker) {
-      await worker.terminate();
+      // There is a Node.js bug that causes worker process to still be ref-ed
+      // after termination. To work around that, we are unrefing worker manually
+      // *immediately* after terminate method is called even though it should
+      // not be necessary. If this is not done in rare cases our test suite can
+      // get stuck. Even though the issue is fixed we would still need to keep
+      // this workaround for compat reasons.
+      //
+      // See: https://github.com/nodejs/node/pull/37319
+      const terminationPromise = worker.terminate();
+      worker.unref();
+      await terminationPromise;
       worker = null;
     }
 
@@ -67,11 +76,12 @@ describe('worker', () => {
   });
 
   it('should throw if worker is not initialized yet', async() => {
-    caller = createCaller(['evaluate'], worker);
+    const { evaluate } = caller;
+
     let err: Error;
 
     try {
-      await caller.evaluate('1 + 1');
+      await evaluate('1 + 1');
     } catch (e) {
       err = e;
     }
@@ -442,13 +452,24 @@ describe('worker', () => {
   });
 
   describe('evaluationListener', () => {
+    const spySandbox = sinon.createSandbox();
+
     const createSpiedEvaluationListener = () => {
-      return {
-        onPrint: sinon.spy(),
-        onPrompt: sinon.spy(() => '123'),
-        toggleTelemetry: sinon.spy(),
-        onRunInterruptible: sinon.spy()
+      const evalListener = {
+        onPrint() {},
+        onPrompt() {
+          return '123';
+        },
+        toggleTelemetry() {},
+        onRunInterruptible() {}
       };
+
+      spySandbox.spy(evalListener, 'onPrint');
+      spySandbox.spy(evalListener, 'onPrompt');
+      spySandbox.spy(evalListener, 'toggleTelemetry');
+      spySandbox.spy(evalListener, 'onRunInterruptible');
+
+      return evalListener;
     };
 
     let exposed: Exposed<unknown>;
@@ -458,6 +479,8 @@ describe('worker', () => {
         exposed[close]();
         exposed = null;
       }
+
+      spySandbox.restore();
     });
 
     describe('onPrint', () => {
@@ -518,7 +541,10 @@ describe('worker', () => {
         await init('mongodb://nodb/', {}, { nodb: true });
         await evaluate('1+1');
 
-        const [firstCall, secondCall] = evalListener.onRunInterruptible.args;
+        const [
+          firstCall,
+          secondCall
+        ] = (evalListener.onRunInterruptible as sinon.SinonSpy).args;
 
         expect(firstCall[0]).to.have.property('__id');
         expect(secondCall[0]).to.equal(null);
@@ -539,7 +565,8 @@ describe('worker', () => {
             evaluate('while(true){}'),
             (async() => {
               await sleep(50);
-              const handle = evalListener.onRunInterruptible.args[0][0];
+              const handle = (evalListener.onRunInterruptible as sinon.SinonSpy)
+                .args[0][0];
               interrupt(handle);
             })()
           ]);
@@ -550,9 +577,7 @@ describe('worker', () => {
         expect(err).to.be.instanceof(Error);
         expect(err)
           .to.have.property('message')
-          .match(
-            /Script execution was interrupted/
-          );
+          .match(/Script execution was interrupted/);
       });
     });
   });

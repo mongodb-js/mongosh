@@ -17,7 +17,7 @@ import type Database from './database';
 import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import { BinaryType, ReplPlatform, ServiceProvider } from '@mongosh/service-provider-core';
+import { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
 
@@ -613,7 +613,7 @@ export function assertCLI(platform: ReplPlatform): void {
   }
 }
 
-export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions, serviceProvider: ServiceProvider): AutoEncryptionOptions {
+export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
   assertArgsDefined(fleOptions.keyVaultNamespace, fleOptions.kmsProvider);
   Object.keys(fleOptions).forEach(k => {
     if (['keyVaultClient', 'keyVaultNamespace', 'kmsProvider', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
@@ -621,9 +621,7 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
     }
   });
   const autoEncryption: AutoEncryptionOptions = {
-    keyVaultClient: fleOptions.keyVaultClient ?
-      fleOptions.keyVaultClient._serviceProvider.getRawClient() :
-      serviceProvider.getRawClient(),
+    keyVaultClient: fleOptions.keyVaultClient?._serviceProvider.getRawClient(),
     keyVaultNamespace: fleOptions.keyVaultNamespace
   };
 

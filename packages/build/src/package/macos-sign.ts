@@ -1,8 +1,27 @@
-import util from 'util';
-import codesign from 'node-codesign';
 import { notarize as nodeNotarize } from 'electron-notarize';
-import Config from './config';
-import { TarballFile } from './tarball';
+import codesign from 'node-codesign';
+import util from 'util';
+import { Config } from '../config';
+import { TarballFile } from '../tarball';
+
+export async function macOSSignAndNotarize(
+  executables: string[],
+  config: Config,
+  runCreateTarball: () => Promise<TarballFile>
+): Promise<TarballFile> {
+  for (const executable of executables) {
+    console.info('mongosh: signing:', executable);
+    await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
+  }
+  const artifact = await runCreateTarball();
+  console.info('mongosh: notarizing and creating tarball:', artifact.path);
+  await notarize(
+    config.appleNotarizationBundleId || '',
+    artifact.path,
+    config.appleNotarizationUsername || '',
+    config.appleNotarizationApplicationPassword || '');
+  return artifact;
+}
 
 /**
  * Notarizes the zipped mongosh. Will send the tarball to Apple and poll apple
@@ -35,23 +54,3 @@ function sign(executable: string, identity: string, entitlementsFile: string): P
     entitlements: entitlementsFile,
   });
 }
-
-const macOSSignAndNotarize = async(
-  executables: string[],
-  config: Config,
-  runCreateTarball: () => Promise<TarballFile>): Promise<TarballFile> => {
-  for (const executable of executables) {
-    console.info('mongosh: signing:', executable);
-    await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
-  }
-  const artifact = await runCreateTarball();
-  console.info('mongosh: notarizing and creating tarball:', artifact.path);
-  await notarize(
-    config.appleNotarizationBundleId || '',
-    artifact.path,
-    config.appleNotarizationUsername || '',
-    config.appleNotarizationApplicationPassword || '');
-  return artifact;
-};
-
-export default macOSSignAndNotarize;

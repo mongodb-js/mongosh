@@ -1,15 +1,13 @@
-import BuildVariant from './build-variant';
 import childProcess from 'child_process';
 import gunzip from 'gunzip-maybe';
-import Platform from './platform';
 import fetch from 'node-fetch';
 import tmp from 'tmp-promise';
-import Config from './config';
 import stream from 'stream';
 import fs from 'fs-extra';
 import tar from 'tar-fs';
 import util from 'util';
 import path from 'path';
+import { BuildVariant, Config, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);

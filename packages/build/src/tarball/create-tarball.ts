@@ -1,5 +1,5 @@
 import path from 'path';
-import BuildVariant from '../build-variant';
+import { BuildVariant } from '../config';
 import { tarballDebian as tarballDebianFn } from './debian';
 import { getTarballFile, TarballFile } from './get-tarball-file';
 import { PackageInformation } from './package-information';

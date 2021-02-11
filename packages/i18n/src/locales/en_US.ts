@@ -65,7 +65,7 @@ const translations: Catalog = {
       enabledTelemetry: 'Telemetry is now enabled.',
       disabledTelemetry: 'Telemetry is now disabled.',
       wiki: {
-        info: 'For more information about mongosh, please see our docs:',
+        info: 'For mongosh info see:',
         link: 'https://docs.mongodb.com/mongodb-shell/'
       }
     },

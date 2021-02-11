@@ -1,18 +1,18 @@
 /* eslint-disable no-nested-ternary */
-import Platform from './platform';
 import os from 'os';
 import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
+import { Platform } from '../config';
 
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
     await findModulePath('mongodb-client-encryption'), 'package.json')).version;
   const proc = childProcess.spawn(
     'bash',
-    [path.resolve(__dirname, '..', '..', '..', 'scripts', 'prep-fle-addon.sh')],
+    [path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'prep-fle-addon.sh')],
     {
       env: {
         ...process.env,
@@ -28,7 +28,7 @@ async function preCompileHook(nodeSourceTree: string) {
 }
 
 async function findModulePath(mod: string): Promise<string> {
-  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', 'service-provider-server', 'src'));
+  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', '..', 'service-provider-server', 'src'));
   return path.dirname(await pkgUp({ cwd: cliReplRequire.resolve(mod) }) as string);
 }
 
@@ -36,7 +36,7 @@ async function findModulePath(mod: string): Promise<string> {
  * A compiler that can produce an executable that is actually
  * code signable.
  */
-class SignableCompiler {
+export class SignableCompiler {
   sourceFile: string;
   targetFile: string;
   nodeVersionRange: string;
@@ -82,5 +82,3 @@ class SignableCompiler {
     });
   }
 }
-
-export default SignableCompiler;

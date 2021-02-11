@@ -79,7 +79,7 @@ describe('Mongo', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.startSession.returns({ driverSession: 1 } as any);
       internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState);
+      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       database = stubInterface<Database>();
       internalState.currentDb = database;
     });

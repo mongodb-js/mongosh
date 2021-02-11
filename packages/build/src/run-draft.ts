@@ -1,12 +1,9 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ALL_BUILD_VARIANTS } from './build-variant';
-import Config from './config';
+import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag, redactConfig } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
-import { redactConfig } from './redact-config';
 import { getTarballFile } from './tarball';
 
 export async function runDraft(

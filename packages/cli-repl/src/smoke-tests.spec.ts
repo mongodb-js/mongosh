@@ -1,23 +1,10 @@
 import { runSmokeTests } from './';
 import path from 'path';
-import { startTestServer, ensureMongodAvailable } from '../../../testing/integration-testing-hooks';
+import { startTestServer, useBinaryPath } from '../../../testing/integration-testing-hooks';
 
 describe('smoke tests', () => {
   const testServer = startTestServer('shared');
-
-  let pathBefore;
-  before(async() => {
-    // The smoke tests want mongocryptd to be in the path. We may need to add
-    // the directory of the downloaded mongod in order to be able to use it.
-    pathBefore = process.env.PATH;
-    const extraPath = await ensureMongodAvailable();
-    if (extraPath !== null) {
-      process.env.PATH += path.delimiter + extraPath;
-    }
-  });
-  after(() => {
-    process.env.PATH = pathBefore;
-  });
+  useBinaryPath(testServer); // Get mongocryptd in the PATH for this test
 
   it('self-test passes', async() => {
     // Use ts-node to run the .ts files directly so nyc can pick them up for
