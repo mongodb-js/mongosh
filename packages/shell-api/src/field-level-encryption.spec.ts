@@ -12,7 +12,7 @@ import { DeleteResult } from './result';
 import ShellInternalState from './shell-internal-state';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { fakeAWSKMS, fakeAzureKMS, fakeGCPKMS } from '../../../testing/fake-kms';
+import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -466,21 +466,11 @@ describe('Field Level Encryption', () => {
       internalState = new ShellInternalState(serviceProvider);
 
       sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
-        switch (options.host) {
-          case 'kms.us-east-2.amazonaws.com':
-            process.nextTick(onConnect);
-            return fakeAWSKMS();
-          case 'login.microsoftonline.com':
-          case 'test.vault.azure.net':
-            process.nextTick(onConnect);
-            return fakeAzureKMS();
-          case 'oauth2.googleapis.com':
-          case 'cloudkms.googleapis.com':
-            process.nextTick(onConnect);
-            return fakeGCPKMS();
-          default:
-            throw new Error(`Unexpected TLS connection to ${options.host}`);
+        if (!fakeAWSHandlers.some(handler => handler.host.test(options.host))) {
+          throw new Error(`Unexpected TLS connection to ${options.host}`);
         }
+        process.nextTick(onConnect);
+        return makeFakeHTTPConnection(fakeAWSHandlers);
       }));
     });
 
