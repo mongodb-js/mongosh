@@ -18,6 +18,7 @@ import { SHARE_ENV, Worker } from 'worker_threads';
 import fs from 'fs';
 import path from 'path';
 import { exposeAll, createCaller } from './rpc';
+import { InterruptHandle, interrupt as nativeInterrupt } from 'interruptor';
 
 // eslint-disable-next-line no-sync
 const workerRuntimeSrc = fs.readFileSync(
@@ -47,9 +48,25 @@ const workerReadyPromise = new Promise(async(resolve) => {
   }
 });
 
-const worker = createCaller(
-  ['init', 'evaluate', 'getCompletions', 'getShellPrompt', 'interrupt'],
-  workerProcess
+let interruptHandle: InterruptHandle | null = null;
+
+const { interrupt } = createCaller(['interrupt'], workerProcess);
+
+const worker = Object.assign(
+  createCaller(
+    ['init', 'evaluate', 'getCompletions', 'getShellPrompt'],
+    workerProcess
+  ),
+  {
+    interrupt(): boolean {
+      if (interruptHandle) {
+        nativeInterrupt(interruptHandle);
+        return true;
+      }
+
+      return interrupt();
+    }
+  }
 );
 
 function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
@@ -69,9 +86,16 @@ function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
 
 exposeAll(worker, process);
 
-const evaluationListener = createCaller(
-  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
-  process
+const evaluationListener = Object.assign(
+  createCaller(
+    ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
+    process
+  ),
+  {
+    onRunInterruptible(handle: InterruptHandle | null) {
+      interruptHandle = handle;
+    }
+  }
 );
 
 exposeAll(evaluationListener, workerProcess);

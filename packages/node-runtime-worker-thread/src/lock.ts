@@ -1,4 +1,4 @@
-type UNLOCKED = 'UNLOCKED';
+export type UNLOCKED = 'UNLOCKED';
 
 export class Lock {
   private static UNLOCK_TOKEN: UNLOCKED = 'UNLOCKED';

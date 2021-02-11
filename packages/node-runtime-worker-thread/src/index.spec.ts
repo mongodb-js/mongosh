@@ -191,9 +191,9 @@ describe('WorkerRuntime', () => {
 
       try {
         await Promise.all([
-          runtime.evaluate('sleep(100000)'),
+          runtime.evaluate('sleep(1000000)'),
           (async() => {
-            await sleep(10);
+            await sleep(200);
             await runtime.interrupt();
           })()
         ]);
@@ -205,6 +205,53 @@ describe('WorkerRuntime', () => {
       expect(err)
         .to.have.property('message')
         .match(/Async script execution was interrupted/);
+    });
+
+    it('should interrupt in-flight synchronous tasks', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          runtime.evaluate('while(true){}'),
+          (async() => {
+            await sleep(200);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Script execution was interrupted/);
+    });
+
+    it('should allow to evaluate again after interruption', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      try {
+        await Promise.all([
+          runtime.evaluate('while(true){}'),
+          (async() => {
+            await sleep(200);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        // ignore
+      }
+
+      const result = await runtime.evaluate('1+1');
+
+      expect(result).to.have.property('printable', 2);
     });
   });
 });

@@ -4,7 +4,8 @@
 import { parentPort, isMainThread } from 'worker_threads';
 import {
   Runtime,
-  RuntimeEvaluationListener
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import {
@@ -15,7 +16,7 @@ import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 import { MongoshBus } from '@mongosh/types';
-import { Lock } from './lock';
+import { Lock, UNLOCKED } from './lock';
 import { runInterruptible, InterruptHandle } from 'interruptor';
 
 if (!parentPort || isMainThread) {
@@ -94,34 +95,42 @@ const workerRuntime: WorkerRuntime = {
       );
     }
 
+    let interrupted = true;
+    let evaluationPromise: void | Promise<RuntimeEvaluationResult>;
+
     try {
-      let interrupted = true;
-
-      const result = await Promise.race([
-        runInterruptible((handle) => {
-          try {
-            evaluationListener.onRunInterruptible(handle);
-            return ensureRuntime('evaluate').evaluate(code);
-          } finally {
-            interrupted = false;
-          }
-        }),
-        evaluationLock.lock()
-      ]);
-
-      if (evaluationLock.isUnlockToken(result)) {
-        throw new Error('Async script execution was interrupted');
-      }
-
-      if (typeof result === 'undefined' || interrupted === true) {
-        throw new Error('Script execution was interrupted');
-      }
-
-      return serializeEvaluationResult(result);
+      evaluationPromise = runInterruptible((handle) => {
+        try {
+          evaluationListener.onRunInterruptible(handle);
+          return ensureRuntime('evaluate').evaluate(code);
+        } finally {
+          interrupted = false;
+        }
+      });
     } finally {
       evaluationListener.onRunInterruptible(null);
+    }
+
+    let result: void | RuntimeEvaluationResult | UNLOCKED;
+
+    try {
+      result = await Promise.race([
+        evaluationPromise,
+        evaluationLock.lock()
+      ]);
+    } finally {
       evaluationLock.unlock();
     }
+
+    if (evaluationLock.isUnlockToken(result)) {
+      throw new Error('Async script execution was interrupted');
+    }
+
+    if (typeof result === 'undefined' || interrupted === true) {
+      throw new Error('Script execution was interrupted');
+    }
+
+    return serializeEvaluationResult(result);
   },
 
   async getCompletions(code) {
