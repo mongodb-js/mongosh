@@ -63,7 +63,7 @@ describe('Session', () => {
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, new EventEmitter());
-      mongo = new Mongo(internalState);
+      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       session = new Session(mongo, options, serviceProviderSession);
     });
 
@@ -162,7 +162,7 @@ describe('Session', () => {
       databaseName = `test-${Date.now()}`;
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
       internalState = new ShellInternalState(serviceProvider);
-      mongo = new Mongo(internalState);
+      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 

@@ -54,7 +54,7 @@ import { ShellApiErrors } from './error-codes';
 @classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {
-  public _serviceProvider: ServiceProvider;
+  private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
   public _internalState: ShellInternalState;
   public _uri: string;
@@ -67,16 +67,19 @@ export default class Mongo extends ShellApiClass {
   constructor(
     internalState: ShellInternalState,
     uri?: string,
-    fleOptions?: ClientSideFieldLevelEncryptionOptions
+    fleOptions?: ClientSideFieldLevelEncryptionOptions,
+    sp?: ServiceProvider
   ) {
     super();
     this._internalState = internalState;
     this._databases = {};
-    this._serviceProvider = this._internalState.initialServiceProvider;
+    if (sp) {
+      this.__serviceProvider = sp;
+    }
     if (typeof uri === 'string') {
       this._uri = generateUri({ _: [uri] });
     } else {
-      this._uri = this._serviceProvider?.getURI?.() ?? generateUri({ _: ['mongodb://localhost/'] });
+      this._uri = sp?.getURI?.() ?? generateUri({ _: ['mongodb://localhost/'] });
     }
     this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
     if (fleOptions) {
@@ -88,12 +91,28 @@ export default class Mongo extends ShellApiClass {
         this._explicitEncryptionOnly = !!fleOptions.explicitEncryptionOnly;
         delete fleOptions.explicitEncryptionOnly;
       }
-      this._fleOptions = processFLEOptions(fleOptions, this._serviceProvider);
+      this._fleOptions = processFLEOptions(fleOptions);
       const { mongocryptdSpawnPath } = this._internalState;
       if (mongocryptdSpawnPath) {
         (this._fleOptions.extraOptions ??= {}).mongocryptdSpawnPath = mongocryptdSpawnPath;
       }
     }
+  }
+
+  // We don't have a ServiceProvider available until we are connected, but
+  // generally speaking, it's always there, so instead of using a type of
+  // `ServiceProvider | null` and a data property, we use a getter that throws
+  // if used too early.
+  get _serviceProvider(): ServiceProvider {
+    if (this.__serviceProvider === null) {
+      throw new MongoshInternalError('No ServiceProvider available for this mongo');
+    }
+    return this.__serviceProvider;
+  }
+
+  // For testing.
+  set _serviceProvider(sp: ServiceProvider) {
+    this.__serviceProvider = sp;
   }
 
   /**
@@ -126,7 +145,8 @@ export default class Mongo extends ShellApiClass {
     if (this._fleOptions && !this._explicitEncryptionOnly) {
       mongoClientOptions.autoEncryption = this._fleOptions;
     }
-    this._serviceProvider = await this._serviceProvider.getNewConnection(this._uri, mongoClientOptions);
+    const parentProvider = this._internalState.initialServiceProvider;
+    this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
   }
 
   _getDb(name: string): Database {
