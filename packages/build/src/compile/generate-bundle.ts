@@ -1,29 +1,29 @@
 import path from 'path';
 import Bundler from 'parcel-bundler';
-import writeAnalyticsConfig from './analytics';
+import { writeAnalyticsConfig } from '../analytics';
 
 /**
- * Generate the bundled up JS input that will be compiled
+ * Generate the bundled up JS entryFile that will be compiled
  * into the executable.
  *
- * @param {string} input - The input file to the cli.
- * @param {string} execInput - The input file that the exec will compile from.
+ * @param {string} entryFile - The entry file for generating the bundle.
+ * @param {string} bundleOutputFile - The output file the bundle will be written to.
  * @param {string} analyticsConfigFilePath - The path to the analytics config file.
  * @param {string} segmentKey - The segment API key.
  */
-async function generateInput(input: string, execInput: string, analyticsConfigFilePath: string, segmentKey: string): Promise<void> {
+export async function generateBundle(entryFile: string, bundleOutputFile: string, analyticsConfigFilePath: string, segmentKey: string): Promise<void> {
   // This takes the segment api key and writes it to the
   // cli-repl's analytics-config file.
   await writeAnalyticsConfig(analyticsConfigFilePath, segmentKey);
 
-  console.info('mongosh: creating bundle:', execInput);
+  console.info('mongosh: creating bundle:', bundleOutputFile);
 
   // Parcel is the saviour here since it was the only bundling
   // tool that could figure out how to handle everything in a
   // complex lerna project with cyclic dependencies everywhere.
-  const bundler = new Bundler(input, {
-    outDir: path.dirname(execInput),
-    outFile: path.basename(execInput),
+  const bundler = new Bundler(entryFile, {
+    outDir: path.dirname(bundleOutputFile),
+    outFile: path.basename(bundleOutputFile),
     contentHash: false,
     target: 'node',
     bundleNodeModules: true,
@@ -60,5 +60,3 @@ async function generateInput(input: string, execInput: string, analyticsConfigFi
 
   await bundler.bundle();
 }
-
-export default generateInput;

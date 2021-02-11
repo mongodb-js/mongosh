@@ -1,5 +1,5 @@
-import generateInput from './generate-input';
-import SignableCompiler from './signable-compiler';
+import { generateBundle } from './generate-bundle';
+import { SignableCompiler } from './signable-compiler';
 
 /**
  * Compile the executable. This builds the thing that ends up in `dist/`
@@ -16,7 +16,7 @@ export async function runCompile(
   // We use Parcel to bundle up everything into a single JS under
   // cli-repl/dist/mongosh.js that the executable generator can use as input.
   // This JS also takes care of the analytics config file being written.
-  await generateInput(input, execInput, analyticsConfigFilePath, segmentKey);
+  await generateBundle(input, execInput, analyticsConfigFilePath, segmentKey);
 
   console.info('mongosh: creating binary:', executablePath);
 

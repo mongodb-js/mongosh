@@ -1,16 +1,18 @@
 import { expect } from 'chai';
 import childProcess from 'child_process';
 import { promises as fs } from 'fs';
-import generateInput from './generate-input';
-import rimraf from 'rimraf';
 import path from 'path';
+import rimraf from 'rimraf';
 import { promisify } from 'util';
+import { generateBundle } from './generate-bundle';
+
 const execFile = promisify(childProcess.execFile);
 
-describe('input bundling', function() {
+describe('compile generateBundle', function() {
   this.timeout(60_000);
   const tmpdir = path.resolve(
-    __dirname, '..', '..', '..', 'tmp', `test-build-${Date.now()}-${Math.random()}`);
+    __dirname, '..', '..', '..', 'tmp', `test-build-${Date.now()}-${Math.random()}`
+  );
 
   beforeEach(async() => {
     await fs.mkdir(tmpdir, { recursive: true });
@@ -28,7 +30,7 @@ describe('input bundling', function() {
         analytics: require("./analytics")
       }));
       `);
-    await generateInput(
+    await generateBundle(
       path.join(tmpdir, 'b.js'),
       path.join(tmpdir, 'compiled.js'),
       path.join(tmpdir, 'analytics.js'),
@@ -49,9 +51,9 @@ describe('input bundling', function() {
     await fs.writeFile(path.join(pkg, 'cjs.js'), 'module.exports = "cjs"');
     await fs.writeFile(path.join(pkg, 'esm.mjs'), 'module.exports = "esm"');
     await fs.writeFile(path.join(tmpdir, 'b.js'), `
-      console.log(require("some-fake-module"));
-      `);
-    await generateInput(
+  console.log(require("some-fake-module"));
+`);
+    await generateBundle(
       path.join(tmpdir, 'b.js'),
       path.join(tmpdir, 'compiled.js'),
       path.join(tmpdir, 'analytics.js'),
@@ -69,7 +71,7 @@ describe('input bundling', function() {
     await fs.writeFile(path.join(tmpdir, 'b.js'), `
       console.log(require("some-fake-module"));
       `);
-    await generateInput(
+    await generateBundle(
       path.join(tmpdir, 'b.js'),
       path.join(tmpdir, 'compiled.js'),
       path.join(tmpdir, 'analytics.js'),
