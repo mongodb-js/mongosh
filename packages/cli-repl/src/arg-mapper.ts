@@ -7,6 +7,7 @@ import setValue from 'lodash.set';
 const MAPPINGS = {
   awsAccessKeyId: 'autoEncryption.kmsProviders.aws.accessKeyId',
   awsSecretAccessKey: 'autoEncryption.kmsProviders.aws.secretAccessKey',
+  awsSessionToken: 'autoEncryption.kmsProviders.aws.sessionToken',
   authenticationDatabase: 'authSource',
   authenticationMechanism: 'authMechanism',
   keyVaultNamespace: 'autoEncryption.keyVaultNamespace',
