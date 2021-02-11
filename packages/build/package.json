@@ -18,7 +18,8 @@
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "check": "npm run lint"
+    "check": "npm run lint",
+    "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts"
   },
   "license": "Apache-2.0",
   "publishConfig": {

@@ -15,13 +15,15 @@ import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 
+export type ReleaseCommand = 'bump' | 'compile' | 'package' | 'upload' | 'draft' | 'publish';
+
 /**
  * Run release specific commands.
  * @param command The command to run
  * @param config The configuration, usually config/build.config.js.
  */
-export default async function release(
-  command: 'bump' | 'compile' | 'package' | 'upload' | 'draft' | 'publish',
+export async function release(
+  command: ReleaseCommand,
   config: Config
 ): Promise<void> {
   config = {
