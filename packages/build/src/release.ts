@@ -11,9 +11,9 @@ import getReleaseVersionFromTag from './get-release-version-from-tag';
 import { GithubRepo } from './github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import { runPackage } from './package';
 import { redactConfig } from './redact-config';
 import { runDraft } from './run-draft';
-import { runPackage } from './run-package';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 

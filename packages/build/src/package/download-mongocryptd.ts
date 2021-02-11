@@ -1,6 +1,6 @@
-import { downloadMongoDb } from './download-mongodb';
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
+import { downloadMongoDb } from '../download-mongodb';
 
 export async function downloadMongocrypt(): Promise<string> {
   console.info('mongosh: downloading latest mongocryptd for inclusion in package');
