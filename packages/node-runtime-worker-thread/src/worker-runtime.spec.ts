@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import { once } from 'events';
 import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
@@ -15,19 +14,19 @@ import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 chai.use(sinonChai);
 
 // We need a compiled version so we can import it as a worker
-const workerThreadModule = fs.readFile(
-  path.resolve(__dirname, '..', 'dist', 'worker-runtime.js'),
-  'utf8'
+const workerThreadModule = path.resolve(
+  __dirname,
+  '..',
+  'dist',
+  'worker-runtime.js'
 );
 
-// This set of tests causes flakiness in CI, disabled for now and will be
-// resolved in a separate PR
-describe.skip('worker', () => {
+describe('worker', () => {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async() => {
-    worker = new Worker(await workerThreadModule, { eval: true });
+    worker = new Worker(workerThreadModule);
     await once(worker, 'message');
 
     caller = createCaller(
@@ -50,7 +49,17 @@ describe.skip('worker', () => {
 
   afterEach(async() => {
     if (worker) {
-      await worker.terminate();
+      // There is a Node.js bug that causes worker process to still be ref-ed
+      // after termination. To work around that, we are unrefing worker manually
+      // *immediately* after terminate method is called even though it should
+      // not be necessary. If this is not done in rare cases our test suite can
+      // get stuck. Even though the issue is fixed we would still need to keep
+      // this workaround for compat reasons.
+      //
+      // See: https://github.com/nodejs/node/pull/37319
+      const terminationPromise = worker.terminate();
+      worker.unref();
+      await terminationPromise;
       worker = null;
     }
 
@@ -61,11 +70,12 @@ describe.skip('worker', () => {
   });
 
   it('should throw if worker is not initialized yet', async() => {
-    caller = createCaller(['evaluate'], worker);
+    const { evaluate } = caller;
+
     let err: Error;
 
     try {
-      await caller.evaluate('1 + 1');
+      await evaluate('1 + 1');
     } catch (e) {
       err = e;
     }
@@ -413,12 +423,22 @@ describe.skip('worker', () => {
   });
 
   describe('evaluationListener', () => {
+    const spySandbox = sinon.createSandbox();
+
     const createSpiedEvaluationListener = () => {
-      return {
-        onPrint: sinon.spy(),
-        onPrompt: sinon.spy(() => '123'),
-        toggleTelemetry: sinon.spy()
+      const evalListener = {
+        onPrint() {},
+        toggleTelemetry() {},
+        onPrompt() {
+          return '123';
+        }
       };
+
+      spySandbox.spy(evalListener, 'onPrint');
+      spySandbox.spy(evalListener, 'onPrompt');
+      spySandbox.spy(evalListener, 'toggleTelemetry');
+
+      return evalListener;
     };
 
     let exposed: Exposed<unknown>;
@@ -428,6 +448,8 @@ describe.skip('worker', () => {
         exposed[close]();
         exposed = null;
       }
+
+      spySandbox.restore();
     });
 
     describe('onPrint', () => {
