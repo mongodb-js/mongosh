@@ -12,11 +12,11 @@ type Duplex = NodeJS.ReadableStream & NodeJS.WritableStream;
 // Return a Duplex stream that behaves like an HTTP stream, with the 'server'
 // being provided by the handler function in this case (which is expected
 // to return JSON).
-export function makeFakeHTTPConnection(handlerList: HandlerList): Duplex {
+export function makeFakeHTTPConnection(handlerList: HandlerList): Duplex & { requests: http.IncomingMessage[] } {
   const { socket1, socket2 } = new DuplexPair();
   const server = makeFakeHTTPServer(handlerList);
   server.emit('connection', socket2);
-  return socket1;
+  return Object.assign(socket1, { requests: server.requests });
 }
 
 type FakeHTTPServer = http.Server & { requests: http.IncomingMessage[] };

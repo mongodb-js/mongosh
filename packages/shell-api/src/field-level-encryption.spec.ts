@@ -6,7 +6,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Database from './database';
 import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, KeyVault } from './field-level-encryption';
+import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, ClientSideFieldLevelEncryptionKmsProvider as KMSProvider, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import { DeleteResult } from './result';
 import ShellInternalState from './shell-internal-state';
@@ -458,6 +458,7 @@ describe('Field Level Encryption', () => {
     let uri: string;
     let serviceProvider;
     let internalState;
+    let connections: any[];
 
     beforeEach(async() => {
       dbname = `test_fle_${Date.now()}`;
@@ -465,12 +466,15 @@ describe('Field Level Encryption', () => {
       serviceProvider = await CliServiceProvider.connect(uri);
       internalState = new ShellInternalState(serviceProvider);
 
+      connections = [];
       sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
         if (!fakeAWSHandlers.some(handler => handler.host.test(options.host))) {
           throw new Error(`Unexpected TLS connection to ${options.host}`);
         }
         process.nextTick(onConnect);
-        return makeFakeHTTPConnection(fakeAWSHandlers);
+        const conn = makeFakeHTTPConnection(fakeAWSHandlers);
+        connections.push(conn);
+        return conn;
       }));
     });
 
@@ -480,20 +484,25 @@ describe('Field Level Encryption', () => {
       sinon.restore();
     });
 
-    const kms = {
-      local: {
+    const kms: [keyof KMSProvider, KMSProvider[keyof KMSProvider]][] = [
+      ['local', {
         key: new bson.Binary(Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY', 'base64'), 0)
-      },
-      aws: {
+      }],
+      ['aws', {
         accessKeyId: 'SxHpYMUtB1CEVg9tX0N1',
         secretAccessKey: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7'
-      },
-      azure: {
+      }],
+      ['aws', {
+        accessKeyId: 'SxHpYMUtB1CEVg9tX0N1',
+        secretAccessKey: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7',
+        sessionToken: 'WXWHMnniSqij0CH27KK7H'
+      } as any], // As any until we have NODE-3107
+      ['azure', {
         tenantId: 'MUtB1CEVg9tX0',
         clientId: 'SxHpYMUtB1CEVg9tX0N1',
         clientSecret: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7'
-      },
-      gcp: {
+      }],
+      ['gcp', {
         email: 'somebody@google.com',
         // Taken from the PKCS 8 Wikipedia page.
         privateKey: `\
@@ -505,14 +514,14 @@ lt6waE7I2uSPqIC20LcCIQDJQYIHQII+3YaPqyhGgqMexuuuGx+lDKD6/Fu/JwPb
 5QIhAKthiYcYKlL9h8bjDsQhZDUACPasjzdsDEdq8inDyLOFAiEAmCr/tZwA3qeA
 ZoBzI10DGPIuoKXBd3nk/eBxPkaxlEECIQCNymjsoI7GldtujVnr1qT+3yedLfHK
 srDVjIT3LsvTqw==`
-      }
-    };
-    for (const kmsName of Object.keys(kms)) {
+      }]
+    ];
+    for (const [ kmsName, kmsOptions ] of kms) {
       // eslint-disable-next-line no-loop-func
       it(`provides ClientEncryption for kms=${kmsName}`, async() => {
         const mongo = new Mongo(internalState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
-          kmsProvider: { [kmsName]: kms[kmsName] } as any,
+          kmsProvider: { [kmsName]: kmsOptions } as any,
           explicitEncryptionOnly: true
         }, serviceProvider);
         await mongo.connect();
@@ -560,6 +569,14 @@ srDVjIT3LsvTqw==`
         expect(keyId.sub_type).to.equal(4); // UUID
         expect(encrypted.sub_type).to.equal(6); // Encrypted
         expect(decrypted).to.deep.equal(plaintextValue);
+
+        if ((kmsOptions as any).sessionToken) { // as any -> NODE-3107
+          expect(
+            connections.map(
+              conn => conn.requests.map(
+                req => req.headers['x-amz-security-token'])).flat())
+            .to.include((kmsOptions as any).sessionToken);
+        }
       });
     }
   });
