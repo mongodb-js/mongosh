@@ -96,6 +96,11 @@ export default class Mongo extends ShellApiClass {
       if (mongocryptdSpawnPath) {
         (this._fleOptions.extraOptions ??= {}).mongocryptdSpawnPath = mongocryptdSpawnPath;
       }
+    } else {
+      const spFleOptions = sp?.getFleOptions?.();
+      if (spFleOptions) {
+        this._fleOptions = spFleOptions;
+      }
     }
   }
 

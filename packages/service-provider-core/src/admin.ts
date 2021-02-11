@@ -9,7 +9,8 @@ import type {
   ClientSession,
   DbOptions,
   ClientSessionOptions,
-  ListDatabasesOptions
+  ListDatabasesOptions,
+  AutoEncryptionOptions
 } from './all-transport-types';
 import type { bson as BSON } from './index';
 import { ReplPlatform } from './platform';
@@ -110,4 +111,9 @@ export default interface Admin {
    * The FLE implementation for access to the client-side encryption API.
    */
   fle?: FLE | undefined;
+
+  /**
+   * The FLE options passed to the client, if any.
+   */
+  getFleOptions?: () => AutoEncryptionOptions | undefined;
 }
