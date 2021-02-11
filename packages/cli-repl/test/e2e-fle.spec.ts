@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { TestShell } from './test-shell';
 import { startTestServer, useBinaryPath, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
@@ -78,5 +79,24 @@ describe('FLE tests', () => {
     if (!kmsServer.requests.some(req => req.headers.authorization.includes(accessKeyId))) {
       throw new Error(`Missed expected request to AWS\nShell output:\n${shell.output}\nRequests:\n${kmsServer.requests.map(req => inspect(req.headers))}`);
     }
+  });
+
+  it('works when the original shell was started with --nodb', async() => {
+    const shell = TestShell.start({
+      args: ['--nodb']
+    });
+    await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+    await shell.executeLine(`keyMongo = Mongo(${JSON.stringify(await testServer.connectionString())}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProvider: { local } \
+    });`);
+    await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+    const keyId = await shell.executeLine('keyId = keyVault.createKey("local");');
+    const uuidRegexp = /UUID([^)])/;
+    expect(keyId).to.match(uuidRegexp);
+    await shell.executeLine(`plainMongo = Mongo(${JSON.stringify(await testServer.connectionString())})`);
+    await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
+    const keyVaultContents = await shell.executeLine('db.keyVault.find()');
+    expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
   });
 });
