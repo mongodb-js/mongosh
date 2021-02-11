@@ -110,6 +110,11 @@ export default class Mongo extends ShellApiClass {
     return this.__serviceProvider;
   }
 
+  // For testing.
+  set _serviceProvider(sp: ServiceProvider) {
+    this.__serviceProvider = sp;
+  }
+
   /**
    * Internal method to determine what is printed for this class.
    */

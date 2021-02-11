@@ -126,7 +126,7 @@ describe('Database', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState);
+      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
     });
     describe('getCollectionInfos', () => {
@@ -2368,7 +2368,7 @@ describe('Database', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
       const internalState = new ShellInternalState(serviceProvider, bus);
-      const mongo = new Mongo(internalState);
+      const mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
       database = session.getDatabase('db1');
     });

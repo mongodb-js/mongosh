@@ -229,7 +229,7 @@ describe('ShellApi', () => {
               'mongodb://127.0.0.1:27017/dbname?directConnection=true',
               {
                 autoEncryption: {
-                  keyVaultClient: rawClientStub,
+                  keyVaultClient: undefined,
                   keyVaultNamespace: 'encryption.dataKeys',
                   kmsProviders: { local: { key: expectedKey } }
                 }
@@ -250,7 +250,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true',
             {
               autoEncryption: {
-                keyVaultClient: rawClientStub,
+                keyVaultClient: undefined,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { aws: { accessKeyId: 'abc', secretAccessKey: '123' } }
               }
@@ -280,7 +280,7 @@ describe('ShellApi', () => {
           const sp = stubInterface<ServiceProvider>();
           const rc = stubInterface<MongoClient>();
           sp.getRawClient.returns(rc);
-          const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName');
+          const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName', undefined, sp);
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProvider: {
@@ -357,7 +357,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true',
             {
               autoEncryption: {
-                keyVaultClient: rawClientStub,
+                keyVaultClient: undefined,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } },
                 schemaMap: schemaMap,
