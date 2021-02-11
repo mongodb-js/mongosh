@@ -49,11 +49,14 @@ describe('worker', () => {
 
   afterEach(async() => {
     if (worker) {
-      // Possibly a Node.js bug that causes worker process to still be ref-ed
+      // There is a Node.js bug that causes worker process to still be ref-ed
       // after termination. To work around that, we are unrefing worker manually
-      // *immediately() after terminate method is called even though it should
+      // *immediately* after terminate method is called even though it should
       // not be necessary. If this is not done in rare cases our test suite can
-      // get stuck
+      // get stuck. Even though the issue is fixed we would still need to keep
+      // this workaround for compat reasons.
+      //
+      // See: https://github.com/nodejs/node/pull/37319
       const terminationPromise = worker.terminate();
       worker.unref();
       await terminationPromise;
