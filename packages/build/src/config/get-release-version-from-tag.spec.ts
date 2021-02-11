@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import getReleaseVersionFromTag from './get-release-version-from-tag';
+import { getReleaseVersionFromTag } from './get-release-version-from-tag';
 
 describe('GithubRepo', () => {
   describe('getReleaseVersionFromTag', () => {

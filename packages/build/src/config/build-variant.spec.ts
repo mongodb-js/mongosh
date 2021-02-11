@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import BuildVariant, { ALL_BUILD_VARIANTS } from './build-variant';
+import { ALL_BUILD_VARIANTS, BuildVariant } from './build-variant';
 
 describe('BuildVariant', () => {
   describe('all build variants', () => {

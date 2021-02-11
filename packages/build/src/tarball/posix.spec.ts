@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import { withTempPackageEach } from '../../test/helpers';
-import BuildVariant from '../build-variant';
+import { BuildVariant } from '../config';
 import { createTarball } from './create-tarball';
 
 describe('tarball posix', () => {

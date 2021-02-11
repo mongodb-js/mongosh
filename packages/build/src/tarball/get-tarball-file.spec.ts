@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import BuildVariant from '../build-variant';
+import { BuildVariant } from '../config';
 import { getTarballFile } from './get-tarball-file';
 
 describe('tarball getTarballFile', () => {

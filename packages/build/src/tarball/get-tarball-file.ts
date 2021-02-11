@@ -1,4 +1,4 @@
-import BuildVariant from '../build-variant';
+import { BuildVariant } from '../config';
 
 export interface TarballFile {
   path: string;

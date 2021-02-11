@@ -5,7 +5,7 @@ import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
-import Platform from '../platform';
+import { Platform } from '../config';
 
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
