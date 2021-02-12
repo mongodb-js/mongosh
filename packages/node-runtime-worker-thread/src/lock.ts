@@ -8,6 +8,10 @@ export class Lock {
   private resolve: ((...args: any[]) => any) | null = null;
 
   lock(): Promise<UNLOCKED> {
+    if (this.isLocked()) {
+      throw new Error('Can\'t create another lock while locked');
+    }
+
     this.promise = new Promise((resolve) => {
       this.resolve = resolve;
     });

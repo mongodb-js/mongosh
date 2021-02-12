@@ -19,6 +19,27 @@ describe('Lock', () => {
     expect(wasUnlocked).to.equal(true);
   });
 
+  it('throws when trying to create locks when locked', () => {
+    const lock = new Lock();
+
+    lock.lock();
+
+    let err: Error;
+
+    try {
+      lock.lock();
+    } catch (e) {
+      err = e;
+    } finally {
+      lock.unlock();
+    }
+
+    expect(err).to.be.instanceof(Error);
+    expect(err)
+      .to.have.property('message')
+      .match(/Can't create another lock while locked/);
+  });
+
   describe('unlock', () => {
     it('should return false if lock is not locked', () => {
       const lock = new Lock();
