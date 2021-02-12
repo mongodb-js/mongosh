@@ -74,7 +74,8 @@ import {
   ChangeStream,
   bson as BSON,
   ConnectionString,
-  FLE
+  FLE,
+  AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
@@ -1166,6 +1167,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 
   getURI(): string | undefined {
     return this.uri?.href;
+  }
+
+  getFleOptions(): AutoEncryptionOptions | undefined {
+    return this.currentClientOptions.autoEncryption;
   }
 }
 
