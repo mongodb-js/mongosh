@@ -726,7 +726,7 @@ describe('CliServiceProvider', () => {
     it('executes the command', async() => {
       const result = await serviceProvider.createCollection('db1', 'newcoll', {});
       expect(result).to.deep.equal({ ok: 1 });
-      expect(dbStub.createCollection).to.have.been.calledOnceWith('newcoll', {});
+      expect(dbStub.createCollection).to.have.been.calledOnceWith('newcoll', DEFAULT_BASE_OPTS);
       expect(clientStub.db).to.have.been.calledOnceWith('db1');
     });
   });
