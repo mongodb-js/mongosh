@@ -3,6 +3,7 @@ import Help from './help';
 import { BinaryType, bson as BSON } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefined, assertArgsType } from './helpers';
+import { randomBytes } from 'crypto';
 
 function constructHelp(className: string): Help {
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -145,12 +146,18 @@ export default function constructShellBson(bson: typeof BSON): any {
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     },
-    UUID: function(hexstr: string): BinaryType {
-      assertArgsDefined(hexstr);
+    UUID: function(hexstr?: string): BinaryType {
+      if (hexstr === undefined) {
+        // Generate a version 4, variant 1 UUID, like the old shell did.
+        const uuid = randomBytes(16);
+        uuid[6] = (uuid[6] & 0x0f) | 0x40;
+        uuid[8] = (uuid[8] & 0x3f) | 0x80;
+        hexstr = uuid.toString('hex');
+      }
       assertArgsType([hexstr], ['string']);
       // Strip any dashes, as they occur in the standard UUID formatting
       // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
-      const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
+      const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     },
     MD5: function(hexstr: string): BinaryType {

@@ -391,13 +391,10 @@ describe('Shell BSON', () => {
       expect(shellBson.UUID('01234567-89ab-cdef-0123-456789abcdef').value())
         .to.equal(shellBson.UUID('0123456789abcdef0123456789abcdef').value());
     });
-    it('errors for missing arg 1', () => {
-      try {
-        (shellBson.UUID as any)();
-      } catch (e) {
-        return expect(e.message).to.contain('Missing required argument');
-      }
-      expect.fail('Expecting error, nothing thrown');
+    it('generates a random UUID when no arguments are passed', () => {
+      // https://en.wikipedia.org/wiki/Universally_unique_identifier#Format
+      expect(shellBson.UUID().value(true).toString('hex')).to.match(
+        /^[a-z0-9]{12}4[a-z0-9]{3}[89ab][a-z0-9]{15}$/);
     });
     it('errors for wrong type of arg 1', () => {
       try {
