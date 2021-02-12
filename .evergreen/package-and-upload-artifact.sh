@@ -4,11 +4,14 @@ set -e
 cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
 set -e
 cd $(pwd)
+
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
+
 source .evergreen/.setup_env
 tar xvzf dist.tgz
 dist/mongosh --version
+
 if [ "$(uname)" == Linux ]; then
   # For the rpm, we want to download the RHEL/CentOS 7 mongocryptd binary.
   # (We can/should probably remove this after https://jira.mongodb.org/browse/MONGOSH-541)
@@ -27,7 +30,7 @@ if [ "$(uname)" == Linux ]; then
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
     -e BUILD_VARIANT \
-    -e ARTIFACT_URL_FILE \
+    -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
     -e DISTRO_ID_OVERRIDE \
     --rm -v $PWD:/tmp/build --network host centos7-package \
     -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'

@@ -46,7 +46,7 @@
     "start": "npm run start-cli",
     "compile-exec": "npm run evergreen-release compile",
     "compile-all": "npm run compile-compass && npm run compile-exec",
-    "evergreen-release": "lerna run --stream --scope @mongosh/build evergreen-release --",
+    "evergreen-release": "cd packages/build && npm run evergreen-release --",
     "report-missing-help": "lerna run --stream --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",
