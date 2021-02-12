@@ -5,7 +5,7 @@ cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
 set -e
 cd $(pwd)
 export NODE_JS_VERSION=${NODE_JS_VERSION}
-export ARTIFACT_URL_FILE=artifact-url.txt
+export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
 source .evergreen/.setup_env
 tar xvzf dist.tgz
 dist/mongosh --version
