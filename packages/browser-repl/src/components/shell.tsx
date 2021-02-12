@@ -3,15 +3,16 @@ import classnames from 'classnames';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
-import { Runtime } from '@mongosh/browser-runtime-core';
+import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
+import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 
 const styles = require('./shell.less');
 
 interface ShellProps {
   /* The runtime used to evaluate code.
-  */
-  runtime: Runtime;
+   */
+  runtime: Runtime | WorkerRuntime;
 
   /* A function called each time the output changes with an array of
    * ShellOutputEntryes.
@@ -110,7 +111,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   private evaluate = async(code: string): Promise<ShellOutputEntry> => {
-    let outputLine : ShellOutputEntry;
+    let outputLine: ShellOutputEntry;
 
     try {
       this.props.runtime.setEvaluationListener(this);
@@ -135,7 +136,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   private async updateShellPrompt(): Promise<void> {
     let shellPrompt = '>';
     try {
-      shellPrompt = await this.props.runtime.getShellPrompt() ?? '>';
+      shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
     } catch (e) {
       // Just ignore errors when getting the prompt...
     }
@@ -276,36 +277,55 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
   };
 
+  private onSigInt = (): Promise<boolean> => {
+    if (
+      this.state.operationInProgress &&
+      (this.props.runtime as WorkerRuntime).interrupt
+    ) {
+      return (this.props.runtime as WorkerRuntime).interrupt();
+    }
+
+    return Promise.resolve(false);
+  };
+
   renderInput(): JSX.Element {
     if (this.state.passwordPrompt) {
-      return (<PasswordPrompt
-        onFinish={this.onFinishPasswordPrompt}
-        onCancel={this.onCancelPasswordPrompt}
-        prompt={this.state.passwordPrompt}
-      />);
+      return (
+        <PasswordPrompt
+          onFinish={this.onFinishPasswordPrompt}
+          onCancel={this.onCancelPasswordPrompt}
+          prompt={this.state.passwordPrompt}
+        />
+      );
     }
-    return (<ShellInput
-      prompt={this.state.shellPrompt}
-      autocompleter={this.props.runtime}
-      history={this.state.history}
-      onClearCommand={this.onClearCommand}
-      onInput={this.onInput}
-      operationInProgress={this.state.operationInProgress}
-      setInputRef={(ref: {editor?: HTMLElement}): void => { this.shellInputRef = ref;}}
-    />);
+
+    return (
+      <ShellInput
+        prompt={this.state.shellPrompt}
+        autocompleter={this.props.runtime}
+        history={this.state.history}
+        onClearCommand={this.onClearCommand}
+        onInput={this.onInput}
+        operationInProgress={this.state.operationInProgress}
+        setInputRef={(ref: { editor?: HTMLElement }): void => {
+          this.shellInputRef = ref;
+        }}
+        onSigInt={this.onSigInt}
+      />
+    );
   }
 
   render(): JSX.Element {
     return (
-      <div
-        className={classnames(styles.shell)}
-        onClick={this.onShellClicked}
-      >
+      <div className={classnames(styles.shell)} onClick={this.onShellClicked}>
         <div>
-          <ShellOutput
-            output={this.state.output} />
+          <ShellOutput output={this.state.output} />
         </div>
-        <div ref={(el): void => { this.shellInputElement = el; }}>
+        <div
+          ref={(el): void => {
+            this.shellInputElement = el;
+          }}
+        >
           {this.renderInput()}
         </div>
       </div>

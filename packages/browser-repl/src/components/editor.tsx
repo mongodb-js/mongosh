@@ -20,6 +20,7 @@ interface EditorProps {
   onArrowDownOnLastLine(): void | Promise<void>;
   onChange(value: string): void | Promise<void>;
   onClearCommand(): void | Promise<void>;
+  onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
   setInputRef?(ref: { editor?: HTMLElement }): void;
   value: string;
@@ -32,6 +33,7 @@ export class Editor extends Component<EditorProps> {
     onArrowDownOnLastLine: noop,
     onChange: noop,
     onClearCommand: noop,
+    onSigInt: noop,
     operationInProgress: false,
     value: '',
     moveCursorToTheEndOfInput: false
@@ -142,6 +144,15 @@ export class Editor extends Component<EditorProps> {
           name: 'clearShell',
           bindKey: { win: 'Ctrl-L', mac: 'Command-L' },
           exec: this.props.onClearCommand
+        },
+        {
+          name: 'SIGINT',
+          bindKey: { win: 'Ctrl-C', mac: 'Ctrl-C' },
+          exec: this.props.onSigInt,
+          // Types don't have it but it exists
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          readOnly: true,
         }
       ]}
       width="100%"

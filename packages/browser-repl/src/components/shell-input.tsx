@@ -16,6 +16,7 @@ interface ShellInputProps {
   operationInProgress?: boolean;
   prompt?: string;
   setInputRef?(ref: { editor?: HTMLElement }): void;
+  onSigInt?(): Promise<boolean>;
 }
 
 interface ShellInputState {
@@ -131,21 +132,28 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       />);
     }
 
-    const editor = (<Editor
-      autocompleter={this.props.autocompleter}
-      onArrowUpOnFirstLine={this.historyBack}
-      onArrowDownOnLastLine={this.historyNext}
-      onChange={this.onChange}
-      onEnter={this.onEnter}
-      onClearCommand={this.props.onClearCommand}
-      setInputRef={this.props.setInputRef}
-      value={this.state.currentValue}
-      operationInProgress={this.props.operationInProgress}
-      moveCursorToTheEndOfInput={this.state.didLoadHistoryItem}
-    />);
+    const editor = (
+      <Editor
+        autocompleter={this.props.autocompleter}
+        onArrowUpOnFirstLine={this.historyBack}
+        onArrowDownOnLastLine={this.historyNext}
+        onChange={this.onChange}
+        onEnter={this.onEnter}
+        onClearCommand={this.props.onClearCommand}
+        setInputRef={this.props.setInputRef}
+        value={this.state.currentValue}
+        operationInProgress={this.props.operationInProgress}
+        moveCursorToTheEndOfInput={this.state.didLoadHistoryItem}
+        onSigInt={this.props.onSigInt}
+      />
+    );
 
     const className = classnames(styles['shell-input']);
 
-    return <LineWithIcon className={className} icon={prompt}>{editor}</LineWithIcon>;
+    return (
+      <LineWithIcon className={className} icon={prompt}>
+        {editor}
+      </LineWithIcon>
+    );
   }
 }

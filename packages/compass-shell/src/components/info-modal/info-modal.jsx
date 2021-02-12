@@ -8,34 +8,48 @@ import { SET_SHOW_INFO_MODAL } from '../../modules/info-modal';
 
 import styles from './info-modal.less';
 
-const hotkeys = [{
-  key: 'Ctrl+A',
-  description: 'Moves the cursor to the begining of the line.'
-}, {
-  key: 'Ctrl+B',
-  description: 'Moves the cursor backwards one character.'
-}, {
-  key: 'Ctrl+D',
-  description: 'Erases the next character.'
-}, {
-  key: 'Ctrl+E',
-  description: 'Moves the cursor to the end of the line.'
-}, {
-  key: 'Ctrl+F',
-  description: 'Moves the cursor forwards one character.'
-}, {
-  key: 'Ctrl+H',
-  description: 'Erases one character. Similar to hitting backspace.'
-}, {
-  key: 'Ctrl+L',
-  description: 'Clears the screen, similar to the clear command.'
-}, {
-  key: 'Ctrl+T',
-  description: 'Swap the last two characters before the cursor.'
-}, {
-  key: 'Ctrl+U',
-  description: 'Changes the line to uppercase.'
-}];
+const hotkeys = [
+  {
+    key: 'Ctrl+A',
+    description: 'Moves the cursor to the begining of the line.'
+  },
+  {
+    key: 'Ctrl+B',
+    description: 'Moves the cursor backwards one character.'
+  },
+  {
+    key: 'Ctrl+C',
+    description: 'Stop currently running command.'
+  },
+  {
+    key: 'Ctrl+D',
+    description: 'Erases the next character.'
+  },
+  {
+    key: 'Ctrl+E',
+    description: 'Moves the cursor to the end of the line.'
+  },
+  {
+    key: 'Ctrl+F',
+    description: 'Moves the cursor forwards one character.'
+  },
+  {
+    key: 'Ctrl+H',
+    description: 'Erases one character. Similar to hitting backspace.'
+  },
+  {
+    key: 'Ctrl+L',
+    description: 'Clears the screen, similar to the clear command.'
+  },
+  {
+    key: 'Ctrl+T',
+    description: 'Swap the last two characters before the cursor.'
+  },
+  {
+    key: 'Ctrl+U',
+    description: 'Changes the line to uppercase.'
+  }
+];
 
 /**
  * Show information on how to use the shell in compass.
