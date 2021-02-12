@@ -983,6 +983,31 @@ describe('Shell API (integration)', function() {
           }
         ]);
       });
+      it('creates a view that potentially contains JS functions in its pipeline', async() => {
+        const pipeline = (body: any) => [{
+          '$set': {
+            'name_md5': { '$function': { 'lang': 'js', 'args': ['$name'], 'body': body } }
+          }
+        }];
+        const fn = compileExpr `function (val) {
+          return hex_md5(val);
+        }`;
+        expect(
+          await database.createView(
+            'view',
+            'source',
+            pipeline(fn)
+          )
+        ).to.deep.equal({ ok: 1 });
+        const views = await serviceProvider.find(dbName, 'system.views', {}).toArray();
+        expect(JSON.parse(JSON.stringify(views))).to.deep.equal([
+          {
+            _id: `${dbName}.view`,
+            viewOn: 'source',
+            pipeline: pipeline({ code: fn.toString() })
+          }
+        ]);
+      });
     });
   });
 

@@ -1085,6 +1085,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options: CreateCollectionOptions = {},
     dbOptions?: DbOptions
   ): Promise<{ ok: number }> {
+    options = { ...this.baseCmdOptions, ...options };
     await this.db(dbName, dbOptions).createCollection(
       collName, options
     );
