@@ -49,7 +49,7 @@
     "@mongosh/types": "0.0.0-dev.0",
     "analytics-node": "^3.4.0-beta.1",
     "ansi-escape-sequences": "^5.1.2",
-    "askpassword": "^1.2.1",
+    "askpassword": "^1.2.3",
     "is-recoverable-error": "^1.0.2",
     "lodash.set": "^4.3.2",
     "mongodb-ace-autocompleter": "^0.4.1",
