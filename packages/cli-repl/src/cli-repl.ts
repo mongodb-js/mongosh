@@ -201,7 +201,6 @@ class CliRepl {
   async setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void> {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
-      this.config.disableGreetingMessage = true;
       this.bus.emit('mongosh:update-user', this.config.userId, this.config.enableTelemetry);
     }
     try {

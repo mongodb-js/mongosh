@@ -240,6 +240,7 @@ class MongoshNodeRepl implements EvaluationListener {
     text += `${MONGOSH_WIKI}\n`;
     if (!await this.configProvider.getConfig('disableGreetingMessage')) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
+      await this.configProvider.setConfig('disableGreetingMessage', true);
     }
     this.output.write(text);
   }
