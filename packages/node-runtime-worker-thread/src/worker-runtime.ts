@@ -4,7 +4,8 @@
 import { parentPort, isMainThread } from 'worker_threads';
 import {
   Runtime,
-  RuntimeEvaluationListener
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import {
@@ -15,6 +16,8 @@ import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 import { MongoshBus } from '@mongosh/types';
+import { Lock, UNLOCKED } from './lock';
+import { runInterruptible, InterruptHandle } from 'interruptor';
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -22,6 +25,8 @@ if (!parentPort || isMainThread) {
 
 let runtime: Runtime | null = null;
 let provider: ServiceProvider | null = null;
+
+const evaluationLock = new Lock();
 
 function ensureRuntime(methodName: string): Runtime {
   if (!runtime) {
@@ -33,8 +38,19 @@ function ensureRuntime(methodName: string): Runtime {
   return runtime;
 }
 
-const evaluationListener = createCaller<RuntimeEvaluationListener>(
-  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
+export type WorkerRuntimeEvaluationListener = RuntimeEvaluationListener & {
+  onRunInterruptible(handle: InterruptHandle | null): void;
+};
+
+const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
+  [
+    'onPrint',
+    'onPrompt',
+    'toggleTelemetry',
+    'onClearCommand',
+    'onExit',
+    'onRunInterruptible'
+  ],
   parentPort
 );
 
@@ -53,6 +69,8 @@ export type WorkerRuntime = Runtime & {
     driverOptions?: MongoClientOptions,
     cliOptions?: { nodb?: boolean }
   ): Promise<void>;
+
+  interrupt(): boolean;
 };
 
 const workerRuntime: WorkerRuntime = {
@@ -71,9 +89,48 @@ const workerRuntime: WorkerRuntime = {
   },
 
   async evaluate(code) {
-    return serializeEvaluationResult(
-      await ensureRuntime('evaluate').evaluate(code)
-    );
+    if (evaluationLock.isLocked()) {
+      throw new Error(
+        "Can't run another evaluation while the previous is not finished"
+      );
+    }
+
+    let interrupted = true;
+    let evaluationPromise: void | Promise<RuntimeEvaluationResult>;
+
+    try {
+      evaluationPromise = runInterruptible((handle) => {
+        try {
+          evaluationListener.onRunInterruptible(handle);
+          return ensureRuntime('evaluate').evaluate(code);
+        } finally {
+          interrupted = false;
+        }
+      });
+    } finally {
+      evaluationListener.onRunInterruptible(null);
+    }
+
+    let result: void | RuntimeEvaluationResult | UNLOCKED;
+
+    try {
+      result = await Promise.race([
+        evaluationPromise,
+        evaluationLock.lock()
+      ]);
+    } finally {
+      evaluationLock.unlock();
+    }
+
+    if (evaluationLock.isUnlockToken(result)) {
+      throw new Error('Async script execution was interrupted');
+    }
+
+    if (typeof result === 'undefined' || interrupted === true) {
+      throw new Error('Script execution was interrupted');
+    }
+
+    return serializeEvaluationResult(result);
   },
 
   async getCompletions(code) {
@@ -88,14 +145,18 @@ const workerRuntime: WorkerRuntime = {
     throw new Error(
       'Evaluation listener can not be directly set on the worker runtime'
     );
+  },
+
+  interrupt() {
+    return evaluationLock.unlock();
   }
 };
 
 // We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~15 (all exposed methods on
+// probably not more than ~25 (all exposed methods on
 // ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
 // in-flight calls on ChildProcessRuntime) at once
-parentPort.setMaxListeners(15);
+parentPort.setMaxListeners(25);
 
 exposeAll(workerRuntime, parentPort);
 

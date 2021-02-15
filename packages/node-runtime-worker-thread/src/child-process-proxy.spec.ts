@@ -3,6 +3,7 @@ import { ChildProcess, fork } from 'child_process';
 import { Caller, cancel, createCaller } from './rpc';
 import { expect } from 'chai';
 import { WorkerRuntime } from './worker-runtime';
+
 const childProcessModulePath = path.resolve(
   __dirname,
   '..',

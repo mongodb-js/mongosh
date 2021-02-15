@@ -180,4 +180,81 @@ describe('WorkerRuntime', () => {
       expect(err).to.have.property('isCanceled', true);
     });
   });
+
+  describe('interrupt', () => {
+    it('should interrupt in-flight async tasks', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          runtime.evaluate('sleep(1000000)'),
+          (async() => {
+            // This is flaky when not enought time given to the worker to
+            // finish the sync part of the work. If it causes too much issues
+            // it would be okay to disable this test completely
+            await sleep(1500);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Async script execution was interrupted/);
+    });
+
+    it('should interrupt in-flight synchronous tasks', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          runtime.evaluate('while(true){}'),
+          (async() => {
+            await sleep(200);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Script execution was interrupted/);
+    });
+
+    it('should allow to evaluate again after interruption', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      await runtime.waitForRuntimeToBeReady();
+
+      try {
+        await Promise.all([
+          runtime.evaluate('while(true){}'),
+          (async() => {
+            await sleep(200);
+            await runtime.interrupt();
+          })()
+        ]);
+      } catch (e) {
+        // ignore
+      }
+
+      const result = await runtime.evaluate('1+1');
+
+      expect(result).to.have.property('printable', 2);
+    });
+  });
 });

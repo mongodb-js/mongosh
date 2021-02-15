@@ -15,30 +15,20 @@
  */
 import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
-import fs from 'fs';
 import path from 'path';
 import { exposeAll, createCaller } from './rpc';
+import { InterruptHandle, interrupt as nativeInterrupt } from 'interruptor';
 
-// eslint-disable-next-line no-sync
-const workerRuntimeSrc = fs.readFileSync(
-  path.resolve(
-    process.env.NODE_RUNTIME_WORKER_THREAD_PARENT_DIRNAME || __dirname,
-    'worker-runtime.js'
-  ),
-  'utf-8'
-);
+const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
 
-const workerProcess = new Worker(workerRuntimeSrc, {
-  eval: true,
-  env: SHARE_ENV
-});
+const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
 
 // We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~15 (all exposed methods on
+// probably not more than ~25 (all exposed methods on
 // ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
 // in-flight calls on ChildProcessRuntime) at once
-process.setMaxListeners(15);
-workerProcess.setMaxListeners(15);
+process.setMaxListeners(25);
+workerProcess.setMaxListeners(25);
 
 const workerReadyPromise = new Promise(async(resolve) => {
   const [message] = await once(workerProcess, 'message');
@@ -47,9 +37,25 @@ const workerReadyPromise = new Promise(async(resolve) => {
   }
 });
 
-const worker = createCaller(
-  ['init', 'evaluate', 'getCompletions', 'getShellPrompt'],
-  workerProcess
+let interruptHandle: InterruptHandle | null = null;
+
+const { interrupt } = createCaller(['interrupt'], workerProcess);
+
+const worker = Object.assign(
+  createCaller(
+    ['init', 'evaluate', 'getCompletions', 'getShellPrompt'],
+    workerProcess
+  ),
+  {
+    interrupt(): boolean {
+      if (interruptHandle) {
+        nativeInterrupt(interruptHandle);
+        return true;
+      }
+
+      return interrupt();
+    }
+  }
 );
 
 function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
@@ -69,9 +75,16 @@ function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
 
 exposeAll(worker, process);
 
-const evaluationListener = createCaller(
-  ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
-  process
+const evaluationListener = Object.assign(
+  createCaller(
+    ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
+    process
+  ),
+  {
+    onRunInterruptible(handle: InterruptHandle | null) {
+      interruptHandle = handle;
+    }
+  }
 );
 
 exposeAll(evaluationListener, workerProcess);

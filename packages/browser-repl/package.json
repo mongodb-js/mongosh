@@ -42,6 +42,7 @@
     "@mongosh/browser-runtime-core": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
     "@mongosh/i18n": "0.0.0-dev.0",
+    "@mongosh/node-runtime-worker-thread": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
     "pretty-bytes": "^5.3.0",

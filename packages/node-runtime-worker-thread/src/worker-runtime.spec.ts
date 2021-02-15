@@ -10,6 +10,7 @@ import { Caller, cancel, close, createCaller, exposeAll, Exposed } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import { interrupt } from 'interruptor';
 
 chai.use(sinonChai);
 
@@ -20,6 +21,10 @@ const workerThreadModule = path.resolve(
   'dist',
   'worker-runtime.js'
 );
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe('worker', () => {
   let worker: Worker;
@@ -35,7 +40,8 @@ describe('worker', () => {
         'evaluate',
         'getCompletions',
         'getShellPrompt',
-        'setEvaluationListener'
+        'setEvaluationListener',
+        'interrupt'
       ],
       worker
     );
@@ -389,6 +395,29 @@ describe('worker', () => {
           .to.have.property('stack')
           .matches(/SyntaxError: Syntax!/);
       });
+
+      it('should throw when trying to run two evaluations concurrently', async() => {
+        const { init, evaluate } = caller;
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            evaluate('sleep(50); 1+1'),
+            evaluate('sleep(50); 1+1')
+          ]);
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(
+            /Can\'t run another evaluation while the previous is not finished/
+          );
+      });
     });
   });
 
@@ -428,15 +457,17 @@ describe('worker', () => {
     const createSpiedEvaluationListener = () => {
       const evalListener = {
         onPrint() {},
-        toggleTelemetry() {},
         onPrompt() {
           return '123';
-        }
+        },
+        toggleTelemetry() {},
+        onRunInterruptible() {}
       };
 
       spySandbox.spy(evalListener, 'onPrint');
       spySandbox.spy(evalListener, 'onPrompt');
       spySandbox.spy(evalListener, 'toggleTelemetry');
+      spySandbox.spy(evalListener, 'onRunInterruptible');
 
       return evalListener;
     };
@@ -498,6 +529,83 @@ describe('worker', () => {
         await evaluate('disableTelemetry()');
         expect(evalListener.toggleTelemetry).to.have.been.calledWith(false);
       });
+    });
+
+    describe('onRunInterruptible', () => {
+      it('should call callback when interruptible evaluation starts and ends', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+        await evaluate('1+1');
+
+        const [
+          firstCall,
+          secondCall
+        ] = (evalListener.onRunInterruptible as sinon.SinonSpy).args;
+
+        expect(firstCall[0]).to.have.property('__id');
+        expect(secondCall[0]).to.equal(null);
+      });
+
+      it('should return a handle that allows to interrupt the evaluation', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            evaluate('while(true){}'),
+            (async() => {
+              await sleep(50);
+              const handle = (evalListener.onRunInterruptible as sinon.SinonSpy)
+                .args[0][0];
+              interrupt(handle);
+            })()
+          ]);
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(/Script execution was interrupted/);
+      });
+    });
+  });
+
+  describe('interrupt', () => {
+    it('should interrupt in-flight async tasks', async() => {
+      const { init, evaluate, interrupt } = caller;
+
+      await init('mongodb://nodb/', {}, { nodb: true });
+
+      let err: Error;
+
+      try {
+        await Promise.all([
+          evaluate('sleep(100000)'),
+          (async() => {
+            await sleep(10);
+            await interrupt();
+          })()
+        ]);
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err)
+        .to.have.property('message')
+        .match(/Async script execution was interrupted/);
     });
   });
 });
