@@ -63,4 +63,22 @@ describe('LineByLineInput', () => {
       expect(forwardedChunks).to.deep.equal(['a', 'b', '\n']);
     });
   });
+
+  context('when a data listener calls nextLine() itself after Ctrl+C', () => {
+    it('does not emit data while already emitting data', () => {
+      let dataCalls = 0;
+      let insideDataCalls = 0;
+      lineByLineInput.on('data', () => {
+        expect(insideDataCalls).to.equal(0);
+        insideDataCalls++;
+        if (dataCalls++ === 0) {
+          lineByLineInput.nextLine();
+        }
+        insideDataCalls--;
+      });
+      stdinMock.emit('data', Buffer.from('foo\n\u0003'));
+      expect(dataCalls).to.equal(5);
+      expect(forwardedChunks).to.deep.equal(['\u0003', 'f', 'o', 'o', '\n']);
+    });
+  });
 });

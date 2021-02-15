@@ -27,6 +27,7 @@ export class LineByLineInput extends Readable {
   private _blockOnNewLineEnabled: boolean;
   private _charQueue: (string | null)[];
   private _decoder: StringDecoder;
+  private _insidePushCalls: number;
 
   constructor(readable: NodeJS.ReadStream) {
     super();
@@ -35,6 +36,7 @@ export class LineByLineInput extends Readable {
     this._blockOnNewLineEnabled = true;
     this._charQueue = [];
     this._decoder = new StringDecoder('utf-8');
+    this._insidePushCalls = 0;
 
     const isReadableEvent = (name: string) =>
       name === 'readable' || name === 'data' || name === 'end' || name === 'keypress';
@@ -144,7 +146,11 @@ export class LineByLineInput extends Readable {
       // have in the buffer if in the meanwhile something
       // downstream explicitly called pause(), as that may cause
       // unexpected behaviors.
-      !this._originalInput.isPaused()
+      !this._originalInput.isPaused() &&
+
+      // If we are already inside a push() call, then we do not need to flush
+      // the queue again.
+      this._insidePushCalls === 0
     ) {
       const char = this._charQueue.shift() as string | null;
 
@@ -166,5 +172,14 @@ export class LineByLineInput extends Readable {
 
   private _isCtrlC(char: string | null): boolean {
     return char === CTRL_C;
+  }
+
+  push(chunk: Buffer | string | null): boolean {
+    this._insidePushCalls++;
+    try {
+      return super.push(chunk);
+    } finally {
+      this._insidePushCalls--;
+    }
   }
 }
