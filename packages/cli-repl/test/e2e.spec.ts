@@ -550,7 +550,7 @@ describe('e2e', function() {
           const config = await readConfig();
           expect(config.userId).to.match(/^[a-f0-9]{24}$/);
           expect(config.enableTelemetry).to.be.true;
-          expect(config.disableGreetingMessage).to.be.false;
+          expect(config.disableGreetingMessage).to.be.true;
         });
 
         it('persists between sessions', async() => {
