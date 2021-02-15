@@ -441,16 +441,18 @@ tasks:
         variant: darwin
       - name: test_m44x_n12
         variant: darwin
-      - name: test_mlatest_n12
-        variant: darwin
+      # Revert the commit that commented this out after resolving
+      # https://jira.mongodb.org/browse/MONGOSH-592
+      #- name: test_mlatest_n12
+      #  variant: darwin
       - name: test_m40x_n14
         variant: darwin
       - name: test_m42x_n14
         variant: darwin
       - name: test_m44x_n14
         variant: darwin
-      - name: test_mlatest_n14
-        variant: darwin
+      #- name: test_mlatest_n14
+      #  variant: darwin
       - name: compile_artifact
         variant: darwin
     commands:
@@ -709,11 +711,11 @@ buildvariants:
       - name: test_m40x_n12
       - name: test_m42x_n12
       - name: test_m44x_n12
-      - name: test_mlatest_n12
+      #- name: test_mlatest_n12
       - name: test_m40x_n14
       - name: test_m42x_n14
       - name: test_m44x_n14
-      - name: test_mlatest_n14
+      #- name: test_mlatest_n14
       - name: compile_artifact
   - name: linux
     display_name: "Ubuntu 18.04"
