@@ -9,6 +9,7 @@ import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
 import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
 import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
+import stripAnsi from 'strip-ansi';
 
 const delay = promisify(setTimeout);
 
@@ -235,6 +236,19 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.include('65537');
     });
 
+    it('does not stop input when autocompleting during .editor', async() => {
+      input.write('.editor\n');
+      await tick();
+      expect(output).to.include('Entering editor mode');
+      output = '';
+      input.write('db.\u0009\u0009');
+      await tick();
+      input.write('version()\n');
+      input.write('\u0004'); // Ctrl+D
+      await waitEval(bus);
+      expect(output).to.include('Error running command serverBuildInfo');
+    });
+
     it('can enter multiline code', async() => {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
@@ -297,6 +311,20 @@ describe('MongoshNodeRepl', () => {
         input.write('somelong\u0009\u0009'); // U+0009 is TAB
         await tick();
         expect(output).to.include('somelongvariable');
+      });
+      it('autocompletion during .editor does not reset the prompt', async() => {
+        input.write('.editor\n');
+        await tick();
+        output = '';
+        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
+        input.write('db.\u0009\u0009');
+        await tick();
+        input.write('foo\nbar\n');
+        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
+        input.write('\u0003'); // Ctrl+C for abort
+        await tick();
+        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('> ');
+        expect(stripAnsi(output)).to.equal('ddbdb.db.\tdb.\tfdb.\tfodb.\tfoo\r\nbbabar\r\n\r\n> ');
       });
     });
 

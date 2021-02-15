@@ -65,6 +65,7 @@ class MongoshNodeRepl implements EvaluationListener {
   shellCliOptions: Partial<MongoshCliOptions>;
   configProvider: MongoshConfigProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
+  insideAutoComplete: boolean;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -74,6 +75,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.nodeReplOptions = options.nodeReplOptions || {};
     this.shellCliOptions = options.shellCliOptions || {};
     this.configProvider = options.configProvider;
+    this.insideAutoComplete = false;
     this._runtimeState = null;
   }
 
@@ -123,16 +125,21 @@ class MongoshNodeRepl implements EvaluationListener {
       completer.bind(null, internalState.getAutocompleteParameters());
     (repl as Mutable<typeof repl>).completer =
       callbackify(async(text: string): Promise<[string[], string]> => {
-        // Merge the results from the repl completer and the mongosh completer.
-        const [ [replResults], [mongoshResults] ] = await Promise.all([
-          (async() => await origReplCompleter(text) || [[]])(),
-          (async() => await mongoshCompleter(text))()
-        ]);
-        this.bus.emit('mongosh:autocompletion-complete'); // For testing.
-        // Remove duplicates, because shell API methods might otherwise show
-        // up in both completions.
-        const deduped = [...new Set([...replResults, ...mongoshResults])];
-        return [deduped, text];
+        this.insideAutoComplete = true;
+        try {
+          // Merge the results from the repl completer and the mongosh completer.
+          const [ [replResults], [mongoshResults] ] = await Promise.all([
+            (async() => await origReplCompleter(text) || [[]])(),
+            (async() => await mongoshCompleter(text))()
+          ]);
+          this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+          // Remove duplicates, because shell API methods might otherwise show
+          // up in both completions.
+          const deduped = [...new Set([...replResults, ...mongoshResults])];
+          return [deduped, text];
+        } finally {
+          this.insideAutoComplete = false;
+        }
       });
 
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
@@ -284,13 +291,18 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
-    this.lineByLineInput.enableBlockOnNewLine();
+    if (!this.insideAutoComplete) {
+      this.lineByLineInput.enableBlockOnNewLine();
+    }
+
     const { internalState, repl, shellEvaluator } = this.runtimeState();
 
     try {
       return await shellEvaluator.customEval(originalEval, input, context, filename);
     } finally {
-      repl.setPrompt(await this.getShellPrompt(internalState));
+      if (!this.insideAutoComplete) {
+        repl.setPrompt(await this.getShellPrompt(internalState));
+      }
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
   }
