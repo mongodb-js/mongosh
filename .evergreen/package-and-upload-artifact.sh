@@ -42,7 +42,7 @@ else
   fi
   if [ "$OS" == "Windows_NT" ]; then
     # Fix absolute path before handing over to node
-    export ARTIFACT_URL_FILE="$(cygpath -w "$ARTIFACT_URL_FILE")"
+    export ARTIFACT_URL_FILE="\$(cygpath -w "\$ARTIFACT_URL_FILE")"
   fi
   npm run evergreen-release upload
 fi
