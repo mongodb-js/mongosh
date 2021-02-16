@@ -171,7 +171,8 @@ export default function constructShellBson(bson: typeof BSON): any {
     BSONSymbol: bson.BSONSymbol,
     Int32: bson.Int32,
     Long: bson.Long,
-    Binary: bson.Binary
+    Binary: bson.Binary,
+    Double: bson.Double
   } as any;
 
   Object.keys(bsonPkg).forEach((className) => {
