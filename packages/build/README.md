@@ -66,7 +66,7 @@ const config = {
   appleCodesignIdentity: 'appleCodesignIdentity',
   isCi: true,
   platform: 'platform',
-  buildVariant: 'linux',
+  distributionBuildVariant: 'linux',
   repo: {
     owner: 'owner',
     repo: 'repo',
@@ -152,7 +152,7 @@ const tarball = require('@mongosh/build').tarball;
 const executable = 'path/to/executable'
 const config = {
   outputDir: 'path/to/output/directory',
-  buildVariant: 'windows_ps',
+  distributionBuildVariant: 'windows_ps',
   version: '0.2.0',
   rootDir: 'path/to/root/directory',
 }
@@ -160,7 +160,7 @@ const config = {
 const artifact = await createTarball(
   executable,
   config.outputDir,
-  config.buildVariant,
+  config.distributionBuildVariant,
   config.version,
   config.rootDir
 );

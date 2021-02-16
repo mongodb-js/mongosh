@@ -37,7 +37,7 @@ describe('do-upload', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'platform',
-      buildVariant: BuildVariant.Linux,
+      distributionBuildVariant: BuildVariant.Linux,
       repo: {
         owner: 'owner',
         repo: 'repo',

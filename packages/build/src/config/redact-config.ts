@@ -6,7 +6,7 @@ export function redactConfig(config: Config): Partial<Config> {
     appleNotarizationBundleId: config.appleNotarizationBundleId,
     rootDir: config.rootDir,
     input: config.input,
-    buildVariant: config.buildVariant,
+    distributionBuildVariant: config.distributionBuildVariant,
     executablePath: config.executablePath,
     execInput: config.execInput,
     outputDir: config.outputDir,

@@ -58,11 +58,10 @@ const APPLE_NOTARIZATION_BUNDLE_ID = 'com.mongodb.mongosh';
 /**
  * The SHA for the current git HEAD.
  */
+// TODO: replace with "real" SHA after EVG-13919
 const REVISION = process.env.IS_PATCH ?
   `pr-${process.env.GITHUB_PR_NUMBER}-${process.env.REVISION_ORDER_ID}` :
   process.env.REVISION;
-
-const BUILD_VARIANT = (process.env.BUILD_VARIANT || '').split('_')[0];
 
 /**
  * Export the configuration for the build.
@@ -89,7 +88,7 @@ module.exports = {
   triggeringGitTag: process.env.TRIGGERED_BY_GIT_TAG,
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
-  buildVariant: BUILD_VARIANT,
+  distributionBuildVariant: process.env.DISTRIBUTION_BUILD_VARIANT,
   appleCodesignIdentity: process.env.APPLE_CODESIGN_IDENTITY,
   appleCodesignEntitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
   appleNotarizationBundleId: APPLE_NOTARIZATION_BUNDLE_ID,

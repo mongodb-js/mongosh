@@ -37,7 +37,7 @@ describe('Barque', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'linux',
-      buildVariant: BuildVariant.Linux,
+      distributionBuildVariant: BuildVariant.Linux,
       repo: {
         owner: 'owner',
         repo: 'repo',
@@ -112,44 +112,44 @@ describe('Barque', () => {
 
   describe('.determineDistro', () => {
     it('determines distro for ubuntu', async() => {
-      const distro = barque.determineDistro('linux');
+      const distro = barque.determineDistro(BuildVariant.Linux);
       expect(distro).to.be.equal('ubuntu1804');
     });
 
     it('determines distro for debian', async() => {
-      const distro = barque.determineDistro('debian');
+      const distro = barque.determineDistro(BuildVariant.Debian);
       expect(distro).to.be.equal('debian10');
     });
 
     it('determines distro for redhat', async() => {
-      const distro = barque.determineDistro('rhel');
+      const distro = barque.determineDistro(BuildVariant.Redhat);
       expect(distro).to.be.equal('rhel80');
     });
 
     it('defaults to ubuntu distro', async() => {
-      const distro = barque.determineDistro('redhat');
+      const distro = barque.determineDistro('wrong' as any);
       expect(distro).to.be.equal('ubuntu1804');
     });
   });
 
   describe('.determineArch', () => {
     it('determines arch for ubuntu', async() => {
-      const distro = barque.determineArch('linux');
+      const distro = barque.determineArch(BuildVariant.Linux);
       expect(distro).to.be.equal('amd64');
     });
 
     it('determines arch for debian', async() => {
-      const distro = barque.determineArch('debian');
+      const distro = barque.determineArch(BuildVariant.Debian);
       expect(distro).to.be.equal('amd64');
     });
 
     it('determines arch for redhat', async() => {
-      const distro = barque.determineArch('rhel');
+      const distro = barque.determineArch(BuildVariant.Redhat);
       expect(distro).to.be.equal('x86_64');
     });
 
     it('defaults to ubuntu arch', async() => {
-      const distro = barque.determineArch('redhat');
+      const distro = barque.determineArch('wrong' as any);
       expect(distro).to.be.equal('amd64');
     });
   });

@@ -29,7 +29,7 @@ export interface Config {
   isCi?: boolean;
   platform?: string;
   execNodeVersion: string;
-  buildVariant: BuildVariant;
+  distributionBuildVariant?: BuildVariant;
   repo: {
     owner: string;
     repo: string;

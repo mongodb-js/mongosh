@@ -2,7 +2,7 @@
  * Build Variant enum.
  *
  * Different from 'platform': platform is extracted from os.platform() and
- * build variant is the host evergreen is building on.
+ * build variant defines the desired distribution type to build for.
  */
 export enum BuildVariant {
   Windows = 'win32',
