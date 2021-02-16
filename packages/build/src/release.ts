@@ -28,7 +28,7 @@ export async function release(
 ): Promise<void> {
   config = {
     ...config,
-    version: await getReleaseVersionFromTag(config.triggeringGitTag) || config.version
+    version: getReleaseVersionFromTag(config.triggeringGitTag) || config.version
   };
 
   console.info(

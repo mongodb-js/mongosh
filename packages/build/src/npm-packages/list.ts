@@ -1,5 +1,5 @@
 import { LERNA_BIN, PROJECT_ROOT } from './constants';
-import { spawnSync } from './spawn-sync';
+import { spawnSync } from '../helpers/spawn-sync';
 
 export interface LernaPackageDescription {
     name: string;

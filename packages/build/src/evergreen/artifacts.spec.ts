@@ -3,9 +3,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { downloadArtifactFromEvergreen } from './evergreen';
+import { downloadArtifactFromEvergreen } from './artifacts';
 
-describe('evergreen', () => {
+describe('evergreen artifacts', () => {
   describe('downloadArtifactFromEvergreen', () => {
     let tmpDir: string;
 

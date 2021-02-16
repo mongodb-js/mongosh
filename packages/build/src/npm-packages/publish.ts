@@ -1,7 +1,7 @@
 import path from 'path';
 import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
 import { LernaPackageDescription, listNpmPackages as listNpmPackagesFn } from './list';
-import { spawnSync } from './spawn-sync';
+import { spawnSync } from '../helpers/spawn-sync';
 
 export function publishNpmPackages(
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
