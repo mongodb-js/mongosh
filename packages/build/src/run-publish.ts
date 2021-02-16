@@ -4,7 +4,6 @@ import {
   BuildVariant,
   Config,
   getReleaseVersionFromTag,
-  redactConfig,
   shouldDoPublicRelease as shouldDoPublicReleaseFn
 } from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
@@ -26,11 +25,6 @@ export async function runPublish(
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn
 ): Promise<void> {
-  console.info(
-    'mongosh: beginning publish release with config:',
-    redactConfig(config)
-  );
-
   if (!shouldDoPublicRelease(config)) {
     console.warn('mongosh: Not triggering publish - configuration does not match a public release!');
     return;

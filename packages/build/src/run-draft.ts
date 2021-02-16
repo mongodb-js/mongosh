@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag, redactConfig } from './config';
+import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { GithubRepo } from './github-repo';
@@ -12,11 +12,6 @@ export async function runDraft(
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn
 ): Promise<void> {
-  console.info(
-    'mongosh: beginning draft release with config:',
-    redactConfig(config)
-  );
-
   if (!config.triggeringGitTag || !getReleaseVersionFromTag(config.triggeringGitTag)) {
     console.error('mongosh: skipping draft as not triggered by a git tag that matches a draft/release tag');
     return;

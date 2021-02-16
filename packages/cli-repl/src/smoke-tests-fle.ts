@@ -13,7 +13,7 @@ const assert = function(value, message) {
 try {
   // The mongocryptd binary that we ship works on Ubuntu 18.04 and above,
   // but not Ubuntu 16.04.
-  if (fs.readFileSync('/etc/issue', 'utf8').match(/Ubuntu 16/)) {
+  if (os.platform() === 'linux' && fs.readFileSync('/etc/issue', 'utf8').match(/Ubuntu 16/)) {
     print('Test skipped')
     process.exit(0);
   }
