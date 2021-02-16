@@ -33,7 +33,7 @@ const SCHEMA_MAP = {
 };
 const AWS_KMS = {
   keyVaultNamespace: `${DB}.${COLL}`,
-  kmsProvider: {
+  kmsProviders: {
     aws: {
       accessKeyId: 'abc',
       secretAccessKey: '123'
@@ -143,7 +143,7 @@ describe('Field Level Encryption', () => {
           {
             keyVaultClient: undefined,
             keyVaultNamespace: AWS_KMS.keyVaultNamespace,
-            kmsProviders: AWS_KMS.kmsProvider,
+            kmsProviders: AWS_KMS.kmsProviders,
             bypassAutoEncryption: AWS_KMS.bypassAutoEncryption,
             schemaMap: AWS_KMS.schemaMap
           }
@@ -393,7 +393,7 @@ describe('Field Level Encryption', () => {
     it('accepts the same local key twice', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
-        kmsProvider: {
+        kmsProviders: {
           local: {
             key: new bson.Binary(Buffer.alloc(96).toString('base64'))
           }
@@ -409,7 +409,7 @@ describe('Field Level Encryption', () => {
     it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
-        kmsProvider: {
+        kmsProviders: {
           local: {
             key: new bson.Binary(Buffer.alloc(96).toString('base64'))
           }
@@ -521,7 +521,7 @@ srDVjIT3LsvTqw==`
       it(`provides ClientEncryption for kms=${kmsName}`, async() => {
         const mongo = new Mongo(internalState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
-          kmsProvider: { [kmsName]: kmsOptions } as any,
+          kmsProviders: { [kmsName]: kmsOptions } as any,
           explicitEncryptionOnly: true
         }, serviceProvider);
         await mongo.connect();

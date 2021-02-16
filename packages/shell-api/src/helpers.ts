@@ -614,9 +614,9 @@ export function assertCLI(platform: ReplPlatform): void {
 }
 
 export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
-  assertArgsDefined(fleOptions.keyVaultNamespace, fleOptions.kmsProvider);
+  assertArgsDefined(fleOptions.keyVaultNamespace, fleOptions.kmsProviders);
   Object.keys(fleOptions).forEach(k => {
-    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProvider', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
+    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
@@ -625,12 +625,12 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
     keyVaultNamespace: fleOptions.keyVaultNamespace
   };
 
-  const localKey = fleOptions.kmsProvider.local?.key;
+  const localKey = fleOptions.kmsProviders.local?.key;
   if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
     const rawBuff = (localKey as BinaryType).value(true);
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
-        ...fleOptions.kmsProvider,
+        ...fleOptions.kmsProviders,
         local: {
           key: rawBuff
         }
@@ -639,7 +639,7 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
       throw new MongoshInvalidInputError('When specifying the key of a local KMS as BSON binary it must be constructed from a base64 encoded string');
     }
   } else {
-    autoEncryption.kmsProviders = { ...fleOptions.kmsProvider } as KMSProviders;
+    autoEncryption.kmsProviders = { ...fleOptions.kmsProviders } as KMSProviders;
   }
 
   if (fleOptions.schemaMap) {
