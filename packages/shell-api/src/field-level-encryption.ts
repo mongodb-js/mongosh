@@ -36,7 +36,7 @@ export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'loca
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
   keyVaultNamespace: string,
-  kmsProvider: ClientSideFieldLevelEncryptionKmsProvider,
+  kmsProviders: ClientSideFieldLevelEncryptionKmsProvider,
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
   explicitEncryptionOnly?: boolean;

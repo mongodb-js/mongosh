@@ -219,7 +219,7 @@ describe('ShellApi', () => {
           it(`local kms provider - key is ${type}`, async() => {
             await internalState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
-              kmsProvider: {
+              kmsProviders: {
                 local: {
                   key: key
                 }
@@ -239,7 +239,7 @@ describe('ShellApi', () => {
         it('aws kms provider', async() => {
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
+            kmsProviders: {
               aws: {
                 accessKeyId: 'abc',
                 secretAccessKey: '123'
@@ -259,7 +259,7 @@ describe('ShellApi', () => {
         it('local kms provider with current as Mongo', async() => {
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
+            kmsProviders: {
               local: {
                 key: Buffer.from(b641234, 'base64')
               }
@@ -283,7 +283,7 @@ describe('ShellApi', () => {
           const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName', undefined, sp);
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
+            kmsProviders: {
               local: {
                 key: Buffer.from(b641234, 'base64')
               }
@@ -303,7 +303,7 @@ describe('ShellApi', () => {
         it('throws if missing namespace', async() => {
           try {
             await internalState.shellApi.Mongo('dbname', {
-              kmsProvider: {
+              kmsProviders: {
                 aws: {
                   accessKeyId: 'abc',
                   secretAccessKey: '123'
@@ -315,7 +315,7 @@ describe('ShellApi', () => {
           }
           expect.fail('failed to throw expected error');
         });
-        it('throws if missing kmsProvider', async() => {
+        it('throws if missing kmsProviders', async() => {
           try {
             await internalState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys'
@@ -329,7 +329,7 @@ describe('ShellApi', () => {
           try {
             await internalState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
-              kmsProvider: {
+              kmsProviders: {
                 aws: {
                   accessKeyId: 'abc',
                   secretAccessKey: '123'
@@ -345,7 +345,7 @@ describe('ShellApi', () => {
         it('passes along optional arguments', async() => {
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
-            kmsProvider: {
+            kmsProviders: {
               local: {
                 key: Buffer.from(b641234, 'base64')
               }

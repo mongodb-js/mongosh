@@ -35,7 +35,7 @@ const local = { key: Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZ
 
 const keyMongo = Mongo(db.getMongo()._uri, {
   keyVaultNamespace: 'encryption.__keyVault',
-  kmsProvider: { local }
+  kmsProviders: { local }
 });
 
 const keyVault = keyMongo.getKeyVault();
@@ -60,7 +60,7 @@ console.log('Using schema map', schemaMap);
 
 const autoMongo = Mongo(db.getMongo()._uri, {
   keyVaultNamespace: 'encryption.__keyVault',
-  kmsProvider: { local },
+  kmsProviders: { local },
   schemaMap
 });
 
