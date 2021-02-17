@@ -170,21 +170,23 @@ export class CompassShell extends Component {
             onShellToggleClicked={this.shellToggleClicked}
             isOperationInProgress={isOperationInProgress}
           />
-          {isExpanded && (
-            <div
-              className={classnames(styles['compass-shell-shell-container'])}
-            >
-              <Shell
-                runtime={this.props.runtime}
-                initialHistory={this.state.initialHistory}
-                initialOutput={this.shellOutput}
-                onHistoryChanged={this.saveHistory}
-                onOutputChanged={this.onShellOutputChanged}
-                onOperationStarted={this.onOperationStarted}
-                onOperationEnd={this.onOperationEnd}
-              />
-            </div>
-          )}
+          <div
+            className={classnames(
+              styles['compass-shell-shell-container'], {
+                [styles['compass-shell-shell-container-visible']]: isExpanded
+              }
+            )}
+          >
+            <Shell
+              runtime={this.props.runtime}
+              initialHistory={this.state.initialHistory}
+              initialOutput={this.shellOutput}
+              onHistoryChanged={this.saveHistory}
+              onOutputChanged={this.onShellOutputChanged}
+              onOperationStarted={this.onOperationStarted}
+              onOperationEnd={this.onOperationEnd}
+            />
+          </div>
         </Resizable>
       </Fragment>
     );

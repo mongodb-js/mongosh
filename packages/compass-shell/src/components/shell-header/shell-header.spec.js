@@ -15,6 +15,7 @@ describe('ShellHeader', () => {
     beforeEach(() => {
       wrapper = mount(<ShellHeader
         isExpanded
+        isOperationInProgress={false}
         onShellToggleClicked={() => {}}
         showInfoModal={() => {}}
       />);
@@ -44,6 +45,7 @@ describe('ShellHeader', () => {
     beforeEach(() => {
       wrapper = mount(<ShellHeader
         isExpanded={false}
+        isOperationInProgress={false}
         onShellToggleClicked={() => {}}
         showInfoModal={() => {}}
       />);
@@ -68,7 +70,7 @@ describe('ShellHeader', () => {
         showInfoModal={() => {}}
       />);
 
-      expect(wrapper.find(ShellLoader).exists()).to.equal(false);
+      expect(wrapper.find(ShellLoader).exists()).to.equal(true);
     });
   });
 
@@ -76,6 +78,7 @@ describe('ShellHeader', () => {
     it('has a button to toggle the container', async() => {
       const wrapper = shallow(<ShellHeader
         isExpanded={false}
+        isOperationInProgress={false}
         onShellToggleClicked={() => {}}
         showInfoModal={() => {}}
       />);

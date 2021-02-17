@@ -94,7 +94,6 @@ export class Shell extends Component<ShellProps, ShellState> {
     passwordPrompt: ''
   };
 
-  private isMounted = false;
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
     editor?: HTMLElement;
@@ -113,16 +112,10 @@ export class Shell extends Component<ShellProps, ShellState> {
   componentDidMount(): void {
     this.scrollToBottom();
     this.updateShellPrompt();
-
-    this.isMounted = true;
   }
 
   componentDidUpdate(): void {
     this.scrollToBottom();
-  }
-
-  componentWillUnmount(): void {
-    this.isMounted = false;
   }
 
   private evaluate = async(code: string): Promise<ShellOutputEntry> => {
@@ -145,9 +138,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         value: error
       };
     } finally {
-      if (this.isMounted) {
-        await this.updateShellPrompt();
-      }
+      await this.updateShellPrompt();
       this.props.onOperationEnd();
     }
 

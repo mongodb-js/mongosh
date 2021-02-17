@@ -12,8 +12,12 @@
 
   &-shell-container {
     flex-grow: 1;
-    display: flex;
+    display: none;
     overflow: auto;
     border-top: 1px solid @leafygreen__gray--dark-2;
+
+    &-visible {
+      display: flex;
+    }
   }
 }
