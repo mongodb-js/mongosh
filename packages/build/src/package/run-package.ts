@@ -8,12 +8,17 @@ import { createTarball, TarballFile } from '../tarball';
 export async function runPackage(
   config: Config,
 ): Promise<TarballFile> {
+  const distributionBuildVariant = config.distributionBuildVariant;
+  if (!distributionBuildVariant) {
+    throw new Error('distributionBuildVariant is missing in configuration - make sure the expansion is present');
+  }
+
   await fs.copyFile(await downloadMongocrypt(), config.mongocryptdPath, fsConstants.COPYFILE_FICLONE);
 
   const runCreateTarball = async(): Promise<TarballFile> => {
     return await createTarball(
       config.outputDir,
-      config.buildVariant,
+      distributionBuildVariant,
       config.packageInformation as (Required<Config>['packageInformation'])
     );
   };

@@ -64,13 +64,24 @@ export class Barque {
    * @returns {Promise} The promise.
    */
   async releaseToBarque(tarballURL: string): Promise<any> {
+    const buildVariant = this.config.distributionBuildVariant;
+    if (!buildVariant) {
+      throw new Error('distributionBuildVariant is not set in configuration');
+    }
+
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);
 
+
     if (this.config.platform === Platform.Linux) {
       try {
-        await this.execCurator(curatorDirPath, tarballURL, repoConfig);
+        await this.execCurator(
+          curatorDirPath,
+          tarballURL,
+          repoConfig,
+          buildVariant
+        );
       } catch (error) {
         throw new Error(`Curator is unable to upload to barque ${error}`);
       }
@@ -92,15 +103,17 @@ export class Barque {
   async execCurator(
     curatorDirPath: string,
     tarballURL: string,
-    repoConfig: string): Promise<any> {
+    repoConfig: string,
+    buildVariant: BuildVariant
+  ): Promise<any> {
     return await execFile(
       `${curatorDirPath}/curator`, [
         '--level', 'debug',
         'repo', 'submit',
         '--service', 'https://barque.corp.mongodb.com',
         '--config', repoConfig,
-        '--distro', this.determineDistro(this.config.buildVariant as string),
-        '--arch', this.determineArch(this.config.buildVariant as string),
+        '--distro', this.determineDistro(buildVariant),
+        '--arch', this.determineArch(buildVariant),
         '--edition', this.mongodbEdition,
         '--version', this.mongodbVersion,
         '--packages', tarballURL
@@ -119,36 +132,28 @@ export class Barque {
    * Determine the current arch to be passed on to curator given current build
    * variant.
    *
-   * @param {string} variant - Current build variant.
+   * @param variant - Current build variant.
    *
-   * @returns {string} Arch to be passed as an argument to curator
+   * @returns Arch to be passed as an argument to curator
    */
-  determineArch(variant: string): string {
-    // we can't use distro_id from evergreen's env variables, since those
-    // sometimes come with other attributes like -test -large -small, and are not
-    // valid distros for barque.
+  determineArch(variant: BuildVariant): Arch {
     if (variant === BuildVariant.Linux) return Arch.Ubuntu;
     if (variant === BuildVariant.Debian) return Arch.Debian;
     if (variant === BuildVariant.Redhat) return Arch.Redhat;
-
     return Arch.Ubuntu;
   }
   /**
    * Determine the current distro to be passed on to curator given current build
    * variant.
    *
-   * @param {string} variant - Current build variant.
+   * @param variant - Current build variant.
    *
-   * @returns {string} Distro to be passed as an argument to curator
+   * @returns Distro to be passed as an argument to curator
    */
-  determineDistro(variant: string): string {
-    // we can't use distro_id from evergreen's env variables, since those
-    // sometimes come with other attributes like -test -large -small, and are not
-    // valid distros for barque.
+  determineDistro(variant: BuildVariant): Distro {
     if (variant === BuildVariant.Linux) return Distro.Ubuntu;
     if (variant === BuildVariant.Debian) return Distro.Debian;
     if (variant === BuildVariant.Redhat) return Distro.Redhat;
-
     return Distro.Ubuntu;
   }
 

@@ -1,5 +1,5 @@
 import path from 'path';
-import { BuildVariant } from './config';
+import { ALL_BUILD_VARIANTS } from './config';
 import { downloadMongoDb } from './download-mongodb';
 import { getArtifactUrl } from './evergreen';
 import { release, ReleaseCommand } from './release';
@@ -21,11 +21,9 @@ if (require.main === module) {
       .filter(Boolean)[0];
     if (cliBuildVariant) {
       config.buildVariant = cliBuildVariant[1];
-    }
-
-    // Resolve 'Windows' to 'win32' etc.
-    if (config.buildVariant in BuildVariant) {
-      config.buildVariant = (BuildVariant as any)[config.buildVariant];
+      if (!ALL_BUILD_VARIANTS.includes(config.buildVariant)) {
+        throw new Error(`Unknown build variant: ${config.buildVariant} - must be one of: ${ALL_BUILD_VARIANTS}`);
+      }
     }
 
     await release(command as ReleaseCommand, config);

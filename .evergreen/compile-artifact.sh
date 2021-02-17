@@ -13,7 +13,7 @@ if [ "$(uname)" == Linux ]; then
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
-    -e BUILD_VARIANT \
+    -e DISTRIBUTION_BUILD_VARIANT \
     --rm -v $PWD:/tmp/build --network host centos7-build \
     -c 'source /opt/rh/devtoolset-8/enable && cd /tmp/build && npm run evergreen-release compile && dist/mongosh --version'
 else

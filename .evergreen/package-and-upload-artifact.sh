@@ -15,10 +15,10 @@ dist/mongosh --version
 if [ "$(uname)" == Linux ]; then
   # For the rpm, we want to download the RHEL/CentOS 7 mongocryptd binary.
   # (We can/should probably remove this after https://jira.mongodb.org/browse/MONGOSH-541)
-  if [ "$BUILD_VARIANT" = rhel ]; then
+  if [ "$DISTRIBUTION_BUILD_VARIANT" = rhel ]; then
     export DISTRO_ID_OVERRIDE=rhel70
   fi
-  if [ "$BUILD_VARIANT" = debian ]; then
+  if [ "$DISTRIBUTION_BUILD_VARIANT" = debian ]; then
     # We need ubuntu1804 in order for mongocryptd to work on ubuntu1804 and above.
     export DISTRO_ID_OVERRIDE=ubuntu1804
   fi
@@ -29,7 +29,7 @@ if [ "$(uname)" == Linux ]; then
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
-    -e BUILD_VARIANT \
+    -e DISTRIBUTION_BUILD_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
     -e DISTRO_ID_OVERRIDE \
     --rm -v $PWD:/tmp/build --network host centos7-package \

@@ -140,13 +140,13 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
-          BUILD_VARIANT: ${build_variant}
+          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -156,7 +156,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
         bucket: mciuploads
   test_linux_artifact:
     - command: expansions.write
@@ -323,7 +323,10 @@ tasks:
       - func: check
         vars:
           node_js_version: "14.15.1"
+
+  # UNIT TESTS
   - name: test_m40x_n12
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -335,6 +338,7 @@ tasks:
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_m42x_n12
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -346,6 +350,7 @@ tasks:
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_m44x_n12
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -357,6 +362,7 @@ tasks:
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_mlatest_n12
+    tags: ["unit-test", "mlatest"]
     commands:
       - func: checkout
       - func: install
@@ -368,6 +374,7 @@ tasks:
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_m40x_n14
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -378,6 +385,7 @@ tasks:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "14.15.1"
   - name: test_m42x_n14
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -388,6 +396,7 @@ tasks:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "14.15.1"
   - name: test_m44x_n14
+    tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
@@ -398,6 +407,7 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "14.15.1"
   - name: test_mlatest_n14
+    tags: ["unit-test", "mlatest"]
     commands:
       - func: checkout
       - func: install
@@ -407,6 +417,8 @@ tasks:
         vars:
           mongosh_server_test_version: "latest-alpha"
           node_js_version: "14.15.1"
+
+  # INTEGRATION TESTS
   - name: test_vscode
     tags: ["extra-integration-test"]
     commands:
@@ -432,28 +444,16 @@ tasks:
       - func: compile_artifact
         vars:
           node_js_version: "14.15.1"
+
+  # PACKAGING
   - name: package_and_upload_artifact_macos
     depends_on:
       - name: check
         variant: darwin
-      - name: test_m40x_n12
-        variant: darwin
-      - name: test_m42x_n12
-        variant: darwin
-      - name: test_m44x_n12
-        variant: darwin
-      # Revert the commit that commented this out after resolving
+      # Remove the !.mlatest when this issue is resolved
       # https://jira.mongodb.org/browse/MONGOSH-592
-      #- name: test_mlatest_n12
-      #  variant: darwin
-      - name: test_m40x_n14
+      - name: ".unit-test !.mlatest"
         variant: darwin
-      - name: test_m42x_n14
-        variant: darwin
-      - name: test_m44x_n14
-        variant: darwin
-      #- name: test_mlatest_n14
-      #  variant: darwin
       - name: compile_artifact
         variant: darwin
     commands:
@@ -464,25 +464,12 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
+          distribution_build_variant: darwin
   - name: package_and_upload_artifact_linux
     depends_on:
       - name: check
         variant: linux
-      - name: test_m40x_n12
-        variant: linux
-      - name: test_m42x_n12
-        variant: linux
-      - name: test_m44x_n12
-        variant: linux
-      - name: test_mlatest_n12
-        variant: linux
-      - name: test_m40x_n14
-        variant: linux
-      - name: test_m42x_n14
-        variant: linux
-      - name: test_m44x_n14
-        variant: linux
-      - name: test_mlatest_n14
+      - name: ".unit-test"
         variant: linux
       - name: compile_artifact
         variant: linux_build
@@ -494,25 +481,46 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
+          distribution_build_variant: linux
+  - name: package_and_upload_artifact_debian
+    depends_on:
+      - name: check
+        variant: linux
+      - name: ".unit-test"
+        variant: linux
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: debian
+  - name: package_and_upload_artifact_rhel
+    depends_on:
+      - name: check
+        variant: linux
+      - name: ".unit-test"
+        variant: linux
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: rhel
   - name: package_and_upload_artifact_win
     depends_on:
       - name: check
         variant: win32
-      - name: test_m40x_n12
-        variant: win32
-      - name: test_m42x_n12
-        variant: win32
-      - name: test_m44x_n12
-        variant: win32
-      - name: test_mlatest_n12
-        variant: win32
-      - name: test_m40x_n14
-        variant: win32
-      - name: test_m42x_n14
-        variant: win32
-      - name: test_m44x_n14
-        variant: win32
-      - name: test_mlatest_n14
+      - name: ".unit-test"
         variant: win32
       - name: compile_artifact
         variant: win32_build
@@ -524,6 +532,26 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.15.1"
+          distribution_build_variant: win32
+  - name: package_and_upload_artifact_winmsi
+    depends_on:
+      - name: check
+        variant: win32
+      - name: ".unit-test"
+        variant: win32
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.15.1"
+          distribution_build_variant: win32msi
+  
+  # VERIFICATION
   - name: test_linux_artifact
     depends_on:
       - name: package_and_upload_artifact_linux
@@ -531,7 +559,7 @@ tasks:
     commands:
       - func: get_artifact_url
         vars:
-          source_build_variant: linux
+          source_distribution_build_variant: linux
       - func: checkout
       - func: install
         vars:
@@ -539,6 +567,8 @@ tasks:
       - func: test_linux_artifact
         vars:
           node_js_version: "14.15.1"
+  
+  # SMOKE TESTS
   - name: pkg_test_ssh_win32
     tags: ["smoke-test"]
     depends_on:
@@ -548,7 +578,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: win32
+          source_distribution_build_variant: win32
       - func: write_preload_script
       - func: spawn_host
         vars:
@@ -561,13 +591,13 @@ tasks:
   - name: pkg_test_ssh_win32msi
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_win
-        variant: win32msi
+      - name: package_and_upload_artifact_winmsi
+        variant: win32
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: win32msi
+          source_distribution_build_variant: win32msi
       - command: shell.exec
         params:
           working_dir: src
@@ -587,13 +617,13 @@ tasks:
   - name: pkg_test_docker_ubuntu1604
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: debian
+      - name: package_and_upload_artifact_debian
+        variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: debian
+          source_distribution_build_variant: debian
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
@@ -601,13 +631,13 @@ tasks:
   - name: pkg_test_docker_ubuntu1804
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: debian
+      - name: package_and_upload_artifact_debian
+        variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: debian
+          source_distribution_build_variant: debian
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
@@ -615,13 +645,13 @@ tasks:
   - name: pkg_test_docker_ubuntu2004
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: debian
+      - name: package_and_upload_artifact_debian
+        variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: debian
+          source_distribution_build_variant: debian
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
@@ -629,13 +659,13 @@ tasks:
   - name: pkg_test_docker_centos7
     tags: [ "smoke-test" ]
     depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: rhel
+      - name: package_and_upload_artifact_rhel
+        variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: rhel
+          source_distribution_build_variant: rhel
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
@@ -643,13 +673,13 @@ tasks:
   - name: pkg_test_docker_centos8
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: rhel
+      - name: package_and_upload_artifact_rhel
+        variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: rhel
+          source_distribution_build_variant: rhel
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
@@ -663,9 +693,11 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_build_variant: darwin_codesign
+          source_distribution_build_variant: darwin
       - func: write_preload_script
       - func: test_artifact_macos
+  
+  # RELEASE TASKS
   - name: release_draft
     git_tag_only: true
     depends_on:
@@ -712,12 +744,13 @@ buildvariants:
       - name: test_m40x_n12
       - name: test_m42x_n12
       - name: test_m44x_n12
-      #- name: test_mlatest_n12
+      - name: test_mlatest_n12
       - name: test_m40x_n14
       - name: test_m42x_n14
       - name: test_m44x_n14
-      #- name: test_mlatest_n14
+      - name: test_mlatest_n14
       - name: compile_artifact
+
   - name: linux
     display_name: "Ubuntu 18.04"
     run_on: ubuntu1804-small
@@ -736,6 +769,8 @@ buildvariants:
       - name: test_vscode
       - name: test_connectivity
       - name: package_and_upload_artifact_linux
+      - name: package_and_upload_artifact_debian
+      - name: package_and_upload_artifact_rhel
   - name: linux_build
     display_name: "Ubuntu 18.04 (build)"
     run_on: ubuntu1804-build
@@ -743,20 +778,7 @@ buildvariants:
       executable_os_id: linux
     tasks:
       - name: compile_artifact
-  - name: rhel
-    display_name: "Ubuntu 18.04 (rpm target)"
-    run_on: ubuntu1804-small
-    expansions:
-      executable_os_id: linux
-    tasks:
-      - name: package_and_upload_artifact_linux
-  - name: debian
-    display_name: "Ubuntu 18.04 (deb target)"
-    run_on: ubuntu1804-small
-    expansions:
-      executable_os_id: linux
-    tasks:
-      - name: package_and_upload_artifact_linux
+
   - name: rhel70
     display_name: "RHEL 7.0 (artifact test)"
     run_on: rhel70-small
@@ -787,6 +809,7 @@ buildvariants:
     run_on: debian10-small
     tasks:
       - name: test_linux_artifact
+
   - name: win32
     display_name: "Windows VS 2019"
     run_on: windows-64-vs2019-small
@@ -803,6 +826,7 @@ buildvariants:
       - name: test_m44x_n14
       - name: test_mlatest_n14
       - name: package_and_upload_artifact_win
+      - name: package_and_upload_artifact_winmsi
   - name: win32_build
     display_name: "Windows VS 2019 (build)"
     run_on: windows-64-vs2019-build
@@ -810,13 +834,7 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: compile_artifact
-  - name: win32msi
-    display_name: "Windows VS 2019 (msi target)"
-    run_on: windows-64-vs2019-small
-    expansions:
-      executable_os_id: win32
-    tasks:
-      - name: package_and_upload_artifact_win
+
   - name: pkg_smoke_tests_docker
     display_name: "package smoke tests (Docker)"
     run_on: ubuntu1804-small
@@ -837,6 +855,7 @@ buildvariants:
     run_on: macos-1014
     tasks:
       - name: pkg_test_macos1014
+
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu1804-small
