@@ -126,7 +126,6 @@ export class Shell extends Component<ShellProps, ShellState> {
 
       this.props.runtime.setEvaluationListener(this);
       const result = await this.props.runtime.evaluate(code);
-
       outputLine = {
         format: 'output',
         type: result.type,
@@ -152,7 +151,6 @@ export class Shell extends Component<ShellProps, ShellState> {
     } catch (e) {
       // Just ignore errors when getting the prompt...
     }
-
     this.setState({ shellPrompt });
   }
 

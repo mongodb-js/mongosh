@@ -23,8 +23,6 @@ describe('CompassShell', () => {
         runtime={fakeRuntime}
         isExpanded={false}
       />);
-      // const containerStyle = wrapper.find('#item-id').style;
-      // expect(containerStyle).to.have.property('display', 'none');
       expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
     });
 
