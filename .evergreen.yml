@@ -295,7 +295,8 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
+          echo "registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
           npm run evergreen-release publish
           }
 
