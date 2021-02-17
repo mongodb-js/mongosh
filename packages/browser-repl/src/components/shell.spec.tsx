@@ -17,6 +17,8 @@ const wait: (ms?: number) => Promise<void> = (ms = 10) => {
 describe('<Shell />', () => {
   let onOutputChangedSpy;
   let onHistoryChangedSpy;
+  let onOperationStartedSpy;
+  let onOperationEndSpy;
   let fakeRuntime;
   let wrapper: ShallowWrapper | ReactWrapper;
   let scrollIntoView;
@@ -40,11 +42,16 @@ describe('<Shell />', () => {
 
     onOutputChangedSpy = sinon.spy();
     onHistoryChangedSpy = sinon.spy();
+    onOperationStartedSpy = sinon.spy();
+    onOperationEndSpy = sinon.spy();
 
     wrapper = shallow(<Shell
       runtime={fakeRuntime}
       onOutputChanged={onOutputChangedSpy}
-      onHistoryChanged={onHistoryChangedSpy} />);
+      onHistoryChanged={onHistoryChangedSpy}
+      onOperationStarted={onOperationStartedSpy}
+      onOperationEnd={onOperationEndSpy}
+    />);
   });
 
   afterEach(() => {
@@ -215,6 +222,14 @@ describe('<Shell />', () => {
       await onInput('db.createUser()');
       expect(wrapper.state('history')).to.deep.equal([]);
     });
+
+    it('calls onOperationStarted', async() => {
+      expect(onOperationStartedSpy).to.have.been.calledOnce;
+    });
+
+    it('calls onOperationEnd', async() => {
+      expect(onOperationEndSpy).to.have.been.calledOnce;
+    });
   });
 
   context('when empty input is entered', () => {
@@ -315,6 +330,10 @@ describe('<Shell />', () => {
 
     it('calls onHistoryChanged', () => {
       expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
+    });
+
+    it('calls onOperationEnd', async() => {
+      expect(onOperationEndSpy).to.have.been.calledOnce;
     });
   });
 

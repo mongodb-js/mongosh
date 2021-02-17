@@ -4,19 +4,31 @@ import classnames from 'classnames';
 const styles = require('./shell-loader.less');
 
 interface ShellLoaderProps {
-  size: number;
+  className: string;
+  size?: string;
 }
 
 export default class ShellLoader extends Component<ShellLoaderProps> {
+  static defaultProps = {
+    className: '',
+    size: '12px'
+  };
+
   render(): JSX.Element {
-    const { size } = this.props;
+    const {
+      className,
+      size
+    } = this.props;
 
     return (
       <div
-        className={classnames(styles['shell-loader'])}
+        className={classnames(
+          className,
+          styles['shell-loader']
+        )}
         style={{
-          height: `${size}px`,
-          width: `${size}px`
+          width: size,
+          height: size
         }}
       />
     );

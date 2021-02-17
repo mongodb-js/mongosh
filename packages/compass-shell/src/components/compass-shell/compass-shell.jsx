@@ -45,7 +45,8 @@ export class CompassShell extends Component {
 
     this.state = {
       initialHistory: this.props.historyStorage ? null : [],
-      isExpanded: !!this.props.isExpanded
+      isExpanded: !!this.props.isExpanded,
+      isOperationInProgress: false
     };
   }
 
@@ -55,6 +56,18 @@ export class CompassShell extends Component {
 
   onShellOutputChanged = (output) => {
     this.shellOutput = output;
+  }
+
+  onOperationStarted = () => {
+    this.setState({
+      isOperationInProgress: true
+    });
+  }
+
+  onOperationEnd = () => {
+    this.setState({
+      isOperationInProgress: false
+    });
   }
 
   lastOpenHeight = defaultShellHeightOpened;
@@ -123,7 +136,8 @@ export class CompassShell extends Component {
    */
   render() {
     const {
-      isExpanded
+      isExpanded,
+      isOperationInProgress
     } = this.state;
 
     if (!this.props.runtime || !this.state.initialHistory) {
@@ -154,6 +168,7 @@ export class CompassShell extends Component {
           <ShellHeader
             isExpanded={isExpanded}
             onShellToggleClicked={this.shellToggleClicked}
+            isOperationInProgress={isOperationInProgress}
           />
           {isExpanded && (
             <div
@@ -165,6 +180,8 @@ export class CompassShell extends Component {
                 initialOutput={this.shellOutput}
                 onHistoryChanged={this.saveHistory}
                 onOutputChanged={this.onShellOutputChanged}
+                onOperationStarted={this.onOperationStarted}
+                onOperationEnd={this.onOperationEnd}
               />
             </div>
           )}

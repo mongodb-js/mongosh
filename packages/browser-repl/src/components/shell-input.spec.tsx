@@ -5,7 +5,7 @@ import { shallow, mount } from '../../testing/enzyme';
 
 import { ShellInput } from './shell-input';
 import { Editor } from './editor';
-import Loader from './shell-loader';
+import ShellLoader from './shell-loader';
 
 function changeValue(wrapper, value): void {
   wrapper.find(Editor).prop('onChange')(value);
@@ -117,7 +117,7 @@ describe('<ShellInput />', () => {
         operationInProgress
       />);
 
-      expect(wrapper.find(Loader).exists()).to.equal(true);
+      expect(wrapper.find(ShellLoader).exists()).to.equal(true);
     });
 
     it('does not show a loader when operationInProgress is false', () => {
@@ -126,7 +126,7 @@ describe('<ShellInput />', () => {
         operationInProgress={false}
       />);
 
-      expect(wrapper.find(Loader).exists()).to.equal(false);
+      expect(wrapper.find(ShellLoader).exists()).to.equal(false);
     });
   });
 
