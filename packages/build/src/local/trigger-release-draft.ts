@@ -45,7 +45,7 @@ export async function triggerReleaseDraft(
     cwd: repositoryRoot,
     encoding: 'utf-8'
   });
-  spawnSync('git', ['push', '--tags'], {
+  spawnSync('git', ['push', 'origin', nextTagName], {
     cwd: repositoryRoot,
     encoding: 'utf-8'
   });

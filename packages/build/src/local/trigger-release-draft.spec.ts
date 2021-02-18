@@ -45,7 +45,7 @@ describe('local trigger-release-draft', () => {
       expect(confirm).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.0-draft.8'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', '--tags'], sinon.match.any);
+      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.0-draft.8'], sinon.match.any);
     });
 
     it('asks for the bump type and pushes a new draft if previous tag was a release', async() => {
@@ -75,7 +75,7 @@ describe('local trigger-release-draft', () => {
       expect(confirm).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.9.0-draft.0'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', '--tags'], sinon.match.any);
+      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.9.0-draft.0'], sinon.match.any);
     });
 
     it('fails if no previous tag is found', async() => {

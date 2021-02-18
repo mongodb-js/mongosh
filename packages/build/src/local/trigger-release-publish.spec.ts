@@ -46,7 +46,7 @@ describe('local trigger-release-publish', () => {
       expect(verifyEvergreenStatus).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.0', 'hash'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', '--tags'], sinon.match.any);
+      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.0'], sinon.match.any);
     });
 
     it('fails if no previous tag is found', async() => {

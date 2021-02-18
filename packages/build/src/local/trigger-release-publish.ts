@@ -22,12 +22,13 @@ export async function triggerReleasePublish(
   if (latestDraftTag.tag.draftVersion === undefined) {
     throw new Error(`Found prior tag v${latestDraftTag.tag.semverName} - but it's not a draft.`);
   }
+  const releaseTag = `v${latestDraftTag.tag.releaseVersion}`;
 
   console.info('-> Found most recent draft tag:');
   console.info(`      version: v${latestDraftTag.tag.semverName}`);
   console.info(`       commit: ${latestDraftTag.commit}`);
-  console.info(`      release: v${latestDraftTag.tag.releaseVersion}`);
-  const confirmed = await confirm(`!! Is this correct and should we tag ${latestDraftTag.commit} as v${latestDraftTag.tag.releaseVersion}?`);
+  console.info(`      release: ${releaseTag}`);
+  const confirmed = await confirm(`!! Is this correct and should we tag ${latestDraftTag.commit} as ${releaseTag}?`);
   if (!confirmed) {
     throw new Error('User aborted.');
   }
@@ -36,11 +37,11 @@ export async function triggerReleasePublish(
   await verifyEvergreenStatus(latestDraftTag.commit);
 
   console.info('... tagging commit and pushing ...');
-  spawnSync('git', ['tag', `v${latestDraftTag.tag.releaseVersion}`, latestDraftTag.commit], {
+  spawnSync('git', ['tag', releaseTag, latestDraftTag.commit], {
     cwd: repositoryRoot,
     encoding: 'utf-8'
   });
-  spawnSync('git', ['push', '--tags'], {
+  spawnSync('git', ['push', 'origin', releaseTag], {
     cwd: repositoryRoot,
     encoding: 'utf-8'
   });
