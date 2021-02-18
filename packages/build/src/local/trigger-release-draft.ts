@@ -1,13 +1,17 @@
 import assert from 'assert';
 import semver from 'semver';
-import { choose, confirm, spawnSync as spawnSyncFn } from '../helpers';
-import { getLatestDraftOrReleaseTagFromLog, TagDetails } from './get-latest-tag';
-import { getRepositoryStatus } from './repository-status';
+import { choose as chooseFn, confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
+import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, TagDetails } from './get-latest-tag';
+import { verifyGitStatus as verifyGitStatusFn } from './repository-status';
 
 type BumpType = 'draft' | 'patch' | 'minor' | 'major';
 
 export async function triggerReleaseDraft(
   repositoryRoot: string,
+  verifyGitStatus: typeof verifyGitStatusFn = verifyGitStatusFn,
+  getLatestDraftOrReleaseTagFromLog: typeof getLatestDraftOrReleaseTagFromLogFn = getLatestDraftOrReleaseTagFromLogFn,
+  choose: typeof chooseFn = chooseFn,
+  confirm: typeof confirmFn = confirmFn,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): Promise<void> {
   console.info('Triggering process to create a new release draft...');
@@ -27,7 +31,7 @@ export async function triggerReleaseDraft(
     ], '... enter your choice:') as BumpType;
   }
 
-  const nextTagName = computeNextTagName(latestDraftOrReleaseTag.tag, bumpType);
+  const nextTagName = computeNextTagNameFn(latestDraftOrReleaseTag.tag, bumpType);
   console.info('-> New draft tag is:');
   console.info(`       ${nextTagName}`);
 
@@ -49,27 +53,7 @@ export async function triggerReleaseDraft(
   console.info('SUCCESS! Your new draft has been tagged and pushed.');
 }
 
-function verifyGitStatus(repositoryRoot: string): void {
-  const repositoryStatus = getRepositoryStatus(repositoryRoot);
-  if (!repositoryStatus.branch?.local) {
-    throw new Error('Could not determine local repository information - please verify your repository is intact.');
-  }
-
-  if (repositoryStatus.branch?.local !== 'master') {
-    throw new Error('Triggering a draft release is only allowed from master branch');
-  }
-  if (!repositoryStatus.branch.tracking) {
-    throw new Error('The branch you are on is not tracking any remote branch. Ensure you are on the master branch of the repository.');
-  }
-  if (repositoryStatus.branch?.diverged || !repositoryStatus.clean) {
-    throw new Error('Your local repository is not clean or divereged from the remote branch. Commit any uncommited changes and ensure your branch is up to date.');
-  }
-  if (repositoryStatus.hasUnpushedTags) {
-    throw new Error('You have local tags that are not pushed to the remote. Remove or push those tags to continue.');
-  }
-}
-
-function computeNextTagName(latestDraftOrReleaseTag: TagDetails, bumpType: BumpType): string {
+export function computeNextTagNameFn(latestDraftOrReleaseTag: TagDetails, bumpType: BumpType): string {
   if (latestDraftOrReleaseTag.draftVersion !== undefined) {
     assert(bumpType === 'draft');
     return `v${latestDraftOrReleaseTag.releaseVersion}-draft.${latestDraftOrReleaseTag.draftVersion + 1}`;
@@ -85,9 +69,12 @@ function computeNextTagName(latestDraftOrReleaseTag: TagDetails, bumpType: BumpT
       patch += 1;
       break;
     case 'minor':
+      patch = 0;
       minor += 1;
       break;
     case 'major':
+      patch = 0;
+      minor = 0;
       major += 1;
       break;
     default:

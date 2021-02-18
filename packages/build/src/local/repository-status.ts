@@ -11,6 +11,28 @@ export interface RepositoryStatus {
     hasUnpushedTags: boolean
 }
 
+export function verifyGitStatus(
+  repositoryRoot: string,
+  getRepositoryStatusFn: typeof getRepositoryStatus = getRepositoryStatus
+): void {
+  const repositoryStatus = getRepositoryStatusFn(repositoryRoot);
+  if (!repositoryStatus.branch?.local) {
+    throw new Error('Could not determine local repository information - please verify your repository is intact.');
+  }
+  if (!/^(master|main|v[a-z0-9]+\.[a-z0-9]+\.[a-z0-9]+)$/.test(repositoryStatus.branch.local)) {
+    throw new Error('The current branch does not match: master|main|vX.X.X');
+  }
+  if (!repositoryStatus.branch.tracking) {
+    throw new Error('The branch you are on is not tracking any remote branch.');
+  }
+  if (repositoryStatus.branch?.diverged || !repositoryStatus.clean) {
+    throw new Error('Your local repository is not clean or diverged from the remote branch. Commit any uncommited changes and ensure your branch is up to date.');
+  }
+  if (repositoryStatus.hasUnpushedTags) {
+    throw new Error('You have local tags that are not pushed to the remote. Remove or push those tags to continue.');
+  }
+}
+
 export function getRepositoryStatus(
   repositoryRoot: string,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
@@ -50,3 +72,4 @@ export function getRepositoryStatus(
 
   return result;
 }
+

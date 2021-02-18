@@ -1,21 +1,19 @@
 import { EvergreenApi } from '../evergreen';
-import { confirm, spawnSync as spawnSyncFn } from '../helpers';
-import { getLatestDraftOrReleaseTagFromLog } from './get-latest-tag';
-import { getRepositoryStatus } from './repository-status';
+import { confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
+import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn } from './get-latest-tag';
+import { verifyGitStatus as verifyGitStatusFn } from './repository-status';
 
 export async function triggerReleasePublish(
   repositoryRoot: string,
+  verifyGitStatus: typeof verifyGitStatusFn = verifyGitStatusFn,
+  getLatestDraftOrReleaseTagFromLog: typeof getLatestDraftOrReleaseTagFromLogFn = getLatestDraftOrReleaseTagFromLogFn,
+  confirm: typeof confirmFn = confirmFn,
+  verifyEvergreenStatus: typeof verifyEvergreenStatusFn = verifyEvergreenStatusFn,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): Promise<void> {
   console.info('Triggering process to publish a new release...');
 
-  const gitStatus = getRepositoryStatus(repositoryRoot);
-  if (gitStatus.branch?.local !== 'master') {
-    throw new Error('You must be on the master branch of the repository to trigger a release.');
-  }
-  if (gitStatus.hasUnpushedTags) {
-    throw new Error('You have local tags that are not pushed to the remote. Remove or push those tags to continue.');
-  }
+  verifyGitStatus(repositoryRoot);
 
   const latestDraftTag = getLatestDraftOrReleaseTagFromLog(repositoryRoot);
   if (!latestDraftTag) {
@@ -50,7 +48,7 @@ export async function triggerReleasePublish(
   console.info('SUCCESS! Your new release has been tagged and published.');
 }
 
-async function verifyEvergreenStatus(
+export async function verifyEvergreenStatusFn(
   commitSha: string,
   evergreenApiProvider: Promise<EvergreenApi> = EvergreenApi.fromUserConfiguration()
 ): Promise<void> {
