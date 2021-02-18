@@ -31,6 +31,13 @@ type ReleaseDetails = {
   draft: boolean;
   upload_url: string;
   id: number;
+  assets?: ReleaseAsset[]
+};
+
+type ReleaseAsset = {
+  id: number;
+  name: string;
+  url: string;
 };
 
 export class GithubRepo {
@@ -96,12 +103,7 @@ export class GithubRepo {
 
   /**
    * Uploads an asset for a Github release, if the assets already exists
-   * the operation fails silently.
-   *
-   * @param {Release} release
-   * @param {Asset} asset
-   * @returns {Promise<void>}
-   * @memberof GithubRepo
+   * it will be updated.
    */
   async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
     const releaseDetails = await this.getReleaseByTag(release.tag);
@@ -110,18 +112,25 @@ export class GithubRepo {
       throw new Error(`Could not look up release for tag ${release.tag}`);
     }
 
+    const assetName = path.basename(asset.path);
+    const existingAsset = releaseDetails.assets?.find(a => a.name === assetName);
+
     const params = {
-      method: 'POST',
-      url: releaseDetails.upload_url,
+      ...(existingAsset ? {
+        method: 'PATCH',
+        url: existingAsset.url
+      } : {
+        method: 'POST',
+        url: releaseDetails.upload_url
+      }),
       headers: {
         'content-type': asset.contentType
       },
-      name: path.basename(asset.path),
+      name: assetName,
       data: await fs.readFile(asset.path)
     };
 
-    await this.octokit.request(params)
-      .catch(this._ignoreAlreadyExistsError());
+    await this.octokit.request(params);
   }
 
   /**
