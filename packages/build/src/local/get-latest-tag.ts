@@ -16,41 +16,38 @@ export function getLatestDraftOrReleaseTagFromLog(
   repositoryRoot: string,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): TaggedCommit | undefined {
-  const gitLog = spawnSync('git', ['log', '--no-walk', '--tags', '--decorate', '--pretty=oneline'], {
+  const gitTags = spawnSync('git', ['tag'], {
     cwd: repositoryRoot,
     encoding: 'utf-8'
   });
 
-  const tagWithCommit = gitLog.stdout
-    .split('\n')
-    .map(l => l.trim())
-    .map(extractTags)
-    .flatMap(details => details?.tags.map(tag => ({
-      commit: details.commit,
-      tag
-    }))) as TaggedCommit[];
-
-  const sortedTagsWithCommit = tagWithCommit.sort((t1, t2) => {
-    return -1 * semver.compare(t1.tag.semverName, t2.tag.semverName);
+  const tagDetails = extractTags(gitTags.stdout.split('\n'));
+  const sortedTagsWithCommit = tagDetails.sort((t1, t2) => {
+    return -1 * semver.compare(t1.semverName, t2.semverName);
   });
-  return sortedTagsWithCommit[0];
-}
 
-function extractTags(logLine: string): { commit: string, tags: TagDetails[] } | undefined {
-  const commitAndTags = logLine.match(/^([^ ]+) \(([^)]+)\)/);
-  if (!commitAndTags) {
+  if (!sortedTagsWithCommit.length) {
     return undefined;
   }
 
-  const commit = commitAndTags[1];
-  const validTags = commitAndTags[2]
-    .split(', ')
-    .map(tag => tag.match(/^tag: (.+)/))
-    .map(m => m?.[1])
-    .map(t => semver.valid(t))
+  const tag = sortedTagsWithCommit[0];
+  const gitLog = spawnSync('git', ['log', '-n1', '--pretty=%H', `v${tag.semverName}`], {
+    cwd: repositoryRoot,
+    encoding: 'utf-8'
+  });
+
+  return {
+    commit: gitLog.stdout.trim(),
+    tag
+  };
+}
+
+function extractTags(gitTags: string[]): TagDetails[] {
+  const validTags = gitTags
+    .map(tag => semver.valid(tag))
     .filter(v => !!v) as string[];
 
-  const tagDetails = validTags.map(semverTag => {
+  return validTags.map(semverTag => {
     const prerelease = semver.prerelease(semverTag);
     if (prerelease && prerelease[0] !== 'draft') {
       return undefined;
@@ -62,6 +59,4 @@ function extractTags(logLine: string): { commit: string, tags: TagDetails[] } | 
       draftVersion: prerelease ? parseInt(prerelease[1], 10) : undefined
     };
   }).filter(t => !!t) as TagDetails[];
-
-  return { commit, tags: tagDetails };
 }
