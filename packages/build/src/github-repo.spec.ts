@@ -197,6 +197,38 @@ describe('GithubRepo', () => {
       });
     });
 
+    it('updates an existing asset', async() => {
+      const release = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: ''
+      };
+      getReleaseByTag.resolves({
+        upload_url: 'url',
+        assets: [
+          {
+            id: 1,
+            name: path.basename(__filename),
+            url: 'assetUrl'
+          }
+        ]
+      });
+
+      await githubRepo.uploadReleaseAsset(release, {
+        path: __filename,
+        contentType: 'xyz'
+      });
+      expect(octoRequest).to.have.been.calledWith({
+        method: 'PATCH',
+        url: 'assetUrl',
+        headers: {
+          'content-type': 'xyz'
+        },
+        name: path.basename(__filename),
+        data: await fs.readFile(__filename)
+      });
+    });
+
     it('fails if no release can be found', async() => {
       const release = {
         name: 'release',
@@ -213,32 +245,6 @@ describe('GithubRepo', () => {
         return expect(e.message).to.contain('Could not look up release for tag');
       }
       expect.fail('Expected error');
-    });
-
-    it('ignores already exists error', async() => {
-      const release = {
-        name: 'release',
-        tag: 'v0.8.0',
-        notes: ''
-      };
-      getReleaseByTag.resolves({
-        upload_url: 'url'
-      });
-      octoRequest.rejects(new ExistsError());
-
-      await githubRepo.uploadReleaseAsset(release, {
-        path: __filename,
-        contentType: 'xyz'
-      });
-      expect(octoRequest).to.have.been.calledWith({
-        method: 'POST',
-        url: 'url',
-        headers: {
-          'content-type': 'xyz'
-        },
-        name: path.basename(__filename),
-        data: await fs.readFile(__filename)
-      });
     });
   });
 
