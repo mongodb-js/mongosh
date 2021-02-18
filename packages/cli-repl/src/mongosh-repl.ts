@@ -230,7 +230,7 @@ class MongoshNodeRepl implements EvaluationListener {
       } catch { /* ... */ }
     });
 
-    internalState.setCtx(repl.context);
+    internalState.setCtx(this.context);
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
@@ -385,6 +385,10 @@ class MongoshNodeRepl implements EvaluationListener {
       throw new MongoshInternalError('Mongosh not started yet');
     }
     return this._runtimeState;
+  }
+
+  get context(): any {
+    return this.runtimeState().repl.context;
   }
 
   async close(): Promise<void> {

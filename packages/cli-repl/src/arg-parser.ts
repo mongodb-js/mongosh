@@ -45,6 +45,7 @@ const OPTIONS = {
   boolean: [
     'async',
     'help',
+    'internalTestCommands',
     'ipv6',
     'nodb',
     'norc',
@@ -87,6 +88,7 @@ function getLocale(args: string[], env: any): string {
   return lang ? lang.split('.')[0] : lang;
 }
 
+type AllCliOptions = CliOptions & { smokeTests: boolean, internalTestCommands: boolean };
 /**
  * Parses arguments into a JS object.
  *
@@ -94,7 +96,7 @@ function getLocale(args: string[], env: any): string {
  *
  * @returns {CliOptions} The arguments as cli options.
  */
-function parse(args: string[]): (CliOptions & { smokeTests: boolean }) {
+function parse(args: string[]): AllCliOptions {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
@@ -111,7 +113,7 @@ function parse(args: string[]): (CliOptions & { smokeTests: boolean }) {
       ${USAGE}`
     );
   });
-  return parsed as unknown as (CliOptions & { smokeTests: boolean });
+  return parsed as unknown as AllCliOptions;
 }
 
 export default parse;

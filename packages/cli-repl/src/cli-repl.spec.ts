@@ -379,6 +379,7 @@ describe('CliRepl', () => {
           await once(srv, 'listening');
           host = `http://localhost:${(srv.address() as any).port}`;
           cliReplOptions.analyticsOptions = { host, apiKey: '🔑' };
+          cliReplOptions.shellCliOptions.internalTestCommands = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
         });
@@ -416,6 +417,14 @@ describe('CliRepl', () => {
           const useEvents = requests.map(
             req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Use')).flat();
           expect(useEvents).to.have.lengthOf(2);
+        });
+
+        it('can self-test the analytics implementation', async() => {
+          input.write('__verifyAnalytics();\n');
+          await waitEval(cliRepl.bus);
+          const selfTestEvents = requests.map(
+            req => JSON.parse(req.body).batch.filter(entry => entry.event === '__verifyAnalytics')).flat();
+          expect(selfTestEvents).to.have.lengthOf(1);
         });
       });
 

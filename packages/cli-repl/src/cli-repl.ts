@@ -27,7 +27,7 @@ const CONNECTING = 'cli-repl.cli-repl.connecting';
 type AnalyticsOptions = { host?: string, apiKey?: string };
 
 export type CliReplOptions = {
-  shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string },
+  shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string, internalTestCommands?: boolean },
   input: Readable;
   output: Writable;
   shellHomePaths: ShellHomePaths;
@@ -41,7 +41,7 @@ export type CliReplOptions = {
 class CliRepl {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
-  cliOptions: CliOptions;
+  cliOptions: CliOptions & { internalTestCommands?: boolean };
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<UserConfig>;
   config: UserConfig = new UserConfig();
@@ -140,6 +140,18 @@ class CliRepl {
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     await this.mongoshRepl.start(initialServiceProvider);
+
+    if (this.analytics && this.cliOptions.internalTestCommands) {
+      const analytics = this.analytics;
+      this.mongoshRepl.context.__verifyAnalytics = async() => {
+        const promise = promisify(analytics.track.bind(analytics))({
+          userId: this.config.userId, event: '__verifyAnalytics'
+        });
+        analytics.flush();
+        await promise;
+        return 'API call succeeded';
+      };
+    }
   }
 
   /**

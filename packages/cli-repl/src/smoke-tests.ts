@@ -14,6 +14,7 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     assert(!!smokeTestServer, 'Make sure MONGOSH_SMOKE_TEST_SERVER is set in CI');
   }
 
+  let n = 0;
   for (const { input, output, testArgs } of [{
     input: 'print("He" + "llo" + " Wor" + "ld!")',
     output: /Hello World!/,
@@ -22,10 +23,15 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     input: fleSmokeTestScript,
     output: /Test succeeded|Test skipped/,
     testArgs: [smokeTestServer as string]
+  }] : []).concat(process.execPath === process.argv[1] ? [{
+    input: '__verifyAnalytics()',
+    output: /API call succeeded/,
+    testArgs: ['--internalTestCommands', '--nodb']
   }] : [])) {
+    n++;
     await runSmokeTest(executable, [...args, ...testArgs], input, output);
   }
-  console.log('all tests passed');
+  console.log(`${n} tests passed!`);
 }
 
 async function runSmokeTest(executable: string, args: string[], input: string, output: RegExp): Promise<void> {
