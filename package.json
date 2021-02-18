@@ -48,6 +48,7 @@
     "compile-exec": "npm run evergreen-release compile",
     "compile-all": "npm run compile-compass && npm run compile-exec",
     "evergreen-release": "cd packages/build && npm run evergreen-release --",
+    "release": "cd packages/build && npm run release --",
     "report-missing-help": "lerna run --stream --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",

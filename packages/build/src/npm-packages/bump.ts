@@ -1,5 +1,5 @@
 import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
-import { spawnSync } from './spawn-sync';
+import { spawnSync } from '../helpers/spawn-sync';
 
 export function bumpNpmPackages(
   version: string,
