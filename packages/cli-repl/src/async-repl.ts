@@ -49,8 +49,13 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     repl.emit(evalStart, { input } as EvalStartEvent);
 
     try {
+      let exitEventPending = false;
+      const exitListener = () => { exitEventPending = true; };
+      let previousExitListeners: any[] = [];
+
       let sigintListener: (() => void) | undefined = undefined;
       let previousSigintListeners: any[] = [];
+
       try {
         result = await new Promise((resolve, reject) => {
           if (breakEvalOnSigint) {
@@ -68,6 +73,13 @@ export function start(opts: AsyncREPLOptions): REPLServer {
             repl.once('SIGINT', sigintListener);
           }
 
+          // The REPL may become over-eager and emit 'exit' events while our
+          // evaluation is still in progress (because it doesn't expect async
+          // evaluation). If that happens, defer the event until later.
+          previousExitListeners = repl.rawListeners('exit');
+          repl.removeAllListeners('exit');
+          repl.once('exit', exitListener);
+
           const evalResult = asyncEval(originalEval, input, context, filename);
 
           if (sigintListener !== undefined) {
@@ -83,6 +95,14 @@ export function start(opts: AsyncREPLOptions): REPLServer {
         }
         for (const listener of previousSigintListeners) {
           repl.on('SIGINT', listener);
+        }
+
+        repl.removeListener('exit', exitListener);
+        for (const listener of previousExitListeners) {
+          repl.on('exit', listener);
+        }
+        if (exitEventPending) {
+          process.nextTick(() => repl.emit('exit'));
         }
       }
     } catch (err) {
