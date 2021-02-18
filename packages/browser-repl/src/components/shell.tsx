@@ -40,6 +40,14 @@ interface ShellProps {
    */
   maxHistoryLength: number;
 
+  /* A function called when an operation has begun.
+   */
+  onOperationStarted: () => void;
+
+  /* A function called when an operation has completed (both error and success).
+   */
+  onOperationEnd: () => void;
+
   /* An array of entries to be displayed in the output area.
    *
    * Can be used to restore the output between sessions, or to setup
@@ -68,9 +76,7 @@ interface ShellState {
   shellPrompt: string;
 }
 
-const noop = (): void => {
-  //
-};
+const noop = (): void => { /* */ };
 
 /**
  * The browser-repl Shell component
@@ -78,6 +84,8 @@ const noop = (): void => {
 export class Shell extends Component<ShellProps, ShellState> {
   static defaultProps = {
     onHistoryChanged: noop,
+    onOperationStarted: noop,
+    onOperationEnd: noop,
     onOutputChanged: noop,
     maxOutputLength: 1000,
     maxHistoryLength: 1000,
@@ -114,6 +122,8 @@ export class Shell extends Component<ShellProps, ShellState> {
     let outputLine: ShellOutputEntry;
 
     try {
+      this.props.onOperationStarted();
+
       this.props.runtime.setEvaluationListener(this);
       const result = await this.props.runtime.evaluate(code);
       outputLine = {
@@ -128,6 +138,7 @@ export class Shell extends Component<ShellProps, ShellState> {
       };
     } finally {
       await this.updateShellPrompt();
+      this.props.onOperationEnd();
     }
 
     return outputLine;

@@ -8,6 +8,7 @@ import { CompassShell } from './compass-shell';
 import ResizeHandle from '../resize-handle';
 import ShellHeader from '../shell-header';
 import InfoModal from '../info-modal';
+import styles from './compass-shell.less';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -16,10 +17,13 @@ function updateAndWaitAsync(wrapper) {
 
 describe('CompassShell', () => {
   context('when the prop isExpanded is false', () => {
-    it('does not render a shell', () => {
+    it('has the shell display none', () => {
       const fakeRuntime = {};
-      const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded={false} />);
-      expect(wrapper.find(Shell).exists()).to.equal(false);
+      const wrapper = shallow(<CompassShell
+        runtime={fakeRuntime}
+        isExpanded={false}
+      />);
+      expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
     });
 
     context('when is it expanded', () => {
@@ -59,6 +63,7 @@ describe('CompassShell', () => {
         const fakeRuntime = {};
         const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
         expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
+        expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
       });
 
       it('renders the ShellHeader component', () => {

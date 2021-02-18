@@ -3,7 +3,7 @@ import { Autocompleter } from '@mongosh/browser-runtime-core';
 import classnames from 'classnames';
 import React, { Component } from 'react';
 import { Editor } from './editor';
-import Loader from './shell-loader';
+import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
 
 const styles = require('./shell-input.less');
@@ -109,9 +109,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   render(): JSX.Element {
     let prompt: JSX.Element;
     if (this.props.operationInProgress) {
-      prompt = (<Loader
-        size={12}
-      />);
+      prompt = (<ShellLoader />);
     } else if (this.props.prompt) {
       const trimmed = this.props.prompt.trim();
       if (trimmed.endsWith('>')) {
