@@ -1,11 +1,5 @@
 import util from 'util';
 import fs from 'fs';
-import handlebars from 'handlebars';
-
-/**
- * The template.
- */
-const TEMPLATE = 'module.exports = { SEGMENT_API_KEY: "{{segmentKey}}" };';
 
 /**
  * Create the analytics config.
@@ -15,8 +9,7 @@ const TEMPLATE = 'module.exports = { SEGMENT_API_KEY: "{{segmentKey}}" };';
  * @returns {string} The compiled template.
  */
 export function createAnalyticsConfig(segmentKey: string): string {
-  const template = handlebars.compile(TEMPLATE);
-  return template({ segmentKey: segmentKey });
+  return `module.exports = { SEGMENT_API_KEY: ${JSON.stringify(segmentKey)} };`;
 }
 
 /**
