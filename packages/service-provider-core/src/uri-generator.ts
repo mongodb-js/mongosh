@@ -63,7 +63,7 @@ function validateConflicts(options: CliOptions): void {
  * @param {string} host - The value of the --host option.
  */
 function validateHost(host: string): void {
-  const invalidCharacter = host.match(/[^a-zA-Z0-9\.-:\[\]]/);
+  const invalidCharacter = host.match(/[^a-zA-Z0-9.:\[\]-]/);
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
       i18n.__(INVALID_HOST) + ': ' + invalidCharacter[0],
