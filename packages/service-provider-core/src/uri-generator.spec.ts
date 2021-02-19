@@ -292,4 +292,20 @@ describe('uri-generator.generate-uri', () => {
       expect.fail('expected error');
     });
   });
+
+  context('when the --host option contains invalid characters', () => {
+    const options = { host: 'a,b,c' };
+
+    it('returns the uri', () => {
+      try {
+        generateUri(options);
+      } catch (e) {
+        expect(e.message).to.contain('The --host argument contains an invalid character: ,');
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        return;
+      }
+      expect.fail('expected error');
+    });
+  });
 });

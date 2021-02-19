@@ -70,7 +70,8 @@ const translations: Catalog = {
       }
     },
     'uri-generator': {
-      'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port'
+      'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
+      'invalid-host': 'The --host argument contains an invalid character'
     }
   },
   'service-provider-browser': {},
