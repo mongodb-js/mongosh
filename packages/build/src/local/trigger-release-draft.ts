@@ -2,7 +2,7 @@ import assert from 'assert';
 import semver from 'semver';
 import { choose as chooseFn, confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
 import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, TagDetails } from './get-latest-tag';
-import { verifyGitStatus as verifyGitStatusFn } from './repository-status';
+import { getReleaseVersionFromBranch, verifyGitStatus as verifyGitStatusFn } from './repository-status';
 
 type BumpType = 'draft' | 'patch' | 'minor' | 'major';
 
@@ -16,19 +16,25 @@ export async function triggerReleaseDraft(
 ): Promise<void> {
   console.info('Triggering process to create a new release draft...');
 
-  verifyGitStatus(repositoryRoot);
+  const repositoryStatus = verifyGitStatus(repositoryRoot);
+  const branchReleaseVersion = getReleaseVersionFromBranch(repositoryStatus.branch?.local);
 
-  const latestDraftOrReleaseTag = getLatestDraftOrReleaseTagFromLog(repositoryRoot);
+  const latestDraftOrReleaseTag = getLatestDraftOrReleaseTagFromLog(repositoryRoot, branchReleaseVersion);
   if (!latestDraftOrReleaseTag) {
     throw new Error('Could not find a previous draft or release tag.');
   }
   console.info(`-> Most recent tag: v${latestDraftOrReleaseTag.tag.semverName} on commit ${latestDraftOrReleaseTag.commit}`);
 
-  let bumpType: BumpType = 'draft';
-  if (latestDraftOrReleaseTag.tag.draftVersion === undefined) {
+  let bumpType: BumpType;
+  if (branchReleaseVersion && latestDraftOrReleaseTag.tag.draftVersion === undefined) {
+    console.info('-> You are on a release branch, last tag was a release - assuming patch...');
+    bumpType = 'patch';
+  } else if (latestDraftOrReleaseTag.tag.draftVersion === undefined) {
     bumpType = await choose('>  Select the type of increment for the new version', [
       'patch', 'minor', 'major'
     ], '... enter your choice:') as BumpType;
+  } else {
+    bumpType = 'draft';
   }
 
   const nextTagName = computeNextTagNameFn(latestDraftOrReleaseTag.tag, bumpType);

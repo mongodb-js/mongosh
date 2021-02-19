@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { getRepositoryStatus, RepositoryStatus, verifyGitStatus } from './repository-status';
+import { getReleaseVersionFromBranch, getRepositoryStatus, RepositoryStatus, verifyGitStatus } from './repository-status';
 
 describe('local repository-status', () => {
   let spawnSync: sinon.SinonStub;
@@ -16,7 +16,7 @@ describe('local repository-status', () => {
       getRepositoryStatus = sinon.stub();
     });
 
-    [ 'master', 'main', 'v0.8.0', 'v0.8.x' ].forEach(branchName => {
+    [ 'master', 'main', 'release/v0.8.0', 'release/v0.8.x' ].forEach(branchName => {
       it(`accepts a clean repository on ${branchName}`, () => {
         const status: RepositoryStatus = {
           branch: {
@@ -28,8 +28,8 @@ describe('local repository-status', () => {
           hasUnpushedTags: false
         };
         getRepositoryStatus.returns(status);
-        verifyGitStatus('root', getRepositoryStatus);
-        expect(getRepositoryStatus).to.have.been.calledOnce;
+        const returnedStatus = verifyGitStatus('root', getRepositoryStatus);
+        expect(returnedStatus).to.equal(status);
       });
     });
 
@@ -150,23 +150,31 @@ describe('local repository-status', () => {
   });
 
   describe('getRepositoryStatus', () => {
-    it('parses a clean repository correctly', () => {
-      spawnSync.returns({
-        stdout: '## master...origin/master\n'
-      });
-      spawnSync.onSecondCall().returns({
-        stdout: 'Everything up-to-date'
-      });
+    [
+      'master',
+      'main',
+      'release/v0.7.x',
+      'release/another-branch',
+      'release/v0.7.9'
+    ].forEach(branch => {
+      it('parses a clean repository correctly', () => {
+        spawnSync.returns({
+          stdout: `## ${branch}...origin/${branch}\n`
+        });
+        spawnSync.onSecondCall().returns({
+          stdout: 'Everything up-to-date'
+        });
 
-      const status = getRepositoryStatus('somePath', spawnSync);
-      expect(status).to.deep.equal({
-        branch: {
-          local: 'master',
-          tracking: 'origin/master',
-          diverged: false
-        },
-        clean: true,
-        hasUnpushedTags: false
+        const status = getRepositoryStatus('somePath', spawnSync);
+        expect(status).to.deep.equal({
+          branch: {
+            local: branch,
+            tracking: `origin/${branch}`,
+            diverged: false
+          },
+          clean: true,
+          hasUnpushedTags: false
+        });
       });
     });
 
@@ -265,6 +273,31 @@ describe('local repository-status', () => {
         clean: true,
         hasUnpushedTags: true
       });
+    });
+  });
+
+  describe('getReleaseVersionFromDraft', () => {
+    it('parses the release branch properly', () => {
+      const version = getReleaseVersionFromBranch('release/v0.8.3');
+      expect(version).to.deep.equal({
+        major: 0,
+        minor: 8,
+        patch: 3
+      });
+    });
+
+    it('handles a release branch that is not fully numbered', () => {
+      const version = getReleaseVersionFromBranch('release/v0.8.x');
+      expect(version).to.deep.equal({
+        major: 0,
+        minor: 8,
+        patch: undefined
+      });
+    });
+
+    it('returns undefined for non-release branches', () => {
+      const version = getReleaseVersionFromBranch('master');
+      expect(version).to.be.undefined;
     });
   });
 });
