@@ -6,6 +6,7 @@ import { once } from 'events';
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
+import { tick } from '../test/repl-helpers';
 chai.use(sinonChai);
 
 const delay = promisify(setTimeout);
@@ -121,6 +122,25 @@ describe('AsyncRepl', () => {
       }
     }
     expect(foundUid).to.be.true;
+  });
+
+  it('delays the "exit" event until after asynchronous evaluation is finished', async() => {
+    const { input, repl } = createDefaultAsyncRepl();
+    let exited = false;
+    repl.on('exit', () => { exited = true; });
+
+    let resolve;
+    repl.context.asyncFn = () => new Promise((res) => { resolve = res; });
+
+    input.end('asyncFn()\n');
+    expect(exited).to.be.false;
+
+    await tick();
+    resolve();
+    expect(exited).to.be.false;
+
+    await tick();
+    expect(exited).to.be.true;
   });
 
   describe('allows handling exceptions from e.g. the writer function', () => {
