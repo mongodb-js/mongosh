@@ -4,7 +4,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import semver from 'semver/preload';
 import { Config } from './config';
-import { TarballFile } from './tarball';
 
 type Repo = {
   owner: string;
@@ -57,21 +56,8 @@ export class GithubRepo {
       return undefined;
     }
 
-    const tags = await this.octokit
-      .paginate(
-        'GET /repos/:owner/:repo/tags',
-        this.repo,
-      );
-
-    const sortedTags = tags
-      .filter(t => t.name && t.name.startsWith(`v${releaseVersion}-draft`) && t.name.match(/^v\d+\.\d+\.\d+-draft\.\d+/))
-      .map(t => ({
-        name: t.name,
-        sha: t.commit.sha,
-        draftVersion: semver.prerelease(t.name)?.[1] as string
-      }))
-      .filter(t => t.draftVersion !== undefined)
-      .sort((t1, t2) => parseInt(t2.draftVersion, 10) - parseInt(t1.draftVersion, 10));
+    const sortedTags = (await this.getTagsOrdered())
+      .filter(t => t.name && t.name.startsWith(`v${releaseVersion}-draft`) && t.name.match(/^v\d+\.\d+\.\d+-draft\.\d+/));
 
     const mostRecentTag = sortedTags[0];
     return mostRecentTag ? {
@@ -81,35 +67,82 @@ export class GithubRepo {
   }
 
   /**
-   * Creates a release for a tag on Github, if the release exists
-   * the operation fails silently.
-   *
-   * @param {Release} release
-   * @returns {Promise<void>}
-   * @memberof GithubRepo
+   * Returns the predecessor release tag of the given release (without leading `v`).
+   * @param releaseVersion The successor release
    */
-  async createDraftRelease(release: Release): Promise<void> {
-    const params = {
-      ...this.repo,
-      tag_name: release.tag,
-      name: release.name,
-      body: release.notes,
-      draft: true
-    };
+  async getPreviousReleaseTag(releaseVersion: string | undefined): Promise<Tag | undefined> {
+    if (!releaseVersion) {
+      return undefined;
+    }
 
-    await this.octokit.repos.createRelease(params)
-      .catch(this._ignoreAlreadyExistsError());
+    const releaseTags = (await this.getTagsOrdered()).filter(t => t.name.match(/^v\d+\.\d+\.\d+$/));
+    for (let i = 0; i < releaseTags.length - 1; i++) {
+      if (releaseTags[i].name === `v${releaseVersion}`) {
+        return releaseTags[i + 1];
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Get all tags from the Github repository, sorted by highest version to lowest version.
+   */
+  private async getTagsOrdered(): Promise<Tag[]> {
+    const tags = await this.octokit
+      .paginate(
+        'GET /repos/:owner/:repo/tags',
+        this.repo,
+      );
+
+    return tags .map(t => ({
+      name: t.name,
+      sha: t.commit.sha,
+    })).sort((t1, t2) => -1 * semver.compare(t1.name, t2.name));
+  }
+
+  /**
+   * Creates a new draft release or updates an existing draft release for the given details.
+   * An existing release is discovered by a matching tag.
+   *
+   * @param release The release details
+   */
+  async updateDraftRelease(release: Release): Promise<void> {
+    const existingRelease = await this.getReleaseByTag(release.tag);
+    if (!existingRelease) {
+      const params = {
+        ...this.repo,
+        tag_name: release.tag,
+        name: release.name,
+        body: release.notes,
+        draft: true
+      };
+
+      await this.octokit.repos.createRelease(params)
+        .catch(this._ignoreAlreadyExistsError());
+    } else if (!existingRelease.draft) {
+      throw new Error('Cannot update an existing release after it was published');
+    } else {
+      const params = {
+        ...this.repo,
+        release_id: existingRelease.id,
+        name: release.name,
+        body: release.notes,
+        draft: true
+      };
+
+      await this.octokit.repos.updateRelease(params);
+    }
   }
 
   /**
    * Uploads an asset for a Github release, if the assets already exists
    * it will be removed and re-uploaded.
    */
-  async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
-    const releaseDetails = await this.getReleaseByTag(release.tag);
+  async uploadReleaseAsset(releaseTag: string, asset: Asset): Promise<void> {
+    const releaseDetails = await this.getReleaseByTag(releaseTag);
 
     if (releaseDetails === undefined) {
-      throw new Error(`Could not look up release for tag ${release.tag}`);
+      throw new Error(`Could not look up release for tag ${releaseTag}`);
     }
 
     const assetName = path.basename(asset.path);
@@ -133,27 +166,6 @@ export class GithubRepo {
     };
 
     await this.octokit.request(params);
-  }
-
-  /**
-   * Creates release notes and uploads assets if they are not yet uploaded to Github.
-   */
-  async releaseToGithub(artifact: TarballFile, config: Config): Promise<void> {
-    const tag = `v${config.version}`;
-
-    const githubRelease = {
-      name: config.version,
-      tag: tag,
-      notes: `Release notes [in Jira](${this.jiraReleaseNotesLink(config.version)})`
-    };
-
-    const releaseDetails = await this.getReleaseByTag(tag);
-
-    if (!releaseDetails) {
-      await this.createDraftRelease(githubRelease);
-    }
-
-    await this.uploadReleaseAsset(githubRelease, artifact);
   }
 
   async getReleaseByTag(tag: string): Promise<ReleaseDetails | undefined> {
@@ -187,10 +199,6 @@ export class GithubRepo {
     };
 
     await this.octokit.repos.updateRelease(params);
-  }
-
-  jiraReleaseNotesLink(version: string): string {
-    return `https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${version}`;
   }
 
   /**

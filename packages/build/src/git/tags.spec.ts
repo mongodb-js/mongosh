@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { getLatestDraftOrReleaseTagFromLog } from './get-latest-tag';
+import { getLatestDraftOrReleaseTagFromLog } from './tags';
 
-describe('local get-latest-tag', () => {
+describe('git tags', () => {
   let spawnSync: sinon.SinonStub;
 
   beforeEach(() => {

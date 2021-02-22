@@ -1,8 +1,7 @@
 import assert from 'assert';
 import semver from 'semver';
+import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, getReleaseVersionFromBranch, TagDetails, verifyGitStatus as verifyGitStatusFn } from '../git';
 import { choose as chooseFn, confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
-import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, TagDetails } from './get-latest-tag';
-import { getReleaseVersionFromBranch, verifyGitStatus as verifyGitStatusFn } from './repository-status';
 
 type BumpType = 'draft' | 'patch' | 'minor' | 'major';
 

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { getReleaseVersionFromBranch, getRepositoryStatus, RepositoryStatus, verifyGitStatus } from './repository-status';
 
-describe('local repository-status', () => {
+describe('git repository-status', () => {
   let spawnSync: sinon.SinonStub;
 
   beforeEach(() => {

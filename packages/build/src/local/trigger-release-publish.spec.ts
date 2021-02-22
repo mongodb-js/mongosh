@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { EvergreenApi, EvergreenTask } from '../evergreen';
-import { TaggedCommit } from './get-latest-tag';
+import { TaggedCommit } from '../git';
 import { triggerReleasePublish, verifyEvergreenStatusFn } from './trigger-release-publish';
 
 describe('local trigger-release-publish', () => {

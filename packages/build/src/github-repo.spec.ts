@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
-import os from 'os';
 import * as path from 'path';
 import { SinonStub } from 'sinon';
 import sinon from 'ts-sinon';
@@ -32,6 +31,7 @@ describe('GithubRepo', () => {
   beforeEach(() => {
     githubRepo = getTestGithubRepo();
   });
+
   describe('getMostRecentDraftTag', () => {
     it('returns undefined if the release version is undefined or empty', async() => {
       expect(
@@ -83,6 +83,7 @@ describe('GithubRepo', () => {
           { name: 'v0.0.30-draft.11', commit: { sha: 'sha-3' } },
           { name: 'v0.0.3-draft.11', commit: { sha: 'sha-4' } },
           { name: 'v0.0.3-draft.2', commit: { sha: 'sha-5' } },
+          { name: 'v0.1.3-testrelease.1', commit: { sha: 'sha-x' } },
           { name: 'v0.1.3-draft.0', commit: { sha: 'sha-6' } },
           { name: 'v0.1.3-test', commit: { sha: 'sha-7' } },
         ])
@@ -94,25 +95,96 @@ describe('GithubRepo', () => {
     });
   });
 
-  describe('createDraftRelease', () => {
+  describe('getPreviousReleaseTag', () => {
+    it('returns undefined if the release version is undefined or empty', async() => {
+      expect(
+        await githubRepo.getPreviousReleaseTag('')
+      ).to.be.undefined;
+
+      expect(
+        await githubRepo.getPreviousReleaseTag(undefined)
+      ).to.be.undefined;
+    });
+
+    it('returns undefined if there is no matching tag', async() => {
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6', commit: { sha: 'sha-1' } },
+          { name: 'v0.0.3-draft.0', commit: { sha: 'sha-2' } },
+          { name: 'v0.0.3-draft.1', commit: { sha: 'sha-3' } },
+          { name: 'v0.1.3-draft.8', commit: { sha: 'sha-4' } },
+        ])
+      });
+
+      expect(
+        await githubRepo.getPreviousReleaseTag('0.0.4')
+      ).to.be.undefined;
+    });
+
+    it('returns the previous release for a release version if there are multiple', async() => {
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6-draft.1', commit: { sha: 'sha-42' } },
+          { name: 'v0.0.6', commit: { sha: 'sha-1' } },
+          { name: 'v0.0.30', commit: { sha: 'sha-2' } },
+          { name: 'v0.0.6-draft.12', commit: { sha: 'sha-3' } },
+          { name: 'v0.0.7-draft.11', commit: { sha: 'sha-4' } },
+          { name: 'v0.0.7', commit: { sha: 'sha-x' } },
+          { name: 'v0.0.7-draft.2', commit: { sha: 'sha-5' } },
+          { name: 'v0.1.3-draft.0', commit: { sha: 'sha-6' } },
+        ])
+      });
+
+      expect(
+        await githubRepo.getPreviousReleaseTag('0.0.7')
+      ).to.deep.equal({ name: 'v0.0.6', sha: 'sha-1' });
+    });
+
+    it('returns undefined if there is no previous release', async() => {
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6', commit: { sha: 'sha-1' } },
+          { name: 'v0.0.30', commit: { sha: 'sha-2' } },
+          { name: 'v0.0.30-draft.11', commit: { sha: 'sha-3' } },
+          { name: 'v0.0.3-draft.11', commit: { sha: 'sha-4' } },
+          { name: 'v0.0.3-draft.2', commit: { sha: 'sha-5' } },
+          { name: 'v0.1.3-draft.0', commit: { sha: 'sha-6' } },
+          { name: 'v0.1.3-test', commit: { sha: 'sha-7' } },
+        ])
+      });
+
+      expect(
+        await githubRepo.getMostRecentDraftTagForRelease('0.0.6')
+      ).to.be.undefined;
+    });
+  });
+
+  describe('updateDraftRelease', () => {
     let createRelease: SinonStub;
+    let updateRelease: SinonStub;
+
     beforeEach(() => {
       createRelease = sinon.stub();
       createRelease.resolves();
+      updateRelease = sinon.stub();
+      updateRelease.resolves();
       githubRepo = getTestGithubRepo({
         repos: {
-          createRelease
+          createRelease,
+          updateRelease
         }
       });
     });
 
-    it('creates a release', async() => {
+    it('creates a new draft release', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves(undefined);
+
       const params = {
         name: 'release',
         tag: 'v0.8.0',
         notes: 'notes'
       };
-      await githubRepo.createDraftRelease(params);
+      await githubRepo.updateDraftRelease(params);
       expect(createRelease).to.have.been.calledWith({
         owner: 'mongodb-js',
         repo: 'mongosh',
@@ -123,7 +195,51 @@ describe('GithubRepo', () => {
       });
     });
 
+    it('updates an existing draft release', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves({
+        id: 'existing_id',
+        draft: true
+      });
+
+      const params = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: 'notes'
+      };
+      await githubRepo.updateDraftRelease(params);
+      expect(updateRelease).to.have.been.calledWith({
+        release_id: 'existing_id',
+        owner: 'mongodb-js',
+        repo: 'mongosh',
+        name: params.name,
+        body: params.notes,
+        draft: true
+      });
+    });
+
+    it('fails to update an existing published release', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves({
+        id: 'existing_id'
+      });
+
+      const params = {
+        name: 'release',
+        tag: 'v0.8.0',
+        notes: 'notes'
+      };
+      try {
+        await githubRepo.updateDraftRelease(params);
+      } catch (e) {
+        expect(e.message).to.contain('Cannot update an existing release after it was published');
+        expect(updateRelease).not.to.have.been.called;
+        return;
+      }
+      expect.fail('Expected error');
+    });
+
     it('fails on error', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves(undefined);
+
       const params = {
         name: 'release',
         tag: 'v0.8.0',
@@ -132,7 +248,7 @@ describe('GithubRepo', () => {
       const expectedError = new Error();
       createRelease.rejects(expectedError);
       try {
-        await githubRepo.createDraftRelease(params);
+        await githubRepo.updateDraftRelease(params);
       } catch (e) {
         return expect(e).to.equal(expectedError);
       }
@@ -140,13 +256,15 @@ describe('GithubRepo', () => {
     });
 
     it('ignores already exists error', async() => {
+      githubRepo.getReleaseByTag = sinon.stub().resolves(undefined);
+
       const params = {
         name: 'release',
         tag: 'v0.8.0',
         notes: 'notes'
       };
       createRelease.rejects(new ExistsError());
-      await githubRepo.createDraftRelease(params);
+      await githubRepo.updateDraftRelease(params);
       expect(createRelease).to.have.been.calledWith({
         owner: 'mongodb-js',
         repo: 'mongosh',
@@ -189,7 +307,7 @@ describe('GithubRepo', () => {
         upload_url: 'url'
       });
 
-      await githubRepo.uploadReleaseAsset(release, {
+      await githubRepo.uploadReleaseAsset(release.tag, {
         path: __filename,
         contentType: 'xyz'
       });
@@ -223,7 +341,7 @@ describe('GithubRepo', () => {
       });
       deleteReleaseAsset.resolves();
 
-      await githubRepo.uploadReleaseAsset(release, {
+      await githubRepo.uploadReleaseAsset(release.tag, {
         path: __filename,
         contentType: 'xyz'
       });
@@ -251,7 +369,7 @@ describe('GithubRepo', () => {
       };
       getReleaseByTag.resolves(undefined);
       try {
-        await githubRepo.uploadReleaseAsset(release, {
+        await githubRepo.uploadReleaseAsset(release.tag, {
           path: 'path',
           contentType: 'xyz'
         });
@@ -259,46 +377,6 @@ describe('GithubRepo', () => {
         return expect(e.message).to.contain('Could not look up release for tag');
       }
       expect.fail('Expected error');
-    });
-  });
-
-  describe('releaseToGithub', () => {
-    const platform = os.platform();
-    const dummyTarballPath = path.join(__dirname, `mongosh_1.0.0_${platform}.zip`);
-    const tarballFile = { path: dummyTarballPath, contentType: 'application/zip' };
-
-    before(async() => {
-      await fs.writeFile(dummyTarballPath, 'not a real tarball but 🤷‍♀️');
-    });
-
-    after(async() => {
-      await fs.unlink(dummyTarballPath);
-    });
-
-    it('calls createDraftRelease when running releaseToGithub', async() => {
-      githubRepo.getReleaseByTag = sinon.stub().resolves();
-      githubRepo.createDraftRelease = sinon.stub().resolves();
-      githubRepo.uploadReleaseAsset = sinon.stub().resolves();
-
-      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
-      expect(githubRepo.createDraftRelease).to.have.been.calledWith({
-        name: '0.0.6',
-        notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
-        tag: 'v0.0.6'
-      });
-    });
-
-    it('does not call createDraftRelease if the release already exists', async() => {
-      githubRepo.getReleaseByTag = sinon.stub().resolves();
-      githubRepo.createDraftRelease = sinon.stub().resolves();
-      githubRepo.uploadReleaseAsset = sinon.stub().resolves();
-
-      await githubRepo.releaseToGithub(tarballFile, { version: '0.0.6' } as any);
-      expect(githubRepo.createDraftRelease).to.have.been.calledWith({
-        name: '0.0.6',
-        notes: 'Release notes [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%200.0.6)',
-        tag: 'v0.0.6'
-      });
     });
   });
 
