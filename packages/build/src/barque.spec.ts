@@ -37,7 +37,6 @@ describe('Barque', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'linux',
-      distributionBuildVariant: BuildVariant.Linux,
       repo: {
         owner: 'owner',
         repo: 'repo',
@@ -60,7 +59,7 @@ describe('Barque', () => {
         let err;
 
         try {
-          await barque.releaseToBarque(tarballURL);
+          await barque.releaseToBarque(BuildVariant.Linux, tarballURL);
         } catch (error) {
           err = error;
         }
@@ -80,7 +79,7 @@ describe('Barque', () => {
         let err;
 
         try {
-          await barque.releaseToBarque(tarballURL);
+          await barque.releaseToBarque(BuildVariant.Linux, tarballURL);
         } catch (error) {
           err = error;
         }
@@ -103,7 +102,7 @@ describe('Barque', () => {
 
       const tarballURL = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh-0.1.0-linux.tgz';
 
-      await barque.releaseToBarque(tarballURL);
+      await barque.releaseToBarque(BuildVariant.Linux, tarballURL);
       expect(barque.createCuratorDir).to.have.been.called;
       expect(barque.extractLatestCurator).to.have.been.called;
       expect(barque.execCurator).to.not.have.been.called;
