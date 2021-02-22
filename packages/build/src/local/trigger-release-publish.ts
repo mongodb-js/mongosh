@@ -51,17 +51,24 @@ export async function triggerReleasePublish(
 
 export async function verifyEvergreenStatusFn(
   commitSha: string,
-  evergreenApiProvider: Promise<EvergreenApi> = EvergreenApi.fromUserConfiguration()
+  evergreenApiProvider: Promise<EvergreenApi> = EvergreenApi.fromUserConfiguration(),
+  confirm: typeof confirmFn = confirmFn,
 ): Promise<void> {
   const evergreenApi = await evergreenApiProvider;
   const tasks = await evergreenApi.getTasks('mongosh', commitSha);
   const unsuccessfulTasks = tasks.filter(t => t.status !== 'success');
 
-  if (unsuccessfulTasks.length) {
-    console.error('!! Detected the following failed tasks on Evergreen:');
-    unsuccessfulTasks.forEach(t => {
-      console.error(`   > ${t.display_name} on ${t.build_variant}`);
-    });
+  if (!unsuccessfulTasks.length) {
+    return;
+  }
+
+  console.error('!! Detected the following not successful tasks on Evergreen:');
+  unsuccessfulTasks.forEach(t => {
+    console.error(`   > ${t.display_name} on ${t.build_variant}`);
+  });
+
+  const stillContinue = await confirm('!! Do you want to continue and still release despite non-successful tasks?');
+  if (!stillContinue) {
     console.error('!! Please trigger a new draft and ensure all tasks complete successfully.');
     throw new Error('Some Evergreen tasks were not successful.');
   }

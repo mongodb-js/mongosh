@@ -211,16 +211,24 @@ describe('local trigger-release-publish', () => {
       expect.fail('Expected error');
     });
 
-    it('fails if there are failed tasks', async() => {
+    it('fails if there are failed tasks and user cancels', async() => {
       getTasks.resolves([successTask, failedTask]);
+      const confirm = sinon.stub().resolves(false);
       try {
-        await verifyEvergreenStatusFn('sha', evergreenProvider);
+        await verifyEvergreenStatusFn('sha', evergreenProvider, confirm);
       } catch (e) {
         expect(e.message).to.contain('Some Evergreen tasks were not successful');
         expect(getTasks).to.have.been.calledWith('mongosh', 'sha');
         return;
       }
       expect.fail('Expected error');
+    });
+
+    it('continues if there are failed tasks but user acknowledges', async() => {
+      getTasks.resolves([successTask, failedTask]);
+      const confirm = sinon.stub().resolves(true);
+      await verifyEvergreenStatusFn('sha', evergreenProvider, confirm);
+      expect(confirm).to.have.been.called;
     });
   });
 });

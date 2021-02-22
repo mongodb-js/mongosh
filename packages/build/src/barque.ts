@@ -63,12 +63,7 @@ export class Barque {
    *
    * @returns {Promise} The promise.
    */
-  async releaseToBarque(tarballURL: string): Promise<any> {
-    const buildVariant = this.config.distributionBuildVariant;
-    if (!buildVariant) {
-      throw new Error('distributionBuildVariant is not set in configuration');
-    }
-
+  async releaseToBarque(buildVariant: BuildVariant, tarballURL: string): Promise<any> {
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);

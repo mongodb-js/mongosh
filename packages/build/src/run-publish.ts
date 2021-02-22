@@ -96,7 +96,7 @@ async function publishArtifactsToBarque(
     const tarballName = getTarballFile(variant, releaseVersion, packageName);
     const tarballUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, tarballName.path);
     console.info(`mongosh: Publishing ${variant} artifact to barque ${tarballUrl}`);
-    await barque.releaseToBarque(tarballUrl);
+    await barque.releaseToBarque(variant, tarballUrl);
   }
   console.info('mongosh: Submitting to barque complete');
 }
