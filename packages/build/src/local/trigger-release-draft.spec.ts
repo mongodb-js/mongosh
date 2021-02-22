@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { TagDetails, TaggedCommit } from './get-latest-tag';
+import { RepositoryStatus } from './repository-status';
 import { computeNextTagNameFn, triggerReleaseDraft } from './trigger-release-draft';
 
 describe('local trigger-release-draft', () => {
@@ -11,8 +12,18 @@ describe('local trigger-release-draft', () => {
     let confirm: sinon.SinonStub;
     let spawnSync: sinon.SinonStub;
 
+    const cleanRepoStatus: RepositoryStatus = {
+      branch: {
+        local: 'master',
+        tracking: 'origin/master',
+        diverged: false
+      },
+      clean: true,
+      hasUnpushedTags: false
+    };
+
     beforeEach(() => {
-      verifyGitStatus = sinon.stub();
+      verifyGitStatus = sinon.stub().returns(cleanRepoStatus);
       getLatestDraftOrReleaseTagFromLog = sinon.stub();
       choose = sinon.stub();
       confirm = sinon.stub();
@@ -28,6 +39,7 @@ describe('local trigger-release-draft', () => {
           semverName: '0.8.0-draft.7'
         }
       };
+
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
       confirm.resolves(true);
 
@@ -48,7 +60,7 @@ describe('local trigger-release-draft', () => {
       expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.0-draft.8'], sinon.match.any);
     });
 
-    it('asks for the bump type and pushes a new draft if previous tag was a release', async() => {
+    it('asks for the bump type and pushes a new draft if previous tag was a release on master', async() => {
       const latestTag: TaggedCommit = {
         commit: 'hash',
         tag: {
@@ -57,6 +69,7 @@ describe('local trigger-release-draft', () => {
           semverName: '0.8.0'
         }
       };
+
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
       choose.resolves('minor');
       confirm.resolves(true);
@@ -76,6 +89,46 @@ describe('local trigger-release-draft', () => {
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.9.0-draft.0'], sinon.match.any);
       expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.9.0-draft.0'], sinon.match.any);
+    });
+
+    it('automatically does a patch when on a release branch (for a support release)', async() => {
+      const repoStatus: RepositoryStatus = {
+        branch: {
+          local: 'release/v0.8.2',
+          tracking: 'origin/release/v0.8.2',
+          diverged: false
+        },
+        clean: true,
+        hasUnpushedTags: false
+      };
+
+      const latestTag: TaggedCommit = {
+        commit: 'hash',
+        tag: {
+          draftVersion: undefined,
+          releaseVersion: '0.8.2',
+          semverName: '0.8.2'
+        }
+      };
+
+      verifyGitStatus.returns(repoStatus);
+      getLatestDraftOrReleaseTagFromLog.returns(latestTag);
+      confirm.resolves(true);
+
+      await triggerReleaseDraft(
+        'root',
+        verifyGitStatus,
+        getLatestDraftOrReleaseTagFromLog,
+        choose,
+        confirm,
+        spawnSync
+      );
+
+      expect(verifyGitStatus).to.have.been.called;
+      expect(confirm).to.have.been.called;
+      expect(spawnSync).to.have.been.calledTwice;
+      expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.3-draft.0'], sinon.match.any);
+      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.3-draft.0'], sinon.match.any);
     });
 
     it('fails if no previous tag is found', async() => {

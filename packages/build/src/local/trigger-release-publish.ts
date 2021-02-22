@@ -15,7 +15,7 @@ export async function triggerReleasePublish(
 
   verifyGitStatus(repositoryRoot);
 
-  const latestDraftTag = getLatestDraftOrReleaseTagFromLog(repositoryRoot);
+  const latestDraftTag = getLatestDraftOrReleaseTagFromLog(repositoryRoot, undefined);
   if (!latestDraftTag) {
     throw new Error('Failed to find a prior tag to release from.');
   }

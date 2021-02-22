@@ -11,16 +11,19 @@ export interface RepositoryStatus {
     hasUnpushedTags: boolean
 }
 
+const MAIN_OR_MASTER_BRANCH = /^(main|master)$/;
+const RELEASE_BRANCH = /^release\/v([a-z0-9]+\.[a-z0-9]+\.[a-z0-9]+)$/;
+
 export function verifyGitStatus(
   repositoryRoot: string,
   getRepositoryStatusFn: typeof getRepositoryStatus = getRepositoryStatus
-): void {
+): RepositoryStatus {
   const repositoryStatus = getRepositoryStatusFn(repositoryRoot);
   if (!repositoryStatus.branch?.local) {
     throw new Error('Could not determine local repository information - please verify your repository is intact.');
   }
-  if (!/^(master|main|v[a-z0-9]+\.[a-z0-9]+\.[a-z0-9]+)$/.test(repositoryStatus.branch.local)) {
-    throw new Error('The current branch does not match: master|main|vX.X.X');
+  if (!MAIN_OR_MASTER_BRANCH.test(repositoryStatus.branch.local) && !RELEASE_BRANCH.test(repositoryStatus.branch.local)) {
+    throw new Error('The current branch does not match: master|main|release/vX.X.X');
   }
   if (!repositoryStatus.branch.tracking) {
     throw new Error('The branch you are on is not tracking any remote branch.');
@@ -31,6 +34,7 @@ export function verifyGitStatus(
   if (repositoryStatus.hasUnpushedTags) {
     throw new Error('You have local tags that are not pushed to the remote. Remove or push those tags to continue.');
   }
+  return repositoryStatus;
 }
 
 export function getRepositoryStatus(
@@ -48,7 +52,7 @@ export function getRepositoryStatus(
 
   const result: RepositoryStatus = {
     clean: true,
-    hasUnpushedTags: tagStatus.stdout.trim() !== 'Everything up-to-date'
+    hasUnpushedTags: (tagStatus.stdout?.trim() ?? '' + tagStatus.stderr?.trim() ?? '') !== 'Everything up-to-date'
   };
 
   const output = gitStatus.stdout
@@ -57,13 +61,13 @@ export function getRepositoryStatus(
     .filter(l => !!l);
 
   const branchOutput = output.find(l => l.match(/^## /));
-  const branchInfo = branchOutput?.match(/^## ([^\s.]+)(\.\.\.([^\s]+)( \[[^\]]+])?)?/);
+  const branchInfo = branchOutput?.match(/^## ([^\s]+?((?=\.\.\.)|$))(\.\.\.([^\s]+)( \[[^\]]+])?)?/);
 
   if (branchInfo) {
     result.branch = {
       local: branchInfo[1],
-      tracking: branchInfo[3],
-      diverged: !!branchInfo[4]
+      tracking: branchInfo[4],
+      diverged: !!branchInfo[5]
     };
   }
 
@@ -71,5 +75,24 @@ export function getRepositoryStatus(
   result.clean = fileInfo.length === 0;
 
   return result;
+}
+
+export function getReleaseVersionFromBranch(branchName: string | undefined): { major: number | undefined, minor: number | undefined, patch: number | undefined} | undefined {
+  const match = branchName?.match(RELEASE_BRANCH);
+  if (!match) {
+    return undefined;
+  }
+
+  const versionParts = match[1].split('.');
+  const numOrUndefiend = (num: string): number | undefined => {
+    const value = parseInt(num, 10);
+    return isNaN(value) ? undefined : value;
+  };
+
+  return {
+    major: numOrUndefiend(versionParts[0]),
+    minor: numOrUndefiend(versionParts[1]),
+    patch: numOrUndefiend(versionParts[2]),
+  };
 }
 
