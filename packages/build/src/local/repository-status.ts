@@ -52,7 +52,7 @@ export function getRepositoryStatus(
 
   const result: RepositoryStatus = {
     clean: true,
-    hasUnpushedTags: (tagStatus.stdout.trim() + tagStatus.stderr.trim()) !== 'Everything up-to-date'
+    hasUnpushedTags: (tagStatus.stdout?.trim() ?? '' + tagStatus.stderr?.trim() ?? '') !== 'Everything up-to-date'
   };
 
   const output = gitStatus.stdout
