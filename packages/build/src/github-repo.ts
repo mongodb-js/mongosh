@@ -103,7 +103,7 @@ export class GithubRepo {
 
   /**
    * Uploads an asset for a Github release, if the assets already exists
-   * it will be updated.
+   * it will be removed and re-uploaded.
    */
   async uploadReleaseAsset(release: Release, asset: Asset): Promise<void> {
     const releaseDetails = await this.getReleaseByTag(release.tag);
@@ -115,14 +115,16 @@ export class GithubRepo {
     const assetName = path.basename(asset.path);
     const existingAsset = releaseDetails.assets?.find(a => a.name === assetName);
 
+    if (existingAsset) {
+      await this.octokit.repos.deleteReleaseAsset({
+        ...this.repo,
+        asset_id: existingAsset.id
+      });
+    }
+
     const params = {
-      ...(existingAsset ? {
-        method: 'PATCH',
-        url: existingAsset.url
-      } : {
-        method: 'POST',
-        url: releaseDetails.upload_url
-      }),
+      method: 'POST',
+      url: releaseDetails.upload_url,
       headers: {
         'content-type': asset.contentType
       },
