@@ -161,13 +161,20 @@ describe('GithubRepo', () => {
   describe('uploadReleaseAsset', () => {
     let octoRequest: SinonStub;
     let getReleaseByTag: SinonStub;
+    let deleteReleaseAsset: SinonStub;
+
     beforeEach(() => {
       octoRequest = sinon.stub();
       octoRequest.resolves();
       getReleaseByTag = sinon.stub();
       getReleaseByTag.rejects();
+      deleteReleaseAsset = sinon.stub();
+      deleteReleaseAsset.rejects();
       githubRepo = getTestGithubRepo({
-        request: octoRequest
+        request: octoRequest,
+        repos: {
+          deleteReleaseAsset
+        }
       });
       githubRepo.getReleaseByTag = getReleaseByTag;
     });
@@ -186,6 +193,7 @@ describe('GithubRepo', () => {
         path: __filename,
         contentType: 'xyz'
       });
+      expect(deleteReleaseAsset).to.not.have.been.called;
       expect(octoRequest).to.have.been.calledWith({
         method: 'POST',
         url: 'url',
@@ -197,7 +205,7 @@ describe('GithubRepo', () => {
       });
     });
 
-    it('updates an existing asset', async() => {
+    it('updates an existing asset by removing the old one first', async() => {
       const release = {
         name: 'release',
         tag: 'v0.8.0',
@@ -213,14 +221,20 @@ describe('GithubRepo', () => {
           }
         ]
       });
+      deleteReleaseAsset.resolves();
 
       await githubRepo.uploadReleaseAsset(release, {
         path: __filename,
         contentType: 'xyz'
       });
+      expect(deleteReleaseAsset).to.have.been.calledWith( {
+        owner: 'mongodb-js',
+        repo: 'mongosh',
+        asset_id: 1
+      });
       expect(octoRequest).to.have.been.calledWith({
-        method: 'PATCH',
-        url: 'assetUrl',
+        method: 'POST',
+        url: 'url',
         headers: {
           'content-type': 'xyz'
         },
