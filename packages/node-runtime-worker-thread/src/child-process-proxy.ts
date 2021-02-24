@@ -15,13 +15,20 @@
  */
 import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
+import fs from 'fs';
 import path from 'path';
 import { exposeAll, createCaller } from './rpc';
 import { InterruptHandle, interrupt as nativeInterrupt } from 'interruptor';
 
 const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
 
-const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
+const workerProcess = new Worker(
+  // It's fine in this use-case: this process is spawned so we are not blocking
+  // anything in the main process
+  // eslint-disable-next-line no-sync
+  fs.readFileSync(workerRuntimeSrcPath, 'utf8'),
+  { env: SHARE_ENV, eval: true }
+);
 
 // We expect the amount of listeners to be more than the default value of 10 but
 // probably not more than ~25 (all exposed methods on
