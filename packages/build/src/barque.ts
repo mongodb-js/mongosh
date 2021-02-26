@@ -1,12 +1,12 @@
 import childProcess from 'child_process';
+import fs from 'fs-extra';
 import gunzip from 'gunzip-maybe';
 import fetch from 'node-fetch';
-import tmp from 'tmp-promise';
-import stream from 'stream';
-import fs from 'fs-extra';
-import tar from 'tar-fs';
-import util from 'util';
 import path from 'path';
+import stream from 'stream';
+import tar from 'tar-fs';
+import tmp from 'tmp-promise';
+import util from 'util';
 import { BuildVariant, Config, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -22,9 +22,10 @@ tmp.setGracefulCleanup();
  * Distro enum to be used when making a curator call.
  */
 enum Distro {
-  Ubuntu = 'ubuntu1804',
-  Debian = 'debian10',
-  Redhat = 'rhel80'
+  Ubuntu1804 = 'ubuntu1804',
+  Ubuntu2004 = 'ubuntu2004',
+  Debian10 = 'debian10',
+  Redhat80 = 'rhel80'
 }
 
 /**
@@ -36,9 +37,8 @@ enum Distro {
  * This can be also moved to /config/build.conf.js in the future.
  */
 enum Arch {
-  Ubuntu = 'amd64',
-  Debian = 'amd64',
-  Redhat = 'x86_64',
+  Amd64 = 'amd64',
+  X86_64 = 'x86_64'
 }
 
 export class Barque {
@@ -64,42 +64,38 @@ export class Barque {
    * @returns {Promise} The promise.
    */
   async releaseToBarque(buildVariant: BuildVariant, tarballURL: string): Promise<any> {
+    if (this.config.platform !== Platform.Linux) {
+      return;
+    }
+
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);
 
-
-    if (this.config.platform === Platform.Linux) {
+    const targetDistros = this.getTargetDistros(buildVariant);
+    const targetArchitecture = this.getTargetArchitecture(buildVariant);
+    for (const distro of targetDistros) {
       try {
         await this.execCurator(
           curatorDirPath,
           tarballURL,
           repoConfig,
-          buildVariant
+          distro,
+          targetArchitecture
         );
       } catch (error) {
+        console.error('Curator failed', error);
         throw new Error(`Curator is unable to upload to barque ${error}`);
       }
     }
-
-    return;
   }
 
-  /**
-   * Run the child_process.exec to run curator command.
-   *
-   * @param {string} curatorDir - Path to freshly downloaded curator.
-   * @param {string} tarballURL- The uploaded to Evergreen tarball URL.
-   * @param {string} repoConfig - Path to repo-config.yml used to uplaod assets
-   * to appropriate distros.
-   *
-   * @returns {Promise} The promise.
-   */
   async execCurator(
     curatorDirPath: string,
     tarballURL: string,
     repoConfig: string,
-    buildVariant: BuildVariant
+    distro: Distro,
+    architecture: Arch
   ): Promise<any> {
     return await execFile(
       `${curatorDirPath}/curator`, [
@@ -107,13 +103,13 @@ export class Barque {
         'repo', 'submit',
         '--service', 'https://barque.corp.mongodb.com',
         '--config', repoConfig,
-        '--distro', this.determineDistro(buildVariant),
-        '--arch', this.determineArch(buildVariant),
+        '--distro', distro,
+        '--arch', architecture,
         '--edition', this.mongodbEdition,
         '--version', this.mongodbVersion,
         '--packages', tarballURL
       ], {
-      // curator looks for these options in env
+        // curator looks for these options in env
         env: {
           NOTARY_KEY_NAME: 'server-4.4',
           NOTARY_TOKEN: process.env.SIGNING_AUTH_TOKEN_44,
@@ -123,33 +119,32 @@ export class Barque {
       });
   }
 
-  /**
-   * Determine the current arch to be passed on to curator given current build
-   * variant.
-   *
-   * @param variant - Current build variant.
-   *
-   * @returns Arch to be passed as an argument to curator
-   */
-  determineArch(variant: BuildVariant): Arch {
-    if (variant === BuildVariant.Linux) return Arch.Ubuntu;
-    if (variant === BuildVariant.Debian) return Arch.Debian;
-    if (variant === BuildVariant.Redhat) return Arch.Redhat;
-    return Arch.Ubuntu;
+  getTargetArchitecture(variant: BuildVariant): Arch {
+    switch (variant) {
+      case BuildVariant.Debian:
+        return Arch.Amd64;
+      case BuildVariant.Redhat:
+        return Arch.X86_64;
+      default:
+        throw new Error('Unsupported variant for Barque publishing: ' + variant);
+    }
   }
-  /**
-   * Determine the current distro to be passed on to curator given current build
-   * variant.
-   *
-   * @param variant - Current build variant.
-   *
-   * @returns Distro to be passed as an argument to curator
-   */
-  determineDistro(variant: BuildVariant): Distro {
-    if (variant === BuildVariant.Linux) return Distro.Ubuntu;
-    if (variant === BuildVariant.Debian) return Distro.Debian;
-    if (variant === BuildVariant.Redhat) return Distro.Redhat;
-    return Distro.Ubuntu;
+
+  getTargetDistros(variant: BuildVariant): Distro[] {
+    switch (variant) {
+      case BuildVariant.Debian:
+        return [
+          Distro.Debian10,
+          Distro.Ubuntu1804,
+          Distro.Ubuntu2004
+        ];
+      case BuildVariant.Redhat:
+        return [
+          Distro.Redhat80
+        ];
+      default:
+        throw new Error('Unsupported variant for Barque publishing: ' + variant);
+    }
   }
 
   /**
