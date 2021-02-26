@@ -42,13 +42,32 @@ const DEFAULT_PORT = '27017';
 const CONFLICT = 'cli-repl.uri-generator.no-host-port';
 
 /**
+ * Invalid host message.
+ */
+const INVALID_HOST = 'cli-repl.uri-generator.invalid-host';
+
+/**
  * Validate conflicts in the options.
  *
  * @param {CliOptions} options - The options.
  */
-function validateConflicts(options: CliOptions): any {
+function validateConflicts(options: CliOptions): void {
   if (options.host || options.port) {
     throw new MongoshInvalidInputError(i18n.__(CONFLICT), CommonErrors.InvalidArgument);
+  }
+}
+
+/**
+ * Perform basic validation of the --host option.
+ *
+ * @param {string} host - The value of the --host option.
+ */
+function validateHost(host: string): void {
+  const invalidCharacter = host.match(/[^a-zA-Z0-9.:\[\]-]/);
+  if (invalidCharacter) {
+    throw new MongoshInvalidInputError(
+      i18n.__(INVALID_HOST) + ': ' + invalidCharacter[0],
+      CommonErrors.InvalidArgument);
   }
 }
 
@@ -61,6 +80,7 @@ function validateConflicts(options: CliOptions): any {
  */
 function generateHost(options: CliOptions): string {
   if (options.host) {
+    validateHost(options.host);
     if (options.host.includes(':')) {
       return options.host.split(':')[0];
     }
@@ -78,6 +98,7 @@ function generateHost(options: CliOptions): string {
  */
 function generatePort(options: CliOptions): string {
   if (options.host && options.host.includes(':')) {
+    validateHost(options.host);
     const port = options.host.split(':')[1];
     if (!options.port || options.port === port) {
       return port;
