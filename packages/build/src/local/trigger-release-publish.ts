@@ -1,5 +1,5 @@
 import { EvergreenApi } from '../evergreen';
-import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, verifyGitStatus as verifyGitStatusFn } from '../git';
+import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, TaggedCommit, verifyGitStatus as verifyGitStatusFn } from '../git';
 import { confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
 
 export async function triggerReleasePublish(
@@ -33,7 +33,7 @@ export async function triggerReleasePublish(
   }
 
   console.info('... verifying evergreen status ...');
-  await verifyEvergreenStatus(latestDraftTag.commit);
+  await verifyEvergreenStatus(latestDraftTag);
 
   console.info('... tagging commit and pushing ...');
   spawnSync('git', ['tag', releaseTag, latestDraftTag.commit], {
@@ -49,12 +49,12 @@ export async function triggerReleasePublish(
 }
 
 export async function verifyEvergreenStatusFn(
-  commitSha: string,
+  latestDraftTag: TaggedCommit,
   evergreenApiProvider: Promise<EvergreenApi> = EvergreenApi.fromUserConfiguration(),
   confirm: typeof confirmFn = confirmFn,
 ): Promise<void> {
   const evergreenApi = await evergreenApiProvider;
-  const tasks = await evergreenApi.getTasks('mongosh', commitSha);
+  const tasks = await evergreenApi.getTasks('mongosh', latestDraftTag.commit, `v${latestDraftTag.tag.semverName}`);
   const unsuccessfulTasks = tasks.filter(t => t.status !== 'success');
 
   if (!unsuccessfulTasks.length) {

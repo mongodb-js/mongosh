@@ -64,7 +64,7 @@ describe('evergreen rest-api', () => {
       );
     });
 
-    it('executes a proper GET', async() => {
+    it('returns all tasks from the API when there is no tag filter', async() => {
       const task: EvergreenTask = {
         task_id: 'task_id',
         version_id: 'version',
@@ -80,7 +80,40 @@ describe('evergreen rest-api', () => {
       const tasks = await api.getTasks('mongosh', 'sha');
       expect(tasks).to.deep.equal([task]);
       expect(fetch).to.have.been.calledWith(
-        '//basePath/api/rest/v2/projects/mongosh/revisions/sha/tasks',
+        '//basePath/api/rest/v2/projects/mongosh/revisions/sha/tasks?limit=5000',
+        {
+          headers: {
+            'Api-User': 'user',
+            'Api-Key': 'key'
+          }
+        }
+      );
+    });
+
+    it('returns only matching tasks from the API for a tag filter', async() => {
+      const task1: EvergreenTask = {
+        task_id: 'task_id',
+        version_id: 'version',
+        status: 'success',
+        display_name: 'Task',
+        build_variant: 'variant'
+      };
+      const task2: EvergreenTask = {
+        task_id: 'task_id2',
+        version_id: 'mongosh_v0.8.2_draft.0_29jasdf',
+        status: 'success',
+        display_name: 'Task',
+        build_variant: 'variant'
+      };
+      fetch.resolves({
+        status: 200,
+        json: sinon.stub().resolves([task1, task2])
+      });
+
+      const tasks = await api.getTasks('mongosh', 'sha', 'v0.8.2-draft.0');
+      expect(tasks).to.deep.equal([task2]);
+      expect(fetch).to.have.been.calledWith(
+        '//basePath/api/rest/v2/projects/mongosh/revisions/sha/tasks?limit=5000',
         {
           headers: {
             'Api-User': 'user',

@@ -171,6 +171,15 @@ describe('local trigger-release-publish', () => {
     let evergreenProvider: Promise<EvergreenApi>;
     let getTasks: sinon.SinonStub;
 
+    const exampleTag: TaggedCommit = {
+      commit: 'sha',
+      tag: {
+        draftVersion: 5,
+        releaseVersion: '0.8.2',
+        semverName: '0.8.2-draft.5'
+      }
+    };
+
     const failedTask: EvergreenTask = {
       task_id: 'task1',
       version_id: 'v1',
@@ -195,15 +204,15 @@ describe('local trigger-release-publish', () => {
 
     it('works if all tasks are successful', async() => {
       getTasks.resolves([successTask]);
-      await verifyEvergreenStatusFn('sha', evergreenProvider);
-      expect(getTasks).to.have.been.calledWith('mongosh', 'sha');
+      await verifyEvergreenStatusFn(exampleTag, evergreenProvider);
+      expect(getTasks).to.have.been.calledWith('mongosh', 'sha', 'v0.8.2-draft.5');
     });
 
     it('fails if evergreen fails', async() => {
       const expectedError = new Error('failed');
       getTasks.rejects(expectedError);
       try {
-        await verifyEvergreenStatusFn('sha', evergreenProvider);
+        await verifyEvergreenStatusFn(exampleTag, evergreenProvider);
       } catch (e) {
         expect(e).to.equal(expectedError);
         return;
@@ -215,10 +224,10 @@ describe('local trigger-release-publish', () => {
       getTasks.resolves([successTask, failedTask]);
       const confirm = sinon.stub().resolves(false);
       try {
-        await verifyEvergreenStatusFn('sha', evergreenProvider, confirm);
+        await verifyEvergreenStatusFn(exampleTag, evergreenProvider, confirm);
       } catch (e) {
         expect(e.message).to.contain('Some Evergreen tasks were not successful');
-        expect(getTasks).to.have.been.calledWith('mongosh', 'sha');
+        expect(getTasks).to.have.been.calledWith('mongosh', 'sha', 'v0.8.2-draft.5');
         return;
       }
       expect.fail('Expected error');
@@ -227,7 +236,7 @@ describe('local trigger-release-publish', () => {
     it('continues if there are failed tasks but user acknowledges', async() => {
       getTasks.resolves([successTask, failedTask]);
       const confirm = sinon.stub().resolves(true);
-      await verifyEvergreenStatusFn('sha', evergreenProvider, confirm);
+      await verifyEvergreenStatusFn(exampleTag, evergreenProvider, confirm);
       expect(confirm).to.have.been.called;
     });
   });
