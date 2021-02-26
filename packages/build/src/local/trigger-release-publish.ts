@@ -1,7 +1,6 @@
 import { EvergreenApi } from '../evergreen';
+import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn, verifyGitStatus as verifyGitStatusFn } from '../git';
 import { confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
-import { getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn } from './get-latest-tag';
-import { verifyGitStatus as verifyGitStatusFn } from './repository-status';
 
 export async function triggerReleasePublish(
   repositoryRoot: string,

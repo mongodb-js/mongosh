@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { TagDetails, TaggedCommit } from './get-latest-tag';
-import { RepositoryStatus } from './repository-status';
+import { RepositoryStatus, TagDetails, TaggedCommit } from '../git';
 import { computeNextTagNameFn, triggerReleaseDraft } from './trigger-release-draft';
 
 describe('local trigger-release-draft', () => {
