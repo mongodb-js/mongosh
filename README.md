@@ -88,6 +88,10 @@ variable. For detailed instructions for each of our supported platforms, please 
   For more information on mongosh usage: https://docs.mongodb.com/manual/mongo/.
 ```
 
+## Releasing
+
+Refer to the [`build` package](./packages/build/README.md) documentation.
+
 ## Local Development
 
 ### Requirements

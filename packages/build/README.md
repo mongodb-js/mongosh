@@ -1,171 +1,120 @@
-# The Mongo Shell Build System
+# The Mongo Shell Build System <!-- omit in toc -->
 
-[Evergreen Build][evergreen-url]
+- [Releases](#releases)
+  - [Publishing a new Release](#publishing-a-new-release)
+  - [Branches and Tags](#branches-and-tags)
+- [Evergreen CI](#evergreen-ci)
+  - [Evergreen Triggers](#evergreen-triggers)
+  - [Evergreen Stages](#evergreen-stages)
+    - [Tests](#tests)
+    - [E2E Tests](#e2e-tests)
+    - [Smoke Tests](#smoke-tests)
+    - [Draft](#draft)
+    - [Publish](#publish)
+- [Package Structure](#package-structure)
 
-This package contains all the tools needed to build and release mongosh.
+## Releases
+New releases of the Mongo Shell project are created primarily on demand or when a bunch of worthy features or fixes is available. There is no fixed cycle for publishing new releases right now.
 
-Build process is done on [Evergreen][evergreen-url] and is triggered with every commit.
-Releases are triggered by a git tag when ran with `npm run publish-npm` from the
-root of the project.
+### Publishing a new Release
+Execute the following steps to publish a new release:
 
-For full details on how to run a release, check in with [`compass-internal
--docs`](https://github.com/10gen/compass-internal-docs/blob/master/technical/mongosh/mongosh-release.md) repo.
+1. Ensure there is a Jira _Release_ ticket in the [`MONGOSH` project](https://jira.mongodb.org/projects/MONGOSH) for the new release and move it to _In Progress_.
+2. Verify that the Jira tickets you expect to be released are correctly mapped to the _Release_ ticket. Add any additional required documentation to the release ticket.
+3. Trigger the draft release by running:
+   ```
+   npm run release draft
+   ```
+   Follow the instructions and ensure that the new draft tag to be created matches the expected release version.
+4. Wait for Evergreen to finish the build and complete the draft stage.\
+   _Repeat step 3 if there are any additional changes that need to be part of the release._
+5. Trigger the publication of the release by running:
+   ```
+   npm run release publish
+   ```
+   Follow the instructions and verify the inferred release version is correct.
+6. Wait for Evergreen to finish the publication stage.
+7. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
+   
 
-Current build and release flow is as follows:
-
-### `npm run evergreen-release package`
-- A commit triggers an evergreen build based on currently available build
-  variants: MacOS, Windows, Linux, Debian, and RedHat.
-- MacOS, Linux and Windows run three tasks: check, test, and release. Debian and
-  Redhat run two tasks: check and release. Debian and Redhat also depend on
-  tests to pass on Linux.
-- Identical bundle and binary are built on all five variants.
-- MacOS binary is signed and notarized.
-- Each variant creates its own archive (`.zip`, `.tgz`, `.deb`, `.rpm`). Type of
-  archive is determined by the current build variant.
-- Each variant uploads its own tarball to Evergreen’s AWS.
-- Linux build variants upload their artifacts to `barque` using
-  [`curator`](https://github.com/mongodb/curator) to be used with MongoDB's PPA. The uploaded packages can be found under the following URLs:
-  1. Ubuntu: https://repo.mongodb.org/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/
-  2. Redhat: https://repo.mongodb.org/yum/redhat/8Server/mongodb-org/4.4/x86_64/RPMS/
-  3. Debian: https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/
-- The five build variants run in parallel.
-### `npm run evergreen-release publish`
-- All the previous build steps succeeded.
-- A separate MacOS build variant (darwin_publish_release) uploads config file
-  with information about the new version for each platform to Downloads Centre.
-This only happens on a tagged commit.
-- A separate MacOS build variant (darwin_publish_release) promotes the draft
-  github release to public. This only happens on a tagged commit.
-
-![build flow][build-img]
-
-## Usage
-
-```js
-const release = require('@mongosh/build');
-
-const config = {
-  version: '0.0.1',
-  appleNotarizationBundleId: 'appleNotarizationBundleId',
-  input: 'input',
-  execInput: 'execInput',
-  outputDir: 'outputDir',
-  analyticsConfigFilePath: 'analyticsConfigFilePath',
-  project: 'project',
-  revision: 'revision',
-  branch: 'branch',
-  evgAwsKey: 'evgAwsKey',
-  evgAwsSecret: 'evgAwsSecret',
-  downloadCenterAwsKey: 'downloadCenterAwsKey',
-  downloadCenterAwsSecret: 'downloadCenterAwsSecret',
-  githubToken: 'githubToken',
-  segmentKey: 'segmentKey',
-  appleNotarizationUsername: 'appleNotarizationUsername',
-  appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
-  appleCodesignIdentity: 'appleCodesignIdentity',
-  isCi: true,
-  platform: 'platform',
-  distributionBuildVariant: 'linux',
-  repo: {
-    owner: 'owner',
-    repo: 'repo',
-  },
-  dryRun: false
-}
-
-const command = 'package'; // or 'publish'
-
-const runRelease = async() => {
-  await release(command, config);
-};
-
-runRelease().then(() => {
-  process.exit(0);
-});
+### Branches and Tags
+Typically, a release is always created from the main branch (currently `master`). The only exception are _patch releases_, i.e. when we need to fix an issue for an already published, already superseeded release. Patch releases are created from _release branches_ that match the following pattern:
 ```
-
-### API
-#### await release(command, config)
-Run a complete release of mongosh. This will bundle, create the binary and
-package a tarball for the current build variant. Running a release requires a
-config object which is usually obtained from evergreen. For current config, see
-[build.conf.js][build-url]
-
-__config:__ config object necessary for release.
-
-```js
-const release = require('@mongosh/build');
-const configObject = {};
-await release(command, config);
+release/v[0-9]+\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+
 ```
+Possible values for a release branch are:
+* `release/v0.8.1`
+* `release/v0.8.x`
+* `release/v0.x.y`
 
-If `config.dryRun` is set, this will only package a tarball and skip all later
-steps.
+See the following image for a general overview on how we handle these branches and the corresponding tags.
 
-#### await runCompile()
-Create a compiled down binary. Binary is created for the provided platform (e.g.
-windows will build `mongosh.exe`). Before we compile the binary, we bundle
-`execInput` into a single `.js` file.
+![Branches and Tags](./branches-and-tags.svg)
 
-__input:__ path to build input.
-__execInput:__ path to compiled executive input.
-__outputDir:__ path to where the compiled binary will live.
-__platform:__  platform to run `runCompile` on. `linux`, `darwin`, and `win32`
-are accepted options.
-__analyticsConfig:__ path to analytics config for telemetry.
-__segmentKey:__ segment api key for telemetry.
+We use two different types of tags for the automated release process: draft and release tags. A release tag has the form `v<major>.<minor>.<patch>`, e.g. `v0.8.0`. A draft tag is `v<major>.<minor>.<patch>-draft.<draft>`, e.g. `v0.8.0-draft.0`.
 
-```js
-const compileexec = require('@mongosh/build').compileexec;
+Draft tags are used to trigger the automated release process. Every draft tag in the end leads to the generation of _potentially_ distributable packages with compiled binaries.
+            
+Release tags are used to trigger the publication of a release and its corresponding distributable packages. A release tag must referenced the commit with the most recent draft tag for that release version (example: `v0.8.0` must reference the commit with the highest `v0.8.0-draft.x` tag).
 
-const config = {
-  input: 'path/to/input',
-  execInput: 'path/to/exec/input',
-  outputDir: 'path/to/output/directory',
-  analyticsConfigFilePath: 'path/to/analytics/config',
-  segmentKey: 'SEGMENT_API_KEY_23481k',
-}
-await runCompile(
-  config.input,
-  config.execInput,
-  config.outputDir,
-  os.platform(),
-  config.analyticsConfigFilePath,
-  config.segmentKey
-);
-```
+The automated release process for publication of a release will re-use the compiled binaries and packages that were created in the most recent draft tag. Thus, every release tag requires a prior draft tag to be present. The release automation process is handled by [Evergreen](#evergreen-ci).
+
+## Evergreen CI
+The Mongo Shell project uses Evergreen for Continuous Integration and the release automation process described above. Follow [Evergreen Build][evergreen-url] to see the waterfall for the Mongo Shell project.
+
+For full details on the project's configuration see the Evergreen configuration file [`.evergreen.yml`](../../.evergreen.yml).
+
+### Evergreen Triggers
+Evergreen builds and _patches_ are triggered in multiple ways. The Mongo Shell project is setup to be triggered by:
+
+* New commits on the main branch (currently `master`, i.e. _waterfall builds_
+* New Pull Requests against the main branch on GitHub (i.e. _patches_)
+* A new tag matching `v0.0.0-draft.0` is pushed on the main or a release branch (i.e. a draft build is triggered)
+* A new tag matching `v0.0.0` is pushed on the main or a release branch (i.e. a release is to be published)
+
+### Evergreen Stages
+The following image shows an overview on the different stages of the build in Evergreen.
+
+![Evergreen Stages](./evergreen-flow.svg)
+
+#### Tests
+The _Tests_ stage contains multiple tasks:
+* Checks that the code conforms to linting guidelines
+* Runs all unit tests in a matrix configuration (Node v12 and v14, server versions 4.0 / 4.2 / 4.4 / latest)
+* Runs additional verification tests (VS code integration and connectivity tests)
+
+#### Compile
+The _Compile_ stage produces an executable binary (leveraging [boxednode](https://github.com/mongodb-js/boxednode)) for every target platform and uploads it to the Evergreen S3 bucket for later user.
+
+#### Package
+The _Package_ stage depends on both stages _Tests_ and _Compile_ to complete successfully. It will then download the binary executable, package it into a distributable archive (e.g. a `.deb` package or a `.zip` file) and re-upload that to Evergreen S3 for every target platform.
+
+#### E2E Tests
+The _E2E Tests_ stage depends on the _Package_ stage to complete successfully. It will download the binary executable of the _Compile_ stage from Evergreen S3 and run JavaScript-defined E2E tests with it.
+
+#### Smoke Tests
+The _Smoke Tests_ stage depends on the _Package_ stage to complete successfully. It will download the _packaged_ distributable and run it via Docker or SSH on different target operating systems to verify that the distributable works as expected.
+
+#### Draft
+The _Draft_ stage depends on both stages _E2E Tests_ and _Smoke Tests_ to complete successfully. _Draft_ will download all distributable packages created in the _Package_ stage and re-upload them to:
+
+1. MongoDB Download Center: uploads to the corresponding S3 bucket without publishing the Download Center configuration.
+2. GitHub Release: creates a new draft release if there is none for the release version yet and either uploads or removes and re-uploads the distributable packages. It will also generate a changelog and add it to the draft release.
+
+#### Publish
+The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage. It will do the following things:
+
+1. Use [`curator`](https://github.com/mongodb/curator) to transfer the distributable packages from Download Center to the MongoDB PPAs.
+2. Upload the full configuration to Download Center so the release is available there.
+3. Promote the GitHub release created in _Draft_ to a published release.
+4. Publishes the npm packages.
+5. Creates a new PR for the [MongoDB Homebrew Tap](https://github.com/mongodb/homebrew-brew) and automatically merges it.
 
 
-#### await createTarball(input, outputDir, buildVariant, version, rootDir)
-Creates a tarball for a given binary and build variant. Different build variants
-will create different tarballs - `.tgz`, `.zip`, or `.deb`.
+## Package Structure
 
-__input:__ path to binary file.
-__outputDir:__ path to where the compiled tarball will live.
-__buildVariant:__ build variant to create a tarball for. `macos`, `ubuntu`, `windows_ps , or `debian`  are currently available.
-__version:__ version for the tarball.
-__rootDir:__ path to root project directory.
-```js
-const tarball = require('@mongosh/build').tarball;
+The package has two major purposes:
+* Custom build commands to handle the stages outlined above 
+* Provide easy helpers to trigger the release process
 
-const executable = 'path/to/executable'
-const config = {
-  outputDir: 'path/to/output/directory',
-  distributionBuildVariant: 'windows_ps',
-  version: '0.2.0',
-  rootDir: 'path/to/root/directory',
-}
-
-const artifact = await createTarball(
-  executable,
-  config.outputDir,
-  config.distributionBuildVariant,
-  config.version,
-  config.rootDir
-);
-```
-
-[evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh
-[config-url]: https://github.com/mongodb-js/mongosh/blob/393b505c179b64fbb72e0481c63f1723a3c56f06/config/build.conf.js
-[build-img]: ./build.png
+See [index.ts](./src/index.ts) for the main entry point on the different commands.
