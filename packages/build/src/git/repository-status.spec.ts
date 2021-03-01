@@ -11,9 +11,11 @@ describe('git repository-status', () => {
 
   describe('verifyGitStatus', () => {
     let getRepositoryStatus: sinon.SinonStub;
+    let spawnSync: sinon.SinonStub;
 
     beforeEach(()=> {
       getRepositoryStatus = sinon.stub();
+      spawnSync = sinon.stub();
     });
 
     [ 'master', 'main', 'release/v0.8.0', 'release/v0.8.x' ].forEach(branchName => {
@@ -28,8 +30,9 @@ describe('git repository-status', () => {
           hasUnpushedTags: false
         };
         getRepositoryStatus.returns(status);
-        const returnedStatus = verifyGitStatus('root', getRepositoryStatus);
+        const returnedStatus = verifyGitStatus('root', getRepositoryStatus, spawnSync);
         expect(returnedStatus).to.equal(status);
+        expect(spawnSync).to.have.been.calledWith('git', ['fetch', '--tags'], sinon.match.object);
       });
     });
 
@@ -40,7 +43,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('Could not determine local repository information');
         return;
@@ -60,7 +63,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('The current branch does not match');
         return;
@@ -80,7 +83,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('The branch you are on is not tracking any remote branch.');
         return;
@@ -100,7 +103,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('Your local repository is not clean or diverged from the remote branch');
         return;
@@ -120,7 +123,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('Your local repository is not clean or diverged from the remote branch');
         return;
@@ -140,7 +143,7 @@ describe('git repository-status', () => {
       };
       getRepositoryStatus.returns(status);
       try {
-        verifyGitStatus('root', getRepositoryStatus);
+        verifyGitStatus('root', getRepositoryStatus, spawnSync);
       } catch (e) {
         expect(e.message).to.contain('You have local tags that are not pushed to the remote');
         return;

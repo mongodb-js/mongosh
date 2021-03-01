@@ -16,8 +16,14 @@ const RELEASE_BRANCH = /^release\/v([a-z0-9]+\.[a-z0-9]+\.[a-z0-9]+)$/;
 
 export function verifyGitStatus(
   repositoryRoot: string,
-  getRepositoryStatusFn: typeof getRepositoryStatus = getRepositoryStatus
+  getRepositoryStatusFn: typeof getRepositoryStatus = getRepositoryStatus,
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): RepositoryStatus {
+  spawnSync('git', ['fetch', '--tags'], {
+    cwd: repositoryRoot,
+    encoding: 'utf-8'
+  });
+
   const repositoryStatus = getRepositoryStatusFn(repositoryRoot);
   if (!repositoryStatus.branch?.local) {
     throw new Error('Could not determine local repository information - please verify your repository is intact.');
