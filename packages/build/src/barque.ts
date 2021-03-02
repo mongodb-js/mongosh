@@ -6,7 +6,7 @@ import path from 'path';
 import stream from 'stream';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
-import util from 'util';
+import util, { promisify } from 'util';
 import { BuildVariant, Config, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -42,11 +42,17 @@ enum Arch {
 }
 
 export class Barque {
+  public static readonly PPA_REPO_BASE_URL = 'https://repo.mongodb.org' as const;
+
   private config: Config;
   private mongodbEdition: string;
   private mongodbVersion: string;
 
   constructor(config: Config) {
+    if (config.platform !== Platform.Linux) {
+      throw new Error('Barque publishing is only supported on linux platforms');
+    }
+
     this.config = config;
     // hard code mongodb edition to 'org' for now
     this.mongodbEdition = 'org';
@@ -56,29 +62,31 @@ export class Barque {
   }
 
   /**
-   * Upload current package to barque, MongoDB's PPA for linux distros.
+   * Upload a distributable package to barque, MongoDB's PPA for linux distros.
    *
-   * @param {string} tarballURL- The uploaded to Evergreen tarball URL.
-   * @param {Config} config - Config object.
+   * Note that this method returns the URLs where the packages _will_ be available.
+   * This method does not wait for the packages to really be available.
+   * Use `waitUntilPackagesAreAvailable` for this purpose.
    *
-   * @returns {Promise} The promise.
+   * @param buildVariant - The distributable package build variant to publish.
+   * @param packageUrl - The Evergreen URL of the distributable package.
+   *
+   * @returns The URLs where the packages will be available.
    */
-  async releaseToBarque(buildVariant: BuildVariant, tarballURL: string): Promise<any> {
-    if (this.config.platform !== Platform.Linux) {
-      return;
-    }
-
+  async releaseToBarque(buildVariant: BuildVariant, packageUrl: string): Promise<string[]> {
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);
 
     const targetDistros = this.getTargetDistros(buildVariant);
     const targetArchitecture = this.getTargetArchitecture(buildVariant);
+
+    const publishedPackageUrls: string[] = [];
     for (const distro of targetDistros) {
       try {
         await this.execCurator(
           curatorDirPath,
-          tarballURL,
+          packageUrl,
           repoConfig,
           distro,
           targetArchitecture
@@ -87,12 +95,15 @@ export class Barque {
         console.error('Curator failed', error);
         throw new Error(`Curator is unable to upload to barque ${error}`);
       }
+
+      publishedPackageUrls.push(this.computePublishedPackageUrl(distro, targetArchitecture, packageUrl));
     }
+    return publishedPackageUrls;
   }
 
   async execCurator(
     curatorDirPath: string,
-    tarballURL: string,
+    packageUrl: string,
     repoConfig: string,
     distro: Distro,
     architecture: Arch
@@ -107,7 +118,7 @@ export class Barque {
         '--arch', architecture,
         '--edition', this.mongodbEdition,
         '--version', this.mongodbVersion,
-        '--packages', tarballURL
+        '--packages', packageUrl
       ], {
         // curator looks for these options in env
         env: {
@@ -144,6 +155,61 @@ export class Barque {
         ];
       default:
         throw new Error('Unsupported variant for Barque publishing: ' + variant);
+    }
+  }
+
+  computePublishedPackageUrl(distro: Distro, targetArchitecture: Arch, packageUrl: string): string {
+    const packageFileName = packageUrl.split('/').slice(-1);
+    const packageFolderVersion = this.mongodbVersion.split('.').slice(0, 2).join('.');
+    switch (distro) {
+      case Distro.Debian10:
+        return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case Distro.Ubuntu1804:
+        return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case Distro.Ubuntu2004:
+        return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case Distro.Redhat80:
+        return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      default:
+        throw new Error(`Unsupported distro: ${distro}`);
+    }
+  }
+
+  /**
+   * Waits until the given packages are available under the specified URLs or throws an error if there
+   * are still remaining packages after the timeout.
+   *
+   * Note that the method will try all URLs at least once after an initial delay of `sleepTimeSeconds`.
+   */
+  async waitUntilPackagesAreAvailable(publishedPackageUrls: string[], timeoutSeconds: number, sleepTimeSeconds = 10): Promise<void> {
+    let remainingPackages = [...publishedPackageUrls];
+    const sleep = promisify(setTimeout);
+
+    const startMs = new Date().getTime();
+    const failOnTimeout = () => {
+      if (new Date().getTime() - startMs > timeoutSeconds * 1000) {
+        throw new Error(`Barque timed out - the following packages are still not available: ${remainingPackages.join(', ')}`);
+      }
+    };
+
+    while (remainingPackages.length) {
+      console.info(`Waiting for availability of:\n - ${remainingPackages.join('\n - ')}`);
+      await sleep(sleepTimeSeconds * 1000);
+
+      const promises = remainingPackages.map(async url => await fetch(url, {
+        method: 'HEAD'
+      }));
+      const responses = await Promise.all(promises);
+
+      const newRemainingPackages: string[] = [];
+      for (let i = 0; i < remainingPackages.length; i++) {
+        if (responses[i].status !== 200) {
+          newRemainingPackages.push(remainingPackages[i]);
+        }
+      }
+      remainingPackages = newRemainingPackages;
+
+      failOnTimeout();
     }
   }
 

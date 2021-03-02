@@ -49,17 +49,38 @@ describe('Barque', () => {
 
   describe('releaseToBarque', () => {
     context('platform is linux', () => {
-      it('execCurator function succeeds', async() => {
-        barque.execCurator = sinon.stub().returns(Promise.resolve(true));
-        barque.createCuratorDir = sinon.stub().returns(Promise.resolve('./'));
-        barque.extractLatestCurator = sinon.stub().returns(Promise.resolve(true));
+      context('execCurator function succeeds', () => {
+        [
+          {
+            variant: BuildVariant.Debian,
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh_0.1.0_amd64.deb',
+            publishedUrls: [
+              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/4.4/multiverse/binary-amd64/mongosh_0.1.0_amd64.deb`,
+            ]
+          },
+          {
+            variant: BuildVariant.Redhat,
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh-0.1.0-x86_64.rpm',
+            publishedUrls: [
+              `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongosh-0.1.0-x86_64.rpm`,
+            ]
+          }
+        ].forEach(({ variant, url, publishedUrls }) => {
+          it(`publishes ${variant} packages`, async() => {
+            barque.execCurator = sinon.stub().resolves(true);
+            barque.createCuratorDir = sinon.stub().resolves('./');
+            barque.extractLatestCurator = sinon.stub().resolves(true);
 
-        const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh_0.1.0_amd64.deb';
+            const releasedUrls = await barque.releaseToBarque(variant, url);
 
-        await barque.releaseToBarque(BuildVariant.Debian, debUrl);
-        expect(barque.createCuratorDir).to.have.been.called;
-        expect(barque.extractLatestCurator).to.have.been.called;
-        expect(barque.execCurator).to.have.been.called;
+            expect(releasedUrls).to.deep.equal(publishedUrls);
+            expect(barque.createCuratorDir).to.have.been.called;
+            expect(barque.extractLatestCurator).to.have.been.called;
+            expect(barque.execCurator).to.have.been.called;
+          });
+        });
       });
 
       it('execCurator function fails', async() => {
@@ -84,18 +105,13 @@ describe('Barque', () => {
 
     it('platform is not linux', async() => {
       config.platform = 'macos';
-      barque = new Barque(config);
-
-      barque.execCurator = sinon.stub().returns(Promise.resolve(true));
-      barque.createCuratorDir = sinon.stub().returns(Promise.resolve('./'));
-      barque.extractLatestCurator = sinon.stub().returns(Promise.resolve(true));
-
-      const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh_0.1.0_linux.deb';
-
-      await barque.releaseToBarque(BuildVariant.Debian, debUrl);
-      expect(barque.createCuratorDir).to.not.have.been.called;
-      expect(barque.extractLatestCurator).to.not.have.been.called;
-      expect(barque.execCurator).to.not.have.been.called;
+      try {
+        barque = new Barque(config);
+      } catch (e) {
+        expect(e.message).to.contain('only supported on linux');
+        return;
+      }
+      expect.fail('Expected error');
     });
   });
 
@@ -162,6 +178,60 @@ describe('Barque', () => {
         accessErr = e;
       }
       expect(accessErr).to.be.undefined;
+    });
+  });
+
+  describe('waitUntilPackagesAreAvailable', () => {
+    beforeEach(() => {
+      nock.cleanAll();
+    });
+
+    context('with packages published one after the other', () => {
+      let nockRepo: nock.Scope;
+
+      beforeEach(() => {
+        nockRepo = nock(Barque.PPA_REPO_BASE_URL);
+
+        nockRepo.head('/apt/dist/package1.deb').reply(200);
+
+        nockRepo.head('/apt/dist/package2.deb').twice().reply(404);
+        nockRepo.head('/apt/dist/package2.deb').reply(200);
+
+        nockRepo.head('/apt/dist/package3.deb').reply(404);
+        nockRepo.head('/apt/dist/package3.deb').reply(200);
+      });
+
+      it('waits until all packages are available', async() => {
+        await barque.waitUntilPackagesAreAvailable([
+          `${Barque.PPA_REPO_BASE_URL}/apt/dist/package1.deb`,
+          `${Barque.PPA_REPO_BASE_URL}/apt/dist/package2.deb`,
+          `${Barque.PPA_REPO_BASE_URL}/apt/dist/package3.deb`
+        ], 300, 1);
+
+        expect(nock.isDone()).to.be.true;
+      });
+    });
+
+    context('with really slow packages', () => {
+      let nockRepo: nock.Scope;
+
+      beforeEach(() => {
+        nockRepo = nock(Barque.PPA_REPO_BASE_URL);
+        nockRepo.head('/apt/dist/package1.deb').reply(200);
+        nockRepo.head('/apt/dist/package2.deb').reply(404).persist();
+      });
+
+      it('fails when the timeout is hit', async() => {
+        try {
+          await barque.waitUntilPackagesAreAvailable([
+            `${Barque.PPA_REPO_BASE_URL}/apt/dist/package1.deb`,
+            `${Barque.PPA_REPO_BASE_URL}/apt/dist/package2.deb`,
+          ], 5, 1);
+        } catch (e) {
+          expect(e.message).to.contain('the following packages are still not available');
+          expect(e.message).to.contain('package2.deb');
+        }
+      });
     });
   });
 
