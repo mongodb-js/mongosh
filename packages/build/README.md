@@ -7,6 +7,8 @@
   - [Evergreen Triggers](#evergreen-triggers)
   - [Evergreen Stages](#evergreen-stages)
     - [Tests](#tests)
+    - [Compile](#compile)
+    - [Package](#package)
     - [E2E Tests](#e2e-tests)
     - [Smoke Tests](#smoke-tests)
     - [Draft](#draft)
@@ -104,7 +106,7 @@ The _Draft_ stage depends on both stages _E2E Tests_ and _Smoke Tests_ to comple
 #### Publish
 The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage. It will do the following things:
 
-1. Use [`curator`](https://github.com/mongodb/curator) to transfer the distributable packages from Download Center to the MongoDB PPAs.
+1. Use [`curator`](https://github.com/mongodb/curator) to transfer the distributable packages from Evergreen S3 to the MongoDB PPAs.
 2. Upload the full configuration to Download Center so the release is available there.
 3. Promote the GitHub release created in _Draft_ to a published release.
 4. Publishes the npm packages.
