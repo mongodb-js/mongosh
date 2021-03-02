@@ -92,11 +92,17 @@ async function publishArtifactsToBarque(
     BuildVariant.Debian,
     BuildVariant.Redhat
   ];
+
+  const publishedPackages: string[] = [];
   for await (const variant of variantsForBarque) {
     const tarballName = getTarballFile(variant, releaseVersion, packageName);
     const tarballUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, tarballName.path);
     console.info(`mongosh: Publishing ${variant} artifact to barque ${tarballUrl}`);
-    await barque.releaseToBarque(variant, tarballUrl);
+    const packageUrls = await barque.releaseToBarque(variant, tarballUrl);
+    publishedPackages.push(...packageUrls);
   }
+
+  await barque.waitUntilPackagesAreAvailable(publishedPackages, 300);
+
   console.info('mongosh: Submitting to barque complete');
 }

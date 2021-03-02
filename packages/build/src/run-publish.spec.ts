@@ -81,7 +81,8 @@ describe('publish', () => {
     githubRepo = createStubRepo();
     mongoHomebrewRepo = createStubRepo();
     barque = createStubBarque({
-      releaseToBarque: sinon.stub().resolves(true)
+      releaseToBarque: sinon.stub().resolves(['package-url']),
+      waitUntilPackagesAreAvailable: sinon.stub().resolves()
     });
   });
 
@@ -188,6 +189,7 @@ describe('publish', () => {
         BuildVariant.Debian,
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh_0.7.0_amd64.deb'
       );
+      expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });
 
     it('updates the download center config', async() => {
