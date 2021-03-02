@@ -60,7 +60,7 @@ Release tags are used to trigger the publication of a release and its correspond
 The automated release process for publication of a release will re-use the compiled binaries and packages that were created in the most recent draft tag. Thus, every release tag requires a prior draft tag to be present. The release automation process is handled by [Evergreen](#evergreen-ci).
 
 ## Evergreen CI
-The Mongo Shell project uses Evergreen for Continuous Integration and the release automation process described above. Follow [Evergreen Build][evergreen-url] to see the waterfall for the Mongo Shell project.
+The Mongo Shell project uses Evergreen for Continuous Integration and the release automation process described above. Follow [Evergreen Build](https://evergreen.mongodb.com/waterfall/mongosh) to see the waterfall for the Mongo Shell project.
 
 For full details on the project's configuration see the Evergreen configuration file [`.evergreen.yml`](../../.evergreen.yml).
 
