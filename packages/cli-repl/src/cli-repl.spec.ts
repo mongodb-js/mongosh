@@ -513,6 +513,13 @@ describe('CliRepl', () => {
         input.write(`db.${collname}.drop()\n`);
         await waitEval(cliRepl.bus);
       });
+
+      it('completes JS value properties properly', async() => {
+        input.write('JSON.\u0009\u0009');
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('JSON.parse');
+        expect(output).not.to.include('rawValue');
+      });
     });
   }
 });

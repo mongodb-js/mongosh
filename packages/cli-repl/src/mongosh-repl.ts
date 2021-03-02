@@ -298,7 +298,16 @@ class MongoshNodeRepl implements EvaluationListener {
     const { internalState, repl, shellEvaluator } = this.runtimeState();
 
     try {
-      return await shellEvaluator.customEval(originalEval, input, context, filename);
+      const shellResult = await shellEvaluator.customEval(originalEval, input, context, filename);
+      if (!this.insideAutoComplete) {
+        return shellResult;
+      }
+      // The Node.js auto completion needs to access the raw values in order
+      // to be able to autocomplete their properties properly. One catch is
+      // that we peform some filtering of mongosh methods depending on
+      // topology, server version, etc., so for those, we do not autocomplete
+      // at all and instead leave that to the @mongosh/autocomplete package.
+      return shellResult.type !== null ? null : shellResult.rawValue;
     } finally {
       if (!this.insideAutoComplete) {
         repl.setPrompt(await this.getShellPrompt(internalState));
