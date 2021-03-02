@@ -52,7 +52,8 @@
     "report-missing-help": "lerna run --stream --scope @mongosh/shell-api report-missing-help",
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",
-    "generate-error-overview": "lerna run --stream --scope @mongosh/errors generate-error-overview"
+    "generate-error-overview": "lerna run --stream --scope @mongosh/errors generate-error-overview",
+    "update-third-party-notices": "ts-node -P config/tsconfig.base.json scripts/gather-licenses.ts packages/cli-repl/ > THIRD_PARTY_NOTICES.md"
   },
   "config": {
     "unsafe-perm": true
@@ -111,6 +112,7 @@
     "eslint": "^6.8.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-mocha": "^6.2.2",
+    "find-up": "^5.0.0",
     "fs-extra": "^8.1.0",
     "gunzip-maybe": "^1.4.2",
     "handlebars": "^4.7.6",
@@ -130,6 +132,7 @@
     "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
     "parcel-bundler": "^1.12.4",
+    "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
     "sinon": "^7.5.0",
