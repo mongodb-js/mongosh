@@ -88,7 +88,6 @@ async function publishArtifactsToBarque(
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
   const variantsForBarque = [
-    BuildVariant.Linux,
     BuildVariant.Debian,
     BuildVariant.Redhat
   ];
