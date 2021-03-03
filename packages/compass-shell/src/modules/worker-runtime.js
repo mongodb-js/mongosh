@@ -1,9 +1,8 @@
-import path from 'path';
 import { createRequire } from 'module';
 
 const { WorkerRuntime } = (() => {
   // Workaround for webpack require that overrides global require
-  const req = createRequire(path.resolve(__filename));
+  const req = createRequire(__filename);
   const realModulePath = req.resolve('@mongosh/node-runtime-worker-thread');
   // Runtime needs to be outside the asar bundle to function properly, so if we
   // resolved it inside of one, we will try to import it from outside (and hard
@@ -12,7 +11,8 @@ const { WorkerRuntime } = (() => {
     try {
       return req(realModulePath.replace('.asar', '.asar.unpacked'));
     } catch (e) {
-      e.message += '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
+      e.message +=
+        '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
       throw e;
     }
   }
