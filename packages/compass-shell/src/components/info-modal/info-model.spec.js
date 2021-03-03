@@ -28,13 +28,13 @@ describe('InfoModal [Component]', () => {
 
   it('renders the hotkeys key', () => {
     expect(component.find(`.${styles['info-modal-shortcuts-hotkey-key']}`).at(5)).to.have.text(
-      'Ctrl+H'
+      'Ctrl+F'
     );
   });
 
   it('renders the hotkeys description', () => {
     expect(component.find(`.${styles['info-modal-shortcuts-hotkey']}`).at(5)).to.have.text(
-      'Ctrl+HErases one character. Similar to hitting backspace.'
+      'Ctrl+FMoves the cursor forwards one character.'
     );
   });
 });
