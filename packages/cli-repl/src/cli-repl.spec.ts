@@ -378,7 +378,7 @@ describe('CliRepl', () => {
           }).listen(0);
           await once(srv, 'listening');
           host = `http://localhost:${(srv.address() as any).port}`;
-          cliReplOptions.analyticsOptions = { host, apiKey: '🔑' };
+          cliReplOptions.analyticsOptions = { host, apiKey: '🔑', alwaysEnable: true };
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
         });
@@ -422,7 +422,7 @@ describe('CliRepl', () => {
       context('without network connectivity', () => {
         beforeEach(async() => {
           const host = 'http://localhost:1';
-          cliReplOptions.analyticsOptions = { host, apiKey: '🔑' };
+          cliReplOptions.analyticsOptions = { host, apiKey: '🔑', alwaysEnable: true };
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
         });

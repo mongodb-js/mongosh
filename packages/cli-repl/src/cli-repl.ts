@@ -24,7 +24,11 @@ import { promisify } from 'util';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
-type AnalyticsOptions = { host?: string, apiKey?: string };
+type AnalyticsOptions = {
+  host?: string;
+  apiKey?: string;
+  alwaysEnable?: boolean; // We skip this for dev versions by default
+};
 
 export type CliReplOptions = {
   shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string },
@@ -120,6 +124,9 @@ class CliRepl {
       this.bus,
       () => pino({ name: 'mongosh' }, logStream),
       () => {
+        if (process.env.IS_CI && !this.analyticsOptions?.alwaysEnable) {
+          throw new Error('no analytics setup for CI environments');
+        }
         this.analytics = new Analytics(
           // analytics-config.js gets written as a part of a release
           this.analyticsOptions?.apiKey ?? require('./analytics-config.js').SEGMENT_API_KEY,
