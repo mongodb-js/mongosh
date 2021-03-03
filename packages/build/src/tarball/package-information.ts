@@ -1,4 +1,3 @@
-
 interface DocumentationFile {
     sourceFilePath: string;
     packagedFilePath: string;
@@ -26,6 +25,8 @@ export interface PackageInformation {
         maintainer: string;
         manufacturer: string;
         fullName: string;
+        copyright: string;
+        icon: string;
     };
     debTemplateDir: string;
     rpmTemplateDir: string;

@@ -6,6 +6,8 @@ import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
 import { Platform } from '../config';
+import type { PackageInformation } from '../tarball';
+import { compileJSFileAsBinary } from 'boxednode';
 
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
@@ -40,11 +42,17 @@ export class SignableCompiler {
   sourceFile: string;
   targetFile: string;
   nodeVersionRange: string;
+  executableMetadata: PackageInformation['metadata'];
 
-  constructor(sourceFile: string, targetFile: string, nodeVersionRange: string) {
+  constructor(
+    sourceFile: string,
+    targetFile: string,
+    nodeVersionRange: string,
+    executableMetadata: PackageInformation['metadata']) {
     this.sourceFile = sourceFile;
     this.targetFile = targetFile;
     this.nodeVersionRange = nodeVersionRange;
+    this.executableMetadata = executableMetadata;
   }
 
   /**
@@ -52,7 +60,7 @@ export class SignableCompiler {
    *
    * @param {Function} exec - The boxednode compile function.
    */
-  async compile(exec: (opts: any) => void): Promise<void> {
+  async compile(): Promise<void> {
     const fleAddon = {
       path: await findModulePath('mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
@@ -61,7 +69,7 @@ export class SignableCompiler {
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
     // open ssl with asm so we revert back to the slower version.
-    await exec({
+    await compileJSFileAsBinary({
       configureArgs:
         os.platform() === Platform.Windows ? ['openssl-no-asm'] :
           os.platform() === Platform.MacOs ? ['--openssl-no-asm'] : [],
@@ -78,7 +86,8 @@ export class SignableCompiler {
       addons: [
         fleAddon
       ],
-      preCompileHook
+      preCompileHook,
+      executableMetadata: this.executableMetadata
     });
   }
 }

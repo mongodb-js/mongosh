@@ -14,6 +14,7 @@ import { runPackage } from './package';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
+import type { PackageInformation } from './tarball';
 
 export type ReleaseCommand = 'bump' | 'compile' | 'package' | 'upload' | 'draft' | 'publish';
 
@@ -56,7 +57,8 @@ export async function release(
       config.executablePath,
       config.execNodeVersion,
       config.analyticsConfigFilePath ?? '',
-      config.segmentKey ?? ''
+      config.segmentKey ?? '',
+      (config.packageInformation?.metadata ?? {}) as PackageInformation['metadata']
     );
   } else if (command === 'package') {
     const tarballFile = await runPackage(
