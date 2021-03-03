@@ -176,11 +176,7 @@ describe('publish', () => {
         shouldDoPublicRelease
       );
 
-      expect(barque.releaseToBarque).to.have.been.callCount(3);
-      expect(barque.releaseToBarque).to.have.been.calledWith(
-        BuildVariant.Linux,
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh-0.7.0-linux.tgz'
-      );
+      expect(barque.releaseToBarque).to.have.been.callCount(2);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         BuildVariant.Redhat,
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh-0.7.0-x86_64.rpm'
