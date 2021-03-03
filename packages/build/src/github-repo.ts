@@ -71,17 +71,17 @@ export class GithubRepo {
    * @param releaseVersion The successor release
    */
   async getPreviousReleaseTag(releaseVersion: string | undefined): Promise<Tag | undefined> {
-    if (!releaseVersion) {
+    const releaseSemver = semver.parse(releaseVersion);
+    if (!releaseSemver) {
       return undefined;
     }
 
-    const releaseTags = (await this.getTagsOrdered()).filter(t => t.name.match(/^v\d+\.\d+\.\d+$/));
-    for (let i = 0; i < releaseTags.length - 1; i++) {
-      if (releaseTags[i].name === `v${releaseVersion}`) {
-        return releaseTags[i + 1];
-      }
-    }
-    return undefined;
+    return (await this.getTagsOrdered())
+      .filter(t => t.name.match(/^v\d+\.\d+\.\d+$/))
+      .find(t => {
+        const tagSemver = semver.parse(t.name);
+        return tagSemver && tagSemver.compare(releaseSemver) < 0;
+      });
   }
 
   /**
@@ -109,28 +109,23 @@ export class GithubRepo {
   async updateDraftRelease(release: Release): Promise<void> {
     const existingRelease = await this.getReleaseByTag(release.tag);
     if (!existingRelease) {
-      const params = {
+      await this.octokit.repos.createRelease({
         ...this.repo,
         tag_name: release.tag,
         name: release.name,
         body: release.notes,
         draft: true
-      };
-
-      await this.octokit.repos.createRelease(params)
-        .catch(this._ignoreAlreadyExistsError());
+      }).catch(this._ignoreAlreadyExistsError());
     } else if (!existingRelease.draft) {
       throw new Error('Cannot update an existing release after it was published');
     } else {
-      const params = {
+      await this.octokit.repos.updateRelease({
         ...this.repo,
         release_id: existingRelease.id,
         name: release.name,
         body: release.notes,
         draft: true
-      };
-
-      await this.octokit.repos.updateRelease(params);
+      });
     }
   }
 

@@ -140,6 +140,24 @@ describe('GithubRepo', () => {
       ).to.deep.equal({ name: 'v0.0.6', sha: 'sha-1' });
     });
 
+    it('returns the next lowest release if the tag does not exist yet', async() => {
+      githubRepo = getTestGithubRepo({
+        paginate: sinon.stub().resolves([
+          { name: 'v0.0.6', commit: { sha: 'sha-1' } },
+          { name: 'v0.0.30', commit: { sha: 'sha-2' } },
+          { name: 'v0.0.30-draft.11', commit: { sha: 'sha-3' } },
+          { name: 'v0.0.3-draft.11', commit: { sha: 'sha-4' } },
+          { name: 'v0.0.3-draft.2', commit: { sha: 'sha-5' } },
+          { name: 'v0.1.3-draft.0', commit: { sha: 'sha-6' } },
+          { name: 'v0.1.3-test', commit: { sha: 'sha-7' } },
+        ])
+      });
+
+      expect(
+        await githubRepo.getPreviousReleaseTag('0.0.7')
+      ).to.deep.equal({ name: 'v0.0.6', sha: 'sha-1' });
+    });
+
     it('returns undefined if there is no previous release', async() => {
       githubRepo = getTestGithubRepo({
         paginate: sinon.stub().resolves([
@@ -154,7 +172,7 @@ describe('GithubRepo', () => {
       });
 
       expect(
-        await githubRepo.getMostRecentDraftTagForRelease('0.0.6')
+        await githubRepo.getPreviousReleaseTag('0.0.6')
       ).to.be.undefined;
     });
   });
