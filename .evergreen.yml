@@ -450,9 +450,7 @@ tasks:
     depends_on:
       - name: check
         variant: darwin
-      # Remove the !.mlatest when this issue is resolved
-      # https://jira.mongodb.org/browse/MONGOSH-592
-      - name: ".unit-test !.mlatest"
+      - name: ".unit-test"
         variant: darwin
       - name: compile_artifact
         variant: darwin
@@ -550,7 +548,7 @@ tasks:
         vars:
           node_js_version: "14.15.1"
           distribution_build_variant: win32msi
-  
+
   # VERIFICATION
   - name: test_linux_artifact
     depends_on:
@@ -567,7 +565,7 @@ tasks:
       - func: test_linux_artifact
         vars:
           node_js_version: "14.15.1"
-  
+
   # SMOKE TESTS
   - name: pkg_test_ssh_win32
     tags: ["smoke-test"]
@@ -696,7 +694,7 @@ tasks:
           source_distribution_build_variant: darwin
       - func: write_preload_script
       - func: test_artifact_macos
-  
+
   # RELEASE TASKS
   - name: release_draft
     git_tag_only: true
