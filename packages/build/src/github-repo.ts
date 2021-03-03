@@ -122,6 +122,7 @@ export class GithubRepo {
       await this.octokit.repos.updateRelease({
         ...this.repo,
         release_id: existingRelease.id,
+        tag_name: release.tag,
         name: release.name,
         body: release.notes,
         draft: true
