@@ -65,6 +65,8 @@ export async function ensureGithubReleaseExistsAndUpdateChangelogFn(
   generateChangelog: typeof generateChangelogFn = generateChangelogFn
 ): Promise<void> {
   const previousReleaseTag = await githubRepo.getPreviousReleaseTag(releaseVersion);
+  console.info(`mongosh: Detected previous release tag ${previousReleaseTag?.name}`);
+
   let changelog = `See an overview of all solved issues [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${releaseVersion})`;
   if (previousReleaseTag) {
     const generatedChangelog = generateChangelog(previousReleaseTag.name);
@@ -73,6 +75,7 @@ export async function ensureGithubReleaseExistsAndUpdateChangelogFn(
     }
   }
 
+  console.info(`mongosh: Updating release ${releaseTag}, changelog:\n${changelog}`);
   await githubRepo.updateDraftRelease({
     name: releaseVersion,
     tag: releaseTag,
