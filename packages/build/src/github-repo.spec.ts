@@ -227,6 +227,7 @@ describe('GithubRepo', () => {
       await githubRepo.updateDraftRelease(params);
       expect(updateRelease).to.have.been.calledWith({
         release_id: 'existing_id',
+        tag_name: params.tag,
         owner: 'mongodb-js',
         repo: 'mongosh',
         name: params.name,
