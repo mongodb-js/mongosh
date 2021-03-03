@@ -101,6 +101,16 @@ functions:
           source .evergreen/.setup_env
           npm run test-connectivity
           }
+
+  ###
+  # ARTIFACT COMPILATION
+  # 
+  # compile_artifact generates the executable binary and uploads it as TGZ to S3 for later use.
+  # Use download_compiled_artifact to download the TGZ from S3.
+  #
+  # Both functions expect the following arguments:
+  # - executable_os_id
+  ###
   compile_artifact:
     - command: expansions.write
       params:
@@ -121,11 +131,54 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+  download_compiled_artifact:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+
+  ###
+  # E2E TEST EXECUTION
+  # 
+  # Runs the E2E tests against the compiled artifact, i.e. expects the compiled artifact to be already present.
+  ###
+  run_e2e_tests:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-e2e-tests.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+
+  ###
+  # PACKAGING AND UPLOADING
+  #
+  # package_and_upload_artifact generates a distributable package out of the compiled artifact,
+  # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
+  # to a specifc Evergreen S3 bucket for later use.
+  # 
+  # The URL to download the distributable package can be retrieved by get_artifact_url.
+  #
+  # package_and_upload_artifact expects the following arguments:
+  # - distro_id
+  # - distribution_build_variant
+  # 
+  # get_artifact_url expects the following arguments:
+  # - distribution_build_variant
+  ###
   package_and_upload_artifact:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
         redacted: true
+        # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -158,29 +211,6 @@ functions:
         local_file: artifact-url.txt
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
         bucket: mciuploads
-  test_linux_artifact:
-    - command: expansions.write
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          {
-          export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          export ARTIFACT_URL=$(cat ../artifact-url.txt)
-          echo "Downloading from $ARTIFACT_URL"
-          mkdir dist
-          (cd dist && curl -sSfL "$ARTIFACT_URL" | tar --strip-components=1 -xvzf -)
-          dist/mongosh --version
-          export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
-          echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-          npm run test-e2e-ci
-          }
 
   write_preload_script:
     - command: shell.exec
@@ -324,7 +354,9 @@ tasks:
         vars:
           node_js_version: "14.15.1"
 
+  ###
   # UNIT TESTS
+  ###
   - name: test_m40x_n12
     tags: ["unit-test"]
     commands:
@@ -418,7 +450,9 @@ tasks:
           mongosh_server_test_version: "latest-alpha"
           node_js_version: "14.15.1"
 
+  ###
   # INTEGRATION TESTS
+  ###
   - name: test_vscode
     tags: ["extra-integration-test"]
     commands:
@@ -445,7 +479,61 @@ tasks:
         vars:
           node_js_version: "14.15.1"
 
+  ###
+  # E2E TESTS
+  ###
+  - name: e2e_tests_darwin
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_linux
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_win
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+
+  ###
   # PACKAGING
+  ###
   - name: package_and_upload_artifact_macos
     depends_on:
       - name: check
@@ -548,25 +636,10 @@ tasks:
         vars:
           node_js_version: "14.15.1"
           distribution_build_variant: win32msi
-
-  # VERIFICATION
-  - name: test_linux_artifact
-    depends_on:
-      - name: package_and_upload_artifact_linux
-        variant: linux
-    commands:
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: linux
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "14.15.1"
-      - func: test_linux_artifact
-        vars:
-          node_js_version: "14.15.1"
-
+  
+  ###
   # SMOKE TESTS
+  ###
   - name: pkg_test_ssh_win32
     tags: ["smoke-test"]
     depends_on:
@@ -694,14 +767,18 @@ tasks:
           source_distribution_build_variant: darwin
       - func: write_preload_script
       - func: test_artifact_macos
-
+  
+  ###
   # RELEASE TASKS
+  ###
   - name: release_draft
     git_tag_only: true
     depends_on:
       - name: ".smoke-test"
         variant: "*"
       - name: ".extra-integration-test"
+        variant: "*"
+      - name: ".e2e-test"
         variant: "*"
     commands:
       - func: checkout
@@ -748,6 +825,7 @@ buildvariants:
       - name: test_m44x_n14
       - name: test_mlatest_n14
       - name: compile_artifact
+      - name: e2e_tests_darwin
 
   - name: linux
     display_name: "Ubuntu 18.04"
@@ -778,35 +856,35 @@ buildvariants:
       - name: compile_artifact
 
   - name: rhel70
-    display_name: "RHEL 7.0 (artifact test)"
+    display_name: "RHEL 7.0 (E2E Tests)"
     run_on: rhel70-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
   - name: rhel76
-    display_name: "RHEL 7.6 (artifact test)"
+    display_name: "RHEL 7.6 (E2E Tests)"
     run_on: rhel76-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
   - name: ubuntu1604
-    display_name: "Ubuntu 16.04 (artifact test)"
+    display_name: "Ubuntu 16.04 (E2E Tests)"
     run_on: ubuntu1604-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
   - name: ubuntu1804
-    display_name: "Ubuntu 18.04 (artifact test)"
+    display_name: "Ubuntu 18.04 (E2E Tests)"
     run_on: ubuntu1804-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
   - name: ubuntu2004
-    display_name: "Ubuntu 20.04 (artifact test)"
+    display_name: "Ubuntu 20.04 (E2E Tests)"
     run_on: ubuntu2004-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
   - name: debian10
-    display_name: "Debian 10 (artifact test)"
+    display_name: "Debian 10 (E2E Tests)"
     run_on: debian10-small
     tasks:
-      - name: test_linux_artifact
+      - name: e2e_tests_linux
 
   - name: win32
     display_name: "Windows VS 2019"
@@ -823,6 +901,7 @@ buildvariants:
       - name: test_m42x_n14
       - name: test_m44x_n14
       - name: test_mlatest_n14
+      - name: e2e_tests_win
       - name: package_and_upload_artifact_win
       - name: package_and_upload_artifact_winmsi
   - name: win32_build

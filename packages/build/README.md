@@ -92,10 +92,10 @@ The _Compile_ stage produces an executable binary (leveraging [boxednode](https:
 The _Package_ stage depends on both stages _Tests_ and _Compile_ to complete successfully. It will then download the binary executable, package it into a distributable archive (e.g. a `.deb` package or a `.zip` file) and re-upload that to Evergreen S3 for every target platform.
 
 #### E2E Tests
-The _E2E Tests_ stage depends on the _Package_ stage to complete successfully. It will download the binary executable of the _Compile_ stage from Evergreen S3 and run JavaScript-defined E2E tests with it.
+The _E2E Tests_ stage depends on the _Compile_ stage to complete successfully. It will download the binary executable of the _Compile_ stage from Evergreen S3 and run JavaScript-defined E2E tests with it on all target platforms that we support.
 
 #### Smoke Tests
-The _Smoke Tests_ stage depends on the _Package_ stage to complete successfully. It will download the _packaged_ distributable and run it via Docker or SSH on different target operating systems to verify that the distributable works as expected.
+The _Smoke Tests_ stage depends on the _Package_ stage to complete successfully. It will download the _packaged_ distributable and run it via Docker or SSH on different target operating systems to verify that the distributable can be installed and works as expected.
 
 #### Draft
 The _Draft_ stage depends on both stages _E2E Tests_ and _Smoke Tests_ to complete successfully. _Draft_ will download all distributable packages created in the _Package_ stage and re-upload them to:

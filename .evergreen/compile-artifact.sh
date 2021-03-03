@@ -21,12 +21,4 @@ else
 fi
 dist/mongosh --version
 
-source .evergreen/.setup_env
-export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
-if [ x"$OS" == x"Windows_NT" ]; then
-  export MONGOSH_TEST_EXECUTABLE_PATH="$(cygpath -w "$MONGOSH_TEST_EXECUTABLE_PATH")"
-fi
-echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-
-npm run test-e2e-ci
 tar cvzf dist.tgz dist
