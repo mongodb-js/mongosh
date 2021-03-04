@@ -815,7 +815,7 @@ describe('Auth e2e', function() {
       });
     });
   });
-  describe('with options in URI', () => {
+  describe('with options in URI on on the command line', () => {
     beforeEach(async() => {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
@@ -831,6 +831,12 @@ describe('Auth e2e', function() {
       })).ok).to.equal(1);
       expect((await db.command({
         createUser: 'anna2', pwd: 'pwd2', roles: []
+      })).ok).to.equal(1);
+      expect((await db.command({
+        createUser: 'sha1user', pwd: 'sha1pwd', roles: [], mechanisms: ['SCRAM-SHA-1']
+      })).ok).to.equal(1);
+      expect((await db.command({
+        createUser: 'sha256user', pwd: 'sha256pwd', roles: [], mechanisms: ['SCRAM-SHA-256']
       })).ok).to.equal(1);
 
       assertUserExists = createAssertUserExists(db, dbName);
@@ -922,6 +928,64 @@ describe('Auth e2e', function() {
         shell.assertContainsOutput('user: \'anna\'');
       });
       shell.assertNoErrors();
+    });
+    context('with specific auth mechanisms', () => {
+      it('can auth with SCRAM-SHA-1', async() => {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '-u', 'sha1user',
+          '-p', 'sha1pwd',
+          '--authenticationDatabase', dbName,
+          '--authenticationMechanism', 'SCRAM-SHA-1'
+        ] });
+        await shell.waitForPrompt();
+        expect(await shell.executeLine(
+          'db.runCommand({connectionStatus: 1})'
+        )).to.include('user: \'sha1user\'');
+        shell.assertNoErrors();
+      });
+      it('can auth with SCRAM-SHA-256', async() => {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '-u', 'sha256user',
+          '-p', 'sha256pwd',
+          '--authenticationDatabase', dbName,
+          '--authenticationMechanism', 'SCRAM-SHA-256'
+        ] });
+        await shell.waitForPrompt();
+        expect(await shell.executeLine(
+          'db.runCommand({connectionStatus: 1})'
+        )).to.include('user: \'sha256user\'');
+        shell.assertNoErrors();
+      });
+      it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async() => {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '-u', 'sha256user',
+          '-p', 'sha256pwd',
+          '--authenticationDatabase', dbName,
+          '--authenticationMechanism', 'SCRAM-SHA-1'
+        ] });
+        await eventually(() => {
+          shell.assertContainsOutput('MongoError: Authentication failed.');
+        });
+      });
+      it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async() => {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '-u', 'sha1user',
+          '-p', 'sha1pwd',
+          '--authenticationDatabase', dbName,
+          '--authenticationMechanism', 'SCRAM-SHA-256'
+        ] });
+        await eventually(() => {
+          shell.assertContainsOutput('MongoError: Authentication failed.');
+        });
+      });
     });
     afterEach(async() => {
       await db.dropDatabase();
