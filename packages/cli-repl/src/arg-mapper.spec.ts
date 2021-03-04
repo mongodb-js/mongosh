@@ -192,6 +192,18 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
+  context('when the cli args have awsIamSessionToken', () => {
+    const cliOptions: CliOptions = { awsIamSessionToken: 'token' };
+
+    it('maps to authMechanismProperties.AWS_SESSION_TOKEN', async() => {
+      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+        authMechanismProperties: {
+          AWS_SESSION_TOKEN: 'token'
+        }
+      });
+    });
+  });
+
   context('when the cli args have keyVaultNamespace', () => {
     const cliOptions: CliOptions = { keyVaultNamespace: 'db.datakeys' };
 

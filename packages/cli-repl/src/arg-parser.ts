@@ -26,6 +26,7 @@ const OPTIONS = {
     'awsIamSessionToken',
     'awsSecretAccessKey',
     'awsSessionToken',
+    'awsIamSessionToken',
     'db',
     'eval',
     'gssapiHostName',
