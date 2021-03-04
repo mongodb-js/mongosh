@@ -7,6 +7,7 @@ export default interface CliOptions {
   authenticationDatabase?: string;
   authenticationMechanism?: string;
   awsAccessKeyId?: string;
+  awsIamSessionToken?: string;
   awsSecretAccessKey?: string;
   awsSessionToken?: string;
   db?: string;

@@ -1,3 +1,4 @@
+import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
 import { CliOptions } from '@mongosh/service-provider-server';
 import parser from 'yargs-parser';
@@ -22,6 +23,7 @@ const OPTIONS = {
     'authenticationDatabase',
     'authenticationMechanism',
     'awsAccessKeyId',
+    'awsIamSessionToken',
     'awsSecretAccessKey',
     'awsSessionToken',
     'db',
@@ -34,6 +36,12 @@ const OPTIONS = {
     'locale',
     'password',
     'port',
+    'sslPEMKeyFile',
+    'sslPEMKeyPassword',
+    'sslCAFile',
+    'sslCertificateSelector',
+    'sslCRLFile',
+    'sslDisabledProtocols',
     'tlsCAFile',
     'tlsCertificateKeyFile',
     'tlsCertificateKeyFilePassword',
@@ -53,6 +61,10 @@ const OPTIONS = {
     'retryWrites',
     'shell',
     'smokeTests',
+    'ssl',
+    'sslAllowInvalidCertificates',
+    'sslAllowInvalidHostname',
+    'sslFIPSMode',
     'tls',
     'tlsAllowInvalidCertificates',
     'tlsAllowInvalidHostnames',
@@ -72,13 +84,40 @@ const OPTIONS = {
 };
 
 /**
+ * Maps deprecated arguments to their new counterparts.
+ */
+const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, string> = {
+  ssl: 'tls',
+  sslAllowInvalidCertificates: 'tlsAllowInvalidCertificates',
+  sslAllowInvalidHostname: 'tlsAllowInvalidHostname',
+  sslFIPSMode: 'tlsFIPSMode',
+  sslPEMKeyFile: 'tlsCertificateKeyFile',
+  sslPEMKeyPassword: 'tlsCertificateKeyFilePassword',
+  sslCAFile: 'tlsCAFile',
+  sslCertificateSelector: 'tlsCertificateSelector',
+  sslCRLFile: 'tlsCRLFile',
+  sslDisabledProtocols: 'tlsDisabledProtocols'
+};
+
+/**
+ * If an unsupported argument is given an error will be thrown.
+ */
+const UNSUPPORTED_ARGS: Readonly<string[]> = [
+  'eval',
+  'sslFIPSMode',
+  'tlsFIPSMode',
+  'sslCertificateSelector',
+  'tlsCertificateSelector'
+];
+
+/**
  * Determine the locale of the shell.
  *
  * @param {string[]} args - The arguments.
  *
  * @returns {string} The locale.
  */
-function getLocale(args: string[], env: any): string {
+export function getLocale(args: string[], env: any): string {
   const localeIndex = args.indexOf('--locale');
   if (localeIndex > -1) {
     return args[localeIndex + 1];
@@ -90,11 +129,11 @@ function getLocale(args: string[], env: any): string {
 /**
  * Parses arguments into a JS object.
  *
- * @param {string[]} args - The args.
+ * @param args - The CLI arguments.
  *
- * @returns {CliOptions} The arguments as cli options.
+ * @returns The arguments as cli options.
  */
-function parse(args: string[]): (CliOptions & { smokeTests: boolean }) {
+export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean }) {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
@@ -111,8 +150,32 @@ function parse(args: string[]): (CliOptions & { smokeTests: boolean }) {
       ${USAGE}`
     );
   });
+
+  const messages = verifyCliArguments(parsed);
+  messages.forEach(m => console.warn(m));
+
   return parsed as unknown as (CliOptions & { smokeTests: boolean });
 }
 
-export default parse;
-export { getLocale };
+export function verifyCliArguments(args: parser.Arguments): string[] {
+  for (const unsupported of UNSUPPORTED_ARGS) {
+    if (unsupported in args) {
+      throw new MongoshUnimplementedError(
+        `Argument --${unsupported} is not yet supported in mongosh`,
+        CommonErrors.InvalidArgument
+      );
+    }
+  }
+
+  const messages = [];
+  for (const deprecated in DEPRECATED_ARGS_WITH_REPLACEMENT) {
+    if (deprecated in args) {
+      const replacement = DEPRECATED_ARGS_WITH_REPLACEMENT[deprecated];
+      messages.push(`WARNING: argument --${deprecated} is deprecated and will be removed. Use --${replacement} instead.`);
+
+      args[replacement] = args[deprecated];
+      delete args[deprecated];
+    }
+  }
+  return messages;
+}

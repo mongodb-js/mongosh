@@ -1,9 +1,9 @@
-import CliRepl from './cli-repl';
-import parseCliArgs from './arg-parser';
 import mapCliToDriver from './arg-mapper';
+import { parseCliArgs } from './arg-parser';
+import CliRepl from './cli-repl';
 import clr from './clr';
-import { USAGE, TELEMETRY_GREETING_MESSAGE, MONGOSH_WIKI } from './constants';
 import { getStoragePaths } from './config-directory';
+import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE, USAGE } from './constants';
 import { getMongocryptdPath } from './mongocryptd-path';
 import { runSmokeTests } from './smoke-tests';
 
