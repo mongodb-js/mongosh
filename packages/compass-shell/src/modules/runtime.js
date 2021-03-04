@@ -1,6 +1,6 @@
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
-import { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import { WorkerRuntime } from './worker-runtime';
 import { adaptDriverV36ConnectionParams } from './adapt-driver-v36-connection-params';
 
 /**
