@@ -16,7 +16,7 @@ import { CommandResult, CursorIterationResult } from './result';
 import ShellInternalState from './shell-internal-state';
 import { assertArgsDefined, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
-import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
 import { promisify } from 'util';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
@@ -46,19 +46,19 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  async exit(): Promise<void> {
+  @platforms([ ReplPlatform.CLI ] )
+  async exit(): Promise<never> {
+    assertCLI(this.internalState.initialServiceProvider.platform, 'the exit/quit commands');
     await this.internalState.close(true);
     // This should never actually return.
     await this.internalState.evaluationListener.onExit?.();
-    throw new MongoshUnimplementedError(
-      `exit not supported for current platform: ${ReplPlatform[this.internalState.initialServiceProvider.platform]}`,
-      CommonErrors.NotImplemented
-    );
+    throw new MongoshInternalError('.onExit listener returned');
   }
 
   @directShellCommand
   @returnsPromise
-  async quit(): Promise<void> {
+  @platforms([ ReplPlatform.CLI ] )
+  async quit(): Promise<never> {
     return await this.exit();
   }
 
@@ -66,7 +66,7 @@ export default class ShellApi extends ShellApiClass {
   @returnType('Mongo')
   @platforms([ ReplPlatform.CLI ] )
   public async Mongo(uri?: string, options?: ClientSideFieldLevelEncryptionOptions): Promise<Mongo> {
-    assertCLI(this.internalState.initialServiceProvider.platform);
+    assertCLI(this.internalState.initialServiceProvider.platform, 'new Mongo connections');
     const mongo = new Mongo(this.internalState, uri, options);
     await mongo.connect();
     this.internalState.mongos.push(mongo);
@@ -78,7 +78,7 @@ export default class ShellApi extends ShellApiClass {
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefined(uri);
-    assertCLI(this.internalState.initialServiceProvider.platform);
+    assertCLI(this.internalState.initialServiceProvider.platform, 'new Mongo connections');
     const mongo = new Mongo(this.internalState, uri);
     await mongo.connect(user, pwd);
     this.internalState.mongos.push(mongo);
