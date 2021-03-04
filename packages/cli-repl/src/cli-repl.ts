@@ -24,7 +24,11 @@ import { promisify } from 'util';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
-type AnalyticsOptions = { host?: string, apiKey?: string };
+type AnalyticsOptions = {
+  host?: string;
+  apiKey?: string;
+  alwaysEnable?: boolean; // We skip this for dev versions by default
+};
 
 export type CliReplOptions = {
   shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string },
@@ -120,6 +124,10 @@ class CliRepl {
       this.bus,
       () => pino({ name: 'mongosh' }, logStream),
       () => {
+        if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
+          // This error will be in the log file, but otherwise not visible to users
+          throw new Error('no analytics setup for the mongosh CI environment');
+        }
         this.analytics = new Analytics(
           // analytics-config.js gets written as a part of a release
           this.analyticsOptions?.apiKey ?? require('./analytics-config.js').SEGMENT_API_KEY,
