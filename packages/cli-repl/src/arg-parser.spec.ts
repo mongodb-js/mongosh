@@ -348,6 +348,18 @@ describe('arg-parser', () => {
                 expect(parseCliArgs(argv).gssapiHostName).to.equal('example.com');
               });
             });
+
+            context('when providing --awsIamSessionToken', () => {
+              const argv = [ ...baseArgv, uri, '--awsIamSessionToken', 'tok' ];
+
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
+              });
+
+              it('sets the awsIamSessionToken in the object', () => {
+                expect(parseCliArgs(argv).awsIamSessionToken).to.equal('tok');
+              });
+            });
           });
 
           context('when providing TLS options', () => {
