@@ -62,6 +62,11 @@ export interface EvaluationListener {
    * Called when exit/quit is entered in the shell.
    */
   onExit?: () => Promise<never>;
+
+  /**
+   * Called when load() is used in the shell.
+   */
+  onLoad?: (filename: string) => Promise<void>;
 }
 
 /**

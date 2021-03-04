@@ -4,7 +4,7 @@ import type { WorkerRuntime } from './index';
 import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 export class ChildProcessEvaluationListener {
-  exposedListener: Exposed<Required<RuntimeEvaluationListener>>;
+  exposedListener: Exposed<Required<Omit<RuntimeEvaluationListener, 'onLoad'>>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
     this.exposedListener = exposeAll(

@@ -8,7 +8,7 @@ import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
 import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
-import MongoshNodeRepl, { MongoshConfigProvider, MongoshNodeReplOptions } from './mongosh-repl';
+import MongoshNodeRepl, { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import stripAnsi from 'strip-ansi';
 
 const delay = promisify(setTimeout);
@@ -24,7 +24,7 @@ describe('MongoshNodeRepl', () => {
   let outputStream: Duplex;
   let output = '';
   let bus: EventEmitter;
-  let configProvider: MongoshConfigProvider;
+  let ioProvider: MongoshIOProvider;
   let sp: StubbedInstance<ServiceProvider>;
   let serviceProvider: ServiceProvider;
   let config: Record<string, any>;
@@ -38,13 +38,13 @@ describe('MongoshNodeRepl', () => {
     bus = new EventEmitter();
 
     config = {};
-    const cp = stubInterface<MongoshConfigProvider>();
+    const cp = stubInterface<MongoshIOProvider>();
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
     cp.getConfig.callsFake(async(key: string) => config[key]);
     cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; });
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
-    configProvider = cp;
+    ioProvider = cp;
 
     sp = stubInterface<ServiceProvider>();
     sp.bsonLibrary = bson;
@@ -64,7 +64,7 @@ describe('MongoshNodeRepl', () => {
       input: input,
       output: outputStream,
       bus: bus,
-      configProvider: configProvider
+      ioProvider: ioProvider
     };
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
   });
@@ -146,10 +146,10 @@ describe('MongoshNodeRepl', () => {
     it('forwards telemetry config requests', async() => {
       input.write('disableTelemetry()\n');
       await waitEval(bus);
-      expect(configProvider.setConfig).to.have.been.calledWith('enableTelemetry', false);
+      expect(ioProvider.setConfig).to.have.been.calledWith('enableTelemetry', false);
       input.write('enableTelemetry()\n');
       await waitEval(bus);
-      expect(configProvider.setConfig).to.have.been.calledWith('enableTelemetry', true);
+      expect(ioProvider.setConfig).to.have.been.calledWith('enableTelemetry', true);
     });
 
     it('makes .clear just display the prompt again', async() => {

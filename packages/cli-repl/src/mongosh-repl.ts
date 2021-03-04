@@ -9,6 +9,7 @@ import type { MongoshBus, UserConfig } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
+import path from 'path';
 import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
@@ -24,18 +25,19 @@ export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
 };
 
-export type MongoshConfigProvider = {
+export type MongoshIOProvider = {
   getHistoryFilePath(): string;
   getConfig<K extends keyof UserConfig>(key: K): Promise<UserConfig[K]>;
   setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void>;
   exit(code: number): Promise<never>;
+  readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
 };
 
 export type MongoshNodeReplOptions = {
   input: Readable;
   output: Writable;
   bus: MongoshBus;
-  configProvider: MongoshConfigProvider;
+  ioProvider: MongoshIOProvider;
   shellCliOptions?: Partial<MongoshCliOptions>;
   nodeReplOptions?: Partial<ReplOptions>;
 };
@@ -63,7 +65,7 @@ class MongoshNodeRepl implements EvaluationListener {
   bus: MongoshBus;
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
-  configProvider: MongoshConfigProvider;
+  ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoComplete: boolean;
 
@@ -74,7 +76,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.bus = options.bus;
     this.nodeReplOptions = options.nodeReplOptions || {};
     this.shellCliOptions = options.shellCliOptions || {};
-    this.configProvider = options.configProvider;
+    this.ioProvider = options.ioProvider;
     this.insideAutoComplete = false;
     this._runtimeState = null;
   }
@@ -170,7 +172,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // https://github.com/nodejs/node/issues/36773
     (repl as Mutable<typeof repl>).line = '';
 
-    const historyFile = this.configProvider.getHistoryFilePath();
+    const historyFile = this.ioProvider.getHistoryFilePath();
     const { redactInfo } = this.shellCliOptions;
     try {
       await promisify(repl.setupHistory).call(repl, historyFile);
@@ -245,9 +247,9 @@ class MongoshNodeRepl implements EvaluationListener {
     text += `Using MongoDB:      ${mongodVersion}\n`;
     text += `${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}\n`;
     text += `${MONGOSH_WIKI}\n`;
-    if (!await this.configProvider.getConfig('disableGreetingMessage')) {
+    if (!await this.ioProvider.getConfig('disableGreetingMessage')) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
-      await this.configProvider.setConfig('disableGreetingMessage', true);
+      await this.ioProvider.setConfig('disableGreetingMessage', true);
     }
     this.output.write(text);
   }
@@ -316,6 +318,29 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
+  async onLoad(filename: string): Promise<void> {
+    const repl = this.runtimeState().repl;
+    const {
+      contents,
+      absolutePath
+    } = await this.ioProvider.readFileUTF8(filename);
+
+    const previousFilename = repl.context.__filename;
+    repl.context.__filename = absolutePath;
+    repl.context.__dirname = path.dirname(absolutePath);
+    try {
+      await promisify(repl.eval.bind(repl))(contents, repl.context, filename);
+    } finally {
+      if (previousFilename) {
+        repl.context.__filename = previousFilename;
+        repl.context.__dirname = path.dirname(previousFilename);
+      } else {
+        delete repl.context.__filename;
+        delete repl.context.__dirname;
+      }
+    }
+  }
+
   /**
    * Format the result to a string so it can be written to the output stream.
    */
@@ -344,7 +369,7 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async toggleTelemetry(enabled: boolean): Promise<string> {
-    await this.configProvider.setConfig('enableTelemetry', enabled);
+    await this.ioProvider.setConfig('enableTelemetry', enabled);
 
     if (enabled) {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
@@ -410,7 +435,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   async onExit(): Promise<never> {
     await this.close();
-    return this.configProvider.exit(0);
+    return this.ioProvider.exit(0);
   }
 
   private async getShellPrompt(internalState: ShellInternalState): Promise<string> {

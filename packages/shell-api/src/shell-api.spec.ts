@@ -568,6 +568,13 @@ describe('ShellApi', () => {
         expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
+    describe('load', () => {
+      it('asks the evaluation listener to load a file', async() => {
+        evaluationListener.onLoad.resolves();
+        await internalState.context.load('abc.js');
+        expect(evaluationListener.onLoad).to.have.been.calledWith('abc.js');
+      });
+    });
     for (const cmd of ['print', 'printjson']) {
       // eslint-disable-next-line no-loop-func
       describe(cmd, () => {
