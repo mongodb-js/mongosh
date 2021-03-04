@@ -168,7 +168,7 @@ describe('CliRepl', () => {
           input.write(`load(${JSON.stringify(filenameC)})\n`);
           await waitEval(cliRepl.bus);
           output = '';
-          input.write('diff >= 10\n');
+          input.write('diff >= 50\n');
           await waitEval(cliRepl.bus);
           expect(output).to.include('true');
         });

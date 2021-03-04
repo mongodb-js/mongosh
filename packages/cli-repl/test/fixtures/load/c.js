@@ -1,4 +1,4 @@
 /* eslint-disable */
 const start = new Date().getTime();
-sleep(10);
+sleep(100);
 const diff = new Date().getTime() - start;
