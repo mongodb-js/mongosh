@@ -55,7 +55,7 @@ describe('ShellApi', () => {
         returnsPromise: true,
         deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
-        platforms: ALL_PLATFORMS,
+        platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
         serverVersions: ALL_SERVER_VERSIONS
       });
@@ -516,7 +516,7 @@ describe('ShellApi', () => {
             expect.fail('missed exception');
           } catch (e) {
             // We should be getting an exception because we’re not actually exiting.
-            expect(e.message).to.contain('exit not supported for current platform');
+            expect(e.message).to.contain('onExit listener returned');
           }
           expect(evaluationListener.onExit).to.have.been.calledWith();
         });

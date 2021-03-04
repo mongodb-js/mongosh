@@ -600,14 +600,12 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
   );
 }
 
-export function assertCLI(platform: ReplPlatform): void {
+export function assertCLI(platform: ReplPlatform, features: string): void {
   if (
     platform !== ReplPlatform.CLI
   ) {
     throw new MongoshUnimplementedError(
-      `new Mongo connection are not supported for current platform: ${
-        ReplPlatform[platform]
-      }`,
+      `${features} are not supported for current platform: ${ReplPlatform[platform]}`,
       CommonErrors.NotImplemented
     );
   }
