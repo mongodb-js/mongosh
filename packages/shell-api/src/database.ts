@@ -334,7 +334,16 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async createUser(user: Document, writeConcern?: WriteConcern): Promise<Document> {
     assertArgsDefined(user);
-    assertKeysDefined(user, ['user', 'roles', 'pwd']);
+    assertKeysDefined(user, ['user', 'roles']);
+
+    if (this._name === '$external') {
+      if ('pwd' in user) {
+        throw new MongoshInvalidInputError('Cannot set password for users on the $external database', CommonErrors.InvalidArgument);
+      }
+    } else {
+      assertKeysDefined(user, ['pwd']);
+    }
+
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
       throw new MongoshInvalidInputError('Cannot set createUser field in helper method', CommonErrors.InvalidArgument);

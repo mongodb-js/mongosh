@@ -499,6 +499,15 @@ describe('Database', () => {
         expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
+      it('throws if password is missing on database other than $external', async() => {
+        const catchedError = await database.createUser({
+          user: 'anna'
+        }).catch(e => e);
+        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(catchedError.message).to.contain('Missing required property: "roles"');
+        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+      });
+
       it('throws if createUser option is provided', async() => {
         const catchedError = await database.createUser({
           user: 'anna',
@@ -509,6 +518,47 @@ describe('Database', () => {
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
         expect(catchedError.message).to.contain('Cannot set createUser field in helper method');
         expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+      });
+
+      context('on $external database', () => {
+        beforeEach(() => {
+          database = new Database(mongo, '$external');
+        });
+
+        it('can create a user without password', async() => {
+          await database.createUser({
+            user: 'CN=Client,OU=Public-Client,O=MongoDB',
+            roles: [
+              { role: 'root', db: 'admin' }
+            ]
+          });
+          expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+            database._name,
+            {
+              createUser: 'CN=Client,OU=Public-Client,O=MongoDB',
+              roles: [
+                { role: 'root', db: 'admin' }
+              ]
+            }
+          );
+        });
+
+        it('throws an error when a password is specified', async() => {
+          try {
+            await database.createUser({
+              user: 'CN=Client,OU=Public-Client,O=MongoDB',
+              pwd: 'nope',
+              roles: [
+                { role: 'root', db: 'admin' }
+              ]
+            });
+          } catch (e) {
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.message).to.contain('Cannot set password');
+            return;
+          }
+          expect.fail('Expected error');
+        });
       });
     });
     describe('updateUser', () => {
