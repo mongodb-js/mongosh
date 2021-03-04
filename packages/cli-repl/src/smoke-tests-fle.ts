@@ -20,8 +20,9 @@ try {
 } catch(err) {
   console.log(err);
 }
-if (db.version().startsWith('4.0.')) {
-  // No FLE on mongod < 4.2
+if (db.version().startsWith('4.0.') ||
+    !db.runCommand({buildInfo:1}).modules.includes('enterprise')) {
+  // No FLE on mongod < 4.2 or community
   print('Test skipped')
   process.exit(0)
 }

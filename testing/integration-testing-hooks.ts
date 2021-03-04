@@ -195,6 +195,7 @@ export class MongodSetup {
   _connectionString: Promise<string>;
   _setConnectionString: (connectionString: string) => void;
   _serverVersion: string | null = null;
+  _isCommunityServer: boolean | null = null;
   _bindir = '';
 
   constructor(connectionString?: string) {
@@ -238,13 +239,31 @@ export class MongodSetup {
       return this._serverVersion;
     }
 
+    const { version } = await this.withClient(async client => {
+      return await client.db('db1').admin().serverStatus();
+    });
+    this._serverVersion = version;
+    return version;
+  }
+
+  async isCommunityServer(): Promise<boolean> {
+    if (this._isCommunityServer !== null) {
+      return this._isCommunityServer;
+    }
+
+    const { modules } = await this.withClient(async client => {
+      return await client.db('db1').admin().command({ buildInfo: 1 });
+    });
+    const isCommunityServer = !modules.includes('enterprise');
+    this._isCommunityServer = isCommunityServer;
+    return isCommunityServer;
+  }
+
+  async withClient<T>(fn: (client: MongoClient) => Promise<T>): Promise<T> {
     let client;
     try {
       client = await MongoClient.connect(await this.connectionString(), {});
-
-      const { version } = await client.db('db1').admin().serverStatus();
-      this._serverVersion = version;
-      return version;
+      return await fn(client);
     } finally {
       if (client) {
         client.close();
@@ -340,6 +359,10 @@ async function getInstalledMongodVersion(): Promise<string> {
 
 export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION): Promise<string | null> {
   try {
+    if (/-community/.test(String(mongodVersion))) {
+      console.info(`Explicitly requesting community server with ${mongodVersion}, downloading...`);
+      throw new Error();
+    }
     const version = await getInstalledMongodVersion();
     if (mongodVersion && !semver.satisfies(version, mongodVersion)) {
       console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
@@ -439,12 +462,27 @@ function skipIfVersion(test: any, testServerVersion: string, semverCondition: st
  * condition.
  *
  * describe('...', () => {
- *   ie. skipIfServerVersion(testServer, '< 4.4')
+ *   e.g. skipIfServerVersion(testServer, '< 4.4')
  * });
  */
 export function skipIfServerVersion(server: MongodSetup, semverCondition: string): void {
   before(async function() {
     skipIfVersion(this, await server.serverVersion(), semverCondition);
+  });
+}
+
+/**
+ * Skip tests in the suite if the test server is a community server.
+ *
+ * describe('...', () => {
+ *   e.g. skipIfCommunityServer(testServer)
+ * });
+ */
+export function skipIfCommunityServer(server: MongodSetup): void {
+  before(async function() {
+    if (await server.isCommunityServer()) {
+      this.skip();
+    }
   });
 }
 
@@ -496,7 +534,7 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
         testServerVersion = '9999.9999.9999';
       }
     } else {
-      testServerVersion = testServerVersion.split('.')
+      testServerVersion = testServerVersion.split('-')[0].split('.')
         .map(num => /[0-9]+/.test(num) ? num : '0')
         .join('.');
     }

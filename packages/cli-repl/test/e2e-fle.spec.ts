@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { TestShell } from './test-shell';
-import { startTestServer, useBinaryPath, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { startTestServer, useBinaryPath, skipIfServerVersion, skipIfCommunityServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
@@ -11,6 +11,7 @@ import path from 'path';
 describe('FLE tests', () => {
   const testServer = startTestServer('shared');
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
+  skipIfCommunityServer(testServer); // FLE is enterprise-only
   useBinaryPath(testServer); // Get mongocryptd in the PATH for this test
   let kmsServer: ReturnType<typeof makeFakeHTTPServer>;
   let dbname: string;
