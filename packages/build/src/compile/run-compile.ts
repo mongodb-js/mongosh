@@ -1,3 +1,4 @@
+import type { PackageInformation } from '../tarball';
 import { generateBundle } from './generate-bundle';
 import { SignableCompiler } from './signable-compiler';
 
@@ -11,7 +12,8 @@ export async function runCompile(
   executablePath: string,
   execNodeVersion: string,
   analyticsConfigFilePath: string,
-  segmentKey: string
+  segmentKey: string,
+  executableMetadata: PackageInformation['metadata']
 ): Promise<string> {
   // We use Parcel to bundle up everything into a single JS under
   // cli-repl/dist/mongosh.js that the executable generator can use as input.
@@ -20,9 +22,8 @@ export async function runCompile(
 
   console.info('mongosh: creating binary:', executablePath);
 
-  const { compileJSFileAsBinary } = require('boxednode');
-  await new SignableCompiler(execInput, executablePath, execNodeVersion)
-    .compile(compileJSFileAsBinary);
+  await new SignableCompiler(execInput, executablePath, execNodeVersion, executableMetadata)
+    .compile();
 
   return executablePath;
 }

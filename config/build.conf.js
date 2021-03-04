@@ -64,6 +64,11 @@ const REVISION = process.env.IS_PATCH ?
   process.env.REVISION;
 
 /**
+ * The copyright notice for debian packages and .exe files
+ */
+const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
+
+/**
  * Export the configuration for the build.
  */
 module.exports = {
@@ -119,7 +124,7 @@ module.exports = {
         license: {
           sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-mongocryptd'),
           packagedFilePath: 'LICENSE-mongocryptd',
-          debCopyright: `${new Date().getYear() + 1900} MongoDB, Inc.`,
+          debCopyright: COPYRIGHT,
           debIdentifier: 'Proprietary',
           rpmIdentifier: 'Proprietary'
         }
@@ -142,7 +147,9 @@ module.exports = {
       description: CLI_REPL_PACKAGE_JSON.description,
       homepage: CLI_REPL_PACKAGE_JSON.homepage,
       maintainer: CLI_REPL_PACKAGE_JSON.author,
-      manufacturer: CLI_REPL_PACKAGE_JSON.manufacturer
+      manufacturer: CLI_REPL_PACKAGE_JSON.manufacturer,
+      copyright: COPYRIGHT,
+      icon: path.resolve(__dirname, '..', 'packaging', 'mongo.ico')
     },
     debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
     rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template'),
