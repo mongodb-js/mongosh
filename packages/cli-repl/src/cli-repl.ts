@@ -124,8 +124,9 @@ class CliRepl {
       this.bus,
       () => pino({ name: 'mongosh' }, logStream),
       () => {
-        if (process.env.IS_CI && !this.analyticsOptions?.alwaysEnable) {
-          throw new Error('no analytics setup for CI environments');
+        if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
+          // This error will be in the log file, but otherwise not visible to users
+          throw new Error('no analytics setup for the mongosh CI environment');
         }
         this.analytics = new Analytics(
           // analytics-config.js gets written as a part of a release
