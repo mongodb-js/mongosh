@@ -16,7 +16,8 @@ import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { MongoshBus, UserConfig } from '@mongosh/types';
 import { once } from 'events';
-import { createWriteStream } from 'fs';
+import { createWriteStream, promises as fs } from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 
 /**
@@ -89,7 +90,7 @@ class CliRepl {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
       bus: this.bus,
-      configProvider: this
+      ioProvider: this
     });
   }
 
@@ -284,6 +285,14 @@ class CliRepl {
     const error = new MongoshInternalError('onExit() unexpectedly returned');
     this.bus.emit('mongosh:error', error);
     throw error;
+  }
+
+  async readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }> {
+    const resolved = path.resolve(filename);
+    return {
+      contents: await fs.readFile(resolved, 'utf8'),
+      absolutePath: resolved
+    };
   }
 
   clr(text: string, style: StyleDefinition): string {

@@ -143,6 +143,36 @@ describe('CliRepl', () => {
         }
         expect.fail('expected error');
       });
+
+      context('loading JS files from disk', () => {
+        it('allows loading a file from the disk', async() => {
+          const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
+          input.write(`load(${JSON.stringify(filenameA)})\n`);
+          await waitEval(cliRepl.bus);
+          input.write('variableFromA\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('yes from A');
+        });
+
+        it('allows nested loading', async() => {
+          const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
+          input.write(`load(${JSON.stringify(filenameB)})\n`);
+          await waitEval(cliRepl.bus);
+          input.write('variableFromA + " " + variableFromB\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('yes from A yes from A from B');
+        });
+
+        it('allows async operations', async() => {
+          const filenameC = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'c.js');
+          input.write(`load(${JSON.stringify(filenameC)})\n`);
+          await waitEval(cliRepl.bus);
+          output = '';
+          input.write('diff >= 10\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('true');
+        });
+      });
     });
 
     context('during startup', () => {

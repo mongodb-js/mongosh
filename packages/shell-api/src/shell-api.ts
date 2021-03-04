@@ -100,12 +100,17 @@ export default class ShellApi extends ShellApiClass {
     return version;
   }
 
-  load(): void {
-    throw new MongoshUnimplementedError(
-      'load is not currently implemented. If you are running mongosh from the CLI ' +
-      'then you can use .load <filename> as an alternative.',
-      CommonErrors.NotImplemented
-    );
+  @returnsPromise
+  async load(filename: string): Promise<true> {
+    assertArgsDefined(filename);
+    if (!this.internalState.evaluationListener.onLoad) {
+      throw new MongoshUnimplementedError(
+        'load is not currently implemented for this platform',
+        CommonErrors.NotImplemented
+      );
+    }
+    await this.internalState.evaluationListener.onLoad(filename);
+    return true;
   }
 
   @returnsPromise
