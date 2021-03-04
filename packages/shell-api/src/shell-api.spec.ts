@@ -191,7 +191,7 @@ describe('ShellApi', () => {
       it('returns a new Mongo object', async() => {
         const m = await internalState.shellApi.Mongo('localhost:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
-        expect(m._uri).to.equal('mongodb://localhost:27017/test?directConnection=true');
+        expect(m._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
@@ -204,11 +204,11 @@ describe('ShellApi', () => {
       });
       it('parses URI with mongodb://', async() => {
         const m = await internalState.shellApi.Mongo('mongodb://127.0.0.1:27017');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('parses URI with just db', async() => {
         const m = await internalState.shellApi.Mongo('dbname');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       context('FLE', () => {
         [
@@ -226,7 +226,7 @@ describe('ShellApi', () => {
               }
             });
             expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-              'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+              'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
               {
                 autoEncryption: {
                   keyVaultClient: undefined,
@@ -247,7 +247,7 @@ describe('ShellApi', () => {
             }
           });
           expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
                 keyVaultClient: undefined,
@@ -267,7 +267,7 @@ describe('ShellApi', () => {
             keyVaultClient: mongo
           });
           expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
                 keyVaultClient: rawClientStub,
@@ -291,7 +291,7 @@ describe('ShellApi', () => {
             keyVaultClient: m
           });
           expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
                 keyVaultClient: rc,
@@ -354,7 +354,7 @@ describe('ShellApi', () => {
             bypassAutoEncryption: true
           });
           expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-            'mongodb://127.0.0.1:27017/dbname?directConnection=true',
+            'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
                 keyVaultClient: undefined,
@@ -372,7 +372,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test?directConnection=true');
+        expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
@@ -456,7 +456,7 @@ describe('ShellApi', () => {
       it('returns a new Mongo object', async() => {
         const m = await internalState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
-        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
@@ -473,14 +473,16 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
+        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('handles username/pwd', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
-        expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly('mongodb://127.0.0.1:27017/?directConnection=true', { auth: { username: 'username', password: 'pwd' } });
+        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
+          'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000',
+          { auth: { username: 'username', password: 'pwd' } });
       });
     });
     describe('version', () => {
