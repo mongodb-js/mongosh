@@ -77,8 +77,8 @@ describe('Field Level Encryption', () => {
       expect((await toShellResult(keyVault.help)).type).to.equal('Help');
     });
     it('calls print function', async() => {
-      expect((await toShellResult(clientEncryption)).printable).to.equal('ClientEncryption class for mongodb://localhost:27017/test?directConnection=true');
-      expect((await toShellResult(keyVault)).printable).to.equal('KeyVault class for mongodb://localhost:27017/test?directConnection=true');
+      expect((await toShellResult(clientEncryption)).printable).to.equal('ClientEncryption class for mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect((await toShellResult(keyVault)).printable).to.equal('KeyVault class for mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('has metadata type', async() => {
       expect((await toShellResult(clientEncryption)).type).to.equal('ClientEncryption');

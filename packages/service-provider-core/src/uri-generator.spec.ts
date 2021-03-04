@@ -7,22 +7,22 @@ describe('uri-generator.generate-uri', () => {
     const options = { _: [] };
 
     it('returns the default uri', () => {
-      expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017/?directConnection=true');
+      expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
   });
 
   context('when no URI is provided', () => {
     it('handles host', () => {
-      expect(generateUri({ _: [], host: 'localhost' })).to.equal('mongodb://localhost:27017/?directConnection=true');
+      expect(generateUri({ _: [], host: 'localhost' })).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles port', () => {
-      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018/?directConnection=true');
+      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles both host and port', () => {
-      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true');
+      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles host with port included', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018/?directConnection=true');
+      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('throws if host has port AND port set to other value', () => {
       try {
@@ -34,7 +34,7 @@ describe('uri-generator.generate-uri', () => {
       }
     });
     it('handles host has port AND port set to equal value', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true');
+      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
   });
 
@@ -228,7 +228,7 @@ describe('uri-generator.generate-uri', () => {
         const options = { _: [uri], port: '27018' };
 
         it('uses the provided host with default port', () => {
-          expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo?directConnection=true');
+          expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo?directConnection=true&serverSelectionTimeoutMS=2000');
         });
       });
 

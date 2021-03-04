@@ -125,7 +125,15 @@ function generatePort(options: CliOptions): string {
  * gssapiServiceName?: string; // needs to go in URI
  */
 function generateUri(options: CliOptions): string {
-  return generateUriNormalized(options).toString();
+  const connectionString = generateUriNormalized(options);
+  if (connectionString.hosts.length === 1 &&
+      ['localhost', '127.0.0.1'].includes(connectionString.hosts[0].split(':')[0])) {
+    const params = connectionString.searchParams;
+    if (!params.has('serverSelectionTimeoutMS')) {
+      params.set('serverSelectionTimeoutMS', '2000');
+    }
+  }
+  return connectionString.toString();
 }
 function generateUriNormalized(options: CliOptions): ConnectionString {
   const uri = options._?.[0];

@@ -56,7 +56,7 @@ describe('Mongo', () => {
     describe('toShellResult', () => {
       const mongo = new Mongo({} as any, 'localhost:37017');
       it('value', async() => {
-        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/test?directConnection=true');
+        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/test?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('type', async() => {
         expect((await toShellResult(mongo)).type).to.equal('Mongo');
@@ -561,7 +561,7 @@ describe('Mongo', () => {
         const expectedResult = { ChangeStreamCursor: 1 } as any;
         serviceProvider.watch.returns(expectedResult);
         const result = mongo.watch();
-        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/?directConnection=true', mongo));
+        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/?directConnection=true&serverSelectionTimeoutMS=2000', mongo));
         expect(mongo._internalState.currentCursor).to.equal(result);
       });
 
