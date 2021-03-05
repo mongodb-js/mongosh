@@ -123,7 +123,6 @@ export async function gatherLicenses(startPath: string): Promise<Package[]> {
 function pkgEqual(a: Package, b: Package): boolean {
   for (const key of relevantPackageKeys) {
     if (!util.isDeepStrictEqual(a[key], b[key])) {
-      console.log(a.name, b.name, key)
       return false;
     }
   }
