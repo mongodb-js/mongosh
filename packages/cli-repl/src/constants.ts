@@ -31,6 +31,7 @@ export const USAGE = `
     -p, --password [arg]                       ${i18n.__('cli-repl.args.password')}
         --authenticationDatabase [arg]         ${i18n.__('cli-repl.args.authenticationDatabase')}
         --authenticationMechanism [arg]        ${i18n.__('cli-repl.args.authenticationMechanism')}
+        --awsIamSessionToken [arg]             ${i18n.__('cli-repl.args.awsIamSessionToken')}
 
   ${clr(i18n.__('cli-repl.args.tlsOptions'), ['bold', 'yellow'])}
 
@@ -42,6 +43,14 @@ export const USAGE = `
         --tlsAllowInvalidCertificates          ${i18n.__('cli-repl.args.tlsAllowInvalidCertificates')}
         --tlsCertificateSelector [arg]         ${i18n.__('cli-repl.args.tlsCertificateSelector')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
+
+  ${clr(i18n.__('cli-repl.args.fleOptions'), ['bold', 'yellow'])}
+
+        --awsAccessKeyId [arg]                 ${i18n.__('cli-repl.args.awsAccessKeyId')}
+        --awsSecretAccessKey [arg]             ${i18n.__('cli-repl.args.awsSecretAccessKey')}
+        --awsSessionToken [arg]                ${i18n.__('cli-repl.args.awsSessionToken')}
+        --keyVaultNamespace [arg]              ${i18n.__('cli-repl.args.keyVaultNamespace')}
+        --kmsURL [arg]                         ${i18n.__('cli-repl.args.kmsURL')}
 
   ${clr(i18n.__('cli-repl.args.dbAddressOptions'), ['bold', 'yellow'])}
 
