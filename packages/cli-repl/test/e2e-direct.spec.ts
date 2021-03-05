@@ -29,6 +29,8 @@ describe('e2e direct connection', () => {
     });
 
     context('after rs.initiate()', () => {
+      let dbname: string;
+
       before(async() => {
         const replSetConfig = {
           _id: replSetId,
@@ -50,6 +52,15 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
+        dbname = `test-${Date.now()}-${(Math.random() * 100000) | 0}`;
+        await shell.executeLine(`use ${dbname}`);
+        await shell.executeLine('db.testcollection.insertOne({})');
+        shell.writeInputLine('exit');
+      });
+      after(async() => {
+        const shell = TestShell.start({ args: [await rs0.connectionString()] });
+        await shell.executeLine(`db.getSiblingDB("${dbname}").dropDatabase()`);
+        shell.writeInputLine('exit');
       });
 
       context('connecting to secondary members directly', () => {
@@ -103,6 +114,14 @@ describe('e2e direct connection', () => {
           expect(await shell.executeLine('show collections')).to.include('system.version');
           expect(await shell.executeLine('show dbs')).to.include('admin');
         });
+        it('autocompletes collection names', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
+          await shell.waitForPrompt();
+          shell.writeInput('db.testc\u0009\u0009');
+          await eventually(() => {
+            shell.assertContainsOutput('db.testcollection');
+          });
+        });
       });
 
       context('connecting to primary', () => {
@@ -138,6 +157,14 @@ describe('e2e direct connection', () => {
           await shell.executeLine('use admin');
           expect(await shell.executeLine('show collections')).to.include('system.version');
           expect(await shell.executeLine('show dbs')).to.include('admin');
+        });
+        it('autocompletes collection names', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
+          await shell.waitForPrompt();
+          shell.writeInput('db.testc\u0009\u0009');
+          await eventually(() => {
+            shell.assertContainsOutput('db.testcollection');
+          });
         });
       });
     });

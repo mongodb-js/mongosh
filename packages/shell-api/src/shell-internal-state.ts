@@ -133,7 +133,7 @@ export default class ShellInternalState {
     this.context.sh = new Shard(this.currentDb);
     this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err));
     // Pre-fetch for autocompletion.
-    this.currentDb._getCollectionNames().catch(err => this.messageBus.emit('mongosh:error', err));
+    this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
     return newDb;
   }
 
