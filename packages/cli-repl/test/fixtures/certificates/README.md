@@ -70,6 +70,28 @@ To recreate the certificates follow the steps outlined below.
    cat server.pem server.key > server.bundle.pem
    ```
 
+## Setup Server Certificate with invalid hostname
+1. Create a new key to use for the server:
+   ```
+   openssl genrsa -out server-invalidhost.key 4096
+   ```
+2. Generate a Certificate Signing Request (CSR) with validity 99.999 days:
+   ```
+   openssl req -new -key server-invalidhost.key -out server-invalidhost.csr -days 99999
+   ```
+   * Organization Name: `MongoDB`
+   * Organizational Unit Name: `DevTools`
+   * Common Name: `invalidhost`
+3. Sign the CSR to generate server certificate:
+   ```
+   openssl ca -create_serial -config ca.cnf -in server-invalidhost.csr -out server-invalidhost.pem -days 99999
+   ```
+   This will also generate a `<FINGERPRINT>.pem` file which can be removed.
+4. Create a bundle with server key and certificate to use for `mongod`:
+   ```
+   cat server-invalidhost.pem server-invalidhost.key > server-invalidhost.bundle.pem
+   ```
+
 ## Setup "Non-CA" for testing invalid CA cert
 1. Create a new key to use for the Non CA:
    ```

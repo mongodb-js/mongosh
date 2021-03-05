@@ -14,6 +14,7 @@ const CLIENT_CERT = getCertPath('client.bundle.pem');
 const CLIENT_CERT_PFX = getCertPath('client.bundle.pfx');
 const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
 const SERVER_KEY = getCertPath('server.bundle.pem');
+const SERVER_INVALIDHOST_KEY = getCertPath('server-invalidhost.bundle.pem');
 const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
 
 describe('e2e TLS', () => {
@@ -49,7 +50,7 @@ describe('e2e TLS', () => {
   });
 
   function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
-    context('connecting without client cert', () => {
+    context('connecting without client cert to server with valid cert', () => {
       after(async() => {
         // mlaunch has some trouble interpreting all the server options correctly,
         // and subsequently can't connect to the server to find out if it's up,
@@ -153,7 +154,7 @@ describe('e2e TLS', () => {
       });
     });
 
-    context('connecting with client cert', () => {
+    context('connecting with client cert to server with valid cert', () => {
       const tmpdir = useTmpdir();
 
       after(async() => {
@@ -300,6 +301,63 @@ describe('e2e TLS', () => {
         } else {
           shell.assertContainsOutput('tlsCertificateSelector is not supported on this platform');
         }
+      });
+    });
+
+    context('connecting to server with invalid cert', () => {
+      after(async() => {
+        // mlaunch has some trouble interpreting all the server options correctly,
+        // and subsequently can't connect to the server to find out if it's up,
+        // then thinks it isn't and doesn't shut it down cleanly. We shut it down
+        // here to work around that.
+        const shell = TestShell.start({ args:
+          [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT, '--tlsAllowInvalidCertificates'
+          ]
+        });
+        await shell.waitForPrompt();
+        await shell.executeLine('db.shutdownServer({ force: true })');
+        await TestShell.killall();
+      });
+
+      const server = startTestServer(
+        'not-shared', '--hostname', 'localhost',
+        serverTlsModeOption, serverTlsModeValue,
+        serverTlsCertificateKeyFileOption, SERVER_INVALIDHOST_KEY
+      );
+
+      it('works with allowInvalidCertificates', async() => {
+        const shell = TestShell.start({
+          args: [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT, '--tlsAllowInvalidCertificates'
+          ]
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+      });
+
+      it('works with allowInvalidHostnames', async() => {
+        const shell = TestShell.start({
+          args: [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT, '--tlsAllowInvalidHostnames'
+          ]
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+      });
+
+      it('fails when no additional args are provided', async() => {
+        const shell = TestShell.start({
+          args: [
+            await server.connectionString(),
+            '--tls', '--tlsCAFile', CA_CERT
+          ]
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('exit');
       });
     });
   }
