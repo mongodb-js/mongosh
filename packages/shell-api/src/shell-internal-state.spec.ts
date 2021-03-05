@@ -51,7 +51,10 @@ describe('ShellInternalState', () => {
       serviceProvider.listCollections
         .resolves([ { name: 'coll1' }, { name: 'coll2' } ]);
       expect(run('db = db.getSiblingDB("moo"); db.getName()')).to.equal('moo');
-      expect(serviceProvider.listCollections.calledWith('moo', {}, { nameOnly: true })).to.equal(true);
+      expect(serviceProvider.listCollections.calledWith('moo', {}, {
+        readPreference: 'primaryPreferred',
+        nameOnly: true
+      })).to.equal(true);
     });
   });
 
