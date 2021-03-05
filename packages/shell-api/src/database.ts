@@ -150,7 +150,7 @@ export default class Database extends ShellApiClass {
   async _getCollectionNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async() => {
-        return await this._getCollectionNames();
+        return await this._getCollectionNames({ readPreference: 'primaryPreferred' });
       })(),
       (async() => {
         // 200ms should be a good compromise between giving the server a chance
