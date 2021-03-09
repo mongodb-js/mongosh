@@ -104,7 +104,7 @@ functions:
 
   ###
   # ARTIFACT COMPILATION
-  # 
+  #
   # compile_artifact generates the executable binary and uploads it as TGZ to S3 for later use.
   # Use download_compiled_artifact to download the TGZ from S3.
   #
@@ -142,7 +142,7 @@ functions:
 
   ###
   # E2E TEST EXECUTION
-  # 
+  #
   # Runs the E2E tests against the compiled artifact, i.e. expects the compiled artifact to be already present.
   ###
   run_e2e_tests:
@@ -163,13 +163,13 @@ functions:
   # package_and_upload_artifact generates a distributable package out of the compiled artifact,
   # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
   # to a specifc Evergreen S3 bucket for later use.
-  # 
+  #
   # The URL to download the distributable package can be retrieved by get_artifact_url.
   #
   # package_and_upload_artifact expects the following arguments:
   # - distro_id
   # - distribution_build_variant
-  # 
+  #
   # get_artifact_url expects the following arguments:
   # - distribution_build_variant
   ###
@@ -356,8 +356,21 @@ tasks:
 
   ###
   # UNIT TESTS
+  # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
   ###
-  - name: test_m40x_n12
+  - name: test_m40xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m40xe_n12
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -369,7 +382,19 @@ tasks:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
-  - name: test_m42x_n12
+  - name: test_m42xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m42xe_n12
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -381,7 +406,19 @@ tasks:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
-  - name: test_m44x_n12
+  - name: test_m44xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m44xe_n12
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -405,7 +442,18 @@ tasks:
           mongosh_server_test_version: "latest-alpha"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
-  - name: test_m40x_n14
+  - name: test_m40xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.0.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m40xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -416,7 +464,18 @@ tasks:
         vars:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "14.15.1"
-  - name: test_m42x_n14
+  - name: test_m42xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m42xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -427,7 +486,18 @@ tasks:
         vars:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "14.15.1"
-  - name: test_m44x_n14
+  - name: test_m44xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "14.15.1"
+  - name: test_m44xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
@@ -636,7 +706,7 @@ tasks:
         vars:
           node_js_version: "14.15.1"
           distribution_build_variant: win32msi
-  
+
   ###
   # SMOKE TESTS
   ###
@@ -767,7 +837,7 @@ tasks:
           source_distribution_build_variant: darwin
       - func: write_preload_script
       - func: test_artifact_macos
-  
+
   ###
   # RELEASE TASKS
   ###
@@ -816,13 +886,19 @@ buildvariants:
       executable_os_id: darwin
     tasks:
       - name: check
-      - name: test_m40x_n12
-      - name: test_m42x_n12
-      - name: test_m44x_n12
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
       - name: test_mlatest_n12
-      - name: test_m40x_n14
-      - name: test_m42x_n14
-      - name: test_m44x_n14
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
       - name: test_mlatest_n14
       - name: compile_artifact
       - name: e2e_tests_darwin
@@ -834,13 +910,19 @@ buildvariants:
       executable_os_id: linux
     tasks:
       - name: check
-      - name: test_m40x_n12
-      - name: test_m42x_n12
-      - name: test_m44x_n12
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
       - name: test_mlatest_n12
-      - name: test_m40x_n14
-      - name: test_m42x_n14
-      - name: test_m44x_n14
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
       - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
@@ -893,13 +975,19 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: check
-      - name: test_m40x_n12
-      - name: test_m42x_n12
-      - name: test_m44x_n12
+      - name: test_m40xc_n12
+      - name: test_m40xe_n12
+      - name: test_m42xc_n12
+      - name: test_m42xe_n12
+      - name: test_m44xc_n12
+      - name: test_m44xe_n12
       - name: test_mlatest_n12
-      - name: test_m40x_n14
-      - name: test_m42x_n14
-      - name: test_m44x_n14
+      - name: test_m40xc_n14
+      - name: test_m40xe_n14
+      - name: test_m42xc_n14
+      - name: test_m42xe_n14
+      - name: test_m44xc_n14
+      - name: test_m44xe_n14
       - name: test_mlatest_n14
       - name: e2e_tests_win
       - name: package_and_upload_artifact_win

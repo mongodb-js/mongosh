@@ -115,6 +115,12 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
     return await doDownload(tmpdir, 'latest-alpha', () => lookupAlphaDownloadUrl());
   }
 
+  let wantsEnterprise = true;
+  if (/-community$/.test(targetVersionSemverSpecifier)) {
+    wantsEnterprise = false;
+    targetVersionSemverSpecifier = targetVersionSemverSpecifier.replace(/-community$/, '');
+  }
+
   let fullJson: FullJSON;
   const fullJSONCachePath = path.resolve(tmpdir, 'full.json.gz');
   try {
@@ -130,7 +136,10 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
     .filter((info: VersionInfo) => semver.satisfies(info.version, targetVersionSemverSpecifier))
     .sort((a: VersionInfo, b: VersionInfo) => semver.rcompare(a.version, b.version));
   const versionInfo: VersionInfo = productionVersions[0];
-  return await doDownload(tmpdir, versionInfo.version, () => lookupDownloadUrl(versionInfo, true));
+  return await doDownload(
+    tmpdir,
+    versionInfo.version + (wantsEnterprise ? '-enterprise' : '-community'),
+    () => lookupDownloadUrl(versionInfo, wantsEnterprise));
 }
 
 const downloadPromises: Record<string, Promise<string>> = {};
