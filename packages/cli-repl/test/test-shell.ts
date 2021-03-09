@@ -5,7 +5,7 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { eventually } from './helpers';
 
-
+export type TestShellStartupResult = { state: 'prompt' | 'exit'; exitCode?: number | undefined };
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
 const PROMPT_PATTERN = /^([^>]*> ?)+$/m;
@@ -141,6 +141,14 @@ export class TestShell {
 
   waitForExit(): Promise<number> {
     return this._onClose;
+  }
+
+
+  async waitForPromptOrExit(): Promise<TestShellStartupResult> {
+    return Promise.race([
+      this.waitForPrompt().then(() => ({ state: 'prompt' } as TestShellStartupResult)),
+      this.waitForExit().then(c => ({ state: 'exit', exitCode: c }) as TestShellStartupResult),
+    ]);
   }
 
   kill(signal?: SignalType): void {
