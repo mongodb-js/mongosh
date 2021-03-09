@@ -6,7 +6,7 @@ import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
 import { Platform } from '../config';
-import type { PackageInformation } from '../tarball';
+import type { PackageInformation } from '../packaging/package';
 import { compileJSFileAsBinary } from 'boxednode';
 
 async function preCompileHook(nodeSourceTree: string) {

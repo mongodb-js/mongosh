@@ -6,8 +6,8 @@ import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } fr
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from './github-repo';
+import { PackageInformation } from './packaging';
 import { ensureGithubReleaseExistsAndUpdateChangelogFn, runDraft } from './run-draft';
-import { PackageInformation } from './tarball';
 
 chai.use(require('sinon-chai'));
 

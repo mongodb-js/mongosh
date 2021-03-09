@@ -2,15 +2,15 @@ import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
 import { BuildVariant, Config } from './config';
-import { runUpload } from './run-upload';
 import { uploadArtifactToEvergreen } from './evergreen';
-import { TarballFile } from './tarball';
+import { PackageFile } from './packaging';
+import { runUpload } from './run-upload';
 
 chai.use(require('sinon-chai'));
 
 describe('do-upload', () => {
   let config: Config;
-  let tarballFile: TarballFile;
+  let tarballFile: PackageFile;
   let uploadToEvergreen: typeof uploadArtifactToEvergreen;
 
   beforeEach(() => {

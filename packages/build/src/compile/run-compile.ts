@@ -1,4 +1,4 @@
-import type { PackageInformation } from '../tarball';
+import type { PackageInformation } from '../packaging/package';
 import { generateBundle } from './generate-bundle';
 import { SignableCompiler } from './signable-compiler';
 

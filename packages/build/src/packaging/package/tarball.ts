@@ -2,14 +2,14 @@ import { promises as fs } from 'fs';
 import rimraf from 'rimraf';
 import tar from 'tar';
 import { promisify } from 'util';
-import { createTarballContents } from './helpers';
+import { createCompressedArchiveContents } from './helpers';
 import { PackageInformation } from './package-information';
 
 /**
  * Create a tarball archive for posix.
  */
-export async function tarballPosix(pkg: PackageInformation, outFile: string): Promise<void> {
-  const tmpDir = await createTarballContents(pkg);
+export async function createTarballPackage(pkg: PackageInformation, outFile: string): Promise<void> {
+  const tmpDir = await createCompressedArchiveContents(pkg);
   await tar.c({
     gzip: true,
     file: outFile,

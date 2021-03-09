@@ -4,10 +4,10 @@ import commandExists from 'command-exists';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { withTempPackageEach } from '../../test/helpers';
-import { BuildVariant } from '../config';
-import { createTarball } from './create-tarball';
-import { tarballRedhat } from './redhat';
+import { withTempPackageEach } from '../../../test/helpers';
+import { BuildVariant } from '../../config';
+import { createPackage } from './create-package';
+import { createRedhatPackage } from './redhat';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -19,10 +19,9 @@ describe('tarball redhat', () => {
       await commandExists('rpmbuild');
     } catch {
       this.skip();
-      return;
     }
 
-    const tarball = await createTarball(
+    const tarball = await createPackage(
       tmpPkg.tarballDir,
       BuildVariant.Redhat,
       tmpPkg.pkgConfig
@@ -51,7 +50,7 @@ describe('tarball redhat', () => {
     };
 
     const outFile = path.join(tmpPkg.tarballDir, 'out.rpm');
-    await tarballRedhat(
+    await createRedhatPackage(
       tmpPkg.pkgConfig,
       tmpPkg.pkgConfig.rpmTemplateDir,
       outFile,
@@ -71,7 +70,7 @@ describe('tarball redhat', () => {
 
     const outFile = path.join(tmpPkg.tarballDir, 'out.rpm');
     try {
-      await tarballRedhat(
+      await createRedhatPackage(
         tmpPkg.pkgConfig,
         tmpPkg.pkgConfig.rpmTemplateDir,
         outFile,

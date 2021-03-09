@@ -2,20 +2,22 @@ import { notarize as nodeNotarize } from 'electron-notarize';
 import codesign from 'node-codesign';
 import util from 'util';
 import { Config } from '../config';
-import { TarballFile } from '../tarball';
+import { PackageFile } from './package';
 
 export async function macOSSignAndNotarize(
   executables: string[],
   config: Config,
-  runCreateTarball: () => Promise<TarballFile>
-): Promise<TarballFile> {
+  runCreatePackage: () => Promise<PackageFile>,
+  signFn: typeof sign = sign,
+  notarizeFn: typeof notarize = notarize,
+): Promise<PackageFile> {
   for (const executable of executables) {
     console.info('mongosh: signing:', executable);
-    await sign(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
+    await signFn(executable, config.appleCodesignIdentity || '', config.appleCodesignEntitlementsFile || '');
   }
-  const artifact = await runCreateTarball();
+  const artifact = await runCreatePackage();
   console.info('mongosh: notarizing and creating tarball:', artifact.path);
-  await notarize(
+  await notarizeFn(
     config.appleNotarizationBundleId || '',
     artifact.path,
     config.appleNotarizationUsername || '',

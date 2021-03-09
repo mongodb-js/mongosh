@@ -1,11 +1,11 @@
 import fs from 'fs';
 import { Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
-import { TarballFile } from './tarball';
+import { PackageFile } from './packaging';
 
 export async function runUpload(
   config: Config,
-  tarballFile: TarballFile,
+  tarballFile: PackageFile,
   uploadToEvergreen: typeof uploadArtifactToEvergreenFn,
 ): Promise<void> {
   for (const key of [
