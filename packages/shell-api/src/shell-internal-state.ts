@@ -35,6 +35,19 @@ export interface AutocompleteParameters {
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
 }
 
+export interface OnLoadParameters {
+  /**
+   * The absolute path of the file that should be load()ed.
+   */
+  resolvedFilename: string;
+
+  /**
+   * The actual steps that are needed to evaluate the load()ed file.
+   * For the duration of this call, __filename and __dirname are set as expected.
+   */
+  evaluate(): Promise<void>;
+}
+
 export interface EvaluationListener {
   /**
    * Called when print() or printjson() is run from the shell.
@@ -66,7 +79,7 @@ export interface EvaluationListener {
   /**
    * Called when load() is used in the shell.
    */
-  onLoad?: (filename: string) => Promise<void>;
+  onLoad?: (filename: string) => Promise<OnLoadParameters> | OnLoadParameters;
 }
 
 /**

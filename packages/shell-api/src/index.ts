@@ -5,7 +5,7 @@ import Database from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help, { HelpProperties } from './help';
-import ShellInternalState, { EvaluationListener, ShellCliOptions } from './shell-internal-state';
+import ShellInternalState, { EvaluationListener, ShellCliOptions, OnLoadParameters } from './shell-internal-state';
 import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
@@ -62,5 +62,6 @@ export {
   getShellApiType,
   ShellResult,
   ShellCliOptions,
-  TypeSignature
+  TypeSignature,
+  OnLoadParameters
 };

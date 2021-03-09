@@ -3,13 +3,12 @@ import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mon
 import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { EvaluationListener, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
+import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadParameters } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import type { MongoshBus, UserConfig } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
-import path from 'path';
 import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
@@ -318,27 +317,17 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
-  async onLoad(filename: string): Promise<void> {
+  async onLoad(filename: string): Promise<OnLoadParameters> {
     const repl = this.runtimeState().repl;
     const {
       contents,
       absolutePath
     } = await this.ioProvider.readFileUTF8(filename);
 
-    const previousFilename = repl.context.__filename;
-    repl.context.__filename = absolutePath;
-    repl.context.__dirname = path.dirname(absolutePath);
-    try {
-      await promisify(repl.eval.bind(repl))(contents, repl.context, filename);
-    } finally {
-      if (previousFilename) {
-        repl.context.__filename = previousFilename;
-        repl.context.__dirname = path.dirname(previousFilename);
-      } else {
-        delete repl.context.__filename;
-        delete repl.context.__dirname;
-      }
-    }
+    return {
+      resolvedFilename: absolutePath,
+      evaluate: () => promisify(repl.eval.bind(repl))(contents, repl.context, absolutePath)
+    };
   }
 
   /**

@@ -570,9 +570,22 @@ describe('ShellApi', () => {
     });
     describe('load', () => {
       it('asks the evaluation listener to load a file', async() => {
-        evaluationListener.onLoad.resolves();
+        evaluationListener.onLoad.callsFake(async(filename: string) => {
+          expect(filename).to.equal('abc.js');
+          expect(internalState.context.__filename).to.equal(undefined);
+          expect(internalState.context.__dirname).to.equal(undefined);
+          return {
+            resolvedFilename: '/resolved/abc.js',
+            evaluate: async() => {
+              expect(internalState.context.__filename).to.equal('/resolved/abc.js');
+              expect(internalState.context.__dirname).to.equal('/resolved');
+            }
+          };
+        });
         await internalState.context.load('abc.js');
-        expect(evaluationListener.onLoad).to.have.been.calledWith('abc.js');
+        expect(evaluationListener.onLoad).to.have.callCount(1);
+        expect(internalState.context.__filename).to.equal(undefined);
+        expect(internalState.context.__dirname).to.equal(undefined);
       });
     });
     for (const cmd of ['print', 'printjson']) {
