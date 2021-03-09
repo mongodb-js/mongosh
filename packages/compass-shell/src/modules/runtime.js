@@ -1,5 +1,3 @@
-import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
-import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { WorkerRuntime } from './worker-runtime';
 import { adaptDriverV36ConnectionParams } from './adapt-driver-v36-connection-params';
 
@@ -47,18 +45,7 @@ function reduceSetupRuntime(state, action) {
     return state;
   }
 
-  const shouldUseNewRuntime = !!process.env
-    .COMPASS_SHELL_EXPERIMENTAL_WORKER_RUNTIME;
-
-  const runtime = shouldUseNewRuntime ?
-    createWorkerRuntime(
-      action.dataService,
-      action.appRegistry
-    ) :
-    new ElectronRuntime(
-      CompassServiceProvider.fromDataService(action.dataService),
-      action.appRegistry
-    );
+  const runtime = createWorkerRuntime(action.dataService, action.appRegistry);
 
   return {
     error: action.error,
@@ -86,10 +73,13 @@ export const setupRuntime = (error, dataService, appRegistry) => ({
 function createWorkerRuntime(dataService, appRegistry) {
   const {
     url: driverV36Url,
-    options: driverV36Options
+    options: driverV36Options,
+    // Not really provided by dataService, used only for testing purposes
+    cliOptions,
   } = dataService.getConnectionOptions();
 
-  const connectionModelDriverOptions = dataService?.client?.model?.driverOptions || {};
+  const connectionModelDriverOptions =
+    dataService?.client?.model?.driverOptions ?? {};
 
   const [ driverUrl, driverOptions ] = adaptDriverV36ConnectionParams(
     driverV36Url,
@@ -100,7 +90,7 @@ function createWorkerRuntime(dataService, appRegistry) {
   return new WorkerRuntime(
     driverUrl,
     driverOptions,
-    {},
+    cliOptions ?? {},
     {
       env: { ...process.env, ELECTRON_RUN_AS_NODE: 1 },
       serialization: 'advanced',
