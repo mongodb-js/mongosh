@@ -3,7 +3,7 @@ import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mon
 import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadParameters } from '@mongosh/shell-api';
+import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadResult } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import type { MongoshBus, UserConfig } from '@mongosh/types';
 import askpassword from 'askpassword';
@@ -317,7 +317,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
-  async onLoad(filename: string): Promise<OnLoadParameters> {
+  async onLoad(filename: string): Promise<OnLoadResult> {
     const repl = this.runtimeState().repl;
     const {
       contents,

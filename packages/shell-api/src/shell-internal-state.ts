@@ -35,7 +35,7 @@ export interface AutocompleteParameters {
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
 }
 
-export interface OnLoadParameters {
+export interface OnLoadResult {
   /**
    * The absolute path of the file that should be load()ed.
    */
@@ -79,7 +79,7 @@ export interface EvaluationListener {
   /**
    * Called when load() is used in the shell.
    */
-  onLoad?: (filename: string) => Promise<OnLoadParameters> | OnLoadParameters;
+  onLoad?: (filename: string) => Promise<OnLoadResult> | OnLoadResult;
 }
 
 /**
