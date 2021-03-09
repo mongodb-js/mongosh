@@ -1,15 +1,40 @@
 import CompassShellStore from 'stores';
 import { EventEmitter } from 'events';
-import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
+import { WorkerRuntime } from '../modules/worker-runtime';
+
+function createMockDataService() {
+  return {
+    getConnectionOptions() {
+      return {
+        url: 'mongodb://nodb/',
+        options: {},
+        cliOptions: { nodb: true },
+      };
+    },
+    client: {
+      client: {},
+    },
+  };
+}
 
 describe('CompassShellStore [Store]', () => {
   let store;
   let appRegistry;
 
+  const getRuntimeState = () => store.reduxStore.getState().runtime;
+
   beforeEach(() => {
     store = new CompassShellStore();
     appRegistry = new EventEmitter();
     store.onActivated(appRegistry);
+  });
+
+  afterEach(async() => {
+    const { runtime } = getRuntimeState();
+
+    if (runtime && runtime.terminate) {
+      await runtime.terminate();
+    }
   });
 
   describe('appRegistry', () => {
@@ -20,8 +45,6 @@ describe('CompassShellStore [Store]', () => {
   });
 
   describe('runtime', () => {
-    const getRuntimeState = () => store.reduxStore.getState().runtime;
-
     it('has initialized runtime state', () => {
       const runtimeState = getRuntimeState();
 
@@ -30,36 +53,26 @@ describe('CompassShellStore [Store]', () => {
     });
 
     it('sets runtime on data-service-connected', () => {
-      appRegistry.emit('data-service-connected', null, {client: {client: {}}});
+      appRegistry.emit('data-service-connected', null, createMockDataService());
 
       const runtimeState = getRuntimeState();
 
       expect(runtimeState.error).to.equal(null);
-      expect(runtimeState.runtime).to.be.instanceOf(ElectronRuntime);
+      expect(runtimeState.runtime).to.be.instanceOf(WorkerRuntime);
     });
 
-    it('emits mongosh events to the appRegistry', () => {
-      appRegistry.emit('data-service-connected', null, {client: {client: {
-        db: () => ({
-          admin: () => ({
-            listDatabases: () => Promise.resolve({
-              databases: [
-                { name: 'db1', sizeOnDisk: 10000, empty: false }
-              ],
-              totalSize: 50000,
-              ok: 1
-            })
-          })
-        })
-      }}});
+    it('emits mongosh events to the appRegistry', async() => {
+      appRegistry.emit('data-service-connected', null, createMockDataService());
       let eventRecieved = false;
-      appRegistry.on('mongosh:show', () => {
+      appRegistry.on('mongosh:setCtx', () => {
         eventRecieved = true;
       });
 
       const runtimeState = getRuntimeState();
 
-      runtimeState.runtime.evaluate('show dbs;');
+      // Any command will do, just making sure we waited for the runtime to
+      // become available
+      await runtimeState.runtime.evaluate('help');
 
       expect(eventRecieved).to.equal(true);
     });
@@ -75,7 +88,7 @@ describe('CompassShellStore [Store]', () => {
     });
 
     it('does not change state if dataService is the same', () => {
-      const fakeDataService = {client: {client: {}}};
+      const fakeDataService = createMockDataService();
 
       appRegistry.emit('data-service-connected', null, fakeDataService);
       const runtimeState1 = getRuntimeState();

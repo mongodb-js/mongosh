@@ -1,5 +1,8 @@
 import { createRequire } from 'module';
 
+/**
+ * @type {{ WorkerRuntime: typeof import('@mongosh/node-runtime-worker-thread').WorkerRuntime }}
+ */
 const { WorkerRuntime } = (() => {
   // Workaround for webpack require that overrides global require
   const req = createRequire(__filename);
