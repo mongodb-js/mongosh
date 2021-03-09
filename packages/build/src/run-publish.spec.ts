@@ -8,8 +8,8 @@ import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterC
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import { PackageInformation } from './packaging';
 import { runPublish } from './run-publish';
-import { PackageInformation } from './tarball';
 
 chai.use(require('sinon-chai'));
 

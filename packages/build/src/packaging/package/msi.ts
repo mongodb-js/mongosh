@@ -2,41 +2,15 @@ import { constants, promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { createTarballContents, execFile as execFileFn, generateDirFromTemplate, sanitizeVersion } from './helpers';
+import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion } from './helpers';
 import { PackageInformation } from './package-information';
 
 const { COPYFILE_FICLONE } = constants;
 
 /**
- * Create a ZIP archive for windows.
- */
-export async function tarballWindows(
-  pkg: PackageInformation,
-  outFile: string,
-  execFile: typeof execFileFn = execFileFn
-): Promise<void> {
-  // Let's assume that either zip or 7z are installed. That's true for the
-  // evergreen macOS and Windows machines, respectively, at this point.
-  // In either case, using these has the advantage of preserving executable permissions
-  // as opposed to using libraries like adm-zip.
-  const tmpDir = await createTarballContents(pkg);
-  try {
-    await execFile('zip', ['-r', outFile, '.'], { cwd: tmpDir });
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      await execFile('7z', ['a', outFile, '.'], { cwd: tmpDir });
-    } else {
-      throw err;
-    }
-  }
-  await promisify(rimraf)(tmpDir);
-}
-
-
-/**
  * Create an MSI installer.
  */
-export async function tarballWindowsMSI(
+export async function createMsiPackage(
   pkg: PackageInformation,
   templateDir: string,
   outFile: string,

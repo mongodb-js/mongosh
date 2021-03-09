@@ -1,11 +1,11 @@
-import { BuildVariant } from '../config';
+import { BuildVariant } from '../../config';
 
-export interface TarballFile {
+export interface PackageFile {
   path: string;
   contentType: string;
 }
 
-export function getTarballFile(buildVariant: BuildVariant, version: string, name: string): TarballFile {
+export function getPackageFile(buildVariant: BuildVariant, version: string, name: string): PackageFile {
   switch (buildVariant) {
     case BuildVariant.Linux:
       return {

@@ -10,11 +10,11 @@ import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './ever
 import { GithubRepo } from './github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
-import { runPackage } from './package';
+import type { PackageInformation } from './packaging';
+import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
-import type { PackageInformation } from './tarball';
 
 export type ReleaseCommand = 'bump' | 'compile' | 'package' | 'upload' | 'draft' | 'publish';
 

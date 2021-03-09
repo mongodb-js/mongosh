@@ -22,7 +22,7 @@ export async function execFile(...args: Parameters<typeof execFileWithoutLogging
 /**
  * Create a directory containing the contents of the to-be-generated tarball/zip.
  */
-export async function createTarballContents(pkg: PackageInformation): Promise<string> {
+export async function createCompressedArchiveContents(pkg: PackageInformation): Promise<string> {
   // For the tarball and the zip file: We put license and readme texts at the
   // root of the package, and put all binaries into /bin.
   const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}-${Math.random()}`);

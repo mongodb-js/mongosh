@@ -10,7 +10,7 @@ const { COPYFILE_FICLONE } = constants;
 /**
  * Creates an RPM archive.
  */
-export async function tarballRedhat(
+export async function createRedhatPackage(
   pkg: PackageInformation,
   templateDir: string,
   filename: string,

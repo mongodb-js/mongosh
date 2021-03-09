@@ -5,7 +5,7 @@ import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } fr
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from './github-repo';
-import { getTarballFile } from './tarball';
+import { getPackageFile } from './packaging';
 
 export async function runDraft(
   config: Config,
@@ -32,7 +32,7 @@ export async function runDraft(
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_BUILD_VARIANTS) {
-    const tarballFile = getTarballFile(variant, config.packageInformation.metadata.version, config.packageInformation.metadata.name);
+    const tarballFile = getPackageFile(variant, config.packageInformation.metadata.version, config.packageInformation.metadata.name);
     console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
 
     const downloadedArtifact = await downloadArtifactFromEvergreen(

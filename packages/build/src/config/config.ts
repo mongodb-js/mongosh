@@ -1,4 +1,4 @@
-import type { PackageInformation } from '../tarball';
+import type { PackageInformation } from '../packaging/package';
 import { BuildVariant } from './build-variant';
 
 /**

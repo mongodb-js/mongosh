@@ -4,10 +4,10 @@ import commandExists from 'command-exists';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { withTempPackageEach } from '../../test/helpers';
-import { BuildVariant } from '../config';
-import { createTarball } from './create-tarball';
-import { tarballDebian } from './debian';
+import { withTempPackageEach } from '../../../test/helpers';
+import { BuildVariant } from '../../config';
+import { createPackage } from './create-package';
+import { createDebianPackage } from './debian';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -19,10 +19,9 @@ describe('tarball debian', () => {
       await commandExists('dpkg');
     } catch {
       this.skip();
-      return;
     }
 
-    const tarball = await createTarball(tmpPkg.tarballDir, BuildVariant.Debian, tmpPkg.pkgConfig);
+    const tarball = await createPackage(tmpPkg.tarballDir, BuildVariant.Debian, tmpPkg.pkgConfig);
     await fs.access(tarball.path);
     {
       const { stdout } = await execFile('dpkg', ['-c', tarball.path]);
@@ -51,7 +50,7 @@ describe('tarball debian', () => {
     };
 
     const outFile = path.join(tmpPkg.tarballDir, 'out.deb');
-    await tarballDebian(
+    await createDebianPackage(
       tmpPkg.pkgConfig,
       tmpPkg.pkgConfig.debTemplateDir,
       outFile,

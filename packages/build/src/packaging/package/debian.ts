@@ -10,7 +10,7 @@ const { COPYFILE_FICLONE } = constants;
 /**
  * Create a deb archive.
  */
-export async function tarballDebian(
+export async function createDebianPackage(
   pkg: PackageInformation,
   templateDir: string,
   outFile: string,

@@ -1,4 +1,5 @@
 /* eslint-disable camelcase, complexity, @typescript-eslint/no-non-null-assertion, no-return-assign, no-empty */
+/* istanbul ignore file */
 import fetch from 'node-fetch';
 import semver from 'semver';
 import { promisify } from 'util';
