@@ -23,4 +23,3 @@ export async function eventually(fn: Function, options: { frequency?: number; ti
 
   throw err;
 }
-
