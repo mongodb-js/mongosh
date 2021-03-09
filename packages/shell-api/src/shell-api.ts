@@ -20,6 +20,7 @@ import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@
 import { DBQuery } from './deprecated';
 import { promisify } from 'util';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
+import { dirname } from 'path';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -109,7 +110,25 @@ export default class ShellApi extends ShellApiClass {
         CommonErrors.NotImplemented
       );
     }
-    await this.internalState.evaluationListener.onLoad(filename);
+    const {
+      resolvedFilename, evaluate
+    } = await this.internalState.evaluationListener.onLoad(filename);
+
+    const context = this.internalState.context;
+    const previousFilename = context.__filename;
+    context.__filename = resolvedFilename;
+    context.__dirname = dirname(resolvedFilename);
+    try {
+      await evaluate();
+    } finally {
+      if (previousFilename) {
+        context.__filename = previousFilename;
+        context.__dirname = dirname(previousFilename);
+      } else {
+        delete context.__filename;
+        delete context.__dirname;
+      }
+    }
     return true;
   }
 
