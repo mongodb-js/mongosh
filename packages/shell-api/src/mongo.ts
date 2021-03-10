@@ -316,12 +316,12 @@ export default class Mongo extends ShellApiClass {
 
   @deprecated
   setSlaveOk(): void {
-    throw new MongoshDeprecatedError('setSlaveOk is deprecated.');
+    throw new MongoshDeprecatedError('Setting slaveOk is deprecated, use setReadPref instead.');
   }
 
   @deprecated
   setSecondaryOk(): void {
-    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead');
+    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead.');
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
