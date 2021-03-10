@@ -13,7 +13,8 @@ TEST_TMPDIR="$PWD"
 
 git clone git@github.com:mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
-git checkout de257688e6b7ce265a70bf75c7127c6da0bf2cf0
+# TODO: update hash after merge!
+git checkout 3ffa562f98616cbdd9250586388b26ce4e1ac839
 
 source "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 source "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
