@@ -119,7 +119,8 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/version/'
             },
             load: {
-              description: 'Load a file into the shell context. Not currently implemented, if running mongosh from the CLI you can use .load <filename> as an alternative'
+              description: 'Loads and runs a JavaScript file into the current shell environment',
+              example: 'load("path/to/file.js")'
             },
             enableTelemetry: {
               description: 'Enables collection of anonymous usage data to improve the mongosh CLI'
