@@ -19,6 +19,7 @@ import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
+import exportCertificateAndPrivateKey from 'win-export-certificate-and-key';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -112,6 +113,7 @@ class MongoshNodeRepl implements EvaluationListener {
     });
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
+    repl.context.exportCertificateAndPrivateKey = exportCertificateAndPrivateKey;
 
     this._runtimeState = {
       shellEvaluator,

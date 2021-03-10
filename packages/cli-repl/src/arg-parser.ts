@@ -106,9 +106,7 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, string> = {
 const UNSUPPORTED_ARGS: Readonly<string[]> = [
   'eval',
   'sslFIPSMode',
-  'tlsFIPSMode',
-  'sslCertificateSelector',
-  'tlsCertificateSelector'
+  'tlsFIPSMode'
 ];
 
 /**

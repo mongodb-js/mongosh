@@ -41,7 +41,7 @@ function isExistingMappingKey(key: string, options: CliOptions): key is keyof ty
 async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> {
   // @note: Durran: TS wasn't liking shorter reduce function here.
   //   come back an revisit to refactor.
-  const nodeOptions = {};
+  const nodeOptions: MongoClientOptions = {};
   await Promise.all(Object.keys(MAPPINGS).map(async(cliOption) => {
     if (isExistingMappingKey(cliOption, options)) {
       const mapping = MAPPINGS[cliOption as keyof typeof MAPPINGS];
@@ -56,6 +56,24 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
       }
     }
   }));
+  let exportCertificateAndPrivateKey;
+  try {
+    exportCertificateAndPrivateKey = require('win-export-certificate-and-key');
+  } catch { /* not windows */ }
+  if (options.tlsCertificateSelector) {
+    if (!exportCertificateAndPrivateKey) {
+      throw new Error('--tlsCertificateSelector is not supported on this platform');
+    }
+    const match = options.tlsCertificateSelector.match(/^(?<key>\w+)=(?<value>.+)/);
+    if (!match || !['subject', 'thumbprint'].includes(match.groups?.key ?? '')) {
+      throw new Error('--tlsCertificateSelector needs to include subject or thumbprint');
+    }
+    const { key, value } = match.groups ?? {};
+    const search = key === 'subject' ? { subject: value } : { thumbprint: Buffer.from(value, 'hex') };
+    const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
+    nodeOptions.passphrase = passphrase;
+    nodeOptions.pfx = pfx;
+  }
   return nodeOptions;
 }
 
