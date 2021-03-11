@@ -66,10 +66,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
     };
-    const winCAAddon = {
+    const winCAAddon = process.platform === 'win32' ? {
       path: await findModulePath('cli-repl', 'win-export-certificate-and-key'),
       requireRegexp: /\bwin_export_cert\.node$/
-    };
+    } : null;
 
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
@@ -89,9 +89,10 @@ export class SignableCompiler {
         AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET
       },
       addons: [
-        fleAddon,
+        fleAddon
+      ].concat(winCAAddon ? [
         winCAAddon
-      ],
+      ] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata
     });

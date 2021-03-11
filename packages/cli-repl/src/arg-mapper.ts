@@ -1,3 +1,4 @@
+import { MongoshUnimplementedError, MongoshInvalidInputError } from '@mongosh/errors';
 import { CliOptions, MongoClientOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
@@ -56,25 +57,38 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
       }
     }
   }));
+  applyTlsCertificateSelector(options.tlsCertificateSelector, nodeOptions);
+  return nodeOptions;
+}
+
+export function applyTlsCertificateSelector(
+  selector: string | undefined,
+  nodeOptions: MongoClientOptions): void {
+  if (!selector) return;
   let exportCertificateAndPrivateKey;
   try {
-    exportCertificateAndPrivateKey = require('win-export-certificate-and-key');
+    exportCertificateAndPrivateKey = require(
+      process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH ??
+      'win-export-certificate-and-key');
   } catch { /* not windows */ }
-  if (options.tlsCertificateSelector) {
-    if (!exportCertificateAndPrivateKey) {
-      throw new Error('--tlsCertificateSelector is not supported on this platform');
-    }
-    const match = options.tlsCertificateSelector.match(/^(?<key>\w+)=(?<value>.+)/);
-    if (!match || !['subject', 'thumbprint'].includes(match.groups?.key ?? '')) {
-      throw new Error('--tlsCertificateSelector needs to include subject or thumbprint');
-    }
-    const { key, value } = match.groups ?? {};
-    const search = key === 'subject' ? { subject: value } : { thumbprint: Buffer.from(value, 'hex') };
+
+  if (!exportCertificateAndPrivateKey) {
+    throw new MongoshUnimplementedError('--tlsCertificateSelector is not supported on this platform');
+  }
+
+  const match = selector.match(/^(?<key>\w+)=(?<value>.+)/);
+  if (!match || !['subject', 'thumbprint'].includes(match.groups?.key ?? '')) {
+    throw new MongoshInvalidInputError('--tlsCertificateSelector needs to include subject or thumbprint');
+  }
+  const { key, value } = match.groups ?? {};
+  const search = key === 'subject' ? { subject: value } : { thumbprint: Buffer.from(value, 'hex') };
+  try {
     const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
     nodeOptions.passphrase = passphrase;
     nodeOptions.pfx = pfx;
+  } catch (err) {
+    throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}: ${err.message}'`);
   }
-  return nodeOptions;
 }
 
 export default mapCliToDriver;

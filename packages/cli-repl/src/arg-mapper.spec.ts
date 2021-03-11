@@ -1,6 +1,10 @@
-import mapCliToDriver from './arg-mapper';
+import mapCliToDriver, { applyTlsCertificateSelector } from './arg-mapper';
 import { CliOptions } from '@mongosh/service-provider-server';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import sinon from 'ts-sinon';
+import sinonChai from 'sinon-chai';
+chai.use(sinonChai);
+import path from 'path';
 
 describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
@@ -235,6 +239,68 @@ describe('arg-mapper.mapCliToDriver', () => {
           }
         }
       });
+    });
+  });
+});
+
+describe('arg-mapper.applyTlsCertificateSelector', () => {
+  context('with fake ca provider', () => {
+    let exportCertificateAndPrivateKey;
+    beforeEach(() => {
+      process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH =
+        path.resolve(__dirname, '..', 'test', 'fixtures', 'fake-win-ca-provider.js');
+      exportCertificateAndPrivateKey = sinon.stub();
+      require(process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH)
+        .setFn((search) => exportCertificateAndPrivateKey(search));
+    });
+    afterEach(() => {
+      delete process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH;
+    });
+
+    it('leaves node options unchanged when no selector is given', () => {
+      const options = {};
+      applyTlsCertificateSelector(undefined, options);
+      expect(options).to.deep.equal({});
+    });
+
+    it('throws when the selector has an odd format', () => {
+      const options = {};
+      expect(() => applyTlsCertificateSelector('foo=bar', options))
+        .to.throw(/tlsCertificateSelector needs to include subject or thumbprint/);
+      expect(options).to.deep.equal({});
+    });
+
+    it('returns passphrase and pfx as given by the (fake) OS', () => {
+      const passphrase = 'abc';
+      const pfx = Buffer.from('abcdef');
+      exportCertificateAndPrivateKey.returns({
+        passphrase, pfx
+      });
+      const options = {};
+      applyTlsCertificateSelector('subject=Foo Bar', options);
+      expect(options).to.deep.equal({
+        passphrase, pfx
+      });
+    });
+  });
+
+  context('with what the OS gives us', () => {
+    it('throws an error on non-win32', function() {
+      if (process.platform === 'win32') {
+        return this.skip();
+      }
+      const options = {};
+      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+        .to.throw(/tlsCertificateSelector is not supported on this platform/);
+    });
+
+    it('tries to search the OS CA store on win32', function() {
+      if (process.platform !== 'win32') {
+        return this.skip();
+      }
+      const options = {};
+      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+        .to.throw(/Could not resolve certificate specification/);
     });
   });
 });
