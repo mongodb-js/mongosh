@@ -87,7 +87,7 @@ export function applyTlsCertificateSelector(
     nodeOptions.passphrase = passphrase;
     nodeOptions.pfx = pfx;
   } catch (err) {
-    throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}: ${err.message}'`);
+    throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
   }
 }
 

@@ -288,6 +288,24 @@ describe('e2e TLS', () => {
         await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
         shell.assertContainsOutput(`user: '${certUser}'`);
       });
+
+      it('fails with an invalid tlsCertificateSelector', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateSelector', 'subject=tester@example.com'
+          ]
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('exit');
+        if (process.platform === 'win32') {
+          shell.assertContainsOutput('Could not resolve certificate specification');
+        } else {
+          shell.assertContainsOutput('tlsCertificateSelector is not supported on this platform');
+        }
+      });
     });
   }
 });
