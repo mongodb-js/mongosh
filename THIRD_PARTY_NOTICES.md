@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Mar 10 2021.
+This document was automatically generated on Thu Mar 11 2021.
 
 ## List of dependencies
 
@@ -72,6 +72,7 @@ Package|Version|License
 **[array-back](#d21c23dddedd084017eb841a79ffc469f66f68e195a48c53f20144d941b472f1)**|4.0.1|MIT
 **[askpassword](#cc4d3349f11a12353c2c8e24a9931956887d7c14dd38926c84fcb148042bbc11)**|1.2.3|Apache-2.0
 **[atomic-sleep](#c2aa1160674677a67c8f8c4f84ce74846b64181defdd862ba85d82042577c2b9)**|1.0.0|MIT
+**[aws4](#10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573)**|1.11.0|MIT
 **[axios](#b90972744a253a068f0a15b11d8f9f73620a920283cd30aa808444b82e0548b2)**|0.18.1|MIT
 **[axios-retry](#a933fc75549ff5c33de504604749f9832d0619af4a680a36c912d08c5e01c678)**|3.1.5|Apache-2.0
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
@@ -4331,6 +4332,41 @@ License files:
 
 Authors:
 * David Mark Clements (@davidmarkclem)
+
+
+<a id="10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573"></a>
+### [aws4](https://www.npmjs.com/package/aws4) (version 1.11.0)
+<!-- initially found at packages/service-provider-server/node_modules/aws4 -->
+> Signs and prepares requests using AWS Signature Version 4
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2013 Michael Hart (michael.hart.au@gmail.com)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of
+      this software and associated documentation files (the "Software"), to deal in
+      the Software without restriction, including without limitation the rights to
+      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+      of the Software, and to permit persons to whom the Software is furnished to do
+      so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Michael Hart <michael.hart.au@gmail.com> (https://github.com/mhart)
 
 
 <a id="b90972744a253a068f0a15b11d8f9f73620a920283cd30aa808444b82e0548b2"></a>
