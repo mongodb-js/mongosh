@@ -738,7 +738,7 @@ export default class Collection extends ShellApiClass {
   @deprecated
   save(): Promise<void> {
     throw new MongoshInvalidInputError(
-      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, updateMany, or findAndModify.'
+      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
     );
   }
 
@@ -784,7 +784,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
     printDeprecationWarning(
-      'Collection.update() is deprecated. Use updateOne, updateMany, findAndModify, or bulkWrite.',
+      'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(update);
