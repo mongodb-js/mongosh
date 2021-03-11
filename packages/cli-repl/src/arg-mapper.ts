@@ -67,9 +67,11 @@ export function applyTlsCertificateSelector(
   if (!selector) return;
   let exportCertificateAndPrivateKey;
   try {
-    exportCertificateAndPrivateKey = require(
-      process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH ??
-      'win-export-certificate-and-key');
+    if (process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH) {
+      exportCertificateAndPrivateKey = require(process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH);
+    } else {
+      exportCertificateAndPrivateKey = require('win-export-certificate-and-key');
+    }
   } catch { /* not windows */ }
 
   if (!exportCertificateAndPrivateKey) {
