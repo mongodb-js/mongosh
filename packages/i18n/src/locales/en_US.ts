@@ -36,7 +36,7 @@ const translations: Catalog = {
       tlsCRFile: 'Certificate Revocation List file for TLS',
       tlsAllowInvalidHostnames: 'Allow connections to servers with non-matching hostnames',
       tlsAllowInvalidCertificates: 'Allow connections to servers with invalid certificates',
-      tlsCertificateSelector: 'TLS Certificate in system store',
+      tlsCertificateSelector: 'TLS Certificate in system store (Windows-only currently)',
       tlsDisabledProtocols: 'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
       fleOptions: 'FLE Options:',
       awsAccessKeyId: 'AWS Access Key for FLE Amazon KMS',

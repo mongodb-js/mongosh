@@ -11,7 +11,8 @@ import { compileJSFileAsBinary } from 'boxednode';
 
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
-    await findModulePath('mongodb-client-encryption'), 'package.json')).version;
+    await findModulePath('service-provider-server', 'mongodb-client-encryption'),
+    'package.json')).version;
   const proc = childProcess.spawn(
     'bash',
     [path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'prep-fle-addon.sh')],
@@ -29,8 +30,8 @@ async function preCompileHook(nodeSourceTree: string) {
   }
 }
 
-async function findModulePath(mod: string): Promise<string> {
-  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', '..', 'service-provider-server', 'src'));
+async function findModulePath(lernaPkg: string, mod: string): Promise<string> {
+  const cliReplRequire = Module.createRequire(path.resolve(__dirname, '..', '..', '..', lernaPkg, 'src'));
   return path.dirname(await pkgUp({ cwd: cliReplRequire.resolve(mod) }) as string);
 }
 
@@ -62,9 +63,13 @@ export class SignableCompiler {
    */
   async compile(): Promise<void> {
     const fleAddon = {
-      path: await findModulePath('mongodb-client-encryption'),
+      path: await findModulePath('service-provider-server', 'mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
     };
+    const winCAAddon = process.platform === 'win32' ? {
+      path: await findModulePath('cli-repl', 'win-export-certificate-and-key'),
+      requireRegexp: /\bwin_export_cert\.node$/
+    } : null;
 
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
@@ -85,7 +90,9 @@ export class SignableCompiler {
       },
       addons: [
         fleAddon
-      ],
+      ].concat(winCAAddon ? [
+        winCAAddon
+      ] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata
     });

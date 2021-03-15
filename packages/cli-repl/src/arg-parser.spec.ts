@@ -473,24 +473,13 @@ describe('arg-parser', () => {
             context('when providing --tlsCertificateSelector', () => {
               const argv = [ ...baseArgv, uri, '--tlsCertificateSelector', 'test' ];
 
-              it('throws an error since it is not yet supported', () => {
-                try {
-                  parseCliArgs(argv);
-                } catch (e) {
-                  expect(e).to.be.instanceOf(MongoshUnimplementedError);
-                  expect(e.message).to.include('Argument --tlsCertificateSelector is not yet supported in mongosh');
-                  return;
-                }
-                expect.fail('Expected error');
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
               });
 
-              // it('returns the URI in the object', () => {
-              //   expect(parseCliArgs(argv)._[0]).to.equal(uri);
-              // });
-
-              // it('sets the tlsCertificateSelector in the object', () => {
-              //   expect(parseCliArgs(argv).tlsCertificateSelector).to.equal('test');
-              // });
+              it('sets the tlsCertificateSelector in the object', () => {
+                expect(parseCliArgs(argv).tlsCertificateSelector).to.equal('test');
+              });
             });
 
             context('when providing --tlsDisabledProtocols', () => {

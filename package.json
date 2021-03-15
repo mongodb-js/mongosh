@@ -101,7 +101,7 @@
     "@typescript-eslint/parser": "^4.6.0",
     "aws-sdk": "^2.674.0",
     "axios": "^0.19.2",
-    "boxednode": "^1.10.0",
+    "boxednode": "^1.10.1",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
     "command-exists": "^1.2.9",

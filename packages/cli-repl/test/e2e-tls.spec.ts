@@ -2,6 +2,7 @@ import { assert, expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { skipIfEnvServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
+import { useTmpdir } from './repl-helpers';
 import { TestShell } from './test-shell';
 
 function getCertPath(filename: string): string {
@@ -10,6 +11,7 @@ function getCertPath(filename: string): string {
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
 const CLIENT_CERT = getCertPath('client.bundle.pem');
+const CLIENT_CERT_PFX = getCertPath('client.bundle.pfx');
 const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
 const SERVER_KEY = getCertPath('server.bundle.pem');
 const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
@@ -28,6 +30,7 @@ describe('e2e TLS', () => {
     assert((await fs.stat(CA_CERT)).isFile());
     assert((await fs.stat(NON_CA_CERT)).isFile());
     assert((await fs.stat(CLIENT_CERT)).isFile());
+    assert((await fs.stat(CLIENT_CERT_PFX)).isFile());
     assert((await fs.stat(INVALID_CLIENT_CERT)).isFile());
     assert((await fs.stat(SERVER_KEY)).isFile());
     assert((await fs.stat(CRL_INCLUDING_SERVER)).isFile());
@@ -160,6 +163,8 @@ describe('e2e TLS', () => {
     });
 
     context('connecting with client cert', () => {
+      const tmpdir = useTmpdir();
+
       after(async() => {
         const shell = TestShell.start({ args:
           [
@@ -181,7 +186,8 @@ describe('e2e TLS', () => {
       );
       const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
 
-      it('can connect with cert to create user', async() => {
+      before(async() => {
+        /* connect with cert to create user */
         const shell = TestShell.start({
           args: [
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
@@ -192,11 +198,11 @@ describe('e2e TLS', () => {
         const prompt = await waitForPromptOrExit(shell);
         expect(prompt.state).to.equal('prompt');
         await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
-        createUser: '${certUser}',
-        roles: [
-          {role: 'userAdminAnyDatabase', db: 'admin'}
-        ]
-      })`);
+          createUser: '${certUser}',
+          roles: [
+            {role: 'userAdminAnyDatabase', db: 'admin'}
+          ]
+        })`);
         shell.assertContainsOutput('{ ok: 1 }');
       });
 
@@ -254,6 +260,51 @@ describe('e2e TLS', () => {
         const exit = await waitForPromptOrExit(shell);
         expect(exit.state).to.equal('exit');
         shell.assertContainsOutput('MongoServerSelectionError');
+      });
+
+      it('works with valid cert (with tlsCertificateSelector)', async() => {
+        const fakeOsCaModule = path.resolve(tmpdir.path, 'fake-ca.js');
+        await fs.writeFile(fakeOsCaModule, `
+        const fs = require('fs');
+        module.exports = () => ({
+          passphrase: 'passw0rd',
+          pfx: fs.readFileSync(${JSON.stringify(CLIENT_CERT_PFX)})
+        });
+        `);
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateSelector', 'subject=tester@example.com'
+          ],
+          env: {
+            ...process.env,
+            TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule
+          }
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('prompt');
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        shell.assertContainsOutput(`user: '${certUser}'`);
+      });
+
+      it('fails with an invalid tlsCertificateSelector', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateSelector', 'subject=tester@example.com'
+          ]
+        });
+        const prompt = await waitForPromptOrExit(shell);
+        expect(prompt.state).to.equal('exit');
+        if (process.platform === 'win32') {
+          shell.assertContainsOutput('Could not resolve certificate specification');
+        } else {
+          shell.assertContainsOutput('tlsCertificateSelector is not supported on this platform');
+        }
       });
     });
   }
