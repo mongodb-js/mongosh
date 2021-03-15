@@ -598,7 +598,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     printDeprecationWarning(
-      'Collection.insert() is deprecated. Use insertOne, insertMany or bulkWrite.',
+      'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(docs);
@@ -710,7 +710,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
     printDeprecationWarning(
-      'Collection.remove() is deprecated. Use deleteOne, deleteMany or bulkWrite.',
+      'Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(query);
@@ -737,7 +737,9 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @deprecated
   save(): Promise<void> {
-    throw new MongoshInvalidInputError('Collection.save() is deprecated. Use insertOne, insertMany, updateOne or updateMany.');
+    throw new MongoshInvalidInputError(
+      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
+    );
   }
 
   /**
@@ -782,7 +784,7 @@ export default class Collection extends ShellApiClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
     printDeprecationWarning(
-      'Collection.update() is deprecated. Use updateOne, updateMany or bulkWrite.',
+      'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.',
       this._mongo._internalState.context.print
     );
     assertArgsDefined(update);
