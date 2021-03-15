@@ -38,7 +38,7 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --tlsCRLFile [arg]                     Certificate Revocation List file for TLS
         --tlsAllowInvalidHostnames             undefined
         --tlsAllowInvalidCertificates          undefined
-        --tlsCertificateSelector [arg]         TLS Certificate in system store
+        --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows-only currently)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
   FLE AWS Options
@@ -83,10 +83,10 @@ interface ConnectEvent {
 Used to log and send telemetry about connection information. Sensitive
 information is stripped beforehand.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:connect', {
-  driverUri: 'mongodb://192.168.0.5:9999/ships' 
+  driverUri: 'mongodb://192.168.0.5:9999/ships'
 })
 ```
 
@@ -94,7 +94,7 @@ bus.emit('mongosh:connect', {
 Where `userID` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolean flag.
 This is used for telemetry tracking when the user initially uses mongosh.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:new-user', '12394dfjvnaw3uw3erdf', true)
 ```
@@ -104,7 +104,7 @@ Where `userID` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolea
 This is used internally to update telemetry preferences and userID in the
 logger.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:update-user', '12394dfjvnaw3uw3erdf', false)
 ```
@@ -113,7 +113,7 @@ bus.emit('mongosh:update-user', '12394dfjvnaw3uw3erdf', false)
 Where `error` is an [Error Object][error-object]. Used to log and send telemetry
 about errors that are _thrown_.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:error', new Error('Unable to show collections'))
 ```
@@ -121,7 +121,7 @@ bus.emit('mongosh:error', new Error('Unable to show collections'))
 ### bus.on('mongosh:help')
 Used when `help` command was used.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:help')
 ```
@@ -136,7 +136,7 @@ interface AsyncRewriterEvent {
 }
 ```
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:rewritten-async-input', {
   original: 'db.coll.find().forEach()',
@@ -154,7 +154,7 @@ interface UseEvent {
 }
 ```
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:use', { db: 'cats' })
 
@@ -170,7 +170,7 @@ interface ShowEvent {
 }
 ```
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:show', { method: 'dbs' })
 
@@ -179,7 +179,7 @@ bus.emit('mongosh:show', { method: 'dbs' })
 ### bus.on('mongosh:it')
 Used for recording when `it` command was called.
 
-Example: 
+Example:
 ```js
 bus.emit('mongosh:it')
 
@@ -189,7 +189,7 @@ Used for recording information when API calls are made. `args` has the following
 interface:
 ```ts
 interface ApiEvent {
-  method?: string; 
+  method?: string;
   class?: string;
   db?: string;
   coll?: string;
@@ -202,7 +202,7 @@ interface ApiEventArguments {
   pipeline?: any[];
   query?: object;
   options?: object;
-  filter?: object; 
+  filter?: object;
 }
 ```
 
@@ -210,7 +210,7 @@ interface ApiEventArguments {
 information containing documents coming from API calls such as
 `db.coll.insert()` or `db.coll.bulkWrite()` to keep cleaner logs.
 
-`aggregate` Event Example: 
+`aggregate` Event Example:
 ```js
 this.messageBus.emit('mongosh:api-call', {
   method: 'aggregate',
@@ -220,7 +220,7 @@ this.messageBus.emit('mongosh:api-call', {
 
 ```
 
-`runCommand` Event Example: 
+`runCommand` Event Example:
 ```js
 this.messageBus.emit('mongosh:api-call', {
   method: 'runCommand', class: 'Database', db, arguments: { cmd }
@@ -249,7 +249,7 @@ npm install --save @mongosh/cli-repl
 [mongosh]: https://github.com/mongodb-js/mongosh
 [azure-build-url]: https://dev.azure.com/team-compass/mongosh/_apis/build/status/mongodb-js.mongosh?branchName=master
 [azure-build]: https://dev.azure.com/team-compass/mongosh/_build/latest?definitionId=5&branchName=master
-[evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh 
-[pino-js]: https://github.com/pinojs/pino 
+[evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh
+[pino-js]: https://github.com/pinojs/pino
 [object-id]: https://docs.mongodb.com/manual/reference/method/ObjectId/
 [error-object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
