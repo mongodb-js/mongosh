@@ -1152,6 +1152,57 @@ describe('Shell API (integration)', function() {
       });
     });
 
+    describe('findOneAndDelete', () => {
+      it('provides explain information', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain()
+          .findOneAndDelete({});
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain('executionStats')
+          .findOneAndDelete({});
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('findOneAndReplace', () => {
+      it('provides explain information', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain()
+          .findOneAndReplace({}, {});
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain('executionStats')
+          .findOneAndReplace({}, {});
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
+    describe('findOneAndUpdate', () => {
+      it('provides explain information', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain()
+          .findOneAndUpdate({}, { $set: { a: 1 } });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
+        expect(explained).to.not.include.any.keys(['executionStats']);
+      });
+
+      it('includes executionStats when requested', async() => {
+        await collection.insertOne({});
+        const explained = await collection.explain('executionStats')
+          .findOneAndUpdate({}, { $set: { a: 1 } });
+        expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner', 'executionStats']);
+      });
+    });
+
     describe('remove', () => {
       it('provides explain information', async() => {
         const explained = await collection.explain().remove({ notfound: 1 });
@@ -1569,23 +1620,19 @@ describe('Shell API (integration)', function() {
     describe('setReadConcern', () => {
       it('reconnects', async() => {
         const oldMC = serviceProvider.mongoClient;
-        expect(oldMC.isConnected()).to.equal(true);
         expect(mongo.getReadConcern()).to.equal(undefined);
         await mongo.setReadConcern('local');
         expect(mongo.getReadConcern()).to.equal('local');
-        expect(oldMC.isConnected()).to.equal(false);
-        expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
+        expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
     });
     describe('setReadPref', () => {
       it('reconnects', async() => {
         const oldMC = serviceProvider.mongoClient;
-        expect(oldMC.isConnected()).to.equal(true);
         expect((serviceProvider.mongoClient as any).s.options.readPreference.mode).to.deep.equal('primary');
         await mongo.setReadPref('secondaryPreferred');
-        expect(oldMC.isConnected()).to.equal(false);
-        expect(serviceProvider.mongoClient.isConnected()).to.equal(true);
         expect((serviceProvider.mongoClient as any).s.options.readPreference.mode).to.equal('secondaryPreferred');
+        expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
     });
   });

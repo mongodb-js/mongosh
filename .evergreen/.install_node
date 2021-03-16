@@ -15,7 +15,7 @@ else
 
   nvm install $NODE_JS_VERSION
   nvm alias default $NODE_JS_VERSION
-  npm install -g npm@6
+  npm install -g npm@latest
 fi
 
 . "$BASEDIR/.setup_env"

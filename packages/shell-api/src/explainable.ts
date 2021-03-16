@@ -14,6 +14,7 @@ import {
   validateExplainableVerbosity,
   processRemoveOptions,
   RemoveShellOptions,
+  FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
   processMapReduceOptions,
   MapReduceShellOptions
@@ -23,7 +24,8 @@ import type {
   ExplainVerbosityLike,
   CountOptions,
   DistinctOptions,
-  UpdateOptions
+  UpdateOptions,
+  FindAndModifyOptions
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
@@ -123,6 +125,24 @@ export default class Explainable extends ShellApiClass {
   async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
     this._emitExplainableApiCall('findAndModify', { options });
     return this._collection.findAndModify({ ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  async findOneAndDelete(filter: Document, options: FindAndModifyOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('findOneAndDelete', { filter, options });
+    return this._collection.findOneAndDelete(filter, { ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('findOneAndReplace', { filter, options });
+    return this._collection.findOneAndReplace(filter, replacement, { ...options, explain: this._verbosity });
+  }
+
+  @returnsPromise
+  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+    this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
+    return this._collection.findOneAndUpdate(filter, update, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise

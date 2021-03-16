@@ -293,21 +293,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return await this.db(database, dbOptions).renameCollection(oldName, newName, options);
   }
 
-  async findAndModify(
-    database: string,
-    collection: string,
-    query: Document,
-    sort: any[] | Document | undefined,
-    update: Document | undefined,
-    options: FindAndModifyOptions = {},
-    dbOptions?: DbOptions
-  ): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
-    return await (this.db(database, dbOptions)
-      .collection(collection) as any)
-      .findAndModify(query, sort, update, options);
-  }
-
   /**
    * Get the Db object from the client.
    *

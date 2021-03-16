@@ -287,31 +287,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#findAndModify', () => {
-    const commandResult = { result: { n: 1, ok: 1 } };
-
-    beforeEach(() => {
-      collectionStub = stubInterface<Collection>();
-      collectionStub.findAndModify.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
-    });
-
-    it('executes the command against the database', async() => {
-      const result = await serviceProvider.findAndModify(
-        'music', 'bands',
-        { query: 1 },
-        { sort: 1 },
-        { update: 1 },
-        { options: 1 } as any
-      );
-      expect(result).to.deep.equal(commandResult);
-      expect(collectionStub.findAndModify).to.have.been.calledWith({ query: 1 },
-        { sort: 1 },
-        { update: 1 },
-        { ...DEFAULT_BASE_OPTS, options: 1 });
-    });
-  });
-
   describe('#findOneAndDelete', () => {
     const commandResult = { result: { n: 1, ok: 1 } };
 

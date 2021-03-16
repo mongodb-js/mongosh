@@ -322,59 +322,55 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('addKeyAlternateName', () => {
-      it('calls findAndModify on key coll', async() => {
+      it('calls findOneAndUpdate on key coll', async() => {
         const r = { value: { ok: 1 } } as any;
-        sp.findAndModify.resolves(r);
+        sp.findOneAndUpdate.resolves(r);
         const result = await keyVault.addKeyAlternateName(KEY_ID, 'altname');
-        expect(sp.findAndModify).to.have.been.calledOnceWithExactly(
+        expect(sp.findOneAndUpdate).to.have.been.calledOnceWithExactly(
           DB,
           COLL,
           { _id: KEY_ID },
-          undefined,
           { $push: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          {}
+          { returnOriginal: true }
         );
         expect(result).to.deep.equal({ ok: 1 });
       });
     });
     describe('removeKeyAlternateName', () => {
-      it('calls findAndModify on key coll without empty result', async() => {
+      it('calls findOneAndUpdate on key coll without empty result', async() => {
         const r = { value: { ok: 1, keyAltNames: ['other'] } } as any;
-        sp.findAndModify.resolves(r);
+        sp.findOneAndUpdate.resolves(r);
         const result = await keyVault.removeKeyAlternateName(KEY_ID, 'altname');
-        expect(sp.findAndModify).to.have.been.calledOnceWithExactly(
+        expect(sp.findOneAndUpdate).to.have.been.calledOnceWithExactly(
           DB,
           COLL,
           { _id: KEY_ID },
-          undefined,
           { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          {}
+          { returnOriginal: true }
         );
         expect(result).to.deep.equal({ ok: 1, keyAltNames: ['other'] });
       });
-      it('calls findAndModify on key coll with empty result', async() => {
+      it('calls findOneAndUpdate on key coll with empty result', async() => {
         const r = { value: { ok: 1, keyAltNames: ['altname'] } } as any;
         const r2 = { value: { ok: 2 } } as any;
-        sp.findAndModify.onFirstCall().resolves(r);
-        sp.findAndModify.onSecondCall().resolves(r2);
+        sp.findOneAndUpdate.onFirstCall().resolves(r);
+        sp.findOneAndUpdate.onSecondCall().resolves(r2);
         const result = await keyVault.removeKeyAlternateName(KEY_ID, 'altname');
-        const calls = sp.findAndModify.getCalls();
+        const calls = sp.findOneAndUpdate.getCalls();
         expect(calls.length).to.equal(2);
         expect(calls[0].args).to.deep.equal([
           DB,
           COLL,
           { _id: KEY_ID },
-          undefined,
           { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          {}
+          { returnOriginal: true }
         ]);
         expect(calls[1].args).to.deep.equal([
           DB,
           COLL,
           { _id: KEY_ID, keyAltNames: undefined },
-          undefined,
           { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } },
-          {}
+          { returnOriginal: true }
         ]);
         expect(result).to.deep.equal(r2.value);
       });
