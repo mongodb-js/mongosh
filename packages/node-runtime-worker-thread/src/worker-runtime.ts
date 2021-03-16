@@ -49,6 +49,8 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'toggleTelemetry',
     'onClearCommand',
     'onExit',
+    'onLoad',
+    'onLoadEvaluate',
     'onRunInterruptible'
   ],
   parentPort

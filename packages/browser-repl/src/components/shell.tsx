@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
-import type { Runtime } from '@mongosh/browser-runtime-core';
+import type { Runtime, RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 
@@ -66,6 +66,12 @@ interface ShellProps {
    * Note: new entries will not be appended to the array.
    */
   initialHistory: readonly string[];
+
+  /* A way for the shell to load files when load() is called.
+   */
+  ioProvider?: {
+    readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
+  };
 }
 
 interface ShellState {
@@ -81,7 +87,7 @@ const noop = (): void => { /* */ };
 /**
  * The browser-repl Shell component
  */
-export class Shell extends Component<ShellProps, ShellState> {
+export class Shell extends Component<ShellProps, ShellState> implements RuntimeEvaluationListener<{ contents: string }> {
   static defaultProps = {
     onHistoryChanged: noop,
     onOperationStarted: noop,
@@ -198,6 +204,26 @@ export class Shell extends Component<ShellProps, ShellState> {
     })));
     this.setState({ output });
     this.props.onOutputChanged(output);
+  };
+
+  onLoad = async(filename: string) => {
+    const { ioProvider } = this.props;
+    if (!ioProvider) {
+      throw new Error('load() is not available on this platform');
+    }
+    const {
+      contents,
+      absolutePath
+    } = await ioProvider.readFileUTF8(filename);
+
+    return {
+      resolvedFilename: absolutePath,
+      evaluationToken: { contents }
+    };
+  };
+
+  onLoadEvaluate = async({ contents }: { contents: string }) => {
+    await this.props.runtime.evaluate(contents);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

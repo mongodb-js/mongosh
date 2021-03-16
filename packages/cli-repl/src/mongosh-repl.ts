@@ -56,7 +56,7 @@ type Mutable<T> = {
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
  */
-class MongoshNodeRepl implements EvaluationListener {
+class MongoshNodeRepl implements EvaluationListener<Function> {
   _runtimeState: MongoshRuntimeState | null;
   input: Readable;
   lineByLineInput: LineByLineInput;
@@ -317,7 +317,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
-  async onLoad(filename: string): Promise<OnLoadResult> {
+  async onLoad(filename: string): Promise<OnLoadResult<Function>> {
     const repl = this.runtimeState().repl;
     const {
       contents,
@@ -326,8 +326,12 @@ class MongoshNodeRepl implements EvaluationListener {
 
     return {
       resolvedFilename: absolutePath,
-      evaluate: () => promisify(repl.eval.bind(repl))(contents, repl.context, absolutePath)
+      evaluationToken: () => promisify(repl.eval.bind(repl))(contents, repl.context, absolutePath)
     };
+  }
+
+  async onLoadEvaluate(evaluationToken: Function): Promise<void> {
+    return await evaluationToken();
   }
 
   /**

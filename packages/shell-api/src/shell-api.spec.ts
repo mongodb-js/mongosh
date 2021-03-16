@@ -576,14 +576,20 @@ describe('ShellApi', () => {
           expect(internalState.context.__dirname).to.equal(undefined);
           return {
             resolvedFilename: '/resolved/abc.js',
-            evaluate: async() => {
-              expect(internalState.context.__filename).to.equal('/resolved/abc.js');
-              expect(internalState.context.__dirname).to.equal('/resolved');
+            evaluationToken: {
+              __evaluate__: async() => {
+                expect(internalState.context.__filename).to.equal('/resolved/abc.js');
+                expect(internalState.context.__dirname).to.equal('/resolved');
+              }
             }
           };
         });
+        evaluationListener.onLoadEvaluate.callsFake(async(token: any) => {
+          await token.__evaluate__();
+        });
         await internalState.context.load('abc.js');
         expect(evaluationListener.onLoad).to.have.callCount(1);
+        expect(evaluationListener.onLoadEvaluate).to.have.callCount(1);
         expect(internalState.context.__filename).to.equal(undefined);
         expect(internalState.context.__dirname).to.equal(undefined);
       });

@@ -8,7 +8,7 @@ export type RuntimeEvaluationResult = Pick<
   'type' | 'printable' | 'source'
 >;
 
-export interface RuntimeEvaluationListener extends EvaluationListener {
+export interface RuntimeEvaluationListener<EvaluationToken = any> extends EvaluationListener<EvaluationToken> {
   onPrint?: (value: RuntimeEvaluationResult[]) => Promise<void> | void;
 }
 

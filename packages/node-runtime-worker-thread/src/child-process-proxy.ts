@@ -77,7 +77,7 @@ exposeAll(worker, process);
 
 const evaluationListener = Object.assign(
   createCaller(
-    ['onPrint', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
+    ['onPrint', 'onLoad', 'onLoadEvaluate', 'onPrompt', 'toggleTelemetry', 'onClearCommand', 'onExit'],
     process
   ),
   {

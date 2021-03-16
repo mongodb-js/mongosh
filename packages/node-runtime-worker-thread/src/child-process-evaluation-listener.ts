@@ -4,7 +4,7 @@ import type { WorkerRuntime } from './index';
 import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 export class ChildProcessEvaluationListener {
-  exposedListener: Exposed<Required<Omit<RuntimeEvaluationListener, 'onLoad'>>>;
+  exposedListener: Exposed<Required<RuntimeEvaluationListener>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
     this.exposedListener = exposeAll(
@@ -16,6 +16,17 @@ export class ChildProcessEvaluationListener {
         },
         onPrint(values) {
           return workerRuntime.evaluationListener?.onPrint?.(values);
+        },
+        onLoad(filename) {
+          // This function should not return undefined, hence the error
+          const onLoad = workerRuntime.evaluationListener?.onLoad;
+          if (!onLoad) {
+            throw new Error('load() is not supported on this platform');
+          }
+          return onLoad(filename);
+        },
+        async onLoadEvaluate(evaluationToken) {
+          return workerRuntime.evaluationListener?.onLoadEvaluate?.(evaluationToken);
         },
         toggleTelemetry(enabled) {
           return workerRuntime.evaluationListener?.toggleTelemetry?.(enabled);

@@ -104,22 +104,23 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async load(filename: string): Promise<true> {
     assertArgsDefined(filename);
-    if (!this.internalState.evaluationListener.onLoad) {
+    const { evaluationListener } = this.internalState;
+    if (!evaluationListener.onLoad || !evaluationListener.onLoadEvaluate) {
       throw new MongoshUnimplementedError(
         'load is not currently implemented for this platform',
         CommonErrors.NotImplemented
       );
     }
     const {
-      resolvedFilename, evaluate
-    } = await this.internalState.evaluationListener.onLoad(filename);
+      resolvedFilename, evaluationToken
+    } = await evaluationListener.onLoad(filename);
 
     const context = this.internalState.context;
     const previousFilename = context.__filename;
     context.__filename = resolvedFilename;
     context.__dirname = dirname(resolvedFilename);
     try {
-      await evaluate();
+      await evaluationListener.onLoadEvaluate(evaluationToken);
     } finally {
       if (previousFilename) {
         context.__filename = previousFilename;

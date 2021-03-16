@@ -461,12 +461,15 @@ describe('worker', () => {
           return '123';
         },
         toggleTelemetry() {},
-        onRunInterruptible() {}
+        onRunInterruptible() {},
+        onLoad() {},
+        onLoadEvaluate() {},
       };
 
       spySandbox.spy(evalListener, 'onPrint');
       spySandbox.spy(evalListener, 'onPrompt');
       spySandbox.spy(evalListener, 'toggleTelemetry');
+      spySandbox.spy(evalListener, 'onLoad');
       spySandbox.spy(evalListener, 'onRunInterruptible');
 
       return evalListener;
@@ -528,6 +531,26 @@ describe('worker', () => {
 
         await evaluate('disableTelemetry()');
         expect(evalListener.toggleTelemetry).to.have.been.calledWith(false);
+      });
+    });
+
+    describe('onLoad', () => {
+      it('should be called when shell evaluates `load()`', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+        const token = { __token__: 42 };
+        evalListener.onLoad.resolves({
+          resolvedFilename: 'foo',
+          evaluationToken: token
+        });
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+        await evaluate('load("/some/path.js")');
+
+        expect(evalListener.onLoad).to.have.been.calledWith('/some/path.js');
+        expect(evalListener.onLoadEvaluate).to.have.been.calledWith(token);
       });
     });
 

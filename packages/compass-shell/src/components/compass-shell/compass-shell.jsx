@@ -70,6 +70,15 @@ export class CompassShell extends Component {
     });
   }
 
+  readFileUTF8 = async(filename) => {
+    //if (!path.isAbsolute(filename)) {
+    //  throw new Error('Can only load() absolute filenames in Compass');
+    //}
+    //const contents = await fs.readFile(filename, 'utf8');
+    //return { contents, absolutePath: filename };
+    return { contents: 'console.log("hallo")', absolutePath: '/hallo.js' };
+  }
+
   lastOpenHeight = defaultShellHeightOpened;
   resizableRef = null;
 
@@ -185,6 +194,7 @@ export class CompassShell extends Component {
               onOutputChanged={this.onShellOutputChanged}
               onOperationStarted={this.onOperationStarted}
               onOperationEnd={this.onOperationEnd}
+              ioProvider={this}
             />
           </div>
         </Resizable>
