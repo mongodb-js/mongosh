@@ -22,6 +22,7 @@ import { LineByLineInput } from './line-by-line-input';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
+  quiet?: boolean;
 };
 
 export type MongoshIOProvider = {
@@ -241,6 +242,9 @@ class MongoshNodeRepl implements EvaluationListener {
    * The greeting for the shell.
    */
   async greet(mongodVersion: string): Promise<void> {
+    if (this.shellCliOptions.quiet) {
+      return;
+    }
     const { version } = require('../package.json');
     let text = '';
     text += `Using MongoDB:      ${mongodVersion}\n`;
@@ -254,7 +258,7 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async printStartupLog(internalState: ShellInternalState): Promise<void> {
-    if (this.shellCliOptions.nodb) {
+    if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
       return;
     }
 

@@ -381,6 +381,24 @@ describe('CliRepl', () => {
       input.write('.exit\n');
     });
 
+    it('is quiet if --quiet is passed', async() => {
+      cliReplOptions.shellCliOptions.quiet = true;
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start(await testServer.connectionString(), {});
+      expect(output).to.match(/^[a-zA-Z0-9 ]+> $/); // Single line, only prompt
+    });
+
+    it('has the full greeting if --quiet is not passed', async() => {
+      cliReplOptions.shellCliOptions.quiet = false;
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start(await testServer.connectionString(), {});
+      // Full greeting:
+      expect(output).to.match(/Current Mongosh Log ID:/);
+      expect(output).to.match(/Connecting to:/);
+      expect(output).to.match(/Using MongoDB:/);
+      expect(output).to.match(/For mongosh info see:/);
+    });
+
     verifyAutocompletion({
       testServer: testServer,
       wantWatch: false,
