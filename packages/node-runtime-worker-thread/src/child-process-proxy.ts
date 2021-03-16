@@ -19,9 +19,33 @@ import path from 'path';
 import { exposeAll, createCaller } from './rpc';
 import { InterruptHandle, interrupt as nativeInterrupt } from 'interruptor';
 
-const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
+const workerRuntimeSrcPath =
+  process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
+  path.resolve(__dirname, 'worker-runtime.js');
 
 const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
+
+const workerReadyPromise: Promise<void> = (async() => {
+  const waitForReadyMessage = async() => {
+    let msg: string;
+    while (([msg] = await once(workerProcess, 'message'))) {
+      if (msg === 'ready') return;
+    }
+  };
+
+  const waitForError = async() => {
+    const [err] = await once(workerProcess, 'error');
+    if (err) {
+      err.message = `Worker thread failed to start with the following error: ${err.message}`;
+      throw err;
+    }
+  };
+
+  await Promise.race([
+    waitForReadyMessage(),
+    waitForError()
+  ]);
+})();
 
 // We expect the amount of listeners to be more than the default value of 10 but
 // probably not more than ~25 (all exposed methods on
@@ -30,12 +54,6 @@ const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
 process.setMaxListeners(25);
 workerProcess.setMaxListeners(25);
 
-const workerReadyPromise = new Promise(async(resolve) => {
-  const [message] = await once(workerProcess, 'message');
-  if (message === 'ready') {
-    resolve(true);
-  }
-});
 
 let interruptHandle: InterruptHandle | null = null;
 
@@ -92,3 +110,8 @@ exposeAll(evaluationListener, workerProcess);
 const messageBus = createCaller(['emit', 'on'], process);
 
 exposeAll(messageBus, workerProcess);
+
+process.nextTick(() => {
+  // eslint-disable-next-line chai-friendly/no-unused-expressions
+  process.send?.('ready');
+});

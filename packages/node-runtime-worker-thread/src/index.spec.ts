@@ -1,3 +1,4 @@
+import path from 'path';
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -23,6 +24,55 @@ describe('WorkerRuntime', () => {
       await runtime.terminate();
       runtime = null;
     }
+  });
+
+  describe('spawn errors', () => {
+    const brokenScript = path.resolve(
+      __dirname,
+      '..',
+      '__fixtures__',
+      'script-that-throws.js'
+    );
+
+    afterEach(() => {
+      delete process.env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
+    });
+
+    it('should return init error if child process failed to spawn', async() => {
+      process.env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING = brokenScript;
+
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+
+      let err;
+
+      try {
+        await runtime.evaluate('1+1');
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err).to.have.property('message').match(/Child process failed to start/);
+    });
+
+    it('should return init error if worker in child process failed to spawn', async() => {
+      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true }, {
+        env: {
+          WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING: brokenScript
+        }
+      });
+
+      let err;
+
+      try {
+        await runtime.evaluate('1+1');
+      } catch (e) {
+        err = e;
+      }
+
+      expect(err).to.be.instanceof(Error);
+      expect(err).to.have.property('message').match(/Worker thread failed to start/);
+    });
   });
 
   describe('evaluate', () => {
