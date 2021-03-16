@@ -111,7 +111,9 @@ class CliRepl {
       await this.requirePassword(driverUri, driverOptions);
     }
 
-    this.output.write(`Current Mongosh Log ID: ${this.logId}\n`);
+    if (!this.cliOptions.quiet) {
+      this.output.write(`Current Mongosh Log ID: ${this.logId}\n`);
+    }
 
     try {
       await this.shellHomeDirectory.ensureExists();
@@ -191,7 +193,7 @@ class CliRepl {
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
   async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
-    if (!this.cliOptions.nodb) {
+    if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
       this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactPassword(driverUri), ['bold', 'green']) + '\n');
     }
     const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
