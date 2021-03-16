@@ -385,7 +385,7 @@ describe('CliRepl', () => {
       cliReplOptions.shellCliOptions.quiet = true;
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start(await testServer.connectionString(), {});
-      expect(output).to.match(/^[a-zA-Z0-9 ]+> $/); // Single line, only prompt
+      expect(output).to.match(/^[a-zA-Z0-9 ]*> $/); // Single line, only prompt
     });
 
     it('has the full greeting if --quiet is not passed', async() => {
