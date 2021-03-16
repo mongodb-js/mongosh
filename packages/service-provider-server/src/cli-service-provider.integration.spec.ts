@@ -30,7 +30,7 @@ describe('CliServiceProvider [integration]', function() {
   });
 
   describe('.connect', () => {
-    let instance;
+    let instance: CliServiceProvider;
     beforeEach(async() => {
       instance = await CliServiceProvider.connect(connectionString);
     });
@@ -42,14 +42,10 @@ describe('CliServiceProvider [integration]', function() {
     it('returns a CliServiceProvider', async() => {
       expect(instance).to.be.instanceOf(CliServiceProvider);
     });
-
-    it('connects mongo client', () => {
-      expect(instance.mongoClient.isConnected()).to.equal(true);
-    });
   });
 
   describe('.getNewConnection', () => {
-    let instance;
+    let instance: CliServiceProvider;
 
     beforeEach(async() => {
       instance = await serviceProvider.getNewConnection(connectionString);
@@ -61,10 +57,6 @@ describe('CliServiceProvider [integration]', function() {
 
     it('returns a CliServiceProvider', async() => {
       expect(instance).to.be.instanceOf(CliServiceProvider);
-    });
-
-    it('connects mongo client', () => {
-      expect(instance.mongoClient.isConnected()).to.equal(true);
     });
 
     it('differs from the original CliServiceProvider', () => {

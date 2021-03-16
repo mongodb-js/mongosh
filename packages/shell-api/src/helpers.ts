@@ -531,8 +531,8 @@ export async function iterate(
 }
 
 export type FindAndModifyMethodShellOptions = {
-  query?: Document;
-  sort?: Document | Document[];
+  query: Document;
+  sort?: FindAndModifyOptions['sort'];
   update?: Document | Document[];
   remove?: boolean;
   new?: boolean;
@@ -540,7 +540,7 @@ export type FindAndModifyMethodShellOptions = {
   upsert?: boolean;
   bypassDocumentValidation?: boolean;
   writeConcern?: Document;
-  collation?: Document;
+  collation?: FindAndModifyOptions['collation'];
   arrayFilters?: Document[];
   explain?: ExplainVerbosityLike;
 };
@@ -558,6 +558,11 @@ export function processFindAndModifyOptions(options: FindAndModifyShellOptions):
   if ('returnNewDocument' in options) {
     options.returnOriginal = !options.returnNewDocument;
     delete options.returnNewDocument;
+    return options;
+  }
+  if ('new' in options) {
+    options.returnOriginal = !options.new;
+    delete options.new;
     return options;
   }
   // No explicit option passed: We set 'returnOriginal' to true because the

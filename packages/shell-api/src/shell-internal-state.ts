@@ -1,6 +1,6 @@
 import AsyncWriter from '@mongosh/async-rewriter';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyDescription, TopologyType } from '@mongosh/service-provider-core';
+import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyDescription, TopologyTypeId } from '@mongosh/service-provider-core';
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
@@ -238,7 +238,7 @@ export default class ShellInternalState {
       topology: () => {
         let topology: Topologies;
         const topologyDescription = this.initialServiceProvider.getTopology()?.description as TopologyDescription;
-        const topologyType: TopologyType | undefined = topologyDescription?.type;
+        const topologyType: TopologyTypeId | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':

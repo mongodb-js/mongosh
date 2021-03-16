@@ -69,8 +69,8 @@ export type {
   Binary as BinaryType,
   Topology,
   TopologyDescription,
-  TopologyType,
-  ServerType,
+  TopologyTypeId,
+  ServerTypeId,
   AutoEncryptionOptions,
   MongoClient // mostly for testing
 } from 'mongodb';

@@ -399,34 +399,29 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async findAndModify(options: FindAndModifyMethodShellOptions = {}): Promise<Document> {
+  async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
+    assertArgsDefined(options);
     assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall(
       'findAndModify',
       { options: { ...options, update: !!options.update } }
     );
-    const providerOptions = {
-      ...this._database._baseOptions,
-      ...options
-    };
-
-    delete providerOptions.query;
-    delete providerOptions.sort;
-    delete providerOptions.update;
-
-    const result = await this._mongo._serviceProvider.findAndModify(
-      this._database._name,
-      this._name,
-      options.query || {},
-      options.sort,
-      options.update,
-      providerOptions as Omit<FindAndModifyMethodShellOptions, 'query' | 'sort' | 'update' | 'collation'>
-    );
-    if (options.explain) {
-      return result;
+    const reducedOptions: Omit<FindAndModifyMethodShellOptions, 'query' | 'update'> = { ...options };
+    delete (reducedOptions as any).query;
+    delete (reducedOptions as any).update;
+    if (options.remove) {
+      return this.findOneAndDelete(options.query, reducedOptions);
     }
-
-    return result.value;
+    const { update } = options;
+    if (!update) {
+      throw new MongoshInvalidInputError(
+        'Must specify options.update or options.remove',
+        CommonErrors.InvalidArgument);
+    }
+    if (Object.keys(update).some(key => key.startsWith('$'))) {
+      return this.findOneAndUpdate(options.query, update, reducedOptions);
+    }
+    return this.findOneAndReplace(options.query, update, reducedOptions);
   }
 
   /**
@@ -510,6 +505,9 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options },
     );
 
+    if (options.explain) {
+      return result;
+    }
     return result.value;
   }
 
@@ -545,6 +543,10 @@ export default class Collection extends ShellApiClass {
       replacement,
       findOneAndReplaceOptions
     );
+
+    if (options.explain) {
+      return result;
+    }
     return result.value;
   }
 
@@ -579,6 +581,10 @@ export default class Collection extends ShellApiClass {
       update,
       findOneAndUpdateOptions,
     );
+
+    if (options.explain) {
+      return result;
+    }
     return result.value;
   }
 
