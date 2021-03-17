@@ -1107,6 +1107,12 @@ describe('Collection', () => {
 
       it('returns result.value from serviceProvider.findOneAndReplace', async() => {
         expect(await collection.findAndModify({ query: {}, update: {} })).to.equal(mockResult.value);
+        expect(serviceProvider.findOneAndReplace).to.have.been.calledWith(
+          collection._database._name,
+          collection._name,
+          {},
+          {}
+        );
       });
 
       it('throws if no query is provided', async() => {
