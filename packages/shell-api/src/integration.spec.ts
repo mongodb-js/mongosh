@@ -754,14 +754,17 @@ describe('Shell API (integration)', function() {
         ).to.deep.include({ doc: 3 });
       });
 
-      it('allows update pipelines', async() => {
-        await collection.findAndModify({
-          query: { doc: 1 }, new: true, update: [ { $set: { foo: 'bar' } } ]
-        });
+      context('on server 4.2+', () => {
+        skipIfServerVersion(testServer, '< 4.2');
+        it('allows update pipelines', async() => {
+          await collection.findAndModify({
+            query: { doc: 1 }, new: true, update: [ { $set: { foo: 'bar' } } ]
+          });
 
-        expect(
-          await findAllWithoutId(dbName, collectionName)
-        ).to.deep.include({ doc: 1, foo: 'bar' });
+          expect(
+            await findAllWithoutId(dbName, collectionName)
+          ).to.deep.include({ doc: 1, foo: 'bar' });
+        });
       });
     });
 
