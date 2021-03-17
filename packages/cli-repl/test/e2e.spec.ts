@@ -369,6 +369,13 @@ describe('e2e', function() {
       await result;
       shell.assertContainsError('interrupted');
     });
+    it('interrupts load()', async() => {
+      const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
+      const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
+      setTimeout(() => shell.kill('SIGINT'), 1000);
+      await result;
+      shell.assertContainsError('interrupted');
+    });
     it('behaves normally after an exception', async() => {
       await shell.executeLine('throw new Error()');
       await new Promise((resolve) => setTimeout(resolve, 100));

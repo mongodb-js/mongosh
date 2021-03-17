@@ -1,5 +1,7 @@
+/* eslint-disable chai-friendly/no-unused-expressions */
 import type { REPLServer, ReplOptions } from 'repl';
 import type { ReadLineOptions } from 'readline';
+import type { EventEmitter } from 'events';
 import { Recoverable, start as originalStart } from 'repl';
 import isRecoverableError from 'is-recoverable-error';
 import { promisify } from 'util';
@@ -33,6 +35,20 @@ export type EvalFinishEvent = EvalStartEvent & ({
 export const evalStart = Symbol('async-repl:evalStart');
 export const evalFinish = Symbol('async-repl:evalFinish');
 
+// Helper for temporarily disabling an event on an EventEmitter.
+type RestoreEvents = { restore: () => void };
+function disableEvent(emitter: EventEmitter, event: string): RestoreEvents {
+  const rawListeners = emitter.rawListeners(event);
+  emitter.removeAllListeners(event);
+  return {
+    restore() {
+      for (const listener of rawListeners) {
+        emitter.on(event, listener as any);
+      }
+    }
+  };
+}
+
 // Start a REPLSever that supports asynchronous evaluation, rather than just
 // synchronous, and integrates nicely with Ctrl+C handling in that respect.
 export function start(opts: AsyncREPLOptions): REPLServer {
@@ -54,7 +70,8 @@ export function start(opts: AsyncREPLOptions): REPLServer {
       let previousExitListeners: any[] = [];
 
       let sigintListener: (() => void) | undefined = undefined;
-      let previousSigintListeners: any[] = [];
+      let replSigint: RestoreEvents | undefined = undefined;
+      let processSigint: RestoreEvents | undefined = undefined;
 
       try {
         result = await new Promise((resolve, reject) => {
@@ -67,9 +84,10 @@ export function start(opts: AsyncREPLOptions): REPLServer {
               // itself if the `customEval` itself is interrupted.
               reject(new Error('Asynchronous execution was interrupted by `SIGINT`'));
             };
-            previousSigintListeners = repl.rawListeners('SIGINT');
 
-            repl.removeAllListeners('SIGINT');
+            replSigint = disableEvent(repl, 'SIGINT');
+            processSigint = disableEvent(process, 'SIGINT');
+
             repl.once('SIGINT', sigintListener);
           }
 
@@ -93,9 +111,10 @@ export function start(opts: AsyncREPLOptions): REPLServer {
           repl.removeListener('SIGINT', sigintListener);
           process.removeListener('SIGINT', sigintListener);
         }
-        for (const listener of previousSigintListeners) {
-          repl.on('SIGINT', listener);
-        }
+        // Oh no, a TypeScript bug? 🐞 https://github.com/microsoft/TypeScript/issues/43287
+        // `as any` to the rescue!
+        (replSigint as any)?.restore?.();
+        (processSigint as any)?.restore?.();
 
         repl.removeListener('exit', exitListener);
         for (const listener of previousExitListeners) {
