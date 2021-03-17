@@ -179,7 +179,7 @@ export default interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    update: Document,
+    update: Document | Document[],
     options: FindAndModifyOptions,
     dbOptions?: DbOptions): Promise<Document>;
 

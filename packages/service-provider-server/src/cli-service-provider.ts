@@ -669,7 +669,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     filter: Document = {},
-    update: Document = {},
+    update: Document | Document[] = {},
     options: FindAndModifyOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };

@@ -418,7 +418,7 @@ export default class Collection extends ShellApiClass {
         'Must specify options.update or options.remove',
         CommonErrors.InvalidArgument);
     }
-    if (Object.keys(update).some(key => key.startsWith('$'))) {
+    if (Array.isArray(update) || Object.keys(update).some(key => key.startsWith('$'))) {
       return this.findOneAndUpdate(options.query, update, reducedOptions);
     }
     return this.findOneAndReplace(options.query, update, reducedOptions);
@@ -566,7 +566,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+  async findOneAndUpdate(filter: Document, update: Document | Document[], options: FindAndModifyShellOptions = {}): Promise<Document> {
     assertArgsDefined(filter);
     const findOneAndUpdateOptions = processFindAndModifyOptions({
       ...this._database._baseOptions,
