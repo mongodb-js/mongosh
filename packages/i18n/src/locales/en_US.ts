@@ -1278,6 +1278,21 @@ const translations: Catalog = {
               description: 'Returns information on the query plan for db.collection.findAndModify().',
               example: 'db.coll.explain().findAndModify({ query: { ... }, update: { ... } })'
             },
+            findOneAndDelete: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.findOneAndDelete().',
+              example: 'db.coll.explain().findOneAndDelete({ ... query ... })'
+            },
+            findOneAndReplace: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.findOneAndReplace().',
+              example: 'db.coll.explain().findOneAndReplace({ ... query ... }, { ... replacement ... })'
+            },
+            findOneAndUpdate: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.explain',
+              description: 'Returns information on the query plan for db.collection.findOneAndUpdate().',
+              example: 'db.coll.explain().findOneAndUpdate({ ... query ... }, { ... update operators ... })'
+            },
             getCollection: {
               link: '',
               description: 'Returns the explainable collection.',
