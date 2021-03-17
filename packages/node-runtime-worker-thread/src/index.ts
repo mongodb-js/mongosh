@@ -106,7 +106,7 @@ class WorkerRuntime implements Runtime {
     let spawnError = '';
 
     // eslint-disable-next-line chai-friendly/no-unused-expressions
-    this.childProcess?.stderr?.on('data', (chunk) => {
+    this.childProcess?.stderr?.setEncoding('utf8')?.on('data', (chunk) => {
       spawnError += chunk;
     });
 
