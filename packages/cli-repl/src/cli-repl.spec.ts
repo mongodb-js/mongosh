@@ -443,6 +443,7 @@ describe('CliRepl', () => {
           expect(requests[0].req.headers.authorization)
             .to.include(Buffer.from('🔑:').toString('base64'));
           expect(requests[0].body).to.include('identify');
+          expect(requests[0].body).to.include(process.platform);
         });
 
         it('stops posting analytics data after disableTelemetry()', async() => {
