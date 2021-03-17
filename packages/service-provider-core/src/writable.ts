@@ -260,29 +260,6 @@ export default interface Writable {
     dbOptions?: DbOptions): Promise<UpdateResult>;
 
   /**
-   * find and update or remove a document.
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {Document} query - The filter.
-   * @param {Document} sort - The sort option.
-   * @param {Document} update - The update document.
-   * @param {Document} options - The update options.
-   * @param {DbOptions} dbOptions - The DB options
-   *
-   * @returns {Promise} The promise of the result.
-   */
-  findAndModify(
-    database: string,
-    collection: string,
-    query: Document,
-    sort: any[] | Document | undefined,
-    update: Document | undefined,
-    options?: FindAndModifyOptions,
-    dbOptions?: DbOptions
-  ): Promise<Document>;
-
-  /**
    * Update a document.
    *
    * @param {String} database - The database name.

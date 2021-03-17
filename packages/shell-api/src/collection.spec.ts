@@ -1100,16 +1100,18 @@ describe('Collection', () => {
 
       beforeEach(() => {
         mockResult = { value: {} };
-        serviceProvider.findAndModify.resolves(mockResult);
+        serviceProvider.findOneAndUpdate.resolves(mockResult);
+        serviceProvider.findOneAndReplace.resolves(mockResult);
+        serviceProvider.findOneAndDelete.resolves(mockResult);
       });
 
-      it('returns result.value from serviceProvider.findAndModify', async() => {
-        expect(await collection.findAndModify({ query: {} })).to.equal(mockResult.value);
+      it('returns result.value from serviceProvider.findOneAndReplace', async() => {
+        expect(await collection.findAndModify({ query: {}, update: {} })).to.equal(mockResult.value);
       });
 
       it('throws if no query is provided', async() => {
         try {
-          await collection.findAndModify({});
+          await collection.findAndModify({} as any);
         } catch (e) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
@@ -1117,7 +1119,7 @@ describe('Collection', () => {
       });
       it('throws if no argument is provided', async() => {
         try {
-          await collection.findAndModify();
+          await (collection.findAndModify as any)();
         } catch (e) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
@@ -1132,7 +1134,7 @@ describe('Collection', () => {
           upsert: true,
           bypassDocumentValidation: true,
           writeConcern: { writeConcern: 1 },
-          collation: { collation: 1 },
+          collation: { collation: 1, locale: 'en_US' },
           arrayFilters: [ { filter: 1 } ]
         };
 
@@ -1143,13 +1145,11 @@ describe('Collection', () => {
           ...options
         });
 
-        expect(serviceProvider.findAndModify).to.have.been.calledWith(
+        expect(serviceProvider.findOneAndDelete).to.have.been.calledWith(
           collection._database._name,
           collection._name,
           { query: 1 },
-          { sort: 1 },
-          { update: 1 },
-          options
+          { ...options, sort: { sort: 1 } }
         );
       });
     });
@@ -1688,7 +1688,7 @@ describe('Collection', () => {
       initializeUnorderedBulkOp: { m: 'initializeBulkOp' },
       distinct: { i: 4 },
       estimatedDocumentCount: { i: 2 },
-      findAndModify: { i: 5 },
+      findAndModify: { a: [{ query: {}, update: {} }], m: 'findOneAndReplace', i: 4 },
       findOneAndReplace: { i: 4 },
       findOneAndUpdate: { i: 4 },
       replaceOne: { i: 4 },

@@ -30,7 +30,7 @@
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/i18n": "0.0.0-dev.0",
     "bson": "^4.2.3",
-    "mongodb": "4.0.0-beta.1",
+    "mongodb": "4.0.0-beta.2",
     "mongodb-build-info": "^1.1.1",
     "whatwg-url": "^8.4.0"
   },
@@ -39,7 +39,7 @@
     "@types/whatwg-url": "^8.0.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.2.1"
+    "mongodb-client-encryption": "^1.2.2"
   },
   "dependency-check": {
     "entries": [

@@ -112,11 +112,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun findAndModify(database: String, collection: String, filter: Value?, sort: Value?, update: Value?, options: Value?, dbOptions: Value?) {
-        throw NotImplementedError()
-    }
-
-    @HostAccess.Export
     override fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value = promise<Any?> {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
