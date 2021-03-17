@@ -147,12 +147,12 @@ Package|Version|License
 **[mimic-response](#5e9658c8783408f83c2a8e28b87c38aae7dc22cecb97ed1d16be37c89e076cb5)**|1.0.1|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
 **[mkdirp](#c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a)**|0.5.5|MIT
-**[mongodb](#c8ffc86a315d7aa9b96b03d76d9a8c3f57959f2311db594f53e2d86188206dce)**|4.0.0-beta.1|Apache-2.0
+**[mongodb](#79abfc74deccdbe8e681c4244ac350e4b6f29276bf2e9ac5ab571d229f20396b)**|4.0.0-beta.2|Apache-2.0
 **[mongodb-ace-autocompleter](#5f8c32571122c25792bf4635ce9f1f6aaf49eb364b033f619b84e8ee9c29e011)**|0.4.8|Apache-2.0
 **[mongodb-ace-autocompleter](#25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91)**|0.4.14|Apache-2.0
 **[mongodb-build-info](#8a1ba45f0407e04bc40af593237b54961d4bb1ce23d4a6a2a4ab5284f00e0e4d)**|1.1.0|Apache-2.0
 **[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
-**[mongodb-client-encryption](#feb28c06ca1096f713ccbcf910d6bc0c913481fdb2a6bfc9033b4d1ca4344838)**|1.2.1|Apache-2.0
+**[mongodb-client-encryption](#ea98f73234a844e15f269a86b0daf3965ea35ef215fc6be98788ee091890d38b)**|1.2.2|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -163,7 +163,7 @@ Package|Version|License
 **[nanoscheduler](#616ce9b8b4d182d948d6cba516e423220e96879c0a73a5458dad479d280bf752)**|1.0.3|Apache-2.0
 **[nanotiming](#46361ba2e1f38c014a80c142afc1a467c605fd18925765f7c5ad9b6f5c4bc22f)**|7.3.1|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
-**[node-abi](#48b6298a478ece3230768472d12dce15a7618cbcc1d2d8a1e2fdd5e32ed7a28e)**|2.19.3|MIT
+**[node-abi](#3f554d0a6a764c94e28d750bc45a57d613d98f719602aa8e4f0d3b23126e2695)**|2.21.0|MIT
 **[noop-logger](#3801357bd6e8fba8c0ba570c6fe0f1a09fb837f9355340046f36983ee98fafab)**|0.1.1|MIT
 **[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
@@ -7611,8 +7611,8 @@ Authors:
 * James Halliday <mail@substack.net> (http://substack.net)
 
 
-<a id="c8ffc86a315d7aa9b96b03d76d9a8c3f57959f2311db594f53e2d86188206dce"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.1)
+<a id="79abfc74deccdbe8e681c4244ac350e4b6f29276bf2e9ac5ab571d229f20396b"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.2)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -8280,8 +8280,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="feb28c06ca1096f713ccbcf910d6bc0c913481fdb2a6bfc9033b4d1ca4344838"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.1)
+<a id="ea98f73234a844e15f269a86b0daf3965ea35ef215fc6be98788ee091890d38b"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.2)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -9193,8 +9193,8 @@ Authors:
 * Jim Schlight
 
 
-<a id="48b6298a478ece3230768472d12dce15a7618cbcc1d2d8a1e2fdd5e32ed7a28e"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 2.19.3)
+<a id="3f554d0a6a764c94e28d750bc45a57d613d98f719602aa8e4f0d3b23126e2695"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 2.21.0)
 <!-- initially found at packages/service-provider-core/node_modules/node-abi -->
 > Get the Node ABI for a given target and runtime, and vice versa.
 
