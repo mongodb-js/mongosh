@@ -29,10 +29,12 @@ return someVar;
 var someVar = "test value";
 await db.coll.insertOne({ someVar });
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 void (someVar = "test value");
 return (await db.coll.insertOne({ someVar }));
- })()`);
+
+})()`);
     });
 
     it('multiple', () => {
@@ -40,10 +42,12 @@ return (await db.coll.insertOne({ someVar }));
 var someVar = "test value", anotherVar;
 await db.coll.insertOne({ someVar });
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 void ( (someVar = "test value"), (anotherVar=undefined));
 return (await db.coll.insertOne({ someVar }));
- })()`);
+
+})()`);
     });
 
     it('lets and consts', () => {
@@ -52,11 +56,13 @@ let someVar = "test value";
 const anotherVar = "has value";
 await db.coll.insertOne({ someVar });
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 void (someVar = "test value");
 void (anotherVar = "has value");
 return (await db.coll.insertOne({ someVar }));
- })()`);
+
+})()`);
     });
 
     it('hoisted vars but not let', () => {
@@ -71,7 +77,8 @@ function call() {
 }
 await db.coll.insertOne({});
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 if (callMeMaybe) {
   void (ringRing = "hey, it's me!");
   let bingBing = "c'est moi!";
@@ -81,7 +88,8 @@ call=function call() {
   var thisIsNested;
 }
 return (await db.coll.insertOne({}));
- })()`);
+
+})()`);
     });
   });
 
@@ -92,12 +100,21 @@ async function callingTheFunc() {
   return await db.coll.insertOne({});
 }
 `;
-    expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+    expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 await callingTheFunc();
 callingTheFunc=async function callingTheFunc() {
   return await db.coll.insertOne({});
 }
- })()`);
+
+})()`);
+  });
+
+  it('accepts comments at the end of the code', () => {
+    const code = 'await print() // comment';
+    expect(processTopLevelAwait(code)).to.equal(`(async () => {
+return (await print()) // comment
+})()`);
   });
 
   context('processes for-of statements', () => {
@@ -107,11 +124,13 @@ for await (const c of names) {
   const otherName = c;
 }
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 for await (const c of names) {
   const otherName = c;
 }
- })()`);
+
+})()`);
     });
 
     it('checks for await inside loop', () => {
@@ -120,11 +139,13 @@ for (const c of names) {
   await db.coll.insertOne({ name: c });
 }
 `;
-      expect(processTopLevelAwait(code)).to.equal(`(async () => { 
+      expect(processTopLevelAwait(code)).to.equal(`(async () => {
+
 for (const c of names) {
   await db.coll.insertOne({ name: c });
 }
- })()`);
+
+})()`);
     });
 
     it('checks for return inside loop', () => {

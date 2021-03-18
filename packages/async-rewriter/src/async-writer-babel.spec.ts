@@ -146,7 +146,7 @@ describe('async-writer-babel', () => {
     });
     it('compiles db.coll.insertOne({})', () => {
       expect(writer.process('db.coll.insertOne({})'))
-        .to.equal('(async () => { return (await db.coll.insertOne({})); })()');
+        .to.equal('(async () => {\nreturn (await db.coll.insertOne({}));\n})()');
     });
     it('compiles async function within a function', () => {
       expect(writer.process('function fn() { db.coll.insertOne({}); }'))
@@ -154,11 +154,11 @@ describe('async-writer-babel', () => {
     });
     it('compiles variable declarations', () => {
       expect(writer.process('db.coll.insertOne({}); var a = "foo";'))
-        .to.equal('(async () => { await db.coll.insertOne({});\nvoid (a = "foo"); })()');
+        .to.equal('(async () => {\nawait db.coll.insertOne({});\nvoid (a = "foo");\n})()');
       expect(writer.process('db.coll.insertOne({}); var b;'))
-        .to.equal('(async () => { await db.coll.insertOne({});\nvoid (b=undefined); })()');
+        .to.equal('(async () => {\nawait db.coll.insertOne({});\nvoid (b=undefined);\n})()');
       expect(writer.process('db.coll.insertOne({}); var q=0,p=1;'))
-        .to.equal('(async () => { await db.coll.insertOne({});\nvoid ( (q = 0),\n    (p = 1)); })()');
+        .to.equal('(async () => {\nawait db.coll.insertOne({});\nvoid ( (q = 0),\n    (p = 1));\n})()');
     });
     it('does not add TLA if there is a return statement', () => {
       expect(writer.process('(() => { db.coll.insertOne({}); return; var a = "foo"; })()'))
@@ -192,7 +192,8 @@ function insertDoc(name) {
 names.forEach(n => insertDoc(n));
 (names.length);
 `;
-      expect(writer.process(code)).to.equal(`(async () => { void (names = ['Angela', 'Barack', 'Charles']);
+      expect(writer.process(code)).to.equal(`(async () => {
+void (names = ['Angela', 'Barack', 'Charles']);
 
 insertDoc=async function insertDoc(name) {
   await db.coll.insertOne({
@@ -201,7 +202,8 @@ insertDoc=async function insertDoc(name) {
 }
 
 await toIterator(names).forEach(async n => await insertDoc(n));
-return (names.length); })()`);
+return (names.length);
+})()`);
     });
   });
   describe('MemberExpression', () => {
