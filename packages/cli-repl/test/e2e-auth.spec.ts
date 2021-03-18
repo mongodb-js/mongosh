@@ -900,15 +900,14 @@ describe('Auth e2e', function() {
       const connectionString = await testServer.connectionString();
       shell = TestShell.start({ args: [
         connectionString,
-        ' -u "anna2"',
-        ' -p "pwd2"',
-        ` --authenticationDatabase "${dbName}"`
+        '-u', 'anna2',
+        '-p', 'pwd2',
+        '--authenticationDatabase', dbName
       ] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
       await shell.writeInputLine('db');
       await shell.writeInputLine(`use ${dbName}`);
-      await shell.writeInputLine('db.getUsers()');
       await shell.writeInputLine(
         'db.runCommand({connectionStatus: 1})'
       );
