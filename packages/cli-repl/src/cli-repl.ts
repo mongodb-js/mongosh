@@ -152,8 +152,8 @@ class CliRepl {
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
     const commandLineLoadFiles = this.listCommandLineLoadFiles();
-    if (commandLineLoadFiles.length > 0) {
-      await this.loadCommandLineFiles(commandLineLoadFiles);
+    if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
+      await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
       if (!this.cliOptions.shell) {
         await this.exit(0);
         return;
@@ -168,7 +168,16 @@ class CliRepl {
     return (this.cliOptions._ ?? []).slice(startIndex);
   }
 
-  async loadCommandLineFiles(files: string[]) {
+  async loadCommandLineFilesAndEval(files: string[]) {
+    if (this.cliOptions.eval) {
+      await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
+    } else if (this.cliOptions.eval === '') {
+      // This happens e.g. when --eval is followed by another option, for example
+      // when running `mongosh --eval --shell "eval script"`, which can happen
+      // if you're like me and sometimes insert options in the wrong place
+      const msg = 'Warning: --eval requires an argument, but no argument was given\n';
+      this.output.write(this.clr(msg, ['bold', 'yellow']));
+    }
     for (const file of files) {
       if (!this.cliOptions.quiet) {
         this.output.write(`Loading file: ${this.clr(file, ['bold', 'blue'])}\n`);

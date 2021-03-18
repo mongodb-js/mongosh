@@ -349,6 +349,11 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.runtimeState().internalState.shellApi.load(filename);
   }
 
+  async loadExternalCode(code: string, filename: string): Promise<void> {
+    const { repl } = this.runtimeState();
+    await promisify(repl.eval.bind(repl))(code, repl.context, filename);
+  }
+
   /**
    * Format the result to a string so it can be written to the output stream.
    */

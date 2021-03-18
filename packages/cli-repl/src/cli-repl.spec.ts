@@ -359,6 +359,25 @@ describe('CliRepl', () => {
           expect(output).to.include('Loading file');
           expect(output).not.to.include('uh oh');
         });
+
+        it('evaluates code passed through --eval', async() => {
+          cliReplOptions.shellCliOptions.eval = 'print("i am being evaluated")';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).to.include('i am being evaluated');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('forwards the error if the script passed to --eval throws', async() => {
+          cliReplOptions.shellCliOptions.eval = 'throw new Error("oh no")';
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+          } catch (err) {
+            expect(err.message).to.include('oh no');
+          }
+          expect(output).not.to.include('oh no');
+        });
       });
     });
 
@@ -646,6 +665,15 @@ describe('CliRepl', () => {
         expect(exitCode).to.equal(0);
       });
 
+      it('allows doing db ops (--eval variant)', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
+        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(exitCode).to.equal(0);
+      });
+
       it('drops into a shell if --shell is passed', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
         cliReplOptions.shellCliOptions._.push(filename1);
@@ -691,6 +719,14 @@ describe('CliRepl', () => {
 
         input.write('exit\n');
         await waitBus(cliRepl.bus, 'mongosh:closed');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('warns if --eval is passed an empty string', async() => {
+        cliReplOptions.shellCliOptions.eval = '';
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.include('--eval requires an argument, but no argument was given');
         expect(exitCode).to.equal(0);
       });
     });
