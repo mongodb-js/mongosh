@@ -280,7 +280,7 @@ describe('e2e TLS', () => {
           ],
           env: {
             ...process.env,
-            TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule
+            TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule
           }
         });
         const prompt = await waitForPromptOrExit(shell);
@@ -302,6 +302,8 @@ describe('e2e TLS', () => {
         expect(prompt.state).to.equal('exit');
         if (process.platform === 'win32') {
           shell.assertContainsOutput('Could not resolve certificate specification');
+        } else if (process.platform === 'darwin') {
+          shell.assertContainsOutput('Could not find a matching certificate');
         } else {
           shell.assertContainsOutput('tlsCertificateSelector is not supported on this platform');
         }

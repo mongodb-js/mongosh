@@ -77,6 +77,7 @@
     "chai-as-promised": "^7.1.1"
   },
   "optionalDependencies": {
+    "macos-export-certificate-and-key": "^1.0.0",
     "win-export-certificate-and-key": "^1.0.2"
   }
 }
