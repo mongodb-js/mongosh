@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { expect } from 'chai';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { EventEmitter } from 'events';
@@ -85,15 +86,18 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[15].msg).to.match(/"original":"1\+1"/);
     expect(logOutput[15].msg).to.match(/"rewritten":"2"/);
     expect(logOutput[16].msg).to.match(/"version":"3.6.1"/);
+
+    const mongosh_version = require('../package.json').version;
     expect(analyticsOutput).to.deep.equal([
-      [ 'identify', { userId: '53defe995fa47e6c13102d9d' } ],
-      [ 'identify', { userId: '53defe995fa47e6c13102d9d' } ],
+      [ 'identify', { userId: '53defe995fa47e6c13102d9d', traits: { platform: process.platform } } ],
+      [ 'identify', { userId: '53defe995fa47e6c13102d9d', traits: { platform: process.platform } } ],
       [
         'track',
         {
           userId: '53defe995fa47e6c13102d9d',
           event: 'New Connection',
           properties: {
+            mongosh_version,
             session_id: '5fb3c20ee1507e894e5340f3',
             is_localhost: true,
             is_atlas: false,
@@ -106,17 +110,40 @@ describe('setupLoggerAndTelemetry', () => {
         {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Error',
-          properties: { name: 'MongoshInvalidInputError', code: 'CLIREPL-1005', scope: 'CLIREPL', metadata: { cause: 'x' } }
+          properties: {
+            mongosh_version,
+            name: 'MongoshInvalidInputError',
+            code: 'CLIREPL-1005',
+            scope: 'CLIREPL',
+            metadata: { cause: 'x' }
+          }
         }
       ],
-      [ 'track', { userId: '53defe995fa47e6c13102d9d', event: 'Help' } ],
-      [ 'track', { userId: '53defe995fa47e6c13102d9d', event: 'Use' } ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Help',
+          properties: { mongosh_version }
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Use',
+          properties: { mongosh_version }
+        }
+      ],
       [
         'track',
         {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Show',
-          properties: { method: 'dbs' }
+          properties: {
+            mongosh_version,
+            method: 'dbs'
+          }
         }
       ]
     ]);

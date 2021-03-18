@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import redactInfo from 'mongodb-redact';
 import { redactPassword } from '@mongosh/history';
 import type { Logger } from 'pino';
@@ -11,8 +12,19 @@ import type {
 } from '@mongosh/types';
 
 interface MongoshAnalytics {
-  identify: (info: any) => void;
-  track: (info: any) => void;
+  identify(message: {
+    userId: string,
+    traits: { platform: string }
+  }): void;
+
+  track(message: {
+    userId: string,
+    event: string,
+    properties: {
+      mongosh_version: string,
+      [key: string]: any;
+    }
+  }): void;
 }
 
 // set up a noop, in case we are not able to connect to segment.
@@ -27,6 +39,7 @@ export default function setupLoggerAndTelemetry(
   makeLogger: () => Logger,
   makeAnalytics: () => MongoshAnalytics): void {
   const log = makeLogger();
+  const mongosh_version = require('../package.json').version;
   let userId: string;
   let telemetry: boolean;
 
@@ -47,7 +60,11 @@ export default function setupLoggerAndTelemetry(
       analytics.track({
         userId,
         event: 'New Connection',
-        properties: { session_id: logId, ...argsWithoutUri }
+        properties: {
+          mongosh_version,
+          session_id: logId,
+          ...argsWithoutUri
+        }
       });
     }
   });
@@ -59,13 +76,13 @@ export default function setupLoggerAndTelemetry(
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
-    if (telemetry) analytics.identify({ userId });
+    if (telemetry) analytics.identify({ userId, traits: { platform: process.platform } });
   });
 
   bus.on('mongosh:update-user', function(id: string, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
-    if (telemetry) analytics.identify({ userId });
+    if (telemetry) analytics.identify({ userId, traits: { platform: process.platform } });
     log.info('mongosh:update-user', { enableTelemetry });
   });
 
@@ -77,6 +94,7 @@ export default function setupLoggerAndTelemetry(
         userId,
         event: 'Error',
         properties: {
+          mongosh_version,
           name: error.name,
           code: error.code,
           scope: error.scope,
@@ -92,7 +110,10 @@ export default function setupLoggerAndTelemetry(
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'Help'
+        event: 'Help',
+        properties: {
+          mongosh_version
+        }
       });
     }
   });
@@ -107,7 +128,10 @@ export default function setupLoggerAndTelemetry(
     if (telemetry) {
       analytics.track({
         userId,
-        event: 'Use'
+        event: 'Use',
+        properties: {
+          mongosh_version
+        }
       });
     }
   });
@@ -119,7 +143,10 @@ export default function setupLoggerAndTelemetry(
       analytics.track({
         userId,
         event: 'Show',
-        properties: { method: args.method }
+        properties: {
+          mongosh_version,
+          method: args.method
+        }
       });
     }
   });
