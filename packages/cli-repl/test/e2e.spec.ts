@@ -491,6 +491,42 @@ describe('e2e', function() {
     });
   });
 
+  describe('files loaded from command line', () => {
+    it('loads a file from the command line as requested', async() => {
+      const shell = TestShell.start({
+        args: [ '--nodb', './hello1.js' ],
+        cwd: path.resolve(__dirname, 'fixtures', 'load')
+      });
+      await eventually(() => {
+        shell.assertContainsOutput('hello one');
+      });
+      expect(await shell.waitForExit()).to.equal(0);
+      shell.assertNoErrors();
+    });
+
+    it('drops into shell if --shell is used', async() => {
+      const shell = TestShell.start({
+        args: [ '--nodb', '--shell', './hello1.js' ],
+        cwd: path.resolve(__dirname, 'fixtures', 'load')
+      });
+      await shell.waitForPrompt();
+      shell.assertContainsOutput('hello one');
+      expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
+      shell.assertNoErrors();
+    });
+
+    it('fails with the error if the loaded script throws', async() => {
+      const shell = TestShell.start({
+        args: [ '--nodb', '--shell', './throw.js' ],
+        cwd: path.resolve(__dirname, 'fixtures', 'load')
+      });
+      await eventually(() => {
+        shell.assertContainsOutput('Error: uh oh');
+      });
+      expect(await shell.waitForExit()).to.equal(1);
+    });
+  });
+
   describe('config, logging and rc file', async() => {
     let shell: TestShell;
     let homedir: string;

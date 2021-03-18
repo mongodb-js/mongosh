@@ -246,6 +246,15 @@ describe('uri-generator.generate-uri', () => {
           }
         });
       });
+
+      context('when providing nodb', () => {
+        const uri = 'mongodb://127.0.0.2/foo';
+        const options = { _: [uri], nodb: true };
+
+        it('returns an empty string', () => {
+          expect(generateUri(options)).to.equal('');
+        });
+      });
     });
 
     context('when providing a URI with query parameters', () => {
