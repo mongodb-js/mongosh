@@ -151,8 +151,30 @@ class CliRepl {
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
+    const commandLineLoadFiles = this.listCommandLineLoadFiles();
+    if (commandLineLoadFiles.length > 0) {
+      await this.loadCommandLineFiles(commandLineLoadFiles);
+      if (!this.cliOptions.shell) {
+        await this.exit(0);
+        return;
+      }
+    }
     await this.loadRcFiles();
     await this.mongoshRepl.startRepl(initialized);
+  }
+
+  listCommandLineLoadFiles(): string[] {
+    const startIndex = this.cliOptions.nodb ? 0 : 1;
+    return (this.cliOptions._ ?? []).slice(startIndex);
+  }
+
+  async loadCommandLineFiles(files: string[]) {
+    for (const file of files) {
+      if (!this.cliOptions.quiet) {
+        this.output.write(`Loading file: ${this.clr(file, ['bold', 'blue'])}\n`);
+      }
+      await this.mongoshRepl.loadExternalFile(file);
+    }
   }
 
   async loadRcFiles(): Promise<void> {

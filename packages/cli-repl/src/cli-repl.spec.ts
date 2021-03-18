@@ -18,7 +18,7 @@ describe('CliRepl', () => {
   let input: Duplex;
   let outputStream: Duplex;
   let output = '';
-  let exitCode: null|number = null;
+  let exitCode: null|number;
   let exitPromise: Promise<void>;
   const tmpdir = useTmpdir();
 
@@ -26,11 +26,21 @@ describe('CliRepl', () => {
     return readReplLogfile(path.join(tmpdir.path, `${cliRepl.logId}_log`));
   }
 
+  async function startWithExpectedImmediateExit(cliRepl: CliRepl, host: string): Promise<void> {
+    try {
+      await cliRepl.start(host, {});
+      expect.fail('Expected start() to also exit immediately');
+    } catch (err) {
+      expect(err.message).to.include('onExit() unexpectedly returned');
+    }
+  }
+
   beforeEach(async() => {
     input = new PassThrough();
     outputStream = new PassThrough();
     output = '';
     outputStream.setEncoding('utf8').on('data', (chunk) => { output += chunk; });
+    exitCode = null;
 
     let resolveExitPromise;
     exitPromise = new Promise((resolve) => { resolveExitPromise = resolve; });
@@ -301,6 +311,55 @@ describe('CliRepl', () => {
           expect(output).to.include('reached five');
         });
       });
+
+      context('files loaded from command line', () => {
+        it('load a file if it has been specified on the command line', async() => {
+          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+          cliReplOptions.shellCliOptions._ = [filename1];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).to.include(`Loading file: ${filename1}`);
+          expect(output).to.include('hello one');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('load two files if it has been specified on the command line', async() => {
+          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+          const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
+          cliReplOptions.shellCliOptions._ = [filename1, filename2];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).to.include(`Loading file: ${filename1}`);
+          expect(output).to.include('hello one');
+          expect(output).to.include(`Loading file: ${filename2}`);
+          expect(output).to.include('hello two');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('does not print filenames if --quiet is passed', async() => {
+          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+          cliReplOptions.shellCliOptions._ = [filename1];
+          cliReplOptions.shellCliOptions.quiet = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).not.to.include('Loading file');
+          expect(output).to.include('hello one');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('forwards the error it if loading the file throws', async() => {
+          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'throw.js');
+          cliReplOptions.shellCliOptions._ = [filename1];
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+          } catch (err) {
+            expect(err.message).to.include('uh oh');
+          }
+          expect(output).to.include('Loading file');
+          expect(output).not.to.include('uh oh');
+        });
+      });
     });
 
     verifyAutocompletion({
@@ -315,7 +374,8 @@ describe('CliRepl', () => {
     const testServer = startTestServer('shared');
     let cliRepl: CliRepl;
 
-    beforeEach(() => {
+    beforeEach(async() => {
+      cliReplOptions.shellCliOptions._ = [await testServer.connectionString()];
       cliRepl = new CliRepl(cliReplOptions);
     });
 
@@ -550,6 +610,88 @@ describe('CliRepl', () => {
           await waitBus(cliRepl.bus, 'mongosh:closed');
           expect(output).not.to.match(/error/i);
         });
+      });
+    });
+
+    context('files loaded from command line', () => {
+      it('load a file if it has been specified on the command line', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.include(`Loading file: ${filename1}`);
+        expect(output).to.include('hello one');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('load two files if it has been specified on the command line', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+        const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
+        cliReplOptions.shellCliOptions._.push(filename1, filename2);
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.include(`Loading file: ${filename1}`);
+        expect(output).to.include('hello one');
+        expect(output).to.include(`Loading file: ${filename2}`);
+        expect(output).to.include('hello two');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('allows doing db ops', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
+        cliReplOptions.shellCliOptions._.push(filename1, filename1);
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(exitCode).to.equal(0);
+      });
+
+      it('drops into a shell if --shell is passed', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.shell = true;
+
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(exitCode).to.equal(null);
+
+        input.write('print("doc count", insertTestCollection.count())\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('doc count 1');
+
+        input.write('exit\n');
+        await waitBus(cliRepl.bus, 'mongosh:closed');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('does not read .mongoshrc.js if --shell is not passed', async() => {
+        await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.include('hello one');
+        expect(output).not.to.include('hi from mongoshrc');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('does read .mongoshrc.js if --shell is passed', async() => {
+        await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.shell = true;
+
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+        // Single regexp match to verify that mongoshrc is loaded *after* the script
+        expect(output).to.match(/hello one[\s\S]*hi from mongoshrc/);
+        expect(exitCode).to.equal(null);
+
+        input.write('exit\n');
+        await waitBus(cliRepl.bus, 'mongosh:closed');
+        expect(exitCode).to.equal(0);
       });
     });
   });

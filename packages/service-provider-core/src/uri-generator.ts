@@ -125,6 +125,9 @@ function generatePort(options: CliOptions): string {
  * gssapiServiceName?: string; // needs to go in URI
  */
 function generateUri(options: CliOptions): string {
+  if (options.nodb) {
+    return '';
+  }
   const connectionString = generateUriNormalized(options);
   if (connectionString.hosts.length === 1 &&
       ['localhost', '127.0.0.1'].includes(connectionString.hosts[0].split(':')[0])) {
