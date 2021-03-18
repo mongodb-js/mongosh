@@ -608,7 +608,7 @@ export default class Collection extends ShellApiClass {
       this._mongo._internalState.context.print
     );
     assertArgsDefined(docs);
-    const d: Document[] = Array.isArray(docs) ? docs : [docs];
+    const d: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : [{ ...docs }];
 
     this._emitCollectionApiCall('insert', { options });
     const result = await this._mongo._serviceProvider.insertMany(
@@ -641,12 +641,13 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertMany(docs: Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
+    const d: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : docs;
 
     this._emitCollectionApiCall('insertMany', { options });
     const result = await this._mongo._serviceProvider.insertMany(
       this._database._name,
       this._name,
-      docs,
+      d,
       { ...this._database._baseOptions, ...options }
     );
 
@@ -678,7 +679,7 @@ export default class Collection extends ShellApiClass {
     const result = await this._mongo._serviceProvider.insertOne(
       this._database._name,
       this._name,
-      doc,
+      { ...doc },
       { ...this._database._baseOptions, ...options }
     );
 

@@ -7,6 +7,7 @@ import AggregationCursor from './aggregation-cursor';
 import ShellApi from './shell-api';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
+import { Document } from '@mongosh/service-provider-core';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -221,6 +222,48 @@ describe('Shell API (integration)', function() {
             { doc: 1 }
           ]);
         });
+      });
+    });
+
+    describe('insertOne', () => {
+      it('does not overwrite users object', async() => {
+        const d: Document = { name: 'test', zipcode: '12345' };
+        await collection.insertOne(d);
+        expect(d._id).to.equal(undefined);
+      });
+    });
+
+    describe('insert', () => {
+      context('inserting one document', () => {
+        it('does not overwrite users object', async() => {
+          const d: Document = { name: 'test', zipcode: '12345' };
+          await collection.insert(d);
+          expect(d._id).to.equal(undefined);
+        });
+      });
+
+      context('inserting a list of documents', () => {
+        it('does not overwrite users object', async() => {
+          const d: Document[] = [
+            { name: 'first', zipcode: '12345' },
+            { name: 'second', zipcode: '12345' }
+          ];
+          await collection.insert(d);
+          expect(d[0]._id).to.equal(undefined);
+          expect(d[1]._id).to.equal(undefined);
+        });
+      });
+    });
+
+    describe('insertMany', () => {
+      it('does not overwrite users object', async() => {
+        const d: Document[] = [
+          { name: 'first', zipcode: '12345' },
+          { name: 'second', zipcode: '12345' }
+        ];
+        await collection.insert(d);
+        expect(d[0]._id).to.equal(undefined);
+        expect(d[1]._id).to.equal(undefined);
       });
     });
 
