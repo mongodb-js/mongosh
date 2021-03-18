@@ -491,7 +491,7 @@ describe('e2e', function() {
     });
   });
 
-  describe('config and logging', async() => {
+  describe('config, logging and rc file', async() => {
     let shell: TestShell;
     let homedir: string;
     let configPath: string;
@@ -500,7 +500,7 @@ describe('e2e', function() {
     let historyPath: string;
     let readConfig: () => Promise<any>;
     let readLogfile: () => Promise<any[]>;
-    let startTestShell: () => Promise<TestShell>;
+    let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
     let env: Record<string, string>;
 
     beforeEach(() => {
@@ -522,9 +522,9 @@ describe('e2e', function() {
       }
       readConfig = async() => JSON.parse(await fs.readFile(configPath, 'utf8'));
       readLogfile = async() => readReplLogfile(logPath);
-      startTestShell = async() => {
+      startTestShell = async(...extraArgs: string[]) => {
         const shell = TestShell.start({
-          args: [ '--nodb' ],
+          args: [ '--nodb', ...extraArgs ],
           env: env,
           forceTerminal: true
         });
@@ -621,6 +621,22 @@ describe('e2e', function() {
           await shell.waitForExit();
 
           expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
+        });
+      });
+
+      describe('mongoshrc', () => {
+        beforeEach(async() => {
+          await fs.writeFile(path.join(homedir, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+        });
+
+        it('loads .mongoshrc.js if it is there', async() => {
+          shell = await startTestShell();
+          shell.assertContainsOutput('hi from mongoshrc');
+        });
+
+        it('does not load .mongoshrc.js if --norc is passed', async() => {
+          shell = await startTestShell('--norc');
+          shell.assertNotContainsOutput('hi from mongoshrc');
         });
       });
     });

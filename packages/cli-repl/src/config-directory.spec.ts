@@ -24,7 +24,8 @@ describe('home directory management', () => {
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
     shellHomeDirectory = new ShellHomeDirectory({
       shellRoamingDataPath: base,
-      shellLocalDataPath: base
+      shellLocalDataPath: base,
+      shellRcPath: base
     });
     manager = new ConfigManager(shellHomeDirectory);
     manager.on('error', onError = sinon.spy());

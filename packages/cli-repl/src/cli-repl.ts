@@ -150,7 +150,60 @@ class CliRepl {
     }
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
-    await this.mongoshRepl.start(initialServiceProvider);
+    const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
+    await this.loadRcFiles();
+    await this.mongoshRepl.startRepl(initialized);
+  }
+
+  async loadRcFiles(): Promise<void> {
+    if (this.cliOptions.norc) {
+      return;
+    }
+    const legacyPath = this.shellHomeDirectory.rcPath('.mongorc.js');
+    const mongoshrcPath = this.shellHomeDirectory.rcPath('.mongoshrc.js');
+    const mongoshrcMisspelledPath = this.shellHomeDirectory.rcPath('.mongoshrc');
+
+    let hasMongoshRc = false;
+    try {
+      await fs.stat(mongoshrcPath);
+      hasMongoshRc = true;
+    } catch { /* file not present */ }
+    if (hasMongoshRc) {
+      try {
+        await this.mongoshRepl.loadExternalFile(mongoshrcPath);
+      } catch (err) {
+        this.output.write(this.mongoshRepl.writer(err) + '\n');
+      }
+      return;
+    }
+
+    if (this.cliOptions.quiet) {
+      return;
+    }
+
+    let hasLegacyRc = false;
+    try {
+      await fs.stat(legacyPath);
+      hasLegacyRc = true;
+    } catch { /* file not present */ }
+    if (hasLegacyRc) {
+      const msg =
+        'Warning: Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.\n' +
+        '  You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.\n';
+      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      return;
+    }
+
+    let hasMisspelledFilename = false;
+    try {
+      await fs.stat(mongoshrcMisspelledPath);
+      hasMisspelledFilename = true;
+    } catch { /* file not present */ }
+    if (hasMisspelledFilename) {
+      const msg =
+        'Warning: Found ~/.mongoshrc, but not ~/.mongoshrc.js. Did you forget to add .js?\n';
+      this.output.write(this.clr(msg, ['bold', 'yellow']));
+    }
   }
 
   /**

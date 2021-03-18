@@ -88,7 +88,8 @@ describe('MongoshNodeRepl', () => {
 
   context('with default options', () => {
     beforeEach(async() => {
-      await mongoshRepl.start(serviceProvider);
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
     });
 
     it('shows a nice message to say hello', () => {
@@ -223,7 +224,8 @@ describe('MongoshNodeRepl', () => {
         ...mongoshReplOptions,
         nodeReplOptions: { terminal: true }
       });
-      await mongoshRepl.start(serviceProvider);
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
     });
 
     it('provides an editor action', async() => {
@@ -424,7 +426,8 @@ describe('MongoshNodeRepl', () => {
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
       mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
-      await mongoshRepl.start(serviceProvider);
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
       expect(mongoshRepl.getFormatOptions().colors).to.equal(true);
     });
 
@@ -515,7 +518,7 @@ describe('MongoshNodeRepl', () => {
     });
 
     it('warns about the unavailable history file support', async() => {
-      await mongoshRepl.start(serviceProvider);
+      await mongoshRepl.initialize(serviceProvider);
       expect(output).to.include('Error processing history file');
     });
   });
@@ -523,7 +526,7 @@ describe('MongoshNodeRepl', () => {
   context('when the config says to skip the telemetry greeting message', () => {
     beforeEach(async() => {
       config.disableGreetingMessage = true;
-      await mongoshRepl.start(serviceProvider);
+      await mongoshRepl.initialize(serviceProvider);
     });
 
     it('skips telemetry intro', () => {
@@ -538,7 +541,7 @@ describe('MongoshNodeRepl', () => {
           nodb: true
         };
         mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
       });
 
       it('does not show warnings', () => {
@@ -555,7 +558,7 @@ describe('MongoshNodeRepl', () => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
         }, {}).resolves({ ok: 1, log: logLines });
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
 
         expect(output).to.contain('The server generated these startup warnings when booting');
         logLines.forEach(l => {
@@ -567,7 +570,7 @@ describe('MongoshNodeRepl', () => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
         }, {}).resolves({ ok: 1, log: ['Not JSON'] });
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
 
         expect(output).to.contain('The server generated these startup warnings when booting');
         expect(output).to.contain('Unexpected log line format: Not JSON');
@@ -578,7 +581,7 @@ describe('MongoshNodeRepl', () => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
         }, {}).resolves({ ok: 1, log: [] });
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
 
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(error).to.be.null;
@@ -590,7 +593,7 @@ describe('MongoshNodeRepl', () => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
         }, {}).rejects(expectedError);
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
 
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(output).to.not.contain('Error');
@@ -602,7 +605,7 @@ describe('MongoshNodeRepl', () => {
         sp.runCommandWithCheck.withArgs(ADMIN_DB, {
           getLog: 'startupWarnings'
         }, {}).resolves(undefined);
-        await mongoshRepl.start(serviceProvider);
+        await mongoshRepl.initialize(serviceProvider);
 
         expect(output).to.not.contain('The server generated these startup warnings when booting');
         expect(output).to.not.contain('Error');
@@ -624,12 +627,14 @@ describe('MongoshNodeRepl', () => {
         }
       });
 
-      await mongoshRepl.start(serviceProvider);
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
       expect(output).to.contain('Enterprise > ');
     });
 
     it('defaults if an error occurs', async() => {
-      await mongoshRepl.start(serviceProvider);
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
       expect(output).to.contain('> ');
       mongoshRepl.runtimeState().internalState.getDefaultPrompt = () => { throw new Error('no prompt'); };
 

@@ -42,6 +42,9 @@ export type MongoshNodeReplOptions = {
   nodeReplOptions?: Partial<ReplOptions>;
 };
 
+// Used to make sure start() can only be called after initialize().
+export type InitializationToken = { __initialized: 'yes' };
+
 type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator;
   internalState: ShellInternalState;
@@ -81,7 +84,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this._runtimeState = null;
   }
 
-  async start(serviceProvider: ServiceProvider): Promise<void> {
+  async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(internalState);
     internalState.setEvaluationListener(this);
@@ -95,7 +98,7 @@ class MongoshNodeRepl implements EvaluationListener {
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
-      prompt: await this.getShellPrompt(internalState),
+      prompt: '',
       writer: this.writer.bind(this),
       breakEvalOnSigint: true,
       preview: false,
@@ -233,9 +236,17 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     internalState.setCtx(repl.context);
+    return { __initialized: 'yes' };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async startRepl(_initializationToken: InitializationToken): Promise<void> {
+    const { repl, internalState } = this.runtimeState();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
+    repl.setPrompt(await this.getShellPrompt(internalState));
+    repl.displayPrompt();
   }
 
   /**
@@ -332,6 +343,10 @@ class MongoshNodeRepl implements EvaluationListener {
       resolvedFilename: absolutePath,
       evaluate: () => promisify(repl.eval.bind(repl))(contents, repl.context, absolutePath)
     };
+  }
+
+  async loadExternalFile(filename: string): Promise<void> {
+    await this.runtimeState().internalState.shellApi.load(filename);
   }
 
   /**

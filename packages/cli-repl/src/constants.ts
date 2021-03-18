@@ -23,6 +23,7 @@ export const USAGE = `
         --port [arg]                           ${i18n.__('cli-repl.args.port')}
         --version                              ${i18n.__('cli-repl.args.version')}
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
+        --norc                                 ${i18n.__('cli-repl.args.norc')}
         --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
 
   ${clr(i18n.__('cli-repl.args.authenticationOptions'), ['bold', 'yellow'])}

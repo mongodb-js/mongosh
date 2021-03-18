@@ -6,6 +6,7 @@ import { EventEmitter } from 'events';
 export type ShellHomePaths = {
   shellRoamingDataPath: string;
   shellLocalDataPath: string;
+  shellRcPath: string;
 };
 
 export class ShellHomeDirectory {
@@ -30,6 +31,10 @@ export class ShellHomeDirectory {
 
   localPath(subpath: string): string {
     return path.join(this.paths.shellLocalDataPath, subpath);
+  }
+
+  rcPath(subpath: string): string {
+    return path.join(this.paths.shellRcPath, subpath);
   }
 }
 
@@ -118,6 +123,7 @@ export function getStoragePaths(): ShellHomePaths {
   shellRoamingDataPath ??= homedir;
   return {
     shellLocalDataPath,
-    shellRoamingDataPath
+    shellRoamingDataPath,
+    shellRcPath: os.homedir()
   };
 }

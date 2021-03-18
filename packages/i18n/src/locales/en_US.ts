@@ -17,7 +17,7 @@ const translations: Catalog = {
       version: 'Show version information',
       shell: 'Run the shell after executing files',
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
-      norc: "Will not run the '.mongorc.js' file on start up",
+      norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
       retryWrites: 'Automatically retry write operations upon transient network errors',
       authenticationOptions: 'Authentication Options:',
