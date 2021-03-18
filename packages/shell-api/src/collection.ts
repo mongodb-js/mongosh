@@ -1082,8 +1082,7 @@ export default class Collection extends ShellApiClass {
    * @return {Promise}
    */
   @returnsPromise
-  async dropIndexes(indexes: string|string[]|Document|Document[]): Promise<Document> {
-    assertArgsDefined(indexes);
+  async dropIndexes(indexes: string|string[]|Document|Document[] = '*'): Promise<Document> {
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
       return await this._mongo._serviceProvider.runCommandWithCheck(
