@@ -464,6 +464,14 @@ describe('Shell API (integration)', function() {
         expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
       });
 
+      it('removes all indexes by default', async() => {
+        expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
+
+        await collection.dropIndexes();
+
+        expect(await getIndexNames(dbName, collectionName)).not.to.contain('index-1');
+      });
+
       it('removes indexes with an array argument', async() => {
         expect(await getIndexNames(dbName, collectionName)).to.contain('index-1');
 

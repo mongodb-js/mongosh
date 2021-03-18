@@ -776,6 +776,14 @@ describe('Collection', () => {
         it('returns the result of serviceProvider.dropIndexes', async() => {
           expect(await collection.dropIndexes('index_1')).to.deep.equal(result);
         });
+
+        it('defaults to removing all indexes', async() => {
+          expect(await collection.dropIndexes()).to.deep.equal(result);
+          expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+            database.getName(),
+            { dropIndexes: collection.getName(), index: '*' },
+            {});
+        });
       });
 
       context('when serviceProvider.dropIndexes rejects IndexNotFound', () => {
