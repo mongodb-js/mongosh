@@ -492,38 +492,77 @@ describe('e2e', function() {
   });
 
   describe('files loaded from command line', () => {
-    it('loads a file from the command line as requested', async() => {
-      const shell = TestShell.start({
-        args: [ '--nodb', './hello1.js' ],
-        cwd: path.resolve(__dirname, 'fixtures', 'load')
+    context('file from disk', () => {
+      it('loads a file from the command line as requested', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', './hello1.js' ],
+          cwd: path.resolve(__dirname, 'fixtures', 'load')
+        });
+        await eventually(() => {
+          shell.assertContainsOutput('hello one');
+        });
+        // We can't assert the exit code here currently because that breaks
+        // when run under coverage, as we currently specify the location of
+        // coverage files via a relative path and nyc fails to write to that
+        // when started from a changed cwd.
+        await shell.waitForExit();
+        shell.assertNoErrors();
       });
-      await eventually(() => {
+
+      it('drops into shell if --shell is used', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', '--shell', './hello1.js' ],
+          cwd: path.resolve(__dirname, 'fixtures', 'load')
+        });
+        await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
+        expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
+        shell.assertNoErrors();
       });
-      expect(await shell.waitForExit()).to.equal(0);
-      shell.assertNoErrors();
+
+      it('fails with the error if the loaded script throws', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', '--shell', './throw.js' ],
+          cwd: path.resolve(__dirname, 'fixtures', 'load')
+        });
+        await eventually(() => {
+          shell.assertContainsOutput('Error: uh oh');
+        });
+        expect(await shell.waitForExit()).to.equal(1);
+      });
     });
 
-    it('drops into shell if --shell is used', async() => {
-      const shell = TestShell.start({
-        args: [ '--nodb', '--shell', './hello1.js' ],
-        cwd: path.resolve(__dirname, 'fixtures', 'load')
+    context('--eval', () => {
+      it('loads a script from the command line as requested', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', '--eval', 'print("hello one")' ]
+        });
+        await eventually(() => {
+          shell.assertContainsOutput('hello one');
+        });
+        expect(await shell.waitForExit()).to.equal(0);
+        shell.assertNoErrors();
       });
-      await shell.waitForPrompt();
-      shell.assertContainsOutput('hello one');
-      expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
-      shell.assertNoErrors();
-    });
 
-    it('fails with the error if the loaded script throws', async() => {
-      const shell = TestShell.start({
-        args: [ '--nodb', '--shell', './throw.js' ],
-        cwd: path.resolve(__dirname, 'fixtures', 'load')
+      it('drops into shell if --shell is used', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', '--eval', 'print("hello one")', '--shell' ]
+        });
+        await shell.waitForPrompt();
+        shell.assertContainsOutput('hello one');
+        expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
+        shell.assertNoErrors();
       });
-      await eventually(() => {
-        shell.assertContainsOutput('Error: uh oh');
+
+      it('fails with the error if the loaded script throws', async() => {
+        const shell = TestShell.start({
+          args: [ '--nodb', '--eval', 'throw new Error("uh oh")' ]
+        });
+        await eventually(() => {
+          shell.assertContainsOutput('Error: uh oh');
+        });
+        expect(await shell.waitForExit()).to.equal(1);
       });
-      expect(await shell.waitForExit()).to.equal(1);
     });
   });
 

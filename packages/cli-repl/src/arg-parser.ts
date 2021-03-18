@@ -104,7 +104,6 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, string> = {
  * If an unsupported argument is given an error will be thrown.
  */
 const UNSUPPORTED_ARGS: Readonly<string[]> = [
-  'eval',
   'sslFIPSMode',
   'tlsFIPSMode'
 ];

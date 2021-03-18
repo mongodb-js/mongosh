@@ -204,24 +204,13 @@ describe('arg-parser', () => {
             context('when providing --eval', () => {
               const argv = [ ...baseArgv, uri, '--eval', '1+1' ];
 
-              it('throws an error since it is not yet supported', () => {
-                try {
-                  parseCliArgs(argv);
-                } catch (e) {
-                  expect(e).to.be.instanceOf(MongoshUnimplementedError);
-                  expect(e.message).to.include('Argument --eval is not yet supported in mongosh');
-                  return;
-                }
-                expect.fail('Expected error');
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
               });
 
-              // it('returns the URI in the object', () => {
-              //   expect(parseCliArgs(argv)._[0]).to.equal(uri);
-              // });
-
-              // it('sets the eval value in the object', () => {
-              //   expect(parseCliArgs(argv).eval).to.equal('1+1');
-              // });
+              it('sets the eval value in the object', () => {
+                expect(parseCliArgs(argv).eval).to.equal('1+1');
+              });
             });
 
             context('when providing --retryWrites', () => {

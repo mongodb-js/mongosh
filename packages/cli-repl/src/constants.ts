@@ -25,6 +25,7 @@ export const USAGE = `
         --shell                                ${i18n.__('cli-repl.args.shell')}
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
         --norc                                 ${i18n.__('cli-repl.args.norc')}
+        --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
         --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
 
   ${clr(i18n.__('cli-repl.args.authenticationOptions'), ['bold', 'yellow'])}
