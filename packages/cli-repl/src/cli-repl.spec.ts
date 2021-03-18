@@ -42,6 +42,7 @@ describe('CliRepl', () => {
       shellHomePaths: {
         shellRoamingDataPath: tmpdir.path,
         shellLocalDataPath: tmpdir.path,
+        shellRcPath: tmpdir.path,
       },
       onExit: (code: number) => {
         exitCode = code;
@@ -232,6 +233,73 @@ describe('CliRepl', () => {
           process.version = process.versions.node;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';
         }
+      });
+
+      context('mongoshrc', () => {
+        it('loads .mongoshrc if it is present', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).to.include('hi from mongoshrc');
+        });
+
+        it('does not load .mongoshrc if --norc is passed', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+          cliReplOptions.shellCliOptions.norc = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).not.to.include('hi from mongoshrc');
+        });
+
+        it('warns if .mongorc.js is present but not .mongoshrc.js', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongorc.js'), 'print("hi from mongorc")');
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).to.include('Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.');
+          expect(output).to.include('You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.');
+          expect(output).not.to.include('hi from mongorc');
+        });
+
+        it('warns if .mongoshrc is present but not .mongoshrc.js', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc'), 'print("hi from misspelled")');
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).to.include('Found ~/.mongoshrc, but not ~/.mongoshrc.js.');
+          expect(output).not.to.include('hi from misspelled');
+        });
+
+        it('does not warn with --quiet if .mongorc.js is present but not .mongoshrc.js', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongorc.js'), 'print("hi from mongorc")');
+          cliReplOptions.shellCliOptions.quiet = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).not.to.include('Found ~/.mongorc.js, but not ~/.mongoshrc.js');
+          expect(output).not.to.include('hi from mongorc');
+        });
+
+        it('does not warn with --quiet if .mongoshrc is present but not .mongoshrc.js', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc'), 'print("hi from misspelled")');
+          cliReplOptions.shellCliOptions.quiet = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).not.to.include('Found ~/.mongoshrc, but not ~/.mongoshrc.js');
+          expect(output).not.to.include('hi from misspelled');
+        });
+
+        it('loads .mongoshrc recursively if wanted', async() => {
+          const rcPath = path.join(tmpdir.path, '.mongoshrc.js');
+          await fs.writeFile(
+            rcPath,
+            `globalThis.a = (globalThis.a + 1 || 0);
+            if (a === 5) {
+              print('reached five');
+            } else {
+              load(JSON.stringify(${rcPath})
+            }`);
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).to.include('reached five');
+        });
       });
     });
 
