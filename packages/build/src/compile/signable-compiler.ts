@@ -70,6 +70,10 @@ export class SignableCompiler {
       path: await findModulePath('cli-repl', 'win-export-certificate-and-key'),
       requireRegexp: /\bwin_export_cert\.node$/
     } : null;
+    const macKeychainAddon = process.platform === 'darwin' ? {
+      path: await findModulePath('cli-repl', 'macos-export-certificate-and-key'),
+      requireRegexp: /\bmacos_export_certificate_and_key\.node$/
+    } : null;
 
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
@@ -92,6 +96,8 @@ export class SignableCompiler {
         fleAddon
       ].concat(winCAAddon ? [
         winCAAddon
+      ] : []).concat(macKeychainAddon ? [
+        macKeychainAddon
       ] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata

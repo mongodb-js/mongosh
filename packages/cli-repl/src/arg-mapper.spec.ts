@@ -1,10 +1,10 @@
-import mapCliToDriver, { applyTlsCertificateSelector } from './arg-mapper';
 import { CliOptions } from '@mongosh/service-provider-server';
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
-import sinonChai from 'sinon-chai';
-chai.use(sinonChai);
 import path from 'path';
+import sinonChai from 'sinon-chai';
+import sinon from 'ts-sinon';
+import mapCliToDriver, { applyTlsCertificateSelector } from './arg-mapper';
+chai.use(sinonChai);
 
 describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
@@ -247,14 +247,14 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
   context('with fake ca provider', () => {
     let exportCertificateAndPrivateKey;
     beforeEach(() => {
-      process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH =
-        path.resolve(__dirname, '..', 'test', 'fixtures', 'fake-win-ca-provider.js');
+      process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH =
+        path.resolve(__dirname, '..', 'test', 'fixtures', 'fake-os-ca-provider.js');
       exportCertificateAndPrivateKey = sinon.stub();
-      require(process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH)
+      require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH)
         .setFn((search) => exportCertificateAndPrivateKey(search));
     });
     afterEach(() => {
-      delete process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH;
+      delete process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH;
     });
 
     it('leaves node options unchanged when no selector is given', () => {
@@ -285,8 +285,8 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
   });
 
   context('with what the OS gives us', () => {
-    it('throws an error on non-win32', function() {
-      if (process.platform === 'win32') {
+    it('throws an error on non-win32 and non-darwin', function() {
+      if (process.platform === 'win32' || process.platform === 'darwin') {
         return this.skip();
       }
       const options = {};
@@ -301,6 +301,15 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       const options = {};
       expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
         .to.throw(/Could not resolve certificate specification/);
+    });
+
+    it('tries to search the OS keychain on darwin', function() {
+      if (process.platform !== 'darwin') {
+        return this.skip();
+      }
+      const options = {};
+      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+        .to.throw(/Could not find a matching certificate/);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { MongoshUnimplementedError, MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { CliOptions, MongoClientOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
@@ -61,19 +61,16 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
   return nodeOptions;
 }
 
+type TlsCertificateExporter = (search: { subject: string } | { thumbprint: Buffer }) => { passphrase: string, pfx: Buffer };
 export function applyTlsCertificateSelector(
   selector: string | undefined,
-  nodeOptions: MongoClientOptions): void {
-  if (!selector) return;
-  let exportCertificateAndPrivateKey;
-  try {
-    if (process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH) {
-      exportCertificateAndPrivateKey = require(process.env.TEST_WIN_EXPORT_CERTIFICATE_AND_KEY_PATH);
-    } else {
-      exportCertificateAndPrivateKey = require('win-export-certificate-and-key');
-    }
-  } catch { /* not windows */ }
+  nodeOptions: MongoClientOptions
+): void {
+  if (!selector) {
+    return;
+  }
 
+  const exportCertificateAndPrivateKey = getCertificateExporter();
   if (!exportCertificateAndPrivateKey) {
     throw new MongoshUnimplementedError('--tlsCertificateSelector is not supported on this platform');
   }
@@ -84,6 +81,7 @@ export function applyTlsCertificateSelector(
   }
   const { key, value } = match.groups ?? {};
   const search = key === 'subject' ? { subject: value } : { thumbprint: Buffer.from(value, 'hex') };
+
   try {
     const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
     nodeOptions.passphrase = passphrase;
@@ -91,6 +89,24 @@ export function applyTlsCertificateSelector(
   } catch (err) {
     throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
   }
+}
+
+function getCertificateExporter(): TlsCertificateExporter | undefined {
+  if (process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH) {
+    return require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH);
+  }
+
+  try {
+    switch (process.platform) {
+      case 'win32':
+        return require('win-export-certificate-and-key');
+      case 'darwin':
+        return require('macos-export-certificate-and-key');
+      default:
+        return undefined;
+    }
+  } catch { /* os probably not supported */ }
+  return undefined;
 }
 
 export default mapCliToDriver;
