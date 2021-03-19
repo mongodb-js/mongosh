@@ -153,6 +153,7 @@ class CliRepl {
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
     const commandLineLoadFiles = this.listCommandLineLoadFiles();
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
+      this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
       await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
       if (!this.cliOptions.shell) {
         await this.exit(0);
@@ -160,6 +161,7 @@ class CliRepl {
       }
     }
     await this.loadRcFiles();
+    this.bus.emit('mongosh:start-mongosh-repl');
     await this.mongoshRepl.startRepl(initialized);
   }
 
@@ -170,6 +172,7 @@ class CliRepl {
 
   async loadCommandLineFilesAndEval(files: string[]) {
     if (this.cliOptions.eval) {
+      this.bus.emit('mongosh:eval-cli-script');
       await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
     } else if (this.cliOptions.eval === '') {
       // This happens e.g. when --eval is followed by another option, for example
@@ -201,6 +204,7 @@ class CliRepl {
     } catch { /* file not present */ }
     if (hasMongoshRc) {
       try {
+        this.bus.emit('mongosh:mongoshrc-load');
         await this.mongoshRepl.loadExternalFile(mongoshrcPath);
       } catch (err) {
         this.output.write(this.mongoshRepl.writer(err) + '\n');
@@ -218,6 +222,7 @@ class CliRepl {
       hasLegacyRc = true;
     } catch { /* file not present */ }
     if (hasLegacyRc) {
+      this.bus.emit('mongosh:mongoshrc-mongorc-warn');
       const msg =
         'Warning: Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.\n' +
         '  You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.\n';

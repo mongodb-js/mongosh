@@ -8,7 +8,9 @@ import type {
   UseEvent,
   AsyncRewriterEvent,
   ShowEvent,
-  ConnectEvent
+  ConnectEvent,
+  ScriptLoadFileEvent,
+  StartLoadingCliScriptsEvent
 } from '@mongosh/types';
 
 interface MongoshAnalytics {
@@ -49,6 +51,22 @@ export default function setupLoggerAndTelemetry(
   } catch (e) {
     log.error(e);
   }
+
+  // We emit different analytics events for loading files and evaluating scripts
+  // depending on whether we're already in the REPL or not yet. We store the
+  // state here so that the places where the events are emitted don't have to
+  // be aware of this distinction.
+  let hasStartedMongoshRepl = false;
+  bus.on('mongosh:start-mongosh-repl', () => {
+    log.info('mongosh:start-mongosh-repl');
+    hasStartedMongoshRepl = true;
+  });
+
+  let usesShellOption = false;
+  bus.on('mongosh:start-loading-cli-scripts', (event: StartLoadingCliScriptsEvent) => {
+    log.info('mongosh:start-loading-cli-scripts');
+    usesShellOption = event.usesShellOption;
+  });
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = redactPassword(args.uri);
@@ -157,5 +175,64 @@ export default function setupLoggerAndTelemetry(
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
     log.info('mongosh:api-call', redactInfo(args));
+  });
+
+  bus.on('mongosh:api-load-file', function(args: ScriptLoadFileEvent) {
+    log.info('mongosh:api-load-file', args);
+
+    if (telemetry) {
+      analytics.track({
+        userId,
+        event: hasStartedMongoshRepl ? 'Script Loaded' : 'Script Loaded CLI',
+        properties: {
+          mongosh_version,
+          nested: args.nested,
+          ...(hasStartedMongoshRepl ? {} : { shell: usesShellOption })
+        }
+      });
+    }
+  });
+
+  bus.on('mongosh:eval-cli-script', function() {
+    log.info('mongosh:eval-cli-script');
+
+    if (telemetry) {
+      analytics.track({
+        userId,
+        event: 'Script Evaluated',
+        properties: {
+          mongosh_version,
+          shell: usesShellOption
+        }
+      });
+    }
+  });
+
+  bus.on('mongosh:mongoshrc-load', function() {
+    log.info('mongosh:mongoshrc-load');
+
+    if (telemetry) {
+      analytics.track({
+        userId,
+        event: 'Mongoshrc Loaded',
+        properties: {
+          mongosh_version
+        }
+      });
+    }
+  });
+
+  bus.on('mongosh:mongoshrc-mongorc-warn', function() {
+    log.info('mongosh:mongoshrc-mongorc-warn');
+
+    if (telemetry) {
+      analytics.track({
+        userId,
+        event: 'Mongorc Warning',
+        properties: {
+          mongosh_version
+        }
+      });
+    }
   });
 }
