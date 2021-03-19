@@ -9,8 +9,8 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
   $ mongosh [options] [db address]
 
   Options:
+
     -h, --help                                 Show this usage information
-        --ipv6                                 Enable IPv6 support (disabled by default)
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
         --version                              Show version information
@@ -26,46 +26,45 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
     -p, --password [arg]                       Password for authentication
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
-        --gssapiServiceName [arg] (=mongodb)   undefined
-        --gssapiHostName [arg]                 Automatically retry write operations upon transient network errors
+        --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
 
   TLS Options:
 
         --tls                                  Use TLS for all connections
         --tlsCertificateKeyFile [arg]          PEM certificate/key file for TLS
-        --tlsCertificateKeyFilePassword [arg]  undefined
+        --tlsCertificateKeyFilePassword [arg]  Password for key in PEM file for TLS
         --tlsCAFile [arg]                      Certificate Authority file for TLS
-        --tlsCRLFile [arg]                     Certificate Revocation List file for TLS
-        --tlsAllowInvalidHostnames             undefined
-        --tlsAllowInvalidCertificates          undefined
-        --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows-only currently)
+        --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
+        --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
+        --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
-  FLE AWS Options
+  FLE Options:
 
         --awsAccessKeyId [arg]                 AWS Access Key for FLE Amazon KMS
         --awsSecretAccessKey [arg]             AWS Secret Key for FLE Amazon KMS
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
-        --kmsURL [arg]                         Test parameter to override the URL for
+        --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
 
-  DB Address Examples
+  DB Address Examples:
 
         foo                                    Foo database on local machine
         192.168.0.5/foo                        Foo database on 192.168.0.5 machine
         192.168.0.5:9999/foo                   Foo database on 192.168.0.5 machine on port 9999
         mongodb://192.168.0.5:9999/foo         Connection string URI can also be used
 
-  File Names
+  File Names:
 
         A list of files to run. Files must end in .js and will exit after unless --shell is specified.
 
-  Examples
+  Examples:
 
         Start mongosh using 'ships' database on specified connection string:
         $ mongosh mongodb://192.168.0.5:9999/ships
 
-  For more information on mongosh usage: https://docs.mongodb.com/manual/mongo/.
+  For more information on usage: https://docs.mongodb.com/mongodb-shell.
+
 ```
 
 ### Log Format

@@ -62,6 +62,10 @@ export const USAGE = `
         192.168.0.5:9999/foo                   ${i18n.__('cli-repl.args.dbAddress/192/host/foo')}
         mongodb://192.168.0.5:9999/foo         ${i18n.__('cli-repl.args.dbAddress/connectionURI')}
 
+  ${clr(i18n.__('cli-repl.args.fileNames'), ['bold', 'yellow'])}
+
+        ${i18n.__('cli-repl.args.filenameDescription')}
+
   ${clr(i18n.__('cli-repl.args.examples'), ['bold', 'yellow'])}
 
         ${i18n.__('cli-repl.args.connectionExampleWithDatabase')}
