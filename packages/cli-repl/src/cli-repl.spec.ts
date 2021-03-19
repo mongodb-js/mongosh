@@ -809,10 +809,19 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
       });
 
-      it('completes JS value properties properly', async() => {
+      it('completes JS value properties properly (incomplete, double tab)', async() => {
         input.write('JSON.\u0009\u0009');
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('JSON.parse');
+        expect(output).to.include('JSON.stringify');
+        expect(output).not.to.include('rawValue');
+      });
+
+      it('completes JS value properties properly (complete, single tab)', async() => {
+        input.write('JSON.pa\u0009');
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('JSON.parse');
+        expect(output).not.to.include('JSON.stringify');
         expect(output).not.to.include('rawValue');
       });
     });

@@ -82,7 +82,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
       // alphanumeric character. This could be a function call, for example.
       // In any case, we can't currently provide reasonable autocompletion
       // suggestions for this.
-      return [[line], line];
+      return [[], line];
     }
 
     if (splitLine.length > 3) {
@@ -99,7 +99,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
         return [hits.length ? hits : [], line];
       }
       // This is something else, and we currently don't know what this is.
-      return [[line], line];
+      return [[], line];
     }
 
     // complete aggregation and collection  queries/stages
@@ -134,7 +134,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     return [hits.length ? hits : [], line];
   }
 
-  return [[line], line];
+  return [[], line];
 }
 
 function isAcceptable(
