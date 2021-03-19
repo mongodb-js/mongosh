@@ -16,6 +16,7 @@ import ShellInternalState from './shell-internal-state';
 import Collection from './collection';
 import Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
+import NoDatabase from './no-db';
 import { MongoshDeprecatedError, MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
 
 const sampleOpts = {
@@ -526,6 +527,25 @@ describe('Mongo', () => {
         const msg = mongo.use('moo');
         expect(msg).to.equal('switched to db moo');
         expect(internalState.context.db.getName()).to.equal('moo');
+      });
+      it('reports if no db switch has taken place', () => {
+        mongo.use('moo1');
+        const msg = mongo.use('moo1');
+        expect(msg).to.equal('already on db moo1');
+        expect(internalState.context.db.getName()).to.equal('moo1');
+      });
+      it('reports if db has the same name but different Mongo objects', () => {
+        internalState.context.db = new Mongo(internalState, undefined, undefined, serviceProvider).getDB('moo1');
+        expect(internalState.context.db.getName()).to.equal('moo1');
+        const msg = mongo.use('moo1');
+        expect(msg).to.equal('switched to db moo1');
+        expect(internalState.context.db.getName()).to.equal('moo1');
+      });
+      it('works if previously there was no db', () => {
+        internalState.context.db = new NoDatabase();
+        const msg = mongo.use('moo1');
+        expect(msg).to.equal('switched to db moo1');
+        expect(internalState.context.db.getName()).to.equal('moo1');
       });
     });
     describe('deprecated mongo methods', () => {

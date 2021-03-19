@@ -169,13 +169,29 @@ export default class Mongo extends ShellApiClass {
 
   @returnType('Database')
   getDB(db: string): Database {
-    this._internalState.messageBus.emit( 'mongosh:getDB', { db });
+    this._internalState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);
   }
 
   use(db: string): string {
-    this._internalState.messageBus.emit( 'mongosh:use', { db });
+    this._internalState.messageBus.emit('mongosh:use', { db });
+
+    let previousDbName;
+    let previousDbMongo;
+    try {
+      const previousDb = this._internalState.context.db;
+      previousDbName = previousDb?.getName?.();
+      previousDbMongo = previousDb?._mongo;
+    } catch (e) {
+      if (e.code !== ShellApiErrors.NotConnected) {
+        throw e;
+      }
+    }
+
     this._internalState.context.db = this._getDb(db);
+    if (db === previousDbName && previousDbMongo === this) {
+      return `already on db ${db}`;
+    }
     return `switched to db ${db}`;
   }
 
