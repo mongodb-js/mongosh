@@ -80,7 +80,7 @@ for (const nodeType of Object.keys(walk.base)) {
 }
 
 function processTopLevelAwait(src: string): null | string {
-  const wrapped = `(async () => { ${src} })()`;
+  const wrapped = `(async () => {\n${src}\n})()`;
   const wrappedArray = wrapped.split('');
   let root;
   try {
