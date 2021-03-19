@@ -17,7 +17,8 @@ import {
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
   processMapReduceOptions,
-  MapReduceShellOptions
+  MapReduceShellOptions,
+  markAsExplainOutput
 } from './helpers';
 import type {
   Document,
@@ -93,26 +94,24 @@ export default class Explainable extends ShellApiClass {
   async aggregate(pipeline?: Document, options?: Document): Promise<any> {
     this._emitExplainableApiCall('aggregate', { pipeline, options });
 
-    const cursor = await this._collection.aggregate(pipeline, {
+    return await this._collection.aggregate(pipeline, {
       ...options,
-      explain: false
+      explain: this._verbosity
     });
-
-    return await cursor.explain(this._verbosity);
   }
 
   @returnsPromise
   async count(query = {}, options: CountOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('count', { query, options });
     // This is the only one that currently lacks explicit driver support.
-    return this._collection._database._runCommand({
+    return markAsExplainOutput(await this._collection._database._runCommand({
       explain: {
         count: `${this._collection._database._name}.${this._collection._name}`,
         query,
         ...options
       },
       verbosity: this._verbosity
-    });
+    }));
   }
 
   @returnsPromise

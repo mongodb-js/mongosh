@@ -14,7 +14,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
 import { asPrintable, DEFAULT_BATCH_SIZE } from './enums';
-import { iterate, validateExplainableVerbosity } from './helpers';
+import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -109,9 +109,9 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Promise<any> {
+  async explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Promise<any> {
     verbosity = validateExplainableVerbosity(verbosity);
-    return this._cursor.explain(verbosity);
+    return markAsExplainOutput(await this._cursor.explain(verbosity));
   }
 
   @returnType('AggregationCursor')

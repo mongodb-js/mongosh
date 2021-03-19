@@ -9,7 +9,8 @@ import type {
   DeleteOptions,
   MapReduceOptions,
   ChangeStream,
-  KMSProviders
+  KMSProviders,
+  ExplainOptions
 } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import crypto from 'crypto';
@@ -20,7 +21,7 @@ import { ShellApiErrors } from './error-codes';
 import { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
-
+import { shellApiType } from './enums';
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -31,12 +32,12 @@ import { AutoEncryptionOptions } from 'mongodb';
 export function adaptAggregateOptions(options: any = {}): {
   aggOptions: Document;
   dbOptions: DbOptions;
-  explain: boolean;
+  explain?: ExplainVerbosityLike & string;
 } {
   const aggOptions = { ...options };
 
   const dbOptions: DbOptions = {};
-  let explain = false;
+  let explain;
 
   if ('readConcern' in aggOptions) {
     dbOptions.readConcern = options.readConcern;
@@ -49,7 +50,7 @@ export function adaptAggregateOptions(options: any = {}): {
   }
 
   if ('explain' in aggOptions) {
-    explain = aggOptions.explain;
+    explain = validateExplainableVerbosity(aggOptions.explain);
     delete aggOptions.explain;
   }
 
@@ -652,4 +653,22 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
     autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
   }
   return autoEncryption;
+}
+
+// The then?: never check is to make sure this doesn't accidentally get applied
+// to an un-awaited Promise, which is something that the author of this function
+// might have messed up while implementing this.
+type NotAPromise = { [key: string]: any, then?: never };
+export function maybeMarkAsExplainOutput<T extends NotAPromise>(value: T, options: ExplainOptions): T {
+  if ('explain' in options) {
+    return markAsExplainOutput(value);
+  }
+  return value;
+}
+
+export function markAsExplainOutput<T extends NotAPromise>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    addHiddenDataProperty(value as any, shellApiType, 'ExplainOutput');
+  }
+  return value;
 }

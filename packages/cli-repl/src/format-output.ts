@@ -15,6 +15,7 @@ type EvaluationResult = {
 
 type FormatOptions = {
   colors: boolean;
+  depth?: number;
 };
 
 /**
@@ -94,6 +95,10 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
     return formatError(value, options);
   }
 
+  if (type === 'ExplainOutput' || type === 'ExplainableCursor') {
+    return formatSimpleType(value, { ...options, depth: Infinity });
+  }
+
   return formatSimpleType(value, options);
 }
 
@@ -164,7 +169,7 @@ function inspect(output: any, options: FormatOptions): any {
   return util.inspect(output, {
     showProxy: false,
     colors: options.colors ?? true,
-    depth: 6
+    depth: options.depth ?? 6
   });
 }
 

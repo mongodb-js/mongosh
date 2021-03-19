@@ -35,7 +35,7 @@ describe('ExplainableCursor', () => {
     beforeEach(() => {
       wrappee = {
         map: sinon.spy(),
-        explain: (verbosity): any => ({ ok: verbosity })
+        explain: sinon.spy((verbosity): any => ({ ok: verbosity }))
       };
       wrappee._cursor = wrappee;
       eCursor = new ExplainableCursor({} as any, wrappee as any, 'queryPlannerExtended');
@@ -46,6 +46,7 @@ describe('ExplainableCursor', () => {
       expect((await toShellResult(eCursor.help)).type).to.equal('Help');
       expect((await toShellResult(eCursor)).printable).to.deep.equal({ ok: 'queryPlannerExtended' });
       expect(eCursor._verbosity).to.equal('queryPlannerExtended');
+      expect(wrappee.explain).to.have.callCount(1);
     });
 
     it('returns the same ExplainableCursor', () => {
