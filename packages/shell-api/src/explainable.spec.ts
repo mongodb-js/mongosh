@@ -148,15 +148,9 @@ describe('Explainable', () => {
 
     describe('aggregate', () => {
       let explainResult;
-      let expectedExplainResult;
-      let cursor;
+      const expectedExplainResult = { ok: 1 };
       beforeEach(async() => {
-        explainResult = { ok: 1 };
-        cursor = {
-          explain: sinon.spy(() => Promise.resolve(expectedExplainResult))
-        };
-
-        collection.aggregate = sinon.spy(() => Promise.resolve(cursor));
+        collection.aggregate = sinon.spy(() => Promise.resolve(expectedExplainResult)) as any;
 
         explainResult = await explainable.aggregate(
           { pipeline: 1 },
@@ -167,14 +161,8 @@ describe('Explainable', () => {
       it('calls collection.aggregate with arguments', () => {
         expect(collection.aggregate).to.have.been.calledOnceWithExactly(
           { pipeline: 1 },
-          { aggregate: 1, explain: false }
+          { aggregate: 1, explain: 'queryPlanner' }
         );
-      });
-
-      it('calls explain with verbosity', async() => {
-        expect(
-          cursor.explain
-        ).to.have.been.calledOnceWithExactly('queryPlanner');
       });
 
       it('returns the explain result', () => {

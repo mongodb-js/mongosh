@@ -188,6 +188,24 @@ describe('AggregationCursor', () => {
       });
     });
 
+    describe('#explain', () => {
+      let spCursor: StubbedInstance<SPAggregationCursor>;
+      let shellApiCursor;
+
+      beforeEach(() => {
+        spCursor = stubInterface<SPAggregationCursor>();
+        shellApiCursor = new AggregationCursor(mongo, spCursor);
+        spCursor.explain.resolves({ ok: 1 });
+      });
+
+      it('returns an ExplainOutput object', async() => {
+        const explained = await shellApiCursor.explain();
+        expect(spCursor.explain).to.have.been.calledWith('queryPlanner');
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
+    });
+
     describe('toShellResult', () => {
       let shellApiCursor;
       let i;

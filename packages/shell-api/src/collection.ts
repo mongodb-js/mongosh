@@ -27,7 +27,9 @@ import {
   RemoveShellOptions,
   MapReduceShellOptions,
   processMapReduceOptions,
-  setHideIndex
+  setHideIndex,
+  maybeMarkAsExplainOutput,
+  markAsExplainOutput
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -173,7 +175,7 @@ export default class Collection extends ShellApiClass {
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain('queryPlanner');
+      return await cursor.explain(explain);
     }
 
     this._mongo._internalState.currentCursor = cursor;
@@ -295,7 +297,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options }
     );
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
 
     return new DeleteResult(
@@ -328,7 +330,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options }
     );
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
 
     return new DeleteResult(
@@ -352,7 +354,14 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
-    return this._mongo._serviceProvider.distinct(this._database._name, this._name, field, query, { ...this._database._baseOptions, ...options });
+    return maybeMarkAsExplainOutput(
+      await this._mongo._serviceProvider.distinct(
+        this._database._name,
+        this._name,
+        field,
+        query,
+        { ...this._database._baseOptions, ...options }),
+      options);
   }
 
   /**
@@ -506,7 +515,7 @@ export default class Collection extends ShellApiClass {
     );
 
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
     return result.value;
   }
@@ -545,7 +554,7 @@ export default class Collection extends ShellApiClass {
     );
 
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
     return result.value;
   }
@@ -583,7 +592,7 @@ export default class Collection extends ShellApiClass {
     );
 
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
     return result.value;
   }
@@ -732,7 +741,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...removeOptions }
     );
     if (removeOptions.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
     return new DeleteResult(
       !!result.acknowledged,
@@ -815,7 +824,7 @@ export default class Collection extends ShellApiClass {
       );
     }
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
     return new UpdateResult(
       !!result.acknowledged,
@@ -852,7 +861,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options }
     );
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
 
     return new UpdateResult(
@@ -894,7 +903,7 @@ export default class Collection extends ShellApiClass {
       { ...this._database._baseOptions, ...options }
     );
     if (options.explain) {
-      return result;
+      return markAsExplainOutput(result);
     }
 
     return new UpdateResult(

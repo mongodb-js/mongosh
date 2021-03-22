@@ -625,7 +625,8 @@ describe('Cursor', () => {
           ok: 1
         });
 
-        await shellApiCursor.explain();
+        const explained = await shellApiCursor.explain();
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
         expect(nativeCursorStub.explain).to.have.been.calledWith();
       });
 

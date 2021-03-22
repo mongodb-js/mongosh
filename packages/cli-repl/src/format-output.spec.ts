@@ -288,5 +288,23 @@ for (const colors of [ false, true ]) {
         expect(output).to.contain('list available databases');
       });
     });
+
+    context('when the result is ExplainOutput or ExplainableCursor', () => {
+      for (const type of ['ExplainOutput', 'ExplainableCursor']) {
+        it(`returns output with large depth (${type})`, () => {
+          const value = {};
+          let it = value;
+          for (let i = 0; i <= 20; i++) {
+            it = it[`level${i}`] = {};
+          }
+          const output = stripAnsiColors(format({
+            value,
+            type
+          }));
+
+          expect(output).to.contain('level20');
+        });
+      }
+    });
   });
 }

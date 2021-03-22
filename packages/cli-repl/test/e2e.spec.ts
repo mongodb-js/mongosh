@@ -341,6 +341,18 @@ describe('e2e', function() {
 
       shell.assertNoErrors();
     });
+
+    it('expands explain output indefinitely', async() => {
+      await shell.executeLine('explainOutput = db.test.find().explain()');
+      await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
+      expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
+    });
+
+    it('expands explain output from aggregation indefinitely', async() => {
+      await shell.executeLine('explainOutput = db.test.aggregate([{ $limit: 1 }], {explain: "queryPlanner"})');
+      await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
+      expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
+    });
   });
 
   describe('Ctrl+C aka SIGINT', () => {

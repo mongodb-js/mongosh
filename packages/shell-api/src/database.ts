@@ -288,7 +288,7 @@ export default class Database extends ShellApiClass {
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain('queryPlanner');
+      return await cursor.explain(explain);
     }
 
     this._mongo._internalState.currentCursor = cursor;

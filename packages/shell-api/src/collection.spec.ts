@@ -228,6 +228,7 @@ describe('Collection', () => {
         );
 
         expect(explainResult).to.equal(expectedExplainResult);
+        expect((await toShellResult(explainResult)).type).to.equal('ExplainOutput');
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
 
@@ -363,6 +364,14 @@ describe('Collection', () => {
           { writeConcern: { w: 'majority' } }
         );
       });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.deleteMany.resolves({ ok: 1 } as any);
+
+        const explained = await collection.deleteMany({}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
     });
 
     describe('deleteOne', () => {
@@ -381,6 +390,24 @@ describe('Collection', () => {
           {},
           { writeConcern: { w: 'majority' } }
         );
+      });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.deleteOne.resolves({ ok: 1 } as any);
+
+        const explained = await collection.deleteOne({}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
+    });
+
+    describe('distinct', () => {
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.distinct.resolves({ ok: 1 } as any);
+
+        const explained = await collection.distinct('_id', {}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
       });
     });
 
@@ -423,6 +450,14 @@ describe('Collection', () => {
         expect(serviceProvider.deleteOne).to.not.have.been.called;
         expect(serviceProvider.deleteMany).to.have.been.calledWith('db1', 'coll1', {}, {});
       });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.deleteMany = sinon.spy(() => Promise.resolve({ ok: 1 })) as any;
+
+        const explained = await collection.remove({}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
     });
 
     describe('findOneAndReplace', () => {
@@ -459,6 +494,14 @@ describe('Collection', () => {
           { returnOriginal: false }
         );
       });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.findOneAndReplace.resolves({ ok: 1 });
+
+        const explained = await collection.findOneAndReplace({}, {}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
     });
 
     describe('findOneAndUpdate', () => {
@@ -494,6 +537,14 @@ describe('Collection', () => {
           {},
           { returnOriginal: false }
         );
+      });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.findOneAndUpdate.resolves({ ok: 1 });
+
+        const explained = await collection.findOneAndUpdate({}, {}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
       });
     });
 
@@ -604,6 +655,14 @@ describe('Collection', () => {
           { writeConcern: { w: 'majority' } }
         );
       });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.updateOne.resolves({ ok: 1 } as any);
+
+        const explained = await collection.updateOne({}, {}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
+      });
     });
 
     describe('updateMany', () => {
@@ -623,6 +682,14 @@ describe('Collection', () => {
           {},
           { writeConcern: { w: 'majority' } }
         );
+      });
+
+      it('returns an ExplainOutput object when explained', async() => {
+        serviceProvider.updateMany.resolves({ ok: 1 } as any);
+
+        const explained = await collection.updateMany({}, {}, { explain: 'queryPlanner' });
+        expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
+        expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
       });
     });
 

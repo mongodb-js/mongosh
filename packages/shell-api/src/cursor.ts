@@ -26,7 +26,7 @@ import {
   TagSet,
   HedgeOptions
 } from '@mongosh/service-provider-core';
-import { iterate, validateExplainableVerbosity } from './helpers';
+import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 import Mongo from './mongo';
 import { CursorIterationResult } from './result';
 import { printWarning } from './deprecation-warning';
@@ -160,7 +160,7 @@ export default class Cursor extends ShellApiClass {
       delete explain.executionStats.allPlansExecution;
     }
 
-    return explain;
+    return markAsExplainOutput(explain);
   }
 
   @returnsPromise

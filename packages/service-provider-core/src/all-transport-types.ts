@@ -31,6 +31,7 @@ export type {
   DropCollectionOptions,
   DropDatabaseOptions,
   EstimatedDocumentCountOptions,
+  ExplainOptions,
   ExplainVerbosityLike,
   FindAndModifyOptions,
   FindOperators,
