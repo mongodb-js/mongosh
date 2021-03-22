@@ -5,6 +5,7 @@ import {
   ShellResult,
   EvaluationListener
 } from '@mongosh/shell-api';
+import AsyncWriter from '@mongosh/async-rewriter2';
 
 type EvaluationFunction = (input: string, context: object, filename: string) => Promise<any>;
 
@@ -14,18 +15,26 @@ type ResultHandler<EvaluationResultType> = (value: any) => EvaluationResultType 
 class ShellEvaluator<EvaluationResultType = ShellResult> {
   private internalState: ShellInternalState;
   private resultHandler: ResultHandler<EvaluationResultType>;
+  private hasAppliedAsyncWriterRuntimeSupport = true;
 
   constructor(internalState: ShellInternalState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
     this.internalState = internalState;
     this.resultHandler = resultHandler;
+    if (process.env.MONGOSH_ASYNC_REWRITER2) {
+      process.emitWarning(new Error('Using @mongosh/async-rewriter2'));
+      this.internalState.asyncWriter = new AsyncWriter();
+      this.hasAppliedAsyncWriterRuntimeSupport = false;
+    }
   }
 
   public revertState(): void {
-    this.internalState.asyncWriter.symbols.revertState();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    (this.internalState.asyncWriter as any)?.symbols?.revertState();
   }
 
   public saveState(): void {
-    this.internalState.asyncWriter.symbols.saveState();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    (this.internalState.asyncWriter as any)?.symbols?.saveState();
   }
 
   /**
@@ -45,7 +54,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     this.saveState();
-    const rewrittenInput = this.internalState.asyncWriter.process(input);
+    let rewrittenInput = this.internalState.asyncWriter.process(input);
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
@@ -54,6 +63,19 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
         { original: removeCommand(input.trim()), rewritten: removeCommand(rewrittenInput.trim()) }
       );
     }
+
+    if (!this.hasAppliedAsyncWriterRuntimeSupport) {
+      const supportCode = (this.internalState.asyncWriter as any).runtimeSupportCode();
+      // Eval twice: We need the modified prototypes to be present in both
+      // the evaluation context and the current one, because e.g. the value of
+      // db.test.find().toArray() is a Promise for an Array from the context
+      // in which the shell-api package lives and not from the context inside
+      // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
+      // eslint-disable-next-line no-eval
+      eval(supportCode);
+      rewrittenInput = supportCode + ';\n' + rewrittenInput;
+    }
+
     try {
       return await originalEval(rewrittenInput, context, filename);
     } catch (err) {

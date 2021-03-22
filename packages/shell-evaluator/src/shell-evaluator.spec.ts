@@ -79,11 +79,9 @@ describe('ShellEvaluator', () => {
     it('calls original eval for plain javascript', async() => {
       const originalEval = sinon.spy();
       await shellEvaluator.customEval(originalEval, 'doSomething();', {}, '');
-      expect(originalEval).to.have.been.calledWith(
-        'doSomething();',
-        {},
-        ''
-      );
+      expect(originalEval.firstCall.args[0]).to.include('doSomething');
+      expect(originalEval.firstCall.args[1]).to.deep.equal({});
+      expect(originalEval.firstCall.args[2]).to.equal('');
     });
     it('reverts state if error thrown', async() => {
       const originalEval = (): any => { throw new Error(); };

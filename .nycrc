@@ -9,6 +9,7 @@
     "**/tmp/**/*.{ts,js,tsx,jsx,cjs,mjs}",
     "**/*.config.{ts,js,tsx,jsx,cjs,mjs}",
     "**/lib/*.js",
-    "**/dist/**/*.js"
+    "**/dist/**/*.js",
+    "**/src/*.nocov.{ts,js}"
   ]
 }
