@@ -617,13 +617,18 @@ export default class Collection extends ShellApiClass {
       this._mongo._internalState.context.print
     );
     assertArgsDefined(docs);
-    const d: Document[] = Array.isArray(docs) ? docs : [docs];
+    // When inserting documents into MongoDB that do not contain the _id field,
+    // one will be added to each of the documents missing it by the Node driver,
+    // mutating the document. To prevent this behaviour we pass not the original document,
+    // but its copy, to keep the original document immutable.
+    // https://github.com/mongodb/node-mongodb-native/blob/3.6/lib/collection.js#L487-L489
+    const docsToInsert: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : [{ ...docs }];
 
     this._emitCollectionApiCall('insert', { options });
     const result = await this._mongo._serviceProvider.insertMany(
       this._database._name,
       this._name,
-      d,
+      docsToInsert,
       { ...this._database._baseOptions, ...options }
     );
 
@@ -650,12 +655,13 @@ export default class Collection extends ShellApiClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertMany(docs: Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     assertArgsDefined(docs);
+    const docsToInsert: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : docs;
 
     this._emitCollectionApiCall('insertMany', { options });
     const result = await this._mongo._serviceProvider.insertMany(
       this._database._name,
       this._name,
-      docs,
+      docsToInsert,
       { ...this._database._baseOptions, ...options }
     );
 
@@ -687,7 +693,7 @@ export default class Collection extends ShellApiClass {
     const result = await this._mongo._serviceProvider.insertOne(
       this._database._name,
       this._name,
-      doc,
+      { ...doc },
       { ...this._database._baseOptions, ...options }
     );
 

@@ -9,7 +9,7 @@ import semver from 'semver';
 import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
-import { downloadMongoDb } from '../packages/build';
+import { downloadMongoDb } from '../packages/build/src/download-mongodb';
 
 const execFile = promisify(child_process.execFile);
 

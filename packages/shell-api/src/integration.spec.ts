@@ -7,6 +7,7 @@ import AggregationCursor from './aggregation-cursor';
 import ShellApi from './shell-api';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
+import { Document } from '@mongosh/service-provider-core';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -221,6 +222,48 @@ describe('Shell API (integration)', function() {
             { doc: 1 }
           ]);
         });
+      });
+    });
+
+    describe('insertOne', () => {
+      it('does not overwrite users object', async() => {
+        const d: Document = { name: 'test', zipcode: '12345' };
+        await collection.insertOne(d);
+        expect(d._id).to.equal(undefined);
+      });
+    });
+
+    describe('insert', () => {
+      context('inserting one document', () => {
+        it('does not overwrite users object', async() => {
+          const d: Document = { name: 'test', zipcode: '12345' };
+          await collection.insert(d);
+          expect(d._id).to.equal(undefined);
+        });
+      });
+
+      context('inserting a list of documents', () => {
+        it('does not overwrite users object', async() => {
+          const d: Document[] = [
+            { name: 'first', zipcode: '12345' },
+            { name: 'second', zipcode: '12345' }
+          ];
+          await collection.insert(d);
+          expect(d[0]._id).to.equal(undefined);
+          expect(d[1]._id).to.equal(undefined);
+        });
+      });
+    });
+
+    describe('insertMany', () => {
+      it('does not overwrite users object', async() => {
+        const d: Document[] = [
+          { name: 'first', zipcode: '12345' },
+          { name: 'second', zipcode: '12345' }
+        ];
+        await collection.insert(d);
+        expect(d[0]._id).to.equal(undefined);
+        expect(d[1]._id).to.equal(undefined);
       });
     });
 
@@ -1061,7 +1104,43 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      describe('up to server 4.4', () => {
+      describe('server before 4.2.2', () => {
+        skipIfServerVersion(testServer, '>= 4.2.2');
+        it('returns a cursor that has the explain as result of toShellResult', async() => {
+          const cursor = await collection.explain().aggregate([
+            { $match: {} }, { $skip: 1 }, { $limit: 1 }
+          ]);
+          const result = await toShellResult(cursor);
+          expect(result.printable).to.include.all.keys([
+            'ok',
+            'stages'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.include.all.keys([
+            'queryPlanner'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
+            'executionStats'
+          ]);
+        });
+
+        it('includes executionStats when requested', async() => {
+          const cursor = await collection.explain('executionStats').aggregate([
+            { $match: {} }, { $skip: 1 }, { $limit: 1 }
+          ]);
+          const result = await toShellResult(cursor);
+          expect(result.printable).to.include.all.keys([
+            'ok',
+            'stages'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.include.all.keys([
+            'queryPlanner',
+            'executionStats'
+          ]);
+        });
+      });
+
+      describe('server from 4.2.2 till 4.4', () => {
+        skipIfServerVersion(testServer, '< 4.2.2');
         skipIfServerVersion(testServer, '>= 4.5');
         it('returns a cursor that has the explain as result of toShellResult', async() => {
           const cursor = await collection.explain().aggregate([
