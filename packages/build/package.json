@@ -39,7 +39,6 @@
     "@types/cross-spawn": "^6.0.2",
     "ajv": "^6.12.5",
     "cross-spawn": "^7.0.3",
-    "nock": "^13.0.4",
     "sinon-chai": "^3.5.0"
   },
   "dependencies": {
