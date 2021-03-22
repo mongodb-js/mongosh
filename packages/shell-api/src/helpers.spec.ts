@@ -10,7 +10,7 @@ import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
-const fakeConfigDb = makeFakeConfigDatabase(constructShellBson(bson));
+const fakeConfigDb = makeFakeConfigDatabase(constructShellBson(bson, sinon.stub()));
 
 describe('dataFormat', () => {
   it('formats byte amounts', () => {
