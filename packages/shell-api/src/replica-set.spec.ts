@@ -3,6 +3,7 @@ import { bson, FindCursor as ServiceProviderCursor, ServiceProvider } from '@mon
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import sinonChai from 'sinon-chai';
+import semver from 'semver';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { ensureMaster } from '../../../testing/helpers';
 import { MongodSetup, skipIfServerVersion, startTestCluster } from '../../../testing/integration-testing-hooks';
@@ -651,7 +652,10 @@ describe('ReplicaSet', () => {
       }
       const result = await rs.initiate(cfg);
       expect(result.ok).to.equal(1);
-      expect(result.$clusterTime).to.not.be.undefined;
+      // https://jira.mongodb.org/browse/SERVER-55371
+      if (!semver.satisfies(await srv0.serverVersion(), '>= 4.2.13 < 4.4.x')) {
+        expect(result.$clusterTime).to.not.be.undefined;
+      }
     });
 
     beforeEach(async() => {
