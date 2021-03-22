@@ -4,7 +4,7 @@ import ShellApi from './shell-api';
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
@@ -135,12 +135,12 @@ describe('ShellApi', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let newSP: StubbedInstance<ServiceProvider>;
     let rawClientStub: StubbedInstance<MongoClient>;
-    let bus: StubbedInstance<EventEmitter>;
+    let bus: EventEmitter;
     let internalState: ShellInternalState;
     let mongo: Mongo;
 
     beforeEach(() => {
-      bus = stubInterface<EventEmitter>();
+      bus = new EventEmitter();
       rawClientStub = stubInterface<MongoClient>();
       newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
@@ -570,6 +570,8 @@ describe('ShellApi', () => {
     });
     describe('load', () => {
       it('asks the evaluation listener to load a file', async() => {
+        const apiLoadFileListener = sinon.stub();
+        bus.on('mongosh:api-load-file', apiLoadFileListener);
         evaluationListener.onLoad.callsFake(async(filename: string) => {
           expect(filename).to.equal('abc.js');
           expect(internalState.context.__filename).to.equal(undefined);
@@ -586,6 +588,26 @@ describe('ShellApi', () => {
         expect(evaluationListener.onLoad).to.have.callCount(1);
         expect(internalState.context.__filename).to.equal(undefined);
         expect(internalState.context.__dirname).to.equal(undefined);
+        expect(apiLoadFileListener).to.have.been.calledWith({ nested: false, filename: 'abc.js' });
+      });
+      it('emits different events depending on nesting level', async() => {
+        const apiLoadFileListener = sinon.stub();
+        bus.on('mongosh:api-load-file', apiLoadFileListener);
+        evaluationListener.onLoad.callsFake(async(filename: string) => {
+          return {
+            resolvedFilename: '/resolved/' + filename,
+            evaluate: async() => {
+              if (filename === 'def.js') {
+                return;
+              }
+              await internalState.context.load('def.js');
+            }
+          };
+        });
+        await internalState.context.load('abc.js');
+        expect(apiLoadFileListener).to.have.callCount(2);
+        expect(apiLoadFileListener).to.have.been.calledWith({ nested: false, filename: 'abc.js' });
+        expect(apiLoadFileListener).to.have.been.calledWith({ nested: true, filename: 'def.js' });
       });
     });
     for (const cmd of ['print', 'printjson']) {

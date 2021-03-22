@@ -56,7 +56,15 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:rewritten-async-input', { original: '1+1', rewritten: '2' });
     bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
-    expect(logOutput).to.have.lengthOf(17);
+    bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: true });
+    bus.emit('mongosh:api-load-file', { nested: true, filename: 'foobar.js' });
+    bus.emit('mongosh:start-mongosh-repl');
+    bus.emit('mongosh:api-load-file', { nested: false, filename: 'foobar.js' });
+    bus.emit('mongosh:mongoshrc-load');
+    bus.emit('mongosh:mongoshrc-mongorc-warn');
+    bus.emit('mongosh:eval-cli-script');
+
+    expect(logOutput).to.have.lengthOf(24);
     expect(logOutput[0].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
     expect(logOutput[1].msg).to.match(/^mongosh:connect/);
     expect(logOutput[1].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
@@ -86,6 +94,17 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[15].msg).to.match(/"original":"1\+1"/);
     expect(logOutput[15].msg).to.match(/"rewritten":"2"/);
     expect(logOutput[16].msg).to.match(/"version":"3.6.1"/);
+    expect(logOutput[17].msg).to.equal('mongosh:start-loading-cli-scripts');
+    expect(logOutput[18].msg).to.match(/^mongosh:api-load-file/);
+    expect(logOutput[18].msg).to.match(/"nested":true/);
+    expect(logOutput[18].msg).to.match(/"filename":"foobar.js"/);
+    expect(logOutput[19].msg).to.equal('mongosh:start-mongosh-repl');
+    expect(logOutput[20].msg).to.match(/"nested":false/);
+    expect(logOutput[20].msg).to.match(/"filename":"foobar.js"/);
+    expect(logOutput[21].msg).to.equal('mongosh:mongoshrc-load');
+    expect(logOutput[22].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
+    expect(logOutput[23].msg).to.equal('mongosh:eval-cli-script');
+
 
     const mongosh_version = require('../package.json').version;
     expect(analyticsOutput).to.deep.equal([
@@ -144,6 +163,60 @@ describe('setupLoggerAndTelemetry', () => {
             mongosh_version,
             method: 'dbs'
           }
+        }
+      ],
+      [
+        'track',
+        {
+          event: 'Script Loaded CLI',
+          properties: {
+            mongosh_version,
+            nested: true,
+            shell: true
+          },
+          userId: '53defe995fa47e6c13102d9d'
+        }
+      ],
+      [
+        'track',
+        {
+          event: 'Script Loaded',
+          properties: {
+            mongosh_version,
+            nested: false
+          },
+          userId: '53defe995fa47e6c13102d9d'
+        }
+      ],
+      [
+        'track',
+        {
+          event: 'Mongoshrc Loaded',
+          properties: {
+            mongosh_version,
+          },
+          userId: '53defe995fa47e6c13102d9d'
+        }
+      ],
+      [
+        'track',
+        {
+          event: 'Mongorc Warning',
+          properties: {
+            mongosh_version,
+          },
+          userId: '53defe995fa47e6c13102d9d'
+        }
+      ],
+      [
+        'track',
+        {
+          event: 'Script Evaluated',
+          properties: {
+            mongosh_version,
+            shell: true
+          },
+          userId: '53defe995fa47e6c13102d9d'
         }
       ]
     ]);

@@ -613,6 +613,18 @@ describe('CliRepl', () => {
             req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Use')).flat();
           expect(useEvents).to.have.lengthOf(2);
         });
+
+        it('posts analytics event for load() calls', async() => {
+          const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
+          input.write(`load(${JSON.stringify(filenameB)});\n`);
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const loadEvents = requests.map(
+            req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Script Loaded')).flat();
+          expect(loadEvents).to.have.lengthOf(2);
+          expect(loadEvents[0].properties.nested).to.equal(false);
+          expect(loadEvents[1].properties.nested).to.equal(true);
+        });
       });
 
       context('without network connectivity', () => {

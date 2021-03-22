@@ -27,11 +27,13 @@ import { dirname } from 'path';
 export default class ShellApi extends ShellApiClass {
   readonly internalState: ShellInternalState;
   public DBQuery: DBQuery;
+  loadCallNestingLevel: number;
 
   constructor(internalState: ShellInternalState) {
     super();
     this.internalState = internalState;
     this.DBQuery = new DBQuery();
+    this.loadCallNestingLevel = 0;
   }
 
   @directShellCommand
@@ -110,6 +112,10 @@ export default class ShellApi extends ShellApiClass {
         CommonErrors.NotImplemented
       );
     }
+    this.internalState.messageBus.emit('mongosh:api-load-file', {
+      nested: this.loadCallNestingLevel > 0,
+      filename
+    });
     const {
       resolvedFilename, evaluate
     } = await this.internalState.evaluationListener.onLoad(filename);
@@ -118,9 +124,11 @@ export default class ShellApi extends ShellApiClass {
     const previousFilename = context.__filename;
     context.__filename = resolvedFilename;
     context.__dirname = dirname(resolvedFilename);
+    this.loadCallNestingLevel++;
     try {
       await evaluate();
     } finally {
+      this.loadCallNestingLevel--;
       if (previousFilename) {
         context.__filename = previousFilename;
         context.__dirname = dirname(previousFilename);

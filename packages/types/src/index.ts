@@ -48,6 +48,15 @@ export interface ConnectEvent {
   uri: string;
 }
 
+export interface ScriptLoadFileEvent {
+  nested: boolean;
+  filename: string;
+}
+
+export interface StartLoadingCliScriptsEvent {
+  usesShellOption: boolean;
+}
+
 export interface MongoshBusEventsMap {
   'mongosh:connect': (ev: ConnectEvent) => void;
   'mongosh:driver-initialized': (driverMetadata: any) => void;
@@ -62,6 +71,12 @@ export interface MongoshBusEventsMap {
   'mongosh:setCtx': (ev: ApiEvent) => void;
   'mongosh:api-call': (ev: ApiEvent) => void;
   'mongosh:warn': (ev: ApiWarning) => void;
+  'mongosh:api-load-file': (ev: ScriptLoadFileEvent) => void;
+  'mongosh:start-loading-cli-scripts': (event: StartLoadingCliScriptsEvent) => void;
+  'mongosh:start-mongosh-repl': () => void;
+  'mongosh:mongoshrc-load': () => void;
+  'mongosh:mongoshrc-mongorc-warn': () => void;
+  'mongosh:eval-cli-script': () => void;
   'mongosh:closed': () => void; // For testing.
   'mongosh:eval-complete': () => void; // For testing.
   'mongosh:autocompletion-complete': () => void; // For testing.
