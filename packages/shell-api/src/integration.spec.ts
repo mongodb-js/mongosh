@@ -1104,6 +1104,41 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
+      describe('server before 4.2.2', () => {
+        skipIfServerVersion(testServer, '>= 4.2.2');
+        it('returns a cursor that has the explain as result of toShellResult', async() => {
+          const cursor = await collection.explain().aggregate([
+            { $match: {} }, { $skip: 1 }, { $limit: 1 }
+          ]);
+          const result = await toShellResult(cursor);
+          expect(result.printable).to.include.all.keys([
+            'ok',
+            'stages'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.include.all.keys([
+            'queryPlanner'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
+            'executionStats'
+          ]);
+        });
+
+        it('includes executionStats when requested', async() => {
+          const cursor = await collection.explain('executionStats').aggregate([
+            { $match: {} }, { $skip: 1 }, { $limit: 1 }
+          ]);
+          const result = await toShellResult(cursor);
+          expect(result.printable).to.include.all.keys([
+            'ok',
+            'stages'
+          ]);
+          expect(result.printable.stages[0].$cursor).to.include.all.keys([
+            'queryPlanner',
+            'executionStats'
+          ]);
+        });
+      });
+
       describe('server from 4.2.2 till 4.4', () => {
         skipIfServerVersion(testServer, '< 4.2.2');
         skipIfServerVersion(testServer, '>= 4.5');
