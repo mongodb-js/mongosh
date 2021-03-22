@@ -246,7 +246,7 @@ describe('completer.completer', () => {
 
     it('does not provide anything if there is a function call instead of a collection name', async() => {
       const i = 'db.getMongo().find';
-      expect(await completer(standalone440, i)).to.deep.equal([[i], i]);
+      expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
     it('provides results if the function call is getCollection', async() => {
@@ -479,7 +479,7 @@ describe('completer.completer', () => {
 
     it('does not match if it is not .find or .aggregate', async() => {
       const i = 'db.shipwrecks.moo({feature_type: "Wrecks - Visible"}).';
-      expect(await completer(standalone440, i)).to.deep.equal([[i], i]);
+      expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
   });
 });
