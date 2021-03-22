@@ -1104,7 +1104,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      describe('up to server 4.4', () => {
+      describe('server from 4.2.2 till 4.4', () => {
+        skipIfServerVersion(testServer, '< 4.2.2');
         skipIfServerVersion(testServer, '>= 4.5');
         it('returns a cursor that has the explain as result of toShellResult', async() => {
           const cursor = await collection.explain().aggregate([
