@@ -237,14 +237,13 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
   //   Object.getOwnPropertySymbols(Array.prototype)[0].constructor
   // because Symbol refers to BSONSymbol inside the target mongosh context.
   // (This is the only mongosh-specific hack in here.)
-  const symbolConstructor = t.memberExpression(t.memberExpression(
-    t.callExpression(
-      t.memberExpression(t.identifier('Object'), t.identifier('getOwnPropertySymbols')),
-      [t.memberExpression(t.identifier('Array'), t.identifier('prototype'))]
-    ),
-    t.identifier('0'),
-    true),
-  t.identifier('constructor'));
+  const symbolConstructor = babel.template.expression(`
+    Object.getOwnPropertySymbols(Array.prototype)[0].constructor
+  `)();
+
+  const syntheticPromiseSymbolTemplate = babel.template.statement(`
+    const SP_IDENTIFIER = SYMBOL_CONSTRUCTOR.for("@@mongosh.syntheticPromise");
+  `);
 
   return {
     visitor: {
@@ -305,15 +304,11 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         // and we may want to replace it by something a bit more sophisticated.
         // All of the top-level AST nodes here are marked as generated helpers.
         const runtimeSupport = existingIdentifiers ? [] : [
-          Object.assign(t.variableDeclaration('const', [
-            t.variableDeclarator(
-              syntheticPromiseSymbol,
-              t.callExpression(
-                t.memberExpression(symbolConstructor, t.identifier('for')),
-                [t.stringLiteral('@@mongosh.syntheticPromise')]
-              )
-            )
-          ]), { [isGeneratedHelper]: true }),
+          Object.assign(
+            syntheticPromiseSymbolTemplate({
+              SP_IDENTIFIER: syntheticPromiseSymbol,
+              SYMBOL_CONSTRUCTOR: symbolConstructor
+            }), { [isGeneratedHelper]: true }),
           Object.assign(t.functionDeclaration(
             markSyntheticPromise,
             [t.identifier('p')],
