@@ -422,7 +422,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // Minor adjustment: When we encounter a 'shorthand' arrow function,
           // i.e. `(...args) => returnValueExpression`, we transform it into
           // one with a block body containing a single return statement.
-          if (path.parentPath.isArrowFunctionExpression && path.key === 'body') {
+          if (path.parentPath.isArrowFunctionExpression() && path.key === 'body') {
             path.replaceWith(t.blockStatement([
               t.returnStatement(path.node)
             ]));
