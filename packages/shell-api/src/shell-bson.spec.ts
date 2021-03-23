@@ -1,17 +1,25 @@
 /* eslint camelcase: 0, new-cap: 0 */
-import constructShellBson from './shell-bson';
-import { expect } from 'chai';
-import { ALL_SERVER_VERSIONS } from './enums';
-import { bson } from '@mongosh/service-provider-core';
-import { toShellResult } from './index';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-const shellBson = constructShellBson(bson);
+import { bson } from '@mongosh/service-provider-core';
+import { expect } from 'chai';
+import sinon from 'ts-sinon';
+import { ALL_SERVER_VERSIONS } from './enums';
+import { toShellResult } from './index';
+import constructShellBson from './shell-bson';
 
 const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';
 const utf_1234 = '1234';
 
 describe('Shell BSON', () => {
+  let shellBson: any;
+  let printWarning: (msg: string) => void;
+
+  before(() => {
+    printWarning = sinon.stub();
+    shellBson = constructShellBson(bson, printWarning);
+  });
+
   describe('DBRef', () => {
     it('without new', () => {
       const s = shellBson.DBRef('namespace', 'oid');
@@ -266,17 +274,18 @@ describe('Shell BSON', () => {
 
       try {
         shellBson.ISODate('"');
-        expect.fail('expected error');
       } catch (e) {
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.message).to.contain('"\\"" is not a valid ISODate');
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        return;
       }
+      expect.fail('expected error');
     });
   });
   describe('BinData', () => {
-    const b = shellBson.BinData(128, b64_1234);
     it('expects strings as base 64', () => {
+      const b = shellBson.BinData(128, b64_1234);
       expect(b.value()).to.equal(utf_1234);
     });
     it('has help and other metadata', async() => {
@@ -319,8 +328,13 @@ describe('Shell BSON', () => {
     });
   });
   describe('HexData', () => {
-    const b = shellBson.BinData(128, b64_1234);
-    const h = shellBson.HexData(128, hex_1234);
+    let b: any;
+    let h: any;
+    before(() => {
+      b = shellBson.BinData(128, b64_1234);
+      h = shellBson.HexData(128, hex_1234);
+    });
+
     it('equals BinData', () => {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
@@ -370,8 +384,12 @@ describe('Shell BSON', () => {
     });
   });
   describe('UUID', () => {
-    const b = shellBson.BinData(4, b64_1234);
-    const h = shellBson.UUID(hex_1234);
+    let b: any;
+    let h: any;
+    before(() => {
+      b = shellBson.BinData(4, b64_1234);
+      h = shellBson.UUID(hex_1234);
+    });
     it('equals BinData', () => {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
@@ -406,8 +424,12 @@ describe('Shell BSON', () => {
     });
   });
   describe('MD5', () => {
-    const b = shellBson.BinData(5, b64_1234);
-    const h = shellBson.MD5(hex_1234);
+    let b: any;
+    let h: any;
+    before(() => {
+      b = shellBson.BinData(5, b64_1234);
+      h = shellBson.MD5(hex_1234);
+    });
     it('equals BinData', () => {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
@@ -476,11 +498,19 @@ describe('Shell BSON', () => {
     it('correctly constructs numbers > MAX_SAFE_INTEGER', () => {
       expect(shellBson.NumberLong('345678654321234552').toString()).to.equal('345678654321234552');
     });
+
+    it('creates a bson.Long for unrecommended integer and prints warning', () => {
+      const n = shellBson.NumberLong(123.5);
+      expect(n).to.be.instanceOf(bson.Long);
+      expect(bson.Long.fromString('123').eq(n)).to.be.true;
+      expect(printWarning).to.have.been.calledWith('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision');
+    });
+
     it('errors for wrong type of arg 1', () => {
       try {
-        (shellBson.NumberLong as any)(1);
+        (shellBson.NumberLong as any)({});
       } catch (e) {
-        return expect(e.message).to.contain('string, got number');
+        return expect(e.message).to.match(/string or number, got object.+\(NumberLong\)/);
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -500,11 +530,19 @@ describe('Shell BSON', () => {
     it('correctly constructs numbers > MAX_SAFE_INTEGER', () => {
       expect(shellBson.NumberDecimal('345678654321234552.0').toString()).to.equal('345678654321234552.0');
     });
+
+    it('creates a bson.Decimal128 for unrecommended integer and prints warning', () => {
+      const n = shellBson.NumberDecimal(123);
+      expect(n).to.be.instanceOf(bson.Decimal128);
+      expect(bson.Decimal128.fromString('123').toString()).to.equal(n.toString());
+      expect(printWarning).to.have.been.calledWith('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision');
+    });
+
     it('errors for wrong type of arg 1', () => {
       try {
-        (shellBson.NumberDecimal as any)(1);
+        (shellBson.NumberDecimal as any)({});
       } catch (e) {
-        return expect(e.message).to.contain('string, got number');
+        return expect(e.message).to.match(/string or number, got object.+\(NumberDecimal\)/);
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -517,14 +555,27 @@ describe('Shell BSON', () => {
       expect(n.value).to.equal(1);
     });
 
+    it('creates a bson.Int32 from number', () => {
+      const n = shellBson.NumberInt(123);
+      expect(n).to.be.instanceOf(bson.Int32);
+      expect(new bson.Int32(123).value).to.equal(n.value);
+    });
+
+    it('creates a bson.Int32 from non-integer number', () => {
+      const n = shellBson.NumberInt(123.5);
+      expect(n).to.be.instanceOf(bson.Int32);
+      expect(new bson.Int32(123).value).to.equal(n.value);
+    });
+
     it('constructs 0 if the argument is not provided', () => {
       expect(shellBson.NumberInt().value).to.equal(0);
     });
+
     it('errors for wrong type of arg 1', () => {
       try {
-        (shellBson.NumberInt as any)(1);
+        (shellBson.NumberInt as any)({});
       } catch (e) {
-        return expect(e.message).to.contain('string, got number');
+        return expect(e.message).to.match(/string or number, got object.+\(NumberInt\)/);
       }
       expect.fail('Expecting error, nothing thrown');
     });

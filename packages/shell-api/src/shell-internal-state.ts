@@ -106,7 +106,11 @@ export default class ShellInternalState {
     this.messageBus = messageBus;
     this.asyncWriter = new AsyncWriter(signatures);
     this.shellApi = new ShellApi(this);
-    this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary);
+    this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary, (msg: string) => {
+      if (this.context.print) {
+        this.context.print(`Warning: ${msg}`);
+      }
+    });
     this.mongos = [];
     this.connectionInfo = { buildInfo: {} };
     if (!cliOptions.nodb) {

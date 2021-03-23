@@ -31,9 +31,8 @@ function dateHelper(...args: DateConstructorArguments): Date {
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
- * @param {Object} bson
  */
-export default function constructShellBson(bson: typeof BSON): any {
+export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): any {
   const bsonNames: (keyof typeof BSON)[] = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol'
@@ -64,14 +63,14 @@ export default function constructShellBson(bson: typeof BSON): any {
   const bsonPkg = {
     DBRef: function(namespace: string, oid: any, db?: string): any {
       assertArgsDefined(namespace, oid);
-      assertArgsType([namespace, db], ['string', 'string']);
+      assertArgsType([namespace, db], ['string', 'string'], 'DBRef');
       return new bson.DBRef(namespace, oid, db);
     },
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
     Map: bson.Map,
     bsonsize: function(object: any): any {
       assertArgsDefined(object);
-      assertArgsType([object], ['object']);
+      assertArgsType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);
     },
     MaxKey: function(): any {
@@ -81,32 +80,39 @@ export default function constructShellBson(bson: typeof BSON): any {
       return new bson.MinKey();
     },
     ObjectId: function(id?: string): any {
-      assertArgsType([id], ['string']);
+      assertArgsType([id], ['string'], 'ObjectId');
       return new bson.ObjectId(id);
     },
     Symbol: function(value = ''): any {
       return new bson.BSONSymbol(value);
     },
     Timestamp: function(low = 0, high = 0): any {
-      assertArgsType([low, high], ['number', 'number']);
+      assertArgsType([low, high], ['number', 'number'], 'Timestamp');
       return new bson.Timestamp(low, high);
     },
     Code: function(c: any = '', s?: any): any {
-      assertArgsType([c, s], ['string', 'object']);
+      assertArgsType([c, s], ['string', 'object'], 'Code');
       return new bson.Code(c, s);
     },
     NumberDecimal: function(s = '0'): any {
-      assertArgsType([s], ['string']);
-
-      return bson.Decimal128.fromString(s.toString());
+      assertArgsType([s], [['string', 'number']], 'NumberDecimal');
+      if (typeof s === 'string') {
+        return bson.Decimal128.fromString(s);
+      }
+      printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision');
+      return bson.Decimal128.fromString(`${s}`);
     },
     NumberInt: function(v = '0'): any {
-      assertArgsType([v], ['string']);
-      return new bson.Int32(parseInt(v, 10));
+      assertArgsType([v], [['string', 'number']], 'NumberInt');
+      return new bson.Int32(parseInt(`${v}`, 10));
     },
-    NumberLong: function(s = '0'): any {
-      assertArgsType([s], ['string']);
-      return bson.Long.fromString(s);
+    NumberLong: function(s: string | number = '0'): any {
+      assertArgsType([s], [['string', 'number']], 'NumberLong');
+      if (typeof s === 'string') {
+        return bson.Long.fromString(s);
+      }
+      printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision');
+      return bson.Long.fromInt(s);
     },
     Date: function(...args: DateConstructorArguments): Date | string {
       const date = dateHelper(...args);
@@ -136,13 +142,13 @@ export default function constructShellBson(bson: typeof BSON): any {
     },
     BinData: function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefined(subtype, b64string);
-      assertArgsType([subtype, b64string], ['number', 'string']);
+      assertArgsType([subtype, b64string], ['number', 'string'], 'BinData');
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     },
     HexData: function(subtype: number, hexstr: string): BinaryType {
       assertArgsDefined(subtype, hexstr);
-      assertArgsType([subtype, hexstr], ['number', 'string']);
+      assertArgsType([subtype, hexstr], ['number', 'string'], 'HexData');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     },
@@ -154,7 +160,7 @@ export default function constructShellBson(bson: typeof BSON): any {
         uuid[8] = (uuid[8] & 0x3f) | 0x80;
         hexstr = uuid.toString('hex');
       }
-      assertArgsType([hexstr], ['string']);
+      assertArgsType([hexstr], ['string'], 'UUID');
       // Strip any dashes, as they occur in the standard UUID formatting
       // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
       const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
@@ -162,7 +168,7 @@ export default function constructShellBson(bson: typeof BSON): any {
     },
     MD5: function(hexstr: string): BinaryType {
       assertArgsDefined(hexstr);
-      assertArgsType([hexstr], ['string']);
+      assertArgsType([hexstr], ['string'], 'MD5');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     },

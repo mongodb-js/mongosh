@@ -81,17 +81,23 @@ export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): E
   return verbosity;
 }
 
+function getAssertCaller(caller?: string): string {
+  return caller ? ` (${caller})` : '';
+}
+
 export function assertArgsDefined(...args: any[]): void {
   if (args.some(a => a === undefined)) {
     throw new MongoshInvalidInputError('Missing required argument', CommonErrors.InvalidArgument);
   }
 }
 
-export function assertArgsType(args: any[], expectedTypes: string[]): void {
+export function assertArgsType(args: any[], expectedTypes: Array<string|string[]>, func?: string): void {
   args.forEach((arg, i) => {
-    if (arg !== undefined && typeof arg !== expectedTypes[i]) {
+    const expected = expectedTypes[i];
+    if (arg !== undefined && ((typeof expected === 'string' && typeof arg !== expected) || !expected.includes(typeof arg))) {
+      const expectedMsg = typeof expected === 'string' ? expected : expected.join(' or ');
       throw new MongoshInvalidInputError(
-        `Argument at position ${i} must be of type ${expectedTypes[i]}, got ${typeof arg} instead`,
+        `Argument at position ${i} must be of type ${expectedMsg}, got ${typeof arg} instead${getAssertCaller(func)}`,
         CommonErrors.InvalidArgument
       );
     }
