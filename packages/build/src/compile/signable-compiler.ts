@@ -86,12 +86,6 @@ export class SignableCompiler {
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,
       namespace: 'mongosh',
-      env: {
-        ...process.env,
-        // Custom env vars for sccache:
-        AWS_ACCESS_KEY_ID: process.env.DEVTOOLS_CI_AWS_KEY,
-        AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET
-      },
       addons: [
         fleAddon
       ].concat(winCAAddon ? [
