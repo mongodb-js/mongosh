@@ -1337,7 +1337,7 @@ describe('Shard', () => {
         await dbSh.dropDatabase();
       });
 
-      it('the list includes not partitioned databses', async() => {
+      it('the list includes not partitioned databases', async() => {
         await dbRegular.getCollection(collRegularName).insertOne({ foo: 'bar', key: 99 });
 
         const collSh = dbSh.getCollection(collShName);
