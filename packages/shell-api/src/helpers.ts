@@ -402,7 +402,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     return a._id > b._id;
   });
 
-  result.databases = await Promise.all(databases.filter(db => db.partitioned).map(async(db) => {
+  result.databases = await Promise.all(databases.map(async(db) => {
     const escapeRegex = (string: string): string => {
       return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
