@@ -6,7 +6,7 @@ import {
 } from './decorators';
 
 import type { Document } from '@mongosh/service-provider-core';
-import { assertArgsDefined, assertArgsType, getConfigDB, getPrintableShardStatus } from './helpers';
+import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
 import { redactPassword } from '@mongosh/history';
@@ -45,7 +45,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async enableSharding(database: string, primaryShard?: string): Promise<Document> {
-    assertArgsDefined(database);
+    assertArgsDefinedType([database, primaryShard], ['string', [undefined, 'string']], 'Shard.enableSharding');
     this._emitShardApiCall('enableSharding', { database, primaryShard });
 
     const cmd = {
@@ -66,8 +66,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async shardCollection(namespace: string, key: Document, unique?: boolean, options?: Document): Promise<Document> {
-    assertArgsDefined(namespace, key);
-    assertArgsType([namespace, key, options], ['string', 'object', 'object']);
+    assertArgsDefinedType([namespace, key, unique, options], ['string', 'object', [undefined, 'boolean'], [undefined, 'object']], 'Shard.shardCollection');
     this._emitShardApiCall('shardCollection', { namespace, key, unique, options });
 
     const cmd = {
@@ -96,8 +95,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async addShard(url: string): Promise<Document> {
-    assertArgsDefined(url);
-    assertArgsType([url], ['string']);
+    assertArgsDefinedType([url], ['string'], 'Shard.addShard');
     await getConfigDB(this._database);
     this._emitShardApiCall('addShard', { url });
     return this._database._runAdminCommand({
@@ -108,8 +106,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardToZone(shard: string, zone: string): Promise<Document> {
-    assertArgsDefined(shard, zone);
-    assertArgsType([shard, zone], ['string', 'string']);
+    assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.addShardToZone');
     this._emitShardApiCall('addShardToZone', { shard, zone });
     await getConfigDB(this._database); // will error if not connected to mongos
     return this._database._runAdminCommand({
@@ -121,6 +118,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardTag(shard: string, tag: string): Promise<Document> {
+    assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.addShardTag');
     this._emitShardApiCall('addShardTag', { shard, tag });
     try {
       return await this.addShardToZone(shard, tag);
@@ -134,8 +132,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<Document> {
-    assertArgsDefined(namespace, min, max, zone);
-    assertArgsType([namespace, min, max], ['string', 'object', 'object']);
+    assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.updateZoneKeyRange');
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
     await getConfigDB(this._database); // will error if not connected to mongos
@@ -150,7 +147,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<Document> {
-    assertArgsDefined(namespace, min, max, zone);
+    assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.addTagRange');
     this._emitShardApiCall('addTagRange', { namespace, min, max, zone });
 
     try {
@@ -171,6 +168,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<Document> {
+    assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeRangeFromZone');
     this._emitShardApiCall('removeRangeFromZone', { ns, min, max });
     return this.updateZoneKeyRange(ns, min, max, null);
   }
@@ -178,6 +176,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeTagRange(ns: string, min: Document, max: Document): Promise<Document> {
+    assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeTagRange');
     this._emitShardApiCall('removeTagRange', { ns, min, max });
     try {
       return await this.updateZoneKeyRange(ns, min, max, null);
@@ -192,8 +191,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardFromZone(shard: string, zone: string): Promise<Document> {
-    assertArgsDefined(shard, zone);
-    assertArgsType([shard, zone], ['string', 'string']);
+    assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.removeShardFromZone');
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
 
     await getConfigDB(this._database); // will error if not connected to mongos
@@ -206,6 +204,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardTag(shard: string, tag: string): Promise<Document> {
+    assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.removeShardTag');
     this._emitShardApiCall('removeTagRange', { shard, tag });
     try {
       return await this.removeShardFromZone(shard, tag);
@@ -243,8 +242,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async splitAt(ns: string, query: Document): Promise<Document> {
-    assertArgsDefined(ns, query);
-    assertArgsType([ns, query], ['string', 'object']);
+    assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitAt');
     this._emitShardApiCall('splitAt', { ns, query });
     return this._database._runAdminCommand({
       split: ns,
@@ -254,8 +252,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async splitFind(ns: string, query: Document): Promise<Document> {
-    assertArgsDefined(ns, query);
-    assertArgsType([ns, query], ['string', 'object']);
+    assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitFind');
     this._emitShardApiCall('splitFind', { ns, query });
     return this._database._runAdminCommand({
       split: ns,
@@ -264,9 +261,8 @@ export default class Shard extends ShellApiClass {
   }
 
   @returnsPromise
-  async moveChunk(ns: string, query: Document, destination: string): Promise<Document> {
-    assertArgsDefined(ns, query);
-    assertArgsType([ns, query, destination], ['string', 'object', 'string']);
+  async moveChunk(ns: string, query: Document, destination: string | undefined): Promise<Document> {
+    assertArgsDefinedType([ns, query, destination], ['string', 'object', 'string'], 'Shard.moveChunk');
     this._emitShardApiCall('moveChunk', { ns, query, destination });
     return this._database._runAdminCommand({
       moveChunk: ns,
@@ -278,8 +274,7 @@ export default class Shard extends ShellApiClass {
   @returnsPromise
   @serverVersions(['4.4.0', ServerVersions.latest])
   async balancerCollectionStatus(ns: string): Promise<Document> {
-    assertArgsDefined(ns);
-    assertArgsType([ns], ['string']);
+    assertArgsDefinedType([ns], ['string'], 'Shard.balancerCollectionStatus');
     this._emitShardApiCall('balancerCollectionStatus', { ns });
     return this._database._runAdminCommand({
       balancerCollectionStatus: ns
@@ -289,8 +284,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async enableBalancing(ns: string): Promise<UpdateResult> {
-    assertArgsDefined(ns);
-    assertArgsType([ns], ['string']);
+    assertArgsDefinedType([ns], ['string'], 'Shard.enableBalancing');
     this._emitShardApiCall('enableBalancing', { ns });
     const config = await getConfigDB(this._database);
     return await config.getCollection('collections').updateOne(
@@ -302,8 +296,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async disableBalancing(ns: string): Promise<UpdateResult> {
-    assertArgsDefined(ns);
-    assertArgsType([ns], ['string']);
+    assertArgsDefinedType([ns], ['string'], 'Shard.disableBalancing');
     this._emitShardApiCall('disableBalancing', { ns });
     const config = await getConfigDB(this._database);
     return await config.getCollection('collections').updateOne(
@@ -335,8 +328,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async startBalancer(timeout = 60000): Promise<Document> {
-    assertArgsDefined(timeout);
-    assertArgsType([timeout], ['number']);
+    assertArgsDefinedType([timeout], ['number'], 'Shard.startBalancer');
     this._emitShardApiCall('startBalancer', { timeout });
     return this._database._runAdminCommand({
       balancerStart: 1, maxTimeMS: timeout
@@ -345,8 +337,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async stopBalancer(timeout = 60000): Promise<Document> {
-    assertArgsDefined(timeout);
-    assertArgsType([timeout], ['number']);
+    assertArgsDefinedType([timeout], ['number'], 'Shard.stopBalancer');
     this._emitShardApiCall('stopBalancer', { timeout });
     return this._database._runAdminCommand({
       balancerStop: 1, maxTimeMS: timeout
@@ -355,8 +346,7 @@ export default class Shard extends ShellApiClass {
 
   @returnsPromise
   async setBalancerState(state: boolean): Promise<Document> {
-    assertArgsDefined(state);
-    assertArgsType([state], ['boolean']);
+    assertArgsDefinedType([state], ['boolean'], 'Shard.setBalancerState');
     this._emitShardApiCall('setBalancerState', { state });
     if (state) {
       return this.startBalancer();

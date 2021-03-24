@@ -311,7 +311,7 @@ describe('ShellApi', () => {
               }
             } as any);
           } catch (e) {
-            return expect(e.message).to.contain('argument');
+            return expect(e.message).to.contain('required property');
           }
           expect.fail('failed to throw expected error');
         });
@@ -321,7 +321,7 @@ describe('ShellApi', () => {
               keyVaultNamespace: 'encryption.dataKeys'
             } as any);
           } catch (e) {
-            return expect(e.message).to.contain('argument');
+            return expect(e.message).to.contain('required property');
           }
           expect.fail('failed to throw expected error');
         });

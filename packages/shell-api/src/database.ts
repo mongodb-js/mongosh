@@ -15,8 +15,7 @@ import { ADMIN_DB, asPrintable, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
-  assertArgsDefined,
-  assertArgsType,
+  assertArgsDefinedType,
   assertKeysDefined,
   getPrintableShardStatus,
   processDigestPassword,
@@ -234,7 +233,7 @@ export default class Database extends ShellApiClass {
    */
   @returnsPromise
   async runCommand(cmd: Document): Promise<Document> {
-    assertArgsDefined(cmd);
+    assertArgsDefinedType([cmd], ['object'], 'Database.runCommand');
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('runCommand', { cmd });
@@ -252,7 +251,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
   async adminCommand(cmd: Document): Promise<Document> {
-    assertArgsDefined(cmd);
+    assertArgsDefinedType([cmd], ['object'], 'Database.adminCommand');
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });
@@ -270,7 +269,7 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   @returnType('AggregationCursor')
   async aggregate(pipeline: Document[], options?: Document): Promise<AggregationCursor> {
-    assertArgsDefined(pipeline);
+    assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const {
@@ -297,7 +296,7 @@ export default class Database extends ShellApiClass {
 
   @returnType('Database')
   getSiblingDB(db: string): Database {
-    assertArgsDefined(db);
+    assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
       return this._session.getDatabase(db);
@@ -307,8 +306,7 @@ export default class Database extends ShellApiClass {
 
   @returnType('Collection')
   getCollection(coll: string): Collection {
-    assertArgsDefined(coll);
-    assertArgsType([coll], ['string']);
+    assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!coll.trim()) {
       throw new MongoshInvalidInputError('Collection name cannot be empty.', CommonErrors.InvalidArgument);
@@ -333,7 +331,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createUser(user: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(user);
+    assertArgsDefinedType([user], ['object'], 'Database.createUser');
     assertKeysDefined(user, ['user', 'roles']);
 
     if (this._name === '$external') {
@@ -365,7 +363,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async updateUser(username: string, userDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(username, userDoc);
+    assertArgsDefinedType([username, userDoc], ['string', 'object'], 'Database.updateUser');
     this._emitDatabaseApiCall('updateUser', {});
     if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
       throw new MongoshInvalidInputError(
@@ -393,7 +391,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async changeUserPassword(username: string, password: string, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(username, password);
+    assertArgsDefinedType([username, password], ['string', 'string'], 'Database.changeUserPassword');
     this._emitDatabaseApiCall('changeUserPassword', {});
     const command = adaptOptions(
       {},
@@ -421,7 +419,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async dropUser(username: string, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(username);
+    assertArgsDefinedType([username], ['string'], 'Database.dropUser');
     this._emitDatabaseApiCall('dropUser', {});
     const cmd = { dropUser: username } as Document;
     if (writeConcern) {
@@ -483,7 +481,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantRolesToUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(username, roles);
+    assertArgsDefinedType([username, roles], ['string', true], 'Database.grantRolesToUser');
     this._emitDatabaseApiCall('grantRolesToUser', {});
     const cmd = { grantRolesToUser: username, roles: roles } as Document;
     if (writeConcern) {
@@ -494,7 +492,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokeRolesFromUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(username, roles);
+    assertArgsDefinedType([username, roles], ['string', true], 'Database.revokeRolesFromUser');
     this._emitDatabaseApiCall('revokeRolesFromUser', {});
     const cmd = { revokeRolesFromUser: username, roles: roles } as Document;
     if (writeConcern) {
@@ -505,7 +503,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async getUser(username: string, options: Document = {}): Promise<Document | null> {
-    assertArgsDefined(username);
+    assertArgsDefinedType([username], ['string'], 'Database.getUser');
     this._emitDatabaseApiCall('getUser', { username: username });
     const command = adaptOptions(
       { },
@@ -539,7 +537,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createCollection(name: string, options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
-    assertArgsDefined(name);
+    assertArgsDefinedType([name], ['string'], 'Database.createCollection');
     this._emitDatabaseApiCall('createCollection', { name: name, options: options });
     return await this._mongo._serviceProvider.createCollection(
       this._name,
@@ -550,7 +548,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createView(name: string, source: string, pipeline: Document[], options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
-    assertArgsDefined(name, source, pipeline);
+    assertArgsDefinedType([name, source, pipeline], ['string', 'string', true], 'Database.createView');
     this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
     const ccOpts = {
       ...this._baseOptions,
@@ -569,7 +567,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async createRole(role: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(role);
+    assertArgsDefinedType([role], ['object'], 'Database.createRole');
     assertKeysDefined(role, ['role', 'privileges', 'roles']);
     this._emitDatabaseApiCall('createRole', {});
     if (role.createRole) {
@@ -594,7 +592,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async updateRole(rolename: string, roleDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename, roleDoc);
+    assertArgsDefinedType([rolename, roleDoc], ['string', 'object'], 'Database.updateRole');
     this._emitDatabaseApiCall('updateRole', {});
     const command = adaptOptions(
       {},
@@ -614,7 +612,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async dropRole(rolename: string, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename);
+    assertArgsDefinedType([rolename], ['string'], 'Database.dropRole');
     this._emitDatabaseApiCall('dropRole', {});
     const cmd = { dropRole: rolename } as Document;
     if (writeConcern) {
@@ -635,7 +633,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantRolesToRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename, roles);
+    assertArgsDefinedType([rolename, roles], ['string', true], 'Database.grantRolesToRole');
     this._emitDatabaseApiCall('grantRolesToRole', {});
     const cmd = { grantRolesToRole: rolename, roles: roles } as Document;
     if (writeConcern) {
@@ -646,7 +644,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokeRolesFromRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename, roles);
+    assertArgsDefinedType([rolename, roles], ['string', true], 'Database.revokeRolesFromRole');
     this._emitDatabaseApiCall('revokeRolesFromRole', {});
     const cmd = { revokeRolesFromRole: rolename, roles: roles } as Document;
     if (writeConcern) {
@@ -657,7 +655,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async grantPrivilegesToRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename, privileges);
+    assertArgsDefinedType([rolename, privileges], ['string', true], 'Database.grantPrivilegesToRole');
     this._emitDatabaseApiCall('grantPrivilegesToRole', {});
     const cmd = { grantPrivilegesToRole: rolename, privileges: privileges } as Document;
     if (writeConcern) {
@@ -668,7 +666,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async revokePrivilegesFromRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefined(rolename, privileges);
+    assertArgsDefinedType([rolename, privileges], ['string', true], 'Database.revokePrivilegesFromRole');
     this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
     const cmd = { revokePrivilegesFromRole: rolename, privileges: privileges } as Document;
     if (writeConcern) {
@@ -680,7 +678,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async getRole(rolename: string, options: Document = {}): Promise<Document | null> {
-    assertArgsDefined(rolename);
+    assertArgsDefinedType([rolename], ['string'], 'Database.getRole');
     this._emitDatabaseApiCall('getRole', { rolename: rolename });
     const command = adaptOptions(
       { },
@@ -727,7 +725,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async killOp(opId: number): Promise<Document> {
-    assertArgsDefined(opId);
+    assertArgsDefinedType([opId], ['number'], 'Database.killOp');
     this._emitDatabaseApiCall('killOp', { opId });
     return await this._runAdminCommand(
       {
@@ -971,7 +969,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async setProfilingLevel(level: number, opts: number | Document = {}): Promise<Document> {
-    assertArgsDefined(level);
+    assertArgsDefinedType([level], ['number'], 'Database.setProfilingLevel');
     if (level < 0 || level > 2) {
       throw new MongoshInvalidInputError(
         `Input level ${level} is out of range [0..2]`,
@@ -992,7 +990,7 @@ export default class Database extends ShellApiClass {
 
   @returnsPromise
   async setLogLevel(logLevel: number, component?: Document | string): Promise<Document> {
-    assertArgsDefined(logLevel);
+    assertArgsDefinedType([logLevel], ['number'], 'Database.setLogLevel');
     this._emitDatabaseApiCall('setLogLevel', { logLevel: logLevel, component: component });
     let componentNames: string[] = [];
     if (typeof component === 'string') {
@@ -1051,7 +1049,7 @@ export default class Database extends ShellApiClass {
   }
 
   async commandHelp(name: string): Promise<Document> {
-    assertArgsDefined(name);
+    assertArgsDefinedType([name], ['string'], 'Database.commandHelp');
     this._emitDatabaseApiCall('commandHelp', { name: name });
     const command = {} as any;
     command[name] = 1;

@@ -12,7 +12,7 @@ import {
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { blockedByDriverMetadata } from './error-codes';
-import { assertArgsDefined } from './helpers';
+import { assertArgsDefinedType } from './helpers';
 import { BulkWriteResult } from './result';
 import type Collection from './collection';
 
@@ -49,7 +49,7 @@ export class BulkFindOp extends ShellApiClass {
 
   @returnType('BulkFindOp')
   hint(hintDoc: Document): BulkFindOp {
-    assertArgsDefined(hintDoc);
+    assertArgsDefinedType([hintDoc], [true], 'BulkFindOp.hint');
     this._hint = hintDoc;
     return this;
   }
@@ -71,7 +71,7 @@ export class BulkFindOp extends ShellApiClass {
   @returnType('Bulk')
   replaceOne(replacement: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
-    assertArgsDefined(replacement);
+    assertArgsDefinedType([replacement], [true], 'BulkFindOp.replacement');
     const op = { ...replacement };
     if (this._hint) {
       op.hint = this._hint;
@@ -83,7 +83,7 @@ export class BulkFindOp extends ShellApiClass {
   @returnType('Bulk')
   updateOne(update: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
-    assertArgsDefined(update);
+    assertArgsDefinedType([update], [true], 'BulkFindOp.update');
     const op = { ...update };
     if (this._hint) {
       op.hint = this._hint;
@@ -98,7 +98,7 @@ export class BulkFindOp extends ShellApiClass {
   @returnType('Bulk')
   update(update: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
-    assertArgsDefined(update);
+    assertArgsDefinedType([update], [true], 'BulkFindOp.update');
     const op = { ...update };
     if (this._hint) {
       op.hint = this._hint;
@@ -112,7 +112,6 @@ export class BulkFindOp extends ShellApiClass {
 
   @returnType('Bulk')
   upsert(): BulkFindOp {
-    assertArgsDefined();
     this._serviceProviderBulkFindOp.upsert();
     return this;
   }
@@ -186,14 +185,14 @@ export default class Bulk extends ShellApiClass {
 
   @returnType('BulkFindOp')
   find(query: Document): BulkFindOp {
-    assertArgsDefined(query);
+    assertArgsDefinedType([query], [true], 'Bulk.find');
     return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
 
   @returnType('Bulk')
   insert(document: Document): Bulk {
     this._batchCounts.nInsertOps++;
-    assertArgsDefined(document);
+    assertArgsDefinedType([document], [true], 'Bulk.insert');
     this._serviceProviderBulkOp.insert(document);
     return this;
   }

@@ -21,7 +21,7 @@ import Mongo from './mongo';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { blockedByDriverMetadata } from './error-codes';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefinedType } from './helpers';
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -51,8 +51,7 @@ export default class Session extends ShellApiClass {
   }
 
   getDatabase(name: string): Database {
-    assertArgsDefined(name);
-    assertArgsType([name], ['string']);
+    assertArgsDefinedType([name], ['string'], 'Session.getDatabase');
 
     if (!name.trim()) {
       throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.InvalidArgument);

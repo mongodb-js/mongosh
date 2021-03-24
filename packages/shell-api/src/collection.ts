@@ -15,8 +15,6 @@ import {
 import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
-  assertArgsDefined,
-  assertArgsType,
   assertKeysDefined,
   dataFormat,
   validateExplainableVerbosity,
@@ -29,7 +27,8 @@ import {
   processMapReduceOptions,
   setHideIndex,
   maybeMarkAsExplainOutput,
-  markAsExplainOutput
+  markAsExplainOutput,
+  assertArgsDefinedType
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -287,7 +286,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async deleteMany(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult | Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.deleteMany');
     this._emitCollectionApiCall('deleteMany', { filter, options });
 
     const result = await this._mongo._serviceProvider.deleteMany(
@@ -320,7 +319,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async deleteOne(filter: Document, options: DeleteOptions = {}): Promise<DeleteResult | Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.deleteOne');
     this._emitCollectionApiCall('deleteOne', { filter, options });
 
     const result = await this._mongo._serviceProvider.deleteOne(
@@ -409,7 +408,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
-    assertArgsDefined(options);
+    assertArgsDefinedType([options], [true], 'Collection.findAndModify');
     assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall(
       'findAndModify',
@@ -463,8 +462,7 @@ export default class Collection extends ShellApiClass {
     newName: string,
     dropTarget?: boolean
   ): Promise<Document> {
-    assertArgsDefined(newName);
-    assertArgsType([newName], ['string']);
+    assertArgsDefinedType([newName], ['string'], 'Collection.renameCollection');
     this._emitCollectionApiCall('renameCollection', { newName, dropTarget });
 
     try {
@@ -505,7 +503,7 @@ export default class Collection extends ShellApiClass {
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndDelete(filter: Document, options: FindAndModifyOptions = {}): Promise<Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.findOneAndDelete');
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
       this._database._name,
@@ -538,7 +536,7 @@ export default class Collection extends ShellApiClass {
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.findOneAndReplace');
     const findOneAndReplaceOptions = processFindAndModifyOptions({
       ...this._database._baseOptions,
       ...options
@@ -576,7 +574,7 @@ export default class Collection extends ShellApiClass {
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
   async findOneAndUpdate(filter: Document, update: Document | Document[], options: FindAndModifyShellOptions = {}): Promise<Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.findOneAndUpdate');
     const findOneAndUpdateOptions = processFindAndModifyOptions({
       ...this._database._baseOptions,
       ...options
@@ -616,7 +614,7 @@ export default class Collection extends ShellApiClass {
       'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.',
       this._mongo._internalState.context.print
     );
-    assertArgsDefined(docs);
+    assertArgsDefinedType([docs], [true], 'Collection.insert');
     // When inserting documents into MongoDB that do not contain the _id field,
     // one will be added to each of the documents missing it by the Node driver,
     // mutating the document. To prevent this behaviour we pass not the original document,
@@ -654,7 +652,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertMany(docs: Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
-    assertArgsDefined(docs);
+    assertArgsDefinedType([docs], [true], 'Collection.insertMany');
     const docsToInsert: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : docs;
 
     this._emitCollectionApiCall('insertMany', { options });
@@ -687,7 +685,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async insertOne(doc: Document, options: InsertOneOptions = {}): Promise<InsertOneResult> {
-    assertArgsDefined(doc);
+    assertArgsDefinedType([doc], [true], 'Collection.insertOne');
 
     this._emitCollectionApiCall('insertOne', { options });
     const result = await this._mongo._serviceProvider.insertOne(
@@ -734,7 +732,7 @@ export default class Collection extends ShellApiClass {
       'Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.',
       this._mongo._internalState.context.print
     );
-    assertArgsDefined(query);
+    assertArgsDefinedType([query], [true], 'Collection.remove');
     const removeOptions = processRemoveOptions(options);
     const method = removeOptions.justOne ? 'deleteOne' : 'deleteMany';
     delete removeOptions.justOne;
@@ -781,7 +779,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async replaceOne(filter: Document, replacement: Document, options: ReplaceOptions = {}): Promise<UpdateResult> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.replaceOne');
 
     this._emitCollectionApiCall('replaceOne', { filter, options });
     const result = await this._mongo._serviceProvider.replaceOne(
@@ -808,7 +806,7 @@ export default class Collection extends ShellApiClass {
       'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.',
       this._mongo._internalState.context.print
     );
-    assertArgsDefined(update);
+    assertArgsDefinedType([filter, update], [true, true], 'Collection.update');
     this._emitCollectionApiCall('update', { filter, options });
     let result;
 
@@ -857,7 +855,7 @@ export default class Collection extends ShellApiClass {
   @returnsPromise
   @serverVersions(['3.2.0', ServerVersions.latest])
   async updateMany(filter: Document, update: Document, options: UpdateOptions = {}): Promise<UpdateResult | Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.updateMany');
     this._emitCollectionApiCall('updateMany', { filter, options });
     const result = await this._mongo._serviceProvider.updateMany(
       this._database._name,
@@ -899,7 +897,7 @@ export default class Collection extends ShellApiClass {
     update: Document,
     options: UpdateOptions = {}
   ): Promise<UpdateResult | Document> {
-    assertArgsDefined(filter);
+    assertArgsDefinedType([filter], [true], 'Collection.updateOne');
     this._emitCollectionApiCall('updateOne', { filter, options });
     const result = await this._mongo._serviceProvider.updateOne(
       this._database._name,
@@ -956,7 +954,7 @@ export default class Collection extends ShellApiClass {
     keyPatterns: Document[],
     options: CreateIndexesOptions = {}
   ): Promise<string[]> {
-    assertArgsDefined(keyPatterns);
+    assertArgsDefinedType([keyPatterns], [true], 'Collection.createIndexes');
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError(
         'The "options" argument must be an object.',
@@ -990,7 +988,7 @@ export default class Collection extends ShellApiClass {
     keys: Document,
     options: CreateIndexesOptions = {}
   ): Promise<string> {
-    assertArgsDefined(keys);
+    assertArgsDefinedType([keys], [true], 'Collection.createIndex');
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError(
         'The "options" argument must be an object.',
@@ -1025,7 +1023,7 @@ export default class Collection extends ShellApiClass {
     keys: Document,
     options: CreateIndexesOptions = {}
   ): Promise<Document> {
-    assertArgsDefined(keys);
+    assertArgsDefinedType([keys], [true], 'Collection.ensureIndex');
     if (typeof options !== 'object' || Array.isArray(options)) {
       throw new MongoshInvalidInputError(
         'The "options" argument must be an object.',
@@ -1145,7 +1143,7 @@ export default class Collection extends ShellApiClass {
    */
   @returnsPromise
   async dropIndex(index: string|Document): Promise<Document> {
-    assertArgsDefined(index);
+    assertArgsDefinedType([index], [true], 'Collection.dropIndex');
     this._emitCollectionApiCall('dropIndex', { index });
     if (index === '*') {
       throw new MongoshInvalidInputError(
@@ -1315,7 +1313,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   async runCommand(commandName: string, options?: RunCommandOptions): Promise<Document> {
-    assertArgsType([commandName], ['string']);
+    assertArgsDefinedType([commandName], ['string'], 'Collection.runCommand');
 
     if (options && commandName in options) {
       throw new MongoshInvalidInputError(
@@ -1475,7 +1473,7 @@ export default class Collection extends ShellApiClass {
 
   @returnsPromise
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
-    assertArgsDefined(map, reduce, optionsOrOutString);
+    assertArgsDefinedType([map, reduce, optionsOrOutString], [true, true, true], 'Collection.mapReduce');
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
 
     let cmd = {

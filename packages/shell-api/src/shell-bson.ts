@@ -2,7 +2,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } fr
 import Help from './help';
 import { BinaryType, bson as BSON } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefinedType } from './helpers';
 import { randomBytes } from 'crypto';
 
 function constructHelp(className: string): Help {
@@ -62,15 +62,13 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
 
   const bsonPkg = {
     DBRef: function(namespace: string, oid: any, db?: string): any {
-      assertArgsDefined(namespace, oid);
-      assertArgsType([namespace, db], ['string', 'string'], 'DBRef');
+      assertArgsDefinedType([namespace, oid, db], ['string', true, [undefined, 'string']], 'DBRef');
       return new bson.DBRef(namespace, oid, db);
     },
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
     Map: bson.Map,
     bsonsize: function(object: any): any {
-      assertArgsDefined(object);
-      assertArgsType([object], ['object'], 'bsonsize');
+      assertArgsDefinedType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);
     },
     MaxKey: function(): any {
@@ -80,22 +78,22 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       return new bson.MinKey();
     },
     ObjectId: function(id?: string): any {
-      assertArgsType([id], ['string'], 'ObjectId');
+      assertArgsDefinedType([id], [[undefined, 'string']], 'ObjectId');
       return new bson.ObjectId(id);
     },
     Symbol: function(value = ''): any {
       return new bson.BSONSymbol(value);
     },
     Timestamp: function(low = 0, high = 0): any {
-      assertArgsType([low, high], ['number', 'number'], 'Timestamp');
+      assertArgsDefinedType([low, high], ['number', 'number'], 'Timestamp');
       return new bson.Timestamp(low, high);
     },
     Code: function(c: any = '', s?: any): any {
-      assertArgsType([c, s], ['string', 'object'], 'Code');
+      assertArgsDefinedType([c, s], [[undefined, 'string'], [undefined, 'object']], 'Code');
       return new bson.Code(c, s);
     },
     NumberDecimal: function(s = '0'): any {
-      assertArgsType([s], [['string', 'number']], 'NumberDecimal');
+      assertArgsDefinedType([s], [['string', 'number']], 'NumberDecimal');
       if (typeof s === 'string') {
         return bson.Decimal128.fromString(s);
       }
@@ -103,11 +101,11 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       return bson.Decimal128.fromString(`${s}`);
     },
     NumberInt: function(v = '0'): any {
-      assertArgsType([v], [['string', 'number']], 'NumberInt');
+      assertArgsDefinedType([v], [['string', 'number']], 'NumberInt');
       return new bson.Int32(parseInt(`${v}`, 10));
     },
     NumberLong: function(s: string | number = '0'): any {
-      assertArgsType([s], [['string', 'number']], 'NumberLong');
+      assertArgsDefinedType([s], [['string', 'number']], 'NumberLong');
       if (typeof s === 'string') {
         return bson.Long.fromString(s);
       }
@@ -141,14 +139,12 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`, CommonErrors.InvalidArgument);
     },
     BinData: function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
-      assertArgsDefined(subtype, b64string);
-      assertArgsType([subtype, b64string], ['number', 'string'], 'BinData');
+      assertArgsDefinedType([subtype, b64string], ['number', 'string'], 'BinData');
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     },
     HexData: function(subtype: number, hexstr: string): BinaryType {
-      assertArgsDefined(subtype, hexstr);
-      assertArgsType([subtype, hexstr], ['number', 'string'], 'HexData');
+      assertArgsDefinedType([subtype, hexstr], ['number', 'string'], 'HexData');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     },
@@ -160,15 +156,14 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
         uuid[8] = (uuid[8] & 0x3f) | 0x80;
         hexstr = uuid.toString('hex');
       }
-      assertArgsType([hexstr], ['string'], 'UUID');
+      assertArgsDefinedType([hexstr], ['string'], 'UUID');
       // Strip any dashes, as they occur in the standard UUID formatting
       // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
       const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     },
     MD5: function(hexstr: string): BinaryType {
-      assertArgsDefined(hexstr);
-      assertArgsType([hexstr], ['string'], 'MD5');
+      assertArgsDefinedType([hexstr], ['string'], 'MD5');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     },
