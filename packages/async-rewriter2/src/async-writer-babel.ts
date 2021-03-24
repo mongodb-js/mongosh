@@ -204,6 +204,15 @@ export const wrapAsFunctionPlugin = ({ types: t }: { types: typeof BabelTypes })
   };
 };
 
+interface AsyncFunctionIdentifiers {
+  functionState: babel.types.Identifier;
+  synchronousReturnValue: babel.types.Identifier;
+  asynchronousReturnValue: babel.types.Identifier;
+  expressionHolder: babel.types.Identifier;
+  markSyntheticPromise: babel.types.Identifier;
+  isSyntheticPromise: babel.types.Identifier;
+  syntheticPromiseSymbol: babel.types.Identifier;
+}
 /**
  * The second step that performs the heavy lifting of turning regular functions
  * into maybe-async-maybe-not functions.
@@ -245,6 +254,50 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
     const SP_IDENTIFIER = SYMBOL_CONSTRUCTOR.for("@@mongosh.syntheticPromise");
   `);
 
+  const markSyntheticPromiseTemplate = babel.template.statement(`
+    function MSP_IDENTIFIER(p) {
+      return Object.defineProperty(p, SP_IDENTIFIER, {
+        value: true
+      });
+    }
+  `);
+
+  const isSyntheticPromiseTemplate = babel.template.statement(`
+    function ISP_IDENTIFIER(p) {
+      return p && p[SP_IDENTIFIER];
+    }
+  `);
+
+  const asyncTryCatchWrapperTemplate = babel.template.expression(`
+    async () => {
+      try {
+        ORIGINAL_CODE;
+      } catch (err) {
+        if (FUNCTION_STATE_IDENTIFIER === "sync") {
+          SYNC_RETURN_VALUE_IDENTIFIER = err;
+          FUNCTION_STATE_IDENTIFIER = "threw";
+        } else throw err;
+      } finally {
+        if (FUNCTION_STATE_IDENTIFIER !== "threw") FUNCTION_STATE_IDENTIFIER = "returned";
+      }
+    }
+  `);
+
+  const wrapperFunctionTemplate = babel.template.statements(`
+    let FUNCTION_STATE_IDENTIFIER = "sync",
+        SYNC_RETURN_VALUE_IDENTIFIER,
+        EXPRESSION_HOLDER_IDENTIFIER;
+
+    const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
+
+    if (FUNCTION_STATE_IDENTIFIER === "returned")
+      return SYNC_RETURN_VALUE_IDENTIFIER;
+    else if (FUNCTION_STATE_IDENTIFIER === "threw")
+      throw SYNC_RETURN_VALUE_IDENTIFIER;
+    FUNCTION_STATE_IDENTIFIER = "async";
+    return MSP_IDENTIFIER(ASYNC_RETURN_VALUE_IDENTIFIER);
+  `);
+
   return {
     visitor: {
       BlockStatement(path) {
@@ -281,7 +334,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         const markSyntheticPromise = existingIdentifiers?.markSyntheticPromise ?? path.scope.generateUidIdentifier('msp');
         const isSyntheticPromise = existingIdentifiers?.isSyntheticPromise ?? path.scope.generateUidIdentifier('isp');
         const syntheticPromiseSymbol = existingIdentifiers?.syntheticPromiseSymbol ?? path.scope.generateUidIdentifier('sp');
-        path.parentPath.setData(identifierGroupKey, {
+        const identifiersGroup: AsyncFunctionIdentifiers = {
           functionState,
           synchronousReturnValue,
           asynchronousReturnValue,
@@ -289,7 +342,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           markSyntheticPromise,
           isSyntheticPromise,
           syntheticPromiseSymbol
-        });
+        };
+        path.parentPath.setData(identifierGroupKey, identifiersGroup);
 
         // We generate code that vaguely looks like and insert it at the top
         // of the wrapper function:
@@ -303,118 +357,62 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         // Note that the last check potentially triggers getters and Proxy methods
         // and we may want to replace it by something a bit more sophisticated.
         // All of the top-level AST nodes here are marked as generated helpers.
-        const runtimeSupport = existingIdentifiers ? [] : [
+        const promiseHelpers = existingIdentifiers ? [] : [
           Object.assign(
             syntheticPromiseSymbolTemplate({
               SP_IDENTIFIER: syntheticPromiseSymbol,
               SYMBOL_CONSTRUCTOR: symbolConstructor
-            }), { [isGeneratedHelper]: true }),
-          Object.assign(t.functionDeclaration(
-            markSyntheticPromise,
-            [t.identifier('p')],
-            t.blockStatement([t.returnStatement(
-              t.callExpression(
-                t.memberExpression(t.identifier('Object'), t.identifier('defineProperty')),
-                [
-                  t.identifier('p'),
-                  syntheticPromiseSymbol,
-                  t.objectExpression([
-                    t.objectProperty(t.identifier('value'), t.booleanLiteral(true))
-                  ])
-                ]
-              )
-            )])
-          ), { [isGeneratedHelper]: true }),
-          Object.assign(t.functionDeclaration(
-            isSyntheticPromise,
-            [t.identifier('p')],
-            t.blockStatement([t.returnStatement(
-              t.logicalExpression(
-                '&&',
-                t.identifier('p'),
-                t.memberExpression(t.identifier('p'), syntheticPromiseSymbol, true),
-              )
-            )])
-          ), { [isGeneratedHelper]: true })
+            }),
+            { [isGeneratedHelper]: true }
+          ),
+          Object.assign(
+            markSyntheticPromiseTemplate({
+              MSP_IDENTIFIER: markSyntheticPromise,
+              SP_IDENTIFIER: syntheticPromiseSymbol
+            }),
+            { [isGeneratedHelper]: true }
+          ),
+          Object.assign(
+            isSyntheticPromiseTemplate({
+              ISP_IDENTIFIER: isSyntheticPromise,
+              SP_IDENTIFIER: syntheticPromiseSymbol
+            }),
+            { [isGeneratedHelper]: true }
+          )
         ];
 
         if (path.parentPath.node.async) {
           // If we are in an async function, no async wrapping is necessary.
           // We still want to have the runtime helpers available.
           path.replaceWith(t.blockStatement([
-            ...runtimeSupport,
+            ...promiseHelpers,
             ...path.node.body
           ]));
           return;
         }
 
+        const asyncTryCatchWrapper = Object.assign(
+          asyncTryCatchWrapperTemplate({
+            FUNCTION_STATE_IDENTIFIER: functionState,
+            SYNC_RETURN_VALUE_IDENTIFIER: synchronousReturnValue,
+            ORIGINAL_CODE: Object.assign(path.node, { [isOriginalBody]: true })
+          }),
+          { [isGeneratedInnerFunction]: true }
+        );
+
+        const wrapperFunction = wrapperFunctionTemplate({
+          FUNCTION_STATE_IDENTIFIER: functionState,
+          SYNC_RETURN_VALUE_IDENTIFIER: synchronousReturnValue,
+          ASYNC_RETURN_VALUE_IDENTIFIER: asynchronousReturnValue,
+          EXPRESSION_HOLDER_IDENTIFIER: expressionHolder,
+          MSP_IDENTIFIER: markSyntheticPromise,
+          ASYNC_TRY_CATCH_WRAPPER: asyncTryCatchWrapper
+        });
+
         // Generate the wrapper function. See the README for a full code snippet.
         path.replaceWith(t.blockStatement([
-          ...runtimeSupport,
-          // Add a variable to keep track of what state the inner function is in.
-          // It will either be 'sync', 'async', 'returned' or 'threw'.
-          t.variableDeclaration('let', [
-            t.variableDeclarator(functionState, t.stringLiteral('sync')),
-            t.variableDeclarator(synchronousReturnValue),
-            t.variableDeclarator(expressionHolder),
-          ]),
-          // Since the inner function is an async function, we store its return
-          // value and will use that if no synchronous return takes place.
-          t.variableDeclaration('const', [
-            t.variableDeclarator(
-              asynchronousReturnValue,
-              t.callExpression(
-                Object.assign(t.arrowFunctionExpression([], t.blockStatement([
-                  // Add try/catch/finally to observe returns and throws.
-                  t.tryStatement(
-                    // This is where the original function body ends up.
-                    Object.assign(path.node, { [isOriginalBody]: true }),
-                    // catch(err) { ... }
-                    t.catchClause(
-                      t.identifier('err'),
-                      t.blockStatement([t.ifStatement(
-                        t.binaryExpression('===', functionState, t.stringLiteral('sync')),
-                        t.blockStatement([
-                          t.expressionStatement(
-                            t.assignmentExpression('=', synchronousReturnValue, t.identifier('err'))
-                          ),
-                          t.expressionStatement(
-                            t.assignmentExpression('=', functionState, t.stringLiteral('threw'))
-                          )
-                        ]),
-                        t.throwStatement(t.identifier('err'))
-                      )])
-                    ),
-                    // finally { ... }
-                    t.blockStatement([t.ifStatement(
-                      t.binaryExpression('!==', functionState, t.stringLiteral('threw')),
-                      t.expressionStatement(
-                        t.assignmentExpression('=', functionState, t.stringLiteral('returned'))
-                      ),
-                    )])
-                  )
-                ]), true), { [isGeneratedInnerFunction]: true }),
-                []
-              )
-            )
-          ]),
-          // If we observe a synchronous return or throw, forward it immediately
-          // after calling the inner function.
-          t.ifStatement(
-            t.binaryExpression('===', functionState, t.stringLiteral('returned')),
-            t.returnStatement(synchronousReturnValue),
-            t.ifStatement(
-              t.binaryExpression('===', functionState, t.stringLiteral('threw')),
-              t.throwStatement(synchronousReturnValue),
-            )
-          ),
-          // Indicate that we no longer care about synchronous results.
-          t.expressionStatement(
-            t.assignmentExpression('=', functionState, t.stringLiteral('async'))
-          ),
-          t.returnStatement(
-            t.callExpression(markSyntheticPromise, [asynchronousReturnValue])
-          )
+          ...promiseHelpers,
+          ...wrapperFunction
         ]));
       },
       Expression: {
@@ -435,7 +433,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           if (!path.getFunctionParent().node.async) return;
           // identifierGroup holds the list of helper identifiers available
           // inside thie function.
-          let identifierGroup;
+          let identifierGroup: AsyncFunctionIdentifiers;
           if (path.getFunctionParent().node[isGeneratedInnerFunction]) {
             // We are inside a generated inner function. If there is no node
             // marked as [isOriginalBody] between it and the current node,
