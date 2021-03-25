@@ -298,6 +298,13 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
     return MSP_IDENTIFIER(ASYNC_RETURN_VALUE_IDENTIFIER);
   `);
 
+  const awaitSyntheticPromiseTemplate = babel.template.expression(`(
+    EXPRESSION_HOLDER = NODE,
+    ISP_IDENTIFIER(EXPRESSION_HOLDER) ? await EXPRESSION_HOLDER : EXPRESSION_HOLDER
+  )`, {
+    allowAwaitOutsideFunction: true
+  });
+
   return {
     visitor: {
       BlockStatement(path) {
@@ -432,7 +439,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           if (!path.getFunctionParent()) return;
           if (!path.getFunctionParent().node.async) return;
           // identifierGroup holds the list of helper identifiers available
-          // inside thie function.
+          // inside this function.
           let identifierGroup: AsyncFunctionIdentifiers;
           if (path.getFunctionParent().node[isGeneratedInnerFunction]) {
             // We are inside a generated inner function. If there is no node
@@ -444,6 +451,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             ).node[isOriginalBody]) {
               return;
             }
+
             // We know that the outer function of the inner function has
             // helpers available.
             identifierGroup = path.getFunctionParent().getFunctionParent().getData(identifierGroupKey);
@@ -452,7 +460,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
               // we replace the `return ...` with `return synchronousReturnValue = ...`.
               path.replaceWith(Object.assign(
                 t.assignmentExpression('=', identifierGroup.synchronousReturnValue, path.node),
-                { [isGeneratedHelper]: true }));
+                { [isGeneratedHelper]: true }
+              ));
               return;
             }
           } else {
@@ -514,14 +523,14 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // Transform expression `foo` into
           // `(ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
           const { expressionHolder, isSyntheticPromise } = identifierGroup;
-          path.replaceWith(Object.assign(t.sequenceExpression([
-            t.assignmentExpression('=', expressionHolder, path.node),
-            t.conditionalExpression(
-              t.callExpression(isSyntheticPromise, [expressionHolder]),
-              t.awaitExpression(expressionHolder),
-              expressionHolder
-            )
-          ]), { [isGeneratedHelper]: true }));
+          path.replaceWith(Object.assign(
+            awaitSyntheticPromiseTemplate({
+              EXPRESSION_HOLDER: expressionHolder,
+              ISP_IDENTIFIER: isSyntheticPromise,
+              NODE: path.node
+            }),
+            { [isGeneratedHelper]: true }
+          ));
         }
       }
     }
