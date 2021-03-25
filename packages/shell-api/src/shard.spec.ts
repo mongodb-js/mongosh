@@ -1319,5 +1319,40 @@ describe('Shard', () => {
         expect(ret).to.equal(true);
       });
     });
+    describe('databases', () => {
+      let dbRegular: Database;
+      let dbSh: Database;
+      const dbRegularName = 'db';
+      const dbShName = 'dbSh';
+      const collRegularName = 'testRegular';
+      const collShName = 'testSh';
+
+      before(() => {
+        dbRegular = sh._database.getSiblingDB(dbRegularName);
+        dbSh = sh._database.getSiblingDB(dbShName);
+      });
+
+      afterEach(async() => {
+        await dbRegular.dropDatabase();
+        await dbSh.dropDatabase();
+      });
+
+      it('the list includes not partitioned databases', async() => {
+        await dbRegular.getCollection(collRegularName).insertOne({ foo: 'bar', key: 99 });
+
+        const collSh = dbSh.getCollection(collShName);
+        await collSh.insertOne({ name: 'some', zipcode: '11111' });
+        await collSh.createIndex({ zipcode: 1 });
+        await sh.enableSharding(dbShName);
+        await sh.shardCollection(`${dbShName}.${collShName}`, { zipcode: 1 });
+
+        const result = await sh.status();
+
+        const databasesDbItem = result.value.databases.find((item) => (item.database._id === 'db'));
+        expect(databasesDbItem.database.partitioned).to.equal(false);
+        const databasesDbShItem = result.value.databases.find((item) => (item.database._id === 'dbSh'));
+        expect(databasesDbShItem.database.partitioned).to.equal(true);
+      });
+    });
   });
 });
