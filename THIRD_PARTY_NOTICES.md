@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Mar 23 2021.
+This document was automatically generated on Thu Mar 25 2021.
 
 ## List of dependencies
 
