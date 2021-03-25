@@ -320,6 +320,19 @@ describe('AsyncWriter', () => {
     });
   });
 
+  context('recursion', () => {
+    it('can deal with calling a recursive function', async() => {
+      const result = runTranspiledCode(`
+        function sumToN(n) {
+          if (n <= 1) return 1;
+          return n + sumToN(n - 1);
+        }
+        sumToN(2);
+      `);
+      expect(result).to.equal(3);
+    });
+  });
+
   context('runtime support', () => {
     beforeEach(() => {
       runUntranspiledCode(asyncWriter.runtimeSupportCode());
