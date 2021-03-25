@@ -227,13 +227,17 @@ export default class Database extends ShellApiClass {
   /**
    * Run a command against the db.
    *
-   * @param {Object} cmd - the command spec.
+   * @param cmd - the command as a string or spec document.
    *
-   * @returns {Promise} The promise of command results.
+   * @returns The promise of command results.
    */
   @returnsPromise
-  async runCommand(cmd: Document): Promise<Document> {
-    assertArgsDefinedType([cmd], ['object'], 'Database.runCommand');
+  async runCommand(cmd: string | Document): Promise<Document> {
+    assertArgsDefinedType([cmd], [['string', 'object']], 'Database.runCommand');
+    if (typeof cmd === 'string') {
+      cmd = { [cmd]: 1 };
+    }
+
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('runCommand', { cmd });
@@ -244,14 +248,18 @@ export default class Database extends ShellApiClass {
   /**
    * Run a command against the admin db.
    *
-   * @param {Object} cmd - the command spec.
+   * @param cmd - the command as a string or spec document.
    *
-   * @returns {Promise} The promise of command results.
+   * @returns The promise of command results.
    */
   @returnsPromise
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async adminCommand(cmd: Document): Promise<Document> {
-    assertArgsDefinedType([cmd], ['object'], 'Database.adminCommand');
+  async adminCommand(cmd: string | Document): Promise<Document> {
+    assertArgsDefinedType([cmd], [['string', 'object']], 'Database.adminCommand');
+    if (typeof cmd === 'string') {
+      cmd = { [cmd]: 1 };
+    }
+
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });

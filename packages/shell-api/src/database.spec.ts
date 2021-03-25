@@ -182,6 +182,17 @@ describe('Database', () => {
         );
       });
 
+      it('transforms a string argument into the command document', async() => {
+        await database.runCommand('isMaster');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            isMaster: 1
+          }
+        );
+      });
+
       it('returns whatever serviceProvider.runCommand returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
@@ -206,6 +217,17 @@ describe('Database', () => {
           'admin',
           {
             someCommand: 'someCollection'
+          }
+        );
+      });
+
+      it('transforms a string argument into the command document', async() => {
+        await database.adminCommand('command');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          'admin',
+          {
+            command: 1
           }
         );
       });
