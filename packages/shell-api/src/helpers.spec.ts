@@ -1,4 +1,4 @@
-import { dataFormat, getPrintableShardStatus } from './helpers';
+import { assertArgsDefinedType, dataFormat, getPrintableShardStatus } from './helpers';
 import { Database, Mongo, ShellInternalState } from './index';
 import constructShellBson from './shell-bson';
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
@@ -20,6 +20,54 @@ describe('dataFormat', () => {
     expect(dataFormat(4096 * 4096)).to.equal('16MiB');
     expect(dataFormat(4096 * 4096 * 4096)).to.equal('64GiB');
     expect(dataFormat(4096 * 4096 * 4096 * 1000)).to.equal('64000GiB');
+  });
+});
+
+describe('assertArgsDefinedType', () => {
+  it('allows to specify an argument must be defined', () => {
+    try {
+      assertArgsDefinedType([1, undefined], [true, true], 'helper.test');
+    } catch (e) {
+      expect(e.message).to.contain('Missing required argument at position 1');
+      expect(e.message).to.contain('helper.test');
+      return;
+    }
+    expect.fail('Expected error');
+  });
+  it('allows to specify a single argument type', () => {
+    [null, 2, {}].forEach(value => {
+      try {
+        assertArgsDefinedType([1, value], [true, 'string'], 'helper.test');
+      } catch (e) {
+        expect(e.message).to.contain('Argument at position 1 must be of type string');
+        expect(e.message).to.contain('helper.test');
+        return;
+      }
+      expect.fail('Expected error');
+    });
+    expect(() => assertArgsDefinedType([1, 'test'], [true, 'string'])).to.not.throw;
+  });
+  it('allows to specify multiple argument types', () => {
+    [null, {}].forEach(value => {
+      try {
+        assertArgsDefinedType([1, value], [true, ['number', 'string']]);
+      } catch (e) {
+        return expect(e.message).to.contain('Argument at position 1 must be of type number or string');
+      }
+      expect.fail('Expected error');
+    });
+    expect(() => assertArgsDefinedType([1, 'test'], [true, ['number', 'string']])).to.not.throw;
+    expect(() => assertArgsDefinedType([1, 2], [true, ['number', 'string']])).to.not.throw;
+  });
+  it('allows to specify an optional argument with type', () => {
+    expect(() => assertArgsDefinedType([1, undefined], [true, [undefined, 'string']])).to.not.throw;
+    expect(() => assertArgsDefinedType([1, 'test'], [true, [undefined, 'string']])).to.not.throw;
+    try {
+      assertArgsDefinedType([1, 2], [true, [undefined, 'string']]);
+    } catch (e) {
+      return expect(e.message).to.contain('Argument at position 1 must be of type string');
+    }
+    expect.fail('Expected error');
   });
 });
 

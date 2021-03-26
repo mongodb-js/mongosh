@@ -39,7 +39,7 @@ import { CommandResult } from './result';
 import { redactPassword } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
-import { assertArgsDefined, assertArgsType, processFLEOptions } from './helpers';
+import { assertArgsDefinedType, processFLEOptions } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
 import {
@@ -155,8 +155,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   _getDb(name: string): Database {
-    assertArgsDefined(name);
-    assertArgsType([name], ['string']);
+    assertArgsDefinedType([name], ['string']);
     if (!name.trim()) {
       throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.InvalidArgument);
     }
@@ -169,11 +168,13 @@ export default class Mongo extends ShellApiClass {
 
   @returnType('Database')
   getDB(db: string): Database {
+    assertArgsDefinedType([db], ['string'], 'Mongo.getDB');
     this._internalState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);
   }
 
   use(db: string): string {
+    assertArgsDefinedType([db], ['string'], 'Mongo.use');
     this._internalState.messageBus.emit('mongosh:use', { db });
 
     let previousDbName;

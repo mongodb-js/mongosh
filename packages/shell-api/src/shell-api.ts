@@ -14,7 +14,7 @@ import Mongo from './mongo';
 import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
 import ShellInternalState from './shell-internal-state';
-import { assertArgsDefined, assertCLI } from './helpers';
+import { assertArgsDefinedType, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
 import { DBQuery } from './deprecated';
@@ -80,7 +80,7 @@ export default class ShellApi extends ShellApiClass {
   @returnType('Database')
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
-    assertArgsDefined(uri);
+    assertArgsDefinedType([uri, user, pwd], ['string', [undefined, 'string'], [undefined, 'string']], 'connect');
     assertCLI(this.internalState.initialServiceProvider.platform, 'new Mongo connections');
     const mongo = new Mongo(this.internalState, uri);
     await mongo.connect(user, pwd);
@@ -105,7 +105,7 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   async load(filename: string): Promise<true> {
-    assertArgsDefined(filename);
+    assertArgsDefinedType([filename], ['string'], 'load');
     if (!this.internalState.evaluationListener.onLoad) {
       throw new MongoshUnimplementedError(
         'load is not currently implemented for this platform',

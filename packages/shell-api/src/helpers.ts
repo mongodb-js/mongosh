@@ -85,17 +85,23 @@ function getAssertCaller(caller?: string): string {
   return caller ? ` (${caller})` : '';
 }
 
-export function assertArgsDefined(...args: any[]): void {
-  if (args.some(a => a === undefined)) {
-    throw new MongoshInvalidInputError('Missing required argument', CommonErrors.InvalidArgument);
-  }
-}
-
-export function assertArgsType(args: any[], expectedTypes: Array<string|string[]>, func?: string): void {
+export function assertArgsDefinedType(args: any[], expectedTypes: Array<true|string|Array<string | undefined>>, func?: string): void {
   args.forEach((arg, i) => {
     const expected = expectedTypes[i];
-    if (arg !== undefined && ((typeof expected === 'string' && typeof arg !== expected) || !expected.includes(typeof arg))) {
-      const expectedMsg = typeof expected === 'string' ? expected : expected.join(' or ');
+    if (arg === undefined) {
+      if (expected !== true && Array.isArray(expected) && expected.includes(undefined)) {
+        return;
+      }
+      throw new MongoshInvalidInputError(
+        `Missing required argument at position ${i}${getAssertCaller(func)}`,
+        CommonErrors.InvalidArgument
+      );
+    } else if (expected === true) {
+      return;
+    }
+
+    if (((typeof expected === 'string' && typeof arg !== expected) || !expected.includes(typeof arg))) {
+      const expectedMsg = typeof expected === 'string' ? expected : expected.filter(e => e !== undefined).join(' or ');
       throw new MongoshInvalidInputError(
         `Argument at position ${i} must be of type ${expectedMsg}, got ${typeof arg} instead${getAssertCaller(func)}`,
         CommonErrors.InvalidArgument
@@ -624,7 +630,7 @@ export function assertCLI(platform: ReplPlatform, features: string): void {
 }
 
 export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
-  assertArgsDefined(fleOptions.keyVaultNamespace, fleOptions.kmsProviders);
+  assertKeysDefined(fleOptions, ['keyVaultNamespace', 'kmsProviders']);
   Object.keys(fleOptions).forEach(k => {
     if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);

@@ -10,7 +10,7 @@ import {
   Document
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefinedType } from './helpers';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
 import { redactPassword } from '@mongosh/history';
@@ -80,8 +80,7 @@ export default class ReplicaSet extends ShellApiClass {
    */
   @returnsPromise
   async reconfig(config: Document, options = {}): Promise<Document> {
-    assertArgsDefined(config);
-    assertArgsType([ config, options ], ['object', 'object']);
+    assertArgsDefinedType([ config, options ], ['object', [undefined, 'object']], 'ReplicaSet.reconfig');
     this._emitReplicaSetApiCall('reconfig', { config, options });
 
     const conf = await this.conf();
@@ -133,7 +132,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async add(hostport: string | Document, arb?: boolean): Promise<Document> {
-    assertArgsDefined(hostport);
+    assertArgsDefinedType([hostport, arb], [['string', 'object'], [undefined, 'boolean']], 'ReplicaSet.add');
     this._emitReplicaSetApiCall('add', { hostport, arb });
 
     const local = this._database.getSiblingDB('local');
@@ -182,8 +181,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async remove(hostname: string): Promise<Document> {
-    assertArgsDefined(hostname);
-    assertArgsType([hostname], ['string']);
+    assertArgsDefinedType([hostname], ['string'], 'ReplicaSet.remove');
     this._emitReplicaSetApiCall('remove', { hostname });
     const local = this._database.getSiblingDB('local');
     if (await local.getCollection('system.replset').countDocuments({}) !== 1) {
@@ -213,8 +211,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async freeze(secs: number): Promise<Document> {
-    assertArgsDefined(secs);
-    assertArgsType([secs], ['number']);
+    assertArgsDefinedType([secs], ['number'], 'ReplicaSet.freeze');
     this._emitReplicaSetApiCall('freeze', { secs });
     return this._database._runAdminCommand(
       {
@@ -225,7 +222,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<Document> {
-    assertArgsType([stepdownSecs, catchUpSecs], ['number', 'number']);
+    assertArgsDefinedType([stepdownSecs, catchUpSecs], [[undefined, 'number'], [undefined, 'number']], 'ReplicaSet.stepDown');
     this._emitReplicaSetApiCall('stepDown', { stepdownSecs, catchUpSecs });
     const cmd = {
       replSetStepDown: stepdownSecs === undefined ? 60 : stepdownSecs,
@@ -240,8 +237,7 @@ export default class ReplicaSet extends ShellApiClass {
 
   @returnsPromise
   async syncFrom(host: string): Promise<Document> {
-    assertArgsDefined(host);
-    assertArgsType([host], ['string']);
+    assertArgsDefinedType([host], ['string'], 'ReplicaSet.syncFrom');
     this._emitReplicaSetApiCall('syncFrom', { host });
     return this._database._runAdminCommand(
       {

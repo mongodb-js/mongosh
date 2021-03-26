@@ -182,6 +182,17 @@ describe('Database', () => {
         );
       });
 
+      it('transforms a string argument into the command document', async() => {
+        await database.runCommand('isMaster');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            isMaster: 1
+          }
+        );
+      });
+
       it('returns whatever serviceProvider.runCommand returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
@@ -206,6 +217,17 @@ describe('Database', () => {
           'admin',
           {
             someCommand: 'someCollection'
+          }
+        );
+      });
+
+      it('transforms a string argument into the command document', async() => {
+        await database.adminCommand('command');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          'admin',
+          {
+            command: 1
           }
         );
       });
@@ -2392,11 +2414,26 @@ describe('Database', () => {
       getCollectionInfos: { m: 'listCollections' },
       aggregate: { m: 'aggregateDb' },
       dropDatabase: { m: 'dropDatabase', i: 1 },
-      createCollection: { m: 'createCollection' },
-      createView: { m: 'createCollection' },
+      createCollection: { m: 'createCollection', a: ['coll'] },
+      createView: { m: 'createCollection', a: ['coll', 'source', []] },
+      changeUserPassword: { a: ['username', 'pass'] },
       createUser: { a: [{ user: 'a', pwd: 'p', roles: [] }] },
+      updateUser: { a: ['username', { roles: [] }] },
       createRole: { a: [{ role: 'a', privileges: [], roles: [] }] },
-      setLogLevel: { a: ['a'] }
+      updateRole: { a: ['role', {}] },
+      getUser: { a: ['username'] },
+      getRole: { a: ['rolename'] },
+      dropUser: { a: ['username'] },
+      dropRole: { a: ['role'] },
+      grantRolesToUser: { a: ['username', []] },
+      revokeRolesFromUser: { a: ['username', []] },
+      grantRolesToRole: { a: ['rolename', []] },
+      revokeRolesFromRole: { a: ['rolename', []] },
+      grantPrivilegesToRole: { a: ['rolename', []] },
+      revokePrivilegesFromRole: { a: ['rolename', []] },
+      setLogLevel: { a: [1] },
+      setProfilingLevel: { a: [1] },
+      killOp: { a: [1] }
     };
     const ignore = [
       'auth',

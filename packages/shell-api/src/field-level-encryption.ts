@@ -21,7 +21,7 @@ import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
 import { DeleteResult } from './result';
-import { assertArgsDefined, assertArgsType } from './helpers';
+import { assertArgsDefinedType } from './helpers';
 import { asPrintable } from './enums';
 import { redactPassword } from '@mongosh/history';
 import type Mongo from './mongo';
@@ -76,7 +76,7 @@ export class ClientEncryption extends ShellApiClass {
     value: any,
     encryptionAlgorithm: ClientEncryptionEncryptOptions['algorithm']
   ): Promise<BinaryType> {
-    assertArgsDefined(encryptionId, value, encryptionAlgorithm);
+    assertArgsDefinedType([encryptionId, value, encryptionAlgorithm], [true, true, true], 'ClientEncryption.encrypt');
     return await this._libmongocrypt.encrypt(
       value,
       {
@@ -90,7 +90,7 @@ export class ClientEncryption extends ShellApiClass {
   async decrypt(
     encryptedValue: BinaryType
   ): Promise<any> {
-    assertArgsDefined(encryptedValue);
+    assertArgsDefinedType([encryptedValue], [true], 'ClientEncryption.decrypt');
     return await this._libmongocrypt.decrypt(encryptedValue);
   }
 }
@@ -127,7 +127,7 @@ export class KeyVault extends ShellApiClass {
     masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
     keyAltNames?: string[]
   ): Promise<Document> {
-    assertArgsDefined(kms);
+    assertArgsDefinedType([kms], [true], 'KeyVault.createKey');
 
     if (typeof masterKeyOrAltNames === 'string') {
       if (kms === 'local' && masterKeyOrAltNames === '') {
@@ -178,13 +178,12 @@ export class KeyVault extends ShellApiClass {
   }
 
   getKey(keyId: BinaryType): Cursor {
-    assertArgsDefined(keyId);
+    assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
     return this._keyColl.find({ '_id': keyId });
   }
 
   getKeyByAltName(keyAltName: string): Cursor {
-    assertArgsDefined(keyAltName);
-    assertArgsType([keyAltName], ['string']);
+    assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
     return this._keyColl.find({ 'keyAltNames': keyAltName });
   }
 
@@ -194,14 +193,13 @@ export class KeyVault extends ShellApiClass {
 
   @returnsPromise
   deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
-    assertArgsDefined(keyId);
+    assertArgsDefinedType([keyId], [true], 'KeyVault.deleteKey');
     return this._keyColl.deleteOne({ '_id': keyId });
   }
 
   @returnsPromise
   addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
-    assertArgsDefined(keyId, keyAltName);
-    assertArgsType([keyAltName], ['string']);
+    assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
     return this._keyColl.findAndModify({
       query: { '_id': keyId },
       update: { $push: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } },
@@ -210,8 +208,7 @@ export class KeyVault extends ShellApiClass {
 
   @returnsPromise
   async removeKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
-    assertArgsDefined(keyId, keyAltName);
-    assertArgsType([keyAltName], ['string']);
+    assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.removeKeyAlternateName');
     const ret = await this._keyColl.findAndModify({
       query: { '_id': keyId },
       update: { $pull: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } }
