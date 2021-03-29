@@ -1,7 +1,7 @@
 {
-  "name": "@mongosh/shell-evaluator",
+  "name": "@mongosh/async-rewriter2",
   "version": "0.0.0-dev.0",
-  "description": "MongoDB Top Level API Package",
+  "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
@@ -26,13 +26,14 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "@mongosh/async-rewriter2": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/shell-api": "0.0.0-dev.0"
-  },
-  "devDependencies": {
-    "@types/sinon": "^7.5.1",
-    "@types/sinon-chai": "^3.2.3"
+    "@babel/core": "^7.9.0",
+    "@babel/parser": "^7.9.4",
+    "@babel/plugin-transform-shorthand-properties": "^7.12.13",
+    "@babel/plugin-transform-parameters": "^7.13.0",
+    "@babel/plugin-transform-destructuring": "^7.13.0",
+    "@babel/traverse": "^7.9.0",
+    "@babel/types": "^7.9.0",
+    "@types/babel__core": "^7.1.6",
+    "@types/babel__traverse": "^7.0.9"
   }
 }

@@ -123,9 +123,9 @@ function wrapWithAddSourceToResult(fn: Function): Function {
     return result;
   }
   const wrapper = (fn as any).returnsPromise ?
-    async function(this: any, ...args: any[]): Promise<any> {
+    markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
       return addSource(await fn.call(this, ...args), this);
-    } : function(this: any, ...args: any[]): any {
+    }) : function(this: any, ...args: any[]): any {
       return addSource(fn.call(this, ...args), this);
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
@@ -292,6 +292,20 @@ export function shellApiClassDefault(constructor: Function): void {
   signatures[className] = classSignature;
 }
 
+function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {
+  function wrapper(this: any, ...args: any[]) {
+    const origResult = orig.call(this, ...args);
+    return Object.prototype.toString.call(origResult) === '[object Promise]' ? addHiddenDataProperty(
+      origResult,
+      Symbol.for('@@mongosh.syntheticPromise'),
+      true
+    ) : origResult;
+  }
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(orig));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(orig));
+  return wrapper;
+}
+
 export { signatures };
 export function serverVersions(versionArray: [ string, string ]): Function {
   return function(
@@ -315,7 +329,9 @@ export function topologies(topologiesArray: Topologies[]): Function {
   };
 }
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
-  descriptor.value.returnsPromise = true;
+  const orig = descriptor.value;
+  orig.returnsPromise = true;
+  descriptor.value = markImplicitlyAwaited(descriptor.value);
 }
 export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.isDirectShellCommand = true;

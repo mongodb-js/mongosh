@@ -89,7 +89,7 @@ export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
-  public asyncWriter: AsyncWriter;
+  public asyncWriter: { process(code: string): string };
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public uri: string | null;
   public connectionInfo: any;
@@ -203,7 +203,8 @@ export default class ShellInternalState {
     } as any;
     Object.assign(apiObjects, signatures.ShellApi.attributes);
     delete apiObjects.Mongo;
-    this.asyncWriter.symbols.initializeApiObjects(apiObjects);
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    (this.asyncWriter as any)?.symbols?.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {

@@ -1,0 +1,555 @@
+import AsyncWriter from './';
+import vm from 'vm';
+import sinon from 'ts-sinon';
+import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
+chai.use(sinonChai);
+
+describe('AsyncWriter', () => {
+  let implicitlyAsyncFn: sinon.SinonStub;
+  let plainFn: sinon.SinonStub;
+  let implicitlyAsyncMethod: sinon.SinonStub;
+  let plainMethod: sinon.SinonStub;
+  let ctx: any;
+  let runTranspiledCode: (code: string, context?: any) => any;
+  let runUntranspiledCode: (code: string, context?: any) => any;
+  let asyncWriter: AsyncWriter;
+
+  beforeEach(function() {
+    implicitlyAsyncFn = sinon.stub();
+    plainFn = sinon.stub();
+    implicitlyAsyncMethod = sinon.stub();
+    plainMethod = sinon.stub();
+
+    asyncWriter = new AsyncWriter();
+    ctx = vm.createContext({
+      expect,
+      console,
+      implicitlyAsyncFn: function(...args: any[]) {
+        return Object.assign(
+          Promise.resolve(implicitlyAsyncFn.call(this, ...args)),
+          { [Symbol.for('@@mongosh.syntheticPromise')]: true });
+      },
+      plainFn,
+      obj: {
+        implicitlyAsyncMethod: function(...args: any[]) {
+          return Object.assign(
+            Promise.resolve(implicitlyAsyncMethod.call(this, ...args)),
+            { [Symbol.for('@@mongosh.syntheticPromise')]: true });
+        },
+        plainMethod
+      }
+    });
+    runTranspiledCode = (code: string, context?: any) => {
+      const transpiled = asyncWriter.process(code);
+      return runUntranspiledCode(transpiled, context);
+    };
+    runUntranspiledCode = (code: string, context?: any) => {
+      return vm.runInContext(code, context ?? ctx);
+    };
+  });
+
+  context('basic testing', () => {
+    it('evaluates plain literal expressions', () => {
+      expect(runTranspiledCode('42')).to.equal(42);
+      expect(runTranspiledCode('"42"')).to.equal('42');
+      expect(runTranspiledCode('false')).to.equal(false);
+      expect(runTranspiledCode('null')).to.equal(null);
+      expect(runTranspiledCode('undefined')).to.equal(undefined);
+      expect(runTranspiledCode('[1,2,3]')).to.deep.equal([1, 2, 3]);
+      expect(runTranspiledCode('({ a: 10 })')).to.deep.equal({ a: 10 });
+    });
+
+    it('does not auto-resolve Promises automatically', () => {
+      expect(runTranspiledCode('Promise.resolve([])').constructor.name).to.equal('Promise');
+      expect(runTranspiledCode('Promise.resolve([]).constructor').name).to.equal('Promise');
+      expect(runTranspiledCode('Promise.resolve([]).constructor.name')).to.equal('Promise');
+    });
+  });
+
+  context('scoping', () => {
+    it('adds functions to the global scope as expected', () => {
+      const f = runTranspiledCode('function f() {}');
+      expect(f.constructor.name).to.equal('Function');
+      expect(ctx.f).to.equal(f);
+    });
+
+    it('adds var declarations to the global scope as expected', () => {
+      const a = runTranspiledCode('var a = 10;');
+      expect(a).to.equal(10);
+      expect(ctx.a).to.equal(a);
+    });
+
+    it('adds let declarations to the global scope as expected (unlike regular JS)', () => {
+      const a = runTranspiledCode('let a = 10;');
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(10);
+    });
+
+    it('adds const declarations to the global scope as expected (unlike regular JS)', () => {
+      const a = runTranspiledCode('const a = 11;');
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(11);
+    });
+
+    it('adds block-scoped functions to the global scope as expected', () => {
+      const f = runTranspiledCode('f(); { function f() {} }');
+      expect(f.constructor.name).to.equal('Function');
+      expect(ctx.f).to.equal(f);
+    });
+
+    it('adds block-scoped var declarations to the global scope as expected', () => {
+      const a = runTranspiledCode('{ var a = 10; }');
+      expect(a).to.equal(10);
+      expect(ctx.a).to.equal(a);
+    });
+
+    it('does not add block-scoped let declarations to the global scope', () => {
+      const a = runTranspiledCode('{ let a = 10; a }');
+      expect(a).to.equal(10);
+      expect(ctx.a).to.equal(undefined);
+    });
+
+    it('does not make let declarations implicit completion records', () => {
+      const a = runTranspiledCode('{ let a = 10; }');
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(undefined);
+    });
+
+    it('does not make const declarations implicit completion records', () => {
+      const a = runTranspiledCode('{ const a = 10; }');
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(undefined);
+    });
+
+    it('moves top-level classes into the top-level scope', () => {
+      const A = runTranspiledCode('class A {}');
+      expect(A.constructor.name).to.equal('Function');
+      expect(A.name).to.equal('A');
+      expect(ctx.A).to.equal(A);
+    });
+
+    it('does not move classes from block scopes to the top-level scope', () => {
+      const A = runTranspiledCode('{ class A {} }');
+      expect(A).to.equal(undefined);
+      expect(ctx.A).to.equal(undefined);
+    });
+
+    it('does not make top-level classes accessible before their definition', () => {
+      expect(() => runTranspiledCode('var a = new A(); class A {}')).to.throw();
+    });
+
+    it('does not make block-scoped classes accessible before their definition', () => {
+      expect(() => runTranspiledCode('{ var a = new A(); class A {} }')).to.throw();
+    });
+  });
+
+  context('implicit awaiting', () => {
+    it('does not implicitly await plain function calls', async() => {
+      plainFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('plainFn()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(undefined);
+      expect((await ret).foo).to.equal('bar');
+
+      expect(await runTranspiledCode('plainFn().foo')).to.equal(undefined);
+    });
+
+    it('marks function calls as implicitly awaited when requested', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('implicitlyAsyncFn()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect((await ret).foo).to.equal('bar');
+
+      expect(await runTranspiledCode('implicitlyAsyncFn().foo')).to.equal('bar');
+    });
+
+    it('does not implicitly await plain method calls', async() => {
+      plainMethod.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('obj.plainMethod()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(undefined);
+      expect((await ret).foo).to.equal('bar');
+
+      expect(await runTranspiledCode('obj.plainMethod().foo')).to.equal(undefined);
+    });
+
+    it('marks method calls as implicitly awaited when requested', async() => {
+      implicitlyAsyncMethod.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('obj.implicitlyAsyncMethod()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect((await ret).foo).to.equal('bar');
+
+      expect(await runTranspiledCode('obj.implicitlyAsyncMethod().foo')).to.equal('bar');
+    });
+
+    it('can implicitly await inside of class methods', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`class A {
+        method() { return implicitlyAsyncFn().foo; }
+      }; new A().method()`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('cannot implicitly await inside of class constructors', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      expect(runTranspiledCode(`class A {
+        constructor() { this.value = implicitlyAsyncFn().foo; }
+      }; new A()`).value).to.equal(undefined);
+    });
+
+    it('can implicitly await inside of functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`(function() {
+        return implicitlyAsyncFn().foo;
+      })()`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of async functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`(async function() {
+        return implicitlyAsyncFn().foo;
+      })()`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of async generator functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`(async function() {
+        const gen = (async function*() {
+          yield implicitlyAsyncFn().foo;
+        })();
+        for await (const value of gen) return value;
+      })()`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(await ret).to.equal('bar');
+    });
+
+    it('cannot implicitly await inside of plain generator functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      expect(runTranspiledCode(`(function() {
+        const gen = (function*() {
+          yield implicitlyAsyncFn().foo;
+        })();
+        for (const value of gen) return value;
+      })()`)).to.equal(undefined);
+    });
+
+    it('can implicitly await inside of shorthand arrow functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('(() => implicitlyAsyncFn().foo)()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of block-statement arrow functions', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode('(() => { return implicitlyAsyncFn().foo; })()');
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of branches', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`
+      if (true) {
+        implicitlyAsyncFn().foo;
+      } else {
+        null;
+      }`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of loops', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`
+      do {
+        implicitlyAsyncFn().foo;
+      } while(false)`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('can implicitly await inside of for loops', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`
+      let value;
+      for (let i = 0; i < 10; i++) {
+        value = implicitlyAsyncFn().foo;
+      }
+      value`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+      expect(implicitlyAsyncFn).to.have.callCount(10);
+    });
+
+    it('works with assignments to objects', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`
+      const x = {};
+      x.key = implicitlyAsyncFn().foo;
+      x.key;`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+  });
+
+  context('error handling', () => {
+    it('handles syntax errors properly', () => {
+      expect(() => runTranspiledCode('foo(')).to.throw(/Unexpected token/);
+    });
+
+    it('accepts comments at the end of code', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      expect(await runTranspiledCode('implicitlyAsyncFn().foo // comment')).to.equal('bar');
+    });
+  });
+
+  context('recursion', () => {
+    it('can deal with calling a recursive function', async() => {
+      const result = runTranspiledCode(`
+        function sumToN(n) {
+          if (n <= 1) return 1;
+          return n + sumToN(n - 1);
+        }
+        sumToN(2);
+      `);
+      expect(result).to.equal(3);
+    });
+  });
+
+  context('runtime support', () => {
+    beforeEach(() => {
+      runUntranspiledCode(asyncWriter.runtimeSupportCode());
+    });
+
+    context('async', () => {
+      it('supports Array.prototype.forEach', async() => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect(await runTranspiledCode(`
+          const a = [implicitlyAsyncFn];
+          let value;
+          a.forEach((fn) => { value = fn().foo; });
+          value;
+        `)).to.equal('bar');
+      });
+
+      it('supports Array.prototype.map', async() => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect((await runTranspiledCode(`
+          [implicitlyAsyncFn].map((fn) => fn());
+        `))[0].foo).to.equal('bar');
+      });
+
+      it('supports Array.prototype.find', async() => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect((await runTranspiledCode(`
+          [() => 0, implicitlyAsyncFn].find((fn) => fn())();
+        `)).foo).to.equal('bar');
+      });
+
+      it('supports Array.prototype.some', async() => {
+        implicitlyAsyncFn.callsFake(value => value);
+        expect(await runTranspiledCode(`
+          [{ prop: 'prop' }].some((value) => implicitlyAsyncFn(value).prop === 'prop');
+        `)).to.equal(true);
+      });
+
+      it('supports Array.prototype.every', async() => {
+        implicitlyAsyncFn.callsFake(value => value);
+        expect(await runTranspiledCode(`
+          [{ prop: 'prop' }].every((value) => implicitlyAsyncFn(value).prop === 'prop');
+        `)).to.equal(true);
+      });
+
+      it('supports Array.prototype.filter', async() => {
+        implicitlyAsyncFn.callsFake(value => value);
+        expect(await runTranspiledCode(`
+          [
+            { prop: 'prop' },
+            { prop: 'other' }
+          ].filter((value) => implicitlyAsyncFn(value).prop === 'prop');
+        `)).to.deep.equal([{ prop: 'prop' }]);
+      });
+
+      it('supports Array.prototype.findIndex', async() => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect(await runTranspiledCode(`
+          const arr = [() => 0, implicitlyAsyncFn];
+          arr.findIndex((fn) => fn());
+        `)).to.equal(1);
+      });
+
+      it('supports Array.prototype.reduce', async() => {
+        implicitlyAsyncFn.callsFake((left, right) => left + right);
+        expect(await runTranspiledCode(`
+          [1,2,3].reduce(implicitlyAsyncFn, 0)
+        `)).to.equal(6);
+      });
+
+      it('supports Array.prototype.reduceRight', async() => {
+        implicitlyAsyncFn.callsFake((left, right) => left + right);
+        expect(await runTranspiledCode(`
+          [1,2,3].reduceRight(implicitlyAsyncFn, 0)
+        `)).to.equal(6);
+      });
+
+      it('supports TypedArray.prototype.map', async() => {
+        implicitlyAsyncFn.callsFake(v => v + 1);
+        expect(await runTranspiledCode(`
+          new Uint8Array([ 1, 2, 3 ]).map(implicitlyAsyncFn).reduce((a, b) => a + b)
+        `)).to.equal(9);
+      });
+
+      it('supports TypedArray.prototype.filter', async() => {
+        implicitlyAsyncFn.callsFake(v => v < 3);
+        expect(await runTranspiledCode(`
+          new Uint8Array([ 1, 2, 3 ]).filter(implicitlyAsyncFn).reduce((a, b) => a + b)
+        `)).to.equal(3);
+      });
+
+      it('supports Map.prototype.forEach', async() => {
+        const map = await runTranspiledCode(`
+          const map = new Map([[1,2], [3,4]]);
+          map.forEach(implicitlyAsyncFn);
+          map
+        `);
+        expect(implicitlyAsyncFn).to.have.been.calledWith(2, 1, map);
+        expect(implicitlyAsyncFn).to.have.been.calledWith(4, 3, map);
+      });
+
+      it('supports Set.prototype.forEach', async() => {
+        const set = await runTranspiledCode(`
+          const set = new Set([ 2, 4, 6 ]);
+          set.forEach(implicitlyAsyncFn);
+          set
+        `);
+        expect(implicitlyAsyncFn).to.have.been.calledWith(2, 2, set);
+        expect(implicitlyAsyncFn).to.have.been.calledWith(4, 4, set);
+        expect(implicitlyAsyncFn).to.have.been.calledWith(6, 6, set);
+      });
+    });
+
+    context('synchronous', () => {
+      it('supports Array.prototype.forEach', () => {
+        plainFn.returns({ foo: 'bar' });
+        expect(runTranspiledCode(`
+          const a = [plainFn];
+          let value;
+          a.forEach((fn) => { value = fn().foo; });
+          value;
+        `)).to.equal('bar');
+      });
+
+      it('supports Array.prototype.map', () => {
+        plainFn.returns({ foo: 'bar' });
+        expect(( runTranspiledCode(`
+          [plainFn].map((fn) => fn());
+        `))[0].foo).to.equal('bar');
+      });
+
+      it('supports Array.prototype.find', () => {
+        plainFn.returns({ foo: 'bar' });
+        expect(( runTranspiledCode(`
+          [() => 0, plainFn].find((fn) => fn())();
+        `)).foo).to.equal('bar');
+      });
+
+      it('supports Array.prototype.some', () => {
+        plainFn.callsFake(value => value);
+        expect(runTranspiledCode(`
+          [{ prop: 'prop' }].some((value) => plainFn(value).prop === 'prop');
+        `)).to.equal(true);
+      });
+
+      it('supports Array.prototype.every', () => {
+        plainFn.callsFake(value => value);
+        expect(runTranspiledCode(`
+          [{ prop: 'prop' }].every((value) => plainFn(value).prop === 'prop');
+        `)).to.equal(true);
+      });
+
+      it('supports Array.prototype.filter', () => {
+        plainFn.callsFake(value => value);
+        expect(runTranspiledCode(`
+          [
+            { prop: 'prop' },
+            { prop: 'other' }
+          ].filter((value) => plainFn(value).prop === 'prop');
+        `)).to.deep.equal([{ prop: 'prop' }]);
+      });
+
+      it('supports Array.prototype.findIndex', () => {
+        plainFn.returns({ foo: 'bar' });
+        expect(runTranspiledCode(`
+          const arr = [() => 0, plainFn];
+          arr.findIndex((fn) => fn());
+        `)).to.equal(1);
+      });
+
+      it('supports Array.prototype.reduce', () => {
+        plainFn.callsFake((left, right) => left + right);
+        expect(runTranspiledCode(`
+          [1,2,3].reduce(plainFn, 0)
+        `)).to.equal(6);
+      });
+
+      it('supports Array.prototype.reduceRight', () => {
+        plainFn.callsFake((left, right) => left + right);
+        expect(runTranspiledCode(`
+          [1,2,3].reduceRight(plainFn, 0)
+        `)).to.equal(6);
+      });
+
+      it('supports TypedArray.prototype.map', () => {
+        plainFn.callsFake(v => v + 1);
+        expect(runTranspiledCode(`
+          new Uint8Array([ 1, 2, 3 ]).map(plainFn).reduce((a, b) => a + b)
+        `)).to.equal(9);
+      });
+
+      it('supports TypedArray.prototype.filter', () => {
+        plainFn.callsFake(v => v < 3);
+        expect(runTranspiledCode(`
+          new Uint8Array([ 1, 2, 3 ]).filter(plainFn).reduce((a, b) => a + b)
+        `)).to.equal(3);
+      });
+
+      it('supports Map.prototype.forEach', () => {
+        const map = runTranspiledCode(`
+          const map = new Map([[1,2], [3,4]]);
+          map.forEach(plainFn);
+          map
+        `);
+        expect(plainFn).to.have.been.calledWith(2, 1, map);
+        expect(plainFn).to.have.been.calledWith(4, 3, map);
+      });
+
+      it('supports Set.prototype.forEach', () => {
+        const set = runTranspiledCode(`
+          const set = new Set([ 2, 4, 6 ]);
+          set.forEach(plainFn);
+          set
+        `);
+        expect(plainFn).to.have.been.calledWith(2, 2, set);
+        expect(plainFn).to.have.been.calledWith(4, 4, set);
+        expect(plainFn).to.have.been.calledWith(6, 6, set);
+      });
+    });
+  });
+});
