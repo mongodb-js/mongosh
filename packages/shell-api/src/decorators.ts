@@ -294,10 +294,12 @@ export function shellApiClassDefault(constructor: Function): void {
 
 function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {
   function wrapper(this: any, ...args: any[]) {
-    return addHiddenDataProperty(
-      Promise.resolve(orig.call(this, ...args)),
+    const origResult = orig.call(this, ...args);
+    return Object.prototype.toString.call(origResult) === '[object Promise]' ? addHiddenDataProperty(
+      origResult,
       Symbol.for('@@mongosh.syntheticPromise'),
-      true);
+      true
+    ) : origResult;
   }
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(orig));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(orig));
