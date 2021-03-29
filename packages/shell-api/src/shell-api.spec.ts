@@ -229,6 +229,7 @@ describe('ShellApi', () => {
               'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
               {
                 autoEncryption: {
+                  extraOptions: {},
                   keyVaultClient: undefined,
                   keyVaultNamespace: 'encryption.dataKeys',
                   kmsProviders: { local: { key: expectedKey } }
@@ -250,6 +251,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
+                extraOptions: {},
                 keyVaultClient: undefined,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { aws: { accessKeyId: 'abc', secretAccessKey: '123' } }
@@ -270,6 +272,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
+                extraOptions: {},
                 keyVaultClient: rawClientStub,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
@@ -294,6 +297,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
+                extraOptions: {},
                 keyVaultClient: rc,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } }
@@ -357,6 +361,7 @@ describe('ShellApi', () => {
             'mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000',
             {
               autoEncryption: {
+                extraOptions: {},
                 keyVaultClient: undefined,
                 keyVaultNamespace: 'encryption.dataKeys',
                 kmsProviders: { local: { key: Buffer.from(b641234, 'base64') } },

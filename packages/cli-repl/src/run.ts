@@ -1,4 +1,4 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPath, runSmokeTests, USAGE } from './index';
+import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPaths, runSmokeTests, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
 
 (async() => {
@@ -23,14 +23,14 @@ import { generateUri } from '@mongosh/service-provider-server';
         await runSmokeTests(smokeTestServer, process.execPath, process.argv[1]);
       }
     } else {
-      let mongocryptdSpawnPath = null;
+      let mongocryptdSpawnPaths = [['mongocryptd']];
       if (process.execPath === process.argv[1]) {
         // Remove the built-in Node.js listener that prints e.g. deprecation
         // warnings in single-binary release mode.
         process.removeAllListeners('warning');
         // Look for mongocryptd in the locations where our packaging would
         // have put it.
-        mongocryptdSpawnPath = await getMongocryptdPath();
+        mongocryptdSpawnPaths = await getMongocryptdPaths();
       }
 
       // This is for testing under coverage, see the the comment in the tests
@@ -41,19 +41,19 @@ import { generateUri } from '@mongosh/service-provider-server';
       process.title = 'mongosh';
       const driverOptions = await mapCliToDriver(options);
       const driverUri = generateUri(options);
-      const appname = `${process.title} ${version}`;
+      const appName = `${process.title} ${version}`;
       const shellHomePaths = getStoragePaths();
       repl = new CliRepl({
         shellCliOptions: {
           ...options,
-          ...(mongocryptdSpawnPath ? { mongocryptdSpawnPath } : {})
         },
+        mongocryptdSpawnPaths,
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,
         shellHomePaths: shellHomePaths
       });
-      await repl.start(driverUri, { appName: appname, ...driverOptions });
+      await repl.start(driverUri, { appName, ...driverOptions });
     }
   } catch (e) {
     // eslint-disable-next-line no-console

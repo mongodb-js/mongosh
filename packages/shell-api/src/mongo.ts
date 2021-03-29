@@ -92,10 +92,6 @@ export default class Mongo extends ShellApiClass {
         delete fleOptions.explicitEncryptionOnly;
       }
       this._fleOptions = processFLEOptions(fleOptions);
-      const { mongocryptdSpawnPath } = this._internalState;
-      if (mongocryptdSpawnPath) {
-        (this._fleOptions.extraOptions ??= {}).mongocryptdSpawnPath = mongocryptdSpawnPath;
-      }
     } else {
       const spFleOptions = sp?.getFleOptions?.();
       if (spFleOptions) {
@@ -148,7 +144,12 @@ export default class Mongo extends ShellApiClass {
       auth: { username: user, password: pwd }
     } : {};
     if (this._fleOptions && !this._explicitEncryptionOnly) {
-      mongoClientOptions.autoEncryption = this._fleOptions;
+      const extraOptions = {
+        ...(this._fleOptions.extraOptions ?? {}),
+        ...(await this._internalState.evaluationListener?.startMongocryptd?.() ?? {})
+      };
+
+      mongoClientOptions.autoEncryption = { ...this._fleOptions, extraOptions };
     }
     const parentProvider = this._internalState.initialServiceProvider;
     this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
