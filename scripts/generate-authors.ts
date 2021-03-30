@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 
 /*
  * Generate an AUTHOR file on the repo root and on each lerna package based on git log.
@@ -7,22 +7,20 @@
  * names / emails.
  */
 
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 
 const packageRootPath = path.resolve(__dirname, '..');
 
-
-
-function getAuthorsGitLog(packagePath) {
+function getAuthorsGitLog(packagePath: string): string[] {
   return execSync(
     `git log --reverse --format='%aN <%aE>' --use-mailmap -- ${packagePath}`,
     { cwd: packageRootPath }
   ).toString().trim().split('\n');
 }
 
-function getAuthorsOrderedByFirstCommit(packagePath) {
+function getAuthorsOrderedByFirstCommit(packagePath: string): string[] {
   const alreadyAdded = new Set();
   const authors = [];
 
@@ -35,13 +33,20 @@ function getAuthorsOrderedByFirstCommit(packagePath) {
   return authors;
 }
 
-function getAllPackages() {
-  return JSON.parse(execSync(`lerna list -a --loglevel=error --json`,
-  { cwd: packageRootPath }
-  ).toString().trim());
+interface Package {
+  location: string;
 }
 
-function renderAuthorsFileContent(authors) {
+function getAllPackages(): Package[] {
+  return JSON.parse(
+    execSync(
+      `lerna list -a --loglevel=error --json`,
+      { cwd: packageRootPath }
+    ).toString().trim()
+  );
+}
+
+function renderAuthorsFileContent(authors: string[]): string {
   return `${authors.join('\n')}\n`;
 }
 
