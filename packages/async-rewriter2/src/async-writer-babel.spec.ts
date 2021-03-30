@@ -588,5 +588,10 @@ describe('AsyncWriter', () => {
         expect(err.message).to.equal('foo is not a function');
       }
     });
+
+    it('throws sensible error messages for long expressions', () => {
+      expect(() => runTranspiledCode('var abcdefghijklmnopqrstuvwxyz; abcdefghijklmnopqrstuvwxyz()'))
+        .to.throw('abcdefghijklm ... uvwxyz is not a function');
+    });
   });
 });

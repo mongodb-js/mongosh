@@ -574,9 +574,13 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // TypeError: db.test.findx is not a function
           // The U+FEFF markers are only used to rule out any practical chance of
           // user code accidentally being recognized as the original source code.
+          // We limit the string length so that long expressions (e.g. those
+          // containing functions) are not included in full length.
           const { expressionHolder, isSyntheticPromise } = identifierGroup;
           const originalSource = t.stringLiteral(
-            '\ufeff' + (this.file as any).code.slice(path.node.start, path.node.end) + '\ufeff');
+            '\ufeff' + limitStringLength(
+              (this.file as any).code.slice(path.node.start, path.node.end), 24) +
+            '\ufeff');
           path.replaceWith(Object.assign(
             awaitSyntheticPromiseTemplate({
               ORIGINAL_SOURCE: originalSource,
@@ -610,6 +614,13 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
     }
   };
 };
+
+function limitStringLength(input: string, maxLength: number) {
+  if (input.length <= maxLength) return input;
+  return input.slice(0, (maxLength - 5) * 0.7) +
+    ' ... ' +
+    input.slice(input.length - (maxLength - 5) * 0.3);
+}
 
 export default class AsyncWriter {
   step(code: string, plugins: babel.PluginItem[]): string {
