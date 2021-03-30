@@ -53,6 +53,7 @@
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",
     "generate-error-overview": "lerna run --stream --scope @mongosh/errors generate-error-overview",
+    "update-authors": "ts-node -P config/tsconfig.base.json scripts/generate-authors.ts",
     "update-third-party-notices": "ts-node -P config/tsconfig.base.json scripts/gather-licenses.ts packages/cli-repl/ > THIRD_PARTY_NOTICES.md"
   },
   "config": {
