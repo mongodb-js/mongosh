@@ -603,7 +603,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
                     t.callExpression(existingIdentifiers.demangleError, [path.node.param]))),
                 path.node.body
               ])),
-            { [isGeneratedHelper]: 1 }
+            { [isGeneratedHelper]: true }
           ));
         }
       }
