@@ -93,8 +93,8 @@ describe('MongocryptdManager', () => {
       ...spawnPaths[0],
       '--idleShutdownTimeoutSecs', '60',
       '--pidfilepath', pidfile,
-      '--unixSocketPrefix', path.dirname(pidfile),
-      '--port', '0'
+      '--port', '0',
+      ...(process.platform !== 'win32' ? ['--unixSocketPrefix', path.dirname(pidfile)] : [])
     ]);
   });
 

@@ -107,8 +107,8 @@ export class MongocryptdManager {
       ...spawnPath,
       '--idleShutdownTimeoutSecs', String(this.idleShutdownTimeoutSecs),
       '--pidfilepath', path.join(this.path, 'mongocryptd.pid'),
-      '--unixSocketPrefix', this.path,
-      '--port', '0'
+      '--port', '0',
+      ...(process.platform !== 'win32' ? ['--unixSocketPrefix', this.path] : [])
     ];
     const proc = spawn(executable, args, {
       stdio: ['inherit', 'pipe', 'pipe']
