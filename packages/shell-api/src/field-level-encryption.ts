@@ -2,6 +2,7 @@ import {
   classPlatforms,
   hasAsyncChild,
   returnsPromise,
+  returnType,
   ShellApiClass,
   shellApiClassDefault
 } from './decorators';
@@ -122,7 +123,7 @@ export class KeyVault extends ShellApiClass {
   createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<Document>
   createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
   @returnsPromise
-  createKey(
+  async createKey(
     kms: ClientEncryptionDataKeyProvider,
     masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
     keyAltNames?: string[]
@@ -177,28 +178,31 @@ export class KeyVault extends ShellApiClass {
     return this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 
+  @returnType('Cursor')
   getKey(keyId: BinaryType): Cursor {
     assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
     return this._keyColl.find({ '_id': keyId });
   }
 
+  @returnType('Cursor')
   getKeyByAltName(keyAltName: string): Cursor {
     assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
     return this._keyColl.find({ 'keyAltNames': keyAltName });
   }
 
+  @returnType('Cursor')
   getKeys(): Cursor {
     return this._keyColl.find({});
   }
 
   @returnsPromise
-  deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
+  async deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.deleteKey');
     return this._keyColl.deleteOne({ '_id': keyId });
   }
 
   @returnsPromise
-  addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
+  async addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
     return this._keyColl.findAndModify({
       query: { '_id': keyId },

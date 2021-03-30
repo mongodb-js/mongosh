@@ -295,11 +295,7 @@ export function shellApiClassDefault(constructor: Function): void {
 function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {
   function wrapper(this: any, ...args: any[]) {
     const origResult = orig.call(this, ...args);
-    return Object.prototype.toString.call(origResult) === '[object Promise]' ? addHiddenDataProperty(
-      origResult,
-      Symbol.for('@@mongosh.syntheticPromise'),
-      true
-    ) : origResult;
+    return addHiddenDataProperty(origResult, Symbol.for('@@mongosh.syntheticPromise'), true);
   }
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(orig));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(orig));
@@ -328,10 +324,14 @@ export function topologies(topologiesArray: Topologies[]): Function {
     descriptor.value.topologies = topologiesArray;
   };
 }
+export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   const orig = descriptor.value;
   orig.returnsPromise = true;
   descriptor.value = markImplicitlyAwaited(descriptor.value);
+  if (orig.constructor.name !== 'AsyncFunction') {
+    nonAsyncFunctionsReturningPromises.push(orig.name);
+  }
 }
 export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.isDirectShellCommand = true;
