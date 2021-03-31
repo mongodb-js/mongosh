@@ -1,7 +1,7 @@
 set -e
 set -x
 export BASEDIR="$PWD/.evergreen"
-export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/python/3.6/bin:/opt/chefdk/gitbin:/cygdrive/c/Python39/Scripts:/cygdrive/c/Python39:/cygdrive/c/cmake/bin:$PATH"
+export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/python/3.6/bin:/opt/chefdk/gitbin:/cygdrive/c/Program Files/Git/bin:/cygdrive/c/Program Files/Git/mingw32/libexec/git-core:/cygdrive/c/Python39/Scripts:/cygdrive/c/Python39:/cygdrive/c/cmake/bin:$PATH"
 export IS_MONGOSH_EVERGREEN_CI=1
 
 if [ "$OS" != "Windows_NT" ]; then
