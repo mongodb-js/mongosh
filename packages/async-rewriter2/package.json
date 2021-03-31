@@ -4,6 +4,7 @@
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
+    "pretest": "npm run compile-ts",
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
