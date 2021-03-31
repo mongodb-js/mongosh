@@ -104,6 +104,10 @@ made for readability).
     return p && p[_syntheticPromise];
   }
 
+  function _demangleError(err) {
+    // ... fix up the error message in 'err' using the original source code ...
+  }
+
   let _functionState = "sync",
       _synchronousReturnValue,
       _ex;
@@ -112,10 +116,10 @@ made for readability).
     try {
       // All return statements are decorated with `return _synchronousReturnValue = ...`
       return _synchronousReturnValue = (
-        // Most expressions are wrapped in (_ex = ..., _isp(_ex) ? await _ex : _ex)
-        _ex = (
-          _ex = (
-            _ex = (
+        // Most expressions are wrapped in ('original source', _ex = ..., _isp(_ex) ? await _ex : _ex)
+        _ex = ('db.test.find()',
+          _ex = ('db.test',
+            _ex = ('db',
               _ex = db, _isp(_ex) ? await _ex : _ex
             ).test, _isp(_ex) ? await _ex : _ex
           ).find(), _isp(_ex) ? await _ex : _ex
@@ -123,6 +127,7 @@ made for readability).
         , _isp(_ex) ? await _ex : _ex
       );
     } catch (err) {
+      err = _demangleError(err);
       if (_functionState === "sync") {
         // Forward synchronous exceptions.
         _synchronousReturnValue = err;
@@ -139,6 +144,12 @@ made for readability).
     }
   })();
 
+  if (_functionState !== 'sync') {
+    // Add a .catch with a no-op function, because if we're here, then that
+    // means that we'll discard the async return value even if it results in a
+    // rejected Promise (and Node.js would otherwise warn about this).
+    _asynchronousReturnValue.catch(() => {});
+  }
   if (_functionState === "returned") {
     return _synchronousReturnValue;
   } else if (_functionState === "threw") {

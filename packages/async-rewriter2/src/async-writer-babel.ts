@@ -212,6 +212,7 @@ interface AsyncFunctionIdentifiers {
   markSyntheticPromise: babel.types.Identifier;
   isSyntheticPromise: babel.types.Identifier;
   syntheticPromiseSymbol: babel.types.Identifier;
+  demangleError: babel.types.Identifier;
 }
 /**
  * The second step that performs the heavy lifting of turning regular functions
@@ -232,7 +233,7 @@ interface AsyncFunctionIdentifiers {
  *
  * The README file has more complete code snippets.
  */
-export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{}> => {
+export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ file: babel.types.File }> => {
   // We mark certain AST nodes as 'already visited' using these symbols.
   function asNodeKey(v: any): keyof babel.types.Node { return v; }
   const isGeneratedInnerFunction = asNodeKey(Symbol('isGeneratedInnerFunction'));
@@ -283,6 +284,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
     }
   `);
 
+  // Function.prototype is a good no-op function in situations where
+  // function literals receive special treatment :)
   const wrapperFunctionTemplate = babel.template.statements(`
     let FUNCTION_STATE_IDENTIFIER = "sync",
         SYNC_RETURN_VALUE_IDENTIFIER,
@@ -290,6 +293,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
 
     const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
 
+    if (FUNCTION_STATE_IDENTIFIER !== "sync")
+      ASYNC_RETURN_VALUE_IDENTIFIER.catch(Function.prototype);
     if (FUNCTION_STATE_IDENTIFIER === "returned")
       return SYNC_RETURN_VALUE_IDENTIFIER;
     else if (FUNCTION_STATE_IDENTIFIER === "threw")
@@ -299,13 +304,41 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
   `);
 
   const awaitSyntheticPromiseTemplate = babel.template.expression(`(
+    ORIGINAL_SOURCE,
     EXPRESSION_HOLDER = NODE,
     ISP_IDENTIFIER(EXPRESSION_HOLDER) ? await EXPRESSION_HOLDER : EXPRESSION_HOLDER
   )`, {
     allowAwaitOutsideFunction: true
   });
 
+  const rethrowTemplate = babel.template.statement(`
+    try {
+      ORIGINAL_CODE;
+    } catch (err) {
+      throw err;
+    }
+  `);
+
+  // If we encounter an error object, we fix up the error message from something
+  // like `("a" , foo(...)(...)) is not a function` to `a is not a function`.
+  // For that, we look for a) the U+FEFF markers we use to tag the original source
+  // code with, and b) drop everything else in this parenthesis group (this uses
+  // the fact that currently, parentheses in error messages are nested at most
+  // two levels deep, which makes it something that we can tackle with regexps).
+  const demangleErrorTemplate = babel.template.statement(String.raw `
+    function DE_IDENTIFIER(err) {
+      if (Object.prototype.toString.call(err) === '[object Error]' &&
+          err.message.includes('\ufeff')) {
+        err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^\)]*\))*\)/g, '$1');
+      }
+      return err;
+    }
+  `, { placeholderPattern: false, placeholderWhitelist: new Set(['DE_IDENTIFIER']) });
+
   return {
+    pre(file: babel.types.File) {
+      this.file = file;
+    },
     visitor: {
       BlockStatement(path) {
         // This might be a function body. If it's what we're looking for, wrap it.
@@ -330,7 +363,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
 
         // A parent function might have a set of existing helper methods.
         // If it does, we re-use the functionally equivalent ones.
-        const existingIdentifiers =
+        const existingIdentifiers: AsyncFunctionIdentifiers | null =
           path.findParent(path => !!path.getData(identifierGroupKey))?.getData(identifierGroupKey);
 
         // Generate and store a set of identifiers for helpers.
@@ -341,6 +374,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         const markSyntheticPromise = existingIdentifiers?.markSyntheticPromise ?? path.scope.generateUidIdentifier('msp');
         const isSyntheticPromise = existingIdentifiers?.isSyntheticPromise ?? path.scope.generateUidIdentifier('isp');
         const syntheticPromiseSymbol = existingIdentifiers?.syntheticPromiseSymbol ?? path.scope.generateUidIdentifier('sp');
+        const demangleError = existingIdentifiers?.demangleError ?? path.scope.generateUidIdentifier('de');
         const identifiersGroup: AsyncFunctionIdentifiers = {
           functionState,
           synchronousReturnValue,
@@ -348,7 +382,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           expressionHolder,
           markSyntheticPromise,
           isSyntheticPromise,
-          syntheticPromiseSymbol
+          syntheticPromiseSymbol,
+          demangleError
         };
         path.parentPath.setData(identifierGroupKey, identifiersGroup);
 
@@ -385,15 +420,25 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
               SP_IDENTIFIER: syntheticPromiseSymbol
             }),
             { [isGeneratedHelper]: true }
+          ),
+          Object.assign(
+            demangleErrorTemplate({
+              DE_IDENTIFIER: demangleError
+            }),
+            { [isGeneratedHelper]: true }
           )
         ];
 
         if (path.parentPath.node.async) {
           // If we are in an async function, no async wrapping is necessary.
-          // We still want to have the runtime helpers available.
+          // We still want to have the runtime helpers available, and we add
+          // a re-throwing try/catch around the body so that we can perform
+          // error message adjustment through the CatchClause handler below.
           path.replaceWith(t.blockStatement([
             ...promiseHelpers,
-            ...path.node.body
+            rethrowTemplate({
+              ORIGINAL_CODE: path.node.body
+            })
           ]));
           return;
         }
@@ -521,10 +566,24 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           }
 
           // Transform expression `foo` into
-          // `(ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
+          // `('\uFEFFfoo\uFEFF', ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
+          // The first part of the sequence expression is used to identify this
+          // expression for re-writing error messages, so that we can transform
+          // TypeError: ((intermediate value)(intermediate value) , (intermediate value)(intermediate value)(intermediate value)).findx is not a function
+          // back into
+          // TypeError: db.test.findx is not a function
+          // The U+FEFF markers are only used to rule out any practical chance of
+          // user code accidentally being recognized as the original source code.
+          // We limit the string length so that long expressions (e.g. those
+          // containing functions) are not included in full length.
           const { expressionHolder, isSyntheticPromise } = identifierGroup;
+          const originalSource = t.stringLiteral(
+            '\ufeff' + limitStringLength(
+              (this.file as any).code.slice(path.node.start, path.node.end), 24) +
+            '\ufeff');
           path.replaceWith(Object.assign(
             awaitSyntheticPromiseTemplate({
+              ORIGINAL_SOURCE: originalSource,
               EXPRESSION_HOLDER: expressionHolder,
               ISP_IDENTIFIER: isSyntheticPromise,
               NODE: path.node
@@ -532,10 +591,36 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             { [isGeneratedHelper]: true }
           ));
         }
+      },
+      CatchClause: {
+        exit(path) {
+          if (path.node[isGeneratedHelper] || !path.node.param || path.node.param.type !== 'Identifier') return;
+          const existingIdentifiers: AsyncFunctionIdentifiers | null =
+            path.findParent(path => !!path.getData(identifierGroupKey))?.getData(identifierGroupKey);
+          if (!existingIdentifiers) return;
+          // Turn `... catch (err) { ... }` into `... catch (err) { err = demangleError(err); ... }`
+          path.replaceWith(Object.assign(
+            t.catchClause(path.node.param,
+              t.blockStatement([
+                t.expressionStatement(
+                  t.assignmentExpression('=', path.node.param,
+                    t.callExpression(existingIdentifiers.demangleError, [path.node.param]))),
+                path.node.body
+              ])),
+            { [isGeneratedHelper]: true }
+          ));
+        }
       }
     }
   };
 };
+
+function limitStringLength(input: string, maxLength: number) {
+  if (input.length <= maxLength) return input;
+  return input.slice(0, (maxLength - 5) * 0.7) +
+    ' ... ' +
+    input.slice(input.length - (maxLength - 5) * 0.3);
+}
 
 export default class AsyncWriter {
   step(code: string, plugins: babel.PluginItem[]): string {

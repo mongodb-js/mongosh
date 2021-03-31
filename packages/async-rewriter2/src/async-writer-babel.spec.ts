@@ -552,4 +552,46 @@ describe('AsyncWriter', () => {
       });
     });
   });
+
+  context('error messages', () => {
+    it('throws sensible error messages', () => {
+      expect(() => runTranspiledCode('foo()'))
+        .to.throw('foo is not defined');
+      expect(() => runTranspiledCode('var foo = 0; foo()'))
+        .to.throw('foo is not a function');
+      expect(() => runTranspiledCode('Number.prototype()'))
+        .to.throw('Number.prototype is not a function');
+      expect(() => runTranspiledCode('(Number.prototype[0])()'))
+        .to.throw('Number.prototype[0] is not a function');
+      expect(() => runTranspiledCode('var db = {}; db.testx();'))
+        .to.throw('db.testx is not a function');
+      // (Note: The following ones would give better error messages in regular code)
+      expect(() => runTranspiledCode('var db = {}; new Promise(db.foo)'))
+        .to.throw('Promise resolver undefined is not a function');
+      expect(() => runTranspiledCode('var db = {}; for (const a of db.foo) {}'))
+        .to.throw(/undefined is not iterable/);
+      expect(() => runTranspiledCode('var db = {}; for (const a of db[0]) {}'))
+        .to.throw(/undefined is not iterable/);
+      expect(() => runTranspiledCode('for (const a of 8) {}'))
+        .to.throw('8 is not iterable');
+    });
+
+    it('throws sensible error message for code in IIFEs', async() => {
+      expect(() => runTranspiledCode('(() => foo())()'))
+        .to.throw('foo is not defined');
+      expect(() => runTranspiledCode('(() => { var foo; foo(); })()'))
+        .to.throw('foo is not a function');
+      try {
+        await runTranspiledCode('(async () => { var foo; foo(); })()');
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('foo is not a function');
+      }
+    });
+
+    it('throws sensible error messages for long expressions', () => {
+      expect(() => runTranspiledCode('var abcdefghijklmnopqrstuvwxyz; abcdefghijklmnopqrstuvwxyz()'))
+        .to.throw('abcdefghijklm ... uvwxyz is not a function');
+    });
+  });
 });
