@@ -57,6 +57,22 @@ export interface StartLoadingCliScriptsEvent {
   usesShellOption: boolean;
 }
 
+export interface MongocryptdTrySpawnEvent {
+  spawnPath: string[];
+  path: string;
+}
+
+export interface MongocryptdErrorEvent {
+  cause: string;
+  error?: Error;
+  stderr?: string;
+}
+
+export interface MongocryptdLogEvent {
+  pid: number;
+  logEntry: any;
+}
+
 export interface MongoshBusEventsMap {
   'mongosh:connect': (ev: ConnectEvent) => void;
   'mongosh:driver-initialized': (driverMetadata: any) => void;
@@ -77,6 +93,9 @@ export interface MongoshBusEventsMap {
   'mongosh:mongoshrc-load': () => void;
   'mongosh:mongoshrc-mongorc-warn': () => void;
   'mongosh:eval-cli-script': () => void;
+  'mongosh:mongocryptd-tryspawn': (ev: MongocryptdTrySpawnEvent) => void;
+  'mongosh:mongocryptd-error': (ev: MongocryptdErrorEvent) => void;
+  'mongosh:mongocryptd-log': (ev: MongocryptdLogEvent) => void;
   'mongosh:closed': () => void; // For testing.
   'mongosh:eval-complete': () => void; // For testing.
   'mongosh:autocompletion-complete': () => void; // For testing.

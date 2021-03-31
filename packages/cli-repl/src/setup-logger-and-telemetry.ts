@@ -10,7 +10,10 @@ import type {
   ShowEvent,
   ConnectEvent,
   ScriptLoadFileEvent,
-  StartLoadingCliScriptsEvent
+  StartLoadingCliScriptsEvent,
+  MongocryptdTrySpawnEvent,
+  MongocryptdLogEvent,
+  MongocryptdErrorEvent
 } from '@mongosh/types';
 
 interface MongoshAnalytics {
@@ -234,5 +237,17 @@ export default function setupLoggerAndTelemetry(
         }
       });
     }
+  });
+
+  bus.on('mongosh:mongocryptd-tryspawn', function(ev: MongocryptdTrySpawnEvent) {
+    log.info('mongosh:mongocryptd-tryspawn', ev);
+  });
+
+  bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
+    log.info('mongosh:mongocryptd-error', ev);
+  });
+
+  bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
+    log.info('mongosh:mongocryptd-log', ev);
   });
 }

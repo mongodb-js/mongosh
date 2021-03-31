@@ -2,7 +2,7 @@ import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
-import type { ServiceProvider } from '@mongosh/service-provider-core';
+import type { ServiceProvider, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadResult } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import type { MongoshBus, UserConfig } from '@mongosh/types';
@@ -31,6 +31,7 @@ export type MongoshIOProvider = {
   setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void>;
   exit(code: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
+  startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']>;
 };
 
 export type MongoshNodeReplOptions = {
@@ -449,6 +450,10 @@ class MongoshNodeRepl implements EvaluationListener {
   async onExit(): Promise<never> {
     await this.close();
     return this.ioProvider.exit(0);
+  }
+
+  async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
+    return this.ioProvider.startMongocryptd();
   }
 
   private async getShellPrompt(internalState: ShellInternalState): Promise<string> {

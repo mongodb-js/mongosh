@@ -1,6 +1,14 @@
 import AsyncWriter from '@mongosh/async-rewriter';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import { ConnectInfo, DEFAULT_DB, ReplPlatform, ServiceProvider, TopologyDescription, TopologyTypeId } from '@mongosh/service-provider-core';
+import {
+  AutoEncryptionOptions,
+  ConnectInfo,
+  DEFAULT_DB,
+  ReplPlatform,
+  ServiceProvider,
+  TopologyDescription,
+  TopologyTypeId
+} from '@mongosh/service-provider-core';
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
@@ -80,6 +88,13 @@ export interface EvaluationListener {
    * Called when load() is used in the shell.
    */
   onLoad?: (filename: string) => Promise<OnLoadResult> | OnLoadResult;
+
+  /**
+   * Called when initiating a connection that uses FLE in the shell.
+   * This should start a mongocryptd process and return the relevant options
+   * used to access it.
+   */
+  startMongocryptd?: () => Promise<AutoEncryptionOptions['extraOptions']>;
 }
 
 /**

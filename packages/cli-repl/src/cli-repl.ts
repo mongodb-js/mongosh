@@ -1,7 +1,7 @@
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { redactPassword } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
-import { bson } from '@mongosh/service-provider-core';
+import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
@@ -12,6 +12,7 @@ import { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
+import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { MongoshBus, UserConfig } from '@mongosh/types';
@@ -32,7 +33,8 @@ type AnalyticsOptions = {
 };
 
 export type CliReplOptions = {
-  shellCliOptions: CliOptions & { mongocryptdSpawnPath?: string },
+  shellCliOptions: CliOptions;
+  mongocryptdSpawnPaths?: string[][],
   input: Readable;
   output: Writable;
   shellHomePaths: ShellHomePaths;
@@ -47,6 +49,7 @@ class CliRepl {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
+  mongocryptdManager: MongocryptdManager;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<UserConfig>;
   config: UserConfig = new UserConfig();
@@ -80,6 +83,11 @@ class CliRepl {
         this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
       .on('update-config', (config: UserConfig) =>
         this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
+
+    this.mongocryptdManager = new MongocryptdManager(
+      options.mongocryptdSpawnPaths ?? [],
+      this.shellHomeDirectory,
+      this.bus);
 
     // We can't really do anything meaningfull if the output stream is broken or
     // closed. To avoid throwing an error while writing to it, let's send it to
@@ -147,6 +155,15 @@ class CliRepl {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);
     } catch (err) {
       this.warnAboutInaccessibleFile(err);
+    }
+
+    if (driverOptions.autoEncryption) {
+      const extraOptions = {
+        ...(driverOptions.autoEncryption.extraOptions ?? {}),
+        ...(await this.startMongocryptd())
+      };
+
+      driverOptions.autoEncryption = { ...driverOptions.autoEncryption, extraOptions };
     }
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
@@ -374,6 +391,7 @@ class CliRepl {
         await promisify(analytics.flush.bind(analytics))();
       } catch { /* ignore */ }
     }
+    await this.mongocryptdManager.close();
     this.bus.emit('mongosh:closed');
   }
 
@@ -396,6 +414,10 @@ class CliRepl {
 
   clr(text: string, style: StyleDefinition): string {
     return this.mongoshRepl.clr(text, style);
+  }
+
+  async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
+    return await this.mongocryptdManager.start();
   }
 }
 
