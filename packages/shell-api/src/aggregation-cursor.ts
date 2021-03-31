@@ -50,17 +50,17 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  forEach(f: (doc: Document) => void): Promise<void> {
+  async forEach(f: (doc: Document) => void): Promise<void> {
     return this._cursor.forEach(f);
   }
 
   @returnsPromise
-  hasNext(): Promise<boolean> {
+  async hasNext(): Promise<boolean> {
     return this._cursor.hasNext();
   }
 
   @returnsPromise
-  tryNext(): Promise<Document | null> {
+  async tryNext(): Promise<Document | null> {
     return this._cursor.tryNext();
   }
 
@@ -99,12 +99,12 @@ export default class AggregationCursor extends ShellApiClass {
   }
 
   @returnsPromise
-  next(): Promise<Document | null> {
+  async next(): Promise<Document | null> {
     return this._cursor.next();
   }
 
   @returnsPromise
-  toArray(): Promise<Document[]> {
+  async toArray(): Promise<Document[]> {
     return this._cursor.toArray();
   }
 

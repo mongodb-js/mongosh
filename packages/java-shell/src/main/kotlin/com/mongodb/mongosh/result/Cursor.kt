@@ -19,19 +19,19 @@ open class Cursor<out T> internal constructor(protected var cursor: Value?, priv
     }
 
     override fun hasNext(): Boolean {
-        val (cursor, _) = checkClosed()
-        return cursor.invokeMember("hasNext").asBoolean()
+        val (cursor, converter) = checkClosed()
+        return converter.unwrapPromise(cursor.invokeMember("hasNext")).asBoolean()
     }
 
     override fun next(): T {
         val (cursor, converter) = checkClosed()
         if (!hasNext()) throw NoSuchElementException()
-        return converter.toJava(cursor.invokeMember("next")).value as T
+        return converter.toJava(converter.unwrapPromise(cursor.invokeMember("next"))).value as T
     }
 
     fun tryNext(): T {
         val (cursor, converter) = checkClosed()
-        return converter.toJava(cursor.invokeMember("tryNext")).value as T
+        return converter.toJava(converter.unwrapPromise(cursor.invokeMember("tryNext"))).value as T
     }
 
     fun close() {

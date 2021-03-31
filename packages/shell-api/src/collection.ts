@@ -753,9 +753,8 @@ export default class Collection extends ShellApiClass {
     );
   }
 
-  @returnsPromise
   @deprecated
-  save(): Promise<void> {
+  save(): never {
     throw new MongoshInvalidInputError(
       'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
     );

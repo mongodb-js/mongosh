@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import ShellApi from './shell-api';
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
+import { nonAsyncFunctionsReturningPromises } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
@@ -628,5 +629,11 @@ describe('ShellApi', () => {
         });
       });
     }
+  });
+});
+
+describe('returnsPromise marks async functions', () => {
+  it('no non-async functions are marked returnsPromise', () => {
+    expect(nonAsyncFunctionsReturningPromises).to.deep.equal([]);
   });
 });

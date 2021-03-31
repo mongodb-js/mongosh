@@ -128,7 +128,7 @@ export default class Cursor extends ShellApiClass {
 
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   @returnsPromise
-  count(): Promise<number> {
+  async count(): Promise<number> {
     return this._cursor.count();
   }
 
@@ -164,12 +164,12 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  forEach(f: (doc: Document) => void): Promise<void> {
+  async forEach(f: (doc: Document) => void): Promise<void> {
     return this._cursor.forEach(f);
   }
 
   @returnsPromise
-  hasNext(): Promise<boolean> {
+  async hasNext(): Promise<boolean> {
     if (this._tailable) {
       printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
@@ -181,7 +181,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  tryNext(): Promise<Document | null> {
+  async tryNext(): Promise<Document | null> {
     return this._cursor.tryNext();
   }
 
@@ -253,7 +253,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  next(): Promise<Document | null> {
+  async next(): Promise<Document | null> {
     if (this._tailable) {
       printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
@@ -308,7 +308,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  size(): Promise<number> {
+  async size(): Promise<number> {
     return this._cursor.count();
   }
 
@@ -336,7 +336,7 @@ export default class Cursor extends ShellApiClass {
   }
 
   @returnsPromise
-  toArray(): Promise<Document[]> {
+  async toArray(): Promise<Document[]> {
     return this._cursor.toArray();
   }
 
