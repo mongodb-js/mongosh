@@ -324,6 +324,16 @@ describe('AsyncWriter', () => {
       expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
       expect(await ret).to.equal('bar');
     });
+
+    it('works with eval', async() => {
+      implicitlyAsyncFn.resolves('yes');
+      expect(runTranspiledCode('eval("42")')).to.equal(42);
+      expect(runTranspiledCode('let a = 43; eval("a");')).to.equal(43);
+      expect(runTranspiledCode('(() => { let b = 44; return eval("b"); })()')).to.equal(44);
+      expect(await runTranspiledCode(`(() => {
+        globalThis.eval = implicitlyAsyncFn; return eval("b");
+      })()`)).to.equal('yes');
+    });
   });
 
   context('error handling', () => {
