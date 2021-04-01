@@ -114,18 +114,25 @@ made for readability).
 
   const _asynchronousReturnValue = (async () => {
     try {
-      // All return statements are decorated with `return _synchronousReturnValue = ...`
-      return _synchronousReturnValue = (
-        // Most expressions are wrapped in ('original source', _ex = ..., _isp(_ex) ? await _ex : _ex)
-        _ex = ('db.test.find()',
-          _ex = ('db.test',
-            _ex = ('db',
-              _ex = db, _isp(_ex) ? await _ex : _ex
-            ).test, _isp(_ex) ? await _ex : _ex
-          ).find(), _isp(_ex) ? await _ex : _ex
-        ).toArray()
-        , _isp(_ex) ? await _ex : _ex
-      );
+      // All return statements are decorated with
+      // `return (_synchronousReturnValue = ..., _functionState === 'async' ? _synchronousReturnValue : null)`
+      // The function state check is here that, if we are returning synchronously,
+      // we know that we are going to discard the value of `_asynchronousReturnValue`,
+      // which is not what we want if the return value happens to be a rejected
+      // Promise (because Node.js print a warning in that case).
+      return (
+        _synchronousReturnValue = (
+          // Most expressions are wrapped in ('original source', _ex = ..., _isp(_ex) ? await _ex : _ex)
+          _ex = ('db.test.find()',
+            _ex = ('db.test',
+              _ex = ('db',
+                _ex = db, _isp(_ex) ? await _ex : _ex
+              ).test, _isp(_ex) ? await _ex : _ex
+            ).find(), _isp(_ex) ? await _ex : _ex
+          ).toArray()
+          , _isp(_ex) ? await _ex : _ex
+        ),
+        _functionState === 'async' ? _synchronousReturnValue : null);
     } catch (err) {
       err = _demangleError(err);
       if (_functionState === "sync") {
@@ -144,12 +151,6 @@ made for readability).
     }
   })();
 
-  if (_functionState !== 'sync') {
-    // Add a .catch with a no-op function, because if we're here, then that
-    // means that we'll discard the async return value even if it results in a
-    // rejected Promise (and Node.js would otherwise warn about this).
-    _asynchronousReturnValue.catch(() => {});
-  }
   if (_functionState === "returned") {
     return _synchronousReturnValue;
   } else if (_functionState === "threw") {

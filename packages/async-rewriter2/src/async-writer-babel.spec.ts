@@ -1,9 +1,13 @@
 import AsyncWriter from './';
+import childProcess from 'child_process';
+import path from 'path';
+import { promisify } from 'util';
 import vm from 'vm';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
+const execFile = promisify(childProcess.execFile);
 
 describe('AsyncWriter', () => {
   let implicitlyAsyncFn: sinon.SinonStub;
@@ -49,6 +53,10 @@ describe('AsyncWriter', () => {
     };
   });
 
+  before(() => {
+    process.on('unhandledRejection', err => { throw err; });
+  });
+
   context('basic testing', () => {
     it('evaluates plain literal expressions', () => {
       expect(runTranspiledCode('42')).to.equal(42);
@@ -64,6 +72,15 @@ describe('AsyncWriter', () => {
       expect(runTranspiledCode('Promise.resolve([])').constructor.name).to.equal('Promise');
       expect(runTranspiledCode('Promise.resolve([]).constructor').name).to.equal('Promise');
       expect(runTranspiledCode('Promise.resolve([]).constructor.name')).to.equal('Promise');
+    });
+
+    it('works fine when immediately receiving a rejected Promise', async() => {
+      try {
+        await runTranspiledCode('Promise.reject(42)');
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err).to.equal(42);
+      }
     });
   });
 
@@ -592,6 +609,16 @@ describe('AsyncWriter', () => {
     it('throws sensible error messages for long expressions', () => {
       expect(() => runTranspiledCode('var abcdefghijklmnopqrstuvwxyz; abcdefghijklmnopqrstuvwxyz()'))
         .to.throw('abcdefghijklm ... uvwxyz is not a function');
+    });
+  });
+
+  context('domain support', () => {
+    it('works fine when run inside a Node.js domain context', async() => {
+      await execFile(process.execPath, [
+        path.resolve(__dirname, '..', 'test', 'fixtures', 'with-domain.js')
+      ], {
+        timeout: 5_000
+      });
     });
   });
 });

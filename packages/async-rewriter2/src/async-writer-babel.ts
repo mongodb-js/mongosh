@@ -284,8 +284,6 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
     }
   `);
 
-  // Function.prototype is a good no-op function in situations where
-  // function literals receive special treatment :)
   const wrapperFunctionTemplate = babel.template.statements(`
     let FUNCTION_STATE_IDENTIFIER = "sync",
         SYNC_RETURN_VALUE_IDENTIFIER,
@@ -293,8 +291,6 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
 
     const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
 
-    if (FUNCTION_STATE_IDENTIFIER !== "sync")
-      ASYNC_RETURN_VALUE_IDENTIFIER.catch(Function.prototype);
     if (FUNCTION_STATE_IDENTIFIER === "returned")
       return SYNC_RETURN_VALUE_IDENTIFIER;
     else if (FUNCTION_STATE_IDENTIFIER === "threw")
@@ -334,6 +330,11 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
       return err;
     }
   `, { placeholderPattern: false, placeholderWhitelist: new Set(['DE_IDENTIFIER']) });
+
+  const returnValueWrapperTemplate = babel.template.expression(`(
+    SYNC_RETURN_VALUE_IDENTIFIER = NODE,
+    FUNCTION_STATE_IDENTIFIER === 'async' ? SYNC_RETURN_VALUE_IDENTIFIER : null
+  )`);
 
   return {
     pre(file: babel.types.File) {
@@ -502,9 +503,14 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             identifierGroup = path.getFunctionParent().getFunctionParent().getData(identifierGroupKey);
             if (path.parentPath.isReturnStatement() && !path.node[isGeneratedHelper]) {
               // If this is inside a return statement that we have not already handled,
-              // we replace the `return ...` with `return synchronousReturnValue = ...`.
+              // we replace the `return ...` with
+              // `return (_synchronousReturnValue = ..., _functionState === 'async' ? _synchronousReturnValue : null)`.
               path.replaceWith(Object.assign(
-                t.assignmentExpression('=', identifierGroup.synchronousReturnValue, path.node),
+                returnValueWrapperTemplate({
+                  SYNC_RETURN_VALUE_IDENTIFIER: identifierGroup.synchronousReturnValue,
+                  FUNCTION_STATE_IDENTIFIER: identifierGroup.functionState,
+                  NODE: path.node
+                }),
                 { [isGeneratedHelper]: true }
               ));
               return;
@@ -579,7 +585,9 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           const { expressionHolder, isSyntheticPromise } = identifierGroup;
           const originalSource = t.stringLiteral(
             '\ufeff' + limitStringLength(
-              (this.file as any).code.slice(path.node.start, path.node.end), 24) +
+              path.node.start !== undefined ?
+                (this.file as any).code.slice(path.node.start, path.node.end) :
+                '<unknown>', 24) +
             '\ufeff');
           path.replaceWith(Object.assign(
             awaitSyntheticPromiseTemplate({
