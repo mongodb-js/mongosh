@@ -213,6 +213,7 @@ interface AsyncFunctionIdentifiers {
   isSyntheticPromise: babel.types.Identifier;
   syntheticPromiseSymbol: babel.types.Identifier;
   demangleError: babel.types.Identifier;
+  assertNotSyntheticPromise: babel.types.Identifier;
 }
 /**
  * The second step that performs the heavy lifting of turning regular functions
@@ -239,6 +240,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
   const isGeneratedInnerFunction = asNodeKey(Symbol('isGeneratedInnerFunction'));
   const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
   const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
+  const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
   // Using this key, we store data on Function nodes that contains the identifiers
   // of helpers which are available inside the function.
   const identifierGroupKey = '@@mongosh.identifierGroup';
@@ -266,6 +268,15 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
   const isSyntheticPromiseTemplate = babel.template.statement(`
     function ISP_IDENTIFIER(p) {
       return p && p[SP_IDENTIFIER];
+    }
+  `);
+
+  const assertNotSyntheticPromiseTemplate = babel.template.statement(`
+    function ANSP_IDENTIFIER(p, s) {
+      if (p && p[SP_IDENTIFIER]) {
+        throw new Error('Result of expression "' + s + '" cannot be used in this context');
+      }
+      return p;
     }
   `);
 
@@ -306,6 +317,10 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
   )`, {
     allowAwaitOutsideFunction: true
   });
+
+  const assertNotSyntheticExpressionTemplate = babel.template.expression(`
+    ANSP_IDENTIFIER(NODE, ORIGINAL_SOURCE)
+  `);
 
   const rethrowTemplate = babel.template.statement(`
     try {
@@ -350,17 +365,6 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         if (path.parentPath.node[isGeneratedInnerFunction]) return;
         // Don't wrap helper functions with async-rewriter-generated code.
         if (path.parentPath.node[isGeneratedHelper]) return;
-        // Don't wrap generator functions. There is no good way to handle them.
-        if (path.parentPath.node.generator && !path.parentPath.node.async) return;
-        // Finally, do not wrap constructor functions. This is not a technical
-        // necessity, but rather a result of the fact that we can't handle
-        // asynchronicity in constructors well (e.g.: What happens when you
-        // subclass a class with a constructor that returns asynchronously?).
-        if (path.parentPath.isClassMethod() &&
-            path.parentPath.node.key.type === 'Identifier' &&
-            path.parentPath.node.key.name === 'constructor') {
-          return;
-        }
 
         const originalSource = path.parent.start !== undefined ?
           (this.file as any).code.slice(path.parent.start, path.parent.end) :
@@ -384,6 +388,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         const expressionHolder = path.scope.generateUidIdentifier('ex');
         const markSyntheticPromise = existingIdentifiers?.markSyntheticPromise ?? path.scope.generateUidIdentifier('msp');
         const isSyntheticPromise = existingIdentifiers?.isSyntheticPromise ?? path.scope.generateUidIdentifier('isp');
+        const assertNotSyntheticPromise = existingIdentifiers?.assertNotSyntheticPromise ?? path.scope.generateUidIdentifier('ansp');
         const syntheticPromiseSymbol = existingIdentifiers?.syntheticPromiseSymbol ?? path.scope.generateUidIdentifier('sp');
         const demangleError = existingIdentifiers?.demangleError ?? path.scope.generateUidIdentifier('de');
         const identifiersGroup: AsyncFunctionIdentifiers = {
@@ -393,6 +398,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           expressionHolder,
           markSyntheticPromise,
           isSyntheticPromise,
+          assertNotSyntheticPromise,
           syntheticPromiseSymbol,
           demangleError
         };
@@ -410,7 +416,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         // Note that the last check potentially triggers getters and Proxy methods
         // and we may want to replace it by something a bit more sophisticated.
         // All of the top-level AST nodes here are marked as generated helpers.
-        const promiseHelpers = existingIdentifiers ? [] : [
+        const commonHelpers = existingIdentifiers ? [] : [
           Object.assign(
             syntheticPromiseSymbolTemplate({
               SP_IDENTIFIER: syntheticPromiseSymbol,
@@ -418,6 +424,9 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             }),
             { [isGeneratedHelper]: true }
           ),
+        ];
+        const promiseHelpers = existingIdentifiers ? [] : [
+          ...commonHelpers,
           Object.assign(
             markSyntheticPromiseTemplate({
               MSP_IDENTIFIER: markSyntheticPromise,
@@ -439,6 +448,16 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             { [isGeneratedHelper]: true }
           )
         ];
+        const syncFnHelpers = [
+          ...commonHelpers,
+          Object.assign(
+            assertNotSyntheticPromiseTemplate({
+              ANSP_IDENTIFIER: assertNotSyntheticPromise,
+              SP_IDENTIFIER: syntheticPromiseSymbol
+            }),
+            { [isGeneratedHelper]: true }
+          )
+        ];
 
         if (path.parentPath.node.async) {
           // If we are in an async function, no async wrapping is necessary.
@@ -448,6 +467,25 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           path.replaceWith(t.blockStatement([
             originalSourceNode,
             ...promiseHelpers,
+            rethrowTemplate({
+              ORIGINAL_CODE: path.node.body
+            })
+          ]));
+          return;
+        }
+
+        // If we are in a non-async generator function, or a class constructor,
+        // we throw errors for implicitly asynchronous expressions, because there
+        // is just no good way to handle them (e.g.: What happens when you
+        // subclass a class with a constructor that returns asynchronously?).
+        if (path.parentPath.node.generator ||
+            (path.parentPath.isClassMethod() &&
+             path.parentPath.node.key.type === 'Identifier' &&
+             path.parentPath.node.key.name === 'constructor')) {
+          Object.assign(path.parentPath.node, { [isAlwaysSyncFunction]: true });
+          path.replaceWith(t.blockStatement([
+            originalSourceNode,
+            ...syncFnHelpers,
             rethrowTemplate({
               ORIGINAL_CODE: path.node.body
             })
@@ -493,9 +531,11 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
         },
         exit(path) {
           // We have seen an expression. If we're not inside an async function,
-          // we don't care.
+          // or a function that we explicitly marked as needing always-synchronous
+          // treatment, we don't care.
           if (!path.getFunctionParent()) return;
-          if (!path.getFunctionParent().node.async) return;
+          if (!path.getFunctionParent().node.async &&
+              !path.getFunctionParent().node[isAlwaysSyncFunction]) return;
           // identifierGroup holds the list of helper identifiers available
           // inside this function.
           let identifierGroup: AsyncFunctionIdentifiers;
@@ -534,8 +574,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
 
           // If there is a [isGeneratedHelper] between the function we're in
           // and this node, that means we've already handled this node.
-          if (path.findParent(
-            path => path.isFunction() || (path.isSequenceExpression() && !!path.node[isGeneratedHelper])
+          if (path.find(
+            path => path.isFunction() || !!path.node[isGeneratedHelper]
           ).node[isGeneratedHelper]) {
             return;
           }
@@ -586,6 +626,25 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
             return;
           }
 
+          const { expressionHolder, isSyntheticPromise, assertNotSyntheticPromise } = identifierGroup;
+          const prettyOriginalString = limitStringLength(
+            path.node.start !== undefined ?
+              (this.file as any).code.slice(path.node.start, path.node.end) :
+              '<unknown>', 24);
+
+          if (!path.getFunctionParent().node.async) {
+            // Transform expression `foo` into `assertNotSyntheticPromise(foo, 'foo')`.
+            path.replaceWith(Object.assign(
+              assertNotSyntheticExpressionTemplate({
+                ORIGINAL_SOURCE: t.stringLiteral(prettyOriginalString),
+                NODE: path.node,
+                ANSP_IDENTIFIER: assertNotSyntheticPromise
+              }),
+              { [isGeneratedHelper]: true }
+            ));
+            return;
+          }
+
           // Transform expression `foo` into
           // `('\uFEFFfoo\uFEFF', ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
           // The first part of the sequence expression is used to identify this
@@ -597,13 +656,8 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // user code accidentally being recognized as the original source code.
           // We limit the string length so that long expressions (e.g. those
           // containing functions) are not included in full length.
-          const { expressionHolder, isSyntheticPromise } = identifierGroup;
           const originalSource = t.stringLiteral(
-            '\ufeff' + limitStringLength(
-              path.node.start !== undefined ?
-                (this.file as any).code.slice(path.node.start, path.node.end) :
-                '<unknown>', 24) +
-            '\ufeff');
+            '\ufeff' + prettyOriginalString + '\ufeff');
           path.replaceWith(Object.assign(
             awaitSyntheticPromiseTemplate({
               ORIGINAL_SOURCE: originalSource,
