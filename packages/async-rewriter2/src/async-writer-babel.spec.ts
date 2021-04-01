@@ -578,6 +578,30 @@ describe('AsyncWriter', () => {
         expect(plainFn).to.have.been.calledWith(6, 6, set);
       });
     });
+
+    context('Function.prototype.toString', () => {
+      it('returns the original function source', () => {
+        expect(runTranspiledCode('Function.prototype.toString.call(() => {})'))
+          .to.equal('() => {}');
+        expect(runTranspiledCode('Function.prototype.toString.call(function () {})'))
+          .to.equal('function () {}');
+        expect(runTranspiledCode('Function.prototype.toString.call(async function () {})'))
+          .to.equal('async function () {}');
+        expect(runTranspiledCode('Function.prototype.toString.call(function* () {})'))
+          .to.equal('function* () {}');
+        expect(runTranspiledCode('Function.prototype.toString.call(async function* () {})'))
+          .to.equal('async function* () {}');
+        expect(runTranspiledCode('Function.prototype.toString.call((class { method() {} }).prototype.method)'))
+          .to.equal('method() {}');
+      });
+
+      it('lets us not worry about special characters', () => {
+        expect(runTranspiledCode('Function.prototype.toString.call(() => {\n  method();\n})'))
+          .to.equal('() => {\n    method();\n  }');
+        expect(runTranspiledCode('Function.prototype.toString.call(() => { const 八 = 8; })'))
+          .to.equal('() => {\n    const 八 = 8;\n  }');
+      });
+    });
   });
 
   context('error messages', () => {

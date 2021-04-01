@@ -92,6 +92,8 @@ made for readability).
 
 ```js
 (() => {
+  // Keep a copy of the original source code for Function.prototype.toString.
+  '<async_rewriter>(() => {\n  return db.test.find().toArray();\n})</>';
   const _syntheticPromise = Symbol.for("@@mongosh.syntheticPromise");
 
   function _markSyntheticPromise(p) {

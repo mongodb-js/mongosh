@@ -342,6 +342,28 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
+    it('rewrites async properly for mapReduce', async() => {
+      // This is being run under the new async rewriter because the old one
+      // did not support mapReduce at all (because of needing 'this').
+      // Once the new async rewriter is the default, this block can be removed.
+      shell = TestShell.start({
+        args: [ await testServer.connectionString() ],
+        env: { ...process.env, MONGOSH_ASYNC_REWRITER2: '1' }
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine('db.test.insertMany([{i:1},{i:2},{i:3},{i:4}]);');
+      const result = await shell.executeLine(`db.test.mapReduce(function() {
+        emit(this.i % 2, this.i);
+      }, function(key, values) {
+        return Array.sum(values);
+      }, { out: { inline: 1 } }).results`);
+      expect(result).to.include('{ _id: 0, value: 6 }');
+      expect(result).to.include('{ _id: 1, value: 4 }');
+    });
+
     it('expands explain output indefinitely', async() => {
       await shell.executeLine('explainOutput = db.test.find().explain()');
       await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
