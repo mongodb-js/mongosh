@@ -361,6 +361,16 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           return;
         }
 
+        const originalSource = path.parent.start !== undefined ?
+          (this.file as any).code.slice(path.parent.start, path.parent.end) :
+          'function () { [unknown code] }';
+        // Encode using UTF-16 + hex encoding so we don't have to worry about
+        // special characters.
+        const encodedOriginalSource =
+          [...originalSource].map(char => char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+        const originalSourceNode = t.expressionStatement(
+          t.stringLiteral(`<async_rewriter>${encodedOriginalSource}</>`));
+
         // A parent function might have a set of existing helper methods.
         // If it does, we re-use the functionally equivalent ones.
         const existingIdentifiers: AsyncFunctionIdentifiers | null =
@@ -435,6 +445,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // a re-throwing try/catch around the body so that we can perform
           // error message adjustment through the CatchClause handler below.
           path.replaceWith(t.blockStatement([
+            originalSourceNode,
             ...promiseHelpers,
             rethrowTemplate({
               ORIGINAL_CODE: path.node.body
@@ -463,6 +474,7 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
 
         // Generate the wrapper function. See the README for a full code snippet.
         path.replaceWith(t.blockStatement([
+          originalSourceNode,
           ...promiseHelpers,
           ...wrapperFunction
         ]));
