@@ -530,9 +530,12 @@ export const makeMaybeAsyncFunctionPlugin = ({ types: t }: { types: typeof Babel
           // If we ever do, replacing all function calls with
           // Function.prototype.call.call(fn, target, ...originalArgs) might be
           // a feasible solution.
+          // Additionally, skip calls to 'eval', since literal calls to it
+          // have semantics that are different from calls to an expressio that
+          // evaluates to 'eval'.
           if (path.parentPath.isCallExpression() &&
               path.key === 'callee' &&
-              path.isMemberExpression()) {
+              (path.isMemberExpression() || (path.isIdentifier() && path.node.name === 'eval'))) {
             return;
           }
 
