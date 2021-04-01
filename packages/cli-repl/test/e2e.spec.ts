@@ -709,6 +709,18 @@ describe('e2e', function() {
 
           expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
         });
+
+        it('is only user-writable (on POSIX)', async function() {
+          if (process.platform === 'win32') {
+            return this.skip(); // No sensible fs permissions on Windows
+          }
+
+          await shell.executeLine('a = 42');
+          shell.writeInput('.exit\n');
+          await shell.waitForExit();
+
+          expect((await fs.stat(historyPath)).mode & 0o077).to.equal(0);
+        });
       });
 
       describe('mongoshrc', () => {
