@@ -2,11 +2,11 @@
 import Nanobus from 'nanobus';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { getMongocryptdPaths, MongocryptdManager } from './mongocryptd-manager';
 import type { MongoshBus } from '@mongosh/types';
 import { ShellHomeDirectory } from './config-directory';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { eventually } from '../test/helpers';
 import { expect } from 'chai';
 
 describe('getMongocryptdPaths', () => {
@@ -180,8 +180,9 @@ describe('MongocryptdManager', () => {
       manager.idleShutdownTimeoutSecs = 1;
       await manager.start();
       const pidfile = path.join(manager.path, 'mongocryptd.pid');
-      await promisify(setTimeout)(2000);
-      expect(JSON.parse(await fs.readFile(pidfile, 'utf8')).connections).to.be.greaterThan(1);
+      await eventually(async() => {
+        expect(JSON.parse(await fs.readFile(pidfile, 'utf8')).connections).to.be.greaterThan(1);
+      });
     });
   });
 });
