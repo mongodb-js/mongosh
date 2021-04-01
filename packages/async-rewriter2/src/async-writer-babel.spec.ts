@@ -334,6 +334,17 @@ describe('AsyncWriter', () => {
         globalThis.eval = implicitlyAsyncFn; return eval("b");
       })()`)).to.equal('yes');
     });
+
+    it('allows re-declaring variables in separate snippets', () => {
+      expect(runTranspiledCode('const a = 42;')).to.equal(undefined);
+      expect(runTranspiledCode('const a = 43;')).to.equal(undefined);
+      expect(runTranspiledCode('a;')).to.equal(43);
+    });
+
+    it('disallows re-declaring variables in the same input text', () => {
+      expect(() => runTranspiledCode('const a = 42; const a = 43;'))
+        .to.throw(/has already been declared/);
+    });
   });
 
   context('error handling', () => {
