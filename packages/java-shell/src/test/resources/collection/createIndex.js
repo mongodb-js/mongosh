@@ -16,7 +16,7 @@ db.coll.getIndexes();
 // command
 db.coll.dropIndex({category: 1});
 // command
-db.coll.createIndex({category: 1, v: 1}, {weights: {category: 10, v: 5}});
+db.coll.createIndex({category: 'text', v: 'text'}, {weights: {category: 10, v: 5}});
 // command getArrayItem=1 extractProperty=weights
 db.coll.getIndexes();
 // clear
