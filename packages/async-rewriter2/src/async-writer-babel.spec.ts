@@ -14,6 +14,7 @@ describe('AsyncWriter', () => {
   let plainFn: sinon.SinonStub;
   let implicitlyAsyncMethod: sinon.SinonStub;
   let plainMethod: sinon.SinonStub;
+  let implicitlyAsyncValue: any;
   let ctx: any;
   let runTranspiledCode: (code: string, context?: any) => any;
   let runUntranspiledCode: (code: string, context?: any) => any;
@@ -24,6 +25,7 @@ describe('AsyncWriter', () => {
     plainFn = sinon.stub();
     implicitlyAsyncMethod = sinon.stub();
     plainMethod = sinon.stub();
+    implicitlyAsyncValue = undefined;
 
     asyncWriter = new AsyncWriter();
     ctx = vm.createContext({
@@ -42,6 +44,11 @@ describe('AsyncWriter', () => {
             { [Symbol.for('@@mongosh.syntheticPromise')]: true });
         },
         plainMethod
+      },
+      get implicitlyAsyncValue() {
+        return Object.assign(
+          Promise.resolve(implicitlyAsyncValue),
+          { [Symbol.for('@@mongosh.syntheticPromise')]: true });
       }
     });
     runTranspiledCode = (code: string, context?: any) => {
@@ -344,6 +351,20 @@ describe('AsyncWriter', () => {
     it('disallows re-declaring variables in the same input text', () => {
       expect(() => runTranspiledCode('const a = 42; const a = 43;'))
         .to.throw(/has already been declared/);
+    });
+
+    it('supports typeof for un-defined variables', () => {
+      expect(runTranspiledCode('typeof nonexistent')).to.equal('undefined');
+    });
+
+    it('supports typeof for implicitly awaited function calls', async() => {
+      implicitlyAsyncFn.resolves(0);
+      expect(await runTranspiledCode('typeof implicitlyAsyncFn()')).to.equal('number');
+    });
+
+    it('supports typeof for implicitly awaited values', async() => {
+      implicitlyAsyncValue = 'abc';
+      expect(await runTranspiledCode('typeof implicitlyAsyncValue')).to.equal('string');
     });
   });
 
