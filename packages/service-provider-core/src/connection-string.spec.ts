@@ -126,6 +126,22 @@ describe('ConnectionString', () => {
       expect(cs.hosts).to.deep.equal(['a', 'b', 'c']);
       expect(cs.toString()).to.equal('mongodb://a,b,c/');
     });
+
+    it('performs case-insensitive matches on connection options', () => {
+      const cs = new ConnectionString('mongodb://localhost/?SERVERSELECTIONTIMEOUTMS=100');
+      cs.searchParams.set('serverSelectionTimeoutMS', '200');
+      cs.searchParams.append('serverSelectionTimeoutMS', '300');
+
+      expect(cs.toString()).to.equal('mongodb://localhost/?SERVERSELECTIONTIMEOUTMS=200&SERVERSELECTIONTIMEOUTMS=300');
+      expect(cs.searchParams.has('serverSelectionTimeoutMS')).to.equal(true);
+      expect(cs.searchParams.has('SERVERSELECTIONTIMEOUTMS')).to.equal(true);
+      expect(cs.searchParams.get('serverSelectionTimeoutMS')).to.equal('200');
+      expect(cs.searchParams.getAll('serverSelectionTimeoutMS')).to.deep.equal(['200', '300']);
+
+      cs.searchParams.delete('serverSelectionTimeoutMS');
+      expect(cs.searchParams.has('serverSelectionTimeoutMS')).to.equal(false);
+      expect(cs.searchParams.has('SERVERSELECTIONTIMEOUTMS')).to.equal(false);
+    });
   });
 
   context('cloning', () => {

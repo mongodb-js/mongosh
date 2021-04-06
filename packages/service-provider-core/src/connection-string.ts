@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { CommonErrors, MongoshInvalidInputError, MongoshInternalError } from '@mongosh/errors';
-import { URL } from './whatwg-url';
+import { URL, URLSearchParams } from './whatwg-url';
 
 const DUMMY_HOSTNAME = '__this_is_a_placeholder__';
 
@@ -9,6 +9,43 @@ const DUMMY_HOSTNAME = '__this_is_a_placeholder__';
 const HOSTS_REGEX = new RegExp(
   String.raw`(?<protocol>mongodb(?:\+srv|)):\/\/(?:(?<username>[^:]*)(?::(?<password>[^@]*))?@)?(?<hosts>(?!:)[^\/?@]+)(?<rest>.*)`
 );
+
+class CaseInsenstiveURLSearchParams extends URLSearchParams {
+  append(name: any, value: any): void {
+    return super.append(this._normalizeKey(name), value);
+  }
+
+  delete(name: any): void {
+    return super.delete(this._normalizeKey(name));
+  }
+
+  get(name: any): string | null {
+    return super.get(this._normalizeKey(name));
+  }
+
+  getAll(name: any): string[] {
+    return super.getAll(this._normalizeKey(name));
+  }
+
+  has(name: any): boolean {
+    return super.has(this._normalizeKey(name));
+  }
+
+  set(name: any, value: any): void {
+    return super.set(this._normalizeKey(name), value);
+  }
+
+  _normalizeKey(name: any): string {
+    name = `${name}`;
+    for (const key of this.keys()) {
+      if (key.toLowerCase() === name.toLowerCase()) {
+        name = key;
+        break;
+      }
+    }
+    return name;
+  }
+}
 
 // Abstract middle class to appease TypeScript, see https://github.com/microsoft/TypeScript/pull/37894
 abstract class URLWithoutHost extends URL {
@@ -77,6 +114,7 @@ export class ConnectionString extends URLWithoutHost {
     if (!this.pathname) {
       this.pathname = '/';
     }
+    Object.setPrototypeOf(this.searchParams, CaseInsenstiveURLSearchParams.prototype);
   }
 
   // The getters here should throw, but that would break .toString() because of

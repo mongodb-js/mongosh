@@ -18,12 +18,14 @@ const _global = new Function('return this')();
 // URL has to be defined dynamically to allow browser environments get rid of
 // the polyfill that can potentially break them, even when not used
 let URL: typeof import('url').URL;
+let URLSearchParams: typeof import('url').URLSearchParams;
 
 // URL should be available in global scope both in Node >= 10 and in browser
 // (this also means that electron renderer should have it available one way or
 // another)
 if ('URL' in _global) {
   URL = _global.URL;
+  URLSearchParams = _global.URLSearchParams;
 } else {
   // java-shell js runtime (and older Node versions, but we don't support those)
   // doesn't have URL available so we fallback to the `whatwg-url` polyfill.
@@ -33,6 +35,7 @@ if ('URL' in _global) {
   // using `service-provider-core` in browser environment, make sure that this
   // import does not actually import the library
   URL = require('whatwg-url').URL;
+  URLSearchParams = require('whatwg-url').URLSearchParams;
 }
 
 // Basic encoder/decoder polyfill for java-shell environment (see above)
@@ -51,4 +54,4 @@ function textEncodingPolyfill(): any {
   return { TextDecoder, TextEncoder };
 }
 
-export { textEncodingPolyfill, URL };
+export { textEncodingPolyfill, URL, URLSearchParams };
