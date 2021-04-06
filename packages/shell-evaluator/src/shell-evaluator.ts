@@ -54,7 +54,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     this.saveState();
-    let rewrittenInput = this.internalState.asyncWriter.process(input);
+    let rewrittenInput = this.internalState.asyncWriter.process(input, filename);
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {

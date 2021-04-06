@@ -45,7 +45,7 @@ describe('AsyncWriter', () => {
       }
     });
     runTranspiledCode = (code: string, context?: any) => {
-      const transpiled = asyncWriter.process(code);
+      const transpiled = asyncWriter.process(code, '<unknown>');
       return runUntranspiledCode(transpiled, context);
     };
     runUntranspiledCode = (code: string, context?: any) => {

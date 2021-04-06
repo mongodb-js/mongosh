@@ -104,7 +104,7 @@ export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
-  public asyncWriter: { process(code: string): string };
+  public asyncWriter: { process(code: string, filename: string): string };
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public uri: string | null;
   public connectionInfo: any;

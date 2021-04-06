@@ -742,9 +742,10 @@ export default class AsyncWriter {
    * @param {string} code - string to compile.
    * @returns {Object} - { ast, code }
    */
-  getTransform(code): any {
+  getTransform(code, filename: string): any {
     try {
       return babel.transformSync(code, {
+        filename,
         plugins: [this.plugin],
         code: true,
         ast: true,
@@ -761,16 +762,16 @@ export default class AsyncWriter {
    * Returns translated code.
    * @param {string} code - string to compile.
    */
-  compile(code: string): string {
-    return this.getTransform(code).code;
+  compile(code: string, filename: string): string {
+    return this.getTransform(code, filename).code;
   }
 
   /**
    * Returns translated code.
    * @param code - string to compile.
    */
-  process(code: string): string {
-    const input = this.compile(code);
+  process(code: string, filename: string): string {
+    const input = this.compile(code, filename);
     return processTopLevelAwait(input) || input;
   }
 }

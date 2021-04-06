@@ -24,9 +24,10 @@ import makeMaybeAsyncFunctionPlugin from './stages/transform-maybe-await';
  */
 
 export default class AsyncWriter {
-  step(code: string, plugins: babel.PluginItem[]): string {
+  step(code: string, filename: string, plugins: babel.PluginItem[]): string {
     return babel.transformSync(code, {
       plugins,
+      filename,
       code: true,
       configFile: false,
       babelrc: false
@@ -37,19 +38,19 @@ export default class AsyncWriter {
    * Returns translated code.
    * @param code - string to compile.
    */
-  process(code: string): string {
+  process(code: string, filename: string): string {
     try {
       // In the first step, we apply a number of common babel transformations
       // that are necessary in order for subsequent steps to succeed
       // (in particular, shorthand properties and parameters would otherwise
       // mess with detecting expressions in their proper locations).
-      code = this.step(code, [
+      code = this.step(code, filename, [
         require('@babel/plugin-transform-shorthand-properties').default,
         require('@babel/plugin-transform-parameters').default,
         require('@babel/plugin-transform-destructuring').default
       ]);
-      code = this.step(code, [wrapAsFunctionPlugin]);
-      code = this.step(code, [makeMaybeAsyncFunctionPlugin]);
+      code = this.step(code, filename, [wrapAsFunctionPlugin]);
+      code = this.step(code, filename, [makeMaybeAsyncFunctionPlugin]);
       return code;
     } catch (e) {
       e.message = e.message.replace('unknown: ', '');
@@ -58,6 +59,6 @@ export default class AsyncWriter {
   }
 
   runtimeSupportCode(): string {
-    return this.process(runtimeSupport);
+    return this.process(runtimeSupport, '<mongosh runtime support>');
   }
 }
