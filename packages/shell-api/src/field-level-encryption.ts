@@ -24,7 +24,7 @@ import Cursor from './cursor';
 import { DeleteResult } from './result';
 import { assertArgsDefinedType } from './helpers';
 import { asPrintable } from './enums';
-import { redactPassword } from '@mongosh/history';
+import { redactCredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
@@ -68,7 +68,7 @@ export class ClientEncryption extends ShellApiClass {
   }
 
   [asPrintable](): string {
-    return `ClientEncryption class for ${redactPassword(this._mongo._uri)}`;
+    return `ClientEncryption class for ${redactCredentials(this._mongo._uri)}`;
   }
 
   @returnsPromise
@@ -115,7 +115,7 @@ export class KeyVault extends ShellApiClass {
   }
 
   [asPrintable](): string {
-    return `KeyVault class for ${redactPassword(this._mongo._uri)}`;
+    return `KeyVault class for ${redactCredentials(this._mongo._uri)}`;
   }
 
   createKey(kms: 'local', keyAltNames?: string[]): Promise<Document>

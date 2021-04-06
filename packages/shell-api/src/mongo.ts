@@ -36,7 +36,7 @@ import {
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { redactPassword } from '@mongosh/history';
+import { redactCredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
 import { assertArgsDefinedType, processFLEOptions } from './helpers';
@@ -120,7 +120,7 @@ export default class Mongo extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return redactPassword(this._uri);
+    return redactCredentials(this._uri);
   }
 
   /**
@@ -348,7 +348,7 @@ export default class Mongo extends ShellApiClass {
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._serviceProvider.watch(pipeline, options),
-      redactPassword(this._uri),
+      redactCredentials(this._uri),
       this
     );
     this._internalState.currentCursor = cursor;

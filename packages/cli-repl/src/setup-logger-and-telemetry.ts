@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import redactInfo from 'mongodb-redact';
-import { redactPassword } from '@mongosh/history';
+import { redactCredentials } from '@mongosh/history';
 import type { Logger } from 'pino';
 import type {
   MongoshBus,
@@ -72,7 +72,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
-    const connectionUri = redactPassword(args.uri);
+    const connectionUri = redactCredentials(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = { session_id: logId, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', params);

@@ -2,7 +2,7 @@
 import { spawn } from 'child_process';
 import assert from 'assert';
 import { once } from 'events';
-import { redactPassword } from '@mongosh/history';
+import { redactCredentials } from '@mongosh/history';
 import fleSmokeTestScript from './smoke-tests-fle';
 
 // Run smoke tests on a executable, e.g.
@@ -39,7 +39,7 @@ async function runSmokeTest(executable: string, args: string[], input: string, o
   try {
     assert.match(stdout, output);
   } catch (err) {
-    console.error({ input, output, stdout, executable, args: args.map(redactPassword) });
+    console.error({ input, output, stdout, executable, args: args.map(redactCredentials) });
     throw err;
   }
 }
