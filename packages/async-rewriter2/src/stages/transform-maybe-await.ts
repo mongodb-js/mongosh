@@ -401,6 +401,9 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           // something that we wouldn't want to modify anyway, because it would
           // break the assignment altogether.
           if (path.parentPath.isAssignmentExpression() && path.key === 'left') return;
+          // Assignments can happen in weird places, including in situations like
+          // `for (obj.prop of [1,2,3]);`.
+          if (path.parentPath.isForXStatement() && path.key === 'left') return;
           // ++ and -- count as assignments for our purposes.
           if (path.parentPath.isUpdateExpression()) return;
 
