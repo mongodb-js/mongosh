@@ -260,7 +260,7 @@ describe('uri-generator.generate-uri', () => {
         const uri = 'mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10';
         const options = { _: [uri] };
 
-        it('returns an empty string', () => {
+        it('does not override the existing value', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10&directConnection=true');
         });
       });
@@ -269,7 +269,7 @@ describe('uri-generator.generate-uri', () => {
         const uri = 'mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10';
         const options = { _: [uri] };
 
-        it('returns an empty string', () => {
+        it('does not override the existing value', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10&directConnection=true');
         });
       });
