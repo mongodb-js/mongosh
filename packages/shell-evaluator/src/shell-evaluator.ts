@@ -65,6 +65,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     if (!this.hasAppliedAsyncWriterRuntimeSupport) {
+      this.hasAppliedAsyncWriterRuntimeSupport = true;
       const supportCode = (this.internalState.asyncWriter as any).runtimeSupportCode();
       // Eval twice: We need the modified prototypes to be present in both
       // the evaluation context and the current one, because e.g. the value of
