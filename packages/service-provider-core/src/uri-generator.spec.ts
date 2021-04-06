@@ -255,6 +255,24 @@ describe('uri-generator.generate-uri', () => {
           expect(generateUri(options)).to.equal('');
         });
       });
+
+      context('when providing explicit serverSelectionTimeoutMS', () => {
+        const uri = 'mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10';
+        const options = { _: [uri] };
+
+        it('returns an empty string', () => {
+          expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10&directConnection=true');
+        });
+      });
+
+      context('when providing explicit serverSelectionTimeoutMS (different case)', () => {
+        const uri = 'mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10';
+        const options = { _: [uri] };
+
+        it('returns an empty string', () => {
+          expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10&directConnection=true');
+        });
+      });
     });
 
     context('when providing a URI with query parameters', () => {
