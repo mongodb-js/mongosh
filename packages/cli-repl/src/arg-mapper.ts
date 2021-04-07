@@ -6,6 +6,9 @@ import setValue from 'lodash.set';
  * Mapping fields from the CLI args to Node options.
  */
 const MAPPINGS = {
+  apiDeprecationErrors: 'serverApi.deprecationErrors',
+  apiStrict: 'serverApi.strict',
+  apiVersion: 'serverApi.version',
   awsAccessKeyId: 'autoEncryption.kmsProviders.aws.accessKeyId',
   awsSecretAccessKey: 'autoEncryption.kmsProviders.aws.secretAccessKey',
   awsSessionToken: 'autoEncryption.kmsProviders.aws.sessionToken',

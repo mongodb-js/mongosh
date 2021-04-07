@@ -241,6 +241,24 @@ describe('arg-mapper.mapCliToDriver', () => {
       });
     });
   });
+
+  context('when the cli args have all server API options options', () => {
+    const cliOptions: CliOptions = {
+      apiStrict: true,
+      apiDeprecationErrors: true,
+      apiVersion: '1'
+    };
+
+    it('maps to serverApi', async() => {
+      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+        serverApi: {
+          strict: true,
+          deprecationErrors: true,
+          version: '1'
+        }
+      });
+    });
+  });
 });
 
 describe('arg-mapper.applyTlsCertificateSelector', () => {

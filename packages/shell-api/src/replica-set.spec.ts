@@ -80,7 +80,7 @@ describe('ReplicaSet', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
+      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testdb');
       rs = new ReplicaSet(db);
     });

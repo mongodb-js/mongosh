@@ -118,7 +118,7 @@ describe('Collection', () => {
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
+      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
       collection = new Collection(mongo, database, 'coll1');
     });
@@ -1807,7 +1807,7 @@ describe('Collection', () => {
         k => serviceProvider[k].resolves({ result: {}, value: {} })
       );
       const internalState = new ShellInternalState(serviceProvider, bus);
-      const mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
+      const mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
       collection = session.getDatabase('db1').getCollection('coll');
     });

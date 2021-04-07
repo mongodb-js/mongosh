@@ -546,6 +546,44 @@ describe('arg-parser', () => {
             });
           });
 
+          context('when providing versioned API options', () => {
+            context('when providing --apiVersion', () => {
+              const argv = [ ...baseArgv, uri, '--apiVersion', '1' ];
+
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
+              });
+
+              it('sets the apiVersion in the object', () => {
+                expect(parseCliArgs(argv).apiVersion).to.equal('1');
+              });
+            });
+
+            context('when providing --apiDeprecationErrors', () => {
+              const argv = [ ...baseArgv, uri, '--apiDeprecationErrors' ];
+
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
+              });
+
+              it('sets the apiVersion in the object', () => {
+                expect(parseCliArgs(argv).apiDeprecationErrors).to.equal(true);
+              });
+            });
+
+            context('when providing --apiStrict', () => {
+              const argv = [ ...baseArgv, uri, '--apiStrict' ];
+
+              it('returns the URI in the object', () => {
+                expect(parseCliArgs(argv)._[0]).to.equal(uri);
+              });
+
+              it('sets the apiVersion in the object', () => {
+                expect(parseCliArgs(argv).apiStrict).to.equal(true);
+              });
+            });
+          });
+
           context('when providing filenames', () => {
             context('when the filenames end in .js', () => {
               const argv = [ ...baseArgv, uri, 'test1.js', 'test2.js' ];

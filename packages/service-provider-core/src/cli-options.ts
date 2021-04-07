@@ -3,7 +3,9 @@
  */
 export default interface CliOptions {
   _?: string[];
-  async?: boolean;
+  apiDeprecationErrors?: boolean;
+  apiStrict?: boolean;
+  apiVersion?: string;
   authenticationDatabase?: string;
   authenticationMechanism?: string;
   awsAccessKeyId?: string;

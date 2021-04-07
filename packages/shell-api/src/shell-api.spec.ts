@@ -284,7 +284,7 @@ describe('ShellApi', () => {
           const sp = stubInterface<ServiceProvider>();
           const rc = stubInterface<MongoClient>();
           sp.getRawClient.returns(rc);
-          const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName', undefined, sp);
+          const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName', undefined, undefined, sp);
           await internalState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {

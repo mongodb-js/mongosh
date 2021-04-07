@@ -18,6 +18,8 @@ import Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
 import NoDatabase from './no-db';
 import { MongoshDeprecatedError, MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CliServiceProvider } from '../../service-provider-server';
+import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -80,7 +82,7 @@ describe('Mongo', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.startSession.returns({ driverSession: 1 } as any);
       internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, serviceProvider);
+      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       database = stubInterface<Database>();
       internalState.currentDb = database;
     });
@@ -535,7 +537,7 @@ describe('Mongo', () => {
         expect(internalState.context.db.getName()).to.equal('moo1');
       });
       it('reports if db has the same name but different Mongo objects', () => {
-        internalState.context.db = new Mongo(internalState, undefined, undefined, serviceProvider).getDB('moo1');
+        internalState.context.db = new Mongo(internalState, undefined, undefined, undefined, serviceProvider).getDB('moo1');
         expect(internalState.context.db.getName()).to.equal('moo1');
         const msg = mongo.use('moo1');
         expect(msg).to.equal('switched to db moo1');
@@ -606,6 +608,57 @@ describe('Mongo', () => {
           return;
         }
         expect.fail('Failed to throw');
+      });
+    });
+  });
+
+  describe('integration', () => {
+    const testServer = startTestServer('shared');
+    let serviceProvider;
+    let internalState;
+    let uri: string;
+
+    beforeEach(async() => {
+      uri = await testServer.connectionString();
+      serviceProvider = await CliServiceProvider.connect(uri);
+      internalState = new ShellInternalState(serviceProvider);
+    });
+
+    afterEach(async() => {
+      await internalState.close(true);
+    });
+
+    describe('versioned API', () => {
+      context('pre-4.4', () => {
+        skipIfServerVersion(testServer, '> 4.4');
+
+        it('errors if an API version is specified', async() => {
+          // eslint-disable-next-line new-cap
+          const mongo = await internalState.shellApi.Mongo(uri, null, {
+            api: { version: '1' }
+          });
+          expect(mongo._apiOptions).to.deep.equal({ version: '1' });
+          try {
+            await mongo.getDB('test').getCollection('coll').find().toArray();
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.include("Unrecognized field 'apiVersion'");
+          }
+        });
+      });
+
+      context('post-4.4', () => {
+        skipIfServerVersion(testServer, '<= 4.4');
+
+        it('can specify an API version', async() => {
+          // eslint-disable-next-line new-cap
+          const mongo = await internalState.shellApi.Mongo(uri, null, {
+            api: { version: '1' }
+          });
+          expect(mongo._apiOptions).to.deep.equal({ version: '1' });
+          // Does not throw, unlike the 4.4 test case above:
+          await mongo.getDB('test').getCollection('coll').find().toArray();
+        });
       });
     });
   });

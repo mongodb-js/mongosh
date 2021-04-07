@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually } from './helpers';
 import { TestShell } from './test-shell';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
@@ -836,6 +836,64 @@ describe('e2e', function() {
         await eventually(() => {
           expect(shell.output).to.include('579');
         });
+      });
+    });
+  });
+
+  describe('versioned API', () => {
+    let db;
+    let dbName;
+    let client;
+
+    beforeEach(async() => {
+      dbName = `test-${Date.now()}`;
+
+      client = await MongoClient.connect(await testServer.connectionString(), {});
+      db = client.db(dbName);
+    });
+
+    afterEach(async() => {
+      await db.dropDatabase();
+      client.close();
+    });
+
+
+    context('pre-4.4', () => {
+      skipIfServerVersion(testServer, '> 4.4');
+
+      it('errors if an API version is specified', async() => {
+        const shell = TestShell.start({ args: [
+          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
+        ] });
+        await shell.waitForPrompt();
+        expect(await shell.executeLine('db.coll.find().toArray()'))
+          .to.include("Unrecognized field 'apiVersion'");
+      });
+    });
+
+    context('post-4.4', () => {
+      skipIfServerVersion(testServer, '<= 4.4');
+
+      it('can specify an API version', async() => {
+        const shell = TestShell.start({ args: [
+          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
+        ] });
+        await shell.waitForPrompt();
+        expect(await shell.executeLine('db.coll.find().toArray()'))
+          .to.include('[]');
+        shell.assertNoErrors();
+      });
+
+      it('can iterate cursors', async() => {
+        // Make sure SERVER-55593 doesn't happen to us.
+        const shell = TestShell.start({ args: [
+          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
+        ] });
+        await shell.waitForPrompt();
+        await shell.executeLine('for (let i = 0; i < 200; i++) db.coll.insert({i})');
+        await shell.executeLine('const cursor = db.coll.find().limit(100).batchSize(10);');
+        expect(await shell.executeLine('cursor.toArray()')).to.include('i: 5');
+        shell.assertNoErrors();
       });
     });
   });
