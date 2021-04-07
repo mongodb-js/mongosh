@@ -1,3 +1,4 @@
+// Note: Codes are shared with the new async rewriter
 
 /**
  * @mongoshErrors
