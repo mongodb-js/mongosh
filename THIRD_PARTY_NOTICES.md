@@ -82,11 +82,8 @@ Package|Version|License
 **[axios-retry](#a933fc75549ff5c33de504604749f9832d0619af4a680a36c912d08c5e01c678)**|3.1.5|Apache-2.0
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4)**|2.2.1|MIT
-**[bl](#a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e)**|1.2.3|MIT
-**[bson](#ba2a4a3668f4d053a24fb8437cf2955067e78dafae1992fa0ac3b341dcdf32e7)**|4.2.3|Apache-2.0
-**[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
-**[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
-**[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
+**[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
+**[bson](#8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12)**|4.3.0|Apache-2.0
 **[chalk](#355a5cdc09e868b61d9e38eb9b2f10853f45adba4928257892b02441c0b3a42e)**|4.1.0|MIT
 **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**|3.0.0|MIT
 **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**|2.4.2|MIT
@@ -104,7 +101,7 @@ Package|Version|License
 **[crypt](#4450c5b7676ee4415216da1b1265942c8e44b106e4b4d7fb2fc593fde54dc7c4)**|0.0.2|BSD-3-Clause
 **[debug](#eab5df8b125077c6a2241a15720c42fc45aef8f822c41a5ddd41fb76f63b58ea)**|4.1.1|MIT
 **[debug](#baeaf416cd616b9bdae8f775225bdc54b31fb4b0d31c309d7026a43f5fcb3134)**|3.1.0|MIT
-**[decompress-response](#46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2)**|3.3.0|MIT
+**[decompress-response](#a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb)**|4.2.1|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[delegates](#8ac2167c6a2c6f3786fad50a7d9495e4a01fa0fda57deb6ba96a2b682c19085e)**|1.0.0|MIT
 **[denque](#24eeff555306b78a62f378c5a3daf4894f079ae4852962cff2d9628541351781)**|1.5.0|Apache-2.0
@@ -149,15 +146,15 @@ Package|Version|License
 **[lowlight](#9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459)**|1.9.2|MIT
 **[md5](#ce1b25b9f1df907c07fb1a889dddec9785ca40602fd268d91eb6539999221883)**|2.2.1|BSD-3-Clause
 **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**|1.5.0|MIT
-**[mimic-response](#5e9658c8783408f83c2a8e28b87c38aae7dc22cecb97ed1d16be37c89e076cb5)**|1.0.1|MIT
+**[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
-**[mkdirp](#c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a)**|0.5.5|MIT
-**[mongodb](#79abfc74deccdbe8e681c4244ac350e4b6f29276bf2e9ac5ab571d229f20396b)**|4.0.0-beta.2|Apache-2.0
+**[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
+**[mongodb](#46b489fb967bdc0aff55ee65a50b63e32f2c0115edf2c1af7c50c1cf1bf62579)**|4.0.0-beta.3|Apache-2.0
 **[mongodb-ace-autocompleter](#5f8c32571122c25792bf4635ce9f1f6aaf49eb364b033f619b84e8ee9c29e011)**|0.4.8|Apache-2.0
 **[mongodb-ace-autocompleter](#25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91)**|0.4.14|Apache-2.0
 **[mongodb-build-info](#8a1ba45f0407e04bc40af593237b54961d4bb1ce23d4a6a2a4ab5284f00e0e4d)**|1.1.0|Apache-2.0
 **[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
-**[mongodb-client-encryption](#ea98f73234a844e15f269a86b0daf3965ea35ef215fc6be98788ee091890d38b)**|1.2.2|Apache-2.0
+**[mongodb-client-encryption](#f2ba629859c0faa56418278b125a8854fe7542e196651c2eb935642b76973b25)**|1.2.3|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -174,19 +171,18 @@ Package|Version|License
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
 **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
-**[os-homedir](#88726a86426b0c45fbf4752e069a73665ee6291af6767440971c5344f174f262)**|1.0.2|MIT
 **[path-parse](#ae79012b287ad3169c3381c589c4bae0e71eebd86fde18087ad7bec415d5905b)**|1.0.6|MIT
 **[pino](#ae3542049918b2ea239b7672d36eb0553131dd0a225ed7830d378f5cca269301)**|5.17.0|MIT
 **[pino-std-serializers](#0fbaec0b4757a710a88df80bb60f61685813af251a9893a302cdd2e2dc1cb125)**|2.4.2|MIT
-**[prebuild-install](#a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f)**|5.3.0|MIT
+**[prebuild-install](#2f21a89ebb2e5a3a0765b359b12d88a585d56924e3e0b7ab7bffbd5e029a4e54)**|6.0.1|MIT
 **[pretty-bytes](#84f0bf818b26f8bdbd4b37dee83e6335d12636108b0a299edcd3c786ae3beb96)**|5.3.0|MIT
 **[pretty-repl](#8d33681b4da4bc4dc7d0a00e4cea6fc7f728a2cf664920acb92d267ac1748771)**|2.4.0|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
-**[pump](#6a3eb1e12d101ad807720be15837917dba7ca7abbec690099cd570a51c1883db)**|2.0.1|MIT
-**[pump](#cc68fe234a9a480ab0eda317a52d5f6b5bc33fd0f264281374c700b428b1a150)**|1.0.3|MIT
+**[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[quick-format-unescaped](#6847d0af564232ff133f19c1e546442055386145699c85cd5a7ede04f82fc17a)**|3.0.3|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
 **[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
+**[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
 **[remove-array-items](#f13d4ea4ad6d2e91fde9a79ec185429676521efe83ab086a9280e5e55764fbe8)**|1.1.1|MIT
 **[remove-trailing-slash](#c4aa47ea31cd2ba713e965864e0b6d76049e060ca2a20bebca0be359deecc718)**|0.1.0|MIT
 **[resolve](#cfbee28e2a147f6dd071acdfc869d048ce7f5f5dd0e4bd1263cb99aba1c40449)**|1.17.0|MIT
@@ -199,7 +195,7 @@ Package|Version|License
 **[set-blocking](#d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558)**|2.0.0|ISC
 **[signal-exit](#e452c59b77b29cd391c67abe2e5c14f51a637e4b72e07cf78d31de57fd34ef41)**|3.0.3|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
-**[simple-get](#28060a6f279627a4b59fc7fcb6ee02825360f55200e75aef649140d9f784d3c6)**|2.8.1|MIT
+**[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
 **[sonic-boom](#f56df8069cd20482626560a0a2f067e619d83e2e5ffe86fd9d0b9a796ad49891)**|0.7.7|MIT
 **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**|0.5.7|BSD-3-Clause
 **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**|3.0.3|MIT
@@ -209,10 +205,9 @@ Package|Version|License
 **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**|2.0.1|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
-**[tar-fs](#ba2f2fe5915cd373f38207cb1c3fd9ba0782494022dd3e64a64f32bbe0642a87)**|1.16.3|MIT
-**[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**|1.6.2|MIT
+**[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**|2.1.1|MIT
+**[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
-**[to-buffer](#5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85)**|1.1.1|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[tr46](#ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c)**|2.0.2|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
@@ -223,7 +218,6 @@ Package|Version|License
 **[which-pm-runs](#52706f86df23330d11bd1b7736cb665692a56bb749511bc49fa54c0595974411)**|1.0.0|MIT
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
-**[xtend](#ef439651e21b69e8811099e984a3a42de35b6d0fc30a5c230715bea4c96e4940)**|4.0.2|MIT
 **[yargs-parser](#63435b27312552eefd317cb6b5bc59549a3e8c028b3e9510ccd5d5ac644cfa77)**|20.2.4|ISC
 
 ## Package details
@@ -4858,8 +4852,8 @@ License files:
       
 
 
-<a id="a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e"></a>
-### [bl](https://www.npmjs.com/package/bl) (version 1.2.3)
+<a id="0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c"></a>
+### [bl](https://www.npmjs.com/package/bl) (version 4.1.0)
 <!-- initially found at packages/service-provider-core/node_modules/tar-stream/node_modules/bl -->
 > Buffer List: collect buffers and access with a standard readable Buffer interface, streamable too!
 
@@ -4871,7 +4865,7 @@ License files:
       The MIT License (MIT)
       =====================
       
-      Copyright (c) 2013-2016 bl contributors
+      Copyright (c) 2013-2019 bl contributors
       ----------------------------------
       
       *bl contributors listed at <https://github.com/rvagg/bl#contributors>*
@@ -4884,8 +4878,8 @@ License files:
       
 
 
-<a id="ba2a4a3668f4d053a24fb8437cf2955067e78dafae1992fa0ac3b341dcdf32e7"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.2.3)
+<a id="8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.3.0)
 <!-- initially found at packages/service-provider-core/node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -5099,24 +5093,6 @@ License files:
 
 Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
-
-
-<a id="d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0"></a>
-### [buffer-alloc](https://www.npmjs.com/package/buffer-alloc) (version 1.2.0)
-<!-- initially found at packages/service-provider-core/node_modules/buffer-alloc -->
-License tags: MIT
-
-
-<a id="1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0"></a>
-### [buffer-alloc-unsafe](https://www.npmjs.com/package/buffer-alloc-unsafe) (version 1.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/buffer-alloc-unsafe -->
-License tags: MIT
-
-
-<a id="c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4"></a>
-### [buffer-fill](https://www.npmjs.com/package/buffer-fill) (version 1.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/buffer-fill -->
-License tags: MIT
 
 
 <a id="355a5cdc09e868b61d9e38eb9b2f10853f45adba4928257892b02441c0b3a42e"></a>
@@ -5644,8 +5620,8 @@ Authors:
 * Andrew Rhyne <rhyneandrew@gmail.com>
 
 
-<a id="46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2"></a>
-### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 3.3.0)
+<a id="a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb"></a>
+### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 4.2.1)
 <!-- initially found at packages/service-provider-core/node_modules/decompress-response -->
 > Decompress a HTTP response if needed
 
@@ -5654,28 +5630,19 @@ License tags: MIT
 License files:
 * license:
 
-      `The MIT License (MIT)
+      MIT License
       
       Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
       
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
       
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
       
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
+
+Authors:
+* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
 <a id="654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf"></a>
@@ -7877,8 +7844,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="5e9658c8783408f83c2a8e28b87c38aae7dc22cecb97ed1d16be37c89e076cb5"></a>
-### [mimic-response](https://www.npmjs.com/package/mimic-response) (version 1.0.1)
+<a id="0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e"></a>
+### [mimic-response](https://www.npmjs.com/package/mimic-response) (version 2.1.0)
 <!-- initially found at packages/service-provider-core/node_modules/mimic-response -->
 > Mimic a Node.js HTTP response stream
 
@@ -7889,7 +7856,7 @@ License files:
 
       MIT License
       
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
       
       Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
       
@@ -7899,7 +7866,7 @@ License files:
       
 
 Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
+* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
 
 
 <a id="1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0"></a>
@@ -7936,19 +7903,19 @@ Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
 
 
-<a id="c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a"></a>
-### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 0.5.5)
-<!-- initially found at packages/service-provider-core/node_modules/mkdirp -->
-> Recursively mkdir, like `mkdir -p`
+<a id="e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c"></a>
+### [mkdirp-classic](https://www.npmjs.com/package/mkdirp-classic) (version 0.5.3)
+<!-- initially found at packages/service-provider-core/node_modules/mkdirp-classic -->
+> Mirror of mkdirp 0.5.2
 
 License tags: MIT
 
 License files:
 * LICENSE:
 
-      Copyright 2010 James Halliday (mail@substack.net)
+      The MIT License (MIT)
       
-      This project is free software released under the MIT/X11 license:
+      Copyright (c) 2020 James Halliday (mail@substack.net) and Mathias Buus
       
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7970,11 +7937,11 @@ License files:
       
 
 Authors:
-* James Halliday <mail@substack.net> (http://substack.net)
+* Mathias Buus (@mafintosh)
 
 
-<a id="79abfc74deccdbe8e681c4244ac350e4b6f29276bf2e9ac5ab571d229f20396b"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.2)
+<a id="46b489fb967bdc0aff55ee65a50b63e32f2c0115edf2c1af7c50c1cf1bf62579"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.3)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -8642,8 +8609,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="ea98f73234a844e15f269a86b0daf3965ea35ef215fc6be98788ee091890d38b"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.2)
+<a id="f2ba629859c0faa56418278b125a8854fe7542e196651c2eb935642b76973b25"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.3)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -9736,43 +9703,6 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="88726a86426b0c45fbf4752e069a73665ee6291af6767440971c5344f174f262"></a>
-### [os-homedir](https://www.npmjs.com/package/os-homedir) (version 1.0.2)
-<!-- initially found at packages/service-provider-core/node_modules/os-homedir -->
-> Node.js 4 `os.homedir()` ponyfill
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="ae79012b287ad3169c3381c589c4bae0e71eebd86fde18087ad7bec415d5905b"></a>
 ### [path-parse](https://www.npmjs.com/package/path-parse) (version 1.0.6)
 <!-- initially found at packages/async-rewriter/node_modules/path-parse -->
@@ -9876,8 +9806,8 @@ Authors:
 * James Sumners <james.sumners@gmail.com>
 
 
-<a id="a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 5.3.0)
+<a id="2f21a89ebb2e5a3a0765b359b12d88a585d56924e3e0b7ab7bffbd5e029a4e54"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.0.1)
 <!-- initially found at packages/service-provider-core/node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
@@ -10013,45 +9943,9 @@ License files:
       
 
 
-<a id="6a3eb1e12d101ad807720be15837917dba7ca7abbec690099cd570a51c1883db"></a>
-### [pump](https://www.npmjs.com/package/pump) (version 2.0.1)
+<a id="147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a"></a>
+### [pump](https://www.npmjs.com/package/pump) (version 3.0.0)
 <!-- initially found at packages/service-provider-core/node_modules/pump -->
-> pipe streams together and close all of them if one of them closes
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2014 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-Authors:
-* Mathias Buus Madsen <mathiasbuus@gmail.com>
-
-
-<a id="cc68fe234a9a480ab0eda317a52d5f6b5bc33fd0f264281374c700b428b1a150"></a>
-### [pump](https://www.npmjs.com/package/pump) (version 1.0.3)
-<!-- initially found at packages/service-provider-core/node_modules/tar-fs/node_modules/pump -->
 > pipe streams together and close all of them if one of them closes
 
 License tags: MIT
@@ -10214,6 +10108,66 @@ Authors:
 <a id="8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1"></a>
 ### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 2.3.7)
 <!-- initially found at packages/service-provider-core/node_modules/readable-stream -->
+> Streams3, a user-land copy of the stream library from Node.js
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Node.js is licensed for use as follows:
+      
+      """
+      Copyright Node.js contributors. All rights reserved.
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to
+      deal in the Software without restriction, including without limitation the
+      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+      sell copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+      IN THE SOFTWARE.
+      """
+      
+      This license applies to parts of Node.js originating from the
+      https://github.com/joyent/node repository:
+      
+      """
+      Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to
+      deal in the Software without restriction, including without limitation the
+      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+      sell copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+      IN THE SOFTWARE.
+      """
+      
+
+
+<a id="75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174"></a>
+### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 3.6.0)
+<!-- initially found at packages/service-provider-core/node_modules/tar-stream/node_modules/readable-stream -->
 > Streams3, a user-land copy of the stream library from Node.js
 
 License tags: MIT
@@ -10658,8 +10612,8 @@ Authors:
 * Feross Aboukhadijeh <[feross@feross.org](nomail)> (https://feross.org)
 
 
-<a id="28060a6f279627a4b59fc7fcb6ee02825360f55200e75aef649140d9f784d3c6"></a>
-### [simple-get](https://www.npmjs.com/package/simple-get) (version 2.8.1)
+<a id="ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da"></a>
+### [simple-get](https://www.npmjs.com/package/simple-get) (version 3.1.0)
 <!-- initially found at packages/service-provider-core/node_modules/simple-get -->
 > Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
 
@@ -11033,8 +10987,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="ba2f2fe5915cd373f38207cb1c3fd9ba0782494022dd3e64a64f32bbe0642a87"></a>
-### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 1.16.3)
+<a id="8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d"></a>
+### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.1)
 <!-- initially found at packages/service-provider-core/node_modules/tar-fs -->
 > filesystem bindings for tar-stream
 
@@ -11069,8 +11023,8 @@ Authors:
 * Mathias Buus
 
 
-<a id="5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168"></a>
-### [tar-stream](https://www.npmjs.com/package/tar-stream) (version 1.6.2)
+<a id="0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27"></a>
+### [tar-stream](https://www.npmjs.com/package/tar-stream) (version 2.2.0)
 <!-- initially found at packages/service-provider-core/node_modules/tar-stream -->
 > tar-stream is a streaming tar parser and generator and nothing else. It is streams2 and operates purely using streams which means you can easily extract/parse tarballs without ever hitting the file system.
 
@@ -11137,43 +11091,6 @@ License files:
 
 Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
-
-
-<a id="5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85"></a>
-### [to-buffer](https://www.npmjs.com/package/to-buffer) (version 1.1.1)
-<!-- initially found at packages/service-provider-core/node_modules/to-buffer -->
-> Pass in a string, get a buffer back. Pass in a buffer, get the same buffer back
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
 
 
 <a id="79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954"></a>
@@ -11544,44 +11461,6 @@ License files:
 
 Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-
-
-<a id="ef439651e21b69e8811099e984a3a42de35b6d0fc30a5c230715bea4c96e4940"></a>
-### [xtend](https://www.npmjs.com/package/xtend) (version 4.0.2)
-<!-- initially found at packages/service-provider-core/node_modules/xtend -->
-> extend like a boss
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      Copyright (c) 2012-2014 Raynos.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Raynos <raynos2@gmail.com>
-* Jake Verbaten
-* Matt Esch
 
 
 <a id="63435b27312552eefd317cb6b5bc59549a3e8c028b3e9510ccd5d5ac644cfa77"></a>
