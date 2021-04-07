@@ -75,7 +75,9 @@
     "@types/read": "^0.0.28",
     "@types/text-table": "^0.2.1",
     "@types/yargs-parser": "^15.0.0",
-    "chai-as-promised": "^7.1.1"
+    "chai-as-promised": "^7.1.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1"
   },
   "optionalDependencies": {
     "macos-export-certificate-and-key": "^1.0.0",

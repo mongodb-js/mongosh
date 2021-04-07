@@ -364,6 +364,33 @@ describe('e2e', function() {
       expect(result).to.include('{ _id: 1, value: 4 }');
     });
 
+    it('rewrites async properly for common libraries', async function() {
+      // This is being run under the new async rewriter because the old one
+      // did not support these libraries at all (for various reasons).
+      // Once the new async rewriter is the default, this block can be removed.
+      shell = TestShell.start({
+        args: [ await testServer.connectionString() ],
+        env: { ...process.env, MONGOSH_ASYNC_REWRITER2: '1' }
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      await shell.executeLine('Date.now = () => new Date().getTime()'); // MONGOSH-597 hack
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine('db.test.insertOne({ d: new Date("2021-04-07T11:24:54+02:00") })');
+      shell.writeInputLine(`load(${JSON.stringify(require.resolve('lodash'))})`);
+      shell.writeInputLine(`load(${JSON.stringify(require.resolve('moment'))})`);
+      shell.writeInputLine('print("loaded" + "scripts")');
+      await eventually(() => {
+        // Use eventually explicitly to get a bigger timeout, lodash is
+        // quite “big” in terms of async rewriting
+        shell.assertContainsOutput('loadedscripts');
+      }, { timeout: 40_000 });
+      const result = await shell.executeLine(
+        'moment(_.first(_.map(db.test.find().toArray(), "d"))).format("X")');
+      expect(result).to.include('1617787494');
+    });
+
     it('expands explain output indefinitely', async() => {
       await shell.executeLine('explainOutput = db.test.find().explain()');
       await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
