@@ -314,6 +314,14 @@ describe('AsyncWriter', () => {
       expect(implicitlyAsyncFn).to.have.callCount(10);
     });
 
+    it('can use for loops as weird assignments', async() => {
+      const obj = { foo: null };
+      implicitlyAsyncFn.resolves(obj);
+      await runTranspiledCode('for (implicitlyAsyncFn().foo of ["foo", "bar"]);');
+      expect(implicitlyAsyncFn).to.have.callCount(2);
+      expect(obj.foo).to.equal('bar');
+    });
+
     it('works with assignments to objects', async() => {
       implicitlyAsyncFn.resolves({ foo: 'bar' });
       const ret = runTranspiledCode(`
