@@ -365,6 +365,7 @@ describe('e2e', function() {
     });
 
     it('rewrites async properly for common libraries', async function() {
+      this.timeout(120_000);
       // This is being run under the new async rewriter because the old one
       // did not support these libraries at all (for various reasons).
       // Once the new async rewriter is the default, this block can be removed.
@@ -385,7 +386,7 @@ describe('e2e', function() {
         // Use eventually explicitly to get a bigger timeout, lodash is
         // quite “big” in terms of async rewriting
         shell.assertContainsOutput('loadedscripts');
-      }, { timeout: 40_000 });
+      }, { timeout: 60_000 });
       const result = await shell.executeLine(
         'moment(_.first(_.map(db.test.find().toArray(), "d"))).format("X")');
       expect(result).to.include('1617787494');
