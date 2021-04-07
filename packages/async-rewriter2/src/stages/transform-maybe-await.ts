@@ -41,6 +41,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
   const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
   const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
   const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
+  const isExpandedTypeof = asNodeKey(Symbol('isExpandedTypeof'));
   // Using this key, we store data on Function nodes that contains the identifiers
   // of helpers which are available inside the function.
   const identifierGroupKey = '@@mongosh.identifierGroup';
@@ -317,6 +318,27 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           ...promiseHelpers,
           ...wrapperFunction
         ]));
+      },
+      UnaryExpression: {
+        enter(path) {
+          if (path.node.operator === 'typeof' && path.node.argument.type === 'Identifier' && !path.node[isExpandedTypeof]) {
+            // 'typeof foo'-style checks have a double use; they not only report
+            // the 'type' of an expression, but when used on identifiers, check
+            // whether they have been declared, and if not, return 'undefined'.
+            // This is annoying. We replace `typeof foo` with
+            // `typeof foo === 'undefined' ? 'undefined' : typeof foo`.
+            // The first `typeof foo` is marked as a generated helper and not
+            // transformed any further, the second is transformed as usual.
+            path.replaceWith(t.conditionalExpression(
+              t.binaryExpression(
+                '===',
+                { ...path.node, [isGeneratedHelper]: true, [isExpandedTypeof]: true },
+                t.stringLiteral('undefined')),
+              t.stringLiteral('undefined'),
+              { ...path.node, [isExpandedTypeof]: true }
+            ));
+          }
+        }
       },
       Expression: {
         enter(path) {
