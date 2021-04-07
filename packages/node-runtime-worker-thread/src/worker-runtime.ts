@@ -97,6 +97,7 @@ const workerRuntime: WorkerRuntime = {
 
     let interrupted = true;
     let evaluationPromise: void | Promise<RuntimeEvaluationResult>;
+    const previousRequireCache = Object.keys(require.cache);
 
     try {
       evaluationPromise = runInterruptible((handle) => {
@@ -109,6 +110,17 @@ const workerRuntime: WorkerRuntime = {
       });
     } finally {
       evaluationListener.onRunInterruptible(null);
+
+      if (interrupted) {
+        // If we were interrupted, we can't know which newly require()ed modules
+        // have successfully been loaded, so we restore everything to its
+        // previous state.
+        for (const key of Object.keys(require.cache)) {
+          if (!previousRequireCache.includes(key)) {
+            delete require.cache[key];
+          }
+        }
+      }
     }
 
     let result: void | RuntimeEvaluationResult | UNLOCKED;
