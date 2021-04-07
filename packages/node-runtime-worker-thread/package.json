@@ -42,7 +42,7 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^4.2.3",
+    "bson": "^4.3.0",
     "interruptor": "^1.0.1",
     "postmsg-rpc": "^2.4.0"
   }
