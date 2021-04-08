@@ -451,8 +451,30 @@ module.exports = '(' + function() {
     });
   };
 
-  // Currently Missing: (Typed)Array.prototype.sort
-  // Currently Missing: Array.prototype.flatMap
+  const origArraySort = Array.prototype.sort;
+  Array.prototype.sort = function(compareFn) {
+    return origArraySort.call(this, function(...args) {
+      // (Ab-)use a generator function as one of the places where using
+      // implicit async expression results in an error.
+      return [...(function*() {
+        yield compareFn(...args);
+      })()][0];
+    });
+  };
+  const origTypedArraySort = TypedArray.prototype.sort;
+  TypedArray.prototype.sort = function(compareFn) {
+    return origTypedArraySort.call(this, function(...args) {
+      // (Ab-)use a generator function as one of the places where using
+      // implicit async expression results in an error.
+      return [...(function*() {
+        yield compareFn(...args);
+      })()][0];
+    });
+  };
+
+  Array.prototype.flatMap = function(...args) {
+    return Array.prototype.map.call(this, ...args).flat();
+  };
 
   TypedArray.prototype.reduce = Array.prototype.reduce;
   TypedArray.prototype.reduceRight = Array.prototype.reduceRight;
