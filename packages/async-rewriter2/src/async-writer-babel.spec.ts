@@ -704,7 +704,7 @@ describe('AsyncWriter', () => {
       await execFile(process.execPath, [
         path.resolve(__dirname, '..', 'test', 'fixtures', 'with-domain.js')
       ], {
-        timeout: 5_000
+        timeout: 15_000
       });
     });
   });
