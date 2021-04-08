@@ -386,6 +386,14 @@ describe('AsyncWriter', () => {
           for (const value of gen) return value;
         })()`)).to.throw('[ASYNC-10012] Result of expression "implicitlyAsyncFn()" cannot be used in this context');
       });
+
+      it('cannot implicitly await inside of array.sort() callback', () => {
+        implicitlyAsyncFn.callsFake((x, y) => x.a - y.a);
+        expect(() => runTranspiledCode(`
+        const arr = [{ a: 2 }, { a : 1 }];
+        arr.sort((x, y) => implicitlyAsyncFn(x, y));
+        `)).to.throw('[ASYNC-10012] Result of expression "compareFn(...args)" cannot be used in this context');
+      });
     });
   });
 
@@ -523,6 +531,15 @@ describe('AsyncWriter', () => {
         expect(implicitlyAsyncFn).to.have.been.calledWith(4, 4, set);
         expect(implicitlyAsyncFn).to.have.been.calledWith(6, 6, set);
       });
+
+      it('supports Array.prototype.flatMap', async() => {
+        implicitlyAsyncFn.callsFake(x => [ x - 1, x ]);
+        const arr = await runTranspiledCode(`
+          const arr = [ 2, 4, 6, 8 ];
+          arr.flatMap(implicitlyAsyncFn)
+        `);
+        expect(arr).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8]);
+      });
     });
 
     context('synchronous', () => {
@@ -629,6 +646,33 @@ describe('AsyncWriter', () => {
         expect(plainFn).to.have.been.calledWith(2, 2, set);
         expect(plainFn).to.have.been.calledWith(4, 4, set);
         expect(plainFn).to.have.been.calledWith(6, 6, set);
+      });
+
+      it('supports Array.prototype.flatMap', () => {
+        plainFn.callsFake(x => [ x - 1, x ]);
+        const arr = runTranspiledCode(`
+          const arr = [ 2, 4, 6, 8 ];
+          arr.flatMap(plainFn)
+        `);
+        expect(arr).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8]);
+      });
+
+      it('supports Array.prototype.sort', () => {
+        plainFn.callsFake((x, y) => x.a - y.a);
+        const arr = runTranspiledCode(`
+          const arr = [ { a: 1 }, { a: 9 }, { a: 4 }, { a: 16 } ];
+          arr.sort(plainFn)
+        `);
+        expect(arr).to.deep.equal([ { a: 1 }, { a: 4 }, { a: 9 }, { a: 16 } ]);
+      });
+
+      it('supports TypedArray.prototype.sort', () => {
+        plainFn.callsFake((x, y) => x - y);
+        const arr = runTranspiledCode(`
+          const arr = new Uint8Array([1, 9, 4, 16]);
+          arr.sort(plainFn)
+        `);
+        expect(arr).to.deep.equal(new Uint8Array([1, 4, 9, 16]));
       });
     });
 
