@@ -75,7 +75,9 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
   const assertNotSyntheticPromiseTemplate = babel.template.statement(`
     function ANSP_IDENTIFIER(p, s) {
       if (p && p[SP_IDENTIFIER]) {
-        throw new Error('Result of expression "' + s + '" cannot be used in this context');
+        throw new CUSTOM_ERROR_BUILDER(
+          'Result of expression "' + s + '" cannot be used in this context',
+          'SyntheticPromiseInAlwaysSyncContext');
       }
       return p;
     }
@@ -96,10 +98,12 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
     }
   `);
 
+  const expressionHolderVariableTemplate = babel.template.statement(`
+    let EXPRESSION_HOLDER_IDENTIFIER;`);
+
   const wrapperFunctionTemplate = babel.template.statements(`
     let FUNCTION_STATE_IDENTIFIER = "sync",
-        SYNC_RETURN_VALUE_IDENTIFIER,
-        EXPRESSION_HOLDER_IDENTIFIER;
+        SYNC_RETURN_VALUE_IDENTIFIER;
 
     const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
 
@@ -186,7 +190,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
         const functionState = path.scope.generateUidIdentifier('fs');
         const synchronousReturnValue = path.scope.generateUidIdentifier('srv');
         const asynchronousReturnValue = path.scope.generateUidIdentifier('arv');
-        const expressionHolder = path.scope.generateUidIdentifier('ex');
+        const expressionHolder = existingIdentifiers?.expressionHolder ?? path.scope.generateUidIdentifier('ex');
         const markSyntheticPromise = existingIdentifiers?.markSyntheticPromise ?? path.scope.generateUidIdentifier('msp');
         const isSyntheticPromise = existingIdentifiers?.isSyntheticPromise ?? path.scope.generateUidIdentifier('isp');
         const assertNotSyntheticPromise = existingIdentifiers?.assertNotSyntheticPromise ?? path.scope.generateUidIdentifier('ansp');
@@ -225,6 +229,12 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
             }),
             { [isGeneratedHelper]: true }
           ),
+          Object.assign(
+            expressionHolderVariableTemplate({
+              EXPRESSION_HOLDER_IDENTIFIER: expressionHolder
+            }),
+            { [isGeneratedHelper]: true }
+          )
         ];
         const promiseHelpers = existingIdentifiers ? [] : [
           ...commonHelpers,
@@ -254,7 +264,8 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           Object.assign(
             assertNotSyntheticPromiseTemplate({
               ANSP_IDENTIFIER: assertNotSyntheticPromise,
-              SP_IDENTIFIER: syntheticPromiseSymbol
+              SP_IDENTIFIER: syntheticPromiseSymbol,
+              CUSTOM_ERROR_BUILDER: (this as any).opts.customErrorBuilder ?? t.identifier('Error')
             }),
             { [isGeneratedHelper]: true }
           )
@@ -307,7 +318,6 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           FUNCTION_STATE_IDENTIFIER: functionState,
           SYNC_RETURN_VALUE_IDENTIFIER: synchronousReturnValue,
           ASYNC_RETURN_VALUE_IDENTIFIER: asynchronousReturnValue,
-          EXPRESSION_HOLDER_IDENTIFIER: expressionHolder,
           MSP_IDENTIFIER: markSyntheticPromise,
           ASYNC_TRY_CATCH_WRAPPER: asyncTryCatchWrapper
         });

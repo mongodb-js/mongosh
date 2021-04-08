@@ -3,6 +3,7 @@ import * as babel from '@babel/core';
 import runtimeSupport from './runtime-support.nocov';
 import wrapAsFunctionPlugin from './stages/wrap-as-iife';
 import makeMaybeAsyncFunctionPlugin from './stages/transform-maybe-await';
+import { AsyncRewriterErrors } from './error-codes';
 
 /**
  * General notes for this package:
@@ -49,7 +50,12 @@ export default class AsyncWriter {
         require('@babel/plugin-transform-destructuring').default
       ]);
       code = this.step(code, [wrapAsFunctionPlugin]);
-      code = this.step(code, [makeMaybeAsyncFunctionPlugin]);
+      code = this.step(code, [
+        [
+          makeMaybeAsyncFunctionPlugin,
+          { customErrorBuilder: babel.types.identifier('MongoshAsyncWriterError') }
+        ]
+      ]);
       return code;
     } catch (e) {
       e.message = e.message.replace('unknown: ', '');
@@ -58,6 +64,16 @@ export default class AsyncWriter {
   }
 
   runtimeSupportCode(): string {
-    return this.process(runtimeSupport);
+    // The definition of MongoshAsyncWriterError is kept separately from other
+    // code, as it is one of the few actually mongosh-specific pieces of code here.
+    return this.process(`
+    class MongoshAsyncWriterError extends Error {
+      constructor(message, codeIdentifier) {
+        const code = (${JSON.stringify(AsyncRewriterErrors)})[codeIdentifier];
+        super(\`[\${code}] \${message}\`);
+        this.code = code;
+      }
+    }
+    ${runtimeSupport}`);
   }
 }

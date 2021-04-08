@@ -219,13 +219,6 @@ describe('AsyncWriter', () => {
       expect(await ret).to.equal('bar');
     });
 
-    it('cannot implicitly await inside of class constructors', () => {
-      implicitlyAsyncFn.resolves({ foo: 'bar' });
-      expect(() => runTranspiledCode(`class A {
-        constructor() { this.value = implicitlyAsyncFn().foo; }
-      }; new A()`).value).to.throw('Result of expression "implicitlyAsyncFn()" cannot be used in this context');
-    });
-
     it('can implicitly await inside of functions', async() => {
       implicitlyAsyncFn.resolves({ foo: 'bar' });
       const ret = runTranspiledCode(`(function() {
@@ -255,16 +248,6 @@ describe('AsyncWriter', () => {
       })()`);
       expect(ret.constructor.name).to.equal('Promise');
       expect(await ret).to.equal('bar');
-    });
-
-    it('cannot implicitly await inside of plain generator functions', () => {
-      implicitlyAsyncFn.resolves({ foo: 'bar' });
-      expect(() => runTranspiledCode(`(function() {
-        const gen = (function*() {
-          yield implicitlyAsyncFn().foo;
-        })();
-        for (const value of gen) return value;
-      })()`)).to.throw('Result of expression "implicitlyAsyncFn()" cannot be used in this context');
     });
 
     it('can implicitly await inside of shorthand arrow functions', async() => {
@@ -373,6 +356,36 @@ describe('AsyncWriter', () => {
     it('supports typeof for implicitly awaited values', async() => {
       implicitlyAsyncValue = 'abc';
       expect(await runTranspiledCode('typeof implicitlyAsyncValue')).to.equal('string');
+    });
+
+    context('invalid implicit awaits', () => {
+      beforeEach(() => {
+        runUntranspiledCode(asyncWriter.runtimeSupportCode());
+      });
+
+      it('cannot implicitly await inside of class constructors', () => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect(() => runTranspiledCode(`class A {
+          constructor() { this.value = implicitlyAsyncFn().foo; }
+        }; new A()`).value).to.throw('[ASYNC-10012] Result of expression "implicitlyAsyncFn()" cannot be used in this context');
+      });
+
+      it('wrapping inside async functions makes class constructors work nicely', async() => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect(await runTranspiledCode(`class A {
+          constructor() { this.value = (async() => implicitlyAsyncFn().foo)(); }
+        }; new A()`).value).to.equal('bar');
+      });
+
+      it('cannot implicitly await inside of plain generator functions', () => {
+        implicitlyAsyncFn.resolves({ foo: 'bar' });
+        expect(() => runTranspiledCode(`(function() {
+          const gen = (function*() {
+            yield implicitlyAsyncFn().foo;
+          })();
+          for (const value of gen) return value;
+        })()`)).to.throw('[ASYNC-10012] Result of expression "implicitlyAsyncFn()" cannot be used in this context');
+      });
     });
   });
 
