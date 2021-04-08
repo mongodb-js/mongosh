@@ -674,6 +674,14 @@ describe('AsyncWriter', () => {
         `);
         expect(arr).to.deep.equal(new Uint8Array([1, 4, 9, 16]));
       });
+
+      it('supports Array.prototype.sort without callback', () => {
+        const arr = runTranspiledCode(`
+          const arr = [ 1, 9, 4, 16 ];
+          arr.sort()
+        `);
+        expect(arr).to.deep.equal([ 1, 16, 4, 9 ]);
+      });
     });
 
     context('Function.prototype.toString', () => {

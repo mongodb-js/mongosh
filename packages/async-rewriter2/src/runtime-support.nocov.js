@@ -453,23 +453,23 @@ module.exports = '(' + function() {
 
   const origArraySort = Array.prototype.sort;
   Array.prototype.sort = function(compareFn) {
-    return origArraySort.call(this, function(...args) {
+    return origArraySort.call(this, compareFn ? function(...args) {
       // (Ab-)use a generator function as one of the places where using
       // implicit async expression results in an error.
       return [...(function*() {
         yield compareFn(...args);
       })()][0];
-    });
+    } : undefined);
   };
   const origTypedArraySort = TypedArray.prototype.sort;
   TypedArray.prototype.sort = function(compareFn) {
-    return origTypedArraySort.call(this, function(...args) {
+    return origTypedArraySort.call(this, compareFn ? function(...args) {
       // (Ab-)use a generator function as one of the places where using
       // implicit async expression results in an error.
       return [...(function*() {
         yield compareFn(...args);
       })()][0];
-    });
+    } : undefined);
   };
 
   Array.prototype.flatMap = function(...args) {
