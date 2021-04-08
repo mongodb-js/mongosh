@@ -82,7 +82,7 @@ describe('getPrintableShardStatus', () => {
 
   beforeEach(async() => {
     serviceProvider = await CliServiceProvider.connect(await testServer.connectionString());
-    mongo = new Mongo(new ShellInternalState(serviceProvider), undefined, undefined, serviceProvider);
+    mongo = new Mongo(new ShellInternalState(serviceProvider), undefined, undefined, undefined, serviceProvider);
     database = new Database(mongo, 'db1');
     const origGetSiblingDB = database.getSiblingDB;
     database.getSiblingDB = (dbname) => {

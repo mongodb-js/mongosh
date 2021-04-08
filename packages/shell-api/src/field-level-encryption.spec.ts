@@ -66,7 +66,7 @@ describe('Field Level Encryption', () => {
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
-      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, sp);
+      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
@@ -131,7 +131,7 @@ describe('Field Level Encryption', () => {
       sp.initialDb = 'test';
       internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
       internalState.currentDb = stubInterface<Database>();
-      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, sp);
+      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
@@ -398,9 +398,9 @@ describe('Field Level Encryption', () => {
         bypassAutoEncryption: true
       };
       // eslint-disable-next-line no-new
-      new Mongo(internalState, 'localhost:27017', localKmsOptions, sp);
+      new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
       // eslint-disable-next-line no-new
-      new Mongo(internalState, 'localhost:27017', localKmsOptions, sp);
+      new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
     });
     it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
@@ -414,7 +414,7 @@ describe('Field Level Encryption', () => {
         explicitEncryptionOnly: true
       };
       try {
-        void new Mongo(internalState, 'localhost:27017', localKmsOptions, sp);
+        void new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
       } catch (e) {
         return expect(e.message).to.contain('explicitEncryptionOnly and schemaMap are mutually exclusive');
       }
@@ -437,7 +437,7 @@ describe('Field Level Encryption', () => {
       internalState.currentDb = stubInterface<Database>();
     });
     it('fails to construct when FLE options are missing on Mongo', () => {
-      mongo = new Mongo(internalState, 'localhost:27017', undefined, sp);
+      mongo = new Mongo(internalState, 'localhost:27017', undefined, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       try {
         void new KeyVault(clientEncryption);

@@ -31,7 +31,9 @@ import {
   ServiceProvider,
   TransactionOptions,
   MongoClientOptions,
-  AutoEncryptionOptions as SPAutoEncryption
+  AutoEncryptionOptions as SPAutoEncryption,
+  ServerApi,
+  ServerApiVersionId
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
@@ -59,6 +61,7 @@ export default class Mongo extends ShellApiClass {
   public _internalState: ShellInternalState;
   public _uri: string;
   public _fleOptions: SPAutoEncryption | undefined;
+  public _apiOptions?: ServerApi;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
@@ -68,6 +71,7 @@ export default class Mongo extends ShellApiClass {
     internalState: ShellInternalState,
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
+    otherOptions?: { api?: ServerApi | ServerApiVersionId },
     sp?: ServiceProvider
   ) {
     super();
@@ -96,6 +100,13 @@ export default class Mongo extends ShellApiClass {
       const spFleOptions = sp?.getFleOptions?.();
       if (spFleOptions) {
         this._fleOptions = spFleOptions;
+      }
+    }
+    if (otherOptions?.api) {
+      if (typeof otherOptions.api === 'string') {
+        this._apiOptions = { version: otherOptions.api };
+      } else {
+        this._apiOptions = otherOptions.api;
       }
     }
   }
@@ -150,6 +161,9 @@ export default class Mongo extends ShellApiClass {
       };
 
       mongoClientOptions.autoEncryption = { ...this._fleOptions, extraOptions };
+    }
+    if (this._apiOptions) {
+      mongoClientOptions.serverApi = this._apiOptions;
     }
     const parentProvider = this._internalState.initialServiceProvider;
     this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);

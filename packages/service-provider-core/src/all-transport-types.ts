@@ -73,5 +73,7 @@ export type {
   TopologyTypeId,
   ServerTypeId,
   AutoEncryptionOptions,
+  ServerApi,
+  ServerApiVersionId,
   MongoClient // mostly for testing
 } from 'mongodb';

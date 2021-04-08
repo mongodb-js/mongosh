@@ -129,7 +129,7 @@ export default class ShellInternalState {
     this.mongos = [];
     this.connectionInfo = { buildInfo: {} };
     if (!cliOptions.nodb) {
-      const mongo = new Mongo(this, undefined, undefined, initialServiceProvider);
+      const mongo = new Mongo(this, undefined, undefined, undefined, initialServiceProvider);
       this.mongos.push(mongo);
       this.currentDb = mongo.getDB(initialServiceProvider.initialDb || DEFAULT_DB);
     } else {

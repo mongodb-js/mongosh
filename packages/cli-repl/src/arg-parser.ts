@@ -20,6 +20,7 @@ const START = 'start';
  */
 const OPTIONS = {
   string: [
+    'apiVersion',
     'authenticationDatabase',
     'authenticationMechanism',
     'awsAccessKeyId',
@@ -52,7 +53,8 @@ const OPTIONS = {
     'username'
   ],
   boolean: [
-    'async',
+    'apiDeprecationErrors',
+    'apiStrict',
     'help',
     'ipv6',
     'nodb',
