@@ -456,10 +456,16 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
               path.isParenthesizedExpression() ||
               path.isUnaryExpression() ||
               path.isSuper() || // Would probably break stuff
+              path.isThisExpression() ||
               path.isAwaitExpression() || // No point in awaiting twice
               path.parentPath.isAwaitExpression()) {
             return;
           }
+
+          // If it's an identifier and we know where it has been declared, it's fine as well
+          // because having seen a declaration means either being undefined or having seen
+          // an assignment as well.
+          if (path.isIdentifier() && path.scope.hasBinding(path.node.name)) return;
 
           const { expressionHolder, isSyntheticPromise, assertNotSyntheticPromise } = identifierGroup;
           const prettyOriginalString = limitStringLength(

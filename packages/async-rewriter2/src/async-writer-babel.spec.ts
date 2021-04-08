@@ -694,7 +694,7 @@ describe('AsyncWriter', () => {
     });
 
     it('throws sensible error messages for long expressions', () => {
-      expect(() => runTranspiledCode('var abcdefghijklmnopqrstuvwxyz; abcdefghijklmnopqrstuvwxyz()'))
+      expect(() => runTranspiledCode('globalThis.abcdefghijklmnopqrstuvwxyz = {}; abcdefghijklmnopqrstuvwxyz()'))
         .to.throw('abcdefghijklm ... uvwxyz is not a function');
     });
   });
