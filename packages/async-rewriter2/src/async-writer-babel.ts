@@ -30,7 +30,8 @@ export default class AsyncWriter {
       plugins,
       code: true,
       configFile: false,
-      babelrc: false
+      babelrc: false,
+      compact: code.length > 10_000
     })?.code as string;
   }
 

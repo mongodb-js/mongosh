@@ -749,7 +749,8 @@ export default class AsyncWriter {
         code: true,
         ast: true,
         configFile: false,
-        babelrc: false
+        babelrc: false,
+        compact: code.length > 10_000
       });
     } catch (e) {
       e.message = e.message.replace('unknown: ', '');
