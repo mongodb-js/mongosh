@@ -16,18 +16,6 @@ function constructHelp(className: string): Help {
   return new Help(classHelp);
 }
 
-type DateConstructorArguments = [ any?, any?, ...any[] ];
-
-function dateHelper(...args: DateConstructorArguments): Date {
-  if (args.length === 0) {
-    return new Date();
-  }
-  if (args.length === 1) {
-    return new Date(args[0]);
-  }
-  return new Date(Date.UTC(...args));
-}
-
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
@@ -111,13 +99,6 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       }
       printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision');
       return bson.Long.fromInt(s);
-    },
-    Date: function(...args: DateConstructorArguments): Date | string {
-      const date = dateHelper(...args);
-      if (new.target) {
-        return date;
-      }
-      return date.toString();
     },
     ISODate: function(input?: string): Date {
       if (!input) input = new Date().toISOString();
