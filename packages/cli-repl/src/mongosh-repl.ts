@@ -334,7 +334,6 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async onLoad(filename: string): Promise<OnLoadResult> {
-    const repl = this.runtimeState().repl;
     const {
       contents,
       absolutePath
@@ -342,7 +341,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     return {
       resolvedFilename: absolutePath,
-      evaluate: () => promisify(repl.eval.bind(repl))(contents, repl.context, absolutePath)
+      evaluate: async() => { await this.loadExternalCode(contents, absolutePath); }
     };
   }
 
@@ -350,15 +349,15 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.runtimeState().internalState.shellApi.load(filename);
   }
 
-  async loadExternalCode(code: string, filename: string): Promise<void> {
+  async loadExternalCode(code: string, filename: string): Promise<ShellResult> {
     const { repl } = this.runtimeState();
-    await promisify(repl.eval.bind(repl))(code, repl.context, filename);
+    return await promisify(repl.eval.bind(repl))(code, repl.context, filename);
   }
 
   /**
    * Format the result to a string so it can be written to the output stream.
    */
-  writer(result: any): string {
+  writer(result: any /* Error | ShellResult */): string {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.

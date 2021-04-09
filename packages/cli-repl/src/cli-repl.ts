@@ -190,7 +190,8 @@ class CliRepl {
   async loadCommandLineFilesAndEval(files: string[]) {
     if (this.cliOptions.eval) {
       this.bus.emit('mongosh:eval-cli-script');
-      await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
+      const evalResult = await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
+      this.output.write(this.mongoshRepl.writer(evalResult) + '\n');
     } else if (this.cliOptions.eval === '') {
       // This happens e.g. when --eval is followed by another option, for example
       // when running `mongosh --eval --shell "eval script"`, which can happen
