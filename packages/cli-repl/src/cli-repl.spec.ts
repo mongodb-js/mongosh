@@ -484,6 +484,7 @@ describe('CliRepl', () => {
       }
       expect(threw).to.be.true;
       expect(auth.password).to.equal('i want food');
+      expect(output).to.match(/^Enter password: \**$/m);
       input.write('.exit\n');
     });
 
