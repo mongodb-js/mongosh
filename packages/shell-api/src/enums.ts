@@ -30,4 +30,3 @@ export const asPrintable = Symbol.for('@@mongosh.asPrintable');
 export const namespaceInfo = Symbol.for('@@mongosh.namespaceInfo');
 
 export const ADMIN_DB = 'admin';
-export const DEFAULT_BATCH_SIZE = 20;

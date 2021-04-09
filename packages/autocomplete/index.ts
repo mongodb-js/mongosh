@@ -57,6 +57,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor.attributes as TypeSignatureAttributes;
   const COLL_CURSOR_COMPLETIONS = shellSignatures.Cursor.attributes as TypeSignatureAttributes;
   const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes as TypeSignatureAttributes;
+  const CONFIG_COMPLETIONS = shellSignatures.ShellConfig.attributes as TypeSignatureAttributes;
   const SHARD_COMPLETE = shellSignatures.Shard.attributes as TypeSignatureAttributes;
 
   // keep initial line param intact to always return in return statement
@@ -131,6 +132,10 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   } else if (firstLineEl.match(/\brs\b/) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, RS_COMPLETIONS, elToComplete, splitLine);
+    return [hits.length ? hits : [], line];
+  } else if (firstLineEl.match(/\bconfig\b/) && splitLine.length === 2) {
+    const hits = filterShellAPI(
+      params, CONFIG_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
   }
 

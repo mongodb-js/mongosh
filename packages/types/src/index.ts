@@ -106,8 +106,20 @@ export interface MongoshBus {
   emit<K extends keyof MongoshBusEventsMap>(event: K, ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never): unknown;
 }
 
-export class UserConfig {
-  userId = '';
+export class ShellUserConfig {
+  batchSize = 20;
   enableTelemetry = false;
+}
+
+export class CliUserConfig extends ShellUserConfig {
+  userId = '';
   disableGreetingMessage = false;
+  inspectDepth = 6;
+  historyLength = 1000;
+}
+
+export interface ConfigProvider<T> {
+  getConfig<K extends keyof T>(key: K): Promise<T[K]>;
+  setConfig<K extends keyof T>(key: K, value: T[K]): Promise<'success' | 'ignored'>;
+  listConfigOptions(): string[];
 }

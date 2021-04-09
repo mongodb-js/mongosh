@@ -531,15 +531,15 @@ describe('ShellApi', () => {
       });
     }
     describe('enableTelemetry', () => {
-      it('calls .toggleTelemetry() with true', () => {
+      it('calls .setConfig("enableTelemetry") with true', () => {
         internalState.context.enableTelemetry();
-        expect(evaluationListener.toggleTelemetry).to.have.been.calledWith(true);
+        expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', true);
       });
     });
     describe('disableTelemetry', () => {
-      it('calls .toggleTelemetry() with false', () => {
+      it('calls .setConfig("enableTelemetry") with false', () => {
         internalState.context.disableTelemetry();
-        expect(evaluationListener.toggleTelemetry).to.have.been.calledWith(false);
+        expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', false);
       });
     });
     describe('passwordPrompt', () => {
@@ -629,6 +629,59 @@ describe('ShellApi', () => {
         });
       });
     }
+
+    describe('config', () => {
+      context('with a full-config evaluation listener', () => {
+        let store;
+        let config;
+
+        beforeEach(() => {
+          config = internalState.context.config;
+          store = {};
+          evaluationListener.setConfig.callsFake(async(key, value) => {
+            if (key === 'unavailable' as any) return 'ignored';
+            store[key] = value;
+            return 'success';
+          });
+          evaluationListener.getConfig.callsFake(async key => store[key]);
+          evaluationListener.listConfigOptions.callsFake(() => Object.keys(store));
+        });
+
+        it('can get/set/list config keys', async() => {
+          const value = { structuredData: 'value' };
+          expect(await config.set('somekey', value)).to.equal('Setting "somekey" has been changed');
+          expect(await config.get('somekey')).to.deep.equal(value);
+          expect((await toShellResult(config)).printable).to.deep.equal(
+            new Map([['somekey', value]]));
+        });
+
+        it('will fall back to defaults', async() => {
+          expect(await config.get('batchSize')).to.equal(20);
+        });
+
+        it('rejects setting unavailable config keys', async() => {
+          expect(await config.set('unavailable', 'value')).to.equal('Option "unavailable" is not available in this environment');
+        });
+      });
+
+      context('with a no-config evaluation listener', () => {
+        let config;
+
+        beforeEach(() => {
+          config = internalState.context.config;
+        });
+
+        it('will work with defaults', async() => {
+          expect(await config.get('batchSize')).to.equal(20);
+          expect((await toShellResult(config)).printable).to.deep.equal(
+            new Map([['batchSize', 20], ['enableTelemetry', false]] as any));
+        });
+
+        it('rejects setting all config keys', async() => {
+          expect(await config.set('somekey', 'value')).to.equal('Option "somekey" is not available in this environment');
+        });
+      });
+    });
   });
 });
 

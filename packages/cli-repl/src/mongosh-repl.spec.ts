@@ -41,7 +41,7 @@ describe('MongoshNodeRepl', () => {
     const cp = stubInterface<MongoshIOProvider>();
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
     cp.getConfig.callsFake(async(key: string) => config[key]);
-    cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; });
+    cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; return 'success'; });
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
     ioProvider = cp;
@@ -417,6 +417,41 @@ describe('MongoshNodeRepl', () => {
           });
         });
       }
+    });
+
+    context('with modified config values', () => {
+      it('controls inspect depth', async() => {
+        input.write('config.set("inspectDepth", 2)\n');
+        await waitEval(bus);
+        expect(output).to.include('Setting "inspectDepth" has been changed');
+
+        output = '';
+        input.write('({a:{b:{c:{d:{e:{f:{g:{h:{}}}}}}}}})\n');
+        await waitEval(bus);
+        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include('{ a: { b: { c: [Object] } } }');
+
+        input.write('config.set("inspectDepth", 4)\n');
+        await waitEval(bus);
+        output = '';
+        input.write('({a:{b:{c:{d:{e:{f:{g:{h:{}}}}}}}}})\n');
+        await waitEval(bus);
+        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include('{ a: { b: { c: { d: { e: [Object] } } } } }');
+      });
+
+      it('controls history length', async() => {
+        input.write('config.set("historyLength", 2)\n');
+        await waitEval(bus);
+
+        let i = 2;
+        while (!output.includes('65536')) {
+          input.write(`${i} + ${i}\n`);
+          await waitEval(bus);
+          i *= 2;
+        }
+
+        const { history } = mongoshRepl.runtimeState().repl as any;
+        expect(history).to.have.lengthOf(2);
+      });
     });
   });
 

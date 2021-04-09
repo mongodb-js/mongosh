@@ -460,13 +460,17 @@ describe('worker', () => {
         onPrompt() {
           return '123';
         },
-        toggleTelemetry() {},
+        getConfig() {},
+        setConfig() {},
+        listConfigOptions() {},
         onRunInterruptible() {}
       };
 
       spySandbox.spy(evalListener, 'onPrint');
       spySandbox.spy(evalListener, 'onPrompt');
-      spySandbox.spy(evalListener, 'toggleTelemetry');
+      spySandbox.spy(evalListener, 'getConfig');
+      spySandbox.spy(evalListener, 'setConfig');
+      spySandbox.spy(evalListener, 'listConfigOptions');
       spySandbox.spy(evalListener, 'onRunInterruptible');
 
       return evalListener;
@@ -514,8 +518,8 @@ describe('worker', () => {
       });
     });
 
-    describe('toggleTelemetry', () => {
-      it('should be called when shell evaluates `enableTelemetry` or `disableTelemetry`', async() => {
+    describe('getConfig', () => {
+      it('should be called when shell evaluates `config.get()`', async() => {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -523,11 +527,36 @@ describe('worker', () => {
 
         await init('mongodb://nodb/', {}, { nodb: true });
 
-        await evaluate('enableTelemetry()');
-        expect(evalListener.toggleTelemetry).to.have.been.calledWith(true);
+        await evaluate('config.get("key")');
+        expect(evalListener.getConfig).to.have.been.calledWith('key');
+      });
+    });
 
-        await evaluate('disableTelemetry()');
-        expect(evalListener.toggleTelemetry).to.have.been.calledWith(false);
+    describe('setConfig', () => {
+      it('should be called when shell evaluates `config.set()`', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        await evaluate('config.set("key", "value")');
+        expect(evalListener.setConfig).to.have.been.calledWith('key', 'value');
+      });
+    });
+
+    describe('listConfigOptions', () => {
+      it('should be called when shell evaluates `config[asPrintable]`', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        await evaluate('config[Symbol.for("@@mongosh.asPrintable")]');
+        expect(evalListener.listConfigOptions).to.have.been.calledWith();
       });
     });
 

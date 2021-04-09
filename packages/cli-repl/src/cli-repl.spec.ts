@@ -155,6 +155,12 @@ describe('CliRepl', () => {
         expect.fail('expected error');
       });
 
+      it('returns the list of available config options when asked to', () => {
+        expect(cliRepl.listConfigOptions()).to.deep.equal([
+          'batchSize', 'enableTelemetry', 'inspectDepth', 'historyLength'
+        ]);
+      });
+
       context('loading JS files from disk', () => {
         it('allows loading a file from the disk', async() => {
           const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
