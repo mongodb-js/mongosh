@@ -222,22 +222,6 @@ describe('Shell BSON', () => {
       expect(s.code).to.equal('');
     });
   });
-  describe('Date', () => {
-    it('returns string without new', () => {
-      expect(shellBson.Date()).to.be.a('string');
-    });
-    it('accepts ISO args', () => {
-      expect((new (shellBson.Date as any)(1) as Date).getTime()).to.equal(1);
-      expect((new (shellBson.Date as any)(1, 2) as Date).getTime()).to.equal(-2172355200000);
-      expect((new (shellBson.Date as any)(1, 2, 3, 4, 5) as Date).getTime()).to.equal(-2172167700000);
-    });
-    it('returns now object with new', () => {
-      const date = new (shellBson.Date as any)();
-      const cDate = new Date();
-      expect(typeof date).to.equal('object');
-      expect(date.getFullYear()).to.equal(cDate.getFullYear());
-    });
-  });
   describe('ISODate', () => {
     it('ISODate is always object', () => {
       const date = new (shellBson.ISODate as any)();

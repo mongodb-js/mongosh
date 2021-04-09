@@ -376,7 +376,6 @@ describe('e2e', function() {
       await shell.waitForPrompt();
       shell.assertNoErrors();
 
-      await shell.executeLine('Date.now = () => new Date().getTime()'); // MONGOSH-597 hack
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('db.test.insertOne({ d: new Date("2021-04-07T11:24:54+02:00") })');
       shell.writeInputLine(`load(${JSON.stringify(require.resolve('lodash'))})`);
