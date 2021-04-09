@@ -390,6 +390,7 @@ describe('e2e', function() {
       const result = await shell.executeLine(
         'moment(_.first(_.map(db.test.find().toArray(), "d"))).format("X")');
       expect(result).to.include('1617787494');
+      shell.assertNotContainsOutput('[BABEL]');
     });
 
     it('expands explain output indefinitely', async() => {
