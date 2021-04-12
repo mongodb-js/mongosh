@@ -367,7 +367,11 @@ class CliRepl {
     });
     this.output.write('Enter password: ');
     try {
-      (driverOptions.auth as any).password = (await passwordPromise).toString();
+      try {
+        (driverOptions.auth as any).password = (await passwordPromise).toString();
+      } finally {
+        this.output.write('\n');
+      }
     } catch (error) {
       await this._fatalError(error);
     }
