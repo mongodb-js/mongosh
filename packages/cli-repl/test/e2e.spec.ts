@@ -595,9 +595,10 @@ describe('e2e', function() {
     });
 
     context('--eval', () => {
+      const script = 'const a = "hello", b = " one"; a + b';
       it('loads a script from the command line as requested', async() => {
         const shell = TestShell.start({
-          args: [ '--nodb', '--eval', 'print("hello one")' ]
+          args: [ '--nodb', '--eval', script ]
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -608,7 +609,7 @@ describe('e2e', function() {
 
       it('drops into shell if --shell is used', async() => {
         const shell = TestShell.start({
-          args: [ '--nodb', '--eval', 'print("hello one")', '--shell' ]
+          args: [ '--nodb', '--eval', script, '--shell' ]
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');

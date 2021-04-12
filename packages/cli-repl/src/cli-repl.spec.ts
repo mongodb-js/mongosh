@@ -361,7 +361,7 @@ describe('CliRepl', () => {
         });
 
         it('evaluates code passed through --eval', async() => {
-          cliReplOptions.shellCliOptions.eval = 'print("i am being evaluated")';
+          cliReplOptions.shellCliOptions.eval = '"i am" + " being evaluated"';
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.include('i am being evaluated');
