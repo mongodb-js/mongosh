@@ -22,18 +22,26 @@ import { promisify } from 'util';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { dirname } from 'path';
 
+const internalStateSymbol = Symbol.for('@@mongosh.internalState');
+
 @shellApiClassDefault
 @hasAsyncChild
 export default class ShellApi extends ShellApiClass {
-  readonly internalState: ShellInternalState;
+  // Use a symbol to make sure this is *not* one of the things copied over into
+  // the global scope.
+  [internalStateSymbol]: ShellInternalState;
   public DBQuery: DBQuery;
   loadCallNestingLevel: number;
 
   constructor(internalState: ShellInternalState) {
     super();
-    this.internalState = internalState;
+    this[internalStateSymbol] = internalState;
     this.DBQuery = new DBQuery();
     this.loadCallNestingLevel = 0;
+  }
+
+  get internalState(): ShellInternalState {
+    return this[internalStateSymbol];
   }
 
   @directShellCommand
