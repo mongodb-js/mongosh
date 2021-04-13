@@ -407,14 +407,14 @@ describe('e2e', function() {
     });
     it('interrupts async awaiting', async() => {
       const result = shell.executeLine('new Promise(() => {});');
-      setTimeout(() => shell.kill('SIGINT'), 1000);
+      setTimeout(() => shell.kill('SIGINT'), 3000);
       await result;
       shell.assertContainsError('interrupted');
     });
     it('interrupts load()', async() => {
       const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
       const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
-      setTimeout(() => shell.kill('SIGINT'), 1000);
+      setTimeout(() => shell.kill('SIGINT'), 3000);
       await result;
       shell.assertContainsError('interrupted');
     });
