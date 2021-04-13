@@ -221,8 +221,10 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.props.onOutputChanged(output);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onPrompt = (question: string, type: 'password'): Promise<string> => {
+  onPrompt = (question: string, type: 'password' | 'yesno'): Promise<string> => {
+    if (type !== 'password') {
+      return Promise.reject(new Error('yes/no prompts not implemented yet'));
+    }
     const reset = () => {
       this.onFinishPasswordPrompt = noop;
       this.onCancelPasswordPrompt = noop;

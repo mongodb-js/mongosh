@@ -758,40 +758,6 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.match(/\x1b\[.*m144\x1b\[.*m/);
     });
 
-    it('can ask for passwords', async() => {
-      input.write('const pw = passwordPrompt()\n');
-      await tick();
-      expect(output).to.include('Enter password');
-
-      output = '';
-      input.write('hello!\n');
-      await waitEval(bus);
-      expect(output).not.to.include('hello!');
-
-      output = '';
-      input.write('pw\n');
-      await waitEval(bus);
-      expect(output).to.include('hello!');
-    });
-
-    it('can abort asking for passwords', async() => {
-      input.write('pw = passwordPrompt(); 0\n');
-      await tick();
-      expect(output).to.include('Enter password');
-
-      output = '';
-      input.write('hello!\u0003'); // Ctrl+C
-      await waitEval(bus);
-      expect(output).not.to.include('hello!');
-      expect(output).to.include('aborted by the user');
-
-      output = '';
-      input.write('pw\n');
-      await waitEval(bus);
-      expect(output).not.to.include('hello!');
-      expect(output).to.include('ReferenceError');
-    });
-
     it('clears the console when console.clear() is used', async() => {
       output = '';
       input.write('console.clear()\n');
@@ -804,6 +770,118 @@ describe('MongoshNodeRepl', () => {
       input.write('cls\n');
       await tick();
       expect(output).to.match(/\x1b\[[0-9]+J/); // 'CSI n J' is clear display
+    });
+
+    context('user prompts', () => {
+      beforeEach(() => {
+        // No boolean equivalent for 'passwordPrompt' in the API, so provide one:
+        mongoshRepl.runtimeState().repl.context.booleanPrompt = (question) => {
+          return Object.assign(mongoshRepl.onPrompt(question, 'yesno'), {
+            [Symbol.for('@@mongosh.syntheticPromise')]: true
+          });
+        };
+      });
+
+      it('can ask for passwords', async() => {
+        input.write('const pw = passwordPrompt()\n');
+        await tick();
+        expect(output).to.include('Enter password');
+
+        output = '';
+        input.write('hello!\n');
+        await waitEval(bus);
+        expect(output).not.to.include('hello!');
+
+        output = '';
+        input.write('pw\n');
+        await waitEval(bus);
+        expect(output).to.include('hello!');
+      });
+
+      it('can abort asking for passwords', async() => {
+        input.write('pw = passwordPrompt(); 0\n');
+        await tick();
+        expect(output).to.include('Enter password');
+
+        output = '';
+        input.write('hello!\u0003'); // Ctrl+C
+        await waitEval(bus);
+        expect(output).not.to.include('hello!');
+        expect(output).to.include('aborted by the user');
+
+        output = '';
+        input.write('pw\n');
+        await waitEval(bus);
+        expect(output).not.to.include('hello!');
+        expect(output).to.include('ReferenceError');
+      });
+
+      it('can ask for yes/no answers', async() => {
+        input.write('const answer = booleanPrompt("shall we play a game?")\n');
+        await tick();
+        expect(output).to.include('shall we play a game?:');
+
+        input.write('Y');
+        await waitEval(bus);
+        expect(output).to.include('shall we play a game?: Y\n');
+        expect(output).not.to.include('yes');
+
+        output = '';
+        input.write('answer\n');
+        await waitEval(bus);
+        expect(output).to.include('yes');
+      });
+
+      it('repeats yes/no questions if not answered with Y/N', async() => {
+        input.write('const answer = booleanPrompt("shall we play a game?")\n');
+        await tick();
+        expect(output).to.include('shall we play a game?:');
+
+        input.write('q');
+        await tick();
+        expect(output).to.include('shall we play a game?: q\nPlease enter Y or N: shall we play a game?:');
+        expect(output).not.to.include('yes');
+
+        output = '';
+        input.write('n');
+        await waitEval(bus);
+        expect(output).to.include('n\n');
+        expect(output).not.to.include('no');
+
+        output = '';
+        input.write('answer\n');
+        await waitEval(bus);
+        expect(output).to.include('no');
+      });
+
+      it('allows defaults for yes/no questions', async() => {
+        input.write('const answer = booleanPrompt("shall we play a game?")\n');
+        await tick();
+        expect(output).to.include('shall we play a game?:');
+
+        input.write('\n');
+        await waitEval(bus);
+
+        output = '';
+        input.write('[answer]\n');
+        await waitEval(bus);
+        expect(stripAnsi(output)).to.include("[ '' ]");
+      });
+
+      it('allows interrupting yes/no questions', async() => {
+        input.write('answer = booleanPrompt("shall we play a game?")\n');
+        await tick();
+        expect(output).to.include('shall we play a game?:');
+
+        input.write('\u0003'); // Ctrl+C
+        await waitEval(bus);
+        expect(output).to.include('aborted by the user');
+
+        output = '';
+        input.write('answer\n');
+        await waitEval(bus);
+        expect(output).to.include('ReferenceError');
+      });
     });
   });
 
