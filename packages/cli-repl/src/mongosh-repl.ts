@@ -5,6 +5,7 @@ import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-pr
 import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import { CliUserConfig, ConfigProvider, CliUserConfigValidator, MongoshBus } from '@mongosh/types';
+import askcharacter from 'askcharacter';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
@@ -540,15 +541,35 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write(joined + '\n');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async onPrompt(question: string, type: 'password'): Promise<string> {
-    const passwordPromise = askpassword({
-      input: this.input,
-      output: this.output,
-      replacementCharacter: '*'
-    });
-    this.output.write(question + '\n');
-    return (await passwordPromise).toString();
+  async onPrompt(question: string, type: 'password' | 'yesno'): Promise<string> {
+    if (type === 'password') {
+      const passwordPromise = askpassword({
+        input: this.input,
+        output: this.output,
+        replacementCharacter: '*'
+      });
+      this.output.write(question + '\n');
+      return (await passwordPromise).toString();
+    } else if (type === 'yesno') {
+      let result = '';
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const charPromise = askcharacter({
+          input: this.input,
+          output: this.output
+        });
+        this.output.write(question + ': ');
+        result = await charPromise;
+        if (result.length > 0 && !result.match(/^[yYnN\r\n]$/)) {
+          this.output.write('\nPlease enter Y or N: ');
+        } else {
+          break;
+        }
+      }
+      this.output.write('\n');
+      return { 'Y': 'yes', 'N': 'no' }[result.toUpperCase() as ('Y'|'N')] ?? '';
+    }
+    throw new Error(`Unrecognized prompt type ${type}`);
   }
 
   formatOutput(value: { value: any, type?: string }): string {

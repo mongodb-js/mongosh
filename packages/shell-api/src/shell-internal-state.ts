@@ -64,7 +64,7 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
   /**
    * Called when e.g. passwordPrompt() is called from the shell.
    */
-  onPrompt?: (question: string, type: 'password') => Promise<string> | string;
+  onPrompt?: (question: string, type: 'password' | 'yesno') => Promise<string> | string;
 
   /**
    * Called when cls is entered in the shell.
