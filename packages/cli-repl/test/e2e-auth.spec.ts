@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import {
   MongoClient, MongoClientOptions
 } from 'mongodb';
-import { eventually } from './helpers';
+import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
   startTestServer

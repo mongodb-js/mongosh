@@ -40,6 +40,18 @@ describe('config validation', () => {
     expect(await validate('inspectCompact', false)).to.equal(null);
     expect(await validate('inspectCompact', true)).to.equal(null);
     expect(await validate('inspectCompact', 32)).to.equal(null);
+    expect(await validate('snippetIndexSourceURLs', 'https://example.com/')).to.equal(null);
+    expect(await validate('snippetIndexSourceURLs', 'foo')).to.equal('snippetIndexSourceURLs must be a ;-separated list of valid URLs');
+    expect(await validate('snippetIndexSourceURLs', 'https://xyz/;foo')).to.equal('snippetIndexSourceURLs must be a ;-separated list of valid URLs');
+    expect(await validate('snippetIndexSourceURLs', ';')).to.equal(null);
+    expect(await validate('snippetIndexSourceURLs', 0)).to.equal('snippetIndexSourceURLs must be a ;-separated list of valid URLs');
+    expect(await validate('snippetRegistryURL', ';')).to.equal('snippetRegistryURL must be a valid URL');
+    expect(await validate('snippetRegistryURL', 'https://registry.npmjs.org')).to.equal(null);
+    expect(await validate('snippetRegistryURL', 0)).to.equal('snippetRegistryURL must be a valid URL');
+    expect(await validate('snippetAutoload', 'foo')).to.equal('snippetAutoload must be a boolean');
+    expect(await validate('snippetAutoload', -1)).to.equal('snippetAutoload must be a boolean');
+    expect(await validate('snippetAutoload', false)).to.equal(null);
+    expect(await validate('snippetAutoload', true)).to.equal(null);
   });
 
   it('allows default CliUserConfig values', async() => {

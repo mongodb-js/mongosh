@@ -47,6 +47,7 @@
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "@mongosh/snippet-manager": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "analytics-node": "^3.4.0-beta.1",
     "ansi-escape-sequences": "^5.1.2",

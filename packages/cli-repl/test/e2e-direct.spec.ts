@@ -1,5 +1,5 @@
 import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { eventually } from './helpers';
+import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
 import { TestShell } from './test-shell';
 

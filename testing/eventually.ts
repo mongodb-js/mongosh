@@ -1,8 +1,8 @@
-export async function eventually(fn: Function, options: { frequency?: number; timeout?: number } = {}): Promise<any> {
-  options = {
+export async function eventually(fn: Function, opts: { frequency?: number; timeout?: number } = {}): Promise<any> {
+  const options = {
     frequency: 100,
     timeout: 10000,
-    ...options
+    ...opts
   };
 
   let attempts = Math.round(options.timeout / options.frequency);

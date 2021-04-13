@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import { eventually } from './helpers';
+import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 
 describe('e2e Analytics', () => {

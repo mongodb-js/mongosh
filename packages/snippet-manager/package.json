@@ -1,0 +1,45 @@
+{
+  "name": "@mongosh/snippet-manager",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell Snippet Manager",
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "check": "npm run lint",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependencies": {
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
+    "bson": "^4.3.0",
+    "cross-spawn": "^7.0.3",
+    "escape-string-regexp": "^4.0.0",
+    "joi": "^17.4.0",
+    "node-fetch": "^2.6.1",
+    "tar": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "@types/node-fetch": "^2.5.7",
+    "@types/tar": "^4.0.4",
+    "nanobus": "^4.4.0"
+  }
+}
