@@ -1,8 +1,18 @@
 import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPaths, runSmokeTests, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
 import { redactCredentials } from '@mongosh/history';
+import { runMain } from 'module';
 
 (async() => {
+  if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
+    if (process.execPath !== process.argv[1]) {
+      // node /path/to/this/file script ... -> node script ...
+      process.argv.splice(1, 1);
+    }
+    (runMain as any)(process.argv[1]);
+    return;
+  }
+
   let repl;
   try {
     const options = parseCliArgs(process.argv);
