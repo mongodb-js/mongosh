@@ -1114,7 +1114,8 @@ export default class Collection extends ShellApiClass {
           Array.isArray(indexes) &&
           indexes.length > 0 &&
           (await this._database.version()).match(/^4\.0\./)) {
-        const all = await Promise.all((indexes as string[]).map(index => this.dropIndexes(index)));
+        const all = await Promise.all((indexes as string[]).map(
+          async index => await this.dropIndexes(index)));
         const errored = all.find(result => !result.ok);
         if (errored) return errored;
         // Return the entry with the highest nIndexesWas value.
