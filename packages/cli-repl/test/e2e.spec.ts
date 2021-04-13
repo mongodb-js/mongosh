@@ -343,16 +343,6 @@ describe('e2e', function() {
     });
 
     it('rewrites async properly for mapReduce', async() => {
-      // This is being run under the new async rewriter because the old one
-      // did not support mapReduce at all (because of needing 'this').
-      // Once the new async rewriter is the default, this block can be removed.
-      shell = TestShell.start({
-        args: [ await testServer.connectionString() ],
-        env: { ...process.env, MONGOSH_ASYNC_REWRITER2: '1' }
-      });
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
-
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('db.test.insertMany([{i:1},{i:2},{i:3},{i:4}]);');
       const result = await shell.executeLine(`db.test.mapReduce(function() {
@@ -366,16 +356,6 @@ describe('e2e', function() {
 
     it('rewrites async properly for common libraries', async function() {
       this.timeout(120_000);
-      // This is being run under the new async rewriter because the old one
-      // did not support these libraries at all (for various reasons).
-      // Once the new async rewriter is the default, this block can be removed.
-      shell = TestShell.start({
-        args: [ await testServer.connectionString() ],
-        env: { ...process.env, MONGOSH_ASYNC_REWRITER2: '1' }
-      });
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
-
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('db.test.insertOne({ d: new Date("2021-04-07T11:24:54+02:00") })');
       shell.writeInputLine(`load(${JSON.stringify(require.resolve('lodash'))})`);

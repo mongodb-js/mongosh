@@ -515,10 +515,7 @@ describe('CliRepl', () => {
       input.write('let cursor = db.test.find();\n');
       await waitEval(cliRepl.bus);
 
-      const rewrittenPromise = waitBus(cliRepl.bus, 'mongosh:rewritten-async-input');
       input.write('cursor.forEach(doc => db.test.insertOne({ a: doc.a + 1 }))\n');
-      const [{ rewritten }] = await rewrittenPromise;
-      expect(rewritten).to.include('toIterator'); // Make sure we're testing the right thing
       await waitEval(cliRepl.bus);
 
       output = '';
