@@ -3,8 +3,8 @@ import {
   MongoClient
 } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
-import { eventually } from './helpers';
 import { TestShell } from './test-shell';
+import { eventually } from '../../../testing/eventually';
 import {
   startTestServer
 } from '../../../testing/integration-testing-hooks';

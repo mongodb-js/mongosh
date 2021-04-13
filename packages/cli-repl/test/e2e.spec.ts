@@ -1,7 +1,7 @@
 /* eslint-disable no-control-regex */
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import { eventually } from './helpers';
+import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';

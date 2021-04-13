@@ -14,7 +14,18 @@ import type {
   StartMongoshReplEvent,
   MongocryptdTrySpawnEvent,
   MongocryptdLogEvent,
-  MongocryptdErrorEvent
+  MongocryptdErrorEvent,
+  SnippetsCommandEvent,
+  SnippetsErrorEvent,
+  SnippetsFetchIndexErrorEvent,
+  SnippetsFetchIndexEvent,
+  SnippetsLoadedEvent,
+  SnippetsLoadSnippetEvent,
+  SnippetsNpmDownloadActiveEvent,
+  SnippetsNpmDownloadFailedEvent,
+  SnippetsNpmLookupEvent,
+  SnippetsRunNpmEvent,
+  SnippetsTransformErrorEvent
 } from '@mongosh/types';
 
 interface MongoshAnalytics {
@@ -241,11 +252,77 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
-    log.info('mongosh:mongocryptd-error', ev);
+    log.error('mongosh:mongocryptd-error', ev);
   });
 
   bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
     log.info('mongosh:mongocryptd-log', ev);
+  });
+
+  bus.on('mongosh-snippets:loaded', function(ev: SnippetsLoadedEvent) {
+    log.info('mongosh-snippets:loaded', ev);
+  });
+
+  bus.on('mongosh-snippets:npm-lookup', function(ev: SnippetsNpmLookupEvent) {
+    log.info('mongosh-snippets:npm-lookup', ev);
+  });
+
+  bus.on('mongosh-snippets:npm-lookup-stopped', function() {
+    log.info('mongosh-snippets:npm-lookup-stopped');
+  });
+
+  bus.on('mongosh-snippets:npm-download-failed', function(ev: SnippetsNpmDownloadFailedEvent) {
+    log.error('mongosh-snippets:npm-download-failed', ev);
+  });
+
+  bus.on('mongosh-snippets:npm-download-active', function(ev: SnippetsNpmDownloadActiveEvent) {
+    log.info('mongosh-snippets:npm-download-active', ev);
+  });
+
+  bus.on('mongosh-snippets:fetch-index', function(ev: SnippetsFetchIndexEvent) {
+    log.info('mongosh-snippets:fetch-index', ev);
+  });
+
+  bus.on('mongosh-snippets:fetch-cache-invalid', function() {
+    log.info('mongosh-snippets:fetch-cache-invalid');
+  });
+
+  bus.on('mongosh-snippets:fetch-index-error', function(ev: SnippetsFetchIndexErrorEvent) {
+    log.error('mongosh-snippets:fetch-index-error', ev);
+  });
+
+  bus.on('mongosh-snippets:fetch-index-done', function() {
+    log.info('mongosh-snippets:fetch-index-done');
+  });
+
+  bus.on('mongosh-snippets:package-json-edit-error', function(ev: SnippetsErrorEvent) {
+    log.error('mongosh-snippets:package-json-edit-error', ev);
+  });
+
+  bus.on('mongosh-snippets:spawn-child', function(ev: SnippetsRunNpmEvent) {
+    log.info('mongosh-snippets:spawn-child', ev);
+  });
+
+  bus.on('mongosh-snippets:load-snippet', function(ev: SnippetsLoadSnippetEvent) {
+    log.info('mongosh-snippets:load-snippet', ev);
+  });
+
+  bus.on('mongosh-snippets:snippet-command', function(ev: SnippetsCommandEvent) {
+    log.info('mongosh-snippets:snippet-command', ev);
+
+    if (telemetry && ev.args[0] === 'install') {
+      analytics.track({
+        userId,
+        event: 'Snippet Install',
+        properties: {
+          mongosh_version
+        }
+      });
+    }
+  });
+
+  bus.on('mongosh-snippets:transform-error', function(ev: SnippetsTransformErrorEvent) {
+    log.info('mongosh-snippets:transform-error', ev);
   });
 
   const deprecatedApiCalls = new Set<string>();

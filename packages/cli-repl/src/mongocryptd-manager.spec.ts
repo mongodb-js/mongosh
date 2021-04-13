@@ -6,7 +6,7 @@ import { getMongocryptdPaths, MongocryptdManager } from './mongocryptd-manager';
 import type { MongoshBus } from '@mongosh/types';
 import { ShellHomeDirectory } from './config-directory';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { eventually } from '../test/helpers';
+import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
 
 describe('getMongocryptdPaths', () => {

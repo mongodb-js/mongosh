@@ -7,7 +7,7 @@ import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
 import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
-import { eventually } from '../test/helpers';
+import { eventually } from '../../../testing/eventually';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 
@@ -181,7 +181,16 @@ describe('CliRepl', () => {
 
       it('returns the list of available config options when asked to', () => {
         expect(cliRepl.listConfigOptions()).to.deep.equal([
-          'batchSize', 'enableTelemetry', 'inspectCompact', 'inspectDepth', 'historyLength', 'showStackTraces', 'redactHistory'
+          'batchSize',
+          'enableTelemetry',
+          'snippetIndexSourceURLs',
+          'snippetRegistryURL',
+          'snippetAutoload',
+          'inspectCompact',
+          'inspectDepth',
+          'historyLength',
+          'showStackTraces',
+          'redactHistory'
         ]);
       });
 

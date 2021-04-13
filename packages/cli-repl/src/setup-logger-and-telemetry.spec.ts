@@ -64,44 +64,77 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:mongoshrc-mongorc-warn');
     bus.emit('mongosh:eval-cli-script');
 
-    expect(logOutput).to.have.lengthOf(23);
-    expect(logOutput[0].msg).to.match(/^mongosh:start-logging \{"version":".+","execPath":".+","isCompiledBinary":.+\}$/);
-    expect(logOutput[1].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
-    expect(logOutput[2].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[2].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
-    expect(logOutput[2].msg).to.match(/"userId":"53defe995fa47e6c13102d9d"/);
-    expect(logOutput[2].msg).to.match(/"connectionUri":"mongodb:\/\/localhost\/"/);
-    expect(logOutput[2].msg).to.match(/"is_localhost":true/);
-    expect(logOutput[2].msg).to.match(/"is_atlas":false/);
-    expect(logOutput[2].msg).to.match(/"node_version":"v12\.19\.0"/);
-    expect(logOutput[3].type).to.equal('Error');
-    expect(logOutput[3].msg).to.match(/meow/);
-    expect(logOutput[4].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[5].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[6].msg).to.equal('mongosh:update-user {"enableTelemetry":true}');
-    expect(logOutput[7].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[8].type).to.equal('Error');
-    expect(logOutput[8].msg).to.match(/meow/);
-    expect(logOutput[9].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[10].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[11].msg).to.equal('mongosh:setCtx {"method":"setCtx"}');
-    expect(logOutput[12].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[12].msg).to.match(/"db":"test-1603986682000"/);
-    expect(logOutput[13].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[13].msg).to.match(/"email":"<email>"/);
-    expect(logOutput[14].msg).to.match(/^mongosh:evaluate-input/);
-    expect(logOutput[14].msg).to.match(/"input":"1\+1"/);
-    expect(logOutput[15].msg).to.match(/"version":"3.6.1"/);
-    expect(logOutput[16].msg).to.equal('mongosh:start-loading-cli-scripts');
-    expect(logOutput[17].msg).to.match(/^mongosh:api-load-file/);
-    expect(logOutput[17].msg).to.match(/"nested":true/);
-    expect(logOutput[17].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[18].msg).to.equal('mongosh:start-mongosh-repl {"version":"1.0.0"}');
-    expect(logOutput[19].msg).to.match(/"nested":false/);
-    expect(logOutput[19].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[20].msg).to.equal('mongosh:mongoshrc-load');
-    expect(logOutput[21].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
-    expect(logOutput[22].msg).to.equal('mongosh:eval-cli-script');
+    bus.emit('mongosh-snippets:loaded', { installdir: '/' });
+    bus.emit('mongosh-snippets:npm-lookup', { existingVersion: 'v1.2.3' });
+    bus.emit('mongosh-snippets:npm-lookup-stopped');
+    bus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL: 'https://example.com' });
+    bus.emit('mongosh-snippets:npm-download-active', { npmMetadataURL: 'https://example.com', npmTarballURL: 'https://example.net' });
+    bus.emit('mongosh-snippets:fetch-index', { refreshMode: 'always' });
+    bus.emit('mongosh-snippets:fetch-cache-invalid');
+    bus.emit('mongosh-snippets:fetch-index-error', { action: 'fetch', url: 'https://localhost' });
+    bus.emit('mongosh-snippets:fetch-index-done');
+    bus.emit('mongosh-snippets:package-json-edit-error', { error: 'failed' });
+    bus.emit('mongosh-snippets:spawn-child', { args: ['npm', 'install'] });
+    bus.emit('mongosh-snippets:load-snippet', { source: 'load-all', name: 'foo' });
+    bus.emit('mongosh-snippets:snippet-command', { args: ['install', 'foo'] });
+    bus.emit('mongosh-snippets:transform-error', { error: 'failed', addition: 'oh no', name: 'foo' });
+
+    let i = 0;
+    expect(logOutput[i++].msg).to.match(/^mongosh:start-logging \{"version":".+","execPath":".+","isCompiledBinary":.+\}$/);
+    expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
+    expect(logOutput[i].msg).to.match(/^mongosh:connect/);
+    expect(logOutput[i].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
+    expect(logOutput[i].msg).to.match(/"userId":"53defe995fa47e6c13102d9d"/);
+    expect(logOutput[i].msg).to.match(/"connectionUri":"mongodb:\/\/localhost\/"/);
+    expect(logOutput[i].msg).to.match(/"is_localhost":true/);
+    expect(logOutput[i].msg).to.match(/"is_atlas":false/);
+    expect(logOutput[i++].msg).to.match(/"node_version":"v12\.19\.0"/);
+    expect(logOutput[i].type).to.equal('Error');
+    expect(logOutput[i++].msg).to.match(/meow/);
+    expect(logOutput[i++].msg).to.equal('mongosh:use {"db":"admin"}');
+    expect(logOutput[i++].msg).to.equal('mongosh:show {"method":"dbs"}');
+    expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":true}');
+    expect(logOutput[i++].msg).to.match(/^mongosh:connect/);
+    expect(logOutput[i].type).to.equal('Error');
+    expect(logOutput[i++].msg).to.match(/meow/);
+    expect(logOutput[i++].msg).to.equal('mongosh:use {"db":"admin"}');
+    expect(logOutput[i++].msg).to.equal('mongosh:show {"method":"dbs"}');
+    expect(logOutput[i++].msg).to.equal('mongosh:setCtx {"method":"setCtx"}');
+    expect(logOutput[i].msg).to.match(/^mongosh:api-call/);
+    expect(logOutput[i++].msg).to.match(/"db":"test-1603986682000"/);
+    expect(logOutput[i].msg).to.match(/^mongosh:api-call/);
+    expect(logOutput[i++].msg).to.match(/"email":"<email>"/);
+    expect(logOutput[i].msg).to.match(/^mongosh:evaluate-input/);
+    expect(logOutput[i++].msg).to.match(/"input":"1\+1"/);
+    expect(logOutput[i++].msg).to.match(/"version":"3.6.1"/);
+    expect(logOutput[i++].msg).to.equal('mongosh:start-loading-cli-scripts');
+    expect(logOutput[i].msg).to.match(/^mongosh:api-load-file/);
+    expect(logOutput[i].msg).to.match(/"nested":true/);
+    expect(logOutput[i++].msg).to.match(/"filename":"foobar.js"/);
+    expect(logOutput[i++].msg).to.equal('mongosh:start-mongosh-repl {"version":"1.0.0"}');
+    expect(logOutput[i].msg).to.match(/"nested":false/);
+    expect(logOutput[i++].msg).to.match(/"filename":"foobar.js"/);
+    expect(logOutput[i++].msg).to.equal('mongosh:mongoshrc-load');
+    expect(logOutput[i++].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
+    expect(logOutput[i++].msg).to.equal('mongosh:eval-cli-script');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:loaded {"installdir":"/"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:npm-lookup {"existingVersion":"v1.2.3"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:npm-lookup-stopped');
+    expect(logOutput[i].msg).to.match(/^mongosh-snippets:npm-download-failed/);
+    expect(logOutput[i++].msg).to.match(/"npmMetadataURL":"https:\/\/example.com"/);
+    expect(logOutput[i].msg).to.match(/^mongosh-snippets:npm-download-active/);
+    expect(logOutput[i].msg).to.match(/"npmMetadataURL":"https:\/\/example.com"/);
+    expect(logOutput[i++].msg).to.match(/"npmTarballURL":"https:\/\/example.net"/);
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index {"refreshMode":"always"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-cache-invalid');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index-error {"action":"fetch","url":"https://localhost"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index-done');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:package-json-edit-error {"error":"failed"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:spawn-child {"args":["npm","install"]}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:load-snippet {"source":"load-all","name":"foo"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:snippet-command {"args":["install","foo"]}');
+    expect(logOutput[i++].msg).to.equal('mongosh-snippets:transform-error {"error":"failed","addition":"oh no","name":"foo"}');
+    expect(i).to.equal(logOutput.length);
 
 
     const mongosh_version = require('../package.json').version;
@@ -225,6 +258,16 @@ describe('setupLoggerAndTelemetry', () => {
             shell: true
           },
           userId: '53defe995fa47e6c13102d9d'
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Snippet Install',
+          properties: {
+            mongosh_version
+          }
         }
       ]
     ]);

@@ -4,7 +4,7 @@ import { ChildProcess, spawn } from 'child_process';
 import { once } from 'events';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
-import { eventually } from './helpers';
+import { eventually } from '../../../testing/eventually';
 
 export type TestShellStartupResult = { state: 'prompt' } | { state: 'exit'; exitCode: number };
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;

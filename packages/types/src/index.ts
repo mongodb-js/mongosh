@@ -76,6 +76,59 @@ export interface StartMongoshReplEvent {
   version: string;
 }
 
+export interface SnippetsLoadedEvent {
+  installdir: string;
+}
+
+export interface SnippetsNpmLookupEvent {
+  existingVersion: string;
+}
+
+export interface SnippetsNpmDownloadActiveEvent {
+  npmMetadataURL: string;
+  npmTarballURL: string;
+}
+
+export interface SnippetsNpmDownloadFailedEvent {
+  npmMetadataURL: string;
+  npmTarballURL?: string;
+  status?: number;
+}
+
+export interface SnippetsFetchIndexEvent {
+  refreshMode: string;
+}
+
+export interface SnippetsFetchIndexErrorEvent {
+  action: string;
+  url?: string;
+  status?: number;
+  error?: string;
+}
+
+export interface SnippetsErrorEvent {
+  error: string;
+}
+
+export interface SnippetsRunNpmEvent {
+  args: string[];
+}
+
+export interface SnippetsLoadSnippetEvent {
+  source: string;
+  name: string;
+}
+
+export interface SnippetsCommandEvent {
+  args: string[];
+}
+
+export interface SnippetsTransformErrorEvent {
+  error: string;
+  addition: string;
+  name: string;
+}
+
 export interface MongoshBusEventsMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -202,6 +255,35 @@ export interface MongoshBusEventsMap {
    * _ONLY AVAILABLE FOR TESTING._
    */
   'mongosh:interrupt-complete': () => void;
+
+  /** Signals that the snippets plugin has been loaded. */
+  'mongosh-snippets:loaded': (ev: SnippetsLoadedEvent) => void;
+  /** Signals that an event has happened while looking up the path to npm. */
+  'mongosh-snippets:npm-lookup': (ev: SnippetsNpmLookupEvent) => void;
+  /** Signals that attempting to download npm has been declined by the user. */
+  'mongosh-snippets:npm-lookup-stopped': () => void;
+  /** Signals that attempting to download npm has failed. */
+  'mongosh-snippets:npm-download-failed': (ev: SnippetsNpmDownloadFailedEvent) => void;
+  /** Signals that downloading the npm tarball has started. */
+  'mongosh-snippets:npm-download-active': (ev: SnippetsNpmDownloadActiveEvent) => void;
+  /** Signals that fetching the index file from the network has started. */
+  'mongosh-snippets:fetch-index': (ev: SnippetsFetchIndexEvent) => void;
+  /** Signals that, when fetching the index file, it turned out that the cache is currently invalid (not outdated). */
+  'mongosh-snippets:fetch-cache-invalid': () => void;
+  /** Signals that fetching the index file from the network has failed. */
+  'mongosh-snippets:fetch-index-error': (ev: SnippetsFetchIndexErrorEvent) => void;
+  /** Signals that fetching the index file from the network has completed. */
+  'mongosh-snippets:fetch-index-done': () => void;
+  /** Signals that an action on the internal package.json file has failed. */
+  'mongosh-snippets:package-json-edit-error': (ev: SnippetsErrorEvent) => void;
+  /** Signals that an npm child process has been spawned. */
+  'mongosh-snippets:spawn-child': (ev: SnippetsRunNpmEvent) => void;
+  /** Signals that a snippet has been loaded into the shell. */
+  'mongosh-snippets:load-snippet': (ev: SnippetsLoadSnippetEvent) => void;
+  /** Signals that a snippet shell command has started executing. */
+  'mongosh-snippets:snippet-command': (ev: SnippetsCommandEvent) => void;
+  /** Signals that a snippet has modified an error message. */
+  'mongosh-snippets:transform-error': (ev: SnippetsTransformErrorEvent) => void;
 }
 
 export interface MongoshBus {
@@ -235,7 +317,37 @@ export class ShellUserConfigValidator {
   }
 }
 
-export class CliUserConfig extends ShellUserConfig {
+export class SnippetShellUserConfig extends ShellUserConfig {
+  snippetIndexSourceURLs = 'https://compass.mongodb.com/mongosh/snippets-index.bson.br';
+  snippetRegistryURL = 'https://registry.npmjs.org';
+  snippetAutoload = true;
+}
+
+export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
+  static async validate<K extends keyof SnippetShellUserConfig>(key: K, value: SnippetShellUserConfig[K]): Promise<string | null> {
+    switch (key) {
+      case 'snippetIndexSourceURLs':
+        if (typeof value !== 'string' || value.split(';').some(url => url && !isValidUrl(url))) {
+          return `${key} must be a ;-separated list of valid URLs`;
+        }
+        return null;
+      case 'snippetRegistryURL':
+        if (typeof value !== 'string' || !isValidUrl(value)) {
+          return `${key} must be a valid URL`;
+        }
+        return null;
+      case 'snippetAutoload':
+        if (typeof value !== 'boolean') {
+          return `${key} must be a boolean`;
+        }
+        return null;
+      default:
+        return super.validate(key as keyof ShellUserConfig, value as any);
+    }
+  }
+}
+
+export class CliUserConfig extends SnippetShellUserConfig {
   userId = '';
   disableGreetingMessage = false;
   inspectCompact: number | boolean = 3;
@@ -245,7 +357,7 @@ export class CliUserConfig extends ShellUserConfig {
   redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
 }
 
-export class CliUserConfigValidator extends ShellUserConfigValidator {
+export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
   // eslint-disable-next-line complexity
   static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
     switch (key) {
@@ -274,7 +386,7 @@ export class CliUserConfigValidator extends ShellUserConfigValidator {
         }
         return null;
       default:
-        return super.validate(key as keyof ShellUserConfig, value as any);
+        return super.validate(key as keyof SnippetShellUserConfig, value as any);
     }
   }
 }
@@ -284,4 +396,24 @@ export interface ConfigProvider<T> {
   setConfig<K extends keyof T>(key: K, value: T[K]): Promise<'success' | 'ignored'>;
   validateConfig<K extends keyof T>(key: K, value: T[K]): Promise<string | null>;
   listConfigOptions(): string[] | Promise<string[]>;
+}
+
+function isValidUrl(url: string): boolean {
+  /* eslint-disable no-new */
+  /* eslint-disable @typescript-eslint/ban-ts-comment */
+  // Need ts-ignore because we're not building this exclusively for environments
+  // in which URL is available.
+  // @ts-ignore
+  if (typeof URL === 'function') {
+    try {
+      // @ts-ignore
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  /* eslint-enable no-new */
+  /* eslint-enable @typescript-eslint/ban-ts-comment */
+  return true; // Currently no overlap between URL-less environments and environments with config options.
 }

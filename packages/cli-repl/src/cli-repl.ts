@@ -3,6 +3,7 @@ import { redactCredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
+import { SnippetManager } from '@mongosh/snippet-manager';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import Nanobus from 'nanobus';
@@ -119,6 +120,7 @@ class CliRepl {
    * @param {string} driverUri - The driver URI.
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
+  // eslint-disable-next-line complexity
   async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
@@ -170,6 +172,15 @@ class CliRepl {
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
+
+    let snippetManager: SnippetManager | undefined;
+    if (this.config.snippetIndexSourceURLs !== '') {
+      snippetManager = new SnippetManager({
+        installdir: this.shellHomeDirectory.roamingPath('snippets'),
+        internalState: this.mongoshRepl.runtimeState().internalState
+      });
+    }
+
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
       this.mongoshRepl.setIsInteractive(!!this.cliOptions.shell);
@@ -181,6 +192,9 @@ class CliRepl {
       }
     } else {
       this.mongoshRepl.setIsInteractive(true);
+    }
+    if (!this.cliOptions.norc) {
+      await snippetManager?.loadAllSnippets();
     }
     await this.loadRcFiles();
     this.bus.emit('mongosh:start-mongosh-repl', { version });

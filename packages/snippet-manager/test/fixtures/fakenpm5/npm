@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pretend to always run as --version for an old npm version
+echo 5.4.0
