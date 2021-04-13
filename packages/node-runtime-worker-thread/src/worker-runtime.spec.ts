@@ -109,7 +109,7 @@ describe('worker', () => {
           'function def() {}; def.def = 1; def',
           '[Function: def] { def: 1 }'
         ],
-        ['anonymous function', '(() => {})', /\[Function( \(anonymous\))?\]/],
+        ['anonymous function', '(() => {})', /\[Function.+\]/],
         ['class constructor', 'class BCD {}; BCD', '[class BCD]'],
         [
           'class instalce',

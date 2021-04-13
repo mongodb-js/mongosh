@@ -20,8 +20,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   constructor(internalState: ShellInternalState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
     this.internalState = internalState;
     this.resultHandler = resultHandler;
-    if (process.env.MONGOSH_ASYNC_REWRITER2) {
-      process.emitWarning(new Error('Using @mongosh/async-rewriter2'));
+    if (process.env.MONGOSH_ASYNC_REWRITER2 !== '0') {
       this.internalState.asyncWriter = new AsyncWriter();
       this.hasAppliedAsyncWriterRuntimeSupport = false;
     }
