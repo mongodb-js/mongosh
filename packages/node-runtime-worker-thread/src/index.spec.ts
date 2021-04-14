@@ -246,7 +246,7 @@ describe('WorkerRuntime', () => {
             // This is flaky when not enought time given to the worker to
             // finish the sync part of the work. If it causes too much issues
             // it would be okay to disable this test completely
-            await sleep(1500);
+            await sleep(5000);
             await runtime.interrupt();
           })()
         ]);
