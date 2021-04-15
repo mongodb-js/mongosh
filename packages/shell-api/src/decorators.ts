@@ -9,9 +9,13 @@ import {
   asPrintable,
   namespaceInfo
 } from './enums';
-import { MongoshInternalError } from '@mongosh/errors';
+import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import { addHiddenDataProperty } from './helpers';
+import { getMetadataForMember } from './shell-api-metadata';
+import Ajv from 'ajv';
+
+const ajv = new Ajv({ strict: false });
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -197,23 +201,82 @@ export function shellApiClassDefault(constructor: Function): void {
   };
 
   const classAttributes = Object.getOwnPropertyNames(constructor.prototype);
+
   for (const propertyName of classAttributes) {
-    const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
-    const isMethod = descriptor?.value && typeof descriptor.value === 'function';
+    const descriptor = Object.getOwnPropertyDescriptor(
+      constructor.prototype,
+      propertyName
+    );
+    const isMethod =
+      descriptor?.value && typeof descriptor.value === 'function';
+
     if (
       !isMethod ||
       toIgnore.includes(propertyName) ||
       propertyName.startsWith('_')
-    ) continue;
+    ) {
+      continue;
+    }
+
     let method: any = (descriptor as any).value;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {
       method = wrapWithAddSourceToResult(method);
     }
 
+    const methodMetadata = getMetadataForMember(className, propertyName);
+
+    if (methodMetadata && methodMetadata.kind === 'Method') {
+      const origMethod: any = method;
+      method = function(this: typeof constructor, ...args: unknown[]) {
+        const propertiesAsString = methodMetadata.params
+          .map(
+            (prop) =>
+              `${prop.label}${prop.optional ? '?' : ''}: ${prop.printableType}`
+          )
+          .join(', ');
+
+        for (const [idx, param] of methodMetadata.params.entries()) {
+          const value = args[idx];
+
+          if (typeof value === 'undefined' && param.optional) {
+            continue;
+          }
+
+          let validate;
+
+          try {
+            validate = ajv.compile(param.schema);
+          } catch (e) {
+            // TODO: Just for PoC purposes so I can see where it fails, with
+            // real thing we should either make sure that this never happens or
+            // silently ignore it, maybe log/trace a warning or something
+            throw Error(`Failed to compile validator for schema ${JSON.stringify(param.schema)}: ${e.message}`);
+          }
+
+          if (!validate(value)) {
+            const { label, printableType } = param;
+            const pos = idx + 1;
+            const msg =
+`Invalid argument \`${label}\` passed to method \`${propertyName}\` at position ${pos}: expected ${printableType} but got ${value}
+
+Usage:
+
+  ${className}.${propertyName}(${propertiesAsString})
+`;
+            throw new MongoshInvalidInputError(msg);
+          }
+        }
+        return origMethod.call(this, ...args);
+      };
+    }
+
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;
-    method.returnType = method.returnType || { type: 'unknown', attributes: {} };
+    method.returnType = method.returnType || {
+      type: 'unknown',
+      attributes: {}
+    };
     method.returnsPromise = method.returnsPromise || false;
     method.deprecated = method.deprecated || false;
     method.platforms = method.platforms || ALL_PLATFORMS;
@@ -232,12 +295,10 @@ export function shellApiClassDefault(constructor: Function): void {
     const attrHelp = {
       help: `${attributeHelpKeyPrefix}.example`,
       docs: `${attributeHelpKeyPrefix}.link`,
-      attr: [
-        { description: `${attributeHelpKeyPrefix}.description` }
-      ]
+      attr: [{ description: `${attributeHelpKeyPrefix}.description` }]
     };
     const aHelp = new Help(attrHelp);
-    method.help = (): Help => (aHelp);
+    method.help = (): Help => aHelp;
     Object.setPrototypeOf(method.help, aHelp);
 
     classHelp.attr.push({
