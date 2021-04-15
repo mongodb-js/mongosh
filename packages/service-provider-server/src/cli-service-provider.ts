@@ -95,6 +95,7 @@ const bsonlib = {
   BSONSymbol,
   Map: BSON.Map,
   calculateObjectSize: BSON.calculateObjectSize,
+  EJSON: BSON.EJSON
 };
 
 type DropDatabaseResult = {
