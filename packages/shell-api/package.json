@@ -12,6 +12,8 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
+    "metadata": "ts-node bin/generate-metadata.ts",
+    "precompile-ts": "npm run metadata",
     "compile-ts": "tsc -p tsconfig.json",
     "pretest": "npm run compile-ts",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
