@@ -1,6 +1,5 @@
 /* eslint-disable complexity */
-import fs from 'fs';
-import { promisify } from 'util';
+import { promises as fs } from 'fs';
 import path from 'path';
 import ts from 'typescript';
 
@@ -290,7 +289,7 @@ async function generateMetadata(
 
     const members: Record<string, any> = {};
 
-    for (const member of (classNode.members || [])) {
+    for (const member of classNode.members || []) {
       if (isPrivateMember(member)) {
         continue;
       }
@@ -327,9 +326,7 @@ async function generateMetadata(
       }
 
       if (ts.isMethodDeclaration(member)) {
-        const memberSignature = checker.getSignatureFromDeclaration(
-          member
-        );
+        const memberSignature = checker.getSignatureFromDeclaration(member);
 
         if (!memberSignature) {
           continue;
@@ -380,17 +377,17 @@ async function generateMetadata(
   const src = path.join(root, 'src');
   const opts = path.join(root, 'tsconfig.json');
 
-  const files = (await promisify(fs.readdir)(src))
+  const files = (await fs.readdir(src))
     .filter((name) => /\.ts$/.test(name) && !/\.spec/.test(name))
     .map((name) => path.join(src, name));
 
   const config: ts.CompilerOptions = JSON.parse(
-    await promisify(fs.readFile)(opts, 'utf-8')
+    await fs.readFile(opts, 'utf-8')
   );
 
   const metadata = await generateMetadata(files, config);
 
-  await promisify(fs.writeFile)(
+  await fs.writeFile(
     path.join(src, 'metadata.json'),
     JSON.stringify(metadata, null, 2),
     'utf-8'
