@@ -9,6 +9,7 @@
     "target": "es2018",
     "lib": ["es2019"],
     "module": "commonjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   }
 }

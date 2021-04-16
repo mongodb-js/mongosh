@@ -1,6 +1,6 @@
 import type { JSDocTagInfo, SymbolDisplayPart } from 'typescript';
 import type { JSONSchemaType } from 'ajv';
-import ShellApiMetadata from './shell-api-metadata.json';
+import ShellApiMetadata from './metadata.json';
 
 type CommonMetadata = {
   label: string;

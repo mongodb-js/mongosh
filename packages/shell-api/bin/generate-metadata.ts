@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable complexity */
-/* eslint-disable space-before-function-paren */
-/* eslint-disable indent */
 import fs from 'fs/promises';
 import path from 'path';
 import ts from 'typescript';
@@ -50,9 +47,9 @@ function hasFlag(type: ts.Type, flag: ts.TypeFlags): boolean {
   return (type.getFlags() & flag) !== 0;
 }
 
-function hasModifierFlag(mod: ts.Modifier, flag: ts.ModifierFlags): boolean {
-  return (mod.flags & flag) !== 0;
-}
+// function hasModifierFlag(mod: ts.Modifier, flag: ts.ModifierFlags): boolean {
+//   return (mod.flags & flag) !== 0;
+// }
 
 function hasSymbolFlag(type: ts.Symbol, flag: ts.SymbolFlags): boolean {
   return (type.getFlags() & flag) !== 0;
@@ -62,9 +59,9 @@ function hasObjectFlag(type: ts.ObjectType, flag: ts.ObjectFlags): boolean {
   return (type.objectFlags & flag) !== 0;
 }
 
-function isUnionType(type: ts.Type): type is ts.UnionType {
-  return hasFlag(type, ts.TypeFlags.Union);
-}
+// function isUnionType(type: ts.Type): type is ts.UnionType {
+//   return hasFlag(type, ts.TypeFlags.Union);
+// }
 
 function isObjectType(type: ts.Type): type is ts.ObjectType {
   return hasFlag(type, ts.TypeFlags.Object);
@@ -253,11 +250,14 @@ async function generateMetadata(
   fileNames: string[],
   options: ts.CompilerOptions
 ) {
+  console.log('Generating metadata for shell-api classes ...');
+
   // A possibility, but mongodb classes confuse the hell out of it
   // const generator = require('ts-json-schema-generator').createGenerator({
   //   path: `{${fileNames.join(',')}}`,
   //   tsconfig: optionsPath
   // });
+
   const result: Record<string, any> = {};
 
   const program = ts.createProgram(fileNames, options);
@@ -284,6 +284,8 @@ async function generateMetadata(
     if (!classSymbol) {
       continue;
     }
+
+    console.log('  %s', classNode.name.escapedText);
 
     const members: Record<string, any> = {};
 
@@ -371,7 +373,7 @@ async function generateMetadata(
   return result;
 }
 
-(async () => {
+(async() => {
   const root = path.resolve(__dirname, '..');
   const src = path.join(root, 'src');
   const opts = path.join(root, 'tsconfig.json');
@@ -387,7 +389,7 @@ async function generateMetadata(
   const metadata = await generateMetadata(files, config);
 
   await fs.writeFile(
-    path.join(src, 'shell-api-metadata.json'),
+    path.join(src, 'metadata.json'),
     JSON.stringify(metadata, null, 2),
     'utf-8'
   );
