@@ -1,5 +1,6 @@
 /* eslint-disable complexity */
-import fs from 'fs/promises';
+import fs from 'fs';
+import { promisify } from 'util';
 import path from 'path';
 import ts from 'typescript';
 
@@ -378,17 +379,17 @@ async function generateMetadata(
   const src = path.join(root, 'src');
   const opts = path.join(root, 'tsconfig.json');
 
-  const files = (await fs.readdir(src))
+  const files = (await promisify(fs.readdir)(src))
     .filter((name) => /\.ts$/.test(name) && !/\.spec/.test(name))
     .map((name) => path.join(src, name));
 
   const config: ts.CompilerOptions = JSON.parse(
-    await fs.readFile(opts, 'utf-8')
+    await promisify(fs.readFile)(opts, 'utf-8')
   );
 
   const metadata = await generateMetadata(files, config);
 
-  await fs.writeFile(
+  await promisify(fs.writeFile)(
     path.join(src, 'metadata.json'),
     JSON.stringify(metadata, null, 2),
     'utf-8'
