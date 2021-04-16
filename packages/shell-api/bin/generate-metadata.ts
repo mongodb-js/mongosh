@@ -353,6 +353,7 @@ async function generateMetadata(
               schema: typeToJsonSchema(paramType, checker),
               printableType: checker.typeToString(paramType),
               optional: checker.isOptionalParameter(paramDeclaration),
+              rest: !!paramDeclaration?.dotDotDotToken
             };
           })
         });

@@ -9,13 +9,10 @@ import {
   asPrintable,
   namespaceInfo
 } from './enums';
-import { MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import { addHiddenDataProperty } from './helpers';
-import { getMetadataForMember } from './shell-api-metadata';
-import Ajv from 'ajv';
-
-const ajv = new Ajv({ strict: false });
+import { getMetadataForMember, validateMethodArguments } from './shell-api-metadata';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -228,45 +225,8 @@ export function shellApiClassDefault(constructor: Function): void {
 
     if (methodMetadata && methodMetadata.kind === 'Method') {
       const origMethod: any = method;
-      method = function(this: typeof constructor, ...args: unknown[]) {
-        const propertiesAsString = methodMetadata.params
-          .map(
-            (prop) =>
-              `${prop.label}${prop.optional ? '?' : ''}: ${prop.printableType}`
-          )
-          .join(', ');
-
-        for (const [idx, param] of methodMetadata.params.entries()) {
-          const value = args[idx];
-
-          if (typeof value === 'undefined' && param.optional) {
-            continue;
-          }
-
-          let validate;
-
-          try {
-            validate = ajv.compile(param.schema);
-          } catch (e) {
-            // TODO: Just for PoC purposes so I can see where it fails, with
-            // real thing we should either make sure that this never happens or
-            // silently ignore it, maybe log/trace a warning or something
-            throw Error(`Failed to compile validator for schema ${JSON.stringify(param.schema)}: ${e.message}`);
-          }
-
-          if (!validate(value)) {
-            const { label, printableType } = param;
-            const pos = idx + 1;
-            const msg =
-`Invalid argument \`${label}\` passed to method \`${propertyName}\` at position ${pos}: expected ${printableType} but got ${value}
-
-Usage:
-
-  ${className}.${propertyName}(${propertiesAsString})
-`;
-            throw new MongoshInvalidInputError(msg);
-          }
-        }
+      method = function validateAndCall(this: typeof constructor, ...args: unknown[]) {
+        validateMethodArguments(args, methodMetadata, className);
         return origMethod.call(this, ...args);
       };
     }
