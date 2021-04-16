@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, complexity, @typescript-eslint/no-non-null-assertion, no-return-assign, no-empty */
+/* eslint-disable no-return-assign, no-empty */
 /* istanbul ignore file */
 import { promises as fs } from 'fs';
 import path from 'path';

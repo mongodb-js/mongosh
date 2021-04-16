@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { signatures } from '../';
 
 Object.keys(signatures)

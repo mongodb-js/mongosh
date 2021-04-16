@@ -21,7 +21,7 @@
     "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "pretest-ci": "npm run webpack-build -- --no-stats --no-devtool",
     "test-ci": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
-    "lint": "eslint \"./src/**/*.{js,ts,tsx}\"",
+    "lint": "eslint --report-unused-disable-directives \"./src/**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "webpack-build": "webpack --mode production",
     "webpack-build-dev": "webpack --mode development",

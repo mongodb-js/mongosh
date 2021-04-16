@@ -62,9 +62,8 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
             .slice(1, 6).join('-');
           return `UUID("${asUUID}")`;
         }
-        // Fall through in case somebody did something weird and used an UUID
-        // with a non-standard length.
-        // eslint-disable-next-line no-fallthrough
+        // In case somebody did something weird and used an UUID with a
+        // non-standard length, fall through.
       default:
         return `Binary(Buffer.from("${asBuffer.toString('hex')}", "hex"), ${this.sub_type})`;
     }

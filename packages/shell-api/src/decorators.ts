@@ -1,4 +1,4 @@
-/* eslint-disable dot-notation,complexity */
+/* eslint-disable complexity */
 import Help from './help';
 import {
   Topologies,

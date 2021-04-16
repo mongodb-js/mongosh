@@ -1,4 +1,3 @@
-/* eslint-disable key-spacing */
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
