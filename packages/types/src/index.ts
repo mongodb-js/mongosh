@@ -23,9 +23,8 @@ export interface UseEvent {
   db: string;
 }
 
-export interface AsyncRewriterEvent {
-  original: string;
-  rewritten: string;
+export interface EvaluateInputEvent {
+  input: string;
 }
 
 export interface ShowEvent {
@@ -80,7 +79,7 @@ export interface MongoshBusEventsMap {
   'mongosh:update-user': (id: string, enableTelemetry: boolean) => void;
   'mongosh:error': (error: Error) => void;
   'mongosh:help': () => void;
-  'mongosh:rewritten-async-input': (ev: AsyncRewriterEvent) => void;
+  'mongosh:evaluate-input': (ev: EvaluateInputEvent) => void;
   'mongosh:use': (ev: UseEvent) => void;
   'mongosh:getDB': (ev: UseEvent) => void;
   'mongosh:show': (ev: ShowEvent) => void;

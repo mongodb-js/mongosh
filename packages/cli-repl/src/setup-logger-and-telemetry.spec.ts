@@ -53,7 +53,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:setCtx', { method: 'setCtx' });
     bus.emit('mongosh:api-call', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
     bus.emit('mongosh:api-call', { method: 'redactable', arguments: { email: 'mongosh@example.com' } });
-    bus.emit('mongosh:rewritten-async-input', { original: '1+1', rewritten: '2' });
+    bus.emit('mongosh:evaluate-input', { input: '1+1' });
     bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
     bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: true });
@@ -90,9 +90,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[13].msg).to.match(/"db":"test-1603986682000"/);
     expect(logOutput[14].msg).to.match(/^mongosh:api-call/);
     expect(logOutput[14].msg).to.match(/"email":"<email>"/);
-    expect(logOutput[15].msg).to.match(/^mongosh:rewritten-async-input/);
-    expect(logOutput[15].msg).to.match(/"original":"1\+1"/);
-    expect(logOutput[15].msg).to.match(/"rewritten":"2"/);
+    expect(logOutput[15].msg).to.match(/^mongosh:evaluate-input/);
+    expect(logOutput[15].msg).to.match(/"input":"1\+1"/);
     expect(logOutput[16].msg).to.match(/"version":"3.6.1"/);
     expect(logOutput[17].msg).to.equal('mongosh:start-loading-cli-scripts');
     expect(logOutput[18].msg).to.match(/^mongosh:api-load-file/);

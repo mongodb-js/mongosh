@@ -58,8 +58,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
       this.internalState.messageBus.emit(
-        'mongosh:rewritten-async-input',
-        { original: removeCommand(input.trim()), rewritten: removeCommand(rewrittenInput.trim()) }
+        'mongosh:evaluate-input',
+        { input: removeCommand(input.trim()) }
       );
     }
 
