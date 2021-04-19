@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import { ShellApiErrors } from './error-codes';
 import Mongo from './mongo';

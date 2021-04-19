@@ -27,7 +27,7 @@
     "pretest-e2e": "npm run compile-ts",
     "test-e2e": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "prepublish": "npm run compile-ts"
   },

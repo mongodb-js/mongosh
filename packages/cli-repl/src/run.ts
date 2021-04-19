@@ -56,7 +56,6 @@ import { generateUri } from '@mongosh/service-provider-server';
       await repl.start(driverUri, { appName, ...driverOptions });
     }
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error(`${e.name}: ${e.message}`);
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e);

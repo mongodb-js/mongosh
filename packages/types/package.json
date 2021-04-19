@@ -20,7 +20,7 @@
   "scripts": {
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
     "prepublish": "npm run compile-ts",
     "test-ci": "npm run test"
   },

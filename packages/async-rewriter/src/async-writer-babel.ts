@@ -102,7 +102,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
           if (!path.node.computed) {
             break;
           }
-        // eslint-disable-next-line no-fallthrough
+        // falls through
         default:
           if (lhsType.hasAsyncChild) {
             const help = lhsType.type === 'Database' ?
@@ -161,7 +161,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
                 lhsType = { type: 'function', returnsPromise: true, returnType: { type: 'unknown', attributes: {} } };
                 break;
               }
-            // eslint-disable-next-line no-fallthrough
+            // falls through
             default:
               throw new MongoshInvalidInputError('Cannot pass a function that calls a Mongosh API method as an argument', AsyncRewriterErrors.ApiTypeAsFunctionArgument);
           }
@@ -287,7 +287,7 @@ var TypeInferenceVisitor: Visitor = { /* eslint no-var:0 */
                 if (!lhsNode.computed) {
                   break;
                 }
-              // eslint-disable-next-line no-fallthrough
+              // falls through
               default:
                 if (sType.hasAsyncChild || sType.returnsPromise) {
                   throw new MongoshInvalidInputError('Cannot assign Mongosh API types dynamically', AsyncRewriterErrors.DynamicAccessOfApiType);

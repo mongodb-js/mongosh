@@ -360,7 +360,6 @@ export default class ShellInternalState {
     return `${setNamePrefix}${serverTypePrompt}`;
   }
 
-  // eslint-disable-next-line complexity
   private getTopologySinglePrompt(description: TopologyDescription): {replicaSet: string | undefined, serverType: string} | undefined {
     if (description.servers?.size !== 1) {
       return undefined;

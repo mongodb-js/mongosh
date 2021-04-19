@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { signatures } from '../';
 import enUs from '../../i18n/src/locales/en_US';
 

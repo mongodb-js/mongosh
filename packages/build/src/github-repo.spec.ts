@@ -419,7 +419,6 @@ describe('GithubRepo', () => {
         expect(octokit.repos.updateRelease).to.have.been.calledWith({
           draft: false,
           owner: 'mongodb-js',
-          // eslint-disable-next-line camelcase
           release_id: '123',
           repo: 'mongosh'
         });

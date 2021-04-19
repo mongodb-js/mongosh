@@ -16,7 +16,7 @@
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "node ../../scripts/run-if-platform.js darwin npm test",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "npm run build"
   },
