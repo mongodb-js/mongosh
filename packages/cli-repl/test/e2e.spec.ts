@@ -709,7 +709,7 @@ describe('e2e', function() {
           await eventually(async() => {
             expect(shell.output).to.include('579');
             const log = await readLogfile();
-            expect(log.filter(logEntry => /rewritten-async-input/.test(logEntry.msg)))
+            expect(log.filter(logEntry => /evaluate-input/.test(logEntry.msg)))
               .to.have.lengthOf(1);
           });
         });

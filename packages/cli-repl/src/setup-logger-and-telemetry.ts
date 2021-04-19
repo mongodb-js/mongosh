@@ -6,7 +6,7 @@ import type {
   MongoshBus,
   ApiEvent,
   UseEvent,
-  AsyncRewriterEvent,
+  EvaluateInputEvent,
   ShowEvent,
   ConnectEvent,
   ScriptLoadFileEvent,
@@ -139,8 +139,8 @@ export default function setupLoggerAndTelemetry(
     }
   });
 
-  bus.on('mongosh:rewritten-async-input', function(args: AsyncRewriterEvent) {
-    log.info('mongosh:rewritten-async-input', args);
+  bus.on('mongosh:evaluate-input', function(args: EvaluateInputEvent) {
+    log.info('mongosh:evaluate-input', args);
   });
 
   bus.on('mongosh:use', function(args: UseEvent) {
