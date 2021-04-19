@@ -106,7 +106,6 @@ export default class ShellInternalState {
   public messageBus: MongoshBus;
   public asyncWriter: { process(code: string): string };
   public initialServiceProvider: ServiceProvider; // the initial service provider
-  public uri: string | null;
   public connectionInfo: any;
   public context: any;
   public mongos: Mongo[];
@@ -135,7 +134,6 @@ export default class ShellInternalState {
     } else {
       this.currentDb = new NoDatabase() as Database;
     }
-    this.uri = null;
     this.currentCursor = null;
     this.context = {};
     this.cliOptions = cliOptions;
