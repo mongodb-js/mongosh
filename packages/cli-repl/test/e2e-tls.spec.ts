@@ -16,15 +16,6 @@ const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
 const SERVER_KEY = getCertPath('server.bundle.pem');
 const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
 
-type ShellResultState = 'prompt' | 'exit';
-type ShellResult = { state: ShellResultState; exitCode?: number | undefined };
-async function waitForPromptOrExit(shell: TestShell): Promise<ShellResult> {
-  return Promise.race([
-    shell.waitForPrompt().then(() => ({ state: 'prompt' } as ShellResult)),
-    shell.waitForExit().then(c => ({ state: 'exit', exitCode: c }) as ShellResult),
-  ]);
-}
-
 describe('e2e TLS', () => {
   before(async() => {
     assert((await fs.stat(CA_CERT)).isFile());
@@ -90,7 +81,7 @@ describe('e2e TLS', () => {
             '--tls', '--tlsCAFile', CA_CERT
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
       });
 
@@ -100,7 +91,7 @@ describe('e2e TLS', () => {
             `${await server.connectionString()}?tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}`
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
       });
 
@@ -110,7 +101,7 @@ describe('e2e TLS', () => {
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('MongoServerSelectionError');
       });
@@ -121,7 +112,7 @@ describe('e2e TLS', () => {
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=false`
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('MongoServerSelectionError');
       });
@@ -133,7 +124,7 @@ describe('e2e TLS', () => {
             '--tls', '--tlsCAFile', NON_CA_CERT
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('unable to verify the first certificate');
       });
@@ -144,7 +135,7 @@ describe('e2e TLS', () => {
             `${await server.connectionString()}?serverSelectionTimeoutMS=1500&tls=true&tlsCAFile=${encodeURIComponent(NON_CA_CERT)}`
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('unable to verify the first certificate');
       });
@@ -156,7 +147,7 @@ describe('e2e TLS', () => {
             '--tls', '--tlsCAFile', CA_CERT, '--tlsCRLFile', CRL_INCLUDING_SERVER
           ]
         });
-        const result = await waitForPromptOrExit(shell);
+        const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('certificate revoked');
       });
@@ -195,7 +186,7 @@ describe('e2e TLS', () => {
             '--tlsCertificateKeyFile', CLIENT_CERT
           ]
         });
-        const prompt = await waitForPromptOrExit(shell);
+        const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
         await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
           createUser: '${certUser}',
@@ -215,7 +206,7 @@ describe('e2e TLS', () => {
             '--tlsCertificateKeyFile', CLIENT_CERT
           ]
         });
-        const prompt = await waitForPromptOrExit(shell);
+        const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
         await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
         shell.assertContainsOutput(`user: '${certUser}'`);
@@ -229,7 +220,7 @@ describe('e2e TLS', () => {
             + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT)}`
           ]
         });
-        const prompt = await waitForPromptOrExit(shell);
+        const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
         await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
         shell.assertContainsOutput(`user: '${certUser}'`);
@@ -244,7 +235,7 @@ describe('e2e TLS', () => {
             '--tlsCertificateKeyFile', INVALID_CLIENT_CERT
           ]
         });
-        const exit = await waitForPromptOrExit(shell);
+        const exit = await shell.waitForPromptOrExit();
         expect(exit.state).to.equal('exit');
         shell.assertContainsOutput('MongoServerSelectionError');
       });
@@ -257,7 +248,7 @@ describe('e2e TLS', () => {
             + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}&tlsCertificateKeyFile=${encodeURIComponent(INVALID_CLIENT_CERT)}`
           ]
         });
-        const exit = await waitForPromptOrExit(shell);
+        const exit = await shell.waitForPromptOrExit();
         expect(exit.state).to.equal('exit');
         shell.assertContainsOutput('MongoServerSelectionError');
       });
@@ -283,7 +274,7 @@ describe('e2e TLS', () => {
             TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule
           }
         });
-        const prompt = await waitForPromptOrExit(shell);
+        const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
         await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
         shell.assertContainsOutput(`user: '${certUser}'`);
@@ -298,7 +289,7 @@ describe('e2e TLS', () => {
             '--tlsCertificateSelector', 'subject=tester@example.com'
           ]
         });
-        const prompt = await waitForPromptOrExit(shell);
+        const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('exit');
         if (process.platform === 'win32') {
           shell.assertContainsOutput('Could not resolve certificate specification');

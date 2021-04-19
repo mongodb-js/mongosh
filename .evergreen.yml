@@ -63,6 +63,9 @@ functions:
           echo "Creating coverage tarball..."
           tar cvzf coverage.tgz coverage
           }
+        env:
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -156,6 +159,8 @@ functions:
         binary: bash .evergreen/run-e2e-tests.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
 
   ###
   # PACKAGING AND UPLOADING
