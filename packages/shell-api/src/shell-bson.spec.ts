@@ -564,4 +564,12 @@ describe('Shell BSON', () => {
       expect.fail('Expecting error, nothing thrown');
     });
   });
+
+  describe('EJSON', () => {
+    it('serializes and de-serializes data', () => {
+      const input = { a: new Date() };
+      const output = shellBson.EJSON.parse(shellBson.EJSON.stringify(input));
+      expect(input).to.deep.equal(output);
+    });
+  });
 });

@@ -21,10 +21,10 @@ function constructHelp(className: string): Help {
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
  */
 export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): any {
-  const bsonNames: (keyof typeof BSON)[] = [
+  const bsonNames = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol'
-  ]; // Statically set this so we can error if any are missing
+  ] as const; // Statically set this so we can error if any are missing
 
   // If the service provider doesn't provide a BSON version, use service-provider-core's BSON package (js-bson 4.x)
   if (bson === undefined) {
@@ -35,14 +35,15 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     if (!(className in bson)) {
       throw new MongoshInternalError(`${className} does not exist in provided BSON package.`);
     }
-    bson[className].prototype.serverVersions = ALL_SERVER_VERSIONS;
-    bson[className].prototype.platforms = ALL_PLATFORMS;
-    bson[className].prototype.topologies = ALL_TOPOLOGIES;
+    const proto = bson[className].prototype as any;
+    proto.serverVersions = ALL_SERVER_VERSIONS;
+    proto.platforms = ALL_PLATFORMS;
+    proto.topologies = ALL_TOPOLOGIES;
 
     const help = constructHelp(className);
     helps[className] = help;
-    bson[className].prototype.help = (): Help => (help);
-    Object.setPrototypeOf(bson[className].prototype.help, help);
+    proto.help = (): Help => (help);
+    Object.setPrototypeOf(proto.help, help);
   });
   // Symbol is deprecated
   (bson.BSONSymbol as any).prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
@@ -154,7 +155,8 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Int32: bson.Int32,
     Long: bson.Long,
     Binary: bson.Binary,
-    Double: bson.Double
+    Double: bson.Double,
+    EJSON: bson.EJSON
   } as any;
 
   Object.keys(bsonPkg).forEach((className) => {
