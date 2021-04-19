@@ -15,11 +15,11 @@ function assertEnvVariable(variableName: string): string {
   return value;
 }
 
-const ATLAS_CLUSTER_HOST = assertEnvVariable('AWS_AUTH_ATLAS_CLUSTER_HOST');
-const AWS_IAM_USER_ARN = assertEnvVariable('AWS_AUTH_IAM_USER_ARN');
-const AWS_ACCESS_KEY_ID = assertEnvVariable('AWS_AUTH_IAM_ACCESS_KEY_ID');
-const AWS_SECRET_ACCESS_KEY = assertEnvVariable('AWS_AUTH_IAM_SECRET_ACCESS_KEY');
-const AWS_IAM_TEMP_ROLE_ARN = assertEnvVariable('AWS_AUTH_IAM_TEMP_ROLE_ARN');
+let ATLAS_CLUSTER_HOST;
+let AWS_IAM_USER_ARN;
+let AWS_ACCESS_KEY_ID;
+let AWS_SECRET_ACCESS_KEY;
+let AWS_IAM_TEMP_ROLE_ARN;
 
 function generateIamSessionToken(): { key: string; secret: string; token: string } {
   const result = spawnSync('aws', [
@@ -63,6 +63,12 @@ describe('e2e AWS AUTH', () => {
   let expectedAssumedRole: string;
 
   before(function() {
+    ATLAS_CLUSTER_HOST = assertEnvVariable('AWS_AUTH_ATLAS_CLUSTER_HOST');
+    AWS_IAM_USER_ARN = assertEnvVariable('AWS_AUTH_IAM_USER_ARN');
+    AWS_ACCESS_KEY_ID = assertEnvVariable('AWS_AUTH_IAM_ACCESS_KEY_ID');
+    AWS_SECRET_ACCESS_KEY = assertEnvVariable('AWS_AUTH_IAM_SECRET_ACCESS_KEY');
+    AWS_IAM_TEMP_ROLE_ARN = assertEnvVariable('AWS_AUTH_IAM_TEMP_ROLE_ARN');
+
     let awsCliFound = false;
     try {
       const result = spawnSync('aws', ['--version'], {
