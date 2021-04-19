@@ -576,5 +576,11 @@ describe('BSON e2e', function() {
       expect(result).to.match(/size: \d+/);
     });
   });
+  describe('inheritance', () => {
+    it('instanceof works for bson types', async() => {
+      expect(await shell.executeLine('ObjectId() instanceof ObjectId')).to.include('true');
+      shell.assertNoErrors();
+    });
+  });
 });
 
