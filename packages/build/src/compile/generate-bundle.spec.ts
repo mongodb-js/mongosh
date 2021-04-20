@@ -10,11 +10,12 @@ const execFile = promisify(childProcess.execFile);
 
 describe('compile generateBundle', function() {
   this.timeout(60_000);
-  const tmpdir = path.resolve(
-    __dirname, '..', '..', '..', 'tmp', `test-build-${Date.now()}-${Math.random()}`
-  );
+  let tmpdir: string;
 
   beforeEach(async() => {
+    tmpdir = path.resolve(
+      __dirname, '..', '..', '..', 'tmp', `test-build-${Date.now()}-${Math.random()}`
+    );
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
