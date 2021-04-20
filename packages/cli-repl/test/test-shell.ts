@@ -8,7 +8,9 @@ import { eventually } from './helpers';
 export type TestShellStartupResult = { state: 'prompt' | 'exit'; exitCode?: number | undefined };
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
-const PROMPT_PATTERN = /^([^>]*> ?)+$/m;
+// Assume that prompt strings are those that end in '> ' but do not contain
+// < or > (so that e.g. '- <repl>' in a stack trace is not considered a prompt).
+const PROMPT_PATTERN = /^([^<>]*> ?)+$/m;
 const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/mg; // node <= 12.14
 const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
 
@@ -133,7 +135,7 @@ export class TestShell {
         throw new assert.AssertionError({
           message: 'expected prompt',
           expected: PROMPT_PATTERN.toString(),
-          actual: this._output
+          actual: this._output.slice(0, start) + '[prompt search starts here]' + output
         });
       }
     });

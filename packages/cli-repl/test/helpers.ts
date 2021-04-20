@@ -21,5 +21,10 @@ export async function eventually(fn: Function, options: { frequency?: number; ti
     await new Promise(resolve => setTimeout(resolve, options.frequency));
   }
 
+  Object.assign(err, {
+    timedOut: true,
+    timeout: options.timeout,
+    message: `[Timed out ${options.timeout}ms] ${err.message}`
+  });
   throw err;
 }
