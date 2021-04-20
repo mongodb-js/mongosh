@@ -10,7 +10,7 @@ const execFile = promisify(childProcess.execFile);
 
 describe('compile generateBundle', function() {
   this.timeout(60_000);
-  let tmpdir;
+  let tmpdir: string;
 
   beforeEach(async() => {
     tmpdir = path.resolve(
