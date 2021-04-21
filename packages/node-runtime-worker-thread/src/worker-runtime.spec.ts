@@ -557,7 +557,7 @@ describe('worker', () => {
 
         await evaluate(`
         var JSSymbol = Object.getOwnPropertySymbols(Array.prototype)[0].constructor;
-        config[JSSymbol.for("@@mongosh.asPrintable")]`);
+        config[JSSymbol.for("@@mongosh.asPrintable")]()`);
         expect(evalListener.listConfigOptions).to.have.been.calledWith();
       });
     });
