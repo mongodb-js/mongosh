@@ -46,7 +46,8 @@ describe('Cursor', () => {
         bufferedCount() { return 0; }
       };
       cursor = new Cursor({
-        _serviceProvider: { platform: ReplPlatform.CLI }
+        _serviceProvider: { platform: ReplPlatform.CLI },
+        _batchSize: () => 20
       } as any, wrappee);
     });
 
@@ -78,7 +79,9 @@ describe('Cursor', () => {
     });
   });
   describe('Cursor Internals', () => {
-    const mongo = {} as any;
+    const mongo = {
+      _batchSize: () => 20
+    } as any;
     describe('#addOption', () => {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;

@@ -15,7 +15,7 @@ import { CliReplErrors } from './error-codes';
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
-import { MongoshBus, UserConfig } from '@mongosh/types';
+import { MongoshBus, CliUserConfig } from '@mongosh/types';
 import { once } from 'events';
 import { createWriteStream, promises as fs } from 'fs';
 import path from 'path';
@@ -51,8 +51,8 @@ class CliRepl {
   cliOptions: CliOptions;
   mongocryptdManager: MongocryptdManager;
   shellHomeDirectory: ShellHomeDirectory;
-  configDirectory: ConfigManager<UserConfig>;
-  config: UserConfig = new UserConfig();
+  configDirectory: ConfigManager<CliUserConfig>;
+  config: CliUserConfig = new CliUserConfig();
   input: Readable;
   output: Writable;
   logId: string;
@@ -75,13 +75,13 @@ class CliRepl {
     this.onExit = options.onExit;
 
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
-    this.configDirectory = new ConfigManager<UserConfig>(
+    this.configDirectory = new ConfigManager<CliUserConfig>(
       this.shellHomeDirectory)
       .on('error', (err: Error) =>
         this.bus.emit('mongosh:error', err))
-      .on('new-config', (config: UserConfig) =>
+      .on('new-config', (config: CliUserConfig) =>
         this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
-      .on('update-config', (config: UserConfig) =>
+      .on('update-config', (config: CliUserConfig) =>
         this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
 
     this.mongocryptdManager = new MongocryptdManager(
@@ -146,11 +146,8 @@ class CliRepl {
         return this.analytics;
       });
 
-    this.config = {
-      userId: new bson.ObjectId().toString(),
-      enableTelemetry: true,
-      disableGreetingMessage: false
-    };
+    this.config.userId = new bson.ObjectId().toString();
+    this.config.enableTelemetry = true;
     try {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);
     } catch (err) {
@@ -312,11 +309,11 @@ class CliRepl {
     return this.shellHomeDirectory.roamingPath('mongosh_repl_history');
   }
 
-  async getConfig<K extends keyof UserConfig>(key: K): Promise<UserConfig[K]> {
+  async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
     return this.config[key];
   }
 
-  async setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void> {
+  async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
       this.bus.emit('mongosh:update-user', this.config.userId, this.config.enableTelemetry);
@@ -326,6 +323,12 @@ class CliRepl {
     } catch (err) {
       this.warnAboutInaccessibleFile(err, this.configDirectory.path());
     }
+    return 'success';
+  }
+
+  listConfigOptions(): string[] {
+    const keys = Object.keys(this.config) as (keyof CliUserConfig)[];
+    return keys.filter(key => key !== 'userId' && key !== 'disableGreetingMessage');
   }
 
   async verifyNodeVersion(): Promise<void> {

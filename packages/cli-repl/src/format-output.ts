@@ -16,6 +16,8 @@ type EvaluationResult = {
 type FormatOptions = {
   colors: boolean;
   depth?: number;
+  maxArrayLength?: number;
+  maxStringLength?: number;
 };
 
 /**
@@ -34,11 +36,11 @@ export default function formatOutput(evaluationResult: EvaluationResult, options
   const { value, type } = evaluationResult;
 
   if (type === 'Cursor' || type === 'AggregationCursor') {
-    return formatCursor(value, options);
+    return formatCursor(value, { ...options, maxArrayLength: Infinity });
   }
 
   if (type === 'CursorIterationResult') {
-    return formatCursorIterationResult(value, options);
+    return formatCursorIterationResult(value, { ...options, maxArrayLength: Infinity });
   }
 
   if (type === 'Help') {
@@ -96,7 +98,12 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
   }
 
   if (type === 'ExplainOutput' || type === 'ExplainableCursor') {
-    return formatSimpleType(value, { ...options, depth: Infinity });
+    return formatSimpleType(value, {
+      ...options,
+      depth: Infinity,
+      maxArrayLength: Infinity,
+      maxStringLength: Infinity
+    });
   }
 
   return formatSimpleType(value, options);
@@ -165,12 +172,18 @@ export function formatError(error: Error, options: FormatOptions): string {
   return result;
 }
 
+function removeUndefinedValues<T>(obj: T) {
+  return Object.fromEntries(Object.entries(obj).filter(keyValue => keyValue[1] !== undefined));
+}
+
 function inspect(output: any, options: FormatOptions): any {
-  return util.inspect(output, {
+  return util.inspect(output, removeUndefinedValues({
     showProxy: false,
     colors: options.colors ?? true,
-    depth: options.depth ?? 6
-  });
+    depth: options.depth ?? 6,
+    maxArrayLength: options.maxArrayLength,
+    maxStringLength: options.maxStringLength
+  }));
 }
 
 function formatCursor(value: any, options: FormatOptions): any {

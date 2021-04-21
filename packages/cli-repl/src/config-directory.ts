@@ -77,7 +77,7 @@ export class ConfigManager<Config> extends EventEmitter {
         try {
           const config: Config = JSON.parse(await fd.readFile({ encoding: 'utf8' }));
           this.emit('update-config', config);
-          return config;
+          return { ...defaultConfig, ...config };
         } catch (err) {
           this.emit('error', err);
           return defaultConfig;

@@ -42,7 +42,8 @@ describe('AggregationCursor', () => {
         bufferedCount() { return 0; }
       };
       cursor = new AggregationCursor({
-        _serviceProvider: { platform: ReplPlatform.CLI }
+        _serviceProvider: { platform: ReplPlatform.CLI },
+        _batchSize: () => 20
       } as any, wrappee);
     });
 
@@ -71,7 +72,9 @@ describe('AggregationCursor', () => {
   });
 
   describe('Cursor Internals', () => {
-    const mongo = {} as any;
+    const mongo = {
+      _batchSize: () => 20
+    } as any;
     describe('#close', () => {
       let spCursor: StubbedInstance<SPAggregationCursor>;
       let shellApiCursor;

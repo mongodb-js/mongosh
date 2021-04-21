@@ -12,8 +12,7 @@ import {
 import {
   ServerVersions,
   asPrintable,
-  CURSOR_FLAGS,
-  DEFAULT_BATCH_SIZE
+  CURSOR_FLAGS
 } from './enums';
 import {
   FindCursor as ServiceProviderCursor,
@@ -38,7 +37,7 @@ export default class Cursor extends ShellApiClass {
   _cursor: ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
   _tailable = false;
-  _batchSize = DEFAULT_BATCH_SIZE;
+  _batchSize: number | null = null;
 
   constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
     super();
@@ -55,7 +54,7 @@ export default class Cursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-    await iterate(results, this._cursor, this._batchSize);
+    await iterate(results, this._cursor, this._batchSize ?? await this._mongo._batchSize());
     results.cursorHasMore = !this.isExhausted();
     return results;
   }

@@ -9,6 +9,7 @@ import {
   ShellResult,
   directShellCommand
 } from './decorators';
+import { asPrintable } from './enums';
 import Mongo from './mongo';
 import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
@@ -20,8 +21,51 @@ import { DBQuery } from './deprecated';
 import { promisify } from 'util';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { dirname } from 'path';
+import { ShellUserConfig } from '@mongosh/types';
+import i18n from '@mongosh/i18n';
 
 const internalStateSymbol = Symbol.for('@@mongosh.internalState');
+
+@shellApiClassDefault
+@hasAsyncChild
+class ShellConfig extends ShellApiClass {
+  _internalState: ShellInternalState;
+  defaults: Readonly<ShellUserConfig>;
+
+  constructor(internalState: ShellInternalState) {
+    super();
+    this._internalState = internalState;
+    this.defaults = Object.freeze(new ShellUserConfig());
+  }
+
+  @returnsPromise
+  async set<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string> {
+    assertArgsDefinedType([key], ['string'], 'config.set');
+    const { evaluationListener } = this._internalState;
+    const result = await evaluationListener.setConfig?.(key, value);
+    if (result !== 'success') {
+      return `Option "${key}" is not available in this environment`;
+    }
+
+    return `Setting "${key}" has been changed`;
+  }
+
+  @returnsPromise
+  async get<K extends keyof ShellUserConfig>(key: K): Promise<ShellUserConfig[K]> {
+    assertArgsDefinedType([key], ['string'], 'config.get');
+    const { evaluationListener } = this._internalState;
+    return await evaluationListener.getConfig?.(key) ?? this.defaults[key];
+  }
+
+  async [asPrintable](): Promise<Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>> {
+    const { evaluationListener } = this._internalState;
+    const keys = (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
+    return new Map(
+      await Promise.all(
+        keys.map(
+          async key => [key, await this.get(key)] as const)));
+  }
+}
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -31,12 +75,14 @@ export default class ShellApi extends ShellApiClass {
   [internalStateSymbol]: ShellInternalState;
   public DBQuery: DBQuery;
   loadCallNestingLevel: number;
+  config: ShellConfig;
 
   constructor(internalState: ShellInternalState) {
     super();
     this[internalStateSymbol] = internalState;
     this.DBQuery = new DBQuery();
     this.loadCallNestingLevel = 0;
+    this.config = new ShellConfig(internalState);
   }
 
   get internalState(): ShellInternalState {
@@ -153,13 +199,19 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async enableTelemetry(): Promise<any> {
-    return await this.internalState.evaluationListener.toggleTelemetry?.(true);
+    const result = await this.internalState.evaluationListener.setConfig?.('enableTelemetry', true);
+    if (result === 'success') {
+      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+    }
   }
 
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async disableTelemetry(): Promise<any> {
-    return await this.internalState.evaluationListener.toggleTelemetry?.(false);
+    const result = await this.internalState.evaluationListener.setConfig?.('enableTelemetry', false);
+    if (result === 'success') {
+      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+    }
   }
 
   @returnsPromise

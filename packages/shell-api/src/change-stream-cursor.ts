@@ -12,7 +12,7 @@ import {
   ResumeToken
 } from '@mongosh/service-provider-core';
 import { CursorIterationResult } from './result';
-import { asPrintable, DEFAULT_BATCH_SIZE } from './enums';
+import { asPrintable } from './enums';
 import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
@@ -29,7 +29,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
   _cursor: ChangeStream;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
-  _batchSize = DEFAULT_BATCH_SIZE;
+  _batchSize: number | null = null;
 
   constructor(cursor: ChangeStream, on: string, mongo: Mongo) {
     super();
@@ -43,7 +43,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
       throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
     const result = this._currentIterationResult = new CursorIterationResult();
-    return iterate(result, this._cursor, this._batchSize);
+    return iterate(result, this._cursor, this._batchSize ?? await this._mongo._batchSize());
   }
 
   /**

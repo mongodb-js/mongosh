@@ -24,7 +24,7 @@ describe('Electron runtime', function() {
     evaluationListener = sinon.createStubInstance(class FakeListener {});
     evaluationListener.onPrint = sinon.stub();
     electronRuntime = new ElectronRuntime(serviceProvider, messageBus);
-    electronRuntime.setEvaluationListener(evaluationListener);
+    electronRuntime.setEvaluationListener(evaluationListener as any);
   });
 
   it('can evaluate simple js', async() => {

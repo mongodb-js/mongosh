@@ -17,8 +17,14 @@ export class ChildProcessEvaluationListener {
         onPrint(values) {
           return workerRuntime.evaluationListener?.onPrint?.(values);
         },
-        toggleTelemetry(enabled) {
-          return workerRuntime.evaluationListener?.toggleTelemetry?.(enabled);
+        setConfig(key, value) {
+          return workerRuntime.evaluationListener?.setConfig?.(key, value) ?? Promise.resolve('ignored');
+        },
+        getConfig(key) {
+          return workerRuntime.evaluationListener?.getConfig?.(key) as any;
+        },
+        listConfigOptions() {
+          return workerRuntime.evaluationListener?.listConfigOptions?.() as any;
         },
         onClearCommand() {
           return workerRuntime.evaluationListener?.onClearCommand?.();

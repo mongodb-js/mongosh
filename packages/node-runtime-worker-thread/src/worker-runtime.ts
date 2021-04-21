@@ -46,7 +46,9 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
   [
     'onPrint',
     'onPrompt',
-    'toggleTelemetry',
+    'getConfig',
+    'setConfig',
+    'listConfigOptions',
     'onClearCommand',
     'onExit',
     'onRunInterruptible'

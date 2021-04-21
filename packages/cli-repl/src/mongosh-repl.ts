@@ -1,11 +1,10 @@
 import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import i18n from '@mongosh/i18n';
 import type { ServiceProvider, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadResult } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import type { MongoshBus, UserConfig } from '@mongosh/types';
+import type { MongoshBus, CliUserConfig, ConfigProvider } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
@@ -25,10 +24,8 @@ export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
 };
 
-export type MongoshIOProvider = {
+export type MongoshIOProvider = ConfigProvider<CliUserConfig> & {
   getHistoryFilePath(): string;
-  getConfig<K extends keyof UserConfig>(key: K): Promise<UserConfig[K]>;
-  setConfig<K extends keyof UserConfig>(key: K, value: UserConfig[K]): Promise<void>;
   exit(code: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
   startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']>;
@@ -72,6 +69,7 @@ class MongoshNodeRepl implements EvaluationListener {
   ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoComplete: boolean;
+  inspectDepth = 0;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -95,6 +93,8 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.greet(mongodVersion);
     await this.printStartupLog(internalState);
 
+    this.inspectDepth = await this.getConfig('inspectDepth');
+
     const repl = asyncRepl.start({
       start: prettyRepl.start,
       input: this.lineByLineInput as unknown as Readable,
@@ -104,7 +104,7 @@ class MongoshNodeRepl implements EvaluationListener {
       breakEvalOnSigint: true,
       preview: false,
       asyncEval: this.eval.bind(this),
-      historySize: 1000, // Same as the old shell.
+      historySize: await this.getConfig('historyLength'),
       wrapCallbackError:
         (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
       ...this.nodeReplOptions
@@ -262,9 +262,9 @@ class MongoshNodeRepl implements EvaluationListener {
     text += `Using MongoDB:      ${mongodVersion}\n`;
     text += `${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}: ${version}\n`;
     text += `${MONGOSH_WIKI}\n`;
-    if (!await this.ioProvider.getConfig('disableGreetingMessage')) {
+    if (!await this.getConfig('disableGreetingMessage')) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
-      await this.ioProvider.setConfig('disableGreetingMessage', true);
+      await this.setConfig('disableGreetingMessage', true);
     }
     this.output.write(text);
   }
@@ -381,16 +381,6 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.formatOutput({ type: result.type, value: result.printable });
   }
 
-  async toggleTelemetry(enabled: boolean): Promise<string> {
-    await this.ioProvider.setConfig('enableTelemetry', enabled);
-
-    if (enabled) {
-      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
-    }
-
-    return i18n.__('cli-repl.cli-repl.disabledTelemetry');
-  }
-
   onPrint(values: ShellResult[]): void {
     const joined = values.map((value) => this.writer(value)).join(' ');
     this.output.write(joined + '\n');
@@ -419,11 +409,12 @@ class MongoshNodeRepl implements EvaluationListener {
     return clr(text, style, this.getFormatOptions());
   }
 
-  getFormatOptions(): { colors: boolean } {
+  getFormatOptions(): { colors: boolean, depth: number } {
     const output = this.output as WriteStream;
     return {
       colors: this._runtimeState?.repl?.useColors ??
-        (output.isTTY && output.getColorDepth() > 1)
+        (output.isTTY && output.getColorDepth() > 1),
+      depth: this.inspectDepth
     };
   }
 
@@ -449,6 +440,24 @@ class MongoshNodeRepl implements EvaluationListener {
   async onExit(): Promise<never> {
     await this.close();
     return this.ioProvider.exit(0);
+  }
+
+  async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
+    return this.ioProvider.getConfig(key);
+  }
+
+  async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success' | 'ignored'> {
+    if (key === 'historyLength' && this._runtimeState) {
+      (this.runtimeState().repl as any).historySize = value;
+    }
+    if (key === 'inspectDepth') {
+      this.inspectDepth = +value;
+    }
+    return this.ioProvider.setConfig(key, value);
+  }
+
+  listConfigOptions(): Promise<string[]> | string[] {
+    return this.ioProvider.listConfigOptions();
   }
 
   async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {

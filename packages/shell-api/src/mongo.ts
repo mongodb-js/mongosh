@@ -127,6 +127,10 @@ export default class Mongo extends ShellApiClass {
     this.__serviceProvider = sp;
   }
 
+  async _batchSize(): Promise<number> {
+    return await this._internalState.shellApi.config.get('batchSize');
+  }
+
   /**
    * Internal method to determine what is printed for this class.
    */

@@ -9,7 +9,7 @@ import {
   TopologyDescription,
   TopologyTypeId
 } from '@mongosh/service-provider-core';
-import type { ApiEvent, MongoshBus } from '@mongosh/types';
+import type { ApiEvent, MongoshBus, ConfigProvider, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -56,18 +56,11 @@ export interface OnLoadResult {
   evaluate(): Promise<void>;
 }
 
-export interface EvaluationListener {
+export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConfig>> {
   /**
    * Called when print() or printjson() is run from the shell.
    */
   onPrint?: (value: ShellResult[]) => Promise<void> | void;
-
-  /**
-   * Called when enableTelemetry() or disableTelemetry() is run from the shell.
-   * The return value may be a Promise. Its value is printed as the result of
-   * the call.
-   */
-  toggleTelemetry?: (enabled: boolean) => any;
 
   /**
    * Called when e.g. passwordPrompt() is called from the shell.
@@ -182,7 +175,7 @@ export default class ShellInternalState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     contextObject.toIterator = toIterator;
-    Object.assign(contextObject, this.shellApi); // currently empty, but in the future we may have properties
+    Object.assign(contextObject, this.shellApi);
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
       if (toIgnore.concat(['hasAsyncChild', 'help']).includes(name) ||
         typeof (this.shellApi as any)[name] !== 'function') {
@@ -212,7 +205,8 @@ export default class ShellInternalState {
     const apiObjects = {
       db: signatures.Database,
       rs: signatures.ReplicaSet,
-      sh: signatures.Shard
+      sh: signatures.Shard,
+      config: signatures.ShellConfig
     } as any;
     Object.assign(apiObjects, signatures.ShellApi.attributes);
     delete apiObjects.Mongo;
